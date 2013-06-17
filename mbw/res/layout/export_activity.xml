@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:text="@string/choose_export_mode"
+        android:textSize="24sp" />
+
+    <!-- QR-code -->
+
+    <Button
+        android:id="@+id/btShowQrCode"
+        style="@style/GenericButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_blue"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/show_qr_code"
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="20dp" />
+
+    <!-- SD card -->
+
+    <Button
+        android:id="@+id/btExternalStorage"
+        style="@style/GenericButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_blue"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/external_storage"
+        android:textSize="20sp" />
+
+</LinearLayout>

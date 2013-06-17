@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<ListPreference android:key="local_currency"
+		android:title="@string/pref_local_currency" android:summary="@string/pref_local_currency_summary"
+		android:entryValues="@array/currencies" android:entries="@array/currencies" />
+
+	<ListPreference android:key="bitcoin_denomination"
+		android:title="@string/pref_bitcoin_denomination" android:summary="@string/pref_bitcoin_denomination_summary" />
+
+	<CheckBoxPreference android:key="showHints"
+		android:title="@string/pref_show_hints" android:summary="@string/pref_show_hints_summary" />
+
+	<PreferenceCategory android:title="@string/pref_category_pin">
+		<Preference android:key="clearPin" android:title="@string/pref_clear_pin"
+			android:summary="@string/pref_clear_pin_summary" />
+		<Preference android:key="setPin" android:title="@string/pref_set_pin"
+			android:summary="@string/pref_set_pin_summary" />
+	</PreferenceCategory>
+</PreferenceScreen>

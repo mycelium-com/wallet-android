@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/miAddToAddressBook"
+        android:title="@string/add_to_addressbook"/>
+
+    <item
+        android:id="@+id/miShowDetails"
+        android:title="@string/show_details"/>
+
+    <item
+        android:id="@+id/miDownloadInvoice"
+        android:title="@string/download_invoice"/>
+
+</menu>

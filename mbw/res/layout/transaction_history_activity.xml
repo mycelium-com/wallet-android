@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/btn_black"
+    android:orientation="vertical"
+    android:padding="5dp" >
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            style="@style/GenericText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/transaction_history"
+            android:textSize="20sp" />
+
+        <ProgressBar
+            android:id="@+id/pbHistory"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:visibility="invisible" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <!-- Transaction History -->
+
+        <ListView
+            android:id="@+id/lvTransactionHistory"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/black"
+            android:divider="@color/darkgrey"
+            android:dividerHeight="1dp" />
+
+        <TextView
+            android:id="@+id/tvNoRecords"
+            style="@style/GenericText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/no_records"
+            android:textSize="24sp"
+            android:textStyle="italic"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

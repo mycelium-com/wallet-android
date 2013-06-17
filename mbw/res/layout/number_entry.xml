@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llNumberEntry"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <!-- 1, 2, 3 -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btOne"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/one"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btTwo"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/two"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btThree"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/three"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <!-- 4, 5, 6 -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btFour"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/four"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btFive"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/five"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btSix"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/six"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <!-- 7, 8, 9 -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btSeven"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/seven"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btEight"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/eight"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btNine"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/nine"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <!-- , 0, < -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btDot"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/dot"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btZero"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/zero"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/btDel"
+            style="@style/GenericButton"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_blue"
+            android:text="@string/del"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+</LinearLayout>

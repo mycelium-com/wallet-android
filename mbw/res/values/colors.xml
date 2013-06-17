@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="red">#f00</color>
+    <color name="brightred">#f44</color>
+    <color name="green">#0f0</color>
+    <color name="black">#000</color>
+    <color name="darkblue">#008</color>
+    <color name="blue">#00F</color>
+    <color name="brightblue">#44F</color>
+    <color name="greenblue">#0FF</color>
+    <color name="darkgrey">#444</color>
+    <color name="grey">#888</color>
+    <color name="darkgreyblue">#44f</color>
+    <color name="lightgrey">#bbb</color>
+    <color name="white">#fff</color>
+
+    <drawable name="semi_black">#80000000</drawable>
+
+</resources>
