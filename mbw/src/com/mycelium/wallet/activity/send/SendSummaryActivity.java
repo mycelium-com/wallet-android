@@ -55,17 +55,18 @@ import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.mbwapi.api.ApiError;
+import com.mrd.mbwapi.api.BroadcastTransactionResponse;
+import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.SendActivityHelper.SendContext;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.AsyncTask;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.BroadcastTransactionResponse;
-import com.mrd.mbwapi.api.ExchangeSummary;
 
 public class SendSummaryActivity extends Activity {
 
@@ -142,6 +143,14 @@ public class SendSummaryActivity extends Activity {
       address = address.substring(0, 12) + "\r\n" + address.substring(12, 24) + "\r\n" + address.substring(24);
       ((TextView) findViewById(R.id.tvReceiver)).setText(address);
 
+      // Show / hide warning
+      Record record = _mbwManager.getRecordManager().getRecord(_context.receivingAddress);
+      if (record != null && !record.hasPrivateKey()) {
+         findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
+      } else {
+         findViewById(R.id.tvWarning).setVisibility(View.GONE);
+      }
+      
       // Set Amount
       ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_context.amountToSend));
       if (_oneBtcInFiat == null) {

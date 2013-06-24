@@ -85,15 +85,24 @@ public class Record implements Serializable, Comparable<Record> {
 
    @Override
    public int compareTo(Record other) {
-      // Sort on timestamp
+      
+      // First sort on key / address
+      if (hasPrivateKey() && !other.hasPrivateKey()) {
+         return -1;
+      } else if (!hasPrivateKey() && other.hasPrivateKey()) {
+         return 1;
+      }
+
+      // Secondly sort on timestamp
       if (timestamp < other.timestamp) {
          return -1;
       } else if (timestamp > other.timestamp) {
          return 1;
-      } else {
-         // Secondary sort on address
-         return address.toString().compareTo(other.address.toString());
       }
+      
+      // Thirdly sort on address
+      return address.toString().compareTo(other.address.toString());
+
    }
 
    public String serialize() {

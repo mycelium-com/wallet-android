@@ -40,24 +40,6 @@
                 android:text="@string/png_format" />
         </RadioGroup>
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:gravity="center"
-            android:text="@string/export_to_sd_explanation"
-            android:textSize="14sp" />
-        <!-- Directory Chooser -->
-
-        <Spinner
-            android:id="@+id/spDirectory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:prompt="@string/choose_export_directory" />
-
         <!-- Progress -->
 
         <FrameLayout

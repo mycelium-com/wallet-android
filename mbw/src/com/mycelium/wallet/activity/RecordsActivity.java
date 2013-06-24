@@ -35,7 +35,6 @@
 
 package com.mycelium.wallet.activity;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import android.app.Activity;
@@ -64,8 +63,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.SpinnerPrivateUri;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.mbwapi.api.BitcoinClientApi;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
@@ -78,7 +79,6 @@ import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
 import com.mycelium.wallet.activity.export.ExportActivity;
-import com.mrd.mbwapi.api.BitcoinClientApi;
 
 public class RecordsActivity extends Activity implements SimpleGestureListener {
 
@@ -318,9 +318,11 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       }
       String contents = intent.getStringExtra("SCAN_RESULT").trim();
       Record record = addRecordFromString(contents, true);
+
       // Scanner leaves the result on the clipboard, delete it if the record has
       // a private key
-      if (record.hasPrivateKey()) {
+      if (record != null && record.hasPrivateKey()) {
+         // todo prevent the code from filling the clipboad in the first place
          Utils.clearClipboardString(this);
       }
    }
@@ -343,6 +345,13 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
 
       // Do we have a mini private key
       record = recordFromBase58KeyMimiFormat(string);
+      if (record != null) {
+         addRecord(record);
+         return record;
+      }
+
+      // Do we have a Bitcoin Spinner backup key
+      record = recordFromBitcoinSpinnerBackup(string);
       if (record != null) {
          addRecord(record);
          return record;
@@ -455,17 +464,25 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       }
    }
 
+   private static Record recordFromBitcoinSpinnerBackup(String string) {
+      try {
+         SpinnerPrivateUri spinnerKey = SpinnerPrivateUri.fromSpinnerUri(string);
+         if (!spinnerKey.network.equals(Constants.network)) {
+            return null;
+         }
+         return new Record(spinnerKey.key, System.currentTimeMillis());
+      } catch (IllegalArgumentException e) {
+         return null;
+      }
+   }
+
    /**
     * Add a record from a seed using the same mechanism as brainwallet.org
     */
    @SuppressWarnings("unused")
    private static Record recordFromRandomSeed(String seed, boolean compressed) {
       byte[] bytes = null;
-      try {
-         bytes = HashUtils.sha256(seed.getBytes("US-ASCII"));
-      } catch (UnsupportedEncodingException e) {
-         // Never happens
-      }
+      bytes = HashUtils.sha256(seed.getBytes());
       InMemoryPrivateKey key = new InMemoryPrivateKey(bytes, compressed);
       return new Record(key, System.currentTimeMillis());
    }

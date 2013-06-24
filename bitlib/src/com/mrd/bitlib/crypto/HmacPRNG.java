@@ -25,7 +25,7 @@
  *  3. Limitations
  *  (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
  *  (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- *  (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
+ *  (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
  *  (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
  *  guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
  *  change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
@@ -33,7 +33,7 @@
  *
  */
 
-package com.mrd.mbwapi.util;
+package com.mrd.bitlib.crypto;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -45,7 +45,8 @@ import com.mrd.bitlib.util.BitUtils;
  * A Pseudo Random Number Generator based on HMAC SHA-256 which is wrapping
  * {@link SecureRandom}. This way we are certain that we use the same random
  * generator on all platforms, and can generate the same sequence of random
- * bytes from the same seed.
+ * bytes from the same seed. This is the implementation that was used in
+ * BitcoinSpinner.
  */
 public class HmacPRNG extends SecureRandom {
 

@@ -93,9 +93,7 @@ final class DecodeHandler extends Handler {
       Log.d(TAG, "Found barcode in " + (end - start) + " ms");
       if (handler != null) {
         Message message = Message.obtain(handler, R.id.decode_succeeded, rawResult);
-        Bundle bundle = new Bundle();
-        bundleThumbnail(source, bundle);        
-        message.setData(bundle);
+          //AP: we do not want a thumbnail of the captured private key flying around
         message.sendToTarget();
       }
     } else {
@@ -104,17 +102,6 @@ final class DecodeHandler extends Handler {
         message.sendToTarget();
       }
     }
-  }
-
-  private static void bundleThumbnail(PlanarYUVLuminanceSource source, Bundle bundle) {
-    int[] pixels = source.renderThumbnail();
-    int width = source.getThumbnailWidth();
-    int height = source.getThumbnailHeight();
-    Bitmap bitmap = Bitmap.createBitmap(pixels, 0, width, width, height, Bitmap.Config.ARGB_8888);
-    ByteArrayOutputStream out = new ByteArrayOutputStream();    
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-    bundle.putByteArray(DecodeThread.BARCODE_BITMAP, out.toByteArray());
-    bundle.putFloat(DecodeThread.BARCODE_SCALED_FACTOR, (float) width / source.getWidth());
   }
 
 }

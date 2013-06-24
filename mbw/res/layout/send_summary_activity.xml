@@ -38,6 +38,18 @@
                 android:textSize="20sp"
                 android:typeface="monospace" />
 
+            <!-- Read-only warning -->
+
+            <TextView
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginBottom="10dp"
+                android:text="@string/read_only_warning"
+                android:textColor="@color/red"
+                android:textSize="20sp" />
+
             <!-- Amount -->
 
             <TextView

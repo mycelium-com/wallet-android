@@ -155,20 +155,19 @@
     <string name="choose_export_mode">Chose Export Mode</string>
     <string name="external_storage">External Storage</string>
     <string name="export_to_external_storage">Export to External Storage</string>
-    <string name="export_to_sd_explanation">It is not possible to automatically determine the folder for the external SD card on your device. Please choose from the list below.</string>
-    <string name="no_external_storage_found">External storage location not found on your device</string>
-    <string name="choose_export_directory">Choose SD Card Path</string>
-    <string name="external_storage_location">External storage location:\r\n%1$s</string>
+    <string name="no_external_storage_found">No external storage location found on your device.\nYou have to insert a SD card with a folder called \'mycelium-export\'.</string>
+    <string name="external_storage_location">External storage location:\n%1$s</string>
     <string name="exporting">Exporting...</string>
     <string name="export_succeeded">Exported to:\r\n%1$s</string>
     <string name="export_failed">Export failed:\r\n%1$s</string>
     <string name="jpeg_format">Export as JPG file</string>
     <string name="png_format">Export as PNG file</string>
     <string name="found_export_private_keys_title">Private Keys Found in Export Directory</string>
-    <string name="found_export_private_keys_message">The export directory contains previously exported private keys.\r\nDo you want to delete them?</string>
+    <string name="found_export_private_keys_message">The export directory contains previously exported private keys.\r\nIt is not safe to leave private keys on your SD card. Do you want to delete them?</string>
     <string name="failed_to_delete_private_keys">Failed to delete exported private keys</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
     <string name="btc_rate">1 BTC = %1$s %2$.2f</string>
+    <string name="read_only_warning">Warning: You are monitoring this address, but you cannot spend coins from it unless you have the private key elsewhere.</string>
     
 </resources>

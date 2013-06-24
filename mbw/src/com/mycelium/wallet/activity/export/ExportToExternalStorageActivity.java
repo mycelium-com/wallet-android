@@ -35,8 +35,6 @@
 
 package com.mycelium.wallet.activity.export;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
@@ -45,9 +43,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.mycelium.wallet.ExternalStorageManager;
@@ -88,21 +84,20 @@ public class ExportToExternalStorageActivity extends Activity {
       findViewById(R.id.pbSpinner).setVisibility(View.INVISIBLE);
       ExternalStorageManager ext = _mbwManager.getExternalStorageManager();
       boolean mounted = ext.hasExternalStorage();
-      List<String> paths = ext.listPotentialExternalSdCardPaths();
+      String path = ext.getMyceliumExportPath();
 
-      TextView tvStorageLocation = (TextView) findViewById(R.id.tvStatus);
-      Spinner spDirectory = (Spinner) findViewById(R.id.spDirectory);
+      TextView tvStatus = (TextView) findViewById(R.id.tvStatus);
 
-      if (mounted && !paths.isEmpty()) {
-         spDirectory.setOnItemSelectedListener(directorySelected);
-         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, paths);
-         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-         spDirectory.setAdapter(adapter);
+      if (mounted && path != null) {
+         tvStatus.setText(getResources().getString(R.string.external_storage_location, path));
          findViewById(R.id.btExport).setEnabled(true);
+         findViewById(R.id.rbJpeg).setEnabled(true);
+         findViewById(R.id.rbPng).setEnabled(true);
       } else {
-         tvStorageLocation.setText(getResources().getString(R.string.no_external_storage_found));
-         spDirectory.setVisibility(View.GONE);
+         tvStatus.setText(getResources().getString(R.string.no_external_storage_found));
          findViewById(R.id.btExport).setEnabled(false);
+         findViewById(R.id.rbJpeg).setEnabled(false);
+         findViewById(R.id.rbPng).setEnabled(false);
       }
 
    }
@@ -142,9 +137,7 @@ public class ExportToExternalStorageActivity extends Activity {
       protected String doInBackground(Void... params) {
          try {
             ExternalStorageManager ext = _mbwManager.getExternalStorageManager();
-            Spinner spDirectory = (Spinner) findViewById(R.id.spDirectory);
-            String path = spDirectory.getSelectedItem().toString();
-            return ext.exportToExternalStorage(_record, path, _usePng);
+            return ext.exportToExternalStorage(_record, ext.getMyceliumExportPath(), _usePng);
          } catch (Exception e) {
             _errorMessage = e.getMessage();
             return null;
@@ -153,9 +146,6 @@ public class ExportToExternalStorageActivity extends Activity {
 
       @Override
       protected void onPostExecute(String fileName) {
-         findViewById(R.id.btExport).setEnabled(true);
-         findViewById(R.id.rbJpeg).setEnabled(true);
-         findViewById(R.id.rbPng).setEnabled(true);
          findViewById(R.id.pbSpinner).setVisibility(View.INVISIBLE);
          TextView status = (TextView) findViewById(R.id.tvStatus);
          if (fileName == null) {

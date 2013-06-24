@@ -64,11 +64,30 @@ public class ExternalStorageManager {
    // Removed from the list of potentials:
    // "/storage/", "/mnt/sdcard/Android/data/"
 
+   private static String MYCELIUM_EXPORT_DIRECTORY_NAME = "mycelium-export";
+
    public ExternalStorageManager() {
    }
 
    public boolean hasExternalStorage() {
       return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+   }
+
+   /**
+    * Locate the mycelium export folder on the device by looking in every known
+    * possible SD card location
+    * 
+    * @return The folder path if it exists, or null.
+    */
+   public String getMyceliumExportPath() {
+      List<File> directories = listPotentialExternalSdCardDirectories();
+      for (File directory : directories) {
+         File export = new File(directory, MYCELIUM_EXPORT_DIRECTORY_NAME);
+         if (export.exists() && export.isDirectory()) {
+            return export.getPath();
+         }
+      }
+      return null;
    }
 
    public List<String> listPotentialExternalSdCardPaths() {
@@ -121,7 +140,7 @@ public class ExternalStorageManager {
 
    private boolean hasExportedPrivateKeys(File directory) {
       try {
-         File exp = new File(directory, "mycelium");
+         File exp = new File(directory, MYCELIUM_EXPORT_DIRECTORY_NAME);
          if (!exp.isDirectory()) {
             return false;
          }
@@ -151,7 +170,7 @@ public class ExternalStorageManager {
 
    private void deleteExportedPrivateKeys(File directory) {
       try {
-         File exp = new File(directory, "mycelium");
+         File exp = new File(directory, MYCELIUM_EXPORT_DIRECTORY_NAME);
          if (!exp.isDirectory()) {
             return;
          }
@@ -174,7 +193,7 @@ public class ExternalStorageManager {
    }
 
    public String exportToExternalStorage(Record record, String path, boolean png) throws IOException {
-      File dir = new File(path, "mycelium");
+      File dir = new File(path);
       if (!dir.isDirectory()) {
          if (!dir.mkdirs()) {
             throw new IOException("Unable to create external storage path: " + dir.getAbsolutePath().toString());
@@ -213,11 +232,10 @@ public class ExternalStorageManager {
       return true;
    }
 
-   
    /**
     * Constants used when generating exported bitmap
     */
-   
+
    private static final int X_DIMENSION = 1500;
    private static final int Y_DIMENSION = 2000;
    private static final int NEW_QR_SIZE = 400;
