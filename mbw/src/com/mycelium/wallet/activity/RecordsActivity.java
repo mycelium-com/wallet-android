@@ -46,6 +46,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -561,12 +562,15 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
             tvLabel.setText(name);
          }
 
-         // Display address, chopping it into three
-         String one = address.substring(0, 12);
-         String two = address.substring(12, 24);
-         String three = address.substring(24);
-         address = one + "\r\n" + two + "\r\n" + three;
-         ((TextView) rowView.findViewById(R.id.tvAddress)).setText(address);
+         String displayAddress;
+         if (name.length() == 0) {
+            // Display address in it's full glory, chopping it into three
+            displayAddress = getChoppedAddress(address);
+         } else {
+            // Display address in short form
+            displayAddress = getShortAddress(address);
+         }
+         ((TextView) rowView.findViewById(R.id.tvAddress)).setText(displayAddress);
 
          // Set tag
          rowView.setTag(record);
@@ -579,15 +583,28 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          }
          return rowView;
       }
+
+      private String getShortAddress(String address) {
+         StringBuilder sb = new StringBuilder();
+         sb.append(address.substring(0, 6));
+         sb.append("...");
+         sb.append(address.substring(address.length() - 6));
+         return sb.toString();
+      }
+
+      private String getChoppedAddress(String address) {
+         StringBuilder sb = new StringBuilder();
+         sb.append(address.substring(0, 12)).append("\r\n");
+         sb.append(address.substring(12, 24)).append("\r\n");
+         sb.append(address.substring(24)).toString();
+         return sb.toString();
+      }
    }
 
    @Override
    public void onSwipe(int direction) {
       if (direction == SimpleGestureFilter.SWIPE_LEFT) {
-         Intent intent = new Intent(this, BalanceActivity.class);
-         startActivity(intent);
-         finish();
-         this.overridePendingTransition(R.anim.right_to_left_enter, R.anim.right_to_left_exit);
+         openBalanceView();
       }
    }
 
@@ -629,10 +646,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
    @Override
    public boolean onContextItemSelected(final MenuItem item) {
       if (item.getItemId() == R.id.miOpen) {
-         Intent intent = new Intent(RecordsActivity.this, BalanceActivity.class);
-         startActivity(intent);
-         finish();
-         this.overridePendingTransition(R.anim.right_to_left_enter, R.anim.right_to_left_exit);
+         openBalanceView();
          return true;
       } else if (item.getItemId() == R.id.miSetLabel) {
          Utils.showSetAddressLabelDialog(this, _addressBook, _recordManager.getSelectedRecord().address.toString());
@@ -646,6 +660,22 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       } else {
          return false;
       }
+   }
+
+   private void openBalanceView() {
+      Intent intent = new Intent(RecordsActivity.this, BalanceActivity.class);
+      startActivity(intent);
+      finish();
+      this.overridePendingTransition(R.anim.right_to_left_enter, R.anim.right_to_left_exit);
+   }
+
+   @Override
+   public boolean onKeyDown(int keyCode, KeyEvent event) {
+      if (keyCode == KeyEvent.KEYCODE_BACK) {
+         openBalanceView();
+         return true;
+      }
+      return super.onKeyDown(keyCode, event);
    }
 
    private void exportPrivateKey(final Record record) {

@@ -84,10 +84,19 @@ public class ReceiveCoinsActivity extends Activity {
          _uri = "bitcoin:" + record.address.toString() + "?amount=" + CoinUtil.valueString(amount);
       }
 
+      // QR code
       Bitmap bitmap = Utils.getLargeQRCodeBitmap(_uri, _mbwManager);
       ImageView iv = (ImageView) findViewById(R.id.ivQrCode);
       iv.setImageBitmap(bitmap);
 
+      // Show warning if the record has no private key
+      if (record.hasPrivateKey()) {
+         findViewById(R.id.tvWarning).setVisibility(View.GONE);
+      } else {
+         findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
+      }
+
+      
       findViewById(R.id.btCopyToClipboard).setOnClickListener(new OnClickListener() {
 
          @Override

@@ -83,7 +83,8 @@
                     android:layout_gravity="right"
                     android:contentDescription="@string/an_icon"
                     android:gravity="right"
-                    android:paddingTop="5dp" />
+                    android:paddingTop="5dp"
+                    android:scaleType="fitCenter" />
             </LinearLayout>
 
             <!-- Balance -->

@@ -29,6 +29,7 @@ public class SpinnerPrivateUri {
       }
       try {
          HmacPRNG prng = new HmacPRNG(Base58.decode(seed));
+         @SuppressWarnings("unused")
          InMemoryPrivateKey discardMe = new InMemoryPrivateKey(prng);
          InMemoryPrivateKey key = new InMemoryPrivateKey(prng);
          return new SpinnerPrivateUri(key, params);

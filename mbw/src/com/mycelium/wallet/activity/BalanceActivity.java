@@ -54,6 +54,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mrd.mbwapi.api.ApiError;
+import com.mrd.mbwapi.api.Balance;
+import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
@@ -69,9 +72,6 @@ import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.api.AsyncTask;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.Balance;
-import com.mrd.mbwapi.api.ExchangeSummary;
 
 public class BalanceActivity extends Activity implements ConnectionObserver, SimpleGestureListener {
 
@@ -86,6 +86,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
    private Handler _hintHandler;
    private AddressBookManager _addressBook;
    private MbwManager _mbwManager;
+   private int _globalLayoutHeight;
 
    /** Called when the activity is first created. */
    @Override
@@ -109,8 +110,15 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
          @Override
          public void onGlobalLayout() {
+            int margin = 5;
             int height = qrImage.getHeight();
-            Bitmap qrCode = Utils.getQRCodeBitmap("bitcoin:" + _record.address.toString(), height, 0);
+            // Guard to prevent us from drawing all the time
+            if (_globalLayoutHeight == height) {
+               return;
+            }
+            _globalLayoutHeight = height;
+
+            Bitmap qrCode = Utils.getQRCodeBitmap("bitcoin:" + _record.address.toString(), height, margin);
             qrImage.setImageBitmap(qrCode);
          }
       });
@@ -293,7 +301,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
 
       }
-      
+
       // Set BTC rate
       if (_oneBtcInFiat == null) {
          findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
@@ -305,7 +313,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, _oneBtcInFiat));
 
       }
-      
+
    }
 
    class QueryBalanceHandler implements AbstractCallbackHandler<Balance> {
@@ -337,7 +345,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
             _task = null;
             _oneBtcInFiat = null;
          } else {
-            _oneBtcInFiat =  Utils.getLastTrade(response);
+            _oneBtcInFiat = Utils.getLastTrade(response);
             updateBalance();
             _task = null;
          }

@@ -90,11 +90,28 @@ public class SendSummaryActivity extends Activity {
       // Get intent parameters
       _context = SendActivityHelper.getSendContext(this);
 
+      // Send button
       findViewById(R.id.btSend).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
             _mbwManager.runPinProtectedFunction(SendSummaryActivity.this, pinProtectedSignAndSend);
+         }
+      });
+
+      // Address book button
+      findViewById(R.id.btAddToAddressBook).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View arg0) {
+            Utils.showSetAddressLabelDialog(SendSummaryActivity.this, _mbwManager.getAddressBookManager(),
+                  _context.receivingAddress.toString(), new Runnable() {
+
+                     @Override
+                     public void run() {
+                        updateUi();
+                     }
+                  });
          }
       });
 
@@ -138,10 +155,27 @@ public class SendSummaryActivity extends Activity {
    }
 
    private void updateUi() {
-      // Set Address
       String address = _context.receivingAddress.toString();
-      address = address.substring(0, 12) + "\r\n" + address.substring(12, 24) + "\r\n" + address.substring(24);
-      ((TextView) findViewById(R.id.tvReceiver)).setText(address);
+
+      // Set Receiver Label
+      String label = _mbwManager.getAddressBookManager().getNameByAddress(address);
+      if (label == null || label.length() == 0) {
+         // Hide label and show address book
+         findViewById(R.id.btAddToAddressBook).setVisibility(View.VISIBLE);
+         findViewById(R.id.vGap).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvReceiverLabel).setVisibility(View.INVISIBLE);
+      } else {
+         // Show label and hide address book
+         ((TextView) findViewById(R.id.tvReceiverLabel)).setText(label);
+         findViewById(R.id.btAddToAddressBook).setVisibility(View.GONE);
+         findViewById(R.id.vGap).setVisibility(View.GONE);
+         findViewById(R.id.tvReceiverLabel).setVisibility(View.VISIBLE);
+      }
+
+      // Set Address
+      String choppedAddress = address.substring(0, 12) + "\r\n" + address.substring(12, 24) + "\r\n"
+            + address.substring(24);
+      ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
 
       // Show / hide warning
       Record record = _mbwManager.getRecordManager().getRecord(_context.receivingAddress);
@@ -150,7 +184,7 @@ public class SendSummaryActivity extends Activity {
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       }
-      
+
       // Set Amount
       ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_context.amountToSend));
       if (_oneBtcInFiat == null) {

@@ -51,14 +51,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:gravity="center"
                     android:shadowColor="@color/black"
                     android:shadowDx="0"
                     android:shadowDy="0"
                     android:shadowRadius="10"
                     android:text="@string/show_to_sender"
                     android:textColor="@color/red"
-                    android:textStyle="bold"
-                    android:textSize="40sp" />
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <Button
@@ -73,12 +74,26 @@
                 android:text="@string/copy_address_to_clipboard" />
         </LinearLayout>
 
+        <!-- Read-only warning -->
+
+        <TextView
+            android:id="@+id/tvWarning"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:text="@string/read_only_warning"
+            android:textColor="@color/red"
+            android:textSize="20sp" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="10dp"
             android:orientation="vertical" >
+
+            <!-- Bitcoin Address -->
 
             <TextView
                 style="@style/GenericText"
@@ -119,6 +134,8 @@
                 android:paddingLeft="40dp"
                 android:textSize="18sp"
                 android:typeface="monospace" />
+
+            <!-- Amount -->
 
             <TextView
                 android:id="@+id/tvAmountLabel"

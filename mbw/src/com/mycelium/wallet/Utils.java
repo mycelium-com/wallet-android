@@ -44,7 +44,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -75,7 +78,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mycelium.wallet.R;
 import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 
@@ -109,28 +111,23 @@ public class Utils {
       return amount;
    }
 
-   public static Bitmap getLargeQRCodeBitmap(String title, MbwManager manager) {
+   public static Bitmap getLargeQRCodeBitmap(String text, MbwManager manager) {
       // make size 85% of display size
-      int size = Math.min(manager.getDisplayWidth(), manager.getDisplayHeight()) * 85 / 100;
-      return getQRCodeBitmap(title, size);
+      int size = Math.min(manager.getDisplayWidth(), manager.getDisplayHeight()) * 81 / 100;
+      int margin = Math.min(manager.getDisplayWidth(), manager.getDisplayHeight()) * 8 / 100;
+      return getQRCodeBitmap(text, size, margin);
    }
 
    public static Bitmap getQRCodeBitmap(String url, int size, int margin) {
       Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
       hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
-      hints.put(EncodeHintType.MARGIN, margin);
-      return getQRCodeBitmap(url, size, hints);
+      hints.put(EncodeHintType.MARGIN, 0);
+      return getQRCodeBitmap(url, size, margin, hints);
    }
 
-   private static Bitmap getQRCodeBitmap(String url, int size) {
-      Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
-      hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
-      return getQRCodeBitmap(url, size, hints);
-   }
-
-   private static Bitmap getQRCodeBitmap(String url, int size, Hashtable<EncodeHintType, Object> hints) {
+   private static Bitmap getQRCodeBitmap(String url, int size, int margin, Hashtable<EncodeHintType, Object> hints) {
       try {
-         final BitMatrix result = new QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, size, size, hints);
+         final BitMatrix result = new QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, 0, 0, hints);
 
          final int width = result.getWidth();
          final int height = result.getHeight();
@@ -143,9 +140,19 @@ public class Utils {
             }
          }
 
-         final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-         bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
-         return bitmap;
+         final Bitmap smallBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+         smallBitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+
+         Bitmap largeBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+         Canvas canvas = new Canvas(largeBitmap);
+         Paint p = new Paint();
+         p.setDither(false);
+         p.setAntiAlias(false);
+         Rect src = new Rect(0, 0, smallBitmap.getWidth(), smallBitmap.getHeight());
+         Rect dst = new Rect(margin, margin, largeBitmap.getWidth() - margin, largeBitmap.getHeight() - margin);
+         canvas.drawColor(0xFFFFFFFF);
+         canvas.drawBitmap(smallBitmap, src, dst, p);
+         return largeBitmap;
       } catch (final WriterException x) {
          x.printStackTrace();
          return null;

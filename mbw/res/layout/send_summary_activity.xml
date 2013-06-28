@@ -21,22 +21,76 @@
 
             <!-- Receiver -->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="@string/receiver"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/tvReceiver"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="10dp"
-                android:text="@string/sample_address"
-                android:textSize="20sp"
-                android:typeface="monospace" />
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="@string/receiver"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/tvReceiverLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/green"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal" >
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" >
+                </View>
+
+                <TextView
+                    android:id="@+id/tvReceiver"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/sample_address"
+                    android:textSize="20sp"
+                    android:typeface="monospace" />
+
+                <View
+                    android:id="@+id/vGap"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="2" >
+                </View>
+
+                <ImageButton
+                    android:id="@+id/btAddToAddressBook"
+                    style="@style/GenericButton"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/an_icon"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/address_book"
+                    android:textSize="20sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" >
+                </View>
+            </LinearLayout>
 
             <!-- Read-only warning -->
 

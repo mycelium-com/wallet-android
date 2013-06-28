@@ -16,11 +16,8 @@
 
 package com.google.zxing.client.android;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
