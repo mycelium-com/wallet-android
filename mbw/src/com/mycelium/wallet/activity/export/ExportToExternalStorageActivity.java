@@ -68,15 +68,12 @@ public class ExportToExternalStorageActivity extends Activity {
 
          @Override
          public void onClick(View arg0) {
-            findViewById(R.id.rbJpeg).setEnabled(false);
-            findViewById(R.id.rbPng).setEnabled(false);
             findViewById(R.id.btExport).setEnabled(false);
             findViewById(R.id.pbSpinner).setVisibility(View.VISIBLE);
             TextView status = (TextView) findViewById(R.id.tvStatus);
             status.setText(getResources().getString(R.string.exporting));
-            boolean usePng = ((RadioButton) findViewById(R.id.rbPng)).isChecked();
-            _exportTask = new ExportTask(_mbwManager.getRecordManager().getSelectedRecord(), usePng);
-            _exportTask.execute(new Void[] {});
+            _exportTask = new ExportTask(_mbwManager.getRecordManager().getSelectedRecord());
+            _exportTask.execute();
          }
 
       });
@@ -91,13 +88,9 @@ public class ExportToExternalStorageActivity extends Activity {
       if (mounted && path != null) {
          tvStatus.setText(getResources().getString(R.string.external_storage_location, path));
          findViewById(R.id.btExport).setEnabled(true);
-         findViewById(R.id.rbJpeg).setEnabled(true);
-         findViewById(R.id.rbPng).setEnabled(true);
       } else {
          tvStatus.setText(getResources().getString(R.string.no_external_storage_found));
          findViewById(R.id.btExport).setEnabled(false);
-         findViewById(R.id.rbJpeg).setEnabled(false);
-         findViewById(R.id.rbPng).setEnabled(false);
       }
 
    }
@@ -125,19 +118,17 @@ public class ExportToExternalStorageActivity extends Activity {
    private class ExportTask extends AsyncTask<Void, Void, String> {
 
       private Record _record;
-      private boolean _usePng;
       private String _errorMessage;
 
-      public ExportTask(Record record, boolean usePng) {
+      public ExportTask(Record record) {
          _record = record;
-         _usePng = usePng;
       }
 
       @Override
       protected String doInBackground(Void... params) {
          try {
             ExternalStorageManager ext = _mbwManager.getExternalStorageManager();
-            return ext.exportToExternalStorage(_record, ext.getMyceliumExportPath(), _usePng);
+            return ext.exportToExternalStorage(_record, ext.getMyceliumExportPath());
          } catch (Exception e) {
             _errorMessage = e.getMessage();
             return null;

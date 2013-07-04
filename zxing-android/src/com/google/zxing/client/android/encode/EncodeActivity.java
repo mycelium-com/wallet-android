@@ -164,7 +164,7 @@ public final class EncodeActivity extends Activity {
     }
 
     Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:"));
-    intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " - " + encoder.getTitle());
+    intent.putExtra(Intent.EXTRA_SUBJECT, "Barcode Scanner" + " - " + encoder.getTitle());
     intent.putExtra(Intent.EXTRA_TEXT, contents);
     intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + barcodeFile.getAbsolutePath()));
     intent.setType("image/png");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-	<string name="app_name">Mycelium</string>
+	<string name="app_name">Mycelium Wallet</string>
 	<string name="install_qr_scanner">Bitte installieren Sie den ZXing QR-code scanner.</string>
 	<string name="add">+</string>
 	<string name="add_dialog_title">Privaten Schlüssel oder Adresse hinzufügen</string>

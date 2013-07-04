@@ -192,32 +192,28 @@ public class ExternalStorageManager {
       }
    }
 
-   public String exportToExternalStorage(Record record, String path, boolean png) throws IOException {
+   public String exportToExternalStorage(Record record, String path) throws IOException {
       File dir = new File(path);
       if (!dir.isDirectory()) {
          if (!dir.mkdirs()) {
-            throw new IOException("Unable to create external storage path: " + dir.getAbsolutePath().toString());
+            throw new IOException("Unable to create external storage path: " + dir.getAbsolutePath());
          }
       }
       Bitmap bitmap = getExportedBitmap(record);
       String baseName = record.address.toString();
-      String fileName = png ? baseName + ".png" : baseName + ".jpg";
+      String fileName = baseName + ".jpg";
       File exportFile = new File(dir, fileName);
       FileOutputStream stream;
       stream = new FileOutputStream(exportFile);
-      if (png) {
-         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-      } else {
-         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-      }
+      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
       stream.close();
       return exportFile.getAbsolutePath();
    }
 
    private boolean isExportedBitcoinPrivateKeyFile(File file) {
       String fileName = file.getName();
-      // file name must end with .png or .jpg
-      if (!fileName.endsWith(".png") && !fileName.endsWith(".jpg")) {
+      // file name must end with .jpg
+      if (!fileName.endsWith(".jpg")) {
          return false;
       }
       String stripped = fileName.substring(0, fileName.length() - 4);
@@ -226,10 +222,7 @@ public class ExternalStorageManager {
          return false;
       }
       // Stripped name must be a bitcoin address
-      if (Address.fromString(stripped, Constants.network) == null) {
-         return false;
-      }
-      return true;
+      return Address.fromString(stripped, Constants.network) != null;
    }
 
    /**
