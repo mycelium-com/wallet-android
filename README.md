@@ -1,5 +1,14 @@
 wallet
 ======
+beta channel
+============
+to get the latest bleeding edge versions go to 
+
+https://play.google.com/apps/testing/com.mycelium.wallet
+
+to be eligible for testing you need to join the g+ group at 
+
+https://plus.google.com/communities/102264813364583686576
 
 building
 ========
