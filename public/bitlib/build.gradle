@@ -1,9 +1,19 @@
 apply plugin: 'java'
 
+
+dependencies {
+    testCompile 'junit:junit:' + junitVersion
+}
+
 sourceSets {
     main {
         java {
             srcDir 'src'
+        }
+    }
+    test {
+        java {
+            srcDir 'test'
         }
     }
 }

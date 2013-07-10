@@ -12,7 +12,7 @@ subprojects {
         mavenCentral()
     }
 
-    project.ext.set('guavaVersion', '13.0.1' )
+    project.ext.set('guavaVersion', '14.0.1' )
     project.ext.set('slf4jVersion', '1.7.2' )
     project.ext.set('junitVersion', '4.10' )
 

@@ -22,6 +22,11 @@ dependencies {
 android {
     compileSdkVersion 8
     buildToolsVersion "17.0"
+
+    defaultConfig {
+        minSdkVersion 8
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
