@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+
+
+dependencies {
+    compile project(':public:bitlib')
+    compile 'com.google.guava:guava:'+guavaVersion
+    testCompile 'junit:junit:'+junitVersion
+
+}

@@ -1,0 +1,45 @@
+apply plugin: 'android'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.4.2'
+    }
+}
+
+dependencies {
+    compile project(':public:zxing-android')
+    compile project(':public:zxing-core')
+    compile project(':public:bitlib')
+    compile project(':public:mbwapi')
+  //  instrumentTestCompile 'junit:junit:'+junitVersion
+}
+
+
+android {
+    compileSdkVersion 8
+    buildToolsVersion "17.0"
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aild.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        instrumentTest.setRoot('tests')
+        instrumentTest {
+            java.srcDirs = ['tests/src']
+            res.srcDirs = ['tests/res']
+            assets.srcDirs = ['tests/assets']
+            resources.srcDirs = ['tests/src']
+        }
+    }
+}
+
