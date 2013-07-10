@@ -1,0 +1,31 @@
+apply plugin: 'java'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.6'
+}
+
+subprojects {
+    apply plugin: 'eclipse-wtp'
+
+
+    repositories {
+        mavenCentral()
+    }
+
+    project.ext.set('guavaVersion', '13.0.1' )
+    project.ext.set('slf4jVersion', '1.7.2' )
+    project.ext.set('junitVersion', '4.10' )
+
+    version = '1.0'
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+
+    //seems to be a problem with itext a dependency of jasperreports
+    // - jar manually included in pdf module
+ //   configurations {
+  //      all*.exclude group: "com.lowagie", module: "itext"
+  //  }
+}
+
