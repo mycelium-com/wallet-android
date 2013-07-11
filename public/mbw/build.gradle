@@ -46,5 +46,14 @@ android {
             resources.srcDirs = ['tests/src']
         }
     }
-}
 
+ /*
+ not ready yet..
+  buildTypes {
+        release {
+            runProguard true
+            proguardFile getDefaultProguardFile('mbw.pro')
+        }
+    }*/
+
+}

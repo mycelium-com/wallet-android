@@ -1,3 +1,6 @@
+-dontobfuscate
+#creates more problems than it solves
+
 -dontwarn javax.annotation.**
 -dontwarn javax.inject.**
 -dontwarn sun.misc.Unsafe
