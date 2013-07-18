@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Wallet;
 
 public class WithAmountActivity extends Activity {
 
@@ -51,11 +52,15 @@ public class WithAmountActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.with_amount_activity);
 
+      // Get intent parameters
+      final Wallet wallet = (Wallet) getIntent().getSerializableExtra("wallet");
+
       findViewById(R.id.btYes).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
             Intent intent = new Intent(WithAmountActivity.this, GetReceivingAmountActivity.class);
+            intent.putExtra("wallet", wallet);
             startActivity(intent);
             finish();
          }
@@ -66,6 +71,7 @@ public class WithAmountActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             Intent intent = new Intent(WithAmountActivity.this, ReceiveCoinsActivity.class);
+            intent.putExtra("wallet", wallet);
             startActivity(intent);
             finish();
          }

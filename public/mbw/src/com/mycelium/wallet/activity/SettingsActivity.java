@@ -38,25 +38,28 @@ package com.mycelium.wallet.activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
+import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 import android.widget.Toast;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.WalletMode;
 
-/***
+/**
  * PreferenceActivity is a built-in Activity for preferences management
- * 
+ * <p/>
  * To retrieve the values stored by this activity in other activities use the
  * following snippet:
- * 
+ * <p/>
  * SharedPreferences sharedPreferences =
  * PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
  * <Preference Type> preferenceValue = sharedPreferences.get<Preference
@@ -64,13 +67,16 @@ import com.mycelium.wallet.R;
  */
 public class SettingsActivity extends PreferenceActivity {
 
+   public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
    private Preference _clearPin;
    private Preference _setPin;
    private ListPreference _bitcoinDenomination;
    private ListPreference _localCurrency;
    private CheckBoxPreference _showHints;
+   private CheckBoxPreference _aggregatedView;
    private MbwManager _mbwManager;
    private Dialog _dialog;
+   private EditTextPreference _autoPay;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -81,8 +87,8 @@ public class SettingsActivity extends PreferenceActivity {
       _bitcoinDenomination = (ListPreference) findPreference("bitcoin_denomination");
       _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
       _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
-      CharSequence[] denominations = new CharSequence[] { Denomination.BTC.toString(), Denomination.mBTC.toString(),
-            Denomination.uBTC.toString() };
+      CharSequence[] denominations = new CharSequence[]{Denomination.BTC.toString(), Denomination.mBTC.toString(),
+              Denomination.uBTC.toString()};
       _bitcoinDenomination.setEntries(denominations);
       _bitcoinDenomination.setEntryValues(denominations);
       _bitcoinDenomination.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -103,13 +109,15 @@ public class SettingsActivity extends PreferenceActivity {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             _mbwManager.setFiatCurrency(newValue.toString());
+            _autoPay.setTitle(autoPayTitle(_autoPay.getText()));
             return true;
          }
       });
 
       // Set PIN
-      _setPin = (Preference) findPreference("setPin");
+      _setPin = Preconditions.checkNotNull(findPreference("setPin"));
       _setPin.setOnPreferenceClickListener(setPinClickListener);
+
 
       // Clear PIN
       updateClearPin();
@@ -119,10 +127,86 @@ public class SettingsActivity extends PreferenceActivity {
       _showHints.setChecked(_mbwManager.getShowHints());
       _showHints.setOnPreferenceClickListener(showHintsClickListener);
 
+      // Aggregated View
+      _aggregatedView = (CheckBoxPreference) findPreference("aggregatedView");
+      _aggregatedView.setChecked(_mbwManager.getWalletMode() == WalletMode.Aggregated);
+      _aggregatedView.setOnPreferenceClickListener(aggregatedViewClickListener);
+
+      _autoPay = Preconditions.checkNotNull((EditTextPreference) findPreference("instantPayAmount"));
+
+      String autopayAmount = _autoPay.getText();
+      if (autopayAmount == null || autopayAmount.equals("")) {
+         _autoPay.setText("0.00");
+      }
+      _autoPay.setTitle(autoPayTitle(_autoPay.getText()));
+      final EditText autpayEdit = _autoPay.getEditText();
+      autpayEdit.addTextChangedListener(new TextWatcher() {
+         @Override
+         public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+         }
+
+         @Override
+         public void onTextChanged(final CharSequence s, int i, int i2, int i3) {
+            String input = extractAmount(s);
+            if (input.length() > 0) {
+               String newText = getFiatSymbol() + " " + input;
+               if (!s.toString().equals(newText)) {
+                  autpayEdit.setText(newText);
+                  Editable text = autpayEdit.getText();
+                  if (text != null) {
+                     autpayEdit.setSelection(text.length());
+                  }
+               }
+            }
+
+         }
+
+         @Override
+         public void afterTextChanged(Editable editable) {
+
+         }
+      });
+      _autoPay.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+         @Override
+         public boolean onPreferenceChange(Preference preference, Object o) {
+            final String text = (String) o;
+            _mbwManager.setAutoPay((long) (Double.parseDouble(extractAmount(text)) * 100));
+            SettingsActivity.this.runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                  _autoPay.setTitle(autoPayTitle(text));
+               }
+            });
+            return true;
+         }
+      });
+
+   }
+
+   @VisibleForTesting
+   static String extractAmount(CharSequence s) {
+      String amt = AMOUNT.retainFrom(s).replace(",", ".");
+
+      int commaIdx = amt.indexOf(".");
+      if (commaIdx > -1) {
+         String cents = amt.substring(commaIdx + 1, Math.min(amt.length(), commaIdx + 3));
+         String euros = amt.substring(0, commaIdx);
+         return euros + "." + cents;
+      }
+      return amt;
+   }
+
+   private String autoPayTitle(String text) {
+      return String.format("%s (%s)", getString(R.string.autopay), text);
+   }
+
+   private String getFiatSymbol() {
+      return com.mycelium.wallet.CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol();
    }
 
    private void updateClearPin() {
-      _clearPin = (Preference) findPreference("clearPin");
+      _clearPin = findPreference("clearPin");
       _clearPin.setEnabled(_mbwManager.isPinProtected());
       _clearPin.setOnPreferenceClickListener(clearPinClickListener);
    }
@@ -191,6 +275,15 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _mbwManager.setShowHints(p.isChecked());
+         return true;
+      }
+   };
+
+   private final OnPreferenceClickListener aggregatedViewClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         WalletMode mode = p.isChecked() ? WalletMode.Aggregated : WalletMode.Segregated;
+         _mbwManager.setWalletMode(mode);
          return true;
       }
    };

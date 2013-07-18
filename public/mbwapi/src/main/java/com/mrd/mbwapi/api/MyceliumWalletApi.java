@@ -38,8 +38,8 @@ package com.mrd.mbwapi.api;
 import com.mrd.bitlib.model.NetworkParameters;
 
 /**
- * The Mycelium Bitcoin Wallet API interface. This interface describes all the functions
- * implemented by the Mycelium Wallet Service.
+ * The Mycelium Bitcoin Wallet API interface. This interface describes all the
+ * functions implemented by the Mycelium Wallet Service.
  */
 public interface MyceliumWalletApi {
 
@@ -102,6 +102,34 @@ public interface MyceliumWalletApi {
    public QueryUnspentOutputsResponse queryUnspentOutputs(QueryUnspentOutputsRequest request) throws ApiException;
 
    /**
+    * Query the inventory of active outputs of a set of Bitcoin addresses.
+    * <p>
+    * No more than {@link #MAXIMUM_ADDRESSES_PER_REQUEST} addresses can be
+    * queried at a time. The inventory contains for each address the index of
+    * unspent outputs and outputs currently being spent by that address.
+    * 
+    * @param request
+    *           a {@link QueryAddressSetStatusRequest} containing the set
+    *           of addresses to query
+    * @return a {@link QueryAddressSetStatusResponse}.
+    * @throws ApiException
+    */
+   public QueryAddressSetStatusResponse queryActiveOutputsInventory(QueryAddressSetStatusRequest request)
+         throws ApiException;
+
+   /**
+    * Get a list of transaction outputs identified by a list of out points.
+    * 
+    * @param request
+    *           a {@link GetTransactionDataRequest} containing the list
+    *           of out points to get transaction outputs for
+    * @return a {@link GetTransactionDataResponse}.
+    * @throws ApiException
+    */
+   public GetTransactionDataResponse getTransactionData(GetTransactionDataRequest request)
+         throws ApiException;
+   
+   /**
     * Query the transaction inventory of a set of Bitcoin addresses.
     * <p>
     * No more than {@link QueryTransactionInventoryRequest#MAXIMUM} transaction
@@ -144,7 +172,7 @@ public interface MyceliumWalletApi {
     * @throws ApiException
     */
    public BroadcastTransactionResponse broadcastTransaction(BroadcastTransactionRequest request) throws ApiException;
-   
-   public ErrorCollectionResponse collectError(Throwable e) throws ApiException;
+
+   public ErrorCollectionResponse collectError(Throwable e, String version) throws ApiException;
 
 }

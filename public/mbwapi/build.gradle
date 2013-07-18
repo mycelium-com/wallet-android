@@ -4,7 +4,7 @@ apply plugin: 'java'
 
 dependencies {
     compile project(':public:bitlib')
-    compile 'com.google.guava:guava:'+guavaVersion
+    compile 'com.google.guava:guava-jdk5:'+guavaVersion
     testCompile 'junit:junit:'+junitVersion
 
 }

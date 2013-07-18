@@ -38,7 +38,9 @@ package com.mycelium.wallet;
 import java.io.Serializable;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.SpinnerPrivateUri;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 
 /**
@@ -85,7 +87,7 @@ public class Record implements Serializable, Comparable<Record> {
 
    @Override
    public int compareTo(Record other) {
-      
+
       // First sort on key / address
       if (hasPrivateKey() && !other.hasPrivateKey()) {
          return -1;
@@ -99,7 +101,7 @@ public class Record implements Serializable, Comparable<Record> {
       } else if (timestamp > other.timestamp) {
          return 1;
       }
-      
+
       // Thirdly sort on address
       return address.toString().compareTo(other.address.toString());
 
@@ -199,6 +201,109 @@ public class Record implements Serializable, Comparable<Record> {
          return false;
       }
       return this.address.equals(((Record) obj).address);
+   }
+
+   public static boolean isRecord(String string) {
+      return fromString(string) != null;
+   }
+
+   public static Record fromString(String string) {
+
+      if (string == null) {
+         return null;
+      }
+      string = string.trim();
+
+      Record record;
+
+      // Do we have a Bitcoin address
+      record = recordFromBitcoinAddressString(string);
+      if (record != null) {
+         return record;
+      }
+
+      // Do we have a Base58 private key
+      record = recordFromBase58Key(string);
+      if (record != null) {
+         return record;
+      }
+
+      // Do we have a mini private key
+      record = recordFromBase58KeyMimiFormat(string);
+      if (record != null) {
+         return record;
+      }
+
+      // Do we have a Bitcoin Spinner backup key
+      record = recordFromBitcoinSpinnerBackup(string);
+      if (record != null) {
+         return record;
+      }
+
+      return null;
+   }
+
+   public static Record recordFromBitcoinAddressString(String string) {
+      // Is it an address?
+      Address address = Utils.addressFromString(string);
+      if (address != null) {
+         // We have an address
+         return new Record(address, System.currentTimeMillis());
+      }
+      return null;
+   }
+
+   public static Record recordFromBase58Key(String string) {
+      // Is it a private key?
+      try {
+         InMemoryPrivateKey key = new InMemoryPrivateKey(string, Constants.network);
+         return new Record(key, System.currentTimeMillis());
+      } catch (IllegalArgumentException e) {
+         return null;
+      }
+   }
+
+   public static Record recordFromBase58KeyMimiFormat(String string) {
+      // Is it a mini private key on the format proposed by Casascius?
+      if (string == null || string.length() < 2 || !string.startsWith("S")) {
+         return null;
+      }
+      // Check that the string has a valid checksum
+      String withQuestionMark = string + "?";
+      byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes());
+      if (checkHash[0] != 0x00) {
+         return null;
+      }
+      // Now get the Sha256 hash and use it as the private key
+      byte[] privateKeyBytes = HashUtils.sha256(string.getBytes());
+      try {
+         InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, false);
+         return new Record(key, System.currentTimeMillis());
+      } catch (IllegalArgumentException e) {
+         return null;
+      }
+   }
+
+   public static Record recordFromBitcoinSpinnerBackup(String string) {
+      try {
+         SpinnerPrivateUri spinnerKey = SpinnerPrivateUri.fromSpinnerUri(string);
+         if (!spinnerKey.network.equals(Constants.network)) {
+            return null;
+         }
+         return new Record(spinnerKey.key, System.currentTimeMillis());
+      } catch (IllegalArgumentException e) {
+         return null;
+      }
+   }
+
+   /**
+    * Add a record from a seed using the same mechanism as brainwallet.org
+    */
+   public static Record recordFromRandomSeed(String seed, boolean compressed) {
+      byte[] bytes = null;
+      bytes = HashUtils.sha256(seed.getBytes());
+      InMemoryPrivateKey key = new InMemoryPrivateKey(bytes, compressed);
+      return new Record(key, System.currentTimeMillis());
    }
 
 }

@@ -2,9 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/miOpen"
-        android:title="@string/open"/>
-    <item
         android:id="@+id/miSetLabel"
         android:title="@string/set_label"/>
     <item

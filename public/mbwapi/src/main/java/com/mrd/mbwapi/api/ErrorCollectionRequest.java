@@ -9,14 +9,17 @@ public class ErrorCollectionRequest extends ApiObject {
 
    //does not make much sense to have actual stacktraces here because we are traversing VMs
    public final String error;
+   public final String version;
 
-   public ErrorCollectionRequest(Throwable t) {
+   public ErrorCollectionRequest(Throwable t, String version) {
+      this.version = version;
       this.error = Throwables.getStackTraceAsString(t);
    }
 
    public ErrorCollectionRequest(ByteReader reader) {
       try {
          error = reader.getString();
+         version = reader.getString();
       } catch (ByteReader.InsufficientBytesException e) {
          throw new IllegalArgumentException("could not read error string",e);
       }

@@ -49,7 +49,6 @@ import android.widget.Toast;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.StringUtils;
-import com.mycelium.wallet.R;
 
 public class RecordManager {
 
@@ -65,6 +64,14 @@ public class RecordManager {
 
    public synchronized int numRecords() {
       return _records.size();
+   }
+
+   public synchronized Wallet getWallet(WalletMode mode) {
+      if (mode.equals(WalletMode.Segregated)) {
+         return new Wallet(getSelectedRecord());
+      } else {
+         return new Wallet(_records, getSelectedRecord());
+      }
    }
 
    public synchronized Record getSelectedRecord() {
@@ -201,7 +208,8 @@ public class RecordManager {
             _records.remove(r);
             if (_records.isEmpty()) {
                // The last record was deleted, create a new one
-               Record newRecord = new Record(new InMemoryPrivateKey(new SecureRandom(), true), System.currentTimeMillis());
+               Record newRecord = new Record(new InMemoryPrivateKey(new SecureRandom(), true),
+                     System.currentTimeMillis());
                Toast.makeText(_applicationContext, R.string.created_new_random_key, Toast.LENGTH_LONG).show();
                _records.add(newRecord);
             }

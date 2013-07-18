@@ -76,14 +76,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
-                android:text="@string/btc_balance"
+                android:text="@string/max_btc"
                 android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="20dp"
             android:orientation="vertical" >
 
             <include
@@ -94,16 +94,38 @@
 
         <!-- Next -->
 
-        <Button
-            android:id="@+id/btNext"
-            style="@style/GenericButton"
-            android:layout_width="120dp"
+        <LinearLayout
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/btn_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/next"
-            android:textSize="20sp" />
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btMax"
+                style="@style/GenericButton"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_blue"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/max"
+                android:textSize="20sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btNext"
+                style="@style/GenericButton"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_blue"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/next"
+                android:textSize="20sp" />
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

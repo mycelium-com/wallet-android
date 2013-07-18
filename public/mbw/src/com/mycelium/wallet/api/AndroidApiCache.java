@@ -35,8 +35,12 @@
 
 package com.mycelium.wallet.api;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,19 +52,19 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
 import com.mrd.mbwapi.api.ApiException;
 import com.mrd.mbwapi.api.ApiObject;
-import com.mrd.mbwapi.api.Balance;
 import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
+import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
 
 public class AndroidApiCache extends ApiCache {
 
-   private static final String TABLE_BALANCE = "balance";
    private static final String TABLE_TRANSACTION_SUMMARY = "ts";
    private static final String TABLE_TRANSACTION_INVENTORY = "tinv";
+   private static final int MAX_TRANSACTION_INVENTORIES = 30;
 
    private class OpenHelper extends SQLiteOpenHelper {
 
@@ -73,14 +77,12 @@ public class AndroidApiCache extends ApiCache {
 
       @Override
       public void onCreate(SQLiteDatabase db) {
-         db.execSQL("create table " + TABLE_BALANCE + " (key text primary key, value text);");
          db.execSQL("create table " + TABLE_TRANSACTION_SUMMARY + " (key text primary key, value text);");
          db.execSQL("create table " + TABLE_TRANSACTION_INVENTORY + " (key text primary key, value text);");
       }
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BALANCE);
          db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTION_SUMMARY);
          db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTION_INVENTORY);
          onCreate(db);
@@ -102,24 +104,8 @@ public class AndroidApiCache extends ApiCache {
    }
 
    @Override
-   public Balance getBalance(Address address) {
-      String value = get(TABLE_BALANCE, address.toString());
-      if (value == null) {
-         return null;
-      }
-      byte[] bytes = HexUtils.toBytes(value);
-      try {
-         return ApiObject.deserialize(Balance.class, new ByteReader(bytes));
-      } catch (ApiException e) {
-         // Something is wrong with the serialization, delete the cache entry
-         delete(TABLE_BALANCE, address.toString());
-         return null;
-      }
-   }
-
-   @Override
-   public QueryTransactionSummaryResponse getTransactionSummaryList(Address address) {
-      TransactionInventory inv = getTransactionInventory(address);
+   public QueryTransactionSummaryResponse getTransactionSummaryList(Collection<Address> addresses) {
+      TransactionInventory inv = getTransactionInventory(addresses);
       if (inv == null) {
          return null;
       }
@@ -132,17 +118,6 @@ public class AndroidApiCache extends ApiCache {
          transactions.add(summary);
       }
       return new QueryTransactionSummaryResponse(transactions, inv.chainHeight);
-   }
-
-   @Override
-   void setBalance(Address address, Balance balance) {
-      set(TABLE_BALANCE, address.toString(), balanceToHex(balance));
-   }
-
-   private String balanceToHex(Balance balance) {
-      ByteWriter writer = new ByteWriter(512);
-      balance.serialize(writer);
-      return HexUtils.toHex(writer.toBytes());
    }
 
    @Override
@@ -167,9 +142,25 @@ public class AndroidApiCache extends ApiCache {
       set(TABLE_TRANSACTION_SUMMARY, txHash, transactionSummaryToHex(transaction));
    }
 
+   /**
+    * Calculate a key that uniquely identifies a collection of addresses
+    */
+   private static final String getAddressCollectionKey(Collection<Address> addresses) {
+      List<Address> list = new ArrayList<Address>(addresses);
+      Collections.sort(list);
+      byte[] toHash = new byte[Address.NUM_ADDRESS_BYTES * list.size()];
+      for (int i = 0; i < list.size(); i++) {
+         byte[] addressBytes = list.get(i).getAllAddressBytes();
+         System.arraycopy(addressBytes, 0, toHash, i * Address.NUM_ADDRESS_BYTES, Address.NUM_ADDRESS_BYTES);
+      }
+
+      return HexUtils.toHex(HashUtils.sha256(toHash));
+   }
+
    @Override
-   TransactionInventory getTransactionInventory(Address address) {
-      String string = get(TABLE_TRANSACTION_INVENTORY, address.toString());
+   TransactionInventory getTransactionInventory(Collection<Address> addresses) {
+      String key = getAddressCollectionKey(addresses);
+      String string = get(TABLE_TRANSACTION_INVENTORY, key);
       if (string == null) {
          return null;
       }
@@ -194,10 +185,22 @@ public class AndroidApiCache extends ApiCache {
    }
 
    @Override
-   void setTransactionInventory(Address address, TransactionInventory inv) {
+   void setTransactionInventory(Collection<Address> addresses, TransactionInventory inv) {
+      // A new inventory is stored for every unique address collection.
+      // We need to make sure that we don't store too many inventories, so when
+      // we reach the limit we delete a random entry
+      int size = count(TABLE_TRANSACTION_INVENTORY);
+      if (size > MAX_TRANSACTION_INVENTORIES) {
+         // We are above the maximum, pick a random key to delete
+         List<String> keys = getKeys(TABLE_TRANSACTION_INVENTORY);
+         String randomKey = keys.get(new Random().nextInt(keys.size()));
+         delete(TABLE_TRANSACTION_INVENTORY, randomKey);
+      }
+
+      String key = getAddressCollectionKey(addresses);
       byte[] bytes = inv.toByteWriter(new ByteWriter(2048)).toBytes();
       String hex = HexUtils.toHex(bytes);
-      set(TABLE_TRANSACTION_INVENTORY, address.toString(), hex);
+      set(TABLE_TRANSACTION_INVENTORY, key, hex);
    }
 
    private String transactionSummaryToHex(TransactionSummary transaction) {
@@ -224,6 +227,26 @@ public class AndroidApiCache extends ApiCache {
       }
    }
 
+   private List<String> getKeys(String table) {
+      List<String> keys = new LinkedList<String>();
+      Cursor cursor = null;
+      try {
+         cursor = _database.query(table, new String[] { "key" }, null, null, null, null, null);
+         while (cursor.moveToNext()) {
+            String key = cursor.getString(0);
+            keys.add(key);
+         }
+         return keys;
+      } catch (Exception e) {
+         // XXX: Use Andreas' error reporting
+      } finally {
+         if (cursor != null) {
+            cursor.close();
+         }
+      }
+      return keys;
+   }
+
    private void set(String table, String key, String value) {
       String old = get(table, key);
       if (old == null) {
@@ -243,7 +266,15 @@ public class AndroidApiCache extends ApiCache {
    }
 
    private void delete(String table, String key) {
-      _database.execSQL("DLETE FROM " + table + " where key = \"" + key + "\"");
+      _database.execSQL("DELETE FROM " + table + " where key = \"" + key + "\"");
+   }
+
+   private int count(String table) {
+      Cursor cursor = _database.rawQuery("SELECT COUNT(*) FROM " + table, new String[] {});
+      if (cursor.moveToNext()) {
+         return (int) cursor.getLong(0);
+      }
+      return -1;
    }
 
 }

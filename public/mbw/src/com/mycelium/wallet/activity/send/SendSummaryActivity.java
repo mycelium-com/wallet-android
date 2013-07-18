@@ -35,9 +35,6 @@
 
 package com.mycelium.wallet.activity.send;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -47,7 +44,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -58,15 +54,14 @@ import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.BroadcastTransactionResponse;
 import com.mrd.mbwapi.api.ExchangeSummary;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.send.SendActivityHelper.SendContext;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.AsyncTask;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class SendSummaryActivity extends Activity {
 
@@ -75,11 +70,15 @@ public class SendSummaryActivity extends Activity {
    private AsyncTask _task;
    private PrivateKeyRing _privateKeyRing;
    private UnsignedTransaction _unsigned;
+   private boolean _waitForAutoSend = true;
    private Double _oneBtcInFiat;
    private MbwManager _mbwManager;
    private SendContext _context;
+   private View _sendButton;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +90,10 @@ public class SendSummaryActivity extends Activity {
       _context = SendActivityHelper.getSendContext(this);
 
       // Send button
-      findViewById(R.id.btSend).setOnClickListener(new OnClickListener() {
+      _sendButton = findViewById(R.id.btSend);
+      _sendButton.setEnabled(false);
+      _waitForAutoSend = true;
+      _sendButton.setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
@@ -105,13 +107,13 @@ public class SendSummaryActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             Utils.showSetAddressLabelDialog(SendSummaryActivity.this, _mbwManager.getAddressBookManager(),
-                  _context.receivingAddress.toString(), new Runnable() {
+                    _context.receivingAddress.toString(), new Runnable() {
 
-                     @Override
-                     public void run() {
-                        updateUi();
-                     }
-                  });
+               @Override
+               public void run() {
+                  updateUi();
+               }
+            });
          }
       });
 
@@ -126,12 +128,11 @@ public class SendSummaryActivity extends Activity {
    private void createUnsignedTransaction() {
       // Construct list of outputs
       List<UnspentTransactionOutput> outputs = new LinkedList<UnspentTransactionOutput>();
-      outputs.addAll(_context.unspentOutputs.unspent);
-      outputs.addAll(_context.unspentOutputs.change);
+      outputs.addAll(_context.spendableOutputs.unspent);
+      outputs.addAll(_context.spendableOutputs.change);
 
       // Construct private key ring
-      _privateKeyRing = new PrivateKeyRing();
-      _privateKeyRing.addPrivateKey(_context.spendingRecord.key, Constants.network);
+      _privateKeyRing = _context.wallet.getPrivateKeyRing();
 
       // Create unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.network);
@@ -146,7 +147,7 @@ public class SendSummaryActivity extends Activity {
 
       // Create the unsigned transaction
       try {
-         _unsigned = stb.createUnsignedTransaction(outputs, _context.spendingRecord.address, _privateKeyRing,
+         _unsigned = stb.createUnsignedTransaction(outputs, _context.wallet.getReceivingAddress(), _privateKeyRing,
                Constants.network);
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
@@ -174,7 +175,7 @@ public class SendSummaryActivity extends Activity {
 
       // Set Address
       String choppedAddress = address.substring(0, 12) + "\r\n" + address.substring(12, 24) + "\r\n"
-            + address.substring(24);
+              + address.substring(24);
       ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
 
       // Show / hide warning
@@ -217,7 +218,12 @@ public class SendSummaryActivity extends Activity {
       }
 
       // Enable/disable send button
-      findViewById(R.id.btSend).setEnabled(_unsigned != null);
+     findViewById(R.id.btSend).setEnabled(couldSend());
+   }
+
+   private boolean couldSend() {
+      boolean enoughFunds = _unsigned != null;
+      return enoughFunds &&! _waitForAutoSend;
    }
 
    private String getFiatValue(long satoshis, Double oneBtcInFiat) {
@@ -263,7 +269,7 @@ public class SendSummaryActivity extends Activity {
          protected Void doInBackground(Handler... handler) {
             _unsigned.getSignatureInfo();
             List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(_unsigned.getSignatureInfo(),
-                  _privateKeyRing);
+                    _privateKeyRing);
             final Transaction tx = StandardTransactionBuilder.finalizeTransaction(_unsigned, signatures);
             // execute broadcasting task from UI thread
             handler[0].post(new Runnable() {
@@ -276,7 +282,7 @@ public class SendSummaryActivity extends Activity {
             });
             return null;
          }
-      }.execute(new Handler[] { new Handler() });
+      }.execute(new Handler[]{new Handler()});
    }
 
    class BroadcastTransactionHandler implements AbstractCallbackHandler<BroadcastTransactionResponse> {
@@ -309,12 +315,27 @@ public class SendSummaryActivity extends Activity {
          if (exception != null) {
             Utils.toastConnectionError(SendSummaryActivity.this);
             _oneBtcInFiat = null;
+            _waitForAutoSend = false;
+            updateUi();
          } else {
             _oneBtcInFiat = Utils.getLastTrade(response);
-            updateUi();
+            if (!checkForAutoSend()) {
+               _waitForAutoSend = false;
+               updateUi();
+            }
          }
       }
 
+   }
+
+   private boolean checkForAutoSend() {
+      double oneSatoshiInFiat = _oneBtcInFiat / Math.pow(10, 8);
+      long maxSatoshis = (long) (_mbwManager.getAutoPay() / 100 / oneSatoshiInFiat);
+      if (_context.amountToSend < maxSatoshis) { //emulate send button. shall we even skip pin protection? i think not.
+         _mbwManager.runPinProtectedFunction(SendSummaryActivity.this, pinProtectedSignAndSend);
+         return true;
+      }
+      return false;
    }
 
 }

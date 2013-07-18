@@ -36,48 +36,40 @@
 package com.mycelium.wallet.activity.send;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import android.app.Activity;
 import android.content.Intent;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mycelium.wallet.Record;
+import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.Wallet.SpendableOutputs;
 
 public class SendActivityHelper {
 
-   public static class UnspentOutputs implements Serializable {
-      private static final long serialVersionUID = 1L;
-
-      public Set<UnspentTransactionOutput> unspent;
-      public Set<UnspentTransactionOutput> change;
-      public Set<UnspentTransactionOutput> receiving;
-
-      public UnspentOutputs(Set<UnspentTransactionOutput> unspent, Set<UnspentTransactionOutput> change,
-            Set<UnspentTransactionOutput> receiving) {
-         this.unspent = unspent;
-         this.change = change;
-         this.receiving = receiving;
-      }
-   }
+   public enum WalletSource {
+      Specified, SelectPrivateKey, InstantWallet
+   };
 
    public static class SendContext implements Serializable {
       private static final long serialVersionUID = 1L;
 
-      public Record spendingRecord;
+      private WalletSource walletMode;
+      public Wallet wallet;
       public Address receivingAddress;
       public Long amountToSend;
-      public UnspentOutputs unspentOutputs;
+      public SpendableOutputs spendableOutputs;
 
-      private SendContext() {
+      private SendContext(WalletSource walletMode) {
+         this.walletMode = walletMode;
       }
    }
 
-   public static void startSendActivity(Activity current, Record spendingRecord, Address receivingAddress,
-         Long amountToSend) {
-      SendContext context = new SendContext();
-      context.spendingRecord = spendingRecord;
+   public static void startSendActivity(Activity current, Address receivingAddress, Long amountToSend,
+         WalletSource walletMode, Wallet wallet) {
+      SendContext context = new SendContext(walletMode);
+      if (context.walletMode == WalletSource.Specified) {
+         context.wallet = wallet;
+      }
       context.receivingAddress = receivingAddress;
       context.amountToSend = amountToSend;
       startNextActivity(current, context);
@@ -98,9 +90,9 @@ public class SendActivityHelper {
       current.finish();
    }
 
-   public static void startNextActivity(Activity current, Record spendingRecord) {
+   public static void startNextActivity(Activity current, Wallet wallet) {
       SendContext context = getSendContext(current);
-      context.spendingRecord = spendingRecord;
+      context.wallet = wallet;
       startNextActivity(current, context);
       current.finish();
 
@@ -113,20 +105,24 @@ public class SendActivityHelper {
       current.finish();
    }
 
-   public static void startNextActivity(Activity current, UnspentOutputs unspentOutputs) {
+   public static void startNextActivity(Activity current, SpendableOutputs spendableOutputs) {
       SendContext context = getSendContext(current);
-      context.unspentOutputs = unspentOutputs;
+      context.spendableOutputs = spendableOutputs;
       startNextActivity(current, context);
       current.finish();
    }
 
    private static void startNextActivity(Activity current, SendContext context) {
       Intent intent;
-      if (context.spendingRecord == null) {
-         intent = new Intent(current, GetSpendingRecordActivity.class);
+      if (context.wallet == null) {
+         if (context.walletMode == WalletSource.SelectPrivateKey) {
+            intent = new Intent(current, GetSpendingRecordActivity.class);
+         } else {
+            intent = new Intent(current, InstantWalletActivity.class);
+         }
       } else if (context.receivingAddress == null) {
          intent = new Intent(current, GetAddressActivity.class);
-      } else if (context.unspentOutputs == null) {
+      } else if (context.spendableOutputs == null) {
          intent = new Intent(current, GetUnspentOutputsActivity.class);
       } else if (context.amountToSend == null || context.amountToSend == 0) {
          intent = new Intent(current, GetSendingAmountActivity.class);

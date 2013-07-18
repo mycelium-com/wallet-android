@@ -59,12 +59,10 @@ public abstract class ApiObject {
    protected static final byte EXCHANGE_TRADE_SUMMARY_TYPE = (byte) 0x14;
    protected static final byte EXCHANGE_SUMMARY_REQUEST_TYPE = (byte) 0x15;
    protected static final byte EXCHANGE_SUMMARY_RESPONSE_TYPE = (byte) 0x16;
-   protected static final byte ACTIVE_OUTPUTS_REQUEST_TYPE = (byte) 0x17;
-   protected static final byte ACTIVE_OUTPUTS_RESPONSE_TYPE = (byte) 0x18;
-   protected static final byte ACTIVE_OUTPUT_INVENTORY_REQUEST_TYPE = (byte) 0x19;
-   protected static final byte ACTIVE_OUTPUT_INVENTORY_RESPONSE_TYPE = (byte) 0x20;
-   protected static final byte GET_OUTPUT_REQUEST_TYPE = (byte) 0x21;
-   protected static final byte GET_OUTPUT_RESPONSE_TYPE = (byte) 0x22;
+   protected static final byte ADDRESS_SET_STATUS_REQUEST_TYPE = (byte) 0x17;
+   protected static final byte ADDRESS_SET_STATUS_RESPONSE_TYPE = (byte) 0x18;
+   protected static final byte GET_TRANSACTION_DATA_REQUEST_TYPE = (byte) 0x19;
+   protected static final byte GET_TRANSACTION_DATA_RESPONSE_TYPE = (byte) 0x20;
 
    public final ByteWriter serialize(ByteWriter writer) {
       byte[] payload = toByteWriter(new ByteWriter(1024)).toBytes();
@@ -116,23 +114,19 @@ public abstract class ApiObject {
             return new ErrorCollectionRequest(payloadReader);
          } else if (type == ERROR_RESPONSE_TYPE) {
             return new ErrorCollectionResponse(payloadReader);
-         } else if (type == ACTIVE_OUTPUTS_REQUEST_TYPE) {
-            return new QueryActiveOutputsRequest(payloadReader);
-         } else if (type == ACTIVE_OUTPUTS_RESPONSE_TYPE) {
-            return new QueryActiveOutputsResponse(payloadReader);
-         } else if (type == ACTIVE_OUTPUT_INVENTORY_REQUEST_TYPE) {
-            return new QueryActiveOutputInventoryRequest(payloadReader);
-         } else if (type == ACTIVE_OUTPUT_INVENTORY_RESPONSE_TYPE) {
-            return new QueryActiveOutputInventoryResponse(payloadReader);
-         } else if (type == GET_OUTPUT_REQUEST_TYPE) {
-            return new GetOutputsRequest(payloadReader);
-         } else if (type == GET_OUTPUT_RESPONSE_TYPE) {
-            return new GetOutputsResponse(payloadReader);
+         } else if (type == ADDRESS_SET_STATUS_REQUEST_TYPE) {
+            return new QueryAddressSetStatusRequest(payloadReader);
+         } else if (type == ADDRESS_SET_STATUS_RESPONSE_TYPE) {
+            return new QueryAddressSetStatusResponse(payloadReader);
+         } else if (type == GET_TRANSACTION_DATA_REQUEST_TYPE) {
+            return new GetTransactionDataRequest(payloadReader);
+         } else if (type == GET_TRANSACTION_DATA_RESPONSE_TYPE) {
+            return new GetTransactionDataResponse(payloadReader);
          } else {
             throw new ApiException(MyceliumWalletApi.ERROR_CODE_UNKNOWN_TYPE, "Error deserializing server response");
          }
       } catch (InsufficientBytesException e) {
-         throw new ApiException(MyceliumWalletApi.ERROR_CODE_PARSER_ERROR, "Unable to parse API object");
+         throw new ApiException(MyceliumWalletApi.ERROR_CODE_PARSER_ERROR, "Unable to parse API object",e);
       }
    }
 

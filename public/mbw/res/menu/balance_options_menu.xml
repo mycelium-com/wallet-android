@@ -11,6 +11,9 @@
         android:id="@+id/miTransactionHistory"
         android:title="@string/transaction_history"/>
     <item
+        android:id="@+id/miColdStorage"
+        android:title="@string/cold_storage"/>
+    <item
         android:id="@+id/miSettings"
         android:title="@string/settings"/>
 

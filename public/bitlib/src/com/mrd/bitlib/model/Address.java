@@ -40,15 +40,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.mrd.bitlib.crypto.PublicKey;
 import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 
-public class Address implements Serializable {
+public class Address implements Serializable, Comparable<Address> {
 
    private static final long serialVersionUID = 1L;
-
+   public static final int NUM_ADDRESS_BYTES = 21;
    private byte[] _bytes;
    private String _address;
 
@@ -100,7 +100,7 @@ public class Address implements Serializable {
          return null;
       }
       byte[] bytes = Base58.decodeChecked(address);
-      if (bytes == null || bytes.length != 21) {
+      if (bytes == null || bytes.length != NUM_ADDRESS_BYTES) {
          return null;
       }
       return new Address(bytes);
@@ -110,7 +110,7 @@ public class Address implements Serializable {
       if (bytes.length != 20) {
          return null;
       }
-      byte[] all = new byte[21];
+      byte[] all = new byte[NUM_ADDRESS_BYTES];
       all[0] = (byte) (network.getMultisigAddressHeader() & 0xFF);
       System.arraycopy(bytes, 0, all, 1, 20);
       return new Address(all);
@@ -120,7 +120,7 @@ public class Address implements Serializable {
       if (bytes.length != 20) {
          return null;
       }
-      byte[] all = new byte[21];
+      byte[] all = new byte[NUM_ADDRESS_BYTES];
       all[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
       System.arraycopy(bytes, 0, all, 1, 20);
       return new Address(all);
@@ -170,7 +170,7 @@ public class Address implements Serializable {
     */
    public boolean isValidAddress(NetworkParameters network) {
       byte version = getVersion();
-      if (getAllAddressBytes().length != 21) {
+      if (getAllAddressBytes().length != NUM_ADDRESS_BYTES) {
          return false;
       }
       return ((byte) (network.getStandardAddressHeader() & 0xFF)) == version
@@ -206,9 +206,9 @@ public class Address implements Serializable {
       if (_address == null) {
          byte[] addressBytes = new byte[1 + 20 + 4];
          addressBytes[0] = _bytes[0];
-         System.arraycopy(_bytes, 0, addressBytes, 0, 21);
-         byte[] checkSum = HashUtils.doubleSha256(addressBytes, 0, 21);
-         System.arraycopy(checkSum, 0, addressBytes, 21, 4);
+         System.arraycopy(_bytes, 0, addressBytes, 0, NUM_ADDRESS_BYTES);
+         byte[] checkSum = HashUtils.doubleSha256(addressBytes, 0, NUM_ADDRESS_BYTES);
+         System.arraycopy(checkSum, 0, addressBytes, NUM_ADDRESS_BYTES, 4);
          _address = Base58.encode(addressBytes);
       }
       return _address;
@@ -232,9 +232,29 @@ public class Address implements Serializable {
    }
 
    public static Address getNullAddress(NetworkParameters network) {
-      byte[] bytes = new byte[21];
+      byte[] bytes = new byte[NUM_ADDRESS_BYTES];
       bytes[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
       return new Address(bytes);
+   }
+
+   @Override
+   public int compareTo(Address other) {
+
+      // We sort on the actual address bytes.
+      // We wish to achieve consistent sorting, the exact order is not
+      // important.
+      for (int i = 0; i < NUM_ADDRESS_BYTES; i++) {
+         byte a = _bytes[i];
+         byte b = other._bytes[i];
+         if (a < b) {
+            return -1;
+         } else if (a > b) {
+            return 1;
+         } else {
+            continue;
+         }
+      }
+      return 0;
    }
 
 }

@@ -46,19 +46,21 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.mbwapi.api.ApiError;
+import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.AsyncTask;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.ExchangeSummary;
 
 public class GetReceivingAmountActivity extends Activity implements NumberEntryListener {
 
+   private Wallet _wallet;
    private AsyncTask _task;
    private NumberEntry _numberEntry;
    private MbwManager _mbwManager;
@@ -73,6 +75,9 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
       _mbwManager = MbwManager.getInstance(getApplication());
 
+      // Get intent parameters
+      _wallet = (Wallet) getIntent().getSerializableExtra("wallet");
+
       // Load saved state
       Long amount = null;
       if (savedInstanceState != null) {
@@ -81,9 +86,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
             amount = savedAmount;
          }
       }
-
-      _mbwManager = MbwManager.getInstance(getApplication());
-
+      
       // Set amount
       String amountString;
       if (amount != null) {
@@ -110,6 +113,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
             findViewById(R.id.btNext).setEnabled(false);
             Intent intent = new Intent(GetReceivingAmountActivity.this, ReceiveCoinsActivity.class);
             intent.putExtra("amount", getSatoshisToReceive());
+            intent.putExtra("wallet", _wallet);
             startActivity(intent);
             finish();
          }

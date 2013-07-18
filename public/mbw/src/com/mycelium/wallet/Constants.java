@@ -35,61 +35,70 @@
 
 package com.mycelium.wallet;
 
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl.HttpEndpoint;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl.HttpsEndpoint;
 
-import com.mrd.bitlib.model.NetworkParameters;
-
 public class Constants {
 
-   /**
-    * The thumbprint of the Mycelium certificate. We use this for pinning the
-    * server certificate.
-    */
-   private static final String myceliumThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
+	/**
+	 * The thumbprint of the Mycelium certificate. We use this for pinning the
+	 * server certificate.
+	 */
+	private static final String myceliumThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
 
-   /**
-    * Two redundant Mycelium wallet service servers
-    */
-   private static final HttpsEndpoint smws1 = new HttpsEndpoint("https://mws1.mycelium.com/mws", myceliumThumbprint);
-   private static final HttpsEndpoint smws2 = new HttpsEndpoint("https://mws2.mycelium.com/mws", myceliumThumbprint);
+	/**
+	 * Two redundant Mycelium wallet service servers
+	 */
+	private static final HttpsEndpoint smws1 = new HttpsEndpoint(
+			"https://mws1.mycelium.com/mws", myceliumThumbprint);
+	private static final HttpsEndpoint smws2 = new HttpsEndpoint(
+			"https://mws2.mycelium.com/mws", myceliumThumbprint);
 
-   /**
-    * Unencrypted wallet service endpoints, used for testing
-    */
-   @SuppressWarnings("unused")
-   private static final HttpEndpoint mws1 = new HttpEndpoint("http://mws1.mycelium.com/mws");
-   @SuppressWarnings("unused")
-   private static final HttpEndpoint mws2 = new HttpEndpoint("http://mws2.mycelium.com/mws");
+	/**
+	 * Unencrypted wallet service endpoints, used for testing
+	 */
+	@SuppressWarnings("unused")
+	private static final HttpEndpoint mws1 = new HttpEndpoint(
+			"http://mws1.mycelium.com/mws");
+	@SuppressWarnings("unused")
+	private static final HttpEndpoint mws2 = new HttpEndpoint(
+			"http://mws2.mycelium.com/mws");
 
-   /**
-    * The set of endpoints we use. The wallet chooses a random endpoint and if
-    * it does not respond it round-robins through the list. This way we achieve
-    * client side load-balancing and fail-over.
-    */
-   private static final HttpEndpoint[] _serverEndpoints = new HttpEndpoint[] { smws1, smws2 };
-   public static final NetworkParameters network = NetworkParameters.productionNetwork;
-   public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(_serverEndpoints, network);
+	/**
+	 * The set of endpoints we use. The wallet chooses a random endpoint and if
+	 * it does not respond it round-robins through the list. This way we achieve
+	 * client side load-balancing and fail-over.
+	 */
+	private static final HttpEndpoint[] _serverEndpoints = new HttpEndpoint[] {
+			smws1, smws2 };
+	public static final NetworkParameters network = NetworkParameters.productionNetwork;
+	public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(
+			_serverEndpoints, network);
 
-   public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
+	public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
 
-   /**
-    * The number of transactions to display in our transaction history. The
-    * higer the number the more bandwidth we require from the smartphone.
-    */
-   public static final int TRANSACTION_HISTORY_LENGTH = 20;
+	/**
+	 * The number of transactions to display in our transaction history. The
+	 * higher the number the more bandwidth we require from the smartphone.
+	 */
+	public static final int TRANSACTION_HISTORY_LENGTH = 20;
 
-   /**
-    * Settings and their default values
-    */
-   public static final String SETTINGS_NAME = "settings";
-   public static final String PIN_SETTING = "PIN";
-   public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
-   public static final String DEFAULT_CURRENCY = "USD";
-   public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
-   public static final String DEFAULT_BITCOIN_DENOMINATION = "BTC";
-   public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
-   public static final String SHOW_HINTS_SETTING = "ShowHints";
+	/**
+	 * Settings and their default values
+	 */
+	public static final String SETTINGS_NAME = "settings";
+	public static final String PIN_SETTING = "PIN";
+	public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
+	public static final String DEFAULT_CURRENCY = "USD";
+	public static final String WALLET_MODE_SETTING = "WalletMode";
+	public static final WalletMode DEFAULT_WALLET_MODE = WalletMode.Aggregated;
+	public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
+	public static final String DEFAULT_BITCOIN_DENOMINATION = "BTC";
+	public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
+	public static final String SHOW_HINTS_SETTING = "ShowHints";
+	public static final String AUTOPAY_SETTING = "autopayAmount";
 
+	public static final String TAG = "MyceliumWallet";
 }

@@ -48,8 +48,18 @@
             android:layout_margin="0dp"
             android:gravity="center"
             android:padding="0dp"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:typeface="monospace" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/tvBalance"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:textSize="16sp" >
         </TextView>
     </LinearLayout>
 

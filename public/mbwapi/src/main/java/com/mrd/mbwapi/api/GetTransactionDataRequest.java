@@ -42,26 +42,41 @@ import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.util.Sha256Hash;
 
-public class GetOutputsRequest extends ApiObject {
+public class GetTransactionDataRequest extends ApiObject {
 
-   public List<OutPoint> outPoints;
+   public List<OutPoint> outputsToGet;
+   public List<OutPoint> sourcedOutputsToGet;
+   public List<Sha256Hash> txIds;
 
-   public GetOutputsRequest(List<OutPoint> outPoints) {
-      this.outPoints = outPoints;
+   public GetTransactionDataRequest(List<OutPoint> outputsToGet, List<OutPoint> sourcedOutputsToGet,
+         List<Sha256Hash> txIds) {
+      this.outputsToGet = outputsToGet;
+      this.sourcedOutputsToGet = sourcedOutputsToGet;
+      this.txIds = txIds;
    }
 
-   public GetOutputsRequest(OutPoint outPoints) {
-      this.outPoints = new ArrayList<OutPoint>(1);
-      this.outPoints.add(outPoints);
-   }
-
-   protected GetOutputsRequest(ByteReader reader) throws InsufficientBytesException {
-      int num = reader.getIntLE();
-      outPoints = new ArrayList<OutPoint>(num);
-      for (int i = 0; i < num; i++) {
+   protected GetTransactionDataRequest(ByteReader reader) throws InsufficientBytesException {
+      int numOutputsToGet = reader.getIntLE();
+      outputsToGet = new ArrayList<OutPoint>(numOutputsToGet);
+      for (int i = 0; i < numOutputsToGet; i++) {
          OutPoint outPoint = new OutPoint(reader);
-         outPoints.add(outPoint);
+         outputsToGet.add(outPoint);
+      }
+
+      int numSourcedOutputsToGet = reader.getIntLE();
+      sourcedOutputsToGet = new ArrayList<OutPoint>(numSourcedOutputsToGet);
+      for (int i = 0; i < numSourcedOutputsToGet; i++) {
+         OutPoint outPoint = new OutPoint(reader);
+         sourcedOutputsToGet.add(outPoint);
+      }
+
+      int numTxIds = reader.getIntLE();
+      txIds = new ArrayList<Sha256Hash>(numTxIds);
+      for (int i = 0; i < numTxIds; i++) {
+         Sha256Hash txId = new Sha256Hash(reader.getBytes(Sha256Hash.HASH_LENGTH));
+         txIds.add(txId);
       }
       // Payload may contain more, but we ignore it for forwards
       // compatibility
@@ -69,16 +84,26 @@ public class GetOutputsRequest extends ApiObject {
 
    @Override
    protected ByteWriter toByteWriter(ByteWriter writer) {
-      writer.putIntLE(outPoints.size());
-      for (OutPoint outPoint : outPoints) {
+      writer.putIntLE(outputsToGet.size());
+      for (OutPoint outPoint : outputsToGet) {
          outPoint.toByteWriter(writer);
+      }
+
+      writer.putIntLE(sourcedOutputsToGet.size());
+      for (OutPoint outPoint : sourcedOutputsToGet) {
+         outPoint.toByteWriter(writer);
+      }
+
+      writer.putIntLE(txIds.size());
+      for (Sha256Hash txId : txIds) {
+         writer.putBytes(txId.getBytes());
       }
       return writer;
    }
 
    @Override
    protected byte getType() {
-      return ApiObject.GET_OUTPUT_REQUEST_TYPE;
+      return ApiObject.GET_TRANSACTION_DATA_REQUEST_TYPE;
    }
 
 }

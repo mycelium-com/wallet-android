@@ -47,6 +47,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -62,19 +63,19 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.api.ApiCache.TransactionInventory;
-import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.ApiException;
-import com.mrd.mbwapi.api.Balance;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mrd.mbwapi.api.BroadcastTransactionRequest;
 import com.mrd.mbwapi.api.BroadcastTransactionResponse;
 import com.mrd.mbwapi.api.ExchangeSummary;
-import com.mrd.mbwapi.api.QueryBalanceRequest;
+import com.mrd.mbwapi.api.GetTransactionDataRequest;
+import com.mrd.mbwapi.api.GetTransactionDataResponse;
+import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
+import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
 import com.mrd.mbwapi.api.QueryExchangeSummaryRequest;
 import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
 import com.mrd.mbwapi.api.QueryTransactionInventoryResponse;
@@ -83,6 +84,9 @@ import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.api.ApiCache.TransactionInventory;
+import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
 
 /**
  * This class is an asynchronous wrapper for the MPB Client API. All the public
@@ -198,50 +202,7 @@ public abstract class AsynchronousApi {
    }
 
    /**
-    * Get balance of a list of bitcoin addresses.
-    * 
-    * @param callbackHandler
-    *           The callback handler to call
-    * @return an {@link AsyncTask} instance that allows the caller to cancel the
-    *         call back.
-    */
-   public AsyncTask getBalance(final List<Address> addresses, AbstractCallbackHandler<Balance> callbackHandler) {
-      AbstractCaller<Balance> caller = new AbstractCaller<Balance>(callbackHandler) {
-
-         @Override
-         protected void callFunction() throws ApiException {
-            _response = _api.queryBalance(new QueryBalanceRequest(addresses)).balance;
-         }
-
-      };
-      executeRequest(caller);
-      return caller;
-   }
-
-   /**
-    * Get balance of a single bitcoin addresses.
-    * 
-    * @param callbackHandler
-    *           The callback handler to call
-    * @return an {@link AsyncTask} instance that allows the caller to cancel the
-    *         call back.
-    */
-   public AsyncTask getBalance(final Address address, AbstractCallbackHandler<Balance> callbackHandler) {
-      AbstractCaller<Balance> caller = new AbstractCaller<Balance>(callbackHandler) {
-
-         @Override
-         protected void callFunction() throws ApiException {
-            _response = _api.queryBalance(new QueryBalanceRequest(address)).balance;
-            _cache.setBalance(address, _response);
-         }
-
-      };
-      executeRequest(caller);
-      return caller;
-   }
-
-   /**
-    * Get balance of a single bitcoin addresses.
+    * Get a summary of the current exchange rates
     * 
     * @param callbackHandler
     *           The callback handler to call
@@ -269,17 +230,15 @@ public abstract class AsynchronousApi {
     * @return an {@link AsyncTask} instance that allows the caller to cancel the
     *         call back.
     */
-   public AsyncTask getTransactionSummary(final Address address,
+   public AsyncTask getTransactionSummary(final Collection<Address> addresses,
          AbstractCallbackHandler<QueryTransactionSummaryResponse> callbackHandler) {
       AbstractCaller<QueryTransactionSummaryResponse> caller = new AbstractCaller<QueryTransactionSummaryResponse>(
             callbackHandler) {
 
          @Override
          protected void callFunction() throws ApiException {
-            final List<Address> addresses = new LinkedList<Address>();
-            addresses.add(address);
-            QueryTransactionInventoryRequest request = new QueryTransactionInventoryRequest(addresses,
-                  Constants.TRANSACTION_HISTORY_LENGTH);
+            QueryTransactionInventoryRequest request = new QueryTransactionInventoryRequest(new LinkedList<Address>(
+                  addresses), Constants.TRANSACTION_HISTORY_LENGTH);
 
             // Get the inventory
             QueryTransactionInventoryResponse inv = _api.queryTransactionInventory(request);
@@ -320,7 +279,7 @@ public abstract class AsynchronousApi {
             }
 
             // Insert inventory in cache
-            _cache.setTransactionInventory(address, toInventory(inv));
+            _cache.setTransactionInventory(addresses, toInventory(inv));
 
             // Sort
             Collections.sort(txList);
@@ -432,6 +391,55 @@ public abstract class AsynchronousApi {
          protected void callFunction() throws ApiException {
             QueryUnspentOutputsRequest request = new QueryUnspentOutputsRequest(address);
             _response = _api.queryUnspentOutputs(request);
+         }
+
+      };
+      executeRequest(caller);
+      return caller;
+   }
+
+   /**
+    * Get the active output inventory of a set of addresses.
+    * 
+    * @param callbackHandler
+    *           The callback handler to call
+    * @return an {@link AsyncTask} instance that allows the caller to cancel the
+    *         call back.
+    */
+   public AsyncTask getActiveOutputInventory(final Collection<Address> addresses,
+         AbstractCallbackHandler<QueryAddressSetStatusResponse> callbackHandler) {
+      AbstractCaller<QueryAddressSetStatusResponse> caller = new AbstractCaller<QueryAddressSetStatusResponse>(
+            callbackHandler) {
+
+         @Override
+         protected void callFunction() throws ApiException {
+            QueryAddressSetStatusRequest request = new QueryAddressSetStatusRequest(addresses);
+            _response = _api.queryActiveOutputsInventory(request);
+         }
+
+      };
+      executeRequest(caller);
+      return caller;
+   }
+
+   /**
+    * Get a list of outputs and transactions for a list of outpoints and
+    * transaction IDs.
+    * 
+    * @param callbackHandler
+    *           The callback handler to call
+    * @return an {@link AsyncTask} instance that allows the caller to cancel the
+    *         call back.
+    */
+   public AsyncTask getTransactionData(final List<OutPoint> outputsToGet, final List<OutPoint> sourcedOutputsToGet,
+         final List<Sha256Hash> txIds, AbstractCallbackHandler<GetTransactionDataResponse> callbackHandler) {
+      AbstractCaller<GetTransactionDataResponse> caller = new AbstractCaller<GetTransactionDataResponse>(
+            callbackHandler) {
+
+         @Override
+         protected void callFunction() throws ApiException {
+            GetTransactionDataRequest request = new GetTransactionDataRequest(outputsToGet, sourcedOutputsToGet, txIds);
+            _response = _api.getTransactionData(request);
          }
 
       };

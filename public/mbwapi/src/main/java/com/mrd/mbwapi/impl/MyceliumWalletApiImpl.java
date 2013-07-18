@@ -50,7 +50,11 @@ import com.mrd.mbwapi.api.BroadcastTransactionRequest;
 import com.mrd.mbwapi.api.BroadcastTransactionResponse;
 import com.mrd.mbwapi.api.ErrorCollectionRequest;
 import com.mrd.mbwapi.api.ErrorCollectionResponse;
+import com.mrd.mbwapi.api.GetTransactionDataRequest;
+import com.mrd.mbwapi.api.GetTransactionDataResponse;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
+import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
 import com.mrd.mbwapi.api.QueryBalanceRequest;
 import com.mrd.mbwapi.api.QueryBalanceResponse;
 import com.mrd.mbwapi.api.QueryExchangeSummaryRequest;
@@ -119,14 +123,27 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
    }
 
    @Override
+   public QueryAddressSetStatusResponse queryActiveOutputsInventory(QueryAddressSetStatusRequest request)
+         throws ApiException {
+      HttpURLConnection connection = sendRequest(request, RequestConst.QUERY_ADDRESS_SET_STATUS);
+      return receiveResponse(QueryAddressSetStatusResponse.class, connection);
+   }
+
+   @Override
+   public GetTransactionDataResponse getTransactionData(GetTransactionDataRequest request) throws ApiException {
+      HttpURLConnection connection = sendRequest(request, RequestConst.GET_TRANSACTION_DATA);
+      return receiveResponse(GetTransactionDataResponse.class, connection);
+   }
+
+   @Override
    public BroadcastTransactionResponse broadcastTransaction(BroadcastTransactionRequest request) throws ApiException {
       HttpURLConnection connection = sendRequest(request, RequestConst.BROADCAST_TRANSACTION);
       return receiveResponse(BroadcastTransactionResponse.class, connection);
    }
 
    @Override
-   public ErrorCollectionResponse collectError(Throwable e) throws ApiException {
-      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e), RequestConst.ERROR_COLLECTOR);
+   public ErrorCollectionResponse collectError(Throwable e, String version) throws ApiException {
+      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e,version ), RequestConst.ERROR_COLLECTOR);
       return receiveResponse(ErrorCollectionResponse.class, connection);
    }
 
@@ -226,4 +243,5 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       connection.setDoOutput(true);
       return connection;
    }
+
 }

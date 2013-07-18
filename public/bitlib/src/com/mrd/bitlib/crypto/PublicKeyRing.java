@@ -67,6 +67,15 @@ public class PublicKeyRing {
       _publicKeys.put(address, key);
    }
 
+   /**
+    * Add a public key and its corresponding Bitcoin address to the key ring.
+    */
+   public void addPublicKey(PublicKey key, Address address) {
+      _addresses.add(address);
+      _addressSet.add(address);
+      _publicKeys.put(address, key);
+   }
+
    public PublicKey findPublicKeyByAddress(Address address) {
       return _publicKeys.get(address);
    }

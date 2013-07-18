@@ -36,64 +36,72 @@
 package com.mycelium.wallet.activity.send;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.ClipboardManager;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
 
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.Wallet.SpendableOutputs;
-import com.mycelium.wallet.Wallet.WalletUpdateHandler;
-import com.mycelium.wallet.activity.send.SendActivityHelper.SendContext;
-import com.mycelium.wallet.api.AsyncTask;
 
-public class GetUnspentOutputsActivity extends Activity {
+public class InstantWalletActivity extends Activity {
 
-   private AsyncTask _task;
-   private MbwManager _mbwManager;
-   private SendContext _context;
+   public static final int SCANNER_RESULT_CODE = 0;
 
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.get_unspent_outputs_activity);
+      setContentView(R.layout.instant_wallet_activity);
 
-      // Get intent parameters
-      _context = SendActivityHelper.getSendContext(this);
+      final Record record = getRecordFromClipboard();
+      if (record == null || !record.hasPrivateKey()) {
+         findViewById(R.id.btClipboard).setEnabled(false);
+      } else {
+         findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
 
-      _mbwManager = MbwManager.getInstance(getApplication());
-
-      // Update wallet from server
-      _task = _context.wallet.requestUpdate(_mbwManager.getBlockChainAddressTracker(), new MyWalletUpdateHandler());
-   }
-
-   @Override
-   protected void onDestroy() {
-      cancelEverything();
-      super.onDestroy();
-   }
-
-   private void cancelEverything() {
-      if (_task != null) {
-         _task.cancel();
+            @Override
+            public void onClick(View arg0) {
+               Wallet wallet = new Wallet(record);
+               SendActivityHelper.startNextActivity(InstantWalletActivity.this, wallet);
+            }
+         });
       }
+
+      findViewById(R.id.btScan).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View arg0) {
+            Utils.startScannerIntent(InstantWalletActivity.this, SCANNER_RESULT_CODE);
+         }
+      });
+
    }
 
-   class MyWalletUpdateHandler implements WalletUpdateHandler {
+   private Record getRecordFromClipboard() {
+      ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+      CharSequence content = clipboard.getText();
+      if (content == null) {
+         return null;
+      }
+      return Record.fromString(content.toString());
+   }
 
-      @Override
-      public void walletUpdatedCallback(Wallet wallet, boolean success) {
-         Activity me = GetUnspentOutputsActivity.this;
-         if (!success) {
-            Utils.toastConnectionError(me);
-            _task = null;
-            me.finish();
-         } else {
-            SpendableOutputs spendable;
-            spendable = wallet.getLocalSpendableOutputs(_mbwManager.getBlockChainAddressTracker());
-            SendActivityHelper.startNextActivity(me, spendable);
-         }
+   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      if (!"QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
+         return;
+      }
+      String contents = intent.getStringExtra("SCAN_RESULT").trim();
+      Record record = Record.fromString(contents);
+      if (record != null && record.hasPrivateKey()) {
+         Wallet wallet = new Wallet(record);
+         SendActivityHelper.startNextActivity(InstantWalletActivity.this, wallet);
+      } else {
+         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_LONG).show();
       }
 
    }

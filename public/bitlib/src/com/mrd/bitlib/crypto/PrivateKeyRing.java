@@ -38,6 +38,7 @@ package com.mrd.bitlib.crypto;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
 public class PrivateKeyRing extends PublicKeyRing {
@@ -54,6 +55,14 @@ public class PrivateKeyRing extends PublicKeyRing {
    public void addPrivateKey(PrivateKey key, NetworkParameters network) {
       _privateKeys.put(key.getPublicKey(), key);
       addPublicKey(key.getPublicKey(), network);
+   }
+
+   /**
+    * Add a private and public key pair along with the corresponding address to the key ring.
+    */
+   public void addPrivateKey(PrivateKey privateKey, PublicKey publicKey, Address address) {
+      _privateKeys.put(publicKey, privateKey);
+      addPublicKey(publicKey, address);
    }
 
    /**

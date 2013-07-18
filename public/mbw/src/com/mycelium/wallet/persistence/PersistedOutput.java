@@ -25,7 +25,7 @@
  *  3. Limitations
  *  (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
  *  (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- *  (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
+ *  (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
  *  (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
  *  guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
  *  change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
@@ -33,62 +33,56 @@
  *
  */
 
-package com.mrd.mbwapi.api;
+package com.mycelium.wallet.persistence;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.io.Serializable;
 
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.OutPoint;
 
-public class QueryActiveOutputsResponse extends ApiObject {
+public class PersistedOutput implements Serializable {
+   private static final long serialVersionUID = 1L;
 
-   public List<ActiveOutputs> activeOutputs;
+   public OutPoint outPoint;
+   public Address address;
+   public int height; // -1 means unconfirmed
+   public long value;
+   public byte[] script;
+   public boolean isCoinBase;
 
-   /**
-    * Current height of the block chain.
-    */
-   public int chainHeight;
-
-   public QueryActiveOutputsResponse(List<ActiveOutputs> activeOutputs, int chainHeight) {
-      this.activeOutputs = activeOutputs;
-      this.chainHeight = chainHeight;
-   }
-
-   protected QueryActiveOutputsResponse(ByteReader reader) throws InsufficientBytesException, ApiException {
-      activeOutputs = listFromReader(reader);
-      chainHeight = reader.getIntLE();
-      // Payload may contain more, but we ignore it for forwards
-      // compatibility
-   }
-
-   private List<ActiveOutputs> listFromReader(ByteReader reader) throws InsufficientBytesException, ApiException {
-      int size = reader.getIntLE();
-      List<ActiveOutputs> list = new LinkedList<ActiveOutputs>();
-      for (int i = 0; i < size; i++) {
-         list.add(new ActiveOutputs(reader));
-      }
-      return list;
-   }
-
-   private void listToWriter(List<ActiveOutputs> list, ByteWriter writer) {
-      writer.putIntLE(list.size());
-      for (ActiveOutputs item : list) {
-         item.toByteWriter(writer);
-      }
+   public PersistedOutput(OutPoint outPoint, Address address, int height, long value, byte[] script, boolean isCoinBase) {
+      this.outPoint = outPoint;
+      this.address = address;
+      this.height = height;
+      this.value = value;
+      this.script = script;
+      this.isCoinBase = isCoinBase;
    }
 
    @Override
-   protected ByteWriter toByteWriter(ByteWriter writer) {
-      listToWriter(activeOutputs, writer);
-      writer.putIntLE(chainHeight);
-      return writer;
+   public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("outPoint:").append(outPoint).append(" address:").append(address).append(" height:").append(height)
+            .append(" value: ").append(value).append(" isCoinbase: ").append(isCoinBase).append(" scriptLength: ")
+            .append(script.length);
+      return sb.toString();
    }
 
    @Override
-   protected byte getType() {
-      return ApiObject.ACTIVE_OUTPUTS_RESPONSE_TYPE;
+   public int hashCode() {
+      return outPoint.hashCode();
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj == this) {
+         return true;
+      }
+      if (!(obj instanceof PersistedOutput)) {
+         return false;
+      }
+      PersistedOutput other = (PersistedOutput) obj;
+      return outPoint.equals(other.outPoint);
    }
 
 }

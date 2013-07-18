@@ -54,6 +54,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
+import com.mycelium.wallet.Wallet;
 
 public class GetSpendingRecordActivity extends Activity {
 
@@ -84,7 +85,7 @@ public class GetSpendingRecordActivity extends Activity {
             return;
          }
          Record record = (Record) v.getTag();
-         SendActivityHelper.startNextActivity(GetSpendingRecordActivity.this, record);
+         SendActivityHelper.startNextActivity(GetSpendingRecordActivity.this, new Wallet(record));
       }
    }
 

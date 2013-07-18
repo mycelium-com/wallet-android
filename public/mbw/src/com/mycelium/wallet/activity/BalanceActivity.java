@@ -61,25 +61,24 @@ import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.SimpleGestureFilter;
 import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
 import com.mycelium.wallet.activity.receive.WithAmountActivity;
 import com.mycelium.wallet.activity.send.SendActivityHelper;
+import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.api.AsyncTask;
 
 public class BalanceActivity extends Activity implements ConnectionObserver, SimpleGestureListener {
 
-   private Record _record;
+   private Wallet _wallet;
    private AsyncTask _task;
    private Balance _balance;
    private Double _oneBtcInFiat;
-   private ApiCache _cache;
    private SimpleGestureFilter _gestureFilter;
    private AlertDialog _qrCodeDialog;
    private AlertDialog _hintDialog;
@@ -94,11 +93,11 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       super.onCreate(savedInstanceState);
       setContentView(R.layout.balance_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
-      _cache = _mbwManager.getCache();
       _addressBook = _mbwManager.getAddressBookManager();
 
-      _record = _mbwManager.getRecordManager().getSelectedRecord();
-      if (!_record.hasPrivateKey()) {
+      _wallet = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode());
+
+      if (!_wallet.canSpend()) {
          findViewById(R.id.btSend).setVisibility(View.GONE);
          findViewById(R.id.vSendGap).setVisibility(View.GONE);
       }
@@ -118,7 +117,8 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
             }
             _globalLayoutHeight = height;
 
-            Bitmap qrCode = Utils.getQRCodeBitmap("bitcoin:" + _record.address.toString(), height, margin);
+            Bitmap qrCode = Utils
+                  .getQRCodeBitmap("bitcoin:" + _wallet.getReceivingAddress().toString(), height, margin);
             qrImage.setImageBitmap(qrCode);
          }
       });
@@ -146,7 +146,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
          @Override
          public void onClick(View arg0) {
-            SendActivityHelper.startSendActivity(BalanceActivity.this, _record, null, null);
+            SendActivityHelper.startSendActivity(BalanceActivity.this, null, null, WalletSource.Specified, _wallet);
          }
       });
 
@@ -155,12 +155,13 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          @Override
          public void onClick(View arg0) {
             Intent intent = new Intent(BalanceActivity.this, WithAmountActivity.class);
+            intent.putExtra("wallet", _wallet);
             startActivity(intent);
          }
       });
 
       // Set address
-      String[] addressStrings = Utils.stringChopper(_record.address.toString(), 12);
+      String[] addressStrings = Utils.stringChopper(_wallet.getReceivingAddress().toString(), 12);
       ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
       ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
       ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
@@ -246,19 +247,21 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
       // Show cached balance and progress spinner
       findViewById(R.id.pbBalance).setVisibility(View.VISIBLE);
-      _balance = _cache.getBalance(_record.address);
+      // _balance = _cache.getBalance(_record.address);
+      _balance = _wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
       updateBalance();
 
       // Create a task for getting the current balance
-      AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      _task = api.getBalance(_record.address, new QueryBalanceHandler());
+      // AndroidAsyncApi api = _mbwManager.getAsyncApi();
+      // _task = api.getBalance(_record.address, new QueryBalanceHandler());
+      _task = _wallet.requestUpdate(_mbwManager.getBlockChainAddressTracker(), new WalletUpdateHandler());
 
    }
 
    private void updateLabel() {
       // Show name of bitcoin address according to address book
       TextView tvAddressTitle = (TextView) findViewById(R.id.tvAddressLabel);
-      String name = _addressBook.getNameByAddress(_record.address.toString());
+      String name = _addressBook.getNameByAddress(_wallet.getReceivingAddress().toString());
       if (name.length() == 0) {
          tvAddressTitle.setText(R.string.your_bitcoin_address);
          tvAddressTitle.setGravity(Gravity.LEFT);
@@ -335,6 +338,23 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
    }
 
+   class WalletUpdateHandler implements Wallet.WalletUpdateHandler {
+
+      @Override
+      public void walletUpdatedCallback(Wallet wallet, boolean success) {
+         if (!success) {
+            Utils.toastConnectionError(BalanceActivity.this);
+            _task = null;
+            return;
+         }
+         _balance = wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
+         updateBalance();
+         AndroidAsyncApi api = _mbwManager.getAsyncApi();
+         _task = api.getExchangeSummary(_mbwManager.getFiatCurrency(), new QueryExchangeSummaryHandler());
+      }
+
+   }
+
    class QueryExchangeSummaryHandler implements AbstractCallbackHandler<ExchangeSummary[]> {
 
       @Override
@@ -377,16 +397,19 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       } else if (item.getItemId() == R.id.miTransactionHistory) {
          goToTransactionHistoryActivity();
          return true;
+      } else if (item.getItemId() == R.id.miColdStorage) {
+         SendActivityHelper.startSendActivity(BalanceActivity.this, null, null, WalletSource.InstantWallet, null);
+         return true;
       }
       return super.onOptionsItemSelected(item);
    }
 
    private void showQrCode() {
-      String address = "bitcoin:" + _record.address.toString();
+      String address = "bitcoin:" + _wallet.getReceivingAddress().toString();
       MbwManager manager = MbwManager.getInstance(this.getApplication());
       Bitmap bitmap = Utils.getLargeQRCodeBitmap(address, manager);
-      _qrCodeDialog = Utils.showQrCode(BalanceActivity.this, R.string.bitcoin_address_title, bitmap,
-            _record.address.toString(), R.string.copy_address_to_clipboard);
+      _qrCodeDialog = Utils.showQrCode(BalanceActivity.this, R.string.bitcoin_address_title, bitmap, _wallet
+            .getReceivingAddress().toString(), R.string.copy_address_to_clipboard);
    }
 
    @Override
@@ -425,7 +448,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
    private void goToTransactionHistoryActivity() {
       Intent intent = new Intent(BalanceActivity.this, TransactionHistoryActivity.class);
-      intent.putExtra("record", _record);
+      intent.putExtra("wallet", _wallet);
       startActivity(intent);
       this.overridePendingTransition(R.anim.right_to_left_enter, R.anim.right_to_left_exit);
    }
@@ -456,7 +479,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       public void onClick(View v) {
          Intent intent = new Intent(Intent.ACTION_SEND);
          intent.setType("text/plain");
-         intent.putExtra(Intent.EXTRA_TEXT, _mbwManager.getRecordManager().getSelectedRecord().address.toString());
+         intent.putExtra(Intent.EXTRA_TEXT, _wallet.getReceivingAddress().toString());
          startActivity(Intent.createChooser(intent, getString(R.string.share_bitcoin_address)));
       }
    };

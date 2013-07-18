@@ -40,38 +40,53 @@ import java.util.List;
 
 import com.mrd.bitlib.model.IndependentTransactionOutput;
 import com.mrd.bitlib.model.Script.ScriptParsingException;
+import com.mrd.bitlib.model.SourcedTransactionOutput;
+import com.mrd.bitlib.model.Transaction.TransactionParsingException;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 
-public class GetOutputsResponse extends ApiObject {
+public class GetTransactionDataResponse extends ApiObject {
 
    public List<IndependentTransactionOutput> outputs;
+   public List<SourcedTransactionOutput> sourcedOutputs;
+   public List<byte[]> rawTransactions;
 
-   /**
-    * Current height of the block chain.
-    */
-   public int chainHeight;
-
-   public GetOutputsResponse(List<IndependentTransactionOutput> outputs, int chainHeight) {
+   public GetTransactionDataResponse(List<IndependentTransactionOutput> outputs,
+         List<SourcedTransactionOutput> sourcedOutputs, List<byte[]> rawTransactions) {
       this.outputs = outputs;
-      this.chainHeight = chainHeight;
+      this.sourcedOutputs = sourcedOutputs;
+      this.rawTransactions = rawTransactions;
    }
 
-   protected GetOutputsResponse(ByteReader reader) throws InsufficientBytesException, ApiException {
+   protected GetTransactionDataResponse(ByteReader reader) throws InsufficientBytesException, ApiException {
       try {
-         outputs = listFromReader(reader);
+         outputs = outputListFromReader(reader);
+         sourcedOutputs = sourcedOutputListFromReader(reader);
+         rawTransactions = rawTxListFromReader(reader);
       } catch (ScriptParsingException e) {
          throw new ApiException(MyceliumWalletApi.ERROR_CODE_INVALID_SERVER_RESPONSE,
                "Invalid script returned by server");
+      } catch (TransactionParsingException e) {
+         throw new ApiException(MyceliumWalletApi.ERROR_CODE_INVALID_SERVER_RESPONSE,
+               "Invalid transaction returned by server");
       }
-      chainHeight = reader.getIntLE();
       // Payload may contain more, but we ignore it for forwards
       // compatibility
    }
 
-   private List<IndependentTransactionOutput> listFromReader(ByteReader reader) throws InsufficientBytesException,
-         ApiException, ScriptParsingException {
+   private List<SourcedTransactionOutput> sourcedOutputListFromReader(ByteReader reader)
+         throws InsufficientBytesException, ApiException, ScriptParsingException {
+      int size = reader.getIntLE();
+      List<SourcedTransactionOutput> list = new LinkedList<SourcedTransactionOutput>();
+      for (int i = 0; i < size; i++) {
+         list.add(new SourcedTransactionOutput(reader));
+      }
+      return list;
+   }
+
+   private List<IndependentTransactionOutput> outputListFromReader(ByteReader reader)
+         throws InsufficientBytesException, ApiException, ScriptParsingException {
       int size = reader.getIntLE();
       List<IndependentTransactionOutput> list = new LinkedList<IndependentTransactionOutput>();
       for (int i = 0; i < size; i++) {
@@ -80,23 +95,51 @@ public class GetOutputsResponse extends ApiObject {
       return list;
    }
 
-   private void listToWriter(List<IndependentTransactionOutput> list, ByteWriter writer) {
+   private List<byte[]> rawTxListFromReader(ByteReader reader) throws InsufficientBytesException, ApiException,
+         ScriptParsingException, TransactionParsingException {
+      int length = reader.getIntLE();
+      List<byte[]> list = new LinkedList<byte[]>();
+      for (int i = 0; i < length; i++) {
+         int size = reader.getIntLE();
+         byte[] rawTx = reader.getBytes(size);
+         list.add(rawTx);
+      }
+      return list;
+   }
+
+   private void sourcedOutputListToWriter(List<SourcedTransactionOutput> list, ByteWriter writer) {
+      writer.putIntLE(list.size());
+      for (SourcedTransactionOutput item : list) {
+         item.toByteWriter(writer);
+      }
+   }
+
+   private void outputListToWriter(List<IndependentTransactionOutput> list, ByteWriter writer) {
       writer.putIntLE(list.size());
       for (IndependentTransactionOutput item : list) {
          item.toByteWriter(writer);
       }
    }
 
+   private void transactionListToWriter(List<byte[]> list, ByteWriter writer) {
+      writer.putIntLE(list.size());
+      for (byte[] item : list) {
+         writer.putIntLE(item.length);
+         writer.putBytes(item);
+      }
+   }
+
    @Override
    protected ByteWriter toByteWriter(ByteWriter writer) {
-      listToWriter(outputs, writer);
-      writer.putIntLE(chainHeight);
+      outputListToWriter(outputs, writer);
+      sourcedOutputListToWriter(sourcedOutputs, writer);
+      transactionListToWriter(rawTransactions, writer);
       return writer;
    }
 
    @Override
    protected byte getType() {
-      return ApiObject.GET_OUTPUT_RESPONSE_TYPE;
+      return ApiObject.GET_TRANSACTION_DATA_RESPONSE_TYPE;
    }
 
 }

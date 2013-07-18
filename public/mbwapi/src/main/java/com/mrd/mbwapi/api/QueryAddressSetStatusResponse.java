@@ -38,48 +38,48 @@ package com.mrd.mbwapi.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 
-public class QueryActiveOutputsRequest extends ApiObject {
+public class QueryAddressSetStatusResponse extends ApiObject {
 
-   public List<Address> addresses;
+   public List<AddressOutputState> addressInfo;
 
-   public QueryActiveOutputsRequest(List<Address> addresses) {
-      this.addresses = addresses;
+   /**
+    * Current height of the block chain.
+    */
+   public int chainHeight;
+
+   public QueryAddressSetStatusResponse(List<AddressOutputState> addressInfo, int chainHeight) {
+      this.addressInfo = addressInfo;
+      this.chainHeight = chainHeight;
    }
 
-   public QueryActiveOutputsRequest(Address address) {
-      this.addresses = new ArrayList<Address>(1);
-      this.addresses.add(address);
-   }
-
-   protected QueryActiveOutputsRequest(ByteReader reader) throws InsufficientBytesException {
-      int num = reader.getIntLE();
-      addresses = new ArrayList<Address>(num);
-      for (int i = 0; i < num; i++) {
-         byte[] addressBytes = reader.getBytes(21);
-         Address address = new Address(addressBytes);
-         addresses.add(address);
+   protected QueryAddressSetStatusResponse(ByteReader reader) throws InsufficientBytesException, ApiException {
+      int length = reader.getIntLE();
+      addressInfo = new ArrayList<AddressOutputState>(length);
+      for (int i = 0; i < length; i++) {
+         addressInfo.add(new AddressOutputState(reader));
       }
+      chainHeight = reader.getIntLE();
       // Payload may contain more, but we ignore it for forwards
       // compatibility
    }
 
    @Override
    protected ByteWriter toByteWriter(ByteWriter writer) {
-      writer.putIntLE(addresses.size());
-      for (Address address : addresses) {
-         writer.putBytes(address.getAllAddressBytes());
+      writer.putIntLE(addressInfo.size());
+      for (AddressOutputState info : addressInfo) {
+         info.toByteWriter(writer);
       }
+      writer.putIntLE(chainHeight);
       return writer;
    }
 
    @Override
    protected byte getType() {
-      return ApiObject.ACTIVE_OUTPUTS_REQUEST_TYPE;
+      return ApiObject.ADDRESS_SET_STATUS_RESPONSE_TYPE;
    }
 
 }

@@ -36,27 +36,27 @@
 package com.mrd.mbwapi.api;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 
-public class QueryActiveOutputInventoryRequest extends ApiObject {
+public class QueryAddressSetStatusRequest extends ApiObject {
 
-   public List<Address> addresses;
+   public Collection<Address> addresses;
 
-   public QueryActiveOutputInventoryRequest(List<Address> addresses) {
+   public QueryAddressSetStatusRequest(Collection<Address> addresses) {
       this.addresses = addresses;
    }
 
-   public QueryActiveOutputInventoryRequest(Address address) {
+   public QueryAddressSetStatusRequest(Address address) {
       this.addresses = new ArrayList<Address>(1);
       this.addresses.add(address);
    }
 
-   protected QueryActiveOutputInventoryRequest(ByteReader reader) throws InsufficientBytesException {
+   protected QueryAddressSetStatusRequest(ByteReader reader) throws InsufficientBytesException {
       int num = reader.getIntLE();
       addresses = new ArrayList<Address>(num);
       for (int i = 0; i < num; i++) {
@@ -79,7 +79,7 @@ public class QueryActiveOutputInventoryRequest extends ApiObject {
 
    @Override
    protected byte getType() {
-      return ApiObject.ACTIVE_OUTPUT_INVENTORY_REQUEST_TYPE;
+      return ApiObject.ADDRESS_SET_STATUS_REQUEST_TYPE;
    }
 
 }

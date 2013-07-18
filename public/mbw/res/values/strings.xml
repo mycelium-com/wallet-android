@@ -23,7 +23,7 @@
 	<string name="confirmations">%d Confirmations</string>
 	<string name="send">Send</string>
 	<string name="receive">Receive</string>
-	<string name="private_key_deleted">Private key deleted, Bitcoin address kept.</string>
+	<string name="private_key_deleted">Private key deleted.</string>
 	<string name="bitcoin_address_deleted">Bitcoin address deleted</string>
 	<string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
 	<string name="shuffle">Shuffle</string>
@@ -36,7 +36,8 @@
     <string name="btc">BTC</string>
     <string name="sample_address">1Bmc9QwQgmuN\r\nWTxo5PjzPWeS\r\nF4d3aHx6hH</string>
     <string name="btc_balance">Balance: %1$s</string>
-    <string name="fiat_balance">Balance: %1$.2f %2$s</string>
+    <string name="max_btc">Spendable: %1$s</string>
+    <string name="max_fiat">Spendable: %1$.2f %2$s</string>
     <string name="qr_code">QR-Code</string>
     <string name="address_book">Address Book</string>
     <string name="get_receiver_address">Get receiver address from:</string>
@@ -113,6 +114,8 @@
 	<string name="pref_category_advanced">Advanced</string>
 	<string name="pref_alternate_external_storage">Alternate External Storage</string>
 	<string name="pref_alternate_external_storage_summary">Specify an alternate external storage directory</string>
+	<string name="pref_aggregated_view">Aggregated View</string>
+	<string name="pref_aggregated_view_summary">With aggregated view you operate on all keys and addresses in parallel. With segregated view you operate on one key at a time.</string>
 	<string name="pref_set_pin">Set PIN Code</string>
 	<string name="pref_set_pin_summary">Set a PIN code that restricts access to sending coins, exporting private keys, and changing the PIN code</string>
 	<string name="pref_local_currency">Local Currency</string>
@@ -150,13 +153,13 @@
     <string name="hint_3">You should always have a backup of your private keys. To backup a private key swipe left, tap a key, and select Export.</string>
     <string name="hint_4">You should protect your wallet with a PIN code. To set a PIN code click the options button and select Settings.</string>
     <string name="hint_5">By default the local currency is set to US dollars. To change the local currency click the options button and select Settings.</string>
-    <string name="share_bitcoin_address">Share your Bitcoin address...</string>
+    <string name="share_bitcoin_address">Share your Bitcoin address&#8230;</string>
     <string name="choose_export_mode">Chose Export Mode</string>
     <string name="external_storage">External Storage</string>
     <string name="export_to_external_storage">Export to External Storage</string>
     <string name="no_external_storage_found">No external storage location found on your device.\nYou have to insert a SD card with a folder called \'mycelium-export\'.</string>
     <string name="external_storage_location">External storage location:\n%1$s</string>
-    <string name="exporting">Exporting...</string>
+    <string name="exporting">Exporting&#8230;</string>
     <string name="export_succeeded">Exported to:\r\n%1$s</string>
     <string name="export_failed">Export failed:\r\n%1$s</string>
     <string name="jpeg_format">Export as JPG file</string>
@@ -172,5 +175,12 @@
 	<string name="scan_address_book_desc">Scan bitcoin address.</string>
 	<string name="clipboard_address_book_desc">Get bitcoin address from clipboard.</string>
     <string name="deleteError">Unable to delete file containing private key</string>
-
+    <string name="autopay">Autopay Amount</string>
+    <string name="aggregated">Aggregared</string>
+    <string name="segregated">Segregated</string>
+    <string name="max">Max</string>
+    <string name="get_private_key">Get private key from:</string>
+    <string name="cold_storage">Cold Storage</string>
+    <string name="cold_storage_title">You are about to spend from a private key in cold storage.</string>
+    <string name="go_back">Back</string>
 </resources>

@@ -3,10 +3,12 @@ package com.mrd.mbwapi.api;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 
-
 public class ErrorCollectionResponse extends ApiObject {
 
-   //nothing interesting here for now.
+   // nothing interesting here for now.
+   
+   public ErrorCollectionResponse() {
+   }
 
    public ErrorCollectionResponse(ByteReader payloadReader) {
 

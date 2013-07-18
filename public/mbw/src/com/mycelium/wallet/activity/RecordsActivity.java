@@ -63,13 +63,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.SpinnerPrivateUri;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.HashUtils;
+import com.mrd.mbwapi.api.Balance;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mycelium.wallet.AddressBookManager;
-import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
@@ -77,8 +73,11 @@ import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.SimpleGestureFilter;
 import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
 import com.mycelium.wallet.activity.export.ExportActivity;
+import com.mycelium.wallet.activity.send.SendActivityHelper;
+import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
 
 public class RecordsActivity extends Activity implements SimpleGestureListener {
 
@@ -132,7 +131,6 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          _recordManager.setSelectedRecord(record.address);
          _recordsAdapter.setSelected(_recordManager.getSelectedRecord());
          _recordsAdapter.notifyDataSetChanged();
-         list.showContextMenuForChild(v);
       }
 
    }
@@ -171,13 +169,12 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
 
          });
 
-         findViewById(R.id.btClipboard).setEnabled(
-               isBitcoinAddressOrPrivateKey(Utils.getClipboardString(RecordsActivity.this)));
+         findViewById(R.id.btClipboard).setEnabled(Record.isRecord(Utils.getClipboardString(RecordsActivity.this)));
          findViewById(R.id.btClipboard).setOnClickListener(new android.view.View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-               Record record = addRecordFromString(Utils.getClipboardString(RecordsActivity.this), false);
+               Record record = addRecordFromString(Utils.getClipboardString(RecordsActivity.this));
                // If the record has a private key delete the contents of the
                // clipboard
                if (record.hasPrivateKey()) {
@@ -274,7 +271,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
                confirmDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
                   public void onClick(DialogInterface arg0, int arg1) {
-                     _recordManager.forgetPrivateKeyForRcordByAddress(record.address);
+                     _recordManager.deleteRecord(record.address);
                      update();
                      Toast.makeText(RecordsActivity.this, R.string.private_key_deleted, Toast.LENGTH_LONG).show();
                   }
@@ -287,7 +284,6 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
                confirmDialog.show();
             } else {
                _recordManager.deleteRecord(record.address);
-               _addressBook.deleteEntry(record.address.toString());
                update();
                Toast.makeText(RecordsActivity.this, R.string.bitcoin_address_deleted, Toast.LENGTH_LONG).show();
             }
@@ -304,7 +300,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
 
    private void handleCreateKeyIntentResult(Intent intent) {
       String base58Key = intent.getStringExtra("base58key");
-      Record record = recordFromBase58Key(base58Key);
+      Record record = Record.recordFromBase58Key(base58Key);
       if (record != null) {
          addRecord(record);
       }
@@ -315,7 +311,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          return;
       }
       String contents = intent.getStringExtra("SCAN_RESULT").trim();
-      Record record = addRecordFromString(contents, true);
+      Record record = addRecordFromString(contents);
 
       // Scanner leaves the result on the clipboard, delete it if the record has
       // a private key
@@ -325,42 +321,13 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       }
    }
 
-   private Record addRecordFromString(String string, boolean allowSeeds) {
+   private Record addRecordFromString(String string) {
       // Do we have a Bitcoin address
-      Record record;
-      record = recordFromBitcoinAddressString(string);
+      Record record = Record.fromString(string);
       if (record != null) {
          addRecord(record);
          return record;
       }
-
-      // Do we have a Base58 private key
-      record = recordFromBase58Key(string);
-      if (record != null) {
-         addRecord(record);
-         return record;
-      }
-
-      // Do we have a mini private key
-      record = recordFromBase58KeyMimiFormat(string);
-      if (record != null) {
-         addRecord(record);
-         return record;
-      }
-
-      // Do we have a Bitcoin Spinner backup key
-      record = recordFromBitcoinSpinnerBackup(string);
-      if (record != null) {
-         addRecord(record);
-         return record;
-      }
-
-      // // Treat it as a random seed
-      // record = recordFromRandomSeed(string);
-      // if (record != null) {
-      // addRecord(record);
-      // return;
-      // }
       Toast.makeText(RecordsActivity.this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
       return null;
    }
@@ -408,90 +375,11 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       return false;
    }
 
-   private static boolean isBitcoinAddressOrPrivateKey(String string) {
-      if (recordFromBitcoinAddressString(string) != null) {
-         return true;
-      }
-      if (recordFromBase58Key(string) != null) {
-         return true;
-      }
-      if (recordFromBase58KeyMimiFormat(string) != null) {
-         return true;
-      }
-      if (recordFromBitcoinSpinnerBackup(string) != null) {
-         return true;
-      }
-      return false;
-   }
-
-   private static Record recordFromBitcoinAddressString(String string) {
-      // Is it an address?
-      Address address = Utils.addressFromString(string);
-      if (address != null) {
-         // We have an address
-         return new Record(address, System.currentTimeMillis());
-      }
-      return null;
-   }
-
-   private static Record recordFromBase58Key(String string) {
-      // Is it a private key?
-      try {
-         InMemoryPrivateKey key = new InMemoryPrivateKey(string, Constants.network);
-         return new Record(key, System.currentTimeMillis());
-      } catch (IllegalArgumentException e) {
-         return null;
-      }
-   }
-
-   private static Record recordFromBase58KeyMimiFormat(String string) {
-      // Is it a mini private key on the format proposed by Casascius?
-      if (string == null || string.length() < 2 || !string.startsWith("S")) {
-         return null;
-      }
-      // Check that the string has a valid checksum
-      String withQuestionMark = string + "?";
-      byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes());
-      if (checkHash[0] != 0x00) {
-         return null;
-      }
-      // Now get the Sha256 hash and use it as the private key
-      byte[] privateKeyBytes = HashUtils.sha256(string.getBytes());
-      try {
-         InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, false);
-         return new Record(key, System.currentTimeMillis());
-      } catch (IllegalArgumentException e) {
-         return null;
-      }
-   }
-
-   private static Record recordFromBitcoinSpinnerBackup(String string) {
-      try {
-         SpinnerPrivateUri spinnerKey = SpinnerPrivateUri.fromSpinnerUri(string);
-         if (!spinnerKey.network.equals(Constants.network)) {
-            return null;
-         }
-         return new Record(spinnerKey.key, System.currentTimeMillis());
-      } catch (IllegalArgumentException e) {
-         return null;
-      }
-   }
-
-   /**
-    * Add a record from a seed using the same mechanism as brainwallet.org
-    */
-   @SuppressWarnings("unused")
-   private static Record recordFromRandomSeed(String seed, boolean compressed) {
-      byte[] bytes = null;
-      bytes = HashUtils.sha256(seed.getBytes());
-      InMemoryPrivateKey key = new InMemoryPrivateKey(bytes, compressed);
-      return new Record(key, System.currentTimeMillis());
-   }
-
    private void update() {
       // Disable Add button if we have reached the limit of how many
       // addresses/keys to manage
-      findViewById(R.id.btAdd).setEnabled(_recordManager.numRecords() < MyceliumWalletApi.MAXIMUM_ADDRESSES_PER_REQUEST);
+      findViewById(R.id.btAdd)
+            .setEnabled(_recordManager.numRecords() < MyceliumWalletApi.MAXIMUM_ADDRESSES_PER_REQUEST);
 
       ListView listView = (ListView) findViewById(R.id.lvRecords);
       _recordsAdapter = new RecordsAdapter(this, _recordManager.getRecords(), _recordManager.getSelectedRecord());
@@ -560,6 +448,12 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          } else {
             rowView.setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_pitch_black));
          }
+
+         // Set balance
+         Balance balance = new Wallet(record).getLocalBalance(_mbwManager.getBlockChainAddressTracker());
+         String balanceString = _mbwManager.getBtcValueString(balance.unspent + balance.pendingChange);
+         ((TextView) rowView.findViewById(R.id.tvBalance)).setText(balanceString);
+
          return rowView;
       }
 
@@ -602,6 +496,17 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.record_options_menu, menu);
+
+      if (_recordManager.getSelectedRecord().hasPrivateKey()) {
+         menu.findItem(R.id.miDeleteAddress).setVisible(false);
+         menu.findItem(R.id.miDeletePrivateKey).setVisible(true);
+         menu.findItem(R.id.miExport).setVisible(true);
+      } else {
+         menu.findItem(R.id.miDeleteAddress).setVisible(true);
+         menu.findItem(R.id.miDeletePrivateKey).setVisible(false);
+         menu.findItem(R.id.miExport).setVisible(false);
+      }
+
       return true;
    }
 
@@ -624,10 +529,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
 
    @Override
    public boolean onContextItemSelected(final MenuItem item) {
-      if (item.getItemId() == R.id.miOpen) {
-         openBalanceView();
-         return true;
-      } else if (item.getItemId() == R.id.miSetLabel) {
+      if (item.getItemId() == R.id.miSetLabel) {
          Utils.showSetAddressLabelDialog(this, _addressBook, _recordManager.getSelectedRecord().address.toString());
          return true;
       } else if (item.getItemId() == R.id.miDeleteAddress || item.getItemId() == R.id.miDeletePrivateKey) {
@@ -639,6 +541,32 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       } else {
          return false;
       }
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      if (item.getItemId() == R.id.miSetLabel) {
+         Utils.showSetAddressLabelDialog(this, _addressBook, _recordManager.getSelectedRecord().address.toString());
+         return true;
+      } else if (item.getItemId() == R.id.miDeleteAddress || item.getItemId() == R.id.miDeletePrivateKey) {
+         _mbwManager.runPinProtectedFunction(this, pinProtectedDeleteRecord);
+         return true;
+      } else if (item.getItemId() == R.id.miExport) {
+         _mbwManager.runPinProtectedFunction(this, pinProtectedExport);
+         return true;
+      } else if (item.getItemId() == R.id.miAddressBook) {
+         Intent intent = new Intent(this, AddressBookActivity.class);
+         startActivity(intent);
+         return true;
+      } else if (item.getItemId() == R.id.miColdStorage) {
+         SendActivityHelper.startSendActivity(this, null, null, WalletSource.InstantWallet, null);
+         return true;
+      } else if (item.getItemId() == R.id.miSettings) {
+         Intent intent = new Intent(this, SettingsActivity.class);
+         startActivity(intent);
+         return true;
+      }
+      return super.onOptionsItemSelected(item);
    }
 
    private void openBalanceView() {
@@ -676,20 +604,6 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
             });
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
-   }
-
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-      if (item.getItemId() == R.id.miSettings) {
-         Intent intent = new Intent(RecordsActivity.this, SettingsActivity.class);
-         startActivity(intent);
-         return true;
-      } else if (item.getItemId() == R.id.miAddressBook) {
-         Intent intent = new Intent(RecordsActivity.this, AddressBookActivity.class);
-         startActivity(intent);
-         return true;
-      }
-      return super.onOptionsItemSelected(item);
    }
 
    final Runnable pinProtectedDeleteRecord = new Runnable() {

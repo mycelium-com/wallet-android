@@ -35,6 +35,8 @@
 
 package com.mrd.mbwapi.api;
 
+import com.mrd.bitlib.util.ByteReader;
+
 public class ApiException extends Exception {
    private static final long serialVersionUID = 1L;
 
@@ -50,4 +52,8 @@ public class ApiException extends Exception {
       this.errorCode = errorCode;
    }
 
+   public ApiException(int error, String message, ByteReader.InsufficientBytesException e) {
+      super(message,e);
+      errorCode = error;
+   }
 }

@@ -35,29 +35,33 @@
 
 package com.mycelium.wallet.activity;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.mbwapi.api.ApiException;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExternalStorageManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.WalletMode;
 import com.mycelium.wallet.activity.send.SendActivityHelper;
+import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
 
 public class StartupActivity extends Activity {
 
@@ -66,9 +70,43 @@ public class StartupActivity extends Activity {
    private boolean _hasClipboardExportedPrivateKeys;
    private AlertDialog _alertDialog;
 
+   private static String version = "unknown";
+
+   private void readVersion() {
+      try {
+         PackageManager packageManager = getPackageManager();
+         if (packageManager != null) {
+            final PackageInfo pInfo;
+            pInfo = packageManager.getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+         } else {
+            Log.i(Constants.TAG, "unable to obtain packageManager");
+         }
+      } catch (PackageManager.NameNotFoundException ignored) {
+      }
+   }
+
+   static {
+      final Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
+      Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+         @Override
+         public void uncaughtException(Thread thread, Throwable throwable) {
+            try {
+               Constants.bccapi.collectError(throwable, version);
+            } catch (RuntimeException e) {
+               Log.e(Constants.TAG, "error while sending error", e);
+            } catch (ApiException e) {
+               Log.e(Constants.TAG, "error while sending error", e);
+            }
+            orig.uncaughtException(thread, throwable);
+         }
+      });
+   }
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      readVersion();
       setContentView(R.layout.startup_activity);
 
       ImageView splash = (ImageView) findViewById(R.id.ivSplash);
@@ -134,8 +172,8 @@ public class StartupActivity extends Activity {
       public void run() {
          // Check whether we should handle this intent in a special way if it
          // has a bitcoin URI in it
-         RecordManager recordManager = MbwManager.getInstance(StartupActivity.this.getApplication()).getRecordManager();
-         if (handleIntent(recordManager)) {
+         MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
+         if (handleIntent(mbwManager)) {
             return;
          }
 
@@ -221,7 +259,7 @@ public class StartupActivity extends Activity {
       finish();
    }
 
-   private boolean handleIntent(RecordManager recordManager) {
+   private boolean handleIntent(MbwManager mbwManager) {
       Intent intent = getIntent();
       final String action = intent.getAction();
       final Uri intentUri = intent.getData();
@@ -244,37 +282,27 @@ public class StartupActivity extends Activity {
             finish();
             return true;
          }
-
-         Record spendingRecord = getPrivateKeyRecord(recordManager);
          Long amountToSend = b.getAmount() == 0 ? null : b.getAmount();
-         SendActivityHelper.startSendActivity(this, spendingRecord, receivingAddress, amountToSend);
+
+         RecordManager recordManager = mbwManager.getRecordManager();
+         Wallet wallet;
+         WalletSource walletSource;
+         if (mbwManager.getWalletMode() == WalletMode.Segregated) {
+            // If we are in segregated mode let the user choose which record to
+            // use
+            wallet = null;
+            walletSource = WalletSource.SelectPrivateKey;
+         } else {
+            wallet = recordManager.getWallet(mbwManager.getWalletMode());
+            walletSource = WalletSource.Specified;
+         }
+
+         SendActivityHelper.startSendActivity(this, receivingAddress, amountToSend, walletSource, wallet);
          finish();
          return true;
       }
 
       // The intent was not a Bitcoin URI
       return false;
-   }
-
-   /**
-    * If the selected record has a private key and return true. If not, see if
-    * we have a single record with a private key, select it, and return true.
-    * Otherwise return false. If true is returned the selected record has a
-    * private key.
-    */
-   private Record getPrivateKeyRecord(RecordManager recordManager) {
-      Record record;
-      // record = recordManager.getSelectedRecord();
-      // if (record.hasPrivateKey()) {
-      // return true;
-      // }
-      List<Record> withPrivateKey = recordManager.getRecordsWithPrivateKeys();
-      if (withPrivateKey.size() == 1) {
-         record = withPrivateKey.get(0);
-         return record;
-      } else {
-         return null;
-      }
-
    }
 }

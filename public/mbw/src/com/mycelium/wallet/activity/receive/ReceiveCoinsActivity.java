@@ -49,15 +49,12 @@ import android.widget.Toast;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
 
 public class ReceiveCoinsActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
-
-   private MbwManager _mbwManager;
-   private String _uri;
 
    /** Called when the activity is first created. */
    @Override
@@ -65,49 +62,49 @@ public class ReceiveCoinsActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.receive_coins_activity);
 
-      _mbwManager = MbwManager.getInstance(getApplication());
-      Record record = _mbwManager.getRecordManager().getSelectedRecord();
+      MbwManager mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
+      Wallet wallet = (Wallet) getIntent().getSerializableExtra("wallet");
       long amount = getIntent().getLongExtra("amount", 0);
 
+      final String uri;
       if (amount == 0) {
          ((TextView) findViewById(R.id.tvTitle)).setText(R.string.bitcoin_address_title);
          findViewById(R.id.tvAmountLabel).setVisibility(View.GONE);
          findViewById(R.id.tvAmount).setVisibility(View.GONE);
          // If there is no amount just use the bitcoin address instead of a
          // complete Bitcoin URI
-         _uri = record.address.toString();
+         uri = wallet.getReceivingAddress().toString();
       } else {
          ((TextView) findViewById(R.id.tvTitle)).setText(R.string.payment_request);
-         ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(amount));
-         _uri = "bitcoin:" + record.address.toString() + "?amount=" + CoinUtil.valueString(amount);
+         ((TextView) findViewById(R.id.tvAmount)).setText(mbwManager.getBtcValueString(amount));
+         uri = "bitcoin:" + wallet.getReceivingAddress().toString() + "?amount=" + CoinUtil.valueString(amount);
       }
 
       // QR code
-      Bitmap bitmap = Utils.getLargeQRCodeBitmap(_uri, _mbwManager);
+      Bitmap bitmap = Utils.getLargeQRCodeBitmap(uri, mbwManager);
       ImageView iv = (ImageView) findViewById(R.id.ivQrCode);
       iv.setImageBitmap(bitmap);
 
       // Show warning if the record has no private key
-      if (record.hasPrivateKey()) {
+      if (wallet.hasPrivateKeyForReceivingAddress()) {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
       }
 
-      
       findViewById(R.id.btCopyToClipboard).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(_uri);
+            clipboard.setText(uri);
             Toast.makeText(ReceiveCoinsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
          }
       });
 
-      String[] addressStrings = Utils.stringChopper(record.address.toString(), 12);
+      String[] addressStrings = Utils.stringChopper(wallet.getReceivingAddress().toString(), 12);
       ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
       ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
       ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);

@@ -11,22 +11,19 @@ buildscript {
 }
 
 dependencies {
+    instrumentTestCompile 'junit:junit:'+junitVersion
     compile project(':public:zxing-android')
     compile project(':public:zxing-core')
     compile project(':public:bitlib')
     compile project(':public:mbwapi')
-  //  instrumentTestCompile 'junit:junit:'+junitVersion
+    compile 'com.google.guava:guava-jdk5:'+guavaVersion
+
 }
 
 
 android {
     compileSdkVersion 8
     buildToolsVersion "17.0"
-
-    defaultConfig {
-        minSdkVersion 8
-    }
-
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -46,14 +43,5 @@ android {
             resources.srcDirs = ['tests/src']
         }
     }
-
- /*
- not ready yet..
-  buildTypes {
-        release {
-            runProguard true
-            proguardFile getDefaultProguardFile('mbw.pro')
-        }
-    }*/
-
 }
+

@@ -40,7 +40,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -56,6 +55,7 @@ import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -71,29 +71,29 @@ import android.widget.Toast;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.StringUtils;
-import com.mycelium.wallet.AddressBookManager;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.SimpleGestureFilter;
-import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.api.AbstractCallbackHandler;
-import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.api.ApiCache;
-import com.mycelium.wallet.api.AsyncTask;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
 import com.mrd.mbwapi.util.TransactionSummaryUtils;
 import com.mrd.mbwapi.util.TransactionSummaryUtils.TransactionType;
+import com.mycelium.wallet.AddressBookManager;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.SimpleGestureFilter;
+import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.api.AbstractCallbackHandler;
+import com.mycelium.wallet.api.AndroidAsyncApi;
+import com.mycelium.wallet.api.ApiCache;
+import com.mycelium.wallet.api.AsyncTask;
 
 public class TransactionHistoryActivity extends Activity implements ConnectionObserver, SimpleGestureListener {
 
    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-   private Record _record;
+   private Wallet _wallet;
    private AsyncTask _task;
    private TransactionHistoryAdapter _transactionHistoryAdapter;
    private Map<String, String> _invoiceMap;
@@ -115,7 +115,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
       _addressBook = _mbwManager.getAddressBookManager();
 
       // Get intent parameters
-      _record = (Record) getIntent().getSerializableExtra("record");
+      _wallet = (Wallet) getIntent().getSerializableExtra("wallet");
 
       ((ListView) findViewById(R.id.lvTransactionHistory)).setOnItemClickListener(new OnItemClickListener() {
 
@@ -168,8 +168,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
       if (t == null || _invoiceMap == null) {
          return null;
       }
-      Set<Address> addressSet = new HashSet<Address>();
-      addressSet.add(_record.address);
+      Set<Address> addressSet = _wallet.getAddresses();
       TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
       if (type != TransactionType.SentToOthers) {
          return null;
@@ -219,8 +218,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
    }
 
    private String getSingleForeignAddressForTransaction(TransactionSummary tx) {
-      Set<Address> addressSet = new HashSet<Address>();
-      addressSet.add(_record.address);
+      Set<Address> addressSet = _wallet.getAddresses();
       TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(tx, addressSet);
       if (type == TransactionType.SentToOthers) {
          String[] candidates = TransactionSummaryUtils.getReceiversNotMe(tx, addressSet);
@@ -298,10 +296,11 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          return;
       }
       findViewById(R.id.pbHistory).setVisibility(View.VISIBLE);
-      _transactions = _cache.getTransactionSummaryList(_record.address);
+      Set<Address> addressSet = _wallet.getAddresses();
+      _transactions = _cache.getTransactionSummaryList(addressSet);
       updateTransactionHistory();
       AndroidAsyncApi api = MbwManager.getInstance(getApplication()).getAsyncApi();
-      _task = api.getTransactionSummary(_record.address, new QueryTransactionSummaryHandler());
+      _task = api.getTransactionSummary(addressSet, new QueryTransactionSummaryHandler());
    }
 
    class QueryTransactionSummaryHandler implements AbstractCallbackHandler<QueryTransactionSummaryResponse> {
@@ -321,8 +320,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
    }
 
    private AsyncTask fetchInvoices(QueryTransactionSummaryResponse response) {
-      Set<Address> addressSet = new HashSet<Address>();
-      addressSet.add(_record.address);
+      Set<Address> addressSet = _wallet.getAddresses();
       List<String> addresses = new LinkedList<String>();
       for (TransactionSummary t : response.transactions) {
          TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
@@ -397,8 +395,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          Locale locale = getResources().getConfiguration().locale;
          _hourFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
          _dayFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
-         _addressSet = new HashSet<Address>();
-         _addressSet.add(_record.address);
+         _addressSet = _wallet.getAddresses();
       }
 
       @Override
@@ -520,6 +517,24 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
    public boolean dispatchTouchEvent(MotionEvent me) {
       this._gestureFilter.onTouchEvent(me);
       return super.dispatchTouchEvent(me);
+   }
+
+   /** Called when menu button is pressed. */
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      MenuInflater inflater = getMenuInflater();
+      inflater.inflate(R.menu.transaction_history_options_menu, menu);
+      return true;
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      if (item.getItemId() == R.id.miBack) {
+         finish();
+         this.overridePendingTransition(R.anim.left_to_right_enter, R.anim.left_to_right_exit);
+         return true;
+      }
+      return super.onOptionsItemSelected(item);
    }
 
 }

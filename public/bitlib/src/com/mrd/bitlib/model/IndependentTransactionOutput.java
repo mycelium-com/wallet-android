@@ -46,7 +46,7 @@ public class IndependentTransactionOutput implements Serializable {
    private static final long serialVersionUID = 1L;
 
    public OutPoint outPoint;
-   public int height;
+   public int height; // -1 means unconfirmed
    public long value;
    public ScriptOutput script;
    public boolean isCoinbase;

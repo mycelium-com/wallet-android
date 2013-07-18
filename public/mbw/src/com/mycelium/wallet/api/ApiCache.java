@@ -35,6 +35,7 @@
 
 package com.mycelium.wallet.api;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,7 +44,6 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.mbwapi.api.Balance;
 import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
 
@@ -98,18 +98,14 @@ public abstract class ApiCache {
 
    public abstract void close();
 
-   public abstract Balance getBalance(Address address);
-   
-   public abstract QueryTransactionSummaryResponse getTransactionSummaryList(Address address);
-
-   abstract void setBalance(Address address, Balance balance);
+   public abstract QueryTransactionSummaryResponse getTransactionSummaryList(Collection<Address> addresses);
 
    abstract TransactionSummary getTransactionSummary(String txHash);
 
    abstract void addTransactionSummary(TransactionSummary transaction);
 
-   abstract TransactionInventory getTransactionInventory(Address address);
+   abstract TransactionInventory getTransactionInventory(Collection<Address> address);
 
-   abstract void setTransactionInventory(Address address, TransactionInventory inv);
+   abstract void setTransactionInventory(Collection<Address> address, TransactionInventory inv);
 
 }

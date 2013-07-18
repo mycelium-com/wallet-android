@@ -44,12 +44,12 @@ import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.wallet.api.AndroidApiCache;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
+import com.mycelium.wallet.persistence.TxOutDb;
 
 public class MbwManager {
    private static volatile MbwManager _instance = null;
@@ -66,34 +66,42 @@ public class MbwManager {
    private int _displayWidth;
    private int _displayHeight;
    private ApiCache _cache;
+   private TxOutDb _txOutDb;
    private AndroidAsyncApi _asyncApi;
    private RecordManager _recordManager;
    private AddressBookManager _addressBookManager;
    private HintManager _hintManager;
    private ExternalStorageManager _externalStorageManager;
+   private BlockChainAddressTracker _blockChainAddressTracker;
    private final String _btcValueFormatString;
    private String _pin;
    private Denomination _bitcoinDenomination;
+   private WalletMode _walletMode;
    private String _fiatCurrency;
    private boolean _showHints;
+   private long _autoPay;
 
    private MbwManager(Application application) {
       _applicationContext = application.getApplicationContext();
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
       _cache = new AndroidApiCache(_applicationContext);
+      _txOutDb = new TxOutDb(_applicationContext);
       _asyncApi = new AndroidAsyncApi(Constants.bccapi, _cache);
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
       // Preferences
       SharedPreferences preferences = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE);
+              Activity.MODE_PRIVATE);
 
       _pin = preferences.getString(Constants.PIN_SETTING, "");
+      _walletMode = WalletMode.fromInteger(preferences.getInt(Constants.WALLET_MODE_SETTING,
+            Constants.DEFAULT_WALLET_MODE.asInteger()));
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
-            Constants.DEFAULT_BITCOIN_DENOMINATION));
+              Constants.DEFAULT_BITCOIN_DENOMINATION));
       _showHints = preferences.getBoolean(Constants.SHOW_HINTS_SETTING, true);
+      _autoPay = preferences.getLong(Constants.AUTOPAY_SETTING, 0);
 
       // Get the display metrics of this device
       DisplayMetrics dm = new DisplayMetrics();
@@ -102,6 +110,7 @@ public class MbwManager {
       _displayWidth = dm.widthPixels;
       _displayHeight = dm.heightPixels;
 
+      _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, _txOutDb);
       _recordManager = new RecordManager(_applicationContext);
       _addressBookManager = new AddressBookManager(application);
       _hintManager = new HintManager(this, _applicationContext);
@@ -131,9 +140,20 @@ public class MbwManager {
 
    public void setFiatCurrency(String currency) {
       _fiatCurrency = currency;
+      SharedPreferences.Editor editor = getEditor();
+      editor.putString(Constants.FIAT_CURRENCY_SETTING, _fiatCurrency);
+      editor.commit();
+   }
+
+   public WalletMode getWalletMode() {
+      return _walletMode;
+   }
+
+   public void setWalletMode(WalletMode mode) {
+      _walletMode = mode;
       SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
             Activity.MODE_PRIVATE).edit();
-      editor.putString(Constants.FIAT_CURRENCY_SETTING, _fiatCurrency);
+      editor.putInt(Constants.WALLET_MODE_SETTING, _walletMode.asInteger());
       editor.commit();
    }
 
@@ -157,6 +177,10 @@ public class MbwManager {
       return _externalStorageManager;
    }
 
+   public BlockChainAddressTracker getBlockChainAddressTracker() {
+      return _blockChainAddressTracker;
+   }
+
    public boolean isPinProtected() {
       return getPin().length() > 0;
    }
@@ -167,10 +191,9 @@ public class MbwManager {
 
    public void setPin(String pin) {
       _pin = pin;
-      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE).edit();
-      editor.putString(Constants.PIN_SETTING, _pin);
-      editor.commit();
+      getEditor().
+              putString(Constants.PIN_SETTING, _pin)
+              .commit();
    }
 
    public void runPinProtectedFunction(final Context context, final Runnable fun) {
@@ -207,10 +230,9 @@ public class MbwManager {
 
    public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
       _bitcoinDenomination = denomination;
-      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE).edit();
-      editor.putString(Constants.BITCOIN_DENOMINATION_SETTING, _bitcoinDenomination.toString());
-      editor.commit();
+      getEditor()
+              .putString(Constants.BITCOIN_DENOMINATION_SETTING, _bitcoinDenomination.toString())
+              .commit();
    }
 
    public String getBtcValueString(long satoshis) {
@@ -229,10 +251,21 @@ public class MbwManager {
 
    public void setShowHints(boolean show) {
       _showHints = show;
-      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE).edit();
-      editor.putBoolean(Constants.SHOW_HINTS_SETTING, _showHints);
-      editor.commit();
+      getEditor()
+              .putBoolean(Constants.SHOW_HINTS_SETTING, _showHints)
+              .commit();
    }
 
+   private SharedPreferences.Editor getEditor() {
+      return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
+   }
+
+   public void setAutoPay(long fiatCents) {
+      this._autoPay = fiatCents;
+      getEditor().putLong(Constants.AUTOPAY_SETTING, fiatCents).commit();
+   }
+
+   public long getAutoPay() {
+      return _autoPay;
+   }
 }

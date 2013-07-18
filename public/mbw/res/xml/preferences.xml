@@ -1,20 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-	<ListPreference android:key="local_currency"
-		android:title="@string/pref_local_currency" android:summary="@string/pref_local_currency_summary"
-		android:entryValues="@array/currencies" android:entries="@array/currencies" />
+    <ListPreference
+        android:entries="@array/currencies"
+        android:entryValues="@array/currencies"
+        android:key="local_currency"
+        android:summary="@string/pref_local_currency_summary"
+        android:title="@string/pref_local_currency" />
+    <ListPreference
+        android:key="bitcoin_denomination"
+        android:summary="@string/pref_bitcoin_denomination_summary"
+        android:title="@string/pref_bitcoin_denomination" />
 
-	<ListPreference android:key="bitcoin_denomination"
-		android:title="@string/pref_bitcoin_denomination" android:summary="@string/pref_bitcoin_denomination_summary" />
+    <CheckBoxPreference
+        android:key="aggregatedView"
+        android:summary="@string/pref_aggregated_view_summary"
+        android:title="@string/pref_aggregated_view" />
+    <CheckBoxPreference
+        android:key="showHints"
+        android:summary="@string/pref_show_hints_summary"
+        android:title="@string/pref_show_hints" />
 
-	<CheckBoxPreference android:key="showHints"
-		android:title="@string/pref_show_hints" android:summary="@string/pref_show_hints_summary" />
+    <EditTextPreference
+        android:inputType="numberDecimal"
+        android:key="instantPayAmount"
+        android:summary="When scanning a barcode, Mycelium Wallet will sign+send transactions below this amount"
+        android:title="@string/autopay" >
+    </EditTextPreference>
 
-	<PreferenceCategory android:title="@string/pref_category_pin">
-		<Preference android:key="clearPin" android:title="@string/pref_clear_pin"
-			android:summary="@string/pref_clear_pin_summary" />
-		<Preference android:key="setPin" android:title="@string/pref_set_pin"
-			android:summary="@string/pref_set_pin_summary" />
-	</PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_category_pin" >
+        <Preference
+            android:key="clearPin"
+            android:summary="@string/pref_clear_pin_summary"
+            android:title="@string/pref_clear_pin" />
+        <Preference
+            android:key="setPin"
+            android:summary="@string/pref_set_pin_summary"
+            android:title="@string/pref_set_pin" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

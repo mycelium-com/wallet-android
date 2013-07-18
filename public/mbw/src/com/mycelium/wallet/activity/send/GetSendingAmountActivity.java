@@ -54,6 +54,8 @@ import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.mbwapi.api.ApiError;
+import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
@@ -64,8 +66,6 @@ import com.mycelium.wallet.activity.send.SendActivityHelper.SendContext;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.AsyncTask;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.ExchangeSummary;
 
 public class GetSendingAmountActivity extends Activity implements NumberEntryListener {
 
@@ -79,6 +79,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    private Double _oneBtcInFiat;
    private SendContext _context;
    private List<UnspentTransactionOutput> _outputs;
+   private long _maxSendable;
 
    /** Called when the activity is first created. */
    @SuppressLint("ShowToast")
@@ -102,12 +103,11 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
       // Construct list of outputs
       _outputs = new LinkedList<UnspentTransactionOutput>();
-      _outputs.addAll(_context.unspentOutputs.unspent);
-      _outputs.addAll(_context.unspentOutputs.change);
+      _outputs.addAll(_context.spendableOutputs.unspent);
+      _outputs.addAll(_context.spendableOutputs.change);
 
       // Construct private key ring
-      _privateKeyRing = new PrivateKeyRing();
-      _privateKeyRing.addPrivateKey(_context.spendingRecord.key, Constants.network);
+      _privateKeyRing = _context.wallet.getPrivateKeyRing();
 
       // Determine and set balance
       _balance = 0;
@@ -115,6 +115,9 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          _balance += out.value;
       }
       ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_balance));
+
+      // Calculate the maximum amount we can send
+      _maxSendable = getMaxAmount();
 
       // Set amount
       String amountString;
@@ -145,13 +148,21 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          }
       });
 
+      findViewById(R.id.btMax).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View arg0) {
+            maximizeAmount();
+         }
+      });
+
       AndroidAsyncApi api = _mbwManager.getAsyncApi();
       _task = api.getExchangeSummary(_mbwManager.getFiatCurrency(), new QueryExchangeSummaryHandler());
    }
 
    private String getBalanceString(long balance) {
       String balanceString = _mbwManager.getBtcValueString(balance);
-      String balanceText = getResources().getString(R.string.btc_balance, balanceString);
+      String balanceText = getResources().getString(R.string.max_btc, balanceString);
       return balanceText;
    }
 
@@ -167,7 +178,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       }
    };
 
-   public void switchCurrency() {
+   private void switchCurrency() {
       int newDecimalPlaces;
       BigDecimal newAmount;
       if (_enterFiatAmount) {
@@ -196,8 +207,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
          // Set Fiat balance
          Double fiatBalance = Utils.getFiatValue(_balance, _oneBtcInFiat);
-         String balanceString = getResources().getString(R.string.fiat_balance, fiatBalance,
-               _mbwManager.getFiatCurrency());
+         String balanceString = getResources().getString(R.string.max_fiat, fiatBalance, _mbwManager.getFiatCurrency());
          ((TextView) findViewById(R.id.tvMaxAmount)).setText(balanceString);
 
          newDecimalPlaces = 2;
@@ -248,6 +258,9 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       TextView tvAlternateAmount = ((TextView) findViewById(R.id.tvAlternateAmount));
       Long satoshis = getSatoshisToSend();
 
+      // enable/disable Max button
+      findViewById(R.id.btMax).setEnabled(satoshis == null || _maxSendable != satoshis);
+      
       // Set alternate amount if we can
       if (satoshis == null || _oneBtcInFiat == null) {
          tvAlternateAmount.setText("");
@@ -264,6 +277,64 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       }
    }
 
+   private void maximizeAmount() {
+      if (_maxSendable == 0) {
+         String msg = getResources().getString(R.string.insufficient_funds);
+         _toast.setText(msg);
+         _toast.show();
+      } else {
+         if (_enterFiatAmount) {
+            switchCurrency();
+         }
+         int newDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+         BigDecimal newAmount = BigDecimal.valueOf(_maxSendable).divide(BigDecimal.TEN.pow(newDecimalPlaces));
+         _numberEntry.setEntry(newAmount, newDecimalPlaces);
+      }
+   }
+
+   private long getMaxAmount() {
+      long satoshis = _balance;
+      while (true) {
+         satoshis -= StandardTransactionBuilder.MINIMUM_MINER_FEE;
+         AmountValidation result = checkSendAmount(satoshis);
+         if (result == AmountValidation.Ok) {
+            return satoshis;
+         } else if (result == AmountValidation.ValueTooSmall) {
+            return 0;
+         }
+
+      }
+   }
+
+   private enum AmountValidation {
+      Ok, ValueTooSmall, NotEnoughFunds
+   };
+
+   /**
+    * Check that the amount is large enough for the network to accept it, and
+    * that we have enough funds to send it.
+    */
+   private AmountValidation checkSendAmount(long satoshis) {
+      // Create transaction builder
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.network);
+
+      // Try and add the output
+      try {
+         stb.addOutput(_context.receivingAddress, satoshis);
+      } catch (OutputTooSmallException e1) {
+         return AmountValidation.ValueTooSmall;
+      }
+
+      // Try to create an unsigned transaction
+      try {
+         stb.createUnsignedTransaction(_outputs, _context.wallet.getReceivingAddress(), _privateKeyRing,
+               Constants.network);
+      } catch (InsufficientFundsException e) {
+         return AmountValidation.NotEnoughFunds;
+      }
+      return AmountValidation.Ok;
+   }
+
    private void checkTransaction() {
       Long satoshis = getSatoshisToSend();
       if (satoshis == null) {
@@ -275,33 +346,13 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
       // Check whether we have sufficient funds, and whether the output is too
       // small
-      boolean haveFunds;
-      boolean outputLargeEnough;
+      AmountValidation result = checkSendAmount(satoshis);
 
-      // Create transaction builder
-      StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.network);
-
-      // Try and add the output
-      try {
-         stb.addOutput(_context.receivingAddress, satoshis);
-         outputLargeEnough = true;
-      } catch (OutputTooSmallException e1) {
-         outputLargeEnough = false;
-      }
-
-      // Try to create an unsigned transaction
-      try {
-         stb.createUnsignedTransaction(_outputs, _context.spendingRecord.address, _privateKeyRing, Constants.network);
-         haveFunds = true;
-      } catch (InsufficientFundsException e) {
-         haveFunds = false;
-      }
-
-      if (haveFunds && outputLargeEnough) {
+      if (result == AmountValidation.Ok) {
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
       } else {
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.red));
-         if (!haveFunds) {
+         if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
             if (_balance < satoshis) {
                // We do not have enough funds for sending the requested amount
@@ -321,7 +372,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       }
 
       // Enable/disable Next button
-      findViewById(R.id.btNext).setEnabled(haveFunds && satoshis > 0);
+      findViewById(R.id.btNext).setEnabled(result != AmountValidation.NotEnoughFunds && satoshis > 0);
    }
 
    private Long getFiatCentsToSend() {
