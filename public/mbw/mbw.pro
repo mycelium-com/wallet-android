@@ -4,6 +4,8 @@
 -dontwarn javax.annotation.**
 -dontwarn javax.inject.**
 -dontwarn sun.misc.Unsafe
+#ignore xzing version trickery
+-dontwarn com.google.zxing.**
 
 -optimizationpasses 5
 
