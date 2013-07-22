@@ -92,6 +92,9 @@ public class InstantWalletActivity extends Activity {
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      if (requestCode != SCANNER_RESULT_CODE || resultCode != RESULT_OK) {
+         return;
+      }
       if (!"QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
          return;
       }
@@ -101,7 +104,7 @@ public class InstantWalletActivity extends Activity {
          Wallet wallet = new Wallet(record);
          SendActivityHelper.startNextActivity(InstantWalletActivity.this, wallet);
       } else {
-         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_LONG).show();
+         Toast.makeText(this, R.string.unrecognized_private_key_format, Toast.LENGTH_LONG).show();
       }
 
    }

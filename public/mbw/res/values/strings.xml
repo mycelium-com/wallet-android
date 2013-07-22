@@ -85,6 +85,7 @@
 	<string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
 	<string name="no_private_key">Your wallet cannot send funds as it has no private keys</string>
 	<string name="unrecognized_format">Unrecognized format</string>
+	<string name="unrecognized_private_key_format">Unrecognized private key format</string>
 	<string name="no_records">No Transaction Records</string>
 	<string name="swipe">Swipe</string>
 	<string name="left_arrow">&lt;</string>

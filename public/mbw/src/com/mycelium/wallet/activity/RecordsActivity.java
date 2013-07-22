@@ -496,7 +496,11 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.record_options_menu, menu);
+      return true;
+   }
 
+   @Override
+   public boolean onPrepareOptionsMenu(Menu menu) {
       if (_recordManager.getSelectedRecord().hasPrivateKey()) {
          menu.findItem(R.id.miDeleteAddress).setVisible(false);
          menu.findItem(R.id.miDeletePrivateKey).setVisible(true);
@@ -506,8 +510,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          menu.findItem(R.id.miDeletePrivateKey).setVisible(false);
          menu.findItem(R.id.miExport).setVisible(false);
       }
-
-      return true;
+      return super.onPrepareOptionsMenu(menu);
    }
 
    @Override

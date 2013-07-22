@@ -107,13 +107,13 @@ public class SendSummaryActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             Utils.showSetAddressLabelDialog(SendSummaryActivity.this, _mbwManager.getAddressBookManager(),
-                    _context.receivingAddress.toString(), new Runnable() {
+                  _context.receivingAddress.toString(), new Runnable() {
 
-               @Override
-               public void run() {
-                  updateUi();
-               }
-            });
+                     @Override
+                     public void run() {
+                        updateUi();
+                     }
+                  });
          }
       });
 
@@ -147,8 +147,7 @@ public class SendSummaryActivity extends Activity {
 
       // Create the unsigned transaction
       try {
-         _unsigned = stb.createUnsignedTransaction(outputs, _context.wallet.getReceivingAddress(), _privateKeyRing,
-               Constants.network);
+         _unsigned = stb.createUnsignedTransaction(outputs, null, _privateKeyRing, Constants.network);
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
       }
@@ -175,7 +174,7 @@ public class SendSummaryActivity extends Activity {
 
       // Set Address
       String choppedAddress = address.substring(0, 12) + "\r\n" + address.substring(12, 24) + "\r\n"
-              + address.substring(24);
+            + address.substring(24);
       ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
 
       // Show / hide warning
@@ -218,12 +217,12 @@ public class SendSummaryActivity extends Activity {
       }
 
       // Enable/disable send button
-     findViewById(R.id.btSend).setEnabled(couldSend());
+      findViewById(R.id.btSend).setEnabled(couldSend());
    }
 
    private boolean couldSend() {
       boolean enoughFunds = _unsigned != null;
-      return enoughFunds &&! _waitForAutoSend;
+      return enoughFunds && !_waitForAutoSend;
    }
 
    private String getFiatValue(long satoshis, Double oneBtcInFiat) {
@@ -269,7 +268,7 @@ public class SendSummaryActivity extends Activity {
          protected Void doInBackground(Handler... handler) {
             _unsigned.getSignatureInfo();
             List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(_unsigned.getSignatureInfo(),
-                    _privateKeyRing);
+                  _privateKeyRing);
             final Transaction tx = StandardTransactionBuilder.finalizeTransaction(_unsigned, signatures);
             // execute broadcasting task from UI thread
             handler[0].post(new Runnable() {
@@ -282,7 +281,7 @@ public class SendSummaryActivity extends Activity {
             });
             return null;
          }
-      }.execute(new Handler[]{new Handler()});
+      }.execute(new Handler[] { new Handler() });
    }
 
    class BroadcastTransactionHandler implements AbstractCallbackHandler<BroadcastTransactionResponse> {
@@ -331,7 +330,9 @@ public class SendSummaryActivity extends Activity {
    private boolean checkForAutoSend() {
       double oneSatoshiInFiat = _oneBtcInFiat / Math.pow(10, 8);
       long maxSatoshis = (long) (_mbwManager.getAutoPay() / 100 / oneSatoshiInFiat);
-      if (_context.amountToSend < maxSatoshis) { //emulate send button. shall we even skip pin protection? i think not.
+      if (_context.amountToSend < maxSatoshis) { // emulate send button. shall
+                                                 // we even skip pin protection?
+                                                 // i think not.
          _mbwManager.runPinProtectedFunction(SendSummaryActivity.this, pinProtectedSignAndSend);
          return true;
       }

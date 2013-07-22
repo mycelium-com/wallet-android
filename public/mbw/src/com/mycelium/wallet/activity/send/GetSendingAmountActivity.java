@@ -327,7 +327,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(_outputs, _context.wallet.getReceivingAddress(), _privateKeyRing,
+         stb.createUnsignedTransaction(_outputs, null, _privateKeyRing,
                Constants.network);
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;

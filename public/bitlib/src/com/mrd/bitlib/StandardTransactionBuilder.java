@@ -87,7 +87,7 @@ public class StandardTransactionBuilder {
       }
 
    }
-
+   
    public static class SigningRequest {
 
       // The public part of the key we will sign with
@@ -264,7 +264,8 @@ public class StandardTransactionBuilder {
     *           The list of unspent transaction outputs that can be used as
     *           funding
     * @param changeAddress
-    *           The address to send any change to
+    *           The address to send any change to. If null the change address
+    *           will be set to the address of one of the spent outputs.
     * @param keyRing
     *           The public key ring matching the unspent outputs
     * @param network
@@ -332,6 +333,12 @@ public class StandardTransactionBuilder {
          }
          found += output.value;
          funding.add(output);
+
+         // If no change address s specified, get it from one of the outputs being spent
+         if (changeAddress == null) {
+            Address outputAddress = output.script.getAddress(network);
+            changeAddress = outputAddress;
+         }
       }
       // We have our funding, calculate change
       long change = found - toSend;
