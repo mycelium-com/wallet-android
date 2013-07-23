@@ -28,6 +28,7 @@ public class ErrorCollectionRequest extends ApiObject {
    @Override
    protected ByteWriter toByteWriter(ByteWriter writer) {
       writer.putString(error);
+      writer.putString(version);
       return writer;
    }
 

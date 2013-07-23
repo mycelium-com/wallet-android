@@ -182,13 +182,11 @@ public abstract class AsynchronousApi {
 
    /**
     * Create a new asynchronous API instance.
-    * 
-    * @param keyRing
-    *           The key ring containing all Bitcoin public keys we operate on
+    *
     * @param api
     *           The BCCAPI instance used for communicating with the BCCAPI
     *           server.
-    * @param accountCache
+    * @param cache
     *           The account cache instance used.
     */
    public AsynchronousApi(MyceliumWalletApi api, ApiCache cache) {

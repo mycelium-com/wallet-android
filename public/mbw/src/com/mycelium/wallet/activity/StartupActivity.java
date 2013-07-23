@@ -50,16 +50,7 @@ import android.widget.Toast;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
-import com.mrd.mbwapi.api.ApiException;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.ExternalStorageManager;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.send.SendActivityHelper;
 import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
 
@@ -70,7 +61,7 @@ public class StartupActivity extends Activity {
    private boolean _hasClipboardExportedPrivateKeys;
    private AlertDialog _alertDialog;
 
-   private static String version = "unknown";
+   public static String version = "unknown";
 
    private void readVersion() {
       try {
@@ -88,19 +79,9 @@ public class StartupActivity extends Activity {
 
    static {
       final Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
-      Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-         @Override
-         public void uncaughtException(Thread thread, Throwable throwable) {
-            try {
-               Constants.bccapi.collectError(throwable, version);
-            } catch (RuntimeException e) {
-               Log.e(Constants.TAG, "error while sending error", e);
-            } catch (ApiException e) {
-               Log.e(Constants.TAG, "error while sending error", e);
-            }
-            orig.uncaughtException(thread, throwable);
-         }
-      });
+      if (!(orig instanceof HttpErrorCollector)) {
+         Thread.setDefaultUncaughtExceptionHandler(new HttpErrorCollector(orig));
+      }
    }
 
    @Override
@@ -305,4 +286,5 @@ public class StartupActivity extends Activity {
       // The intent was not a Bitcoin URI
       return false;
    }
+
 }

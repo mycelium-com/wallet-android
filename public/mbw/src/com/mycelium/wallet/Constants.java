@@ -74,8 +74,8 @@ public class Constants {
 	private static final HttpEndpoint[] _serverEndpoints = new HttpEndpoint[] {
 			smws1, smws2 };
 	public static final NetworkParameters network = NetworkParameters.productionNetwork;
-	public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(
-			_serverEndpoints, network);
+	public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(_serverEndpoints, network);
+//	public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(new HttpEndpoint[]{new HttpEndpoint("http://192.168.178.66:8080/mws")}, network);
 
 	public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
 

@@ -41,18 +41,14 @@ import android.os.Bundle;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.PinDialog;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.*;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -77,6 +73,13 @@ public class SettingsActivity extends PreferenceActivity {
    private MbwManager _mbwManager;
    private Dialog _dialog;
    private EditTextPreference _autoPay;
+
+   public static final Function<String,String> AUTOPAY_EXTRACT = new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+         return extractAmount(input);
+      }
+   };
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -109,7 +112,7 @@ public class SettingsActivity extends PreferenceActivity {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             _mbwManager.setFiatCurrency(newValue.toString());
-            _autoPay.setTitle(autoPayTitle(_autoPay.getText()));
+            _autoPay.setTitle(autoPayTitle());
             return true;
          }
       });
@@ -138,56 +141,25 @@ public class SettingsActivity extends PreferenceActivity {
       if (autopayAmount == null || autopayAmount.equals("")) {
          _autoPay.setText("0.00");
       }
-      _autoPay.setTitle(autoPayTitle(_autoPay.getText()));
-      final EditText autpayEdit = _autoPay.getEditText();
-      autpayEdit.addTextChangedListener(new TextWatcher() {
-         @Override
-         public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+      _autoPay.setTitle(autoPayTitle());
 
-         }
-
-         @Override
-         public void onTextChanged(final CharSequence s, int i, int i2, int i3) {
-            String input = extractAmount(s);
-            if (input.length() > 0) {
-               String newText = getFiatSymbol() + " " + input;
-               if (!s.toString().equals(newText)) {
-                  autpayEdit.setText(newText);
-                  Editable text = autpayEdit.getText();
-                  if (text != null) {
-                     autpayEdit.setSelection(text.length());
-                  }
-               }
-            }
-
-         }
-
-         @Override
-         public void afterTextChanged(Editable editable) {
-
-         }
-      });
       _autoPay.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object o) {
             final String text = (String) o;
-            _mbwManager.setAutoPay((long) (Double.parseDouble(extractAmount(text)) * 100));
-            SettingsActivity.this.runOnUiThread(new Runnable() {
-               @Override
-               public void run() {
-                  _autoPay.setTitle(autoPayTitle(text));
-               }
-            });
+            _mbwManager.setAutoPay((long) (Double.parseDouble(text) * 100));
+            _autoPay.setTitle(autoPayTitle());
             return true;
          }
       });
 
+      final EditText autpayEdit = _autoPay.getEditText();
+      autpayEdit.addTextChangedListener(new TextNormalizer(AUTOPAY_EXTRACT, autpayEdit));
    }
 
    @VisibleForTesting
    static String extractAmount(CharSequence s) {
       String amt = AMOUNT.retainFrom(s).replace(",", ".");
-
       int commaIdx = amt.indexOf(".");
       if (commaIdx > -1) {
          String cents = amt.substring(commaIdx + 1, Math.min(amt.length(), commaIdx + 3));
@@ -197,13 +169,13 @@ public class SettingsActivity extends PreferenceActivity {
       return amt;
    }
 
-   private String autoPayTitle(String text) {
-      return String.format("%s (%s)", getString(R.string.autopay), text);
+   private String autoPayTitle() {
+      return String.format("%s (%s %.2f)"
+              , getString(R.string.autopay)
+              , CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol()
+              , (double) _mbwManager.getAutoPay() / 100);
    }
 
-   private String getFiatSymbol() {
-      return com.mycelium.wallet.CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol();
-   }
 
    private void updateClearPin() {
       _clearPin = findPreference("clearPin");
