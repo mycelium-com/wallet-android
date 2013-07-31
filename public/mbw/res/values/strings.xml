@@ -184,4 +184,6 @@
     <string name="cold_storage">Cold Storage</string>
     <string name="cold_storage_title">You are about to spend from a private key in cold storage.</string>
     <string name="go_back">Back</string>
+    <string name="keep_address">keep public address</string>
+    <string name="question_delete_pk">This cannot be undone!\r\nDo you want to delete this private key?</string>
 </resources>

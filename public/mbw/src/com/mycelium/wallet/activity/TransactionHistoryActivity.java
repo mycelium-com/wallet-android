@@ -1,50 +1,38 @@
 /*
  * Copyright 2013 Megion Research and Development GmbH
  *
- *  Licensed under the Microsoft Reference Source License (MS-RSL)
+ * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
- *  This license governs use of the accompanying software. If you use the software, you accept this license.
- *  If you do not accept the license, do not use the software.
+ * This license governs use of the accompanying software. If you use the software, you accept this license.
+ * If you do not accept the license, do not use the software.
  *
- *  1. Definitions
- *  The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- *  "You" means the licensee of the software.
- *  "Your company" means the company you worked for when you downloaded the software.
- *  "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- *  of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- *  software, and specifically excludes the right to distribute the software outside of your company.
- *  "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- *  under this license.
+ * 1. Definitions
+ * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
+ * "You" means the licensee of the software.
+ * "Your company" means the company you worked for when you downloaded the software.
+ * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
+ * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
+ * software, and specifically excludes the right to distribute the software outside of your company.
+ * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
+ * under this license.
  *
- *  2. Grant of Rights
- *  (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- *  worldwide, royalty-free copyright license to reproduce the software for reference use.
- *  (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- *  worldwide, royalty-free patent license under licensed patents for reference use.
+ * 2. Grant of Rights
+ * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free copyright license to reproduce the software for reference use.
+ * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free patent license under licensed patents for reference use.
  *
- *  3. Limitations
- *  (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- *  (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- *  (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- *  (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- *  guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- *  change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- *  fitness for a particular purpose and non-infringement.
- *
+ * 3. Limitations
+ * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
+ * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
+ * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
+ * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
+ * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
+ * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
+ * fitness for a particular purpose and non-infringement.
  */
 
 package com.mycelium.wallet.activity;
-
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -52,22 +40,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
+import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.StringUtils;
@@ -75,19 +51,17 @@ import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
 import com.mrd.mbwapi.util.TransactionSummaryUtils;
-import com.mrd.mbwapi.util.TransactionSummaryUtils.TransactionType;
-import com.mycelium.wallet.AddressBookManager;
-import com.mycelium.wallet.MbwManager;
+import com.mrd.mbwapi.util.TransactionType;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.SimpleGestureFilter;
 import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.api.AsyncTask;
+
+import java.text.DateFormat;
+import java.util.*;
 
 public class TransactionHistoryActivity extends Activity implements ConnectionObserver, SimpleGestureListener {
 
@@ -104,7 +78,9 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
    private TransactionSummary _selectedTransaction;
    private MbwManager _mbwManager;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -117,7 +93,8 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
       // Get intent parameters
       _wallet = (Wallet) getIntent().getSerializableExtra("wallet");
 
-      ((ListView) findViewById(R.id.lvTransactionHistory)).setOnItemClickListener(new OnItemClickListener() {
+      ListView listView = ((ListView) findViewById(R.id.lvTransactionHistory));
+      listView.setOnItemClickListener(new OnItemClickListener() {
 
          @Override
          public void onItemClick(AdapterView<?> list, View v, int position, long id) {
@@ -130,7 +107,8 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          }
       });
 
-      registerForContextMenu(findViewById(R.id.lvTransactionHistory));
+      registerForContextMenu(listView);
+      listView.setLongClickable(false);
    }
 
    @Override
@@ -169,7 +147,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          return null;
       }
       Set<Address> addressSet = _wallet.getAddresses();
-      TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
+      TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
       if (type != TransactionType.SentToOthers) {
          return null;
       }
@@ -180,8 +158,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
       if (!_invoiceMap.containsKey(candidates[0])) {
          return null;
       }
-      String urlString = _invoiceMap.get(candidates[0]);
-      return urlString;
+      return _invoiceMap.get(candidates[0]);
    }
 
    private void doDownloadInvoice() {
@@ -219,21 +196,8 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
 
    private String getSingleForeignAddressForTransaction(TransactionSummary tx) {
       Set<Address> addressSet = _wallet.getAddresses();
-      TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(tx, addressSet);
-      if (type == TransactionType.SentToOthers) {
-         String[] candidates = TransactionSummaryUtils.getReceiversNotMe(tx, addressSet);
-         if (candidates.length != 1) {
-            return null;
-         }
-         return candidates[0];
-      } else if (type == TransactionType.ReceivedFromOthers) {
-         String[] candidates = TransactionSummaryUtils.getSenders(tx);
-         if (candidates.length != 1) {
-            return null;
-         }
-         return candidates[0];
-      }
-      return null;
+      TransactionType type = TransactionSummaryUtils.getTransactionType(tx, addressSet);
+      return type.singleForeignAddress(tx, addressSet);
    }
 
    @Override
@@ -323,7 +287,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
       Set<Address> addressSet = _wallet.getAddresses();
       List<String> addresses = new LinkedList<String>();
       for (TransactionSummary t : response.transactions) {
-         TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
+         TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
          if (type == TransactionType.SentToOthers) {
             String[] candidates = TransactionSummaryUtils.getReceiversNotMe(t, addressSet);
             if (candidates.length == 1) {
@@ -389,7 +353,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          // Get the time at last midnight
          Calendar midnight = Calendar.getInstance();
          midnight.set(midnight.get(Calendar.YEAR), midnight.get(Calendar.MONTH), midnight.get(Calendar.DAY_OF_MONTH),
-               0, 0, 0);
+                 0, 0, 0);
          _midnight = midnight.getTime();
          // Create date formats for hourly and day format
          Locale locale = getResources().getConfiguration().locale;
@@ -408,7 +372,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          }
 
          TransactionSummary record = getItem(position);
-         TransactionSummaryUtils.TransactionType type = TransactionSummaryUtils.getTransactionType(record, _addressSet);
+         TransactionType type = TransactionSummaryUtils.getTransactionType(record, _addressSet);
 
          // Determine Value
          long value = TransactionSummaryUtils.calculateBalanceChange(record, _addressSet);
@@ -433,15 +397,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          tvAmount.setTextColor(color);
 
          // Determine list of addresses
-         String[] addresses;
-         if (type == TransactionType.SentToOthers) {
-            addresses = TransactionSummaryUtils.getReceiversNotMe(record, _addressSet);
-         } else if (type == TransactionType.ReceivedFromOthers) {
-            addresses = TransactionSummaryUtils.getSenders(record);
-         } else {
-            addresses = EMPTY_STRING_ARRAY;
-         }
-
+         final String[] addresses = type.relevantAddresses(record,_addressSet);
          // Show/Hide Invoice if we have one
          if (value < 0 && addresses.length == 1 && _invoiceMap.containsKey(addresses[0])) {
             rowView.findViewById(R.id.tvInvoice).setVisibility(View.VISIBLE);
@@ -519,7 +475,9 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
       return super.dispatchTouchEvent(me);
    }
 
-   /** Called when menu button is pressed. */
+   /**
+    * Called when menu button is pressed.
+    */
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();

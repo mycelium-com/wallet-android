@@ -32,41 +32,65 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.api;
+package com.mrd.mbwapi.util;
 
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.Transaction.TransactionParsingException;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.model.Address;
+import com.mrd.mbwapi.api.TransactionSummary;
 
-public class BroadcastTransactionRequest extends ApiObject {
+import java.util.Set;
 
-   public Transaction transaction;
+public enum TransactionType {
 
-   public BroadcastTransactionRequest(Transaction transaction) {
-      this.transaction = transaction;
-   }
-
-   protected BroadcastTransactionRequest(ByteReader reader) throws InsufficientBytesException, ApiException {
-      try {
-         transaction = Transaction.fromByteReader(reader);
-      } catch (TransactionParsingException e) {
-         throw new ApiException(MyceliumWalletApi.ERROR_CODE_PARSER_ERROR, "Unable to parse API object");
+   ReceivedFromOthers {
+      @Override
+      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
+         return TransactionSummaryUtils.getSenders(record);
       }
-      // Payload may contain more, but we ignore it for forwards
-      // compatibility
+
+      @Override
+      public String singleForeignAddress(TransactionSummary tx, Set<Address> addressSet) {
+         String[] candidates = TransactionSummaryUtils.getSenders(tx);
+         if (candidates.length != 1) {
+            return null;
+         }
+         return candidates[0];
+      }
+
+   }, SentToOthers {
+      @Override
+      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
+         return TransactionSummaryUtils.getReceiversNotMe(record, addressSet);
+      }
+
+      @Override
+      public String singleForeignAddress(TransactionSummary tx, Set<Address> addressSet) {
+         String[] candidates = TransactionSummaryUtils.getReceiversNotMe(tx, addressSet);
+         if (candidates.length != 1) {
+            return null;
+         }
+         return candidates[0];
+      }
+
+   }, SentToSelf {
+      @Override
+      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
+         return EMPTY_STRING_ARRAY;
+      }
+
+   }, Mining {
+      @Override
+      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
+         return TransactionSummaryUtils.getReceiversMe(record, addressSet);
+      }
+   };
+
+
+   public String singleForeignAddress(TransactionSummary tx, Set<Address> addressSet) {
+      //implementation valid for SentToSelf + Mining
+      return null;
    }
 
-   @Override
-   protected ByteWriter toByteWriter(ByteWriter writer) {
-      transaction.toByteWriter(writer);
-      return writer;
-   }
+   public abstract String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet);
 
-   @Override
-   protected byte getType() {
-      return ApiObject.BROADCAST_TRANSACTION_REQUEST_TYPE;
-   }
-
+   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 }

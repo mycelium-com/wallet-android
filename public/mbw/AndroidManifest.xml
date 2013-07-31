@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest android:versionCode="27" android:versionName="0.6.2"
+<manifest android:versionCode="28" android:versionName="0.6.3"
 	package="com.mycelium.wallet" xmlns:android="http://schemas.android.com/apk/res/android">
-	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8" />
+	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.VIBRATE" />
@@ -51,10 +51,6 @@
 			android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 			android:windowSoftInputMode="stateAlwaysHidden">
-			<intent-filter>
-				<action android:name="com.google.zxing.client.android.SCAN" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
 		</activity>
         <uses-library android:name="android.test.runner" />
     </application>
