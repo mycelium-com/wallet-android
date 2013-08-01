@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest android:versionCode="28" android:versionName="0.6.3"
+<manifest android:versionCode="29" android:versionName="0.6.4"
 	package="com.mycelium.wallet" xmlns:android="http://schemas.android.com/apk/res/android">
-	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
+	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.VIBRATE" />
