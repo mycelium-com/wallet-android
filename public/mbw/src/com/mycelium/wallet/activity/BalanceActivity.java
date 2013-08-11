@@ -33,8 +33,11 @@
  */
 package com.mycelium.wallet.activity;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -59,6 +62,7 @@ import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.SimpleGestureFilter;
 import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
@@ -81,6 +85,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
    private SimpleGestureFilter _gestureFilter;
    private AlertDialog _qrCodeDialog;
    private AlertDialog _hintDialog;
+   private Dialog _dialog;
    private Handler _hintHandler;
    private AddressBookManager _addressBook;
    private MbwManager _mbwManager;
@@ -190,6 +195,9 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       if (_hintDialog != null && _hintDialog.isShowing()) {
          _hintDialog.dismiss();
       }
+      if (_dialog != null && _dialog.isShowing()) {
+         _dialog.dismiss();
+      }
       cancelEverything();
       super.onDestroy();
    }
@@ -206,10 +214,48 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       MbwManager.getInstance(this.getApplication()).getNetworkConnectionWatcher().addObserver(this);
       animateSwipe();
 
-      // Delay hints by a few seconds
-      _hintHandler = new Handler();
-      _hintHandler.postDelayed(delayedHint, 5000);
+      _dialog = weakKeyCheck();
+
+      if (_dialog != null) {
+         // Delay hints by a few seconds
+         _hintHandler = new Handler();
+         _hintHandler.postDelayed(delayedHint, 5000);
+      }
       super.onResume();
+   }
+
+   private Dialog weakKeyCheck() {
+      List<Record> weakKeys = _mbwManager.getRecordManager().getWeakActiveKeys();
+      if (weakKeys.isEmpty()) {
+         return null;
+      }
+
+      KeyVulnerabilityDialog dialog = new KeyVulnerabilityDialog(this, weakKeys);
+      dialog.show();
+      return dialog;
+      // AlertDialog.Builder confirmDialog = new
+      // AlertDialog.Builder(BalanceActivity.this);
+      // String title = "Critical Security Vulnerability";
+      // confirmDialog.setTitle(title);
+      // confirmDialog
+      // .setMessage("A critical security voulnerability has been identified on Android, which leads to weak keys.\r\nYou have "
+      // + weakKeys
+      // +
+      // " potentially weak private keys in your active key set.\r\nWould you like to run a migration wizard to secure your funds?");
+      // confirmDialog.setPositiveButton(R.string.yes, new
+      // DialogInterface.OnClickListener() {
+      //
+      // public void onClick(DialogInterface arg0, int arg1) {
+      // }
+      // });
+      // confirmDialog.setNegativeButton("No, I know what I am doing", new
+      // DialogInterface.OnClickListener() {
+      //
+      // public void onClick(DialogInterface arg0, int arg1) {
+      // }
+      // });
+      // confirmDialog.show();
+      // return true;
    }
 
    private void animateSwipe() {

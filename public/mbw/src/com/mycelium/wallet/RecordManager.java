@@ -45,9 +45,9 @@ import android.content.SharedPreferences.Editor;
 import android.widget.Toast;
 
 import com.google.common.base.Joiner;
-import com.mrd.bitlib.crypto.FortunaRandomSource;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.Record.Source;
 import com.mycelium.wallet.Record.Tag;
 
 public class RecordManager {
@@ -237,19 +237,21 @@ public class RecordManager {
       return false;
    }
 
-   private boolean hasActiveRecord() {
-      for (Record r : _records) {
-         if (r.tag == Tag.ACTIVE) {
-            return true;
-         }
-      }
-      return false;
-   }
-
    public synchronized Record forgetPrivateKeyForRecordByAddress(Address address) {
       for (Record r : _records) {
          if (r.address.equals(address)) {
             r.forgetPrivateKey();
+            saveRecords();
+            return r.copy();
+         }
+      }
+      return null;
+   }
+
+   public synchronized Record setSourceForRecordByAddress(Address address, Source source) {
+      for (Record r : _records) {
+         if (r.address.equals(address)) {
+            r.source = source;
             saveRecords();
             return r.copy();
          }
@@ -277,6 +279,26 @@ public class RecordManager {
          }
       }
       return null;
+   }
+
+   public List<Record> getWeakActiveKeys() {
+      List<Record> active = getRecords(Tag.ACTIVE);
+      List<Record> weak = new LinkedList<Record>();
+      for (Record r : active) {
+         if (r.source == Source.VERSION_1 && r.hasPrivateKey()) {
+            weak.add(r.copy());
+         }
+      }
+      return weak;
+   }
+
+   private boolean hasActiveRecord() {
+      for (Record r : _records) {
+         if (r.tag == Tag.ACTIVE) {
+            return true;
+         }
+      }
+      return false;
    }
 
    /**
