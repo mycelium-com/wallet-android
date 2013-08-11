@@ -54,8 +54,9 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Joiner;
+
 import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.StringUtils;
 import com.mrd.mbwapi.api.ApiException;
 import com.mrd.mbwapi.api.ApiObject;
 import com.mrd.mbwapi.api.TransactionSummary;
@@ -73,7 +74,9 @@ public class TransactionDetailsActivity extends Activity {
    private CopyClickListener _clickListener;
    private MbwManager _mbwManager;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -111,7 +114,7 @@ public class TransactionDetailsActivity extends Activity {
    private void updateUi() {
       // Set Hash
       String hash = _tx.hash.toString();
-      String choppedHash = StringUtils.join(Utils.stringChopper(hash, 4), " ");
+      String choppedHash = Joiner.on(" ").join(Utils.stringChopper(hash, 4));
       TextView tvHash = ((TextView) findViewById(R.id.tvHash));
       setLinkText(tvHash, choppedHash);
       tvHash.setTag(hash);

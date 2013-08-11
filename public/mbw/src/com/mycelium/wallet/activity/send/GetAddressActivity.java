@@ -42,21 +42,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
+
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.addressbook.AddressChooserActivity;
+import com.mycelium.wallet.activity.addressbook.ManualAddressEntry;
 
 public class GetAddressActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
-   private static final int ADDRESS_BOOK_RESULT_CODE = 1;
+   public static final String ADDRESS_RESULT_NAME = "address result";
+   private static final int ADDRESS_ENTERED_RESULT_CODE = 1;
    private MbwManager _mbwManager;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -90,11 +92,21 @@ public class GetAddressActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             Intent intent = new Intent(GetAddressActivity.this, AddressChooserActivity.class);
-            startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+            startActivityForResult(intent, ADDRESS_ENTERED_RESULT_CODE);
          }
       });
 
       findViewById(R.id.btAddressBook).setEnabled(_mbwManager.getAddressBookManager().numEntries() != 0);
+
+/*
+      findViewById(R.id.btManual).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Intent intent = new Intent(GetAddressActivity.this, ManualAddressEntry.class);
+            startActivityForResult(intent, ADDRESS_ENTERED_RESULT_CODE);
+         }
+      });
+*/
    }
 
    private Address getClipboardAddress() {
@@ -125,16 +137,17 @@ public class GetAddressActivity extends Activity {
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
+      if (requestCode == ADDRESS_ENTERED_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
-         String result = intent.getStringExtra(AddressChooserActivity.ADDRESS_RESULT_NAME).trim();
+         String s = Preconditions.checkNotNull(intent.getStringExtra(ADDRESS_RESULT_NAME));
+         String result = s.trim();
          // Is it really an address?
          Address address = Address.fromString(result, Constants.network);
          if (address != null) {
             SendActivityHelper.startNextActivity(this, address);
          }
       } else if (requestCode == SCANNER_RESULT_CODE && resultCode == RESULT_OK
-            && "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
+              && "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
          String contents = intent.getStringExtra("SCAN_RESULT").trim();
 
          String addressString;

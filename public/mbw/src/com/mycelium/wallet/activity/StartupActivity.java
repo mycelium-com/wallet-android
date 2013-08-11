@@ -77,10 +77,12 @@ public class StartupActivity extends Activity {
    }
 
    static {
+
       final Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
       if (!(orig instanceof HttpErrorCollector)) {
          Thread.setDefaultUncaughtExceptionHandler(new HttpErrorCollector(orig));
       }
+
    }
 
    @Override
@@ -179,7 +181,7 @@ public class StartupActivity extends Activity {
       alertDialogBuilder.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int id) {
             ExternalStorageManager ext = MbwManager.getInstance(StartupActivity.this.getApplication())
-                  .getExternalStorageManager();
+                    .getExternalStorageManager();
             if (!ext.deleteExportedPrivateKeys()) {
                Toast.makeText(StartupActivity.this, R.string.failed_to_delete_private_keys, Toast.LENGTH_LONG).show();
             }

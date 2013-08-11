@@ -72,6 +72,7 @@ public class SendSummaryActivity extends Activity {
    private boolean _waitForAutoSend = true;
    private Double _oneBtcInFiat;
    private MbwManager _mbwManager;
+   private RecordManager _recordManager;
    private SendContext _context;
    private View _sendButton;
 
@@ -84,7 +85,7 @@ public class SendSummaryActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.send_summary_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
-
+      _recordManager = _mbwManager.getRecordManager();
       // Get intent parameters
       _context = SendActivityHelper.getSendContext(this);
 
@@ -173,7 +174,7 @@ public class SendSummaryActivity extends Activity {
       }
 
       // Set Address
-      String choppedAddress = _context.receivingAddress.getThreeLines();
+      String choppedAddress = _context.receivingAddress.toMultiLineString();
       ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
 
       // Show / hide warning
@@ -267,7 +268,7 @@ public class SendSummaryActivity extends Activity {
          protected Void doInBackground(Handler... handler) {
             _unsigned.getSignatureInfo();
             List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(_unsigned.getSignatureInfo(),
-                  _privateKeyRing);
+                  _privateKeyRing, _recordManager.getRandomSource());
             final Transaction tx = StandardTransactionBuilder.finalizeTransaction(_unsigned, signatures);
             // execute broadcasting task from UI thread
             handler[0].post(new Runnable() {

@@ -47,13 +47,14 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
 
    @Override
    public void uncaughtException(Thread thread, Throwable throwable) {
-      try {
+     try {
          Constants.bccapi.collectError(throwable, StartupActivity.version);
       } catch (RuntimeException e) {
          Log.e(Constants.TAG, "error while sending error", e);
       } catch (ApiException e) {
          Log.e(Constants.TAG, "error while sending error", e);
       } finally {
+      System.out.println(throwable);
          orig.uncaughtException(thread, throwable);
       }
    }

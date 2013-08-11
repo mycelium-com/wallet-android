@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -45,12 +44,15 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.widget.Toast;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.google.common.base.Joiner;
+import com.mrd.bitlib.crypto.FortunaRandomSource;
+import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.StringUtils;
+import com.mycelium.wallet.Record.Tag;
 
 public class RecordManager {
 
+   private final RandomSource randomSource = new AndroidRandomSource();
    private Context _applicationContext;
    private List<Record> _records = null;
    private Record _defaultSpendingRecord = null;
@@ -61,15 +63,30 @@ public class RecordManager {
       loadRecords();
    }
 
-   public synchronized int numRecords() {
-      return _records.size();
+   public synchronized int numRecords(Tag tag) {
+      int num = 0;
+      for (Record r : _records) {
+         if (r.tag == tag) {
+            num++;
+         }
+      }
+      return num;
    }
 
    public synchronized Wallet getWallet(WalletMode mode) {
       if (mode.equals(WalletMode.Segregated)) {
+         // User is in segregated mode, make a wallet for the selected record
+         // only
          return new Wallet(getSelectedRecord());
       } else {
-         return new Wallet(_records, getSelectedRecord());
+         Record selected = getSelectedRecord();
+         if (selected.tag == Tag.ARCHIVE) {
+            // User has chosen an archived record, make a wallet for the
+            // selected record only
+            return new Wallet(selected);
+         } else {
+            return new Wallet(getRecords(Tag.ACTIVE), getSelectedRecord());
+         }
       }
    }
 
@@ -103,12 +120,14 @@ public class RecordManager {
    }
 
    /**
-    * Get a copy of all the records
+    * Get a copy of all the records with a specific tag
     */
-   public synchronized List<Record> getRecords() {
+   public synchronized List<Record> getRecords(Tag tag) {
       List<Record> list = new ArrayList<Record>(_records.size());
       for (Record r : _records) {
-         list.add(new Record(r.key, r.address, r.timestamp));
+         if (r.tag == tag) {
+            list.add(r.copy());
+         }
       }
       return list;
    }
@@ -116,11 +135,11 @@ public class RecordManager {
    /**
     * Get a list of records with private keys
     */
-   public synchronized List<Record> getRecordsWithPrivateKeys() {
+   public synchronized List<Record> getRecordsWithPrivateKeys(Tag tag) {
       List<Record> list = new ArrayList<Record>(_records.size());
       for (Record r : _records) {
-         if (r.hasPrivateKey()) {
-            list.add(new Record(r.key, r.address, r.timestamp));
+         if (r.tag == tag && r.hasPrivateKey()) {
+            list.add(r.copy());
          }
       }
       return list;
@@ -134,7 +153,7 @@ public class RecordManager {
       if (r == null) {
          return null;
       }
-      return new Record(r.key, r.address, r.timestamp);
+      return r.copy();
    }
 
    /**
@@ -146,7 +165,7 @@ public class RecordManager {
       if (r == null) {
          return null;
       }
-      return new Record(r.key, r.address, r.timestamp);
+      return r.copy();
    }
 
    /**
@@ -162,7 +181,7 @@ public class RecordManager {
     */
    public synchronized boolean addRecord(Record record) {
       // Make a copy to prevent changes from the outside
-      record = new Record(record.key, record.address, record.timestamp);
+      record = record.copy();
 
       // See if we have a record with that address already
       Record existing = null;
@@ -205,14 +224,22 @@ public class RecordManager {
       for (Record r : _records) {
          if (r.address.equals(address)) {
             _records.remove(r);
-            if (_records.isEmpty()) {
+            if (!hasActiveRecord()) {
                // The last record was deleted, create a new one
-               Record newRecord = new Record(new InMemoryPrivateKey(new SecureRandom(), true),
-                     System.currentTimeMillis());
+               Record newRecord = Record.createRandom(randomSource);
                Toast.makeText(_applicationContext, R.string.created_new_random_key, Toast.LENGTH_LONG).show();
                _records.add(newRecord);
             }
             saveRecords();
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private boolean hasActiveRecord() {
+      for (Record r : _records) {
+         if (r.tag == Tag.ACTIVE) {
             return true;
          }
       }
@@ -224,7 +251,29 @@ public class RecordManager {
          if (r.address.equals(address)) {
             r.forgetPrivateKey();
             saveRecords();
-            return new Record(r.key, r.address, r.timestamp);
+            return r.copy();
+         }
+      }
+      return null;
+   }
+
+   public synchronized Record activateRecordByAddress(Address address) {
+      for (Record r : _records) {
+         if (r.address.equals(address)) {
+            r.tag = Tag.ACTIVE;
+            saveRecords();
+            return r.copy();
+         }
+      }
+      return null;
+   }
+
+   public synchronized Record archiveRecordByAddress(Address address) {
+      for (Record r : _records) {
+         if (r.address.equals(address)) {
+            r.tag = Tag.ARCHIVE;
+            saveRecords();
+            return r.copy();
          }
       }
       return null;
@@ -236,7 +285,7 @@ public class RecordManager {
    private Record getRecordInt(Address address) {
       for (Record r : _records) {
          if (r.address.equals(address)) {
-            return new Record(r.key, r.address, r.timestamp);
+            return r;
          }
       }
       return null;
@@ -248,7 +297,7 @@ public class RecordManager {
    private Record getRecordInt(String stringAddress) {
       for (Record r : _records) {
          if (r.address.toString().equals(stringAddress)) {
-            return new Record(r.key, r.address, r.timestamp);
+            return r;
          }
       }
       return null;
@@ -273,8 +322,8 @@ public class RecordManager {
       }
 
       // If no records exist we create a new random one
-      if (_records.isEmpty()) {
-         Record newRecord = new Record(new InMemoryPrivateKey(new SecureRandom(), true), System.currentTimeMillis());
+      if (!hasActiveRecord()) {
+         Record newRecord = Record.createRandom(randomSource);
          Toast.makeText(_applicationContext, R.string.created_new_random_key, Toast.LENGTH_LONG).show();
          _records.add(newRecord);
          doSave = true;
@@ -349,7 +398,7 @@ public class RecordManager {
       for (Record record : _records) {
          records.add(record.serialize());
       }
-      editor.putString("records", StringUtils.join(records, ","));
+      editor.putString("records", Joiner.on(",").join(records));
 
       // Update default spending record if necessary
       if (_defaultSpendingRecord != null) {
@@ -378,4 +427,7 @@ public class RecordManager {
       editor.commit();
    }
 
+   public RandomSource getRandomSource() {
+      return randomSource;
+   }
 }

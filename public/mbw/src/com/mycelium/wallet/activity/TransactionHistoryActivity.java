@@ -34,6 +34,9 @@
 
 package com.mycelium.wallet.activity;
 
+import java.text.DateFormat;
+import java.util.*;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -44,9 +47,11 @@ import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
+
+import com.google.common.base.Joiner;
+
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.StringUtils;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
@@ -60,11 +65,9 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.api.AsyncTask;
 
-import java.text.DateFormat;
-import java.util.*;
-
 public class TransactionHistoryActivity extends Activity implements ConnectionObserver, SimpleGestureListener {
 
+   @SuppressWarnings("unused")
    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
    private Wallet _wallet;
@@ -397,7 +400,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          tvAmount.setTextColor(color);
 
          // Determine list of addresses
-         final String[] addresses = type.relevantAddresses(record,_addressSet);
+         final String[] addresses = type.relevantAddresses(record, _addressSet);
          // Show/Hide Invoice if we have one
          if (value < 0 && addresses.length == 1 && _invoiceMap.containsKey(addresses[0])) {
             rowView.findViewById(R.id.tvInvoice).setVisibility(View.VISIBLE);
@@ -408,7 +411,7 @@ public class TransactionHistoryActivity extends Activity implements ConnectionOb
          // Replace addresses with known names from the address book
          fillInAddressBookNames(addresses);
          TextView tvAddress = (TextView) rowView.findViewById(R.id.tvAddress);
-         tvAddress.setText(StringUtils.join(addresses, " "));
+         tvAddress.setText(Joiner.on(" ").join(addresses));
 
          // Set confirmations
          int confirmations = record.calculateConfirmatons(_chainHeight);

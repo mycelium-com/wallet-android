@@ -13,5 +13,11 @@
     <item
         android:id="@+id/miExport"
         android:title="@string/export"/>
-
+    <item
+        android:id="@+id/miArchive"
+        android:title="@string/archive_action"/>
+    <item
+        android:id="@+id/miActivate"
+        android:title="@string/activate_action"/>
+    
 </menu>

@@ -54,6 +54,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.Record.Tag;
 
 public class GetSpendingRecordActivity extends Activity {
 
@@ -96,7 +97,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    private void update() {
       ListView listView = (ListView) findViewById(R.id.lvRecords);
-      _recordsAdapter = new RecordsAdapter(this, _recordManager.getRecordsWithPrivateKeys());
+      _recordsAdapter = new RecordsAdapter(this, _recordManager.getRecordsWithPrivateKeys(Tag.ACTIVE));
       listView.setAdapter(_recordsAdapter);
    }
 
@@ -132,7 +133,7 @@ public class GetSpendingRecordActivity extends Activity {
          }
 
          // Display address, chopping it into three
-         address = record.address.getThreeLines();
+         address = record.address.toMultiLineString();
          ((TextView) rowView.findViewById(R.id.tvAddress)).setText(address);
 
          // Set tag

@@ -38,11 +38,17 @@
             android:text="@string/add" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/lvRecords"
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/black"
-        android:choiceMode="singleChoice" />
+        android:layout_height="fill_parent" >
+
+        <LinearLayout
+            android:id="@+id/llRecords"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:orientation="vertical" >
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

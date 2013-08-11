@@ -42,14 +42,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Handler;
 import android.text.ClipboardManager;
 import android.view.LayoutInflater;
@@ -60,15 +55,11 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -76,6 +67,7 @@ import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.mbwapi.api.ExchangeSummary;
@@ -149,7 +141,7 @@ public class Utils {
    }
 
    public static AlertDialog showQrCode(final Context context, int titleMessageId, Bitmap qrCode, final String value,
-         int buttonLabelId) {
+                                        int buttonLabelId) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       View layout = inflater.inflate(R.layout.qr_code_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -237,12 +229,12 @@ public class Utils {
    }
 
    public static void showSetAddressLabelDialog(Context context, final AddressBookManager addressBook,
-         final String address) {
+                                                final String address) {
       showSetAddressLabelDialog(context, addressBook, address, null);
    }
 
    public static void showSetAddressLabelDialog(final Context context, final AddressBookManager addressBook,
-         final String address, final Runnable postRunner) {
+                                                final String address, final Runnable postRunner) {
       final Handler postHandler = new Handler();
 
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -327,17 +319,7 @@ public class Utils {
     * length
     */
    public static String[] stringChopper(String string, int chopLength) {
-      int size = string.length() / chopLength + ((string.length() % chopLength) > 0 ? 1 : 0);
-      String[] chunks = new String[size];
-      for (int i = 0; i < chunks.length; i++) {
-         int start = i * chopLength;
-         int end = (i + 1) * chopLength;
-         if (end > string.length()) {
-            end = string.length();
-         }
-         chunks[i] = string.substring(start, end);
-      }
-      return chunks;
+      return Iterables.toArray(Splitter.fixedLength(chopLength).split(string), String.class);
    }
 
    public static Double getFiatValue(long satoshis, Double oneBtcInFiat) {
@@ -435,7 +417,7 @@ public class Utils {
    }
 
    public static Address addressFromString(String someString) {
-      if(someString == null){
+      if (someString == null) {
          return null;
       }
       someString = someString.trim();

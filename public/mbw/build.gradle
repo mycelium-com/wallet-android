@@ -11,7 +11,7 @@ buildscript {
 }
 
 dependencies {
-    instrumentTestCompile 'junit:junit:'+junitVersion
+    instrumentTestCompile 'junit:junit:' + junitVersion
     compile project(':public:zxing-android')
     compile project(':public:zxing-core')
     compile project(':public:bitlib')
@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 17
+        targetSdkVersion 10
     }
 
     sourceSets {
@@ -52,7 +52,7 @@ android {
 
     buildTypes {
         release {
-            runProguard true
+            runProguard false 
             proguardFile 'mbw.pro'
         }
     }

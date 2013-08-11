@@ -37,11 +37,12 @@ package com.mrd.mbwapi.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Joiner;
+
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.StringUtils;
 
 public class QueryTransactionInventoryRequest extends ApiObject {
    // The maximum value for limit. No more than this number of transactions can
@@ -92,7 +93,7 @@ public class QueryTransactionInventoryRequest extends ApiObject {
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append('[').append(StringUtils.join(addresses.toArray(), ", ")).append(']');
+      sb.append('[').append(Joiner.on(", ").join(addresses)).append(']');
       sb.append(", ").append(limit);
       return sb.toString();
    }

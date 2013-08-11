@@ -54,7 +54,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.Balance;
 import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
@@ -64,6 +63,7 @@ import com.mycelium.wallet.SimpleGestureFilter;
 import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.Wallet.BalanceInfo;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
 import com.mycelium.wallet.activity.receive.WithAmountActivity;
 import com.mycelium.wallet.activity.send.SendActivityHelper;
@@ -76,7 +76,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
    private Wallet _wallet;
    private AsyncTask _task;
-   private Balance _balance;
+   private BalanceInfo _balance;
    private Double _oneBtcInFiat;
    private SimpleGestureFilter _gestureFilter;
    private AlertDialog _qrCodeDialog;
@@ -86,7 +86,9 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
    private MbwManager _mbwManager;
    private int _globalLayoutHeight;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -277,6 +279,27 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          return;
       }
 
+      if (_balance.isKnown()) {
+         updateKnownBalance();
+      } else {
+         updateUnknownBalance();
+      }
+
+      // Set BTC rate
+      if (_oneBtcInFiat == null) {
+         findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
+      } else {
+         TextView tvBtcRate = (TextView) findViewById(R.id.tvBtcRate);
+         tvBtcRate.setVisibility(View.VISIBLE);
+
+         String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
+         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, _oneBtcInFiat));
+
+      }
+
+   }
+
+   private void updateKnownBalance() {
       // Set Balance
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(_balance.unspent
             + _balance.pendingChange));
@@ -303,38 +326,24 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
 
       }
-
-      // Set BTC rate
-      if (_oneBtcInFiat == null) {
-         findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
-      } else {
-         TextView tvBtcRate = (TextView) findViewById(R.id.tvBtcRate);
-         tvBtcRate.setVisibility(View.VISIBLE);
-
-         String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
-         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, _oneBtcInFiat));
-
-      }
-
    }
 
-   class QueryBalanceHandler implements AbstractCallbackHandler<Balance> {
+   private void updateUnknownBalance() {
+      String questionMark = getResources().getString(R.string.question_mark);
 
-      @Override
-      public void handleCallback(Balance response, ApiError exception) {
-         if (exception != null) {
-            Utils.toastConnectionError(BalanceActivity.this);
-            _task = null;
-            _balance = null;
-            _oneBtcInFiat = null;
-         } else {
-            _balance = response;
-            updateBalance();
-            AndroidAsyncApi api = _mbwManager.getAsyncApi();
-            _task = api.getExchangeSummary(_mbwManager.getFiatCurrency(), new QueryExchangeSummaryHandler());
-         }
-      }
+      // Set Balance
+      ((TextView) findViewById(R.id.tvBalance)).setText(questionMark);
 
+      // Set Receiving
+      String receivingText = getResources().getString(R.string.receiving, questionMark);
+      ((TextView) findViewById(R.id.tvReceiving)).setText(receivingText);
+
+      // Set Sending
+      String sendingText = getResources().getString(R.string.sending, questionMark);
+      ((TextView) findViewById(R.id.tvSending)).setText(sendingText);
+
+      // Set Fiat value
+      findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
    }
 
    class WalletUpdateHandler implements Wallet.WalletUpdateHandler {
@@ -372,7 +381,9 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
    }
 
-   /** Called when menu button is pressed. */
+   /**
+    * Called when menu button is pressed.
+    */
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();

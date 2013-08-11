@@ -109,7 +109,7 @@ public class MbwManager {
       _displayWidth = dm.widthPixels;
       _displayHeight = dm.heightPixels;
 
-      _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, _txOutDb);
+      _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, _txOutDb, _applicationContext);
       _recordManager = new RecordManager(_applicationContext);
       _addressBookManager = new AddressBookManager(application);
       _hintManager = new HintManager(this, _applicationContext);

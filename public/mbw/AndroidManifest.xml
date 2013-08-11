@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest android:versionCode="29" android:versionName="0.6.4"
-	package="com.mycelium.wallet" xmlns:android="http://schemas.android.com/apk/res/android">
-	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10" />
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.VIBRATE" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+<manifest android:versionCode="30" android:versionName="0.6.5"
+          package="com.mycelium.wallet" xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
     <!--nexus 7 has no backside camera but frontside camera should be able to scan-->
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
 
     <application android:icon="@drawable/ic_launcher"
-		android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar">
-		<activity android:label="@string/app_name" android:name=".activity.StartupActivity">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-			<intent-filter android:label="@string/send_bitcoins">
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="bitcoin" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".activity.RecordsActivity" />
-		<activity android:name=".activity.BalanceActivity" />
-		<activity android:name=".activity.TransactionHistoryActivity" />
-		<activity android:name=".activity.CreateKeyActivity" />
-		<activity android:name=".activity.TransactionDetailsActivity" />
-		<activity android:name=".activity.SettingsActivity" />
-		<activity android:name=".activity.export.ExportActivity" />
-		<activity android:name=".activity.export.ExportAsQrCodeActivity" />
-		<activity android:name=".activity.export.ExportToExternalStorageActivity" />
-		<activity android:name=".activity.send.GetAddressActivity" />
-		<activity android:name=".activity.send.InstantWalletActivity" />
-		<activity android:name=".activity.send.GetUnspentOutputsActivity" />
-		<activity android:name=".activity.send.GetSpendingRecordActivity" />
-		<activity android:name=".activity.send.GetSendingAmountActivity" />
-		<activity android:name=".activity.send.SendSummaryActivity" />
-		<activity android:name=".activity.receive.WithAmountActivity" />
-		<activity android:name=".activity.receive.GetReceivingAmountActivity" />
-		<activity android:name=".activity.receive.ReceiveCoinsActivity" />
-		<activity android:name=".activity.addressbook.AddressChooserActivity" />
-		<activity android:name=".activity.addressbook.AddressBookActivity" />
+                 android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar" android:allowBackup="false">
+        <activity android:label="@string/app_name" android:name=".activity.StartupActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter android:label="@string/send_bitcoins">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="bitcoin"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.RecordsActivity"/>
+        <activity android:name=".activity.BalanceActivity"/>
+        <activity android:name=".activity.TransactionHistoryActivity"/>
+        <activity android:name=".activity.CreateKeyActivity"/>
+        <activity android:name=".activity.TransactionDetailsActivity"/>
+        <activity android:name=".activity.SettingsActivity"/>
+        <activity android:name=".activity.export.ExportActivity"/>
+        <activity android:name=".activity.export.ExportAsQrCodeActivity"/>
+        <activity android:name=".activity.export.ExportToExternalStorageActivity"/>
+        <activity android:name=".activity.send.GetAddressActivity"/>
+        <activity android:name=".activity.send.InstantWalletActivity"/>
+        <activity android:name=".activity.send.GetUnspentOutputsActivity"/>
+        <activity android:name=".activity.send.GetSpendingRecordActivity"/>
+        <activity android:name=".activity.send.GetSendingAmountActivity"/>
+        <activity android:name=".activity.send.SendSummaryActivity"/>
+        <activity android:name=".activity.receive.WithAmountActivity"/>
+        <activity android:name=".activity.receive.GetReceivingAmountActivity"/>
+        <activity android:name=".activity.receive.ReceiveCoinsActivity"/>
+        <activity android:name=".activity.addressbook.AddressChooserActivity"/>
+        <activity android:name=".activity.addressbook.AddressBookActivity"/>
+        <activity android:name=".activity.addressbook.ManualAddressEntry"/>
 
-		<activity android:name="com.google.zxing.client.android.CaptureActivity"
-			android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
-			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-			android:windowSoftInputMode="stateAlwaysHidden">
-		</activity>
-        <uses-library android:name="android.test.runner" />
+        <activity android:name="com.google.zxing.client.android.CaptureActivity"
+                  android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:windowSoftInputMode="stateAlwaysHidden">
+        </activity>
+        <uses-library android:name="android.test.runner"/>
     </application>
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="com.mycelium.wallet" android:label="Wallet Tests" />
+                     android:targetPackage="com.mycelium.wallet" android:label="Wallet Tests"/>
 </manifest>

@@ -174,4 +174,6 @@ public interface MyceliumWalletApi {
 
    public ErrorCollectionResponse collectError(Throwable e, String version) throws ApiException;
 
+   public AddressShortResult fromShortInput(String input);
+
 }

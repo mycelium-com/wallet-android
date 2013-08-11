@@ -35,6 +35,7 @@
 package com.mycelium.wallet;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,6 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import com.mrd.bitlib.model.Address;
@@ -73,24 +78,56 @@ public class BlockChainAddressTracker {
       public Set<PersistedOutput> receivingChange;
       public Set<PersistedOutput> sending;
 
+      /**
+       * The lowest update time at which one of the addresses were updated
+       */
+      public long lowestUpdateTime;
+
+      /**
+       * The highest update time at which one of the addresses were updated
+       */
+      public long highestUpdateTime;
+
       public TransactionOutputInfo(Set<PersistedOutput> confirmed, Set<PersistedOutput> receivingForeign,
-            Set<PersistedOutput> receivingChange, Set<PersistedOutput> sending) {
+            Set<PersistedOutput> receivingChange, Set<PersistedOutput> sending, long lowestUpdateTime,
+            long highestUpdateTime) {
          this.confirmed = confirmed;
          this.receivingForeign = receivingForeign;
          this.receivingChange = receivingChange;
          this.sending = sending;
+         this.lowestUpdateTime = lowestUpdateTime;
+         this.highestUpdateTime = highestUpdateTime;
       }
 
    }
 
    private AndroidAsyncApi _asyncApi;
    private TxOutDb _txOutDb;
+   private Context _context;
    private volatile AsyncTask _currentTask;
    private final Object _sync = new Object();
+   private int _last_observed_block_height;
 
-   public BlockChainAddressTracker(AndroidAsyncApi asyncApi, TxOutDb txOutDb) {
+   public BlockChainAddressTracker(AndroidAsyncApi asyncApi, TxOutDb txOutDb, Context applicationContext) {
       _asyncApi = asyncApi;
       _txOutDb = txOutDb;
+      _context = applicationContext;
+   }
+
+   public int getLastObservedBlockHeight() {
+      if (_last_observed_block_height == 0) {
+         SharedPreferences preferences = _context.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+         _last_observed_block_height = preferences.getInt(Constants.LAST_OBSERVED_BLOCK_HEIGHT_SETTING, 0);
+      }
+      return _last_observed_block_height;
+   }
+
+   private void setLastObservedBlockHeight(int height) {
+      if (height != _last_observed_block_height) {
+         _last_observed_block_height = height;
+         Editor editor = _context.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
+         editor.putInt(Constants.LAST_OBSERVED_BLOCK_HEIGHT_SETTING, _last_observed_block_height).commit();
+      }
    }
 
    public TransactionOutputInfo getOutputInfo(Collection<Address> addresses) {
@@ -99,6 +136,11 @@ public class BlockChainAddressTracker {
          Set<PersistedOutput> receivingForeign = new HashSet<PersistedOutput>();
          Set<PersistedOutput> receivingChange = new HashSet<PersistedOutput>();
          Set<PersistedOutput> sending = new HashSet<PersistedOutput>();
+
+         // Determine the lowest update time for all addresses
+         long lowestUpdateTime = Long.MAX_VALUE;
+         long highestUpdateTime = Long.MIN_VALUE;
+
          for (Address address : addresses) {
 
             // Add confirmed outputs
@@ -117,8 +159,14 @@ public class BlockChainAddressTracker {
 
             // Add sending outputs
             sending.addAll(_txOutDb.getSendingByAddress(address));
+
+            // Get the chain height at which the address was updated
+            long updateTime = _txOutDb.getUpdateTimeForAddress(address);
+            lowestUpdateTime = Math.min(updateTime, lowestUpdateTime);
+            highestUpdateTime = Math.max(updateTime, highestUpdateTime);
          }
-         TransactionOutputInfo result = new TransactionOutputInfo(confirmed, receivingForeign, receivingChange, sending);
+         TransactionOutputInfo result = new TransactionOutputInfo(confirmed, receivingForeign, receivingChange,
+               sending, lowestUpdateTime, highestUpdateTime);
          return result;
       }
    }
@@ -176,6 +224,7 @@ public class BlockChainAddressTracker {
 
          boolean doSuccessCallback = false;
          synchronized (_sync) {
+            int chainHeight = response.chainHeight;
 
             // Construct a map from addresses to block chain address output
             // state
@@ -194,14 +243,14 @@ public class BlockChainAddressTracker {
                // We have all outputs in our database already, we just may need
                // to do some bookkeeping
                updateDb(blockChainInfoMap, dbInfoMap, new LinkedList<IndependentTransactionOutput>(),
-                     new LinkedList<SourcedTransactionOutput>());
+                     new LinkedList<SourcedTransactionOutput>(), chainHeight);
                _currentTask = null;
                doSuccessCallback = true;
             } else {
                // We need to fetch some outputs. Updating database later
                _currentTask = _asyncApi.getTransactionData(toFetch, sourcedOutputsToFetch,
                      new LinkedList<Sha256Hash>(), new GetOutputsHandler(_addresses, blockChainInfoMap, dbInfoMap,
-                           _handler));
+                           chainHeight, _handler));
             }
          }
          if (doSuccessCallback) {
@@ -215,13 +264,15 @@ public class BlockChainAddressTracker {
       private Collection<Address> _addresses;
       private Map<Address, AddressOutputState> _blockChainInfoMap;
       private Map<Address, AddressOutputState> _dbInfoMap;
+      private int _chainHeight;
       private AddressesUpdatedHandler _handler;
 
       public GetOutputsHandler(Collection<Address> addresses, Map<Address, AddressOutputState> blockChainInfoMap,
-            Map<Address, AddressOutputState> dbInfoMap, AddressesUpdatedHandler handler) {
+            Map<Address, AddressOutputState> dbInfoMap, int chainHeight, AddressesUpdatedHandler handler) {
          _addresses = addresses;
          _blockChainInfoMap = blockChainInfoMap;
          _dbInfoMap = dbInfoMap;
+         _chainHeight = chainHeight;
          _handler = handler;
       }
 
@@ -236,7 +287,7 @@ public class BlockChainAddressTracker {
 
          synchronized (_sync) {
             // Update database
-            updateDb(_blockChainInfoMap, _dbInfoMap, response.outputs, response.sourcedOutputs);
+            updateDb(_blockChainInfoMap, _dbInfoMap, response.outputs, response.sourcedOutputs, _chainHeight);
             _currentTask = null;
          }
 
@@ -268,7 +319,7 @@ public class BlockChainAddressTracker {
 
    private void updateDb(Map<Address, AddressOutputState> blockChainInfoMap,
          Map<Address, AddressOutputState> dbInfoMap, List<IndependentTransactionOutput> fetchedOutputs,
-         List<SourcedTransactionOutput> fetchedSourcedOutputs) {
+         List<SourcedTransactionOutput> fetchedSourcedOutputs, int chainHeight) {
 
       // Insert fetched records
       updateDbWithFetched(fetchedOutputs, fetchedSourcedOutputs, blockChainInfoMap);
@@ -297,8 +348,8 @@ public class BlockChainAddressTracker {
                   if (output == null) {
                      continue;
                   }
-                  PersistedOutput sending = new PersistedOutput(output.outPoint, output.address, -1, output.value, output.script,
-                        false);
+                  PersistedOutput sending = new PersistedOutput(output.outPoint, output.address, -1, output.value,
+                        output.script, false);
                   _txOutDb.insertOrReplaceSending(sending);
                } else {
                   // This scenario is already covered as we have just fetched it
@@ -310,6 +361,19 @@ public class BlockChainAddressTracker {
 
       // Delete surplus records
       deleteRecords(blockChainInfoMap, dbInfoMap);
+
+      // Update address update height
+      updateAddressUpdateHeights(blockChainInfoMap.keySet(), chainHeight);
+
+      // Store the current block chain height
+      setLastObservedBlockHeight(chainHeight);
+   }
+
+   private void updateAddressUpdateHeights(Set<Address> addresses, int chainHeight) {
+      long updateTime = new Date().getTime();
+      for (Address address : addresses) {
+         _txOutDb.insertOrReplaceAddress(address, updateTime);
+      }
    }
 
    private void updateDbWithFetched(List<IndependentTransactionOutput> outputs,

@@ -58,8 +58,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.StringUtils;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -125,7 +125,9 @@ public class AddressBookActivity extends ListActivity {
    protected void onListItemClick(ListView l, View v, int position, long id) {
       mSelectedAddress = (String) v.getTag();
       l.showContextMenuForChild(v);
-   };
+   }
+
+   ;
 
    @Override
    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -137,10 +139,10 @@ public class AddressBookActivity extends ListActivity {
    @Override
    public boolean onContextItemSelected(final MenuItem item) {
       if (item.getItemId() == R.id.miDeleteAddress) {
-         doDeleteEntry();
+         _mbwManager.runPinProtectedFunction(this, pinProtectedDeleteEntry);
          return true;
       } else if (item.getItemId() == R.id.miEditAddress) {
-         doEditEntry();
+         _mbwManager.runPinProtectedFunction(this, pinProtectedEditEntry);
          return true;
       } else if (item.getItemId() == R.id.miShowQrCode) {
          doShowQrCode();
@@ -149,6 +151,14 @@ public class AddressBookActivity extends ListActivity {
          return false;
       }
    }
+
+   final Runnable pinProtectedEditEntry = new Runnable() {
+
+      @Override
+      public void run() {
+         doEditEntry();
+      }
+   };
 
    private void doEditEntry() {
       Utils.showSetAddressLabelDialog(this, _addressBook, mSelectedAddress, updateRunnable);
@@ -160,6 +170,14 @@ public class AddressBookActivity extends ListActivity {
       _qrCodeDialog = Utils.showQrCode(this, R.string.bitcoin_address_title, bitmap, mSelectedAddress,
             R.string.copy_address_to_clipboard);
    }
+
+   final Runnable pinProtectedDeleteEntry = new Runnable() {
+
+      @Override
+      public void run() {
+         doDeleteEntry();
+      }
+   };
 
    private void doDeleteEntry() {
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -190,7 +208,7 @@ public class AddressBookActivity extends ListActivity {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.address_book_row, null);
+            v = Preconditions.checkNotNull(vi.inflate(R.layout.address_book_row, null));
          }
          TextView tvName = (TextView) v.findViewById(R.id.address_book_name);
          TextView tvAddress = (TextView) v.findViewById(R.id.address_book_address);
@@ -203,7 +221,7 @@ public class AddressBookActivity extends ListActivity {
    }
 
    private static String formatAddress(String address) {
-      return StringUtils.join(Utils.stringChopper(address, 12), "\r\n");
+      return Address.fromString(address).toMultiLineString();
    }
 
    private class AddDialog extends Dialog {

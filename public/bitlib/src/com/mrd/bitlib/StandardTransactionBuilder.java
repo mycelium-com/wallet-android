@@ -41,6 +41,7 @@ import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.PublicKeyRing;
+import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.ScriptInput;
@@ -86,7 +87,7 @@ public class StandardTransactionBuilder {
       }
 
    }
-   
+
    public static class SigningRequest {
 
       // The public part of the key we will sign with
@@ -240,7 +241,8 @@ public class StandardTransactionBuilder {
       return output;
    }
 
-   public static List<byte[]> generateSignatures(SigningRequest[] requests, PrivateKeyRing keyRing) {
+   public static List<byte[]> generateSignatures(SigningRequest[] requests, PrivateKeyRing keyRing,
+         RandomSource randomSource) {
       List<byte[]> signatures = new LinkedList<byte[]>();
       for (SigningRequest request : requests) {
          BitcoinSigner signer = keyRing.findSignerByPublicKey(request.publicKey);
@@ -249,7 +251,7 @@ public class StandardTransactionBuilder {
             // keys for
             throw new RuntimeException("Private key not found");
          }
-         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign);
+         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign, randomSource);
          signatures.add(signature);
       }
       return signatures;
@@ -270,7 +272,6 @@ public class StandardTransactionBuilder {
     * @param network
     *           The network we are working on
     * @return An unsigned transaction or null if not enough funds were available
-    * @throws InsufficientFundsToPayFeeException
     * @throws InsufficientFundsException
     */
    public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> unspent, Address changeAddress,
@@ -333,7 +334,8 @@ public class StandardTransactionBuilder {
          found += output.value;
          funding.add(output);
 
-         // If no change address s specified, get it from one of the outputs being spent
+         // If no change address s specified, get it from one of the outputs
+         // being spent
          if (changeAddress == null) {
             Address outputAddress = output.script.getAddress(network);
             changeAddress = outputAddress;

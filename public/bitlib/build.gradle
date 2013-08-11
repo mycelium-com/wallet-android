@@ -1,7 +1,8 @@
 apply plugin: 'java'
 
 dependencies {
-    testCompile  'junit:junit:'+junitVersion
+    testCompile 'junit:junit:' + junitVersion
+    compile guavaArtifact
 }
 sourceSets {
     main {

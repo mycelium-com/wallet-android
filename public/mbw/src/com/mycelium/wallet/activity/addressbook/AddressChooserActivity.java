@@ -49,16 +49,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.mrd.bitlib.util.StringUtils;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.GetAddressActivity;
 
 public class AddressChooserActivity extends ListActivity {
 
-   public static final String ADDRESS_RESULT_NAME = "address result";
    private ListView lvAdressList;
    private MbwManager _mbwManager;
    private AddressBookManager _addressBook;
@@ -76,7 +75,7 @@ public class AddressChooserActivity extends ListActivity {
          public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
             String value = (String) view.getTag();
             Intent result = new Intent();
-            result.putExtra(ADDRESS_RESULT_NAME, value);
+            result.putExtra(GetAddressActivity.ADDRESS_RESULT_NAME, value);
             setResult(RESULT_OK, result);
             finish();
          }
@@ -116,7 +115,7 @@ public class AddressChooserActivity extends ListActivity {
    }
 
    private static String formatAddress(String address) {
-      return StringUtils.join(Utils.stringChopper(address, 12), "\r\n");
+      return Address.fromString(address).toMultiLineString();
    }
 
 }

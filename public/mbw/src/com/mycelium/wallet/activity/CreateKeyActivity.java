@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet.activity;
 
-import java.security.SecureRandom;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -44,19 +42,22 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
+import com.mycelium.wallet.RecordManager;
 
 public class CreateKeyActivity extends Activity {
 
-   private Record _key;
+    private RecordManager _recordManager;
+    private Record _key;
 
-   /** Called when the activity is first created. */
+    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      _recordManager = MbwManager.getInstance(getApplication()).getRecordManager();
       setContentView(R.layout.create_key_activity);
 
       findViewById(R.id.btShuffle).setOnClickListener(new OnClickListener() {
@@ -90,13 +91,13 @@ public class CreateKeyActivity extends Activity {
       new AsyncTask<Void, Void, Record>() {
          @Override
          protected Record doInBackground(Void... voids) {
-            return new Record(new InMemoryPrivateKey(new SecureRandom(), true), System.currentTimeMillis());
+            return Record.createRandom(_recordManager.getRandomSource());
          }
 
          @Override
          protected void onPostExecute(Record record) {
             _key = record;
-            String address = _key.address.getThreeLines();
+            String address = _key.address.toMultiLineString();
             ((TextView) findViewById(R.id.tvAddress)).setText(address);
             findViewById(R.id.btShuffle).setEnabled(true);
             findViewById(R.id.btUse).setEnabled(true);

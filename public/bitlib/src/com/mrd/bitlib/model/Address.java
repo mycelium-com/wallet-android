@@ -150,7 +150,7 @@ public class Address implements Serializable, Comparable<Address> {
     * Construct a Bitcoin address from an array of bytes and the string
     * representation of the address. The byte array contains both the address
     * version and address bytes, but without the checksum (1 + 20 = 21 bytes).
-    * 
+    * <p/>
     * Note: No attempt is made to verify that the byte array and string
     * representation match.
     * 
@@ -162,15 +162,6 @@ public class Address implements Serializable, Comparable<Address> {
    public Address(byte[] bytes, String stringAddress) {
       _bytes = bytes;
       _address = stringAddress;
-   }
-
-   public String getThreeLines() {
-      String address = toString();
-      String one = address.substring(0, 12);
-      String two = address.substring(12, 24);
-      String three = address.substring(24);
-      address = one + "\r\n" + two + "\r\n" + three;
-      return address;
    }
 
    /**
@@ -263,6 +254,15 @@ public class Address implements Serializable, Comparable<Address> {
          }
       }
       return 0;
+   }
+
+   public String toMultiLineString() {
+      StringBuilder sb = new StringBuilder();
+      String address = toString();
+      sb.append(address.substring(0, 12)).append("\r\n");
+      sb.append(address.substring(12, 24)).append("\r\n");
+      sb.append(address.substring(24));
+      return sb.toString();
    }
 
 }

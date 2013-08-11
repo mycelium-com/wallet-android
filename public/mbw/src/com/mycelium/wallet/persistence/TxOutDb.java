@@ -59,11 +59,12 @@ public class TxOutDb {
    private static final String TABLE_CONFIRMED = "confirmed";
    private static final String TABLE_RECEIVING = "receiving";
    private static final String TABLE_SENDING = "sending";
+   private static final String TABLE_ADDRESS = "address";
 
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "txout.db";
-      private static final int DATABASE_VERSION = 7;
+      private static final int DATABASE_VERSION = 8;
 
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -91,6 +92,7 @@ public class TxOutDb {
          db.execSQL("CREATE INDEX receivingIndex ON receiving (address);");
          db.execSQL("CREATE TABLE sending (outpoint BLOB PRIMARY KEY, address BLOB, height INTEGER, value INTEGER, isCoinBase INTEGER, script BLOB);");
          db.execSQL("CREATE INDEX sendingIndex ON sending (address);");
+         db.execSQL("CREATE TABLE address (address BLOB PRIMARY KEY, time INTEGER);");
       }
 
       @Override
@@ -101,6 +103,7 @@ public class TxOutDb {
          db.execSQL("DROP INDEX IF EXISTS receivingIndex");
          db.execSQL("DROP TABLE IF EXISTS sending");
          db.execSQL("DROP INDEX IF EXISTS sendingIndex");
+         db.execSQL("DROP TABLE IF EXISTS address");
          onCreate(db);
       }
    }
@@ -113,6 +116,7 @@ public class TxOutDb {
    private SQLiteStatement _deleteReceiving;
    private SQLiteStatement _insertOrReplaceSending;
    private SQLiteStatement _deleteSending;
+   private SQLiteStatement _insertOrReplaceAddress;
 
    public TxOutDb(Context context) {
       _openHelper = new OpenHelper(context);
@@ -120,6 +124,7 @@ public class TxOutDb {
       _insertOrReplaceConfirmed = _database.compileStatement("INSERT OR REPLACE INTO confirmed VALUES (?,?,?,?,?,?)");
       _insertOrReplaceReceiving = _database.compileStatement("INSERT OR REPLACE INTO receiving VALUES (?,?,?,?,?)");
       _insertOrReplaceSending = _database.compileStatement("INSERT OR REPLACE INTO sending VALUES (?,?,?,?,?,?)");
+      _insertOrReplaceAddress = _database.compileStatement("INSERT OR REPLACE INTO address VALUES (?,?)");
       _deleteConfirmed = _database.compileStatement("DELETE FROM confirmed WHERE outpoint = ?");
       _deleteReceiving = _database.compileStatement("DELETE FROM receiving WHERE outpoint = ?");
       _deleteSending = _database.compileStatement("DELETE FROM sending WHERE outpoint = ?");
@@ -352,6 +357,38 @@ public class TxOutDb {
          if (cursor != null) {
             cursor.close();
          }
+      }
+   }
+
+   public long getUpdateTimeForAddress(Address address) {
+      Cursor cursor = null;
+      try {
+         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
+         blobQuery.bindBlob(1, address.getAllAddressBytes());
+         cursor = blobQuery.query(false, TABLE_ADDRESS, new String[] { "time" }, "address = ?", null, null, null,
+               null, null);
+         if (cursor.moveToNext()) {
+            return cursor.getLong(0);
+         }
+         return Long.MIN_VALUE;
+      } catch (Exception e) {
+         Log.e(LOG_TAG, "Exception in getUpdateTimeForAddress", e);
+         throw new RuntimeException(e);
+      } finally {
+         if (cursor != null) {
+            cursor.close();
+         }
+      }
+   }
+
+   public synchronized void insertOrReplaceAddress(Address address, long time) {
+      try {
+         _insertOrReplaceAddress.bindBlob(1, address.getAllAddressBytes());
+         _insertOrReplaceAddress.bindLong(2, time);
+         _insertOrReplaceAddress.executeInsert();
+      } catch (Exception e) {
+         Log.e(LOG_TAG, "Exception in insertOrReplaceAddress", e);
+         throw new RuntimeException(e);
       }
    }
 

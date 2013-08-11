@@ -37,7 +37,9 @@ package com.mycelium.wallet;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +50,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Script.ScriptParsingException;
 import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mrd.mbwapi.api.Balance;
 import com.mycelium.wallet.BlockChainAddressTracker.TransactionOutputInfo;
 import com.mycelium.wallet.api.AsyncTask;
 import com.mycelium.wallet.persistence.PersistedOutput;
@@ -56,6 +57,7 @@ import com.mycelium.wallet.persistence.PersistedOutput;
 public class Wallet implements Serializable {
 
    private static final long serialVersionUID = 1L;
+   private static final int COINBASE_MIN_CONFIRMATIONS = 120;
 
    public interface WalletUpdateHandler {
       public void walletUpdatedCallback(Wallet wallet, boolean success);
@@ -74,6 +76,87 @@ public class Wallet implements Serializable {
          this.change = change;
          this.receiving = receiving;
       }
+   }
+
+   public static class BalanceInfo {
+
+      // A balance is considered out dated when the age is more than 24 hours
+      private static final long OUT_DATED_AGE_MS = 1000 * 60 * 60 * 24;
+
+      /**
+       * The sum of the unspent outputs which are confirmed and currently not
+       * spent in pending transactions.
+       */
+      public long unspent;
+
+      /**
+       * The sum of the outputs which are being received as part of pending
+       * transactions from foreign addresses.
+       */
+      public long pendingReceiving;
+
+      /**
+       * The sum of outputs currently being sent from the address set.
+       */
+      public long pendingSending;
+
+      /**
+       * The sum of the outputs being sent from the address set to itself
+       */
+      public long pendingChange;
+
+      /**
+       * The lowest update time of all addresses in the set
+       */
+      private long lowestUpdateTime;
+
+      /**
+       * The highest update time of any address in the query set
+       */
+      private long highestUpdateTime;
+
+      public BalanceInfo(long unspent, long pendingReceiving, long pendingSending, long pendingChange,
+            long lowestUpdateTime, long highestUpdateTime) {
+         this.unspent = unspent;
+         this.pendingReceiving = pendingReceiving;
+         this.pendingSending = pendingSending;
+         this.pendingChange = pendingChange;
+         this.lowestUpdateTime = lowestUpdateTime;
+         this.highestUpdateTime = highestUpdateTime;
+      }
+
+      @Override
+      public String toString() {
+         StringBuilder sb = new StringBuilder();
+         sb.append("Unspent: ").append(unspent);
+         sb.append(" Receiving: ").append(pendingReceiving);
+         sb.append(" Sending: ").append(pendingSending);
+         sb.append(" Change: ").append(pendingChange);
+         return sb.toString();
+      }
+
+      public boolean isOutDated() {
+         if (!isKnown()) {
+            return true;
+         }
+         if (!isCoherent()) {
+            return true;
+         }
+         long now = new Date().getTime();
+         if (lowestUpdateTime + OUT_DATED_AGE_MS < now) {
+            return true;
+         }
+         return false;
+      }
+
+      public boolean isCoherent() {
+         return lowestUpdateTime == highestUpdateTime;
+      }
+
+      public boolean isKnown() {
+         return lowestUpdateTime != Long.MIN_VALUE;
+      }
+
    }
 
    private Set<Record> _records;
@@ -130,7 +213,7 @@ public class Wallet implements Serializable {
       return ring;
    }
 
-   public Balance getLocalBalance(BlockChainAddressTracker blockChainAddressTracker) {
+   public BalanceInfo getLocalBalance(BlockChainAddressTracker blockChainAddressTracker) {
       TransactionOutputInfo outputs = blockChainAddressTracker.getOutputInfo(_addresses);
 
       // When calculating the sending sum we want to subtract the unmodified
@@ -156,7 +239,8 @@ public class Wallet implements Serializable {
       long changeSum = sumOutputs(outputs.receivingChange);
       long foreignSum = sumOutputs(outputs.receivingForeign);
 
-      Balance balance = new Balance(confirmedSum, foreignSum, sendingSum, changeSum);
+      BalanceInfo balance = new BalanceInfo(confirmedSum, foreignSum, sendingSum, changeSum, outputs.lowestUpdateTime,
+            outputs.highestUpdateTime);
       return balance;
    }
 
@@ -176,6 +260,20 @@ public class Wallet implements Serializable {
       // set
       outputs.confirmed.removeAll(outputs.receivingChange);
       outputs.confirmed.removeAll(outputs.receivingForeign);
+
+      // Prune confirmed outputs for coinbase outputs that are not old enough
+      // for spending
+      int blockChainHeight = blockChainAddressTracker.getLastObservedBlockHeight();
+      Iterator<PersistedOutput> it = outputs.confirmed.iterator();
+      while (it.hasNext()) {
+         PersistedOutput output = it.next();
+         if (output.isCoinBase) {
+            int confirmations = blockChainHeight - output.height;
+            if (confirmations < COINBASE_MIN_CONFIRMATIONS) {
+               it.remove();
+            }
+         }
+      }
 
       SpendableOutputs spendable = new SpendableOutputs(transform(outputs.confirmed),
             transform(outputs.receivingChange), transform(outputs.receivingForeign));

@@ -62,10 +62,17 @@ public class SpinnerPrivateUri {
          throw new IllegalArgumentException("network not specified");
       }
       try {
-         HmacPRNG prng = new HmacPRNG(Base58.decode(seed));
+         final HmacPRNG prng = new HmacPRNG(Base58.decode(seed));
+         RandomSource randomSource = new RandomSource() {
+            
+            @Override
+            public void nextBytes(byte[] bytes) {
+               prng.nextBytes(bytes);
+            }
+         };
          @SuppressWarnings("unused")
-         InMemoryPrivateKey discardMe = new InMemoryPrivateKey(prng);
-         InMemoryPrivateKey key = new InMemoryPrivateKey(prng);
+         InMemoryPrivateKey discardMe = new InMemoryPrivateKey(randomSource);
+         InMemoryPrivateKey key = new InMemoryPrivateKey(randomSource);
          return new SpinnerPrivateUri(key, params);
       } catch (NoSuchAlgorithmException e) {
          throw new IllegalStateException();

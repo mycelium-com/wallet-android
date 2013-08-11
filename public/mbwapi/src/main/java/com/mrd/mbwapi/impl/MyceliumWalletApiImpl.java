@@ -38,32 +38,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Random;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.mbwapi.api.ApiException;
-import com.mrd.mbwapi.api.ApiObject;
-import com.mrd.mbwapi.api.BroadcastTransactionRequest;
-import com.mrd.mbwapi.api.BroadcastTransactionResponse;
-import com.mrd.mbwapi.api.ErrorCollectionRequest;
-import com.mrd.mbwapi.api.ErrorCollectionResponse;
-import com.mrd.mbwapi.api.GetTransactionDataRequest;
-import com.mrd.mbwapi.api.GetTransactionDataResponse;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
-import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
-import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
-import com.mrd.mbwapi.api.QueryBalanceRequest;
-import com.mrd.mbwapi.api.QueryBalanceResponse;
-import com.mrd.mbwapi.api.QueryExchangeSummaryRequest;
-import com.mrd.mbwapi.api.QueryExchangeSummaryResponse;
-import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
-import com.mrd.mbwapi.api.QueryTransactionInventoryResponse;
-import com.mrd.mbwapi.api.QueryTransactionSummaryRequest;
-import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
-import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
-import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
+import com.mrd.mbwapi.api.*;
 import com.mrd.mbwapi.util.SslUtils;
 
 public class MyceliumWalletApiImpl implements MyceliumWalletApi {
@@ -90,9 +75,10 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
    private int _currentServerUrlIndex;
    private NetworkParameters _network;
 
-   public MyceliumWalletApiImpl(HttpEndpoint[] serverEndpoints, NetworkParameters network) {
+   public MyceliumWalletApiImpl(HttpEndpoint[] serverEndpoints, NetworkParameters network, List<AddressShort> shorteners) {
       // Prepare raw URL strings with prefix
       _serverEndpoints = serverEndpoints;
+      this.shorteners = shorteners;
       // Choose a random URL to use
       _currentServerUrlIndex = new Random().nextInt(_serverEndpoints.length);
       _network = network;
@@ -144,6 +130,20 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
    public ErrorCollectionResponse collectError(Throwable e, String version) throws ApiException {
       HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e,version ), RequestConst.ERROR_COLLECTOR);
       return receiveResponse(ErrorCollectionResponse.class, connection);
+   }
+
+   private final List<AddressShort> shorteners;
+
+   @Override
+   public AddressShortResult fromShortInput(String input) {
+      ImmutableMap.Builder<AddressShort, Address> b = ImmutableMap.builder();
+      for (AddressShort service : shorteners) {
+         Optional<Address> res = service.query(input);
+         if (res.isPresent()) {
+            b.put(service, res.get());
+         }
+      }
+      return new AddressShortResult(b.build());
    }
 
    @Override

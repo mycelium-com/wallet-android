@@ -39,15 +39,15 @@ import java.math.BigInteger;
 
 import com.mrd.bitlib.util.ByteWriter;
 
-public abstract class PrivateKey implements BitcoinSigner , Serializable {
+public abstract class PrivateKey implements BitcoinSigner, Serializable {
 
    private static final long serialVersionUID = 1L;
 
    public abstract PublicKey getPublicKey();
 
    @Override
-   public byte[] makeStandardBitcoinSignature(byte[] transactionSigningHash) {
-      byte[] signature = signMessage(transactionSigningHash);
+   public byte[] makeStandardBitcoinSignature(byte[] transactionSigningHash, RandomSource randomSource) {
+      byte[] signature = signMessage(transactionSigningHash, randomSource);
       ByteWriter writer = new ByteWriter(1024);
       // Add signature
       writer.putBytes(signature);
@@ -56,8 +56,8 @@ public abstract class PrivateKey implements BitcoinSigner , Serializable {
       return writer.toBytes();
    }
 
-   protected byte[] signMessage(byte[] message) {
-      BigInteger[] signature = generateSignature(message);
+   protected byte[] signMessage(byte[] message, RandomSource randomSource) {
+      BigInteger[] signature = generateSignature(message, randomSource);
       // Write DER encoding of signature
       ByteWriter writer = new ByteWriter(1024);
       // Write tag
@@ -87,7 +87,7 @@ public abstract class PrivateKey implements BitcoinSigner , Serializable {
       return writer.toBytes();
    }
 
-   protected abstract BigInteger[] generateSignature(byte[] message);
+   protected abstract BigInteger[] generateSignature(byte[] message, RandomSource randomSource);
 
    @Override
    public int hashCode() {

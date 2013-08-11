@@ -119,11 +119,9 @@ public class StringUtils {
    /**
     * Return a string that is no longer than capSize, and pad with "..." if
     * returning a substring.
-    * 
-    * @param str
-    *           The string to cap
-    * @param capSize
-    *           The maximum cap size
+    *
+    * @param str     The string to cap
+    * @param capSize The maximum cap size
     * @return The string capped at capSize.
     */
    public static String cap(String str, int capSize) {

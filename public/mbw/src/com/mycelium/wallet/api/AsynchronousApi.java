@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.api;
 
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -46,42 +47,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import java.util.*;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.ApiException;
-import com.mrd.mbwapi.api.BroadcastTransactionRequest;
-import com.mrd.mbwapi.api.BroadcastTransactionResponse;
-import com.mrd.mbwapi.api.ExchangeSummary;
-import com.mrd.mbwapi.api.GetTransactionDataRequest;
-import com.mrd.mbwapi.api.GetTransactionDataResponse;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
-import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
-import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
-import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
-import com.mrd.mbwapi.api.QueryTransactionInventoryResponse;
-import com.mrd.mbwapi.api.QueryTransactionSummaryRequest;
-import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
-import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
-import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
-import com.mrd.mbwapi.api.TransactionSummary;
+import com.mrd.mbwapi.api.*;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.CurrencyCode;
 import com.mycelium.wallet.api.ApiCache.TransactionInventory;
@@ -96,6 +68,10 @@ import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
  * completed or failed.
  */
 public abstract class AsynchronousApi {
+
+   public AddressShortResult fromShortInput(CharSequence constraint) {
+      return _api.fromShortInput(constraint.toString());
+   }
 
    public class TransactionSummaryList {
 

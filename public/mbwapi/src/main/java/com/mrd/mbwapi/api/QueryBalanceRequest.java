@@ -37,11 +37,12 @@ package com.mrd.mbwapi.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Joiner;
+
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.StringUtils;
 
 public class QueryBalanceRequest extends ApiObject {
 
@@ -88,7 +89,7 @@ public class QueryBalanceRequest extends ApiObject {
    public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append('[');
-      sb.append(StringUtils.join(addresses.toArray(), ", "));
+      sb.append(Joiner.on(", ").join(addresses));
       sb.append(']');
       return sb.toString();
    }

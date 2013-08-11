@@ -35,5 +35,5 @@
 package com.mrd.bitlib.crypto;
 
 public interface BitcoinSigner {
-   public byte[] makeStandardBitcoinSignature(byte[] transactionSigningHash);
+   public byte[] makeStandardBitcoinSignature(byte[] transactionSigningHash, RandomSource randomSource);
 }
