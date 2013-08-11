@@ -43,11 +43,13 @@ import android.view.View.OnClickListener;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.addressbook.AddressChooserActivity;
-import com.mycelium.wallet.activity.addressbook.ManualAddressEntry;
 
 public class GetAddressActivity extends Activity {
 
@@ -98,15 +100,13 @@ public class GetAddressActivity extends Activity {
 
       findViewById(R.id.btAddressBook).setEnabled(_mbwManager.getAddressBookManager().numEntries() != 0);
 
-/*
-      findViewById(R.id.btManual).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Intent intent = new Intent(GetAddressActivity.this, ManualAddressEntry.class);
-            startActivityForResult(intent, ADDRESS_ENTERED_RESULT_CODE);
-         }
-      });
-*/
+      /*
+       * findViewById(R.id.btManual).setOnClickListener(new OnClickListener() {
+       * 
+       * @Override public void onClick(View view) { Intent intent = new
+       * Intent(GetAddressActivity.this, ManualAddressEntry.class);
+       * startActivityForResult(intent, ADDRESS_ENTERED_RESULT_CODE); } });
+       */
    }
 
    private Address getClipboardAddress() {
@@ -147,7 +147,7 @@ public class GetAddressActivity extends Activity {
             SendActivityHelper.startNextActivity(this, address);
          }
       } else if (requestCode == SCANNER_RESULT_CODE && resultCode == RESULT_OK
-              && "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
+            && "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
          String contents = intent.getStringExtra("SCAN_RESULT").trim();
 
          String addressString;

@@ -75,7 +75,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.BalanceInfo;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
-import com.mycelium.wallet.activity.addressbook.ManualAddressEntry;
 import com.mycelium.wallet.activity.export.ExportActivity;
 import com.mycelium.wallet.activity.send.SendActivityHelper;
 import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
@@ -175,15 +174,14 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
             }
 
          });
-/*
-         findViewById(R.id.btManual).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               Intent intent = new Intent(activity, ManualAddressEntry.class);
-               activity.startActivityForResult(intent, MANUAL_RESULT_CODE);
-            }
-         });
-*/
+         /*
+          * findViewById(R.id.btManual).setOnClickListener(new
+          * View.OnClickListener() {
+          * 
+          * @Override public void onClick(View view) { Intent intent = new
+          * Intent(activity, ManualAddressEntry.class);
+          * activity.startActivityForResult(intent, MANUAL_RESULT_CODE); } });
+          */
       }
 
    }

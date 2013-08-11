@@ -14,9 +14,30 @@
             style="@style/GenericText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:layout_marginBottom="5dp"
+            android:gravity="center_horizontal"
             android:text="@string/key_migration_wizard_choose_action_title"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tvAddress"
+            style="@style/GenericText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:gravity="center_horizontal"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btExport"
+            style="@style/GenericButton"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:background="@drawable/btn_blue"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/export_private_key"
             android:textSize="20sp" />
 
         <TextView
@@ -28,7 +49,6 @@
             android:layout_marginBottom="15dp"
             android:textSize="16sp" />
 
-        
         <FrameLayout
             android:layout_width="130dp"
             android:layout_height="wrap_content"

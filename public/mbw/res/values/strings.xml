@@ -215,8 +215,10 @@
     <string name="new_key_added">New key added to active key set</string>
     <string name="migration_no_balance">This key holds no balance.\n\nClick Finish to put it into the archive or click the back button to abort.\n\nYou can always access keys in the archive.</string>
     <string name="migration_low_balance">This key has a positive balance, but the transaction fee required for swiping it is larger than the amount it holds.\n\nClick Finish to put it into the archive or click the back button to abort.\n\nYou can always access keys in the archive.</string>
-    <string name="migration_swipe_key">Address of new secure key:\r\n%1$s\n\nIf you click Finish the following happens:\n1. The new key is added to your active keys\n2. %2$s is swiped to the new key\n3. The vulnerable key is added to your archive\n\nThe mining fee for this transaction is:\n%3$s\n\nYou can always access keys in the archive.\n\nClick the back button to abort.</string>
+    <string name="migration_swipe_key1">Address of new secure key:\r\n%1$s</string>
+    <string name="migration_swipe_key2">If you click Finish the following happens:\n1. The new key is added to your active keys\n2. %1$s is swiped to the new key\n3. The vulnerable key is added to your archive\n\nThe mining fee for this transaction is:\n%2$s\n\nYou can always access keys in the archive.\n\nClick the back button to abort.</string>
     <string name="abort">Abort</string>
     <string name="please_wait">Please wait &#8230;</string>
+    <string name="export_private_key">Export Private Key</string>
     
 </resources>
