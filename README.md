@@ -1,5 +1,3 @@
-wallet
-======
 beta channel
 ============
 to get the latest bleeding edge versions go to 
@@ -17,7 +15,7 @@ to build everything from source, simply checkout the source and build using grad
 note that you need a proper android sdk with *ANDROID_HOME* variable pointing to it.
 sdk versions 8 + 17 should be installed.
 
-    git clone git@github.com:mycelium-com/wallet.git
+    git clone https://github.com/mycelium-com/wallet.git
     cd wallet
 
 linux/mac
