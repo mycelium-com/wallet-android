@@ -126,6 +126,8 @@
     <string name="pref_bitcoin_denomination_summary">Switch between BTC, mBTC, and μBtc</string>
     <string name="pref_show_hints">Show Hints</string>
     <string name="pref_show_hints_summary">Enable or disable hints</string>
+    <string name="pref_show_swipe_animation">Show Swipe Animation</string>
+    <string name="pref_show_swipe_animation_summary">Enable or disable the swipe animation shown on the blance view</string>
     <string name="settings">Settings</string>
     <string name="pin_invalid_pin">Invalid PIN code</string>
     <string name="pin_enter_pin">Enter PIN Code</string>
@@ -220,5 +222,6 @@
     <string name="abort">Abort</string>
     <string name="please_wait">Please wait &#8230;</string>
     <string name="export_private_key">Export Private Key</string>
+    <string name="managing_archive_key">You are managing a single archived key.</string>
     
 </resources>

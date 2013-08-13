@@ -4,6 +4,8 @@
     <color name="red">#f00</color>
     <color name="brightred">#f44</color>
     <color name="green">#0f0</color>
+    <color name="semidarkgreen">#0c0</color>
+    <color name="darkgreen">#080</color>
     <color name="black">#000</color>
     <color name="darkblue">#008</color>
     <color name="blue">#00F</color>
@@ -14,7 +16,10 @@
     <color name="darkgreyblue">#44f</color>
     <color name="lightgrey">#bbb</color>
     <color name="white">#fff</color>
-
+    <color name="yellow">#ff0</color>
+    <color name="darkyellow">#880</color>
+    <color name="semidarkyellow">#cc0</color>
+    
     <drawable name="semi_black">#80000000</drawable>
 
 </resources>

@@ -31,6 +31,7 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+
 package com.mycelium.wallet.activity;
 
 import java.util.List;
@@ -63,6 +64,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
+import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.SimpleGestureFilter;
 import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
@@ -107,6 +109,10 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          findViewById(R.id.btSend).setVisibility(View.GONE);
          findViewById(R.id.vSendGap).setVisibility(View.GONE);
       }
+
+      // Show/Hide notice about managing single archive key
+      boolean isArchivedKey = _mbwManager.getRecordManager().getSelectedRecord().tag == Tag.ARCHIVE;
+      findViewById(R.id.tvArchiveNotice).setVisibility(isArchivedKey ? View.VISIBLE : View.GONE);
 
       final ImageView qrImage = (ImageView) findViewById(R.id.ivQR);
 
@@ -181,6 +187,8 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       } catch (NameNotFoundException e) {
          // Ignore
       }
+
+      initializeSwipeAnumation();
 
       // Set hint button text manually as android doesn't like '?'
       ((Button) findViewById(R.id.btHint)).setText("?");
@@ -258,7 +266,24 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       // return true;
    }
 
+   private void initializeSwipeAnumation() {
+      if (_mbwManager.getShowSwipeAnimation()) {
+         return;
+      }
+      findViewById(R.id.tvLeftArrow4).setVisibility(View.GONE);
+      findViewById(R.id.tvLeftArrow3).setVisibility(View.GONE);
+      findViewById(R.id.tvLeftArrow2).setVisibility(View.GONE);
+      findViewById(R.id.tvLeftArrow1).setVisibility(View.GONE);
+      findViewById(R.id.tvRightArrow1).setVisibility(View.GONE);
+      findViewById(R.id.tvRightArrow2).setVisibility(View.GONE);
+      findViewById(R.id.tvRightArrow3).setVisibility(View.GONE);
+      findViewById(R.id.tvRightArrow4).setVisibility(View.GONE);
+   }
+
    private void animateSwipe() {
+      if (!_mbwManager.getShowSwipeAnimation()) {
+         return;
+      }
       long speed = 500;
       long delay = 200;
       Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow4), delay * 3, speed, 0);
@@ -294,6 +319,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
       // Show cached balance and progress spinner
       findViewById(R.id.pbBalance).setVisibility(View.VISIBLE);
+      findViewById(R.id.ivRefresh).setVisibility(View.GONE);
       // _balance = _cache.getBalance(_record.address);
       _balance = _wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
       updateBalance();
@@ -350,15 +376,27 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(_balance.unspent
             + _balance.pendingChange));
 
-      // Set Receiving
-      String receivingString = _mbwManager.getBtcValueString(_balance.pendingReceiving);
-      String receivingText = getResources().getString(R.string.receiving, receivingString);
-      ((TextView) findViewById(R.id.tvReceiving)).setText(receivingText);
+      // Show/Hide Receiving
+      if (_balance.pendingReceiving > 0) {
+         String receivingString = _mbwManager.getBtcValueString(_balance.pendingReceiving);
+         String receivingText = getResources().getString(R.string.receiving, receivingString);
+         TextView tvReceiving = (TextView) findViewById(R.id.tvReceiving);
+         tvReceiving.setText(receivingText);
+         tvReceiving.setVisibility(View.VISIBLE);
+      } else {
+         ((TextView) findViewById(R.id.tvReceiving)).setVisibility(View.GONE);
+      }
 
-      // Set Sending
-      String sendingString = _mbwManager.getBtcValueString(_balance.pendingSending);
-      String sendingText = getResources().getString(R.string.sending, sendingString);
-      ((TextView) findViewById(R.id.tvSending)).setText(sendingText);
+      // Show/Hide Sending
+      if (_balance.pendingSending > 0) {
+         String sendingString = _mbwManager.getBtcValueString(_balance.pendingSending);
+         String sendingText = getResources().getString(R.string.sending, sendingString);
+         TextView tvSending = (TextView) findViewById(R.id.tvSending);
+         tvSending.setText(sendingText);
+         tvSending.setVisibility(View.VISIBLE);
+      } else {
+         ((TextView) findViewById(R.id.tvSending)).setVisibility(View.GONE);
+      }
 
       // Set Fiat value
       if (_oneBtcInFiat == null) {
@@ -413,7 +451,8 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
       @Override
       public void handleCallback(ExchangeSummary[] response, ApiError exception) {
-         findViewById(R.id.pbBalance).setVisibility(View.INVISIBLE);
+         findViewById(R.id.pbBalance).setVisibility(View.GONE);
+         findViewById(R.id.ivRefresh).setVisibility(View.VISIBLE);
          if (exception != null) {
             Utils.toastConnectionError(BalanceActivity.this);
             _task = null;

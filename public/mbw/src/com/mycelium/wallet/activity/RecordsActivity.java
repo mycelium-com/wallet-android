@@ -278,6 +278,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
                         _recordManager.forgetPrivateKeyForRecordByAddress(record.address);
                      } else {
                         _recordManager.deleteRecord(record.address);
+                        _addressBook.deleteEntry(record.address.toString());
                      }
                      update();
                      Toast.makeText(RecordsActivity.this, R.string.private_key_deleted, Toast.LENGTH_LONG).show();
@@ -291,6 +292,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
                confirmDialog.show();
             } else {
                _recordManager.deleteRecord(record.address);
+               _addressBook.deleteEntry(record.address.toString());
                update();
                Toast.makeText(RecordsActivity.this, R.string.bitcoin_address_deleted, Toast.LENGTH_LONG).show();
             }

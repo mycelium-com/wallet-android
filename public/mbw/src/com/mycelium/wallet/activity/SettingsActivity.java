@@ -37,17 +37,26 @@ package com.mycelium.wallet.activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.CurrencyCode;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.WalletMode;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -68,6 +77,7 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _bitcoinDenomination;
    private ListPreference _localCurrency;
    private CheckBoxPreference _showHints;
+   private CheckBoxPreference _showSwipeAnimation;
    private CheckBoxPreference _aggregatedView;
    private MbwManager _mbwManager;
    private Dialog _dialog;
@@ -89,8 +99,8 @@ public class SettingsActivity extends PreferenceActivity {
       _bitcoinDenomination = (ListPreference) findPreference("bitcoin_denomination");
       _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
       _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
-      CharSequence[] denominations = new CharSequence[]{Denomination.BTC.toString(), Denomination.mBTC.toString(),
-              Denomination.uBTC.toString()};
+      CharSequence[] denominations = new CharSequence[] { Denomination.BTC.toString(), Denomination.mBTC.toString(),
+            Denomination.uBTC.toString() };
       _bitcoinDenomination.setEntries(denominations);
       _bitcoinDenomination.setEntryValues(denominations);
       _bitcoinDenomination.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -120,7 +130,6 @@ public class SettingsActivity extends PreferenceActivity {
       _setPin = Preconditions.checkNotNull(findPreference("setPin"));
       _setPin.setOnPreferenceClickListener(setPinClickListener);
 
-
       // Clear PIN
       updateClearPin();
 
@@ -128,6 +137,11 @@ public class SettingsActivity extends PreferenceActivity {
       _showHints = (CheckBoxPreference) findPreference("showHints");
       _showHints.setChecked(_mbwManager.getShowHints());
       _showHints.setOnPreferenceClickListener(showHintsClickListener);
+
+      // Show Swipe Animation
+      _showSwipeAnimation = (CheckBoxPreference) findPreference("showSwipeAnimation");
+      _showSwipeAnimation.setChecked(_mbwManager.getShowSwipeAnimation());
+      _showSwipeAnimation.setOnPreferenceClickListener(showSwipeAnimationClickListener);
 
       // Aggregated View
       _aggregatedView = (CheckBoxPreference) findPreference("aggregatedView");
@@ -175,12 +189,9 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private String autoPayTitle() {
-      return String.format("%s (%s %.2f)"
-              , getString(R.string.autopay)
-              , CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol()
-              , (double) _mbwManager.getAutoPay() / 100);
+      return String.format("%s (%s %.2f)", getString(R.string.autopay),
+            CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol(), (double) _mbwManager.getAutoPay() / 100);
    }
-
 
    private void updateClearPin() {
       _clearPin = findPreference("clearPin");
@@ -252,6 +263,14 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _mbwManager.setShowHints(p.isChecked());
+         return true;
+      }
+   };
+
+   private final OnPreferenceClickListener showSwipeAnimationClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.setShowSwipeAnimation(p.isChecked());
          return true;
       }
    };

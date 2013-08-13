@@ -16,10 +16,16 @@
         android:key="aggregatedView"
         android:summary="@string/pref_aggregated_view_summary"
         android:title="@string/pref_aggregated_view" />
+
     <CheckBoxPreference
         android:key="showHints"
         android:summary="@string/pref_show_hints_summary"
         android:title="@string/pref_show_hints" />
+
+    <CheckBoxPreference
+        android:key="showSwipeAnimation"
+        android:summary="@string/pref_show_swipe_animation_summary"
+        android:title="@string/pref_show_swipe_animation" />
 
     <EditTextPreference
         android:inputType="numberDecimal"

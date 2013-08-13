@@ -78,6 +78,7 @@ public class MbwManager {
    private WalletMode _walletMode;
    private String _fiatCurrency;
    private boolean _showHints;
+   private boolean _showSwipeAnimation;
    private long _autoPay;
 
    private MbwManager(Application application) {
@@ -100,6 +101,7 @@ public class MbwManager {
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
               Constants.DEFAULT_BITCOIN_DENOMINATION));
       _showHints = preferences.getBoolean(Constants.SHOW_HINTS_SETTING, true);
+      _showSwipeAnimation = preferences.getBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, true);
       _autoPay = preferences.getLong(Constants.AUTOPAY_SETTING, 0);
 
       // Get the display metrics of this device
@@ -255,6 +257,18 @@ public class MbwManager {
               .commit();
    }
 
+   public boolean getShowSwipeAnimation() {
+      return _showSwipeAnimation;
+   }
+
+   public void setShowSwipeAnimation(boolean show) {
+      _showSwipeAnimation = show;
+      getEditor()
+              .putBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, _showSwipeAnimation)
+              .commit();
+   }
+
+   
    private SharedPreferences.Editor getEditor() {
       return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
    }
