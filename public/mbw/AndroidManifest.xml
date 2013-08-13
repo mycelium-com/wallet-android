@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest android:versionCode="31" android:versionName="0.7.0"
+<manifest android:versionCode="32" android:versionName="0.7.1"
           package="com.mycelium.wallet" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"/>
     <uses-permission android:name="android.permission.INTERNET"/>
