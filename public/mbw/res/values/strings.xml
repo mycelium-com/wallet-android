@@ -223,5 +223,6 @@
     <string name="please_wait">Please wait &#8230;</string>
     <string name="export_private_key">Export Private Key</string>
     <string name="managing_archive_key">You are managing a single archived key.</string>
+    <string name="address_label_not_unique">The address book has another address with that name</string>
     
 </resources>

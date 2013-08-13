@@ -92,14 +92,14 @@ public class MbwManager {
 
       // Preferences
       SharedPreferences preferences = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-              Activity.MODE_PRIVATE);
+            Activity.MODE_PRIVATE);
 
       _pin = preferences.getString(Constants.PIN_SETTING, "");
       _walletMode = WalletMode.fromInteger(preferences.getInt(Constants.WALLET_MODE_SETTING,
             Constants.DEFAULT_WALLET_MODE.asInteger()));
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
-              Constants.DEFAULT_BITCOIN_DENOMINATION));
+            Constants.DEFAULT_BITCOIN_DENOMINATION));
       _showHints = preferences.getBoolean(Constants.SHOW_HINTS_SETTING, true);
       _showSwipeAnimation = preferences.getBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, true);
       _autoPay = preferences.getLong(Constants.AUTOPAY_SETTING, 0);
@@ -192,9 +192,7 @@ public class MbwManager {
 
    public void setPin(String pin) {
       _pin = pin;
-      getEditor().
-              putString(Constants.PIN_SETTING, _pin)
-              .commit();
+      getEditor().putString(Constants.PIN_SETTING, _pin).commit();
    }
 
    public void runPinProtectedFunction(final Context context, final Runnable fun) {
@@ -222,7 +220,9 @@ public class MbwManager {
 
    public void vibrate(int milliseconds) {
       Vibrator v = (Vibrator) _applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
-      v.vibrate(milliseconds);
+      if (v != null) {
+         v.vibrate(milliseconds);
+      }
    }
 
    public CoinUtil.Denomination getBitcoinDenomination() {
@@ -231,9 +231,7 @@ public class MbwManager {
 
    public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
       _bitcoinDenomination = denomination;
-      getEditor()
-              .putString(Constants.BITCOIN_DENOMINATION_SETTING, _bitcoinDenomination.toString())
-              .commit();
+      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, _bitcoinDenomination.toString()).commit();
    }
 
    public String getBtcValueString(long satoshis) {
@@ -252,9 +250,7 @@ public class MbwManager {
 
    public void setShowHints(boolean show) {
       _showHints = show;
-      getEditor()
-              .putBoolean(Constants.SHOW_HINTS_SETTING, _showHints)
-              .commit();
+      getEditor().putBoolean(Constants.SHOW_HINTS_SETTING, _showHints).commit();
    }
 
    public boolean getShowSwipeAnimation() {
@@ -263,12 +259,9 @@ public class MbwManager {
 
    public void setShowSwipeAnimation(boolean show) {
       _showSwipeAnimation = show;
-      getEditor()
-              .putBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, _showSwipeAnimation)
-              .commit();
+      getEditor().putBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, _showSwipeAnimation).commit();
    }
 
-   
    private SharedPreferences.Editor getEditor() {
       return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
    }

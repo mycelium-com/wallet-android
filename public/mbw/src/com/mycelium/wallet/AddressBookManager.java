@@ -94,25 +94,38 @@ public class AddressBookManager {
    private Context _applicationContext;
    private List<Entry> _entries;
    private Map<String, Entry> _addressMap;
-   private Map<String, Entry> _nameMap;
 
    public AddressBookManager(Application application) {
       _applicationContext = application.getApplicationContext();
       List<Entry> entries = loadEntries(_applicationContext);
       _entries = new ArrayList<Entry>(entries.size());
       _addressMap = new HashMap<String, Entry>(entries.size());
-      _nameMap = new HashMap<String, Entry>(entries.size());
       for (Entry entry : entries) {
-         addEntryInt(entry.getAddress(), entry.getName());
+         insertOrUpdateEntryInt(entry.getAddress(), entry.getName());
       }
       Collections.sort(_entries);
    }
 
-   public synchronized void addEntry(String address, String name) {
+   // @formatter:off
+   // Inserts, updates or deletes an entry.
+   // If the specified name is empty and an entry exists for the specified
+   // address, then the entry is deleted.
+   // If an entry for the specified address exists and the name is not empty,
+   // then the entry is updated with the new name.
+   // If an entry for the specified address does not exists and the name is not
+   // empty, then the a new entry is created.
+   // No attempt is made at making names unique
+   // @formatter:on
+   public synchronized void insertUpdateOrDeleteEntry(String address, String name) {
       if (address == null || name == null) {
          return;
       }
-      addEntryInt(address, name);
+      name = name.trim();
+      if (name.length() == 0) {
+         deleteEntry(address);
+      } else {
+         insertOrUpdateEntryInt(address, name);
+      }
       Collections.sort(_entries);
       save();
    }
@@ -128,11 +141,10 @@ public class AddressBookManager {
       }
       _entries.remove(entry);
       _addressMap.remove(address);
-      _nameMap.remove(entry.getName());
       save();
    }
 
-   private void addEntryInt(String address, String name) {
+   private void insertOrUpdateEntryInt(String address, String name) {
       if (address == null) {
          return;
       }
@@ -141,9 +153,13 @@ public class AddressBookManager {
          return;
       }
       if (name == null) {
-         name = "";
+         return;
       }
       name = name.trim();
+      if (name.length() == 0) {
+         // We don't want entries with blank names
+         return;
+      }
 
       Entry entry = _addressMap.get(address);
       if (entry == null) {
@@ -155,16 +171,19 @@ public class AddressBookManager {
          _entries.add(entry);
       }
       _addressMap.put(address, entry);
-      if (name.length() != 0) {
-         _nameMap.put(name, entry);
-      }
    }
 
    public String getAddressByName(String name) {
       if (name == null) {
          return null;
       }
-      return _nameMap.get(name.trim()).getAddress();
+      name = name.trim();
+      for (Entry entry : _entries) {
+         if (name.equalsIgnoreCase(entry.getName())) {
+            return entry.getAddress();
+         }
+      }
+      return null;
    }
 
    public boolean hasAddress(String address) {
