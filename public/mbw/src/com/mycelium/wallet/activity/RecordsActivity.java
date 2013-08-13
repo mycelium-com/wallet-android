@@ -156,7 +156,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
                Record record = addRecordFromString(Utils.getClipboardString(RecordsActivity.this));
                // If the record has a private key delete the contents of the
                // clipboard
-               if (record.hasPrivateKey()) {
+               if (record != null && record.hasPrivateKey()) {
                   Utils.clearClipboardString(RecordsActivity.this);
                }
                AddDialog.this.dismiss();
