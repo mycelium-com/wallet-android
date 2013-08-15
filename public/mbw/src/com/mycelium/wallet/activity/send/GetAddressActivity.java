@@ -85,7 +85,7 @@ public class GetAddressActivity extends Activity {
 
          @Override
          public void onClick(View arg0) {
-            Utils.startScannerIntent(GetAddressActivity.this, SCANNER_RESULT_CODE);
+            Utils.startScannerIntent(GetAddressActivity.this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
          }
       });
 

@@ -81,7 +81,7 @@ void initFromCameraParameters(Camera camera) {
     Log.i(TAG, "Camera resolution: " + cameraResolution);
   }
 
-  void setDesiredCameraParameters(Camera camera, boolean safeMode) {
+  void setDesiredCameraParameters(Camera camera, boolean safeMode, boolean enableContinousFocus) {
     Camera.Parameters parameters = camera.getParameters();
 
     if (parameters == null) {
@@ -101,7 +101,7 @@ void initFromCameraParameters(Camera camera) {
 
     String focusMode = null;
     if (prefs.getBoolean(PreferencesActivity.KEY_AUTO_FOCUS, true)) {
-      if (safeMode || prefs.getBoolean(PreferencesActivity.KEY_DISABLE_CONTINUOUS_FOCUS, false)) {
+      if (safeMode || prefs.getBoolean(PreferencesActivity.KEY_DISABLE_CONTINUOUS_FOCUS, !enableContinousFocus)) {
         focusMode = findSettableValue(parameters.getSupportedFocusModes(),
                                       Camera.Parameters.FOCUS_MODE_AUTO);
       } else {

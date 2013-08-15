@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet.activity;
 
+import java.util.Locale;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -78,6 +80,7 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _localCurrency;
    private CheckBoxPreference _showHints;
    private CheckBoxPreference _showSwipeAnimation;
+   private CheckBoxPreference _continuousAutoFocus;
    private CheckBoxPreference _aggregatedView;
    private MbwManager _mbwManager;
    private Dialog _dialog;
@@ -143,6 +146,11 @@ public class SettingsActivity extends PreferenceActivity {
       _showSwipeAnimation.setChecked(_mbwManager.getShowSwipeAnimation());
       _showSwipeAnimation.setOnPreferenceClickListener(showSwipeAnimationClickListener);
 
+      // Show Swipe Animation
+      _continuousAutoFocus = (CheckBoxPreference) findPreference("continuousFocus");
+      _continuousAutoFocus.setChecked(_mbwManager.getContinuousFocus());
+      _continuousAutoFocus.setOnPreferenceClickListener(continuousAutoFocusClickListener);
+
       // Aggregated View
       _aggregatedView = (CheckBoxPreference) findPreference("aggregatedView");
       _aggregatedView.setChecked(_mbwManager.getWalletMode() == WalletMode.Aggregated);
@@ -189,7 +197,8 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private String autoPayTitle() {
-      return String.format("%s (%s %.2f)", getString(R.string.autopay),
+      Locale enUS = new Locale("en", "US");
+      return String.format(enUS, "%s (%s %.2f)", getString(R.string.autopay),
             CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol(), (double) _mbwManager.getAutoPay() / 100);
    }
 
@@ -271,6 +280,14 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _mbwManager.setShowSwipeAnimation(p.isChecked());
+         return true;
+      }
+   };
+
+   private final OnPreferenceClickListener continuousAutoFocusClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.setContinousFocus(p.isChecked());
          return true;
       }
    };

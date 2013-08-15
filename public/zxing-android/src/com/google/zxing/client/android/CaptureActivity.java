@@ -72,6 +72,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    private InactivityTimer inactivityTimer;
    private BeepManager beepManager;
    private AmbientLightManager ambientLightManager;
+   private boolean enableContinuousFocus;
 
    ViewfinderView getViewfinderView() {
       return viewfinderView;
@@ -97,6 +98,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       inactivityTimer = new InactivityTimer(this);
       beepManager = new BeepManager(this);
       ambientLightManager = new AmbientLightManager(this);
+
+      Intent intent = getIntent();
+
+      if (intent != null) {
+         enableContinuousFocus = intent.getBooleanExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, false);
+      }else{
+         enableContinuousFocus = true;
+      }
 
       PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
@@ -381,7 +390,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          return;
       }
       try {
-         cameraManager.openDriver(surfaceHolder);
+         cameraManager.openDriver(surfaceHolder, enableContinuousFocus);
          // Creating the handler starts the preview, which can also throw a
          // RuntimeException.
          if (handler == null) {

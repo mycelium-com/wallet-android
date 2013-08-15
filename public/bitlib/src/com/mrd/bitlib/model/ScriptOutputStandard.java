@@ -73,6 +73,7 @@ public class ScriptOutputStandard extends ScriptOutput implements Serializable {
    }
 
    public ScriptOutputStandard(byte[] addressBytes) {
+      //todo check length for type specfic length 20?
       super(scriptEncodeChunks(new byte[][] { { (byte) OP_DUP }, { (byte) OP_HASH160 }, addressBytes,
             { (byte) OP_EQUALVERIFY }, { (byte) OP_CHECKSIG } }));
       _addressBytes = addressBytes;

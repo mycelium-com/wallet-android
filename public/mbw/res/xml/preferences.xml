@@ -27,6 +27,11 @@
         android:summary="@string/pref_show_swipe_animation_summary"
         android:title="@string/pref_show_swipe_animation" />
 
+    <CheckBoxPreference
+        android:key="continuousFocus"
+        android:summary="@string/pref_continuous_focus_summary"
+        android:title="@string/pref_continuous_focus" />
+    
     <EditTextPreference
         android:inputType="numberDecimal"
         android:key="instantPayAmount"

@@ -4,7 +4,8 @@ import org.junit.Before;
 
 public class GeneratorTest {
 
-    private Generator generator;
+    @SuppressWarnings("unused")
+   private Generator generator;
 
     @Before
     public void before() throws Exception {

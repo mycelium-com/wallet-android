@@ -39,10 +39,12 @@ import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
+
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.wallet.api.AndroidApiCache;
@@ -80,6 +82,7 @@ public class MbwManager {
    private boolean _showHints;
    private boolean _showSwipeAnimation;
    private long _autoPay;
+   private boolean _enableContinuousFocus;
 
    private MbwManager(Application application) {
       _applicationContext = application.getApplicationContext();
@@ -103,6 +106,8 @@ public class MbwManager {
       _showHints = preferences.getBoolean(Constants.SHOW_HINTS_SETTING, true);
       _showSwipeAnimation = preferences.getBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, true);
       _autoPay = preferences.getLong(Constants.AUTOPAY_SETTING, 0);
+      _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING,
+            getContinuousFocusDefault());
 
       // Get the display metrics of this device
       DisplayMetrics dm = new DisplayMetrics();
@@ -117,6 +122,15 @@ public class MbwManager {
       _hintManager = new HintManager(this, _applicationContext);
       _externalStorageManager = new ExternalStorageManager(_applicationContext);
 
+   }
+
+   private boolean getContinuousFocusDefault() {
+      if (Build.MODEL == "Nexus 4") {
+         // Disabled for Nexus 4
+         return false;
+      }
+      // We may need to disable it for other models as well. TBD.
+      return true;
    }
 
    public ApiCache getCache() {
@@ -260,6 +274,15 @@ public class MbwManager {
    public void setShowSwipeAnimation(boolean show) {
       _showSwipeAnimation = show;
       getEditor().putBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, _showSwipeAnimation).commit();
+   }
+
+   public boolean getContinuousFocus() {
+      return _enableContinuousFocus;
+   }
+
+   public void setContinousFocus(boolean disableContinousFocus) {
+      _enableContinuousFocus = disableContinousFocus;
+      getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).commit();
    }
 
    private SharedPreferences.Editor getEditor() {

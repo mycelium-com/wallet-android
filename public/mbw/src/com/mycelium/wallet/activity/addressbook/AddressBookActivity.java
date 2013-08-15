@@ -235,7 +235,7 @@ public class AddressBookActivity extends ListActivity {
 
             @Override
             public void onClick(View v) {
-               Utils.startScannerIntent(activity, SCANNER_RESULT_CODE);
+               Utils.startScannerIntent(activity, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
                AddDialog.this.dismiss();
             }
 

@@ -34,9 +34,15 @@
 
 package com.mrd.bitlib;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -302,7 +308,7 @@ public class StandardTransactionBuilder {
     * specifying a miner fee that is too low may result in hanging transactions
     * that never confirm.
     * 
-    * @param unspent
+    * @param inventory
     *           The list of unspent transaction outputs that can be used as
     *           funding
     * @param changeAddress
@@ -317,10 +323,10 @@ public class StandardTransactionBuilder {
     * @return An unsigned transaction or null if not enough funds were available
     * @throws InsufficientFundsException
     */
-   public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> unspent, Address changeAddress,
+   public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> inventory, Address changeAddress,
          long fee, PublicKeyRing keyRing, NetworkParameters network) throws InsufficientFundsException {
       // Make a copy so we can mutate the list
-      unspent = new LinkedList<UnspentTransactionOutput>(unspent);
+      List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
       List<UnspentTransactionOutput> funding = new LinkedList<UnspentTransactionOutput>();
       long outputSum = outputSum();
       long toSend = fee + outputSum;
@@ -333,14 +339,12 @@ public class StandardTransactionBuilder {
          }
          found += output.value;
          funding.add(output);
-
-         // If no change address s specified, get it from one of the outputs
-         // being spent
-         if (changeAddress == null) {
-            Address outputAddress = output.script.getAddress(network);
-            changeAddress = outputAddress;
-         }
       }
+      if (changeAddress == null){
+         // If no change address s specified, get the richest address from the funding set
+         changeAddress = extractRichest(funding, network);
+      }
+
       // We have our funding, calculate change
       long change = found - toSend;
 
@@ -363,6 +367,39 @@ public class StandardTransactionBuilder {
       return new UnsignedTransaction(outputs, funding, keyRing, network);
    }
 
+   @VisibleForTesting Address extractRichest(Collection<UnspentTransactionOutput> unspent, final NetworkParameters network) {
+      Preconditions.checkArgument(!unspent.isEmpty());
+      Function<UnspentTransactionOutput, Address> txout2Address = new Function<UnspentTransactionOutput, Address>() {
+         @Override
+         public Address apply(UnspentTransactionOutput input) {
+            return input.script.getAddress(network);
+         }
+      };
+      Multimap<Address,UnspentTransactionOutput> index = Multimaps.index(unspent, txout2Address);
+      Address ret = extractRichest(index);
+      return Preconditions.checkNotNull(ret);
+   }
+
+   private Address extractRichest(Multimap<Address, UnspentTransactionOutput> index) {
+      Address ret = null;
+      long maxSum = 0;
+      for (Address address : index.keys()) {
+         Collection<UnspentTransactionOutput> unspentTransactionOutputs = index.get(address);
+         long newSum = sum(unspentTransactionOutputs);
+         if (newSum > maxSum) ret = address;
+         maxSum = newSum;
+      }
+      return ret;
+   }
+
+   private long sum(Iterable<UnspentTransactionOutput> outputs) {
+      long sum = 0;
+      for (UnspentTransactionOutput output : outputs) {
+         sum += output.value;
+      }
+      return sum;
+   }
+
    public static Transaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures) {
       // Create finalized transaction inputs
       TransactionInput[] inputs = new TransactionInput[unsigned._funding.length];
@@ -378,7 +415,7 @@ public class StandardTransactionBuilder {
       return transaction;
    }
 
-   private UnspentTransactionOutput extractOldest(List<UnspentTransactionOutput> unspent) {
+   private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {
       // find the "oldest" output
       int minHeight = Integer.MAX_VALUE;
       UnspentTransactionOutput oldest = null;

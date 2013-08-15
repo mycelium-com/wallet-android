@@ -10,6 +10,8 @@ import se.grunka.fortuna.accumulator.EntropySource;
 import se.grunka.fortuna.entropy.*;
 
 public class Fortuna extends Random {
+   private static final long serialVersionUID = 1L;
+   
    private static final int MIN_POOL_SIZE = 64;
    private static final int[] POWERS_OF_TWO = initializePowersOfTwo();
 

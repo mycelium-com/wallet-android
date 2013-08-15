@@ -11,7 +11,8 @@ public class Dump {
 
     // Compression test: xz -e9zvkf random.data
 
-    public static void main(String[] args) throws Exception {
+    @SuppressWarnings("resource")
+   public static void main(String[] args) throws Exception {
         if (args.length < 1 || args.length > 2) {
             usage();
             System.exit(args.length == 0 ? 0 : 1);

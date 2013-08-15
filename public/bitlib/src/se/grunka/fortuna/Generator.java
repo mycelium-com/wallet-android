@@ -2,7 +2,6 @@ package se.grunka.fortuna;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 public class Generator {
     private static final int KEY_LENGTH = 32;

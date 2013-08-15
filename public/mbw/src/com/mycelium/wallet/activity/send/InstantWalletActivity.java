@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
@@ -50,12 +51,15 @@ import com.mycelium.wallet.Wallet;
 public class InstantWalletActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
+   private MbwManager _mbwManager;
 
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.instant_wallet_activity);
+
+      _mbwManager = MbwManager.getInstance(getApplication());
 
       final Record record = getRecordFromClipboard();
       if (record == null || !record.hasPrivateKey()) {
@@ -75,7 +79,7 @@ public class InstantWalletActivity extends Activity {
 
          @Override
          public void onClick(View arg0) {
-            Utils.startScannerIntent(InstantWalletActivity.this, SCANNER_RESULT_CODE);
+            Utils.startScannerIntent(InstantWalletActivity.this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
          }
       });
 

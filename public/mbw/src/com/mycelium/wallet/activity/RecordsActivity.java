@@ -142,7 +142,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
 
             @Override
             public void onClick(View v) {
-               Utils.startScannerIntent(activity, SCANNER_RESULT_CODE);
+               Utils.startScannerIntent(activity, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
                AddDialog.this.dismiss();
             }
 
@@ -249,17 +249,17 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       final View checkBoxView = View.inflate(this, R.layout.delkey_checkbox, null);
       final CheckBox keepAddrCheckbox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
       keepAddrCheckbox.setText(getString(R.string.keep_address));
-      keepAddrCheckbox.setChecked(true);
+      keepAddrCheckbox.setChecked(false);
 
       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(RecordsActivity.this);
       String title = record.hasPrivateKey() ? "Delete Private Key?" : "Delete Bitcoin Address?";
       String message = record.hasPrivateKey() ? "Do you want to delete this private key?"
-            : "Do you want to delete this address?";
+              : "Do you want to delete this address?";
       deleteDialog.setTitle(title);
       deleteDialog.setMessage(message);
 
       if (record.hasPrivateKey()) { // add checkbox only if private key is
-                                    // present
+         // present
          deleteDialog.setView(checkBoxView);
       }
 
@@ -388,7 +388,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       // Disable Add button if we have reached the limit of how many
       // addresses/keys to manage
       findViewById(R.id.btAdd).setEnabled(
-            _recordManager.numRecords(Tag.ACTIVE) < MyceliumWalletApi.MAXIMUM_ADDRESSES_PER_REQUEST);
+              _recordManager.numRecords(Tag.ACTIVE) < MyceliumWalletApi.MAXIMUM_ADDRESSES_PER_REQUEST);
 
       LinearLayout linearLayout = (LinearLayout) findViewById(R.id.llRecords);
       linearLayout.removeAllViews();
@@ -397,9 +397,9 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       List<Record> archivedRecords = _recordManager.getRecords(Tag.ARCHIVE);
       Record selectedRecord = _recordManager.getSelectedRecord();
       linearLayout.addView(createRecordViewList(activeRecords.isEmpty() ? R.string.active_empty : R.string.active,
-            activeRecords, selectedRecord));
+              activeRecords, selectedRecord));
       linearLayout.addView(createRecordViewList(archivedRecords.isEmpty() ? R.string.archive_empty : R.string.archive,
-            archivedRecords, selectedRecord));
+              archivedRecords, selectedRecord));
    }
 
    private View createRecordViewList(int titleResource, List<Record> records, Record selectedRecord) {
@@ -731,20 +731,20 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
    private void exportPrivateKey(final Record record) {
       AlertDialog.Builder builder = new AlertDialog.Builder(RecordsActivity.this);
       builder.setMessage(R.string.export_private_key_warning).setCancelable(false)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  if (record == null) {
-                     return;
-                  }
-                  Intent intent = new Intent(RecordsActivity.this, ExportActivity.class);
-                  startActivity(intent);
+              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                    if (record == null) {
+                       return;
+                    }
+                    Intent intent = new Intent(RecordsActivity.this, ExportActivity.class);
+                    startActivity(intent);
 
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-               }
-            });
+                 }
+              }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+         public void onClick(DialogInterface dialog, int id) {
+         }
+      });
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
    }
@@ -754,7 +754,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       @Override
       public void run() {
          Utils.showSetAddressLabelDialog(RecordsActivity.this, _addressBook,
-               _recordManager.getSelectedRecord().address.toString(), updateAfterSetLabel);
+                 _recordManager.getSelectedRecord().address.toString(), updateAfterSetLabel);
       }
    };
 

@@ -75,6 +75,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
@@ -85,9 +86,10 @@ import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 
 public class Utils {
 
-   public static void startScannerIntent(Activity activity, int requestCode) {
+   public static void startScannerIntent(Activity activity, int requestCode, boolean enableContinuousFocus) {
       Intent intent = new Intent(activity, CaptureActivity.class);
-      intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus);
       activity.startActivityForResult(intent, requestCode);
    }
 

@@ -105,6 +105,7 @@ public class Constants {
    public static final String DEFAULT_BITCOIN_DENOMINATION = "BTC";
    public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
    public static final String SHOW_HINTS_SETTING = "ShowHints";
+   public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    public static final String SHOW_SWIPE_ANIMATION_SETTING = "ShowSwipeAnimation";
    public static final String AUTOPAY_SETTING = "autopayAmount";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";

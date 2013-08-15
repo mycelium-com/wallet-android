@@ -84,6 +84,8 @@ public final class Intents {
     public static final String WIDTH = "SCAN_WIDTH";
     public static final String HEIGHT = "SCAN_HEIGHT";
 
+    public static final String ENABLE_CONTINUOUS_FOCUS = "ENABLE_CONTINUOUS_FOCUS";
+    
     /**
      * Desired duration in milliseconds for which to pause after a successful scan before
      * returning to the calling intent. Specified as a long, not an integer!

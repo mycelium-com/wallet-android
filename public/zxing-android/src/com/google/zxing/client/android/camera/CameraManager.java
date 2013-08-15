@@ -77,7 +77,7 @@ public final class CameraManager {
     * @throws IOException
     *            Indicates the camera driver failed to open.
     */
-   public synchronized void openDriver(SurfaceHolder holder) throws IOException {
+   public synchronized void openDriver(SurfaceHolder holder, boolean enableContinuousFocus) throws IOException {
       Camera theCamera = camera;
       if (theCamera == null) {
          try {
@@ -107,7 +107,7 @@ public final class CameraManager {
                                                                                      // these,
                                                                                      // temporarily
       try {
-         configManager.setDesiredCameraParameters(theCamera, false);
+         configManager.setDesiredCameraParameters(theCamera, false, enableContinuousFocus);
       } catch (RuntimeException re) {
          // Driver failed
          Log.w(TAG, "Camera rejected parameters. Setting only minimal safe-mode parameters");
@@ -118,7 +118,7 @@ public final class CameraManager {
             parameters.unflatten(parametersFlattened);
             try {
                theCamera.setParameters(parameters);
-               configManager.setDesiredCameraParameters(theCamera, true);
+               configManager.setDesiredCameraParameters(theCamera, true, enableContinuousFocus);
             } catch (RuntimeException re2) {
                // Well, darn. Give up
                Log.w(TAG, "Camera rejected even safe-mode parameters! No configuration");
