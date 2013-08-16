@@ -71,6 +71,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.BalanceInfo;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
+import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.receive.WithAmountActivity;
 import com.mycelium.wallet.activity.send.SendActivityHelper;
 import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
@@ -140,7 +141,9 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
          @Override
          public void onClick(View v) {
-            showQrCode();
+            Intent intent = new Intent(BalanceActivity.this, ReceiveCoinsActivity.class);
+            intent.putExtra("wallet", _wallet);
+            startActivity(intent);
          }
       });
 
@@ -497,14 +500,6 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          return true;
       }
       return super.onOptionsItemSelected(item);
-   }
-
-   private void showQrCode() {
-      String address = "bitcoin:" + _wallet.getReceivingAddress().toString();
-      MbwManager manager = MbwManager.getInstance(this.getApplication());
-      Bitmap bitmap = Utils.getLargeQRCodeBitmap(address, manager);
-      _qrCodeDialog = Utils.showQrCode(BalanceActivity.this, R.string.bitcoin_address_title, bitmap, _wallet
-            .getReceivingAddress().toString(), R.string.copy_address_to_clipboard);
    }
 
    @Override

@@ -41,9 +41,12 @@ import android.os.Bundle;
 import android.text.ClipboardManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.common.base.Preconditions;
 
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
@@ -64,7 +67,7 @@ public class ReceiveCoinsActivity extends Activity {
       MbwManager mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      Wallet wallet = (Wallet) getIntent().getSerializableExtra("wallet");
+      Wallet wallet = Preconditions.checkNotNull((Wallet) getIntent().getSerializableExtra("wallet"));
       long amount = getIntent().getLongExtra("amount", 0);
 
       final String uri;
@@ -85,6 +88,8 @@ public class ReceiveCoinsActivity extends Activity {
       Bitmap bitmap = Utils.getLargeQRCodeBitmap(uri, mbwManager);
       ImageView iv = (ImageView) findViewById(R.id.ivQrCode);
       iv.setImageBitmap(bitmap);
+
+      iv.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
 
       // Show warning if the record has no private key
       if (wallet.hasPrivateKeyForReceivingAddress()) {

@@ -219,7 +219,7 @@ public class Utils {
    }
 
    public static void fadeViewInOut(View view) {
-      fadeViewInOut(view, 0, 2000, 1000);
+      fadeViewInOut(view, 0, 1000, 1000);
    }
 
    public static void fadeViewInOut(View view, long startDelay, long fadeTime, long stayTime) {

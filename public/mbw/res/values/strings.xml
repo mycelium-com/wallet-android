@@ -127,7 +127,7 @@
     <string name="pref_show_hints">Show Hints</string>
     <string name="pref_show_hints_summary">Enable or disable hints</string>
     <string name="pref_show_swipe_animation">Show Swipe Animation</string>
-    <string name="pref_show_swipe_animation_summary">Enable or disable the swipe animation shown on the blance view</string>
+    <string name="pref_show_swipe_animation_summary">Enable or disable the swipe animation shown on the balance view</string>
     <string name="pref_continuous_focus">Continuous Autofocus</string>
     <string name="pref_continuous_focus_summary">Continuously attempt to autofocus when scanning QR-codes</string>
     <string name="settings">Settings</string>
@@ -226,5 +226,6 @@
     <string name="export_private_key">Export Private Key</string>
     <string name="managing_archive_key">You are managing a single archived key.</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
+    <string name="fading_improves_scanning">Dim QR-codes improve scanning on some devices</string>
     
 </resources>

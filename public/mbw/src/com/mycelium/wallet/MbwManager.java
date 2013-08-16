@@ -125,7 +125,7 @@ public class MbwManager {
    }
 
    private boolean getContinuousFocusDefault() {
-      if (Build.MODEL == "Nexus 4") {
+      if (Build.MODEL.equals("Nexus 4")) {
          // Disabled for Nexus 4
          return false;
       }

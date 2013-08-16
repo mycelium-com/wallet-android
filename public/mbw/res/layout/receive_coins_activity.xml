@@ -25,7 +25,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="0dp"
-            android:background="@drawable/btn_black"
             android:orientation="vertical" >
 
             <FrameLayout
@@ -62,6 +61,14 @@
                     android:textStyle="bold" />
             </FrameLayout>
 
+            <TextView
+                style="@style/GenericText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/fading_improves_scanning"
+                android:textSize="12sp" />
+
             <Button
                 android:id="@+id/btCopyToClipboard"
                 style="@style/GenericButton"
@@ -80,8 +87,8 @@
             android:id="@+id/tvWarning"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginBottom="10dp"
+            android:gravity="center"
             android:text="@string/read_only_warning"
             android:textColor="@color/red"
             android:textSize="20sp" />
