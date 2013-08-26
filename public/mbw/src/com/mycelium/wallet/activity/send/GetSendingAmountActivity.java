@@ -35,12 +35,15 @@
 package com.mycelium.wallet.activity.send;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.ClipboardManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -51,36 +54,42 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.send.SendActivityHelper.SendContext;
-import com.mycelium.wallet.api.AbstractCallbackHandler;
-import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.api.AsyncTask;
+import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.Wallet.SpendableOutputs;
 
 public class GetSendingAmountActivity extends Activity implements NumberEntryListener {
 
-   private AsyncTask _task;
+   private Wallet _wallet;
+   private SpendableOutputs _spendable;
+   private Double _oneBtcInFiat; // May be null
    private NumberEntry _numberEntry;
    private PrivateKeyRing _privateKeyRing;
    private long _balance;
    private Toast _toast;
    private boolean _enterFiatAmount;
    private MbwManager _mbwManager;
-   private Double _oneBtcInFiat;
-   private SendContext _context;
    private List<UnspentTransactionOutput> _outputs;
    private long _maxSendable;
 
-   /** Called when the activity is first created. */
+   public static void callMe(Activity currentActivity, int requestCode, Wallet wallet, SpendableOutputs spendable,
+         Double oneBtcInFiat, Long amountToSend) {
+      Intent intent = new Intent(currentActivity, GetSendingAmountActivity.class);
+      intent.putExtra("wallet", wallet);
+      intent.putExtra("spendable", spendable);
+      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
+      intent.putExtra("amountToSend", amountToSend);
+      currentActivity.startActivityForResult(intent, requestCode);
+   }
+
    @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -90,23 +99,25 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      _context = SendActivityHelper.getSendContext(this);
-
-      // Get intent parameters
-      Long amount = null;
+      _wallet = (Wallet) getIntent().getSerializableExtra("wallet");
+      _spendable = (SpendableOutputs) getIntent().getSerializableExtra("spendable");
+      _oneBtcInFiat = (Double) getIntent().getSerializableExtra("oneBtcInFiat"); // May
+                                                                                 // be
+                                                                                 // null
+      Long amount = (Long) getIntent().getSerializableExtra("amountToSend");
 
       // Load saved state
       if (savedInstanceState != null) {
-         amount = (Long) savedInstanceState.getSerializable("amount");
+         amount = (Long) savedInstanceState.getSerializable("amountToSend");
       }
 
       // Construct list of outputs
       _outputs = new LinkedList<UnspentTransactionOutput>();
-      _outputs.addAll(_context.spendableOutputs.unspent);
-      _outputs.addAll(_context.spendableOutputs.change);
+      _outputs.addAll(_spendable.unspent);
+      _outputs.addAll(_spendable.change);
 
       // Construct private key ring
-      _privateKeyRing = _context.wallet.getPrivateKeyRing();
+      _privateKeyRing = _wallet.getPrivateKeyRing();
 
       // Determine and set balance
       _balance = 0;
@@ -131,33 +142,47 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
       checkTransaction();
 
-      // Make both button and entire info box at top a listener to switch
-      // currency
+      // Make both currency button and invisible right button at top a listener
+      // switch currency
       Button btCurrency = (Button) findViewById(R.id.btCurrency);
       btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
-      btCurrency.setEnabled(false);
+      btCurrency.setEnabled(_oneBtcInFiat != null);
       btCurrency.setOnClickListener(switchCurrencyListener);
-      findViewById(R.id.llInfo).setOnClickListener(switchCurrencyListener);
+      findViewById(R.id.btRight).setOnClickListener(switchCurrencyListener);
 
-      findViewById(R.id.btNext).setOnClickListener(new OnClickListener() {
+      // Make both paste button and invisible left button at top a listener to
+      // paste from clipboard
+      Button btPaste = (Button) findViewById(R.id.btPaste);
+      btPaste.setOnClickListener(pasteListener);
+      findViewById(R.id.btLeft).setOnClickListener(pasteListener);
 
-         @Override
-         public void onClick(View arg0) {
-            SendActivityHelper.startNextActivity(GetSendingAmountActivity.this, getSatoshisToSend());
-         }
-      });
+      // Next Button
+      findViewById(R.id.btOk).setOnClickListener(okClickListener);
 
-      findViewById(R.id.btMax).setOnClickListener(new OnClickListener() {
+      // Max Button
+      findViewById(R.id.btMax).setOnClickListener(maxClickListener);
 
-         @Override
-         public void onClick(View arg0) {
-            maximizeAmount();
-         }
-      });
-
-      AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      _task = api.getExchangeSummary(_mbwManager.getFiatCurrency(), new QueryExchangeSummaryHandler());
    }
+
+   private OnClickListener okClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         // Return the number of satoshis to send
+         Intent result = new Intent();
+         result.putExtra("amountToSend", getSatoshisToSend());
+         setResult(RESULT_OK, result);
+         GetSendingAmountActivity.this.finish();
+      }
+   };
+
+   private OnClickListener maxClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         maximizeAmount();
+      }
+   };
 
    private String getBalanceString(long balance) {
       String balanceString = _mbwManager.getBtcValueString(balance);
@@ -176,6 +201,59 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          switchCurrency();
       }
    };
+
+   private final OnClickListener pasteListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         BigDecimal clipboardValue = getAmountFromClipboard();
+         if (clipboardValue == null) {
+            return;
+         }
+         _numberEntry.setEntry(clipboardValue, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+      }
+   };
+
+   private boolean enablePaste() {
+      return getAmountFromClipboard() != null;
+   }
+
+   private BigDecimal getAmountFromClipboard() {
+      try {
+         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+         if (clipboard == null) {
+            return null;
+         }
+         CharSequence content = clipboard.getText();
+         if (content == null) {
+            return null;
+         }
+         String number = content.toString().trim();
+         if (_enterFiatAmount) {
+            if (!Utils.isValidFiatDecimalNumber(number)) {
+               return null;
+            }
+            BigDecimal value = new BigDecimal(number);
+            value = value.setScale(2, RoundingMode.HALF_UP);
+            if (value.compareTo(BigDecimal.ZERO) < 1) {
+               return null;
+            }
+            return value;
+         } else {
+            if (!Utils.isValidBitcoinDecimalNumber(number, _mbwManager.getBitcoinDenomination())) {
+               return null;
+            }
+            BigDecimal value = new BigDecimal(number);
+            value = value.setScale(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), RoundingMode.HALF_UP);
+            if (value.compareTo(BigDecimal.ZERO) < 1) {
+               return null;
+            }
+            return value;
+         }
+      } catch (Exception e) {
+         return null;
+      }
+   }
 
    private void switchCurrency() {
       int newDecimalPlaces;
@@ -221,12 +299,15 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       // feedback from numberEntry back to ourselves
       _enterFiatAmount = !_enterFiatAmount;
       _numberEntry.setEntry(newAmount, newDecimalPlaces);
+
+      // Check whether we can enable the paste button
+      findViewById(R.id.btPaste).setEnabled(enablePaste());
    }
 
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("amount", getSatoshisToSend());
+      savedInstanceState.putSerializable("amountToSend", getSatoshisToSend());
    }
 
    @Override
@@ -237,13 +318,11 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
    @Override
    protected void onResume() {
+      findViewById(R.id.btPaste).setEnabled(enablePaste());
       super.onResume();
    }
 
    private void cancelEverything() {
-      if (_task != null) {
-         _task.cancel();
-      }
    }
 
    @Override
@@ -259,7 +338,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
       // enable/disable Max button
       findViewById(R.id.btMax).setEnabled(satoshis == null || _maxSendable != satoshis);
-      
+
       // Set alternate amount if we can
       if (satoshis == null || _oneBtcInFiat == null) {
          tvAlternateAmount.setText("");
@@ -319,15 +398,16 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
       // Try and add the output
       try {
-         stb.addOutput(_context.receivingAddress, satoshis);
+         // Note, null address used here, we just use it for measuring the
+         // transaction size
+         stb.addOutput(Address.getNullAddress(Constants.network), satoshis);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
       }
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(_outputs, null, _privateKeyRing,
-               Constants.network);
+         stb.createUnsignedTransaction(_outputs, null, _privateKeyRing, Constants.network);
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
       }
@@ -339,7 +419,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       if (satoshis == null) {
          // Nothing entered
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
-         findViewById(R.id.btNext).setEnabled(false);
+         findViewById(R.id.btOk).setEnabled(false);
          return;
       }
 
@@ -371,7 +451,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       }
 
       // Enable/disable Next button
-      findViewById(R.id.btNext).setEnabled(result != AmountValidation.NotEnoughFunds && satoshis > 0);
+      findViewById(R.id.btOk).setEnabled(result == AmountValidation.Ok && satoshis > 0);
    }
 
    private Long getFiatCentsToSend() {
@@ -403,24 +483,6 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          Long satoshis = entry.movePointRight(decimals).longValue();
          return satoshis;
       }
-   }
-
-   class QueryExchangeSummaryHandler implements AbstractCallbackHandler<ExchangeSummary[]> {
-
-      @Override
-      public void handleCallback(ExchangeSummary[] response, ApiError exception) {
-         if (exception != null) {
-            Utils.toastConnectionError(GetSendingAmountActivity.this);
-            _task = null;
-            _oneBtcInFiat = null;
-         } else {
-            _oneBtcInFiat = Utils.getLastTrade(response);
-            findViewById(R.id.btCurrency).setEnabled(true);
-            updateAmounts(_numberEntry.getEntry());
-            _task = null;
-         }
-      }
-
    }
 
 }

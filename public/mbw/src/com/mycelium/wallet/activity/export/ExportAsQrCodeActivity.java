@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.text.ClipboardManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -81,6 +82,9 @@ public class ExportAsQrCodeActivity extends Activity {
             Toast.makeText(ExportAsQrCodeActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
          }
       });
+
+      // Make QR code fade along with the entire view
+      findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
 
    }
 

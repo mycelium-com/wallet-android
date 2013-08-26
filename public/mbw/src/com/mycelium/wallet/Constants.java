@@ -57,32 +57,29 @@ public class Constants {
    /**
     * Two redundant Mycelium wallet service servers
     */
-   private static final HttpsEndpoint smws1 = new HttpsEndpoint(
-           "https://mws1.mycelium.com/mws", myceliumThumbprint);
-   private static final HttpsEndpoint smws2 = new HttpsEndpoint(
-           "https://mws2.mycelium.com/mws", myceliumThumbprint);
+   private static final HttpsEndpoint smws1 = new HttpsEndpoint("https://mws1.mycelium.com/mws", myceliumThumbprint);
+   private static final HttpsEndpoint smws2 = new HttpsEndpoint("https://mws2.mycelium.com/mws", myceliumThumbprint);
 
    /**
     * Unencrypted wallet service endpoints, used for testing
     */
    @SuppressWarnings("unused")
-   private static final HttpEndpoint mws1 = new HttpEndpoint(
-           "http://mws1.mycelium.com/mws");
+   private static final HttpEndpoint mws1 = new HttpEndpoint("http://mws1.mycelium.com/mws");
    @SuppressWarnings("unused")
-   private static final HttpEndpoint mws2 = new HttpEndpoint(
-           "http://mws2.mycelium.com/mws");
+   private static final HttpEndpoint mws2 = new HttpEndpoint("http://mws2.mycelium.com/mws");
 
    /**
     * The set of endpoints we use. The wallet chooses a random endpoint and if
     * it does not respond it round-robins through the list. This way we achieve
     * client side load-balancing and fail-over.
     */
-   private static final HttpEndpoint[] _serverEndpoints = new HttpEndpoint[]{
-           smws1, smws2};
+   private static final HttpEndpoint[] _serverEndpoints = new HttpEndpoint[] { smws1, smws2 };
    public static final NetworkParameters network = NetworkParameters.productionNetwork;
    private static List<AddressShort> shorteners = ImmutableList.of(new BtcTo(), new Firstbits());
-   public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(_serverEndpoints, network, shorteners);
-//	public static final MyceliumWalletApiImpl bccapi = new MyceliumWalletApiImpl(new HttpEndpoint[]{new HttpEndpoint("http://192.168.178.66:8080/mws")}, network);
+   public static final MyceliumWalletApiImpl mwapi = new MyceliumWalletApiImpl(_serverEndpoints, network, shorteners);
+   // public static final MyceliumWalletApiImpl mwapi = new
+   // MyceliumWalletApiImpl(new HttpEndpoint[]{new
+   // HttpEndpoint("http://192.168.1.139:8080/mws")}, network, shorteners);
 
    public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
 
@@ -97,6 +94,7 @@ public class Constants {
     */
    public static final String SETTINGS_NAME = "settings";
    public static final String PIN_SETTING = "PIN";
+   public static final String PROXY_SETTING = "proxy";
    public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
    public static final String DEFAULT_CURRENCY = "USD";
    public static final String WALLET_MODE_SETTING = "WalletMode";

@@ -34,6 +34,7 @@
 
 package com.mrd.bitlib;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,7 +95,8 @@ public class StandardTransactionBuilder {
 
    }
 
-   public static class SigningRequest {
+   public static class SigningRequest implements Serializable {
+      private static final long serialVersionUID = 1L;
 
       // The public part of the key we will sign with
       public PublicKey publicKey;
@@ -110,7 +112,9 @@ public class StandardTransactionBuilder {
 
    }
 
-   public static class UnsignedTransaction {
+   public static class UnsignedTransaction implements Serializable {
+      private static final long serialVersionUID = 1L;
+
       private TransactionOutput[] _outputs;
       private UnspentTransactionOutput[] _funding;
       private SigningRequest[] _signingRequests;
@@ -323,8 +327,9 @@ public class StandardTransactionBuilder {
     * @return An unsigned transaction or null if not enough funds were available
     * @throws InsufficientFundsException
     */
-   public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> inventory, Address changeAddress,
-         long fee, PublicKeyRing keyRing, NetworkParameters network) throws InsufficientFundsException {
+   public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> inventory,
+         Address changeAddress, long fee, PublicKeyRing keyRing, NetworkParameters network)
+         throws InsufficientFundsException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
       List<UnspentTransactionOutput> funding = new LinkedList<UnspentTransactionOutput>();
@@ -340,8 +345,9 @@ public class StandardTransactionBuilder {
          found += output.value;
          funding.add(output);
       }
-      if (changeAddress == null){
-         // If no change address s specified, get the richest address from the funding set
+      if (changeAddress == null) {
+         // If no change address s specified, get the richest address from the
+         // funding set
          changeAddress = extractRichest(funding, network);
       }
 
@@ -367,7 +373,8 @@ public class StandardTransactionBuilder {
       return new UnsignedTransaction(outputs, funding, keyRing, network);
    }
 
-   @VisibleForTesting Address extractRichest(Collection<UnspentTransactionOutput> unspent, final NetworkParameters network) {
+   @VisibleForTesting
+   Address extractRichest(Collection<UnspentTransactionOutput> unspent, final NetworkParameters network) {
       Preconditions.checkArgument(!unspent.isEmpty());
       Function<UnspentTransactionOutput, Address> txout2Address = new Function<UnspentTransactionOutput, Address>() {
          @Override
@@ -375,7 +382,7 @@ public class StandardTransactionBuilder {
             return input.script.getAddress(network);
          }
       };
-      Multimap<Address,UnspentTransactionOutput> index = Multimaps.index(unspent, txout2Address);
+      Multimap<Address, UnspentTransactionOutput> index = Multimaps.index(unspent, txout2Address);
       Address ret = extractRichest(index);
       return Preconditions.checkNotNull(ret);
    }
@@ -386,7 +393,8 @@ public class StandardTransactionBuilder {
       for (Address address : index.keys()) {
          Collection<UnspentTransactionOutput> unspentTransactionOutputs = index.get(address);
          long newSum = sum(unspentTransactionOutputs);
-         if (newSum > maxSum) ret = address;
+         if (newSum > maxSum)
+            ret = address;
          maxSum = newSum;
       }
       return ret;

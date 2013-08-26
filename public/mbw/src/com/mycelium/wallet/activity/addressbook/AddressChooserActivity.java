@@ -54,9 +54,10 @@ import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.GetAddressActivity;
 
 public class AddressChooserActivity extends ListActivity {
+
+   public static final String ADDRESS_RESULT_NAME = "address_result";
 
    private ListView lvAdressList;
    private MbwManager _mbwManager;
@@ -75,7 +76,7 @@ public class AddressChooserActivity extends ListActivity {
          public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
             String value = (String) view.getTag();
             Intent result = new Intent();
-            result.putExtra(GetAddressActivity.ADDRESS_RESULT_NAME, value);
+            result.putExtra(ADDRESS_RESULT_NAME, value);
             setResult(RESULT_OK, result);
             finish();
          }

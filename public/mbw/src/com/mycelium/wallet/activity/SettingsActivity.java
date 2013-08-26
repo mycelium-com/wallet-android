@@ -39,26 +39,17 @@ import java.util.Locale;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
+import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
+import com.google.common.base.*;
+
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mycelium.wallet.CurrencyCode;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.PinDialog;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.*;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -84,6 +75,7 @@ public class SettingsActivity extends PreferenceActivity {
    private CheckBoxPreference _aggregatedView;
    private MbwManager _mbwManager;
    private Dialog _dialog;
+   private EditTextPreference _proxy;
    private EditTextPreference _autoPay;
 
    public static final Function<String, String> AUTOPAY_EXTRACT = new Function<String, String>() {
@@ -156,6 +148,18 @@ public class SettingsActivity extends PreferenceActivity {
       _aggregatedView.setChecked(_mbwManager.getWalletMode() == WalletMode.Aggregated);
       _aggregatedView.setOnPreferenceClickListener(aggregatedViewClickListener);
 
+      _proxy = Preconditions.checkNotNull((EditTextPreference) findPreference("proxy"));
+      setProxySummary();
+      _proxy.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+         @Override
+         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            String value = (String) newValue;
+            _mbwManager.setProxy(value);
+            setProxySummary();
+            return true;
+         }
+      });
+
       _autoPay = Preconditions.checkNotNull((EditTextPreference) findPreference("instantPayAmount"));
       _autoPay.setDefaultValue("0.00");
       _autoPay.setTitle(autoPayTitle());
@@ -172,6 +176,17 @@ public class SettingsActivity extends PreferenceActivity {
 
       final EditText autpayEdit = _autoPay.getEditText();
       autpayEdit.addTextChangedListener(new TextNormalizer(AUTOPAY_EXTRACT, autpayEdit));
+   }
+
+   private void setProxySummary() {
+      String host = System.getProperty(MbwManager.PROXY_HOST);
+      String port = System.getProperty(MbwManager.PROXY_PORT);
+      if (Strings.isNullOrEmpty(host) || Strings.isNullOrEmpty(port)) {
+         _proxy.setSummary("hostname:port (localhost:9050)");
+      } else {
+         _proxy.setSummary(host + ":" + port);
+      }
+
    }
 
    @VisibleForTesting

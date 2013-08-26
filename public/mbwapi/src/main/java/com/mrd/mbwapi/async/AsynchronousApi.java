@@ -252,7 +252,7 @@ public abstract class AsynchronousApi {
     * @param keyRing
     *           The key ring containing all Bitcoin public keys we operate on
     * @param api
-    *           The BCCAPI instance used for communicating with the BCCAPI
+    *           The MWAPI instance used for communicating with the MWAPI
     *           server.
     * @param accountCache
     *           The account cache instance used.

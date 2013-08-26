@@ -64,7 +64,7 @@ public class NumberEntry {
    public NumberEntry(int maxDecimals, NumberEntryListener listener, Activity parent, String text) {
       if (text.length() != 0) {
          try {
-            text = new BigDecimal(text).toString();
+            text = new BigDecimal(text).toPlainString();
          } catch (Exception e) {
             text = "";
          }
@@ -160,7 +160,7 @@ public class NumberEntry {
       if (number == null || number.equals(BigDecimal.ZERO)) {
          _entry = "";
       } else {
-         _entry = number.toString();
+         _entry = number.toPlainString();
       }
       _listener.onEntryChanged(_entry);
    }

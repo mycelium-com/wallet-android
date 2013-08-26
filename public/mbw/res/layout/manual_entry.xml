@@ -1,37 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
 
     <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="30dp"
-            android:text="Enter Bitcoin Address"
-            android:textSize="24sp"/>
+        style="@style/GenericText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:text="@string/enter_bitcoin_address"
+        android:textSize="24sp" />
 
+    <View
+        android:layout_width="1dp"
+        android:layout_height="20dp" >
+    </View>
 
-    <AutoCompleteTextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:id="@+id/userEntry" android:layout_gravity="left|center_vertical"/>
-    <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_gravity="center">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Medium Text"
-                android:id="@+id/textView" android:layout_gravity="center"/>
-    </FrameLayout>
+    <EditText
+        android:id="@+id/etAddress"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textAutoComplete"
+        android:padding="20dp"
+        android:typeface="monospace" />
+
+    <TextView
+        android:id="@+id/tvBitcoinAddressValid"
+        style="@style/GenericText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15dp"
+        android:text="@string/bitcoin_address_valid"
+        android:textColor="@color/green"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvBitcoinAddressInvalid"
+        style="@style/GenericText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15dp"
+        android:text="@string/bitcoin_address_invalid"
+        android:textColor="@color/red"
+        android:textSize="18sp" />
+
     <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OK"
-            android:id="@+id/button" android:layout_gravity="right|center_vertical"/>
+        android:id="@+id/btOk"
+        style="@style/GenericButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/btn_blue"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:text="@string/ok"
+        android:textSize="20sp" />
+
 </LinearLayout>

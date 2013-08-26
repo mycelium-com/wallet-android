@@ -89,7 +89,8 @@ public class ReceiveCoinsActivity extends Activity {
       ImageView iv = (ImageView) findViewById(R.id.ivQrCode);
       iv.setImageBitmap(bitmap);
 
-      iv.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+      // Make QR code fade along with the entire view
+      findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
 
       // Show warning if the record has no private key
       if (wallet.hasPrivateKeyForReceivingAddress()) {

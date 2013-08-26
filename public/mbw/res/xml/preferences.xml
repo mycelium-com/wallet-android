@@ -39,6 +39,13 @@
         android:title="@string/autopay" >
     </EditTextPreference>
 
+    <EditTextPreference
+        android:inputType="text"
+        android:key="proxy"
+        android:summary="hostname:port, like localhost:9050"
+        android:title="Socks Proxy" >
+    </EditTextPreference>
+
     <PreferenceCategory android:title="@string/pref_category_pin" >
         <Preference
             android:key="clearPin"

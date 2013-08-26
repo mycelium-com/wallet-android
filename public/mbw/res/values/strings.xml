@@ -31,8 +31,11 @@
     <string name="keys_and_addresses">Keys &amp; Addresses</string>
     <string name="select_spending_address">Select Spending Address</string>
     <string name="amount_hint">0.00</string>
-    <string name="receiver">Receiver:</string>
-    <string name="amount">Amount:</string>
+    <string name="amount_hint_denomination">0.00 %1$s</string>
+    <string name="receiver_label">Receiver:</string>
+    <string name="receiver_title">Receiver</string>
+    <string name="amount_label">Amount:</string>
+    <string name="amount_title">Amount</string>
     <string name="btc">BTC</string>
     <string name="sample_address">1Bmc9QwQgmuN\r\nWTxo5PjzPWeS\r\nF4d3aHx6hH</string>
     <string name="btc_balance">Balance: %1$s</string>
@@ -57,7 +60,9 @@
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
-    <string name="fee">Miner fee:</string>
+    <string name="amount_too_small_short">Amount too small</string>
+    <string name="miner_fee_label">Miner fee:</string>
+    <string name="miner_fee_title">Miner Fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_sent">Transaction sent</string>
@@ -76,7 +81,7 @@
     <string name="your_balance">Your balance:</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="balance">Balance</string>
-    <string name="approximate_fiat_value">Worth about %1$s %2$.2f</string>
+    <string name="approximate_fiat_value">~%1$s %2$.2f</string>
     <string name="one_btc_in_fiat">Latest MtGox trade %1$s%2$s</string>
     <string name="no_server_connection">No Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
@@ -123,7 +128,7 @@
     <string name="pref_local_currency">Local Currency</string>
     <string name="pref_local_currency_summary">Select the local fiat currency</string>
     <string name="pref_bitcoin_denomination">Bitcoin Denomination</string>
-    <string name="pref_bitcoin_denomination_summary">Switch between BTC, mBTC, and μBtc</string>
+    <string name="pref_bitcoin_denomination_summary">Switch between BTC, mBTC, and μBTC</string>
     <string name="pref_show_hints">Show Hints</string>
     <string name="pref_show_hints_summary">Enable or disable hints</string>
     <string name="pref_show_swipe_animation">Show Swipe Animation</string>
@@ -175,7 +180,7 @@
     <string name="failed_to_delete_private_keys">Failed to delete exported private keys</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
-    <string name="btc_rate">1 BTC = %1$s %2$.2f</string>
+    <string name="btc_rate">1 BTC ~ %1$s %2$.2f</string>
     <string name="read_only_warning">Warning: You are monitoring this address, but you cannot spend coins from it unless you have the private key elsewhere.</string>
     <string name="add_to_address_book_dialog_title">Add Address to Address Book</string>
     <string name="scan_address_book_desc">Scan bitcoin address.</string>
@@ -192,7 +197,6 @@
     <string name="keep_address">Keep as read-only by preserving the Bitcoin address</string>
     <string name="question_delete_pk">This cannot be undone!\r\nDo you want to delete this private key?</string>
     <string name="manual_entry">Manual Entry</string>
-    <string name="manual_desc">Manually enter a bitcoin address or private key</string>
     <string name="question_mark">\?</string>
     <string name="question_mark">\?</string>
     <string name="active">Active</string>
@@ -227,5 +231,13 @@
     <string name="managing_archive_key">You are managing a single archived key.</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
     <string name="fading_improves_scanning">Dim QR-codes improve scanning on some devices</string>
+    <string name="paste">Paste</string>
+    <string name="synchronizing">Synchronizing&#8230;</string>
+    <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there&#8230;</string>
+    <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
+    <string name="broadcasting_transaction">Broadcasting Transaction</string>
+    <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
+    <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
+    <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
     
 </resources>

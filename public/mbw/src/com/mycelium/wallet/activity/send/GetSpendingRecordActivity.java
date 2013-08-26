@@ -38,6 +38,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,22 +49,35 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
+import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.Record.Tag;
 
 public class GetSpendingRecordActivity extends Activity {
 
+   private Long _amountToSend;
+   private Address _receivingAddress;
    private RecordManager _recordManager;
    private RecordsAdapter _recordsAdapter;
    private MbwManager _mbwManager;
    private AddressBookManager _addressBook;
 
-   /** Called when the activity is first created. */
+   public static void callMe(Activity currentActivity) {
+      callMe(currentActivity, null, null);
+   }
+
+   public static void callMe(Activity currentActivity, Long amountToSend, Address receivingAddress) {
+      Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
+      intent.putExtra("amountToSend", amountToSend);
+      intent.putExtra("receivingAddress", receivingAddress);
+      currentActivity.startActivity(intent);
+   }
+
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -72,6 +86,13 @@ public class GetSpendingRecordActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _recordManager = _mbwManager.getRecordManager();
       _addressBook = _mbwManager.getAddressBookManager();
+
+      // Get intent parameters
+      // May be null
+      _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
+      // May be null
+      _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
+
    }
 
    class RecordClicked implements OnItemClickListener {
@@ -82,7 +103,9 @@ public class GetSpendingRecordActivity extends Activity {
             return;
          }
          Record record = (Record) v.getTag();
-         SendActivityHelper.startNextActivity(GetSpendingRecordActivity.this, new Wallet(record));
+         Wallet wallet = new Wallet(record);
+         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, wallet, _amountToSend, _receivingAddress);
+         GetSpendingRecordActivity.this.finish();
       }
    }
 

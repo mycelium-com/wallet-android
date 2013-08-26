@@ -117,7 +117,7 @@ public class SslUtils {
    static {
 
       // Used for disabling host name verification. This is safe because we
-      // trust the BCCAPI server certificate explicitly
+      // trust the MWAPI server certificate explicitly
       HOST_NAME_VERIFIER = new HostnameVerifier() {
          @Override
          public boolean verify(String hostname, SSLSession session) {

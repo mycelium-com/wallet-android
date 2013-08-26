@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
@@ -51,7 +52,21 @@ import com.mycelium.wallet.Wallet;
 public class InstantWalletActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
+   
+   private Long _amountToSend;
+   private Address _receivingAddress;
    private MbwManager _mbwManager;
+
+   public static void callMe(Activity currentActivity) {
+      callMe(currentActivity, null, null);
+   }
+
+   public static void callMe(Activity currentActivity, Long amountToSend, Address receivingAddress) {
+      Intent intent = new Intent(currentActivity, InstantWalletActivity.class);
+      intent.putExtra("amountToSend", amountToSend);
+      intent.putExtra("receivingAddress", receivingAddress);
+      currentActivity.startActivity(intent);
+   }
 
    /** Called when the activity is first created. */
    @Override
@@ -60,6 +75,12 @@ public class InstantWalletActivity extends Activity {
       setContentView(R.layout.instant_wallet_activity);
 
       _mbwManager = MbwManager.getInstance(getApplication());
+
+      // Get intent parameters
+      // May be null
+      _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
+      // May be null
+      _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
 
       final Record record = getRecordFromClipboard();
       if (record == null || !record.hasPrivateKey()) {
@@ -70,7 +91,8 @@ public class InstantWalletActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                Wallet wallet = new Wallet(record);
-               SendActivityHelper.startNextActivity(InstantWalletActivity.this, wallet);
+               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet,_amountToSend, _receivingAddress);
+               InstantWalletActivity.this.finish();
             }
          });
       }
@@ -105,7 +127,8 @@ public class InstantWalletActivity extends Activity {
       Record record = Record.fromString(contents);
       if (record != null && record.hasPrivateKey()) {
          Wallet wallet = new Wallet(record);
-         SendActivityHelper.startNextActivity(InstantWalletActivity.this, wallet);
+         SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress);
+         finish();
       } else {
          Toast.makeText(this, R.string.unrecognized_private_key_format, Toast.LENGTH_LONG).show();
       }

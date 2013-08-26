@@ -10,7 +10,6 @@
     <string name="clipboard">Zwischenablage</string>
     <string name="random">Zufällig</string>
     <string name="close">Scließen</string>
-    <string name="btc_value_string">%1$s %2$s</string>
     <string name="sending">Sende %1$s</string>
     <string name="receiving">Empfange %1$s</string>
     <string name="invalid_seed">Dieser Seed ist keine valide Zeichenkette</string>

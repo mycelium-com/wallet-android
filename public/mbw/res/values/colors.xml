@@ -19,7 +19,7 @@
     <color name="yellow">#ff0</color>
     <color name="darkyellow">#880</color>
     <color name="semidarkyellow">#cc0</color>
-    
+
     <drawable name="semi_black">#80000000</drawable>
 
 </resources>

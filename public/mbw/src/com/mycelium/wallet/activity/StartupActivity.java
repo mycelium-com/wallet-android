@@ -49,9 +49,18 @@ import android.widget.Toast;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
-import com.mycelium.wallet.activity.send.SendActivityHelper;
-import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
+import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExternalStorageManager;
+import com.mycelium.wallet.HttpErrorCollector;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.RecordManager;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
+import com.mycelium.wallet.activity.send.SendInitializationActivity;
 
 public class StartupActivity extends Activity {
 
@@ -181,7 +190,7 @@ public class StartupActivity extends Activity {
       alertDialogBuilder.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int id) {
             ExternalStorageManager ext = MbwManager.getInstance(StartupActivity.this.getApplication())
-                    .getExternalStorageManager();
+                  .getExternalStorageManager();
             if (!ext.deleteExportedPrivateKeys()) {
                Toast.makeText(StartupActivity.this, R.string.failed_to_delete_private_keys, Toast.LENGTH_LONG).show();
             }
@@ -267,19 +276,14 @@ public class StartupActivity extends Activity {
          Long amountToSend = b.getAmount() == 0 ? null : b.getAmount();
 
          RecordManager recordManager = mbwManager.getRecordManager();
-         Wallet wallet;
-         WalletSource walletSource;
          if (mbwManager.getWalletMode() == WalletMode.Segregated) {
             // If we are in segregated mode let the user choose which record to
             // use
-            wallet = null;
-            walletSource = WalletSource.SelectPrivateKey;
+            GetSpendingRecordActivity.callMe(this, amountToSend, receivingAddress);
          } else {
-            wallet = recordManager.getWallet(mbwManager.getWalletMode());
-            walletSource = WalletSource.Specified;
+            Wallet wallet = recordManager.getWallet(mbwManager.getWalletMode());
+            SendInitializationActivity.callMe(this, wallet, amountToSend, receivingAddress);
          }
-
-         SendActivityHelper.startSendActivity(this, receivingAddress, amountToSend, walletSource, wallet);
          finish();
          return true;
       }

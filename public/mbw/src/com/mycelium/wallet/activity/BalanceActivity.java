@@ -73,8 +73,8 @@ import com.mycelium.wallet.Wallet.BalanceInfo;
 import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.receive.WithAmountActivity;
-import com.mycelium.wallet.activity.send.SendActivityHelper;
-import com.mycelium.wallet.activity.send.SendActivityHelper.WalletSource;
+import com.mycelium.wallet.activity.send.InstantWalletActivity;
+import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.AsyncTask;
@@ -161,7 +161,8 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
 
          @Override
          public void onClick(View arg0) {
-            SendActivityHelper.startSendActivity(BalanceActivity.this, null, null, WalletSource.Specified, _wallet);
+            //SendActivityHelper.startSendActivity(BalanceActivity.this, null, null, WalletSource.Specified, _wallet);
+            SendInitializationActivity.callMe(BalanceActivity.this, _wallet);
          }
       });
 
@@ -496,7 +497,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          goToTransactionHistoryActivity();
          return true;
       } else if (item.getItemId() == R.id.miColdStorage) {
-         SendActivityHelper.startSendActivity(BalanceActivity.this, null, null, WalletSource.InstantWallet, null);
+         InstantWalletActivity.callMe(this);
          return true;
       }
       return super.onOptionsItemSelected(item);

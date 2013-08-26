@@ -5,6 +5,7 @@
     android:layout_alignTop="@+id/tvTitle" >
 
     <LinearLayout
+        android:id="@+id/llRoot"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -152,7 +153,7 @@
                 android:layout_marginBottom="5dp"
                 android:gravity="left"
                 android:paddingTop="10dp"
-                android:text="@string/amount"
+                android:text="@string/amount_label"
                 android:textSize="18sp" />
 
             <TextView

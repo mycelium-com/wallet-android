@@ -159,7 +159,7 @@ public abstract class AsynchronousApi {
     * Create a new asynchronous API instance.
     *
     * @param api
-    *           The BCCAPI instance used for communicating with the BCCAPI
+    *           The MWAPI instance used for communicating with the MWAPI
     *           server.
     * @param cache
     *           The account cache instance used.
@@ -641,7 +641,7 @@ public abstract class AsynchronousApi {
          }
       } };
 
-      // Create an SSL socket factory which trusts the BCCAPi server certificate
+      // Create an SSL socket factory which trusts the MWAPI server certificate
       try {
          SSLContext sc = SSLContext.getInstance("TLS");
          sc.init(null, trustOneCert, null);

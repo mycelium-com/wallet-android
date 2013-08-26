@@ -165,7 +165,7 @@
                     style="@style/GenericText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/fee"
+                    android:text="@string/miner_fee_label"
                     android:textSize="18sp" />
 
                 <TextView

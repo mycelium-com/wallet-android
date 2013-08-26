@@ -2,9 +2,9 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <alpha
             xmlns:android="http://schemas.android.com/apk/res/android"
-            android:fromAlpha="0.3"
+            android:fromAlpha="0.1"
             android:toAlpha="1.0"
-            android:duration="2000"
+            android:duration="3000"
             android:repeatMode="reverse"
             android:interpolator="@android:anim/accelerate_decelerate_interpolator"
             android:repeatCount="infinite"/>

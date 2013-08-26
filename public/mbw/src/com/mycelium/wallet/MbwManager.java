@@ -45,6 +45,10 @@ import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
+
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.wallet.api.AndroidApiCache;
@@ -53,6 +57,11 @@ import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.persistence.TxOutDb;
 
 public class MbwManager {
+
+   public static final String PROXY_HOST = "socksProxyHost";
+   public static final String PROXY_PORT = "socksProxyPort";
+   //   public static final String PROXY_HOST = "http.proxyHost";
+   //   public static final String PROXY_PORT = "http.proxyPort";
    private static volatile MbwManager _instance = null;
 
    public static synchronized MbwManager getInstance(Application application) {
@@ -83,19 +92,23 @@ public class MbwManager {
    private boolean _showSwipeAnimation;
    private long _autoPay;
    private boolean _enableContinuousFocus;
+   private String _proxy;
 
    private MbwManager(Application application) {
       _applicationContext = application.getApplicationContext();
-      _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-      _cache = new AndroidApiCache(_applicationContext);
-      _txOutDb = new TxOutDb(_applicationContext);
-      _asyncApi = new AndroidAsyncApi(Constants.bccapi, _cache);
-
-      _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
       // Preferences
       SharedPreferences preferences = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE);
+              Activity.MODE_PRIVATE);
+      setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
+      //init proxy early, to enable error reporting during startup..
+
+      _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
+      _cache = new AndroidApiCache(_applicationContext);
+      _txOutDb = new TxOutDb(_applicationContext);
+      _asyncApi = new AndroidAsyncApi(Constants.mwapi, _cache);
+
+      _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
       _pin = preferences.getString(Constants.PIN_SETTING, "");
       _walletMode = WalletMode.fromInteger(preferences.getInt(Constants.WALLET_MODE_SETTING,
@@ -232,6 +245,10 @@ public class MbwManager {
       }
    }
 
+   public void vibrate() {
+      vibrate(500);
+   }
+
    public void vibrate(int milliseconds) {
       Vibrator v = (Vibrator) _applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
       if (v != null) {
@@ -296,5 +313,28 @@ public class MbwManager {
 
    public long getAutoPay() {
       return _autoPay;
+   }
+
+   public void setProxy(String _proxy) {
+      this._proxy = _proxy;
+      getEditor().putString(Constants.PROXY_SETTING, this._proxy).commit();
+      ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(_proxy));
+      if (vals.size() != 2) {
+         noProxy();
+         return;
+      }
+      Integer portNumber = Ints.tryParse(vals.get(1));
+      if (portNumber == null || portNumber < 1 || portNumber > 65535) {
+         noProxy();
+         return;
+      }
+      String hostname = vals.get(0);
+      System.setProperty(PROXY_HOST, hostname);
+      System.setProperty(PROXY_PORT, portNumber.toString());
+   }
+
+   private void noProxy() {
+      System.clearProperty(PROXY_HOST);
+      System.clearProperty(PROXY_PORT);
    }
 }

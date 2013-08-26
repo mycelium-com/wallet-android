@@ -66,6 +66,7 @@ public class IndependentTransactionOutput implements Serializable {
       this.height = height;
       this.value = value;
       this.script = script;
+      this.isCoinbase = isCoinbase;
    }
 
    public byte[] toBytes() {

@@ -34,6 +34,8 @@
 
 package com.mrd.bitlib.model;
 
+import java.io.Serializable;
+
 import com.mrd.bitlib.model.Script.ScriptParsingException;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
@@ -41,7 +43,8 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
-public class TransactionInput {
+public class TransactionInput implements Serializable {
+   private static final long serialVersionUID = 1L;
 
    public static class TransactionInputParsingException extends Exception {
       private static final long serialVersionUID = 1L;

@@ -58,6 +58,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -81,6 +82,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 
@@ -91,6 +93,55 @@ public class Utils {
       intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
       intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus);
       activity.startActivityForResult(intent, requestCode);
+   }
+
+   public static class BitcoinScanResult {
+      public Address address;
+      public Long amount;
+
+      public BitcoinScanResult(Address address, Long amount) {
+         this.address = address;
+         this.amount = amount;
+      }
+   }
+
+   public static BitcoinScanResult parseScanResult(final Intent intent) {
+      if (!("QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT")))) {
+         return null;
+      }
+      String contents = intent.getStringExtra("SCAN_RESULT").trim();
+
+      // Determine address string and amount
+      String addressString;
+      Long amount;
+      if (contents.matches("[a-zA-Z0-9]*")) {
+         // Raw format
+         addressString = contents;
+         amount = null;
+      } else {
+         BitcoinUri b = BitcoinUri.parse(contents);
+         if (b == null) {
+            // Not on URI format
+            addressString = null;
+            amount = null;
+         } else {
+            // On URI format
+            addressString = b.getAddress().trim();
+            amount = b.getAmount() > 0 ? b.getAmount() : null;
+         }
+      }
+
+      if (addressString == null) {
+         return null;
+      }
+
+      // Is it really an address?
+      Address address = Address.fromString(addressString, Constants.network);
+      if (address == null) {
+         return null;
+      }
+
+      return new BitcoinScanResult(address, amount);
    }
 
    public static long maxAmountSendable(QueryUnspentOutputsResponse unspent) {
@@ -183,6 +234,9 @@ public class Utils {
             Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
          }
       });
+
+      // Make QR code fade along with the entire view
+      layout.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade));
 
       qrCodeDialog.show();
       return qrCodeDialog;
@@ -464,6 +518,82 @@ public class Utils {
 
       // return as address, may return null
       return Address.fromString(addressString, Constants.network);
+   }
+
+   /**
+    * Determine whether a string contains a valid bitcoin number
+    * 
+    * @param number
+    *           the number to validate
+    * @return true if this is a valid bitcoin amount
+    */
+   public static boolean isValidBitcoinDecimalNumber(String number, Denomination bitcoinDenomination) {
+      if (number == null || number.length() == 0) {
+         return false;
+      }
+
+      boolean foundDot = false;
+      int digits = 0;
+      char[] chars = number.toCharArray();
+      for (int i = 0; i < chars.length; i++) {
+         char c = chars[i];
+         if (c == '.') {
+            if (foundDot) {
+               return false;
+            }
+            foundDot = true;
+            continue;
+         }
+         if (c < '0' || c > '9') {
+            return false;
+         }
+         if (foundDot) {
+            digits++;
+         }
+         if (digits > bitcoinDenomination.getDecimalPlaces()) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Determine whether a string contains a valid amount of fiat.
+    * <p>
+    * A valid fiat amount has one dot and up to 2 decimal places
+    * 
+    * @param number
+    *           the number to validate
+    * @return true if this is a valid fiat amount
+    */
+   public static boolean isValidFiatDecimalNumber(String number) {
+      if (number == null || number.length() == 0) {
+         return false;
+      }
+
+      boolean foundDot = false;
+      int digits = 0;
+      char[] chars = number.toCharArray();
+      for (int i = 0; i < chars.length; i++) {
+         char c = chars[i];
+         if (c == '.') {
+            if (foundDot) {
+               return false;
+            }
+            foundDot = true;
+            continue;
+         }
+         if (c < '0' || c > '9') {
+            return false;
+         }
+         if (foundDot) {
+            digits++;
+         }
+         if (digits > 2) {
+            return false;
+         }
+      }
+      return true;
    }
 
 }
