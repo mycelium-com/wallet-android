@@ -39,8 +39,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
+import com.mrd.bitlib.util.HexUtils;
 
 public abstract class Script implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -115,14 +115,8 @@ public abstract class Script implements Serializable {
       OP_CODE_MAP.put(OP_NOP1, "OP_NOP1");
       OP_CODE_MAP.put(OP_NOP2, "OP_NOP2");
    }
-   // protected byte[][] _chunks;
    protected byte[] _scriptBytes;
    private boolean _isCoinbase;
-
-   // protected Script(byte[][] chunks) {
-   // _chunks = chunks;
-   // _isCoinbase = false;
-   // }
 
    protected Script(byte[] scriptBytes, boolean isCoinBase) {
       // We handle coinbase scripts in a special way, as anything can be
@@ -167,8 +161,13 @@ public abstract class Script implements Serializable {
                int size = reader.getShortLE();
                chunks[index++] = reader.getBytes(size);
             } else if (opcode == OP_PUSHDATA4) {
-               // We do not support chunks this big
-               throw new ScriptParsingException(script);
+               int size = reader.getIntLE();
+               if (size < 0) {
+                  // We do not support chunks larger than what we can hold in a
+                  // signed integer
+                  throw new ScriptParsingException(script);
+               }
+               chunks[index++] = reader.getBytes(size);
             } else {
                chunks[index++] = new byte[] { (byte) opcode };
             }
@@ -201,32 +200,20 @@ public abstract class Script implements Serializable {
             chunks++;
             reader.skip(size);
          } else if (opcode == OP_PUSHDATA4) {
-            // We do not support chunks this big
-            return -1;
+            int size = reader.getIntLE();
+            if (size < 0) {
+               // The size is larger than what we can handle in a signed integer
+               // We do not support chunks this big
+               return -1;
+            }
+            chunks++;
+            reader.skip(size);
          } else {
             chunks++;
          }
       }
       return chunks;
    }
-
-   // private int calculateByteSize() {
-   // int size = 0;
-   // for (byte[] chunk : _chunks) {
-   // if (chunk.length == 1) {
-   // size++;
-   // } else if (chunk.length < OP_PUSHDATA1) {
-   // size += 1 + chunk.length;
-   // } else if (chunk.length < 256) {
-   // size += 1 + 1 + chunk.length;
-   // } else if (chunk.length < 65536) {
-   // size += 1 + 1 + 1 + chunk.length;
-   // } else {
-   // throw new RuntimeException("Chunks larger than 65536 not implemented");
-   // }
-   // }
-   // return size;
-   // }
 
    public String dump(int maxLen) {
       String s = dump();
@@ -277,34 +264,6 @@ public abstract class Script implements Serializable {
     */
    public byte[] getScriptBytes() {
       return _scriptBytes;
-      // if (_isCoinbase) {
-      // return _scriptBytes;
-      // }
-      // byte[] buf = new byte[calculateByteSize()];
-      // int index = 0;
-      // for (byte[] chunk : _chunks) {
-      // if (chunk.length == 1) {
-      // buf[index++] = chunk[0];
-      // } else if (chunk.length < OP_PUSHDATA1) {
-      // buf[index++] = (byte) (0xFF & chunk.length);
-      // System.arraycopy(chunk, 0, buf, index, chunk.length);
-      // index += chunk.length;
-      // } else if (chunk.length < 256) {
-      // buf[index++] = (byte) (0xFF & OP_PUSHDATA1);
-      // buf[index++] = (byte) (0xFF & chunk.length);
-      // System.arraycopy(chunk, 0, buf, index, chunk.length);
-      // index += chunk.length;
-      // } else if (chunk.length < 65536) {
-      // buf[index++] = (byte) (0xFF & OP_PUSHDATA2);
-      // buf[index++] = (byte) (0xFF & chunk.length);
-      // buf[index++] = (byte) (0xFF & (chunk.length >> 8));
-      // System.arraycopy(chunk, 0, buf, index, chunk.length);
-      // index += chunk.length;
-      // } else {
-      // throw new RuntimeException("Chunks larger than 65536 not implemented");
-      // }
-      // }
-      // return buf;
    }
 
    protected static final byte[] scriptEncodeChunks(byte[][] chunks) {
@@ -329,7 +288,13 @@ public abstract class Script implements Serializable {
             System.arraycopy(chunk, 0, buf, index, chunk.length);
             index += chunk.length;
          } else {
-            throw new RuntimeException("Chunks larger than 65536 not implemented");
+            buf[index++] = (byte) (0xFF & OP_PUSHDATA4);
+            buf[index++] = (byte) (0xFF & chunk.length);
+            buf[index++] = (byte) (0xFF & (chunk.length >> 8));
+            buf[index++] = (byte) (0xFF & (chunk.length >> 16));
+            buf[index++] = (byte) (0xFF & (chunk.length >> 24));
+            System.arraycopy(chunk, 0, buf, index, chunk.length);
+            index += chunk.length;
          }
       }
       return buf;
@@ -347,7 +312,7 @@ public abstract class Script implements Serializable {
          } else if (chunk.length < 65536) {
             size += 1 + 1 + 1 + chunk.length;
          } else {
-            throw new RuntimeException("Chunks larger than 65536 not implemented");
+            size += 1 + 1 + 1 + 1 + 1 + chunk.length;
          }
       }
       return size;

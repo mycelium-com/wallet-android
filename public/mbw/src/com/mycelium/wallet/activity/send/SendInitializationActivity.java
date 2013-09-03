@@ -60,22 +60,25 @@ public class SendInitializationActivity extends Activity {
    private Wallet _wallet;
    private Long _amountToSend;
    private Address _receivingAddress;
+   private boolean _isColdStorage;
    private Handler _synchnozingHandler;
    private Handler _slowNetworkHandler;
    private SpendableOutputs _spendable;
    private Double _oneBtcInFiat;
 
-   public static void callMe(Activity currentActivity, Wallet wallet) {
+   public static void callMe(Activity currentActivity, Wallet wallet, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("wallet", wallet);
+      intent.putExtra("isColdStorage", isColdStorage);
       currentActivity.startActivity(intent);
    }
 
-   public static void callMe(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress) {
+   public static void callMe(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("wallet", wallet);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
+      intent.putExtra("isColdStorage", isColdStorage);
       currentActivity.startActivity(intent);
    }
    
@@ -91,7 +94,8 @@ public class SendInitializationActivity extends Activity {
       _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
-
+      _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
+      
       // Synchronize wallet
       _task = _wallet.requestUpdate(_mbwManager.getBlockChainAddressTracker(), new MyWalletUpdateHandler());
    }
@@ -174,7 +178,7 @@ public class SendInitializationActivity extends Activity {
          } else {
             _oneBtcInFiat = Utils.getLastTrade(response); // May return null
             // Call next activity
-            SendMainActivity.callMe(me, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress);
+            SendMainActivity.callMe(me, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress, _isColdStorage);
          }
          finish();
       }

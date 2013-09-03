@@ -1,149 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:gravity="center"
-    android:orientation="vertical" >
-
-    <TextView
-        style="@style/GenericText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="30dp"
-        android:text="@string/get_receiver_address"
-        android:textSize="24sp" />
-
-    <!-- QR-code -->
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical" >
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal" >
+        android:gravity="center"
+        android:orientation="vertical" >
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-
-        <Button
-            android:id="@+id/btScan"
-            style="@style/GenericButton"
-            android:layout_width="0dp"
+        <TextView
+            style="@style/GenericText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:background="@drawable/btn_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/qr_code"
-            android:textSize="20sp" />
+            android:layout_gravity="center"
+            android:layout_marginBottom="30dp"
+            android:text="@string/get_receiver_address"
+            android:textSize="24sp" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
+        <!-- QR-code -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal" >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+
+            <Button
+                android:id="@+id/btScan"
+                style="@style/GenericButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:background="@drawable/btn_blue"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/qr_code"
+                android:textSize="20sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+        </LinearLayout>
+
+        <!-- Address Book -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal" >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+
+            <Button
+                android:id="@+id/btAddressBook"
+                style="@style/GenericButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:background="@drawable/btn_blue"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/address_book"
+                android:textSize="20sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+        </LinearLayout>
+
+        <!-- Clipboard -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal" >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+
+            <Button
+                android:id="@+id/btClipboard"
+                style="@style/GenericButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:background="@drawable/btn_blue"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/clipboard"
+                android:textSize="20sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+        </LinearLayout>
+
+        <!-- Manual Entry -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal" >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+
+            <Button
+                android:id="@+id/btManual"
+                style="@style/GenericButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:background="@drawable/btn_blue"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/manual_entry"
+                android:textSize="20sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" >
+            </View>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Address Book -->
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal" >
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-
-        <Button
-            android:id="@+id/btAddressBook"
-            style="@style/GenericButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:background="@drawable/btn_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/address_book"
-            android:textSize="20sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-    </LinearLayout>
-
-    <!-- Manual Entry -->
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal" >
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-
-        <Button
-            android:id="@+id/btManual"
-            style="@style/GenericButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:background="@drawable/btn_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/manual_entry"
-            android:textSize="20sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-    </LinearLayout>
-
-    <!-- Clipboard -->
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal" >
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-
-        <Button
-            android:id="@+id/btClipboard"
-            style="@style/GenericButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:background="@drawable/btn_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/clipboard"
-            android:textSize="20sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

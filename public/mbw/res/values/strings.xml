@@ -198,7 +198,6 @@
     <string name="question_delete_pk">This cannot be undone!\r\nDo you want to delete this private key?</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
-    <string name="question_mark">\?</string>
     <string name="active">Active</string>
     <string name="active_empty">Active (Empty)</string>
     <string name="archive">Archive</string>
@@ -232,7 +231,6 @@
     <string name="address_label_not_unique">The address book has another address with that name</string>
     <string name="fading_improves_scanning">Dim QR-codes improve scanning on some devices</string>
     <string name="paste">Paste</string>
-    <string name="synchronizing">Synchronizing&#8230;</string>
     <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there&#8230;</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
     <string name="broadcasting_transaction">Broadcasting Transaction</string>

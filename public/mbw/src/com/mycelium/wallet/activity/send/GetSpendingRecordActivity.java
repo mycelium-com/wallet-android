@@ -104,7 +104,7 @@ public class GetSpendingRecordActivity extends Activity {
          }
          Record record = (Record) v.getTag();
          Wallet wallet = new Wallet(record);
-         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, wallet, _amountToSend, _receivingAddress);
+         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, wallet, _amountToSend, _receivingAddress, false);
          GetSpendingRecordActivity.this.finish();
       }
    }

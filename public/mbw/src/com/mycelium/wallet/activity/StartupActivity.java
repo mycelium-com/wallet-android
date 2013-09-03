@@ -282,7 +282,7 @@ public class StartupActivity extends Activity {
             GetSpendingRecordActivity.callMe(this, amountToSend, receivingAddress);
          } else {
             Wallet wallet = recordManager.getWallet(mbwManager.getWalletMode());
-            SendInitializationActivity.callMe(this, wallet, amountToSend, receivingAddress);
+            SendInitializationActivity.callMe(this, wallet, amountToSend, receivingAddress, false);
          }
          finish();
          return true;

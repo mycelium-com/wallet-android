@@ -91,7 +91,7 @@ public class InstantWalletActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                Wallet wallet = new Wallet(record);
-               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet,_amountToSend, _receivingAddress);
+               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet,_amountToSend, _receivingAddress, true);
                InstantWalletActivity.this.finish();
             }
          });
@@ -127,7 +127,7 @@ public class InstantWalletActivity extends Activity {
       Record record = Record.fromString(contents);
       if (record != null && record.hasPrivateKey()) {
          Wallet wallet = new Wallet(record);
-         SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress);
+         SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress, true);
          finish();
       } else {
          Toast.makeText(this, R.string.unrecognized_private_key_format, Toast.LENGTH_LONG).show();

@@ -110,16 +110,34 @@ public class ExchangeSummary extends ApiObject {
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append("Exchange: ").append(exchange).append("\r\n");
-      sb.append("time: ").append(new Date(time)).append("\r\n");
-      sb.append("currency: ").append(currency).append("\r\n");
-      sb.append("high: ").append(high).append("\r\n");
-      sb.append("low: ").append(low).append("\r\n");
-      sb.append("bid: ").append(low).append("\r\n");
-      sb.append("ask: ").append(low).append("\r\n");
-      sb.append("last: ").append(last).append("\r\n");
-      sb.append("volume: ").append(satoshiVolume).append("\r\n");
+      sb.append("Exchange: ").append(exchange);
+      sb.append(" time: ").append(new Date(time));
+      sb.append(" currency: ").append(currency);
+      sb.append(" high: ").append(high);
+      sb.append(" low: ").append(low);
+      sb.append(" bid: ").append(low);
+      sb.append(" ask: ").append(low);
+      sb.append(" last: ").append(last);
+      sb.append(" volume: ").append(satoshiVolume);
       return sb.toString();
+   }
+
+   @Override
+   public int hashCode() {
+      return (int) time;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj == this) {
+         return true;
+      }
+      if (!(obj instanceof ExchangeSummary)) {
+         return false;
+      }
+      ExchangeSummary other = (ExchangeSummary) obj;
+      return other.time == time && other.currency == currency && other.high == high && other.low == low
+            && other.last == last && other.bid == bid && other.ask == ask && other.satoshiVolume == satoshiVolume;
    }
 
    @Override

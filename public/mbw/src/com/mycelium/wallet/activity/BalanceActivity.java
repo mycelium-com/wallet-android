@@ -104,16 +104,6 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _addressBook = _mbwManager.getAddressBookManager();
 
-      _wallet = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode());
-
-      if (!_wallet.canSpend()) {
-         findViewById(R.id.btSend).setVisibility(View.GONE);
-         findViewById(R.id.vSendGap).setVisibility(View.GONE);
-      }
-
-      // Show/Hide notice about managing single archive key
-      boolean isArchivedKey = _mbwManager.getRecordManager().getSelectedRecord().tag == Tag.ARCHIVE;
-      findViewById(R.id.tvArchiveNotice).setVisibility(isArchivedKey ? View.VISIBLE : View.GONE);
 
       final ImageView qrImage = (ImageView) findViewById(R.id.ivQR);
 
@@ -162,7 +152,7 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
          @Override
          public void onClick(View arg0) {
             //SendActivityHelper.startSendActivity(BalanceActivity.this, null, null, WalletSource.Specified, _wallet);
-            SendInitializationActivity.callMe(BalanceActivity.this, _wallet);
+            SendInitializationActivity.callMe(BalanceActivity.this, _wallet, false);
          }
       });
 
@@ -175,12 +165,6 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
             startActivity(intent);
          }
       });
-
-      // Set address
-      String[] addressStrings = Utils.stringChopper(_wallet.getReceivingAddress().toString(), 12);
-      ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
-      ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
-      ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
 
       // Set beta build
       PackageInfo pInfo;
@@ -214,11 +198,32 @@ public class BalanceActivity extends Activity implements ConnectionObserver, Sim
       super.onDestroy();
    }
 
+   private void initializeWallet(){
+      _wallet = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode());
+
+      if (!_wallet.canSpend()) {
+         findViewById(R.id.btSend).setVisibility(View.GONE);
+         findViewById(R.id.vSendGap).setVisibility(View.GONE);
+      }
+
+      // Show/Hide notice about managing single archive key
+      boolean isArchivedKey = _mbwManager.getRecordManager().getSelectedRecord().tag == Tag.ARCHIVE;
+      findViewById(R.id.tvArchiveNotice).setVisibility(isArchivedKey ? View.VISIBLE : View.GONE);
+      
+      // Set address
+      String[] addressStrings = Utils.stringChopper(_wallet.getReceivingAddress().toString(), 12);
+      ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
+      ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
+      ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
+
+   }
+   
    @Override
    protected void onResume() {
       if (!Utils.isConnected(this)) {
          Utils.toastConnectionError(this);
       }
+      initializeWallet();
       updateLabel();
       refresh();
       _gestureFilter = new SimpleGestureFilter(this, this);

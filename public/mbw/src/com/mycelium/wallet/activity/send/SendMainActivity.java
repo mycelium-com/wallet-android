@@ -85,23 +85,26 @@ public class SendMainActivity extends Activity {
    private Double _oneBtcInFiat; // May be null
    private Long _amountToSend;
    private Address _receivingAddress;
+   private boolean _isColdStorage;
    private TransactionStatus _transactionStatus;
    private PrivateKeyRing _privateKeyRing;
    private UnsignedTransaction _unsigned;
    private AsyncTask _task;
 
-   public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat) {
-      callMe(currentActivity, wallet, spendable, oneBtcInFiat, null, null);
+   public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat,
+         boolean isColdStorage) {
+      callMe(currentActivity, wallet, spendable, oneBtcInFiat, null, null, isColdStorage);
    }
 
    public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat,
-         Long amountToSend, Address receivingAddress) {
+         Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
       intent.putExtra("wallet", wallet);
       intent.putExtra("spendable", spendable);
       intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
+      intent.putExtra("isColdStorage", isColdStorage);
       currentActivity.startActivity(intent);
    }
 
@@ -122,6 +125,7 @@ public class SendMainActivity extends Activity {
       _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
+      _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
 
       // Load saved state, overwriting amount and address
       if (savedInstanceState != null) {
@@ -189,7 +193,12 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
+         if (_isColdStorage) {
+            // We do not ask for pin when the key is from cold storage
+            signAndSendTransaction();
+         } else {
+            _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
+         }
       }
    };
 
@@ -392,9 +401,14 @@ public class SendMainActivity extends Activity {
       }
       double oneSatoshiInFiat = _oneBtcInFiat / Math.pow(10, 8);
       long maxSatoshis = (long) (_mbwManager.getAutoPay() / 100 / oneSatoshiInFiat);
-      if (_amountToSend < maxSatoshis) { // emulate send button. shall we even
-                                         // skip pin protection? I think not.
-         _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
+      if (_amountToSend < maxSatoshis) { // emulate send button.
+
+         if (_isColdStorage) {
+            // We do not ask for pin when the key is from cold storage
+            signAndSendTransaction();
+         } else {
+            _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
+         }
          return true;
       }
       return false;
