@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet"
-    android:versionCode="36"
-    android:versionName="0.7.5" >
+    android:versionCode="38"
+    android:versionName="0.8.1" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -45,17 +45,16 @@
                 <data android:scheme="bitcoin" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.main.MainActivity" />
         <activity android:name=".activity.RecordsActivity" />
-        <activity android:name=".activity.BalanceActivity" />
-        <activity android:name=".activity.TransactionHistoryActivity" />
         <activity android:name=".activity.CreateKeyActivity" />
         <activity android:name=".activity.TransactionDetailsActivity" />
-        <activity android:name=".activity.SettingsActivity" />
+        <activity android:name=".activity.settings.SettingsActivity" />
+        <activity android:name=".activity.settings.SetLocalCurrencyActivity" />
         <activity android:name=".activity.export.ExportActivity" />
         <activity android:name=".activity.export.ExportAsQrCodeActivity" />
         <activity android:name=".activity.export.ExportToExternalStorageActivity" />
         <activity android:name=".activity.send.BroadcastTransactionActivity" />
-        <activity android:name=".activity.send.GetReceivingAddressActivity" />
         <activity android:name=".activity.send.GetSendingAmountActivity" />
         <activity android:name=".activity.send.GetSpendingRecordActivity" />
         <activity android:name=".activity.send.InstantWalletActivity" />

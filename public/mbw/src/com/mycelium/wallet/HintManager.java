@@ -144,7 +144,8 @@ public class HintManager {
          @Override
          public void onClick(View v) {
             tvHint.setText(getNextHint());
-            tvTitle.setText(context.getResources().getString(R.string.hint_title, _currentHintIndex + 1, _hints.length));
+            tvTitle
+                  .setText(context.getResources().getString(R.string.hint_title, _currentHintIndex + 1, _hints.length));
             // Reset the hint timer
             _lastHintTime = System.currentTimeMillis();
          }

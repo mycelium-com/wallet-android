@@ -32,10 +32,12 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity;
+package com.mycelium.wallet.activity.settings;
 
 
 import org.junit.Test;
+
+import com.mycelium.wallet.activity.settings.SettingsActivity;
 
 import static org.junit.Assert.*;
 

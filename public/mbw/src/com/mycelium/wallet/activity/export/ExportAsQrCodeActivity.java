@@ -84,7 +84,7 @@ public class ExportAsQrCodeActivity extends Activity {
       });
 
       // Make QR code fade along with the entire view
-      findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+      findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.slow_pulse));
 
    }
 

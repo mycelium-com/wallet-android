@@ -32,24 +32,35 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity;
-
-import java.util.Locale;
+package com.mycelium.wallet.activity.settings;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.*;
-
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.CurrencyCode;
+import com.mycelium.wallet.ExchangeRateCalculationMode;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.activity.TextNormalizer;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -64,20 +75,22 @@ import com.mycelium.wallet.*;
  */
 public class SettingsActivity extends PreferenceActivity {
 
+   private static final int GET_CURRENCY_RESULT_CODE = 0;
+
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
    private Preference _clearPin;
    private Preference _setPin;
    private ListPreference _bitcoinDenomination;
-   private ListPreference _localCurrency;
+   private Preference _localCurrency;
+   private ListPreference _exchangeSource;
    private CheckBoxPreference _showHints;
-   private CheckBoxPreference _showSwipeAnimation;
+   private CheckBoxPreference _expertMode;
    private CheckBoxPreference _continuousAutoFocus;
    private CheckBoxPreference _aggregatedView;
    private MbwManager _mbwManager;
    private Dialog _dialog;
    private EditTextPreference _proxy;
    private EditTextPreference _autoPay;
-
    public static final Function<String, String> AUTOPAY_EXTRACT = new Function<String, String>() {
       @Override
       public String apply(String input) {
@@ -92,6 +105,7 @@ public class SettingsActivity extends PreferenceActivity {
       _mbwManager = MbwManager.getInstance(SettingsActivity.this.getApplication());
       // Bitcoin Denomination
       _bitcoinDenomination = (ListPreference) findPreference("bitcoin_denomination");
+      _bitcoinDenomination.setTitle(bitcoinDenominationTitle());
       _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
       _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
       CharSequence[] denominations = new CharSequence[] { Denomination.BTC.toString(), Denomination.mBTC.toString(),
@@ -103,20 +117,28 @@ public class SettingsActivity extends PreferenceActivity {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             _mbwManager.setBitcoinDenomination(Denomination.fromString(newValue.toString()));
+            _bitcoinDenomination.setTitle(bitcoinDenominationTitle());
             return true;
          }
       });
 
-      // Local Currency
-      _localCurrency = (ListPreference) findPreference("local_currency");
-      _localCurrency.setDefaultValue(_mbwManager.getFiatCurrency());
-      _localCurrency.setValue(_mbwManager.getFiatCurrency());
-      _localCurrency.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+      _localCurrency = findPreference("local_currency");
+      _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
+      _localCurrency.setTitle(localCurrencyTitle());
+
+      // Exchange Source
+      _exchangeSource = (ListPreference) findPreference("exchange_source");
+      _exchangeSource.setTitle(exchangeSourceTitle());
+      _exchangeSource.setDefaultValue(_mbwManager.getExchangeRateCalculationMode().toString());
+      _exchangeSource.setValue(_mbwManager.getExchangeRateCalculationMode().toString());
+      _exchangeSource.setEntries(ExchangeRateCalculationMode.orderedNames());
+      _exchangeSource.setEntryValues(ExchangeRateCalculationMode.orderedNames());
+      _exchangeSource.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            _mbwManager.setFiatCurrency(newValue.toString());
-            _autoPay.setTitle(autoPayTitle());
+            _mbwManager.setExchangeRateCalculationMode(ExchangeRateCalculationMode.fromName(newValue.toString()));
+            _exchangeSource.setTitle(exchangeSourceTitle());
             return true;
          }
       });
@@ -133,10 +155,10 @@ public class SettingsActivity extends PreferenceActivity {
       _showHints.setChecked(_mbwManager.getShowHints());
       _showHints.setOnPreferenceClickListener(showHintsClickListener);
 
-      // Show Swipe Animation
-      _showSwipeAnimation = (CheckBoxPreference) findPreference("showSwipeAnimation");
-      _showSwipeAnimation.setChecked(_mbwManager.getShowSwipeAnimation());
-      _showSwipeAnimation.setOnPreferenceClickListener(showSwipeAnimationClickListener);
+      // Expert Mode
+      _expertMode = (CheckBoxPreference) findPreference("expertMode");
+      _expertMode.setChecked(_mbwManager.getExpertMode());
+      _expertMode.setOnPreferenceClickListener(expertModeClickListener);
 
       // Show Swipe Animation
       _continuousAutoFocus = (CheckBoxPreference) findPreference("continuousFocus");
@@ -148,14 +170,16 @@ public class SettingsActivity extends PreferenceActivity {
       _aggregatedView.setChecked(_mbwManager.getWalletMode() == WalletMode.Aggregated);
       _aggregatedView.setOnPreferenceClickListener(aggregatedViewClickListener);
 
+      // Socks Proxy
       _proxy = Preconditions.checkNotNull((EditTextPreference) findPreference("proxy"));
-      setProxySummary();
+      _proxy.setTitle(getSocksProxyTitle());
+
       _proxy.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             String value = (String) newValue;
             _mbwManager.setProxy(value);
-            setProxySummary();
+            getSocksProxyTitle();
             return true;
          }
       });
@@ -176,17 +200,25 @@ public class SettingsActivity extends PreferenceActivity {
 
       final EditText autpayEdit = _autoPay.getEditText();
       autpayEdit.addTextChangedListener(new TextNormalizer(AUTOPAY_EXTRACT, autpayEdit));
+
+      applyExpertMode();
    }
 
-   private void setProxySummary() {
+   private void applyExpertMode() {
+      boolean expert = _mbwManager.getExpertMode();
+      _aggregatedView.setEnabled(expert);
+      _autoPay.setEnabled(expert);
+      _proxy.setEnabled(expert);
+   }
+
+   private String getSocksProxyTitle() {
       String host = System.getProperty(MbwManager.PROXY_HOST);
       String port = System.getProperty(MbwManager.PROXY_PORT);
       if (Strings.isNullOrEmpty(host) || Strings.isNullOrEmpty(port)) {
-         _proxy.setSummary("hostname:port (localhost:9050)");
+         return getResources().getString(R.string.pref_socks_proxy_not_enabled);
       } else {
-         _proxy.setSummary(host + ":" + port);
+         return getResources().getString(R.string.pref_socks_proxy_enabled);
       }
-
    }
 
    @VisibleForTesting
@@ -212,9 +244,24 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private String autoPayTitle() {
-      Locale enUS = new Locale("en", "US");
-      return String.format(enUS, "%s (%s %.2f)", getString(R.string.autopay),
-            CurrencyCode.valueOf(_mbwManager.getFiatCurrency()).getSymbol(), (double) _mbwManager.getAutoPay() / 100);
+      return getResources().getString(R.string.pref_autopay_with_value,
+            CurrencyCode.fromShortString(_mbwManager.getFiatCurrency()).getShortString(),
+            (double) _mbwManager.getAutoPay() / 100);
+   }
+
+   private String localCurrencyTitle() {
+      return getResources().getString(R.string.pref_local_currency_with_currency,
+            CurrencyCode.fromShortString(_mbwManager.getFiatCurrency()).getShortString());
+   }
+
+   private String exchangeSourceTitle() {
+      return getResources().getString(R.string.pref_exchange_source_with_value,
+            _mbwManager.getExchangeRateCalculationMode().getShortName());
+   }
+
+   private String bitcoinDenominationTitle() {
+      return getResources().getString(R.string.pref_bitcoin_denomination_with_denomination,
+            _mbwManager.getBitcoinDenomination().getAsciiName());
    }
 
    private void updateClearPin() {
@@ -283,6 +330,14 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
+   private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         Intent intent = new Intent(SettingsActivity.this, SetLocalCurrencyActivity.class);
+         SettingsActivity.this.startActivityForResult(intent, GET_CURRENCY_RESULT_CODE);
+         return true;
+      }
+   };
+
    private final OnPreferenceClickListener showHintsClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
@@ -291,10 +346,11 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
-   private final OnPreferenceClickListener showSwipeAnimationClickListener = new OnPreferenceClickListener() {
+   private final OnPreferenceClickListener expertModeClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.setShowSwipeAnimation(p.isChecked());
+         _mbwManager.setExpertMode(p.isChecked());
+         applyExpertMode();
          return true;
       }
    };
@@ -315,5 +371,14 @@ public class SettingsActivity extends PreferenceActivity {
          return true;
       }
    };
+
+   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      if (requestCode == GET_CURRENCY_RESULT_CODE && resultCode == RESULT_OK) {
+         String currency = Preconditions.checkNotNull(intent
+               .getStringExtra(SetLocalCurrencyActivity.CURRENCY_RESULT_NAME));
+         _mbwManager.setFiatCurrency(currency);
+         _localCurrency.setTitle(localCurrencyTitle());
+      }
+   }
 
 }

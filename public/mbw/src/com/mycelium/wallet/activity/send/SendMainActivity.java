@@ -40,9 +40,9 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.ClipboardManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -57,6 +57,7 @@ import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -66,13 +67,15 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Utils.BitcoinScanResult;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.SpendableOutputs;
+import com.mycelium.wallet.activity.addressbook.AddressChooserActivity;
 import com.mycelium.wallet.api.AsyncTask;
 
 public class SendMainActivity extends Activity {
 
-   private static final int GET_ADDRESS_RESULT_CODE = 0;
    private static final int GET_AMOUNT_RESULT_CODE = 1;
-   public static final int SCANNER_RESULT_CODE = 2;
+   private static final int SCANNER_RESULT_CODE = 2;
+   private static final int ADDRESS_BOOK_RESULT_CODE = 3;
+   private static final int MANUAL_ENTRY_RESULT_CODE = 4;
 
    private enum TransactionStatus {
       MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -142,8 +145,17 @@ public class SendMainActivity extends Activity {
       // Scan
       findViewById(R.id.btScan).setOnClickListener(scanClickListener);
 
-      // Address Menu
-      findViewById(R.id.btAddressMenu).setOnClickListener(addressMenuClickListener);
+      // Address Book
+      findViewById(R.id.btAddressBook).setOnClickListener(addressBookClickListener);
+
+      // Manual Entry
+      findViewById(R.id.btManualEntry).setOnClickListener(manualEntryClickListener);
+
+      // Clipboard
+      findViewById(R.id.btClipboard).setOnClickListener(clipboardClickListener);
+
+      // Clear address
+      findViewById(R.id.btClearAddress).setOnClickListener(clearAddressClickListener);
 
       // Enter Amount
       findViewById(R.id.btEnterAmount).setOnClickListener(amountClickListener);
@@ -172,11 +184,48 @@ public class SendMainActivity extends Activity {
       }
    };
 
-   private OnClickListener addressMenuClickListener = new OnClickListener() {
+   private OnClickListener addressBookClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View arg0) {
-         GetReceivingAddressActivity.callMe(SendMainActivity.this, GET_ADDRESS_RESULT_CODE);
+         Intent intent = new Intent(SendMainActivity.this, AddressChooserActivity.class);
+         startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+      }
+   };
+
+   private OnClickListener manualEntryClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         Intent intent = new Intent(SendMainActivity.this, ManualAddressEntry.class);
+         startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
+      }
+   };
+
+   private OnClickListener clipboardClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         Address address = getClipboardAddress();
+         if (address != null) {
+            _receivingAddress = address;
+            _transactionStatus = tryCreateUnsignedTransaction();
+            updateUi();
+            checkForAutoSend();
+         }
+
+      }
+   };
+
+   private OnClickListener clearAddressClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         _receivingAddress = null;
+         _transactionStatus = tryCreateUnsignedTransaction();
+         updateUi();
+         checkForAutoSend();
+
       }
    };
 
@@ -239,48 +288,64 @@ public class SendMainActivity extends Activity {
    }
 
    private void updateUi() {
+      updateRecipient();
+      updateAmount();
 
-      // Update receiving address
+      // Enable/disable send button
+      findViewById(R.id.btSend).setEnabled(_transactionStatus == TransactionStatus.OK);
+      findViewById(R.id.root).invalidate();
+   }
+
+   private void updateRecipient() {
       if (_receivingAddress == null) {
-         // Clear Receiving Address
-         ((TextView) findViewById(R.id.tvReceiver)).setText("");
+         // Hide address, show "Enter"
+         ((TextView) findViewById(R.id.tvRecipientTitle)).setText(R.string.enter_recipient_title);
+         findViewById(R.id.llEnterRecipient).setVisibility(View.VISIBLE);
+         findViewById(R.id.llRecipientAddress).setVisibility(View.INVISIBLE);
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
-         findViewById(R.id.tvReceiverLabel).setVisibility(View.GONE);
+         return;
+      }
+      // Hide "Enter", show address
+      ((TextView) findViewById(R.id.tvRecipientTitle)).setText(R.string.recipient_title);
+      findViewById(R.id.llRecipientAddress).setVisibility(View.VISIBLE);
+      findViewById(R.id.llEnterRecipient).setVisibility(View.INVISIBLE);
+
+      // Set label if applicable
+      TextView receiverLabel = (TextView) findViewById(R.id.tvReceiverLabel);
+      String label = _mbwManager.getAddressBookManager().getNameByAddress(_receivingAddress.toString());
+      if (label == null || label.length() == 0) {
+         // Hide label
+         receiverLabel.setVisibility(View.GONE);
       } else {
-         String address = _receivingAddress.toString();
-
-         // Set Receiver Label
-         String label = _mbwManager.getAddressBookManager().getNameByAddress(address);
-         if (label == null || label.length() == 0) {
-            // Hide label, show address book, and show button
-            findViewById(R.id.tvReceiverLabel).setVisibility(View.GONE);
-         } else {
-            // Show label, hide address book
-            findViewById(R.id.tvReceiverLabel).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.tvReceiverLabel)).setText(label);
-         }
-
-         // Set Address
-         String choppedAddress = _receivingAddress.toMultiLineString();
-         ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
-         ((TextView) findViewById(R.id.tvReceiver)).setTypeface(Typeface.MONOSPACE);
-
-         // Show / hide warning
-         Record record = _mbwManager.getRecordManager().getRecord(_receivingAddress);
-         if (record != null && !record.hasPrivateKey()) {
-            findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
-         } else {
-            findViewById(R.id.tvWarning).setVisibility(View.GONE);
-         }
+         // Show label
+         receiverLabel.setText(label);
+         receiverLabel.setVisibility(View.VISIBLE);
       }
 
+      // Set Address
+      String choppedAddress = _receivingAddress.toMultiLineString();
+      ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
+
+      // Show / hide warning
+      Record record = _mbwManager.getRecordManager().getRecord(_receivingAddress);
+      if (record != null && !record.hasPrivateKey()) {
+         findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
+      } else {
+         findViewById(R.id.tvWarning).setVisibility(View.GONE);
+      }
+
+   }
+
+   private void updateAmount() {
       // Update Amount
       if (_amountToSend == null) {
-         // Clear Amount
+         // No amount to show
+         ((TextView) findViewById(R.id.tvAmountTitle)).setText(R.string.enter_amount_title);
          ((TextView) findViewById(R.id.tvAmount)).setText("");
          findViewById(R.id.tvAmountFiat).setVisibility(View.GONE);
          ((TextView) findViewById(R.id.tvError)).setVisibility(View.GONE);
       } else {
+         ((TextView) findViewById(R.id.tvAmountTitle)).setText(R.string.amount_title);
          if (_transactionStatus == TransactionStatus.OutputTooSmall) {
             // Amount too small
             ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amountToSend));
@@ -308,11 +373,12 @@ public class SendMainActivity extends Activity {
          }
       }
 
+      // Update Fee
       if (_unsigned == null) {
-         // Hide fee show synchronizing
+         // Hide fee
          findViewById(R.id.llFee).setVisibility(View.GONE);
       } else {
-         // Show and set Fee, and hide synchronizing
+         // Show fee
          findViewById(R.id.llFee).setVisibility(View.VISIBLE);
 
          long fee = _unsigned.calculateFee();
@@ -328,8 +394,6 @@ public class SendMainActivity extends Activity {
          }
       }
 
-      // Enable/disable send button
-      findViewById(R.id.btSend).setEnabled(_transactionStatus == TransactionStatus.OK);
    }
 
    private String getFiatValue(long satoshis, Double oneBtcInFiat) {
@@ -346,6 +410,7 @@ public class SendMainActivity extends Activity {
 
    @Override
    protected void onResume() {
+      findViewById(R.id.btClipboard).setEnabled(getClipboardAddress() != null);
       updateUi();
       super.onResume();
    }
@@ -368,7 +433,9 @@ public class SendMainActivity extends Activity {
    private void signAndSendTransaction() {
       findViewById(R.id.pbSend).setVisibility(View.VISIBLE);
       findViewById(R.id.btSend).setEnabled(false);
-      findViewById(R.id.btAddressMenu).setEnabled(false);
+      findViewById(R.id.btAddressBook).setEnabled(false);
+      findViewById(R.id.btManualEntry).setEnabled(false);
+      findViewById(R.id.btClipboard).setEnabled(false);
       findViewById(R.id.btScan).setEnabled(false);
       findViewById(R.id.btEnterAmount).setEnabled(false);
 
@@ -415,22 +482,7 @@ public class SendMainActivity extends Activity {
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
-         // Get result from address chooser
-         _amountToSend = Preconditions.checkNotNull((Long) intent.getSerializableExtra("amountToSend"));
-         _transactionStatus = tryCreateUnsignedTransaction();
-         updateUi();
-         checkForAutoSend();
-      } else if (requestCode == GET_ADDRESS_RESULT_CODE && resultCode == RESULT_OK) {
-         _receivingAddress = Preconditions.checkNotNull((Address) intent.getSerializableExtra("receivingAddress"));
-         Long amount = (Long) intent.getSerializableExtra("amountToSend");
-         if (amount != null) {
-            _amountToSend = amount;
-         }
-         _transactionStatus = tryCreateUnsignedTransaction();
-         updateUi();
-         checkForAutoSend();
-      } else if (requestCode == SCANNER_RESULT_CODE && resultCode == RESULT_OK) {
+      if (requestCode == SCANNER_RESULT_CODE && resultCode == RESULT_OK) {
          BitcoinScanResult scanResult = Utils.parseScanResult(intent);
 
          // Bail out if we don't like the result
@@ -441,15 +493,61 @@ public class SendMainActivity extends Activity {
          }
 
          _receivingAddress = scanResult.address;
-         // Return result in an intent
+
+         // Check if an amount was included
          if (scanResult.amount != null) {
             _amountToSend = scanResult.amount;
          }
-         _transactionStatus = tryCreateUnsignedTransaction();
-         updateUi();
-         checkForAutoSend();
+      } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
+         // Get result from address chooser
+         String s = Preconditions.checkNotNull(intent.getStringExtra(AddressChooserActivity.ADDRESS_RESULT_NAME));
+         String result = s.trim();
+         // Is it really an address?
+         Address address = Address.fromString(result, Constants.network);
+         if (address == null) {
+            return;
+         }
+         _receivingAddress = address;
+      } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
+         Address address = Preconditions.checkNotNull((Address) intent
+               .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
+         _receivingAddress = address;
+      } else if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
+         // Get result from address chooser
+         _amountToSend = Preconditions.checkNotNull((Long) intent.getSerializableExtra("amountToSend"));
+      } else {
+         // We didn't like what we got, bail
+      }
+      _transactionStatus = tryCreateUnsignedTransaction();
+      updateUi();
+      checkForAutoSend();
+   }
+
+   private Address getClipboardAddress() {
+      ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+      CharSequence content = clipboard.getText();
+      if (content == null) {
+         return null;
+      }
+      String string = content.toString();
+      String addressString;
+      if (string.matches("[a-zA-Z0-9]*")) {
+         // Raw format
+         addressString = string;
+      } else {
+         BitcoinUri b = BitcoinUri.parse(string);
+         if (b == null) {
+            // Not on URI format
+            return null;
+         } else {
+            // On URI format
+            addressString = b.getAddress().trim();
+         }
       }
 
+      // Is it really an address?
+      Address address = Address.fromString(addressString, Constants.network);
+      return address;
    }
 
 }

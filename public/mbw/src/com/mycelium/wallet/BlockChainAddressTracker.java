@@ -88,15 +88,21 @@ public class BlockChainAddressTracker {
        */
       public long highestUpdateTime;
 
+      /**
+       * The last observed block height
+       */
+      public int lastObservedBlockHeight;
+      
       public TransactionOutputInfo(Set<PersistedOutput> confirmed, Set<PersistedOutput> receivingForeign,
             Set<PersistedOutput> receivingChange, Set<PersistedOutput> sending, long lowestUpdateTime,
-            long highestUpdateTime) {
+            long highestUpdateTime, int lastObservedBlockHeight) {
          this.confirmed = confirmed;
          this.receivingForeign = receivingForeign;
          this.receivingChange = receivingChange;
          this.sending = sending;
          this.lowestUpdateTime = lowestUpdateTime;
          this.highestUpdateTime = highestUpdateTime;
+         this.lastObservedBlockHeight = lastObservedBlockHeight;
       }
 
    }
@@ -166,7 +172,7 @@ public class BlockChainAddressTracker {
             highestUpdateTime = Math.max(updateTime, highestUpdateTime);
          }
          TransactionOutputInfo result = new TransactionOutputInfo(confirmed, receivingForeign, receivingChange,
-               sending, lowestUpdateTime, highestUpdateTime);
+               sending, lowestUpdateTime, highestUpdateTime, _last_observed_block_height);
          return result;
       }
    }

@@ -34,72 +34,56 @@
 
 package com.mycelium.wallet;
 
-
 import junit.framework.TestCase;
 
-import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mycelium.wallet.Utils;
-
-
-// you should be able to run this tests using "gradle connectedInstrumentTest" or "gradle cIT"
-// in the mbw folder
+// You can run this tests using "gradle connectedInstrumentTest" or "gradle cIT"
+// in the mbw folder.
+// BEWARE!!! running gradle cIT will uninstall  the app, deleting all keys!!!
 
 public class UtilsTest extends TestCase {
 
-   public void testIsValidBitcoinDecimalNumber() throws Exception {
+   public void testTruncateAndConvertDecimalString() throws Exception {
       // Succeed on sane number
-      assertTrue(Utils.isValidBitcoinDecimalNumber("10.12345678", Denomination.BTC));
+      assertEquals(Utils.truncateAndConvertDecimalString("10.12345678", 8), "10.12345678");
+      assertEquals(Utils.truncateAndConvertDecimalString("5", 8), "5");
+      assertEquals(Utils.truncateAndConvertDecimalString("5", 0), "5");
 
-      // Check number of decimals
-      assertTrue(Utils.isValidBitcoinDecimalNumber("0.00000001", Denomination.BTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.000000001", Denomination.BTC));
-      assertTrue(Utils.isValidBitcoinDecimalNumber("0.00001", Denomination.mBTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.000001", Denomination.mBTC));
-      assertTrue(Utils.isValidBitcoinDecimalNumber("0.01", Denomination.uBTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.001", Denomination.uBTC));
+      // Check truncation
+      assertEquals(Utils.truncateAndConvertDecimalString("0.123", 4), "0.123");
+      assertEquals(Utils.truncateAndConvertDecimalString("0.123", 3), "0.123");
+      assertEquals(Utils.truncateAndConvertDecimalString("0.123", 2), "0.12");
+      assertEquals(Utils.truncateAndConvertDecimalString("0.123", 1), "0.1");
+      assertEquals(Utils.truncateAndConvertDecimalString("0.123", 0), "0");
+
+      // Check trim
+      assertEquals(Utils.truncateAndConvertDecimalString("  0.123\t", 8), "0.123");
+
+      // Check comma to dot conversion
+      assertEquals(Utils.truncateAndConvertDecimalString("0,123", 8), "0.123");
+
+      // Fail if no digit before separator
+      assertNull(Utils.truncateAndConvertDecimalString(".1", 8));
+      assertNull(Utils.truncateAndConvertDecimalString(",1", 8));
+
+      // Fail if no digit after separator
+      assertNull(Utils.truncateAndConvertDecimalString("1.", 8));
+      assertNull(Utils.truncateAndConvertDecimalString("1,", 8));
       
       // Fail on more than one dot
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.0.1", Denomination.BTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("..1", Denomination.BTC));
+      assertNull(Utils.truncateAndConvertDecimalString("0.0.123", 8));
+      assertNull(Utils.truncateAndConvertDecimalString("..123", 8));
 
-      // Fail on comma
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0,1", Denomination.BTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.0,1", Denomination.BTC));
-
-      // Fail on non decimal characters
-      assertFalse(Utils.isValidBitcoinDecimalNumber("X0.1", Denomination.BTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.1X", Denomination.BTC));
-      assertFalse(Utils.isValidBitcoinDecimalNumber("0.X1", Denomination.BTC));
-
-      // Fail on negative
-      assertFalse(Utils.isValidBitcoinDecimalNumber("-1", Denomination.BTC));
-      
-   }
-
-   public void testIsValidFiatDecimalNumber() throws Exception {
-      // Succeed on sane number
-      assertTrue(Utils.isValidFiatDecimalNumber("10.12"));
-
-      // Check number of decimals
-      assertTrue(Utils.isValidFiatDecimalNumber("0.01"));
-      assertFalse(Utils.isValidFiatDecimalNumber("0.001"));
-      
-      // Fail on more than one dot
-      assertFalse(Utils.isValidFiatDecimalNumber("0.0.1"));
-      assertFalse(Utils.isValidFiatDecimalNumber("..1"));
-
-      // Fail on comma
-      assertFalse(Utils.isValidFiatDecimalNumber("0,1"));
-      assertFalse(Utils.isValidFiatDecimalNumber("0.0,1"));
+      // Fail on dot and comma mix
+      assertNull(Utils.truncateAndConvertDecimalString("0.0,123", 8));
+      assertNull(Utils.truncateAndConvertDecimalString("0,0.123", 8));
 
       // Fail on non decimal characters
-      assertFalse(Utils.isValidFiatDecimalNumber("X0.1"));
-      assertFalse(Utils.isValidFiatDecimalNumber("0.1X"));
-      assertFalse(Utils.isValidFiatDecimalNumber("0.X1"));
+      assertNull(Utils.truncateAndConvertDecimalString("0.X", 8));
+      assertNull(Utils.truncateAndConvertDecimalString("X.1", 8));
 
       // Fail on negative
-      assertFalse(Utils.isValidFiatDecimalNumber("-1"));
-      
+      assertNull(Utils.truncateAndConvertDecimalString("-1", 8));
+
    }
 
 }

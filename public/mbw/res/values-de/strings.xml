@@ -144,15 +144,7 @@
     <string name="hint_title">Hinweis %1$d/%2$d</string>
     <string name="show_hints">Hinweise anzeigen</string>
     <string name="next_hint">Weiter</string>
-    <string name="hint_1">Wischen Sie nach links um Ihre privaten Schlüssel und Adressen zu verwalten.</string>
-    <string name="hint_2">Wischen Sie nach rechts um den Transaktionsverlauf Ihrer Bitcoin Adressen zu sehen</string>
-    <string name="hint_3">Sie sollten immer ein Backup Ihrer privaten Schlüssel haben. Wischen Sie nach links und wählen
-        Sie einen Schlüssel aus um ihn zu exportieren.
-    </string>
-    <string name="hint_4">Sie sollten Ihre Wallet mit einem PIN Code schützen. Um einen PIN Code zu setzten drücken sie
-        die Menütaste und dann auf Einstellungen
-    </string>
-    <string name="hint_5">Die Standardwährung ist US Dollar. Tippen Sie auf das Menü und auf Einstellungen um die lokale
+    <string name="hint_4">Die Standardwährung ist US Dollar. Tippen Sie auf das Menü und auf Einstellungen um die lokale
         Währung zu ändern.
     </string>
     <string name="share_bitcoin_address">Ihre Bitcoin Adresse teilen</string>
@@ -161,7 +153,7 @@
     <string name="export_to_external_storage">Exportiere auf externen Speicher</string>
     <string name="no_external_storage_found">Kein externer Speicher auf Ihrem Gerät gefunden</string>
     <string name="external_storage_location">Externer Speicherort auf Ihrem Gerät:\r\n%1$s</string>
-    <string name="exporting">Exportiere...</string>
+    <string name="exporting">Exportiere&#8230;</string>
     <string name="export_succeeded">Exportiert nach:\r\n%1$s</string>
     <string name="export_failed">Export fehlgeschlagen:\r\n%1$s</string>
     <string name="jpeg_format">Als JPG exportieren</string>

@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.send;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -230,21 +229,22 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          }
          String number = content.toString().trim();
          if (_enterFiatAmount) {
-            if (!Utils.isValidFiatDecimalNumber(number)) {
+            number = Utils.truncateAndConvertDecimalString(number, 2);
+            if (number == null) {
                return null;
             }
             BigDecimal value = new BigDecimal(number);
-            value = value.setScale(2, RoundingMode.HALF_UP);
             if (value.compareTo(BigDecimal.ZERO) < 1) {
                return null;
             }
             return value;
          } else {
-            if (!Utils.isValidBitcoinDecimalNumber(number, _mbwManager.getBitcoinDenomination())) {
+            number = Utils.truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination()
+                  .getDecimalPlaces());
+            if (number == null) {
                return null;
             }
             BigDecimal value = new BigDecimal(number);
-            value = value.setScale(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), RoundingMode.HALF_UP);
             if (value.compareTo(BigDecimal.ZERO) < 1) {
                return null;
             }

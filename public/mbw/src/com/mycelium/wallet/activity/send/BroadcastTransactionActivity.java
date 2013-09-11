@@ -34,12 +34,13 @@
 
 package com.mycelium.wallet.activity.send;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
+
+import com.google.common.base.Preconditions;
 
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.mbwapi.api.ApiError;
@@ -61,7 +62,6 @@ public class BroadcastTransactionActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -69,7 +69,8 @@ public class BroadcastTransactionActivity extends Activity {
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      Transaction transaction = (Transaction) getIntent().getSerializableExtra("transaction");
+      Intent intent = Preconditions.checkNotNull(getIntent());
+      Transaction transaction = Preconditions.checkNotNull((Transaction) intent.getSerializableExtra("transaction"),"unable to deserialize Transaction from Intent");
 
       // If the user rotates the screen or otherwise forces us to re-create the
       // activity we will broadcast it twice. This is not a problem as

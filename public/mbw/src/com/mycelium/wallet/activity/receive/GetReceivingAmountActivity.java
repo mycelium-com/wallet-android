@@ -278,7 +278,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
             _task = null;
             _oneBtcInFiat = null;
          } else {
-            _oneBtcInFiat = Utils.getLastTrade(response);
+            _oneBtcInFiat = Utils.getLastTrade(response, _mbwManager.getExchangeRateCalculationMode());
             findViewById(R.id.btCurrency).setEnabled(true);
             updateAmounts(_numberEntry.getEntry());
             _task = null;

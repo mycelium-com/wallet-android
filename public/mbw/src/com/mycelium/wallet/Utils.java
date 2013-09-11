@@ -41,6 +41,7 @@ import java.util.Hashtable;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -82,9 +83,9 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
+import com.mycelium.wallet.activity.export.ExportActivity;
 
 public class Utils {
 
@@ -236,7 +237,7 @@ public class Utils {
       });
 
       // Make QR code fade along with the entire view
-      layout.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade));
+      layout.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slow_pulse));
 
       qrCodeDialog.show();
       return qrCodeDialog;
@@ -421,12 +422,31 @@ public class Utils {
       return fiatCents.multiply(BTC_IN_SATOSHIS).divide(oneBtcInFiatCents, 0, RoundingMode.HALF_UP).longValue();
    }
 
-   public static Double getLastTrade(ExchangeSummary[] summaries) {
-      if (haveVolumes(summaries)) {
-         return getLastTradeWeightedAverage(summaries);
-      } else {
-         return getLastTradeAverage(summaries);
+   public static Double getLastTrade(ExchangeSummary[] summaries, ExchangeRateCalculationMode mode) {
+      if (mode == ExchangeRateCalculationMode.WEIGHTED_AVERAGE) {
+         if (haveVolumes(summaries)) {
+            return getLastTradeWeightedAverage(summaries);
+         } else {
+            // For some reason we do not have volumes, calculate the average
+            // instead
+            return getLastTradeAverage(summaries);
+         }
       }
+      ExchangeSummary summary = findExchangeSummary(mode.toString(), summaries);
+      if (summary == null) {
+         return null;
+      }
+      return summary.last.doubleValue();
+   }
+
+   private static ExchangeSummary findExchangeSummary(String exchangeName, ExchangeSummary[] summaries) {
+      for (ExchangeSummary summary : summaries) {
+         if (summary.exchange.toString().equalsIgnoreCase(exchangeName)) {
+            return summary;
+         }
+      }
+      // Not found
+      return null;
    }
 
    /**
@@ -521,79 +541,145 @@ public class Utils {
    }
 
    /**
-    * Determine whether a string contains a valid bitcoin number
+    * Truncate and transform a decimal string to a maximum number of digits
+    * <p>
+    * The string will be truncated and verified to be a valid decimal number
+    * with one comma or dot separator. A comma separator will be converted to a
+    * dot. The resulting string will have at most the number of decimals
+    * specified
     * 
     * @param number
-    *           the number to validate
-    * @return true if this is a valid bitcoin amount
+    *           the number to truncate
+    * @param maxDecimalPlaces
+    *           the maximum number of decimal places
+    * @return a truncated decimal string or null if the input string is not a
+    *         valid decimal string
     */
-   public static boolean isValidBitcoinDecimalNumber(String number, Denomination bitcoinDenomination) {
-      if (number == null || number.length() == 0) {
-         return false;
+   public static String truncateAndConvertDecimalString(String number, int maxDecimalPlaces) {
+      if (number == null) {
+         return null;
+      }
+      number = number.trim();
+      if (!isValidDecimalNumber(number)) {
+         return null;
       }
 
+      // We now have a string with at least one digit before the separator
+      // If it has a separator there is only one and it it is a dot or a comma
+      // If it has a separator there will be at least one decimal after the
+      // separator
+      // All characters except the separator are between 0 and 9
+
+      // Replace comma with dot
+      number = number.replace(',', '.');
+
       boolean foundDot = false;
-      int digits = 0;
+      int decimals = 0;
       char[] chars = number.toCharArray();
       for (int i = 0; i < chars.length; i++) {
          char c = chars[i];
+
+         // Check for dot
          if (c == '.') {
-            if (foundDot) {
+            if (maxDecimalPlaces == 0) {
+               // We want everything till now except the dot
+               return number.substring(0, i);
+            }
+            foundDot = true;
+            continue;
+         }
+
+         // Count decimal places
+         if (foundDot) {
+            decimals++;
+         }
+
+         if (maxDecimalPlaces == decimals) {
+            // We want everything till now
+            return number.substring(0, i + 1);
+         }
+
+      }
+      // We want everything;
+      return number;
+   }
+
+   private static boolean isValidDecimalNumber(String string) {
+      if (string == null) {
+         return false;
+      }
+      if (string.length() == 0) {
+         return false;
+      }
+      boolean foundDot = false;
+      boolean foundComma = false;
+      int digitsBefore = 0;
+      int digitsAfter = 0;
+      char[] chars = string.toCharArray();
+      for (int i = 0; i < chars.length; i++) {
+         char c = chars[i];
+
+         // Check for digits
+         if (c == '.') {
+            if (foundDot || foundComma) {
                return false;
             }
             foundDot = true;
             continue;
          }
+
+         // Check for comma
+         if (c == ',') {
+            if (foundDot || foundComma) {
+               return false;
+            }
+            foundComma = true;
+            continue;
+         }
+
+         // Only digits
          if (c < '0' || c > '9') {
             return false;
          }
-         if (foundDot) {
-            digits++;
-         }
-         if (digits > bitcoinDenomination.getDecimalPlaces()) {
-            return false;
+
+         // Count decimal places
+         if (foundDot || foundComma) {
+            digitsAfter++;
+         } else {
+            digitsBefore++;
          }
       }
+      if (digitsBefore == 0) {
+         // There must be something before the decimal separator
+         return false;
+      }
+      if ((foundDot || foundComma) && digitsAfter == 0) {
+         // There must be something after the decimal separator
+         return false;
+      }
+
       return true;
    }
 
-   /**
-    * Determine whether a string contains a valid amount of fiat.
-    * <p>
-    * A valid fiat amount has one dot and up to 2 decimal places
-    * 
-    * @param number
-    *           the number to validate
-    * @return true if this is a valid fiat amount
-    */
-   public static boolean isValidFiatDecimalNumber(String number) {
-      if (number == null || number.length() == 0) {
-         return false;
-      }
+   public static void exportPrivateKey(final Record record, final Activity parent) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+      builder.setMessage(R.string.export_private_key_warning).setCancelable(false)
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int id) {
+                  dialog.dismiss();
+                  if (record == null) {
+                     return;
+                  }
+                  Intent intent = new Intent(parent, ExportActivity.class);
+                  parent.startActivity(intent);
 
-      boolean foundDot = false;
-      int digits = 0;
-      char[] chars = number.toCharArray();
-      for (int i = 0; i < chars.length; i++) {
-         char c = chars[i];
-         if (c == '.') {
-            if (foundDot) {
-               return false;
-            }
-            foundDot = true;
-            continue;
-         }
-         if (c < '0' || c > '9') {
-            return false;
-         }
-         if (foundDot) {
-            digits++;
-         }
-         if (digits > 2) {
-            return false;
-         }
-      }
-      return true;
+               }
+            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int id) {
+               }
+            });
+      AlertDialog alertDialog = builder.create();
+      alertDialog.show();
    }
 
 }

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <!-- Address -->
+
+        <LinearLayout
+            android:id="@+id/llTop"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/btn_black"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:id="@+id/llAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/btn_transparent_slim"
+                    android:clickable="true"
+                    android:gravity="left"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/tvAddressLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:gravity="left"
+                        android:text="@string/your_bitcoin_address"
+                        android:textColor="@color/lightgrey"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvAddress1"
+                        style="@style/GenericText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:gravity="left"
+                        android:textSize="18sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/tvAddress2"
+                        style="@style/GenericText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:gravity="left"
+                        android:textSize="18sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/tvAddress3"
+                        style="@style/GenericText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:gravity="left"
+                        android:textSize="18sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivQR"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="right"
+                    android:contentDescription="@string/an_icon"
+                    android:gravity="right"
+                    android:paddingTop="5dp"
+                    android:scaleType="fitCenter" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvKeyNotice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/darkyellow"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Swipe between balance and transaction history -->
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvBetaBuild"
+        style="@style/GenericText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:textSize="12sp" />
+
+</FrameLayout>

@@ -187,6 +187,9 @@ public class AddressBookManager {
    }
 
    public boolean hasAddress(String address) {
+      if(address == null){
+         return false;
+      }
       return _addressMap.containsKey(address);
    }
 

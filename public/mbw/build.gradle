@@ -12,6 +12,7 @@ buildscript {
 
 dependencies {
     instrumentTestCompile 'junit:junit:' + junitVersion
+    compile files('libs/android-support-v4.jar')
     compile project(':public:zxing-android')
     compile project(':public:zxing-core')
     compile project(':public:bitlib')

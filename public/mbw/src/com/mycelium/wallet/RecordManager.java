@@ -63,6 +63,10 @@ public class RecordManager {
       loadRecords();
    }
 
+   public synchronized int numRecords() {
+      return _records.size();
+   }
+
    public synchronized int numRecords(Tag tag) {
       int num = 0;
       for (Record r : _records) {

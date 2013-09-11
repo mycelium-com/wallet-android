@@ -47,15 +47,15 @@ import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -69,23 +69,17 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.SimpleGestureFilter;
-import com.mycelium.wallet.SimpleGestureFilter.SimpleGestureListener;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.BalanceInfo;
-import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
-import com.mycelium.wallet.activity.export.ExportActivity;
-import com.mycelium.wallet.activity.send.InstantWalletActivity;
 
-public class RecordsActivity extends Activity implements SimpleGestureListener {
+public class RecordsActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
    public static final int CREATE_RESULT_CODE = 1;
    public static final int MANUAL_RESULT_CODE = 2;
 
    private RecordManager _recordManager;
-   private SimpleGestureFilter _gestureFilter;
    private AddressBookManager _addressBook;
    private MbwManager _mbwManager;
    private Dialog _dialog;
@@ -103,7 +97,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       setContentView(R.layout.records_activity);
       _layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-      findViewById(R.id.btAdd).setOnClickListener(new AddClicked());
+      // findViewById(R.id.btAdd).setOnClickListener(new AddClicked());
 
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _recordManager = _mbwManager.getRecordManager();
@@ -112,11 +106,12 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       _separatorLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, getDipValue(1), 1);
       _titleLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
       _outerLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
+      _outerLayoutParameters.bottomMargin = getDipValue(8);
       _innerLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
    }
 
    private int getDipValue(int dip) {
-      return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
+      return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, getResources().getDisplayMetrics());
    }
 
    private class AddClicked implements OnClickListener {
@@ -195,35 +190,8 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
 
    @Override
    protected void onResume() {
-      _gestureFilter = new SimpleGestureFilter(this, this);
-      // if (_recordManager.numRecords() == 0) {
-      // new AddDialog(RecordsActivity.this).show();
-      // }
       update();
-      animateSwipe();
       super.onResume();
-   }
-
-   private void animateSwipe() {
-      // Visible swipe disabled for now
-      // long speed = 250;
-      // long delay = 100;
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow1), delay * 7, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow2), delay * 6, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow3), delay * 5, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow4), delay * 4, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow5), delay * 3, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow6), delay * 2, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow7), delay * 1, speed,
-      // 0);
-      // Utils.fadeViewInOut(findViewById(R.id.tvLeftArrow8), delay * 0, speed,
-      // 0);
    }
 
    @Override
@@ -384,10 +352,6 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
    }
 
    private void update() {
-      // Disable Add button if we have reached the limit of how many
-      // addresses/keys to manage
-      findViewById(R.id.btAdd).setEnabled(
-            _recordManager.numRecords(Tag.ACTIVE) < MyceliumWalletApi.MAXIMUM_ADDRESSES_PER_REQUEST);
 
       LinearLayout linearLayout = (LinearLayout) findViewById(R.id.llRecords);
       linearLayout.removeAllViews();
@@ -395,21 +359,43 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       List<Record> activeRecords = _recordManager.getRecords(Tag.ACTIVE);
       List<Record> archivedRecords = _recordManager.getRecords(Tag.ARCHIVE);
       Record selectedRecord = _recordManager.getSelectedRecord();
-      linearLayout.addView(createRecordViewList(activeRecords.isEmpty() ? R.string.active_empty : R.string.active,
-            activeRecords, selectedRecord));
+      LinearLayout active = createRecordViewList(activeRecords.isEmpty() ? R.string.active_empty : R.string.active,
+            activeRecords, selectedRecord, true);
+      linearLayout.addView(active);
       linearLayout.addView(createRecordViewList(archivedRecords.isEmpty() ? R.string.archive_empty : R.string.archive,
-            archivedRecords, selectedRecord));
+            archivedRecords, selectedRecord, false));
+
+      // Disable Add button if we have reached the limit of how many
+      // addresses/keys to manage
+      findViewById(R.id.btAdd).setEnabled(
+            _recordManager.numRecords(Tag.ACTIVE) < MyceliumWalletApi.MAXIMUM_ADDRESSES_PER_REQUEST);
    }
 
-   private View createRecordViewList(int titleResource, List<Record> records, Record selectedRecord) {
+   private Button createAddButton(ViewGroup parent) {
+      Button add = (Button) _layoutInflater.inflate(R.layout.records_add_button, parent, false);
+      add.setOnClickListener(new AddClicked());
+      return add;
+   }
+
+   private LinearLayout createRecordViewList(int titleResource, List<Record> records, Record selectedRecord,
+         boolean addButton) {
       LinearLayout outer = new LinearLayout(this);
       outer.setOrientation(LinearLayout.VERTICAL);
       outer.setLayoutParams(_outerLayoutParameters);
       outer.setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_pitch_black));
-      // outer.setPadding(10, 10, 10, 10);
 
       // Add title
-      outer.addView(createTitle(titleResource));
+      if (addButton) {
+         // Add both a title and an "+" button
+         LinearLayout titleLayout = new LinearLayout(this);
+         titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+         titleLayout.setLayoutParams(_innerLayoutParameters);
+         titleLayout.addView(createTitle(titleResource));
+         titleLayout.addView(createAddButton(titleLayout));
+         outer.addView(titleLayout);
+      } else {
+         outer.addView(createTitle(titleResource));
+      }
 
       if (records.isEmpty()) {
          return outer;
@@ -418,20 +404,13 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       LinearLayout inner = new LinearLayout(this);
       inner.setOrientation(LinearLayout.VERTICAL);
       inner.setLayoutParams(_innerLayoutParameters);
-      inner.setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_pitch_black_slim_stroke));
+      inner.setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_pitch_black_slim));
       inner.requestLayout();
-      // inner.setPadding(100, 100, 100, 100);
 
       // Add records
-      boolean first = true;
       for (Record record : records) {
-
          // Add separator
-         if (first) {
-            first = false;
-         } else {
-            inner.addView(createSeparator());
-         }
+         inner.addView(createSeparator());
 
          // Add item
          boolean isSelected = record.address.equals(selectedRecord.address);
@@ -558,22 +537,11 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       return sb.toString();
    }
 
-   @Override
-   public void onSwipe(int direction) {
-      if (direction == SimpleGestureFilter.SWIPE_LEFT) {
-         openBalanceView();
-      }
-   }
-
-   @Override
-   public void onDoubleTap() {
-   }
-
-   @Override
-   public boolean dispatchTouchEvent(MotionEvent me) {
-      this._gestureFilter.onTouchEvent(me);
-      return super.dispatchTouchEvent(me);
-   }
+   // @Override
+   // public boolean dispatchTouchEvent(MotionEvent me) {
+   // this._gestureFilter.onTouchEvent(me);
+   // return super.dispatchTouchEvent(me);
+   // }
 
    /** Called when menu button is pressed. */
    @Override
@@ -615,7 +583,6 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          miActivate.setVisible(setVisible);
          menu.findItem(R.id.miArchive).setVisible(false);
       }
-
       return super.onPrepareOptionsMenu(menu);
    }
 
@@ -696,56 +663,8 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
       } else if (item.getItemId() == R.id.miActivate) {
          _mbwManager.runPinProtectedFunction(this, pinProtectedActivate);
          return true;
-      } else if (item.getItemId() == R.id.miAddressBook) {
-         Intent intent = new Intent(this, AddressBookActivity.class);
-         startActivity(intent);
-         return true;
-      } else if (item.getItemId() == R.id.miColdStorage) {
-         InstantWalletActivity.callMe(this);
-         return true;
-      } else if (item.getItemId() == R.id.miSettings) {
-         Intent intent = new Intent(this, SettingsActivity.class);
-         startActivity(intent);
-         return true;
       }
       return super.onOptionsItemSelected(item);
-   }
-
-   private void openBalanceView() {
-      Intent intent = new Intent(RecordsActivity.this, BalanceActivity.class);
-      startActivity(intent);
-      finish();
-      this.overridePendingTransition(R.anim.right_to_left_enter, R.anim.right_to_left_exit);
-   }
-
-   @Override
-   public boolean onKeyDown(int keyCode, KeyEvent event) {
-      if (keyCode == KeyEvent.KEYCODE_BACK) {
-         openBalanceView();
-         return true;
-      }
-      return super.onKeyDown(keyCode, event);
-   }
-
-   private void exportPrivateKey(final Record record) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(RecordsActivity.this);
-      builder.setMessage(R.string.export_private_key_warning).setCancelable(false)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  if (record == null) {
-                     return;
-                  }
-                  Intent intent = new Intent(RecordsActivity.this, ExportActivity.class);
-                  startActivity(intent);
-
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-               }
-            });
-      AlertDialog alertDialog = builder.create();
-      alertDialog.show();
    }
 
    final Runnable pinProtectedSetLabel = new Runnable() {
@@ -781,7 +700,7 @@ public class RecordsActivity extends Activity implements SimpleGestureListener {
          if (record == null) {
             return;
          }
-         exportPrivateKey(record);
+         Utils.exportPrivateKey(record, RecordsActivity.this);
       }
    };
 

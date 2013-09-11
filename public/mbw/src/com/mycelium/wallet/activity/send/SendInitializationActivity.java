@@ -73,7 +73,8 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   public static void callMe(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+   public static void callMe(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress,
+         boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("wallet", wallet);
       intent.putExtra("amountToSend", amountToSend);
@@ -81,7 +82,7 @@ public class SendInitializationActivity extends Activity {
       intent.putExtra("isColdStorage", isColdStorage);
       currentActivity.startActivity(intent);
    }
-   
+
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -95,7 +96,7 @@ public class SendInitializationActivity extends Activity {
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
-      
+
       // Synchronize wallet
       _task = _wallet.requestUpdate(_mbwManager.getBlockChainAddressTracker(), new MyWalletUpdateHandler());
    }
@@ -176,9 +177,11 @@ public class SendInitializationActivity extends Activity {
             // Bail out
             Utils.toastConnectionError(me);
          } else {
-            _oneBtcInFiat = Utils.getLastTrade(response); // May return null
+            // May return null
+            _oneBtcInFiat = Utils.getLastTrade(response, _mbwManager.getExchangeRateCalculationMode());
             // Call next activity
-            SendMainActivity.callMe(me, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress, _isColdStorage);
+            SendMainActivity.callMe(me, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress,
+                  _isColdStorage);
          }
          finish();
       }

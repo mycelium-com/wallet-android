@@ -104,9 +104,11 @@ public class Constants {
    public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
    public static final String SHOW_HINTS_SETTING = "ShowHints";
    public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
-   public static final String SHOW_SWIPE_ANIMATION_SETTING = "ShowSwipeAnimation";
+   public static final String EXPERT_MODE_SETTING = "ExpertMode";
    public static final String AUTOPAY_SETTING = "autopayAmount";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
+   public static final String EXCHANGE_RATE_CALCULATION_METHOD_SETTING = "ExchangeRateCalculationMethod";
+   public static final ExchangeRateCalculationMode DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD = ExchangeRateCalculationMode.BITSTAMP;
 
    public static final String TAG = "MyceliumWallet";
 }

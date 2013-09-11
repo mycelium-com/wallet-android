@@ -48,7 +48,6 @@ import android.widget.Toast;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.wallet.api.AndroidApiCache;
@@ -60,8 +59,8 @@ public class MbwManager {
 
    public static final String PROXY_HOST = "socksProxyHost";
    public static final String PROXY_PORT = "socksProxyPort";
-   //   public static final String PROXY_HOST = "http.proxyHost";
-   //   public static final String PROXY_PORT = "http.proxyPort";
+   // public static final String PROXY_HOST = "http.proxyHost";
+   // public static final String PROXY_PORT = "http.proxyPort";
    private static volatile MbwManager _instance = null;
 
    public static synchronized MbwManager getInstance(Application application) {
@@ -89,24 +88,26 @@ public class MbwManager {
    private WalletMode _walletMode;
    private String _fiatCurrency;
    private boolean _showHints;
-   private boolean _showSwipeAnimation;
+   private boolean _expertMode;
    private long _autoPay;
    private boolean _enableContinuousFocus;
    private String _proxy;
+   private ExchangeRateCalculationMode _exchangeRateCalculationMethod;
 
    private MbwManager(Application application) {
       _applicationContext = application.getApplicationContext();
 
       // Preferences
       SharedPreferences preferences = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-              Activity.MODE_PRIVATE);
+            Activity.MODE_PRIVATE);
       setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
-      //init proxy early, to enable error reporting during startup..
+      // Initialize proxy early, to enable error reporting during startup..
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
       _cache = new AndroidApiCache(_applicationContext);
       _txOutDb = new TxOutDb(_applicationContext);
       _asyncApi = new AndroidAsyncApi(Constants.mwapi, _cache);
+      _recordManager = new RecordManager(_applicationContext);
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
@@ -117,10 +118,13 @@ public class MbwManager {
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
             Constants.DEFAULT_BITCOIN_DENOMINATION));
       _showHints = preferences.getBoolean(Constants.SHOW_HINTS_SETTING, true);
-      _showSwipeAnimation = preferences.getBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, true);
+      _expertMode = preferences.getBoolean(Constants.EXPERT_MODE_SETTING, getExpertModeDefault());
       _autoPay = preferences.getLong(Constants.AUTOPAY_SETTING, 0);
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING,
             getContinuousFocusDefault());
+      _exchangeRateCalculationMethod = ExchangeRateCalculationMode.fromName(preferences.getString(
+            Constants.EXCHANGE_RATE_CALCULATION_METHOD_SETTING,
+            Constants.DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD.toString()));
 
       // Get the display metrics of this device
       DisplayMetrics dm = new DisplayMetrics();
@@ -130,11 +134,23 @@ public class MbwManager {
       _displayHeight = dm.heightPixels;
 
       _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, _txOutDb, _applicationContext);
-      _recordManager = new RecordManager(_applicationContext);
       _addressBookManager = new AddressBookManager(application);
       _hintManager = new HintManager(this, _applicationContext);
       _externalStorageManager = new ExternalStorageManager(_applicationContext);
+   }
 
+   /**
+    * This helper method allows us to set sane default for users who installed
+    * the wallet before we added expert mode
+    */
+   private boolean getExpertModeDefault() {
+      if (_recordManager.numRecords() > 1) {
+         // There is more than one record, so we default to expert mode
+         return true;
+      } else {
+         // Do not enable expert mode by default
+         return false;
+      }
    }
 
    private boolean getContinuousFocusDefault() {
@@ -182,6 +198,18 @@ public class MbwManager {
       SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
             Activity.MODE_PRIVATE).edit();
       editor.putInt(Constants.WALLET_MODE_SETTING, _walletMode.asInteger());
+      editor.commit();
+   }
+
+   public ExchangeRateCalculationMode getExchangeRateCalculationMode() {
+      return _exchangeRateCalculationMethod;
+   }
+
+   public void setExchangeRateCalculationMode(ExchangeRateCalculationMode mode) {
+      _exchangeRateCalculationMethod = mode;
+      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
+            Activity.MODE_PRIVATE).edit();
+      editor.putString(Constants.EXCHANGE_RATE_CALCULATION_METHOD_SETTING, _exchangeRateCalculationMethod.toString());
       editor.commit();
    }
 
@@ -284,13 +312,13 @@ public class MbwManager {
       getEditor().putBoolean(Constants.SHOW_HINTS_SETTING, _showHints).commit();
    }
 
-   public boolean getShowSwipeAnimation() {
-      return _showSwipeAnimation;
+   public boolean getExpertMode() {
+      return _expertMode;
    }
 
-   public void setShowSwipeAnimation(boolean show) {
-      _showSwipeAnimation = show;
-      getEditor().putBoolean(Constants.SHOW_SWIPE_ANIMATION_SETTING, _showSwipeAnimation).commit();
+   public void setExpertMode(boolean expertMode) {
+      _expertMode = expertMode;
+      getEditor().putBoolean(Constants.EXPERT_MODE_SETTING, _expertMode).commit();
    }
 
    public boolean getContinuousFocus() {
@@ -315,9 +343,9 @@ public class MbwManager {
       return _autoPay;
    }
 
-   public void setProxy(String _proxy) {
-      this._proxy = _proxy;
-      getEditor().putString(Constants.PROXY_SETTING, this._proxy).commit();
+   public void setProxy(String proxy) {
+      _proxy = proxy;
+      getEditor().putString(Constants.PROXY_SETTING, _proxy).commit();
       ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(_proxy));
       if (vals.size() != 2) {
          noProxy();

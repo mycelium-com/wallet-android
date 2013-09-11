@@ -115,14 +115,17 @@ public class Wallet implements Serializable {
        */
       private long highestUpdateTime;
 
+      private int blockHeight;
+
       public BalanceInfo(long unspent, long pendingReceiving, long pendingSending, long pendingChange,
-            long lowestUpdateTime, long highestUpdateTime) {
+            long lowestUpdateTime, long highestUpdateTime, int blockHeight) {
          this.unspent = unspent;
          this.pendingReceiving = pendingReceiving;
          this.pendingSending = pendingSending;
          this.pendingChange = pendingChange;
          this.lowestUpdateTime = lowestUpdateTime;
          this.highestUpdateTime = highestUpdateTime;
+         this.blockHeight = blockHeight;
       }
 
       @Override
@@ -133,6 +136,26 @@ public class Wallet implements Serializable {
          sb.append(" Sending: ").append(pendingSending);
          sb.append(" Change: ").append(pendingChange);
          return sb.toString();
+      }
+
+      @Override
+      public int hashCode() {
+         return (int) (unspent + pendingChange + pendingReceiving + pendingSending);
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+         if (obj == this) {
+            return true;
+         }
+         // Cannot do instanceof for static inner classes
+         if (!getClass().equals(obj.getClass())) {
+            return false;
+         }
+         BalanceInfo other = (BalanceInfo) obj;
+         return unspent == other.unspent && pendingChange == other.pendingChange
+               && pendingReceiving == other.pendingReceiving && pendingSending == other.pendingSending
+               && blockHeight == other.blockHeight;
       }
 
       public boolean isOutDated() {
@@ -240,7 +263,7 @@ public class Wallet implements Serializable {
       long foreignSum = sumOutputs(outputs.receivingForeign);
 
       BalanceInfo balance = new BalanceInfo(confirmedSum, foreignSum, sendingSum, changeSum, outputs.lowestUpdateTime,
-            outputs.highestUpdateTime);
+            outputs.highestUpdateTime, outputs.lastObservedBlockHeight);
       return balance;
    }
 

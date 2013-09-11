@@ -59,6 +59,7 @@ import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.activity.main.MainActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 
@@ -245,7 +246,8 @@ public class StartupActivity extends Activity {
 
    private void normalStartup() {
       // Normal startup, show the selected record in the BalanceActivity
-      Intent intent = new Intent(StartupActivity.this, BalanceActivity.class);
+      //Intent intent = new Intent(StartupActivity.this, BalanceActivity.class);
+      Intent intent = new Intent(StartupActivity.this, MainActivity.class);
       startActivity(intent);
       finish();
    }

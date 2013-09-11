@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:scrollbars="vertical" >
@@ -13,120 +14,202 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="4dp"
             android:background="@drawable/btn_black"
             android:gravity="center"
             android:orientation="vertical" >
 
-            <!-- Receiver -->
-
             <TextView
+                android:id="@+id/tvRecipientTitle"
                 style="@style/GenericText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/receiver_title"
+                android:text="@string/recipient_title"
                 android:textSize="24sp" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal" >
+                android:gravity="center" >
 
-                <!-- Receiver Address -->
+                <!-- Enter Recipient -->
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/llEnterRecipient"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:gravity="center"
                     android:orientation="vertical" >
 
                     <!-- Receiver -->
 
-                    <TextView
-                        android:id="@+id/tvReceiver"
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="4dp" >
+                    </View>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:hint="@string/receiver_address_hint"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="20sp"
-                        android:typeface="monospace" />
+                        android:orientation="horizontal" >
+
+                        <!-- Scan button -->
+
+                        <ImageButton
+                            android:id="@+id/btScan"
+                            style="@style/GenericButton"
+                            android:layout_width="70dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/btn_blue_slim"
+                            android:contentDescription="@string/an_icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/scan_icon" />
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="1dp" >
+                        </View>
+
+                        <!-- Address menu button -->
+
+                        <ImageButton
+                            android:id="@+id/btAddressBook"
+                            style="@style/GenericButton"
+                            android:layout_width="70dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/btn_blue_slim"
+                            android:contentDescription="@string/an_icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/address_book_icon" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="8dp" >
+                    </View>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <!-- Manual Entry button -->
+
+                        <ImageButton
+                            android:id="@+id/btManualEntry"
+                            style="@style/GenericButton"
+                            android:layout_width="70dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/btn_blue_slim"
+                            android:contentDescription="@string/an_icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/keyboard_icon" />
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="1dp" >
+                        </View>
+
+                        <!-- Clipboard button -->
+
+                        <ImageButton
+                            android:id="@+id/btClipboard"
+                            style="@style/GenericButton"
+                            android:layout_width="70dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/btn_blue_slim"
+                            android:contentDescription="@string/an_icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/clipboard_icon" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Recipient Address Box -->
+
+                <LinearLayout
+                    android:id="@+id/llRecipientAddress"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical" >
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="horizontal" >
+
+                        <!-- Receiver Address -->
+
+                        <TextView
+                            android:id="@+id/tvReceiver"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:hint="@string/receiver_address_hint"
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/darkgrey"
+                            android:textSize="20sp"
+                            android:typeface="monospace" />
+
+                        <View
+                            android:layout_width="10dp"
+                            android:layout_height="1dp" >
+                        </View>
+
+                        <!-- Scan button -->
+
+                        <ImageButton
+                            android:id="@+id/btClearAddress"
+                            style="@style/GenericButton"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/btn_transparent_slim"
+                            android:contentDescription="@string/an_icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/delete_icon" />
+                    </LinearLayout>
 
                     <!-- Receiver Label -->
 
                     <TextView
                         android:id="@+id/tvReceiverLabel"
+                        style="@style/GenericText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
                         android:textColor="@color/green"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:visibility="gone" />
                 </LinearLayout>
-
-                <View
-                    android:layout_width="20dp"
-                    android:layout_height="1dp" >
-                </View>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="vertical" >
-
-                    <!-- Scan button -->
-
-                    <ImageButton
-                        android:id="@+id/btScan"
-                        style="@style/GenericButton"
-                        android:layout_width="75dp"
-                        android:layout_height="45dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/btn_blue_slim"
-                        android:contentDescription="@string/an_icon"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/scan_icon" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="5dp" >
-                    </View>
-
-                    <!-- Address menu button -->
-
-                    <ImageButton
-                        android:id="@+id/btAddressMenu"
-                        style="@style/GenericButton"
-                        android:layout_width="75dp"
-                        android:layout_height="45dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/btn_blue_slim"
-                        android:contentDescription="@string/an_icon"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/menu_icon" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Read-only warning -->
-
-            <TextView
-                android:id="@+id/tvWarning"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginBottom="10dp"
-                android:text="@string/read_only_warning"
-                android:textColor="@color/red"
-                android:textSize="20sp" />
+            </FrameLayout>
         </LinearLayout>
+        <!-- Read-only warning -->
+
+        <TextView
+            android:id="@+id/tvWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="4dp"
+            android:text="@string/read_only_warning"
+            android:textColor="@color/red"
+            android:textSize="20sp" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/btn_black"
             android:gravity="center"
             android:orientation="vertical" >
@@ -134,6 +217,7 @@
             <!-- Amount Title -->
 
             <TextView
+                android:id="@+id/tvAmountTitle"
                 style="@style/GenericText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -191,7 +275,7 @@
                     android:background="@drawable/btn_blue_slim"
                     android:contentDescription="@string/an_icon"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/keypad" />
+                    android:src="@drawable/keyboard_icon" />
             </LinearLayout>
 
             <!-- Amount Error -->

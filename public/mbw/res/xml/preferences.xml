@@ -1,60 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <ListPreference
-        android:entries="@array/currencies"
-        android:entryValues="@array/currencies"
+    <Preference
         android:key="local_currency"
+        android:layout="@layout/preference_layout"
         android:summary="@string/pref_local_currency_summary"
         android:title="@string/pref_local_currency" />
+
+    <ListPreference
+        android:key="exchange_source"
+        android:layout="@layout/preference_layout"
+        android:summary="@string/pref_exchange_source_summary"
+        android:title="@string/pref_exchange_source" />
     <ListPreference
         android:key="bitcoin_denomination"
+        android:layout="@layout/preference_layout"
         android:summary="@string/pref_bitcoin_denomination_summary"
         android:title="@string/pref_bitcoin_denomination" />
 
     <CheckBoxPreference
-        android:key="aggregatedView"
-        android:summary="@string/pref_aggregated_view_summary"
-        android:title="@string/pref_aggregated_view" />
-
-    <CheckBoxPreference
         android:key="showHints"
+        android:layout="@layout/preference_layout"
         android:summary="@string/pref_show_hints_summary"
         android:title="@string/pref_show_hints" />
-
-    <CheckBoxPreference
-        android:key="showSwipeAnimation"
-        android:summary="@string/pref_show_swipe_animation_summary"
-        android:title="@string/pref_show_swipe_animation" />
-
     <CheckBoxPreference
         android:key="continuousFocus"
+        android:layout="@layout/preference_layout"
         android:summary="@string/pref_continuous_focus_summary"
         android:title="@string/pref_continuous_focus" />
-    
-    <EditTextPreference
-        android:inputType="numberDecimal"
-        android:key="instantPayAmount"
-        android:summary="When scanning a barcode, Mycelium Wallet will sign+send transactions below this amount"
-        android:title="@string/autopay" >
-    </EditTextPreference>
 
-    <EditTextPreference
-        android:inputType="text"
-        android:key="proxy"
-        android:summary="hostname:port, like localhost:9050"
-        android:title="Socks Proxy" >
-    </EditTextPreference>
+    <!-- PIN Settings -->
 
     <PreferenceCategory android:title="@string/pref_category_pin" >
         <Preference
             android:key="clearPin"
+            android:layout="@layout/preference_layout"
             android:summary="@string/pref_clear_pin_summary"
             android:title="@string/pref_clear_pin" />
         <Preference
             android:key="setPin"
+            android:layout="@layout/preference_layout"
             android:summary="@string/pref_set_pin_summary"
             android:title="@string/pref_set_pin" />
+    </PreferenceCategory>
+
+    <!-- Advanced Settiings -->
+
+    <PreferenceCategory
+        android:key="advancedSettings"
+        android:title="@string/pref_advanced_settings" >
+        <CheckBoxPreference
+            android:key="expertMode"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_expert_mode_summary"
+            android:title="@string/pref_expert_mode" />
+        <CheckBoxPreference
+            android:key="aggregatedView"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_aggregated_view_summary"
+            android:title="@string/pref_aggregated_view" />
+
+        <EditTextPreference
+            android:inputType="numberDecimal"
+            android:key="instantPayAmount"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_autopay_summary"
+            android:title="@string/pref_autopay" />
+        <EditTextPreference
+            android:inputType="text"
+            android:key="proxy"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_socks_proxy_summary"
+            android:title="@string/pref_socks_proxy" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -187,7 +187,7 @@ public abstract class AsynchronousApi {
 
          @Override
          protected void callFunction() throws ApiException {
-            CurrencyCode code = CurrencyCode.valueOf(currency);
+            CurrencyCode code = CurrencyCode.fromShortString(currency);
             _response = code.getRate(_api);
          }
 

@@ -7,36 +7,15 @@
     android:orientation="vertical"
     tools:context=".MainActivity" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+    <TextView
+        style="@style/GenericText"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_marginBottom="5dp"
-        android:orientation="horizontal" >
-
-        <TextView
-            style="@style/GenericText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingLeft="5dp"
-            android:text="@string/keys_and_addresses"
-            android:textSize="20sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/btAdd"
-            style="@style/GenericButton"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/btn_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/add" />
-    </LinearLayout>
+        android:paddingLeft="5dp"
+        android:text="@string/key_management"
+        android:textSize="24sp" />
 
     <ScrollView
         android:layout_width="fill_parent"
