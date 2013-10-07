@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.api;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -51,7 +50,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.mbwapi.api.ApiException;
 import com.mrd.mbwapi.api.ApiObject;
@@ -68,7 +66,7 @@ public class AndroidApiCache extends ApiCache {
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "cache.db";
-      private static final int DATABASE_VERSION = 6;
+      private static final int DATABASE_VERSION = 7;
 
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -98,12 +96,12 @@ public class AndroidApiCache extends ApiCache {
    }
 
    @Override
-   public void close() {
+   public synchronized void close() {
       _openHelper.close();
    }
 
    @Override
-   public QueryTransactionSummaryResponse getTransactionSummaryList(Collection<Address> addresses) {
+   public synchronized QueryTransactionSummaryResponse getTransactionSummaryList(Collection<Address> addresses) {
       TransactionInventory inv = getTransactionInventory(addresses);
       if (inv == null) {
          return null;
@@ -120,7 +118,7 @@ public class AndroidApiCache extends ApiCache {
    }
 
    @Override
-   TransactionSummary getTransactionSummary(String txHash) {
+   public synchronized TransactionSummary getTransactionSummary(String txHash) {
       String value = get(TABLE_TRANSACTION_SUMMARY, txHash);
       if (value == null) {
          return null;
@@ -136,55 +134,13 @@ public class AndroidApiCache extends ApiCache {
    }
 
    @Override
-   void addTransactionSummary(TransactionSummary transaction) {
+   public synchronized void addTransactionSummary(TransactionSummary transaction) {
       String txHash = transaction.hash.toString();
       set(TABLE_TRANSACTION_SUMMARY, txHash, transactionSummaryToHex(transaction));
    }
 
-   /**
-    * Calculate a key that uniquely identifies a collection of addresses
-    */
-   private static final String getAddressCollectionKey(Collection<Address> addresses) {
-      List<Address> list = new ArrayList<Address>(addresses);
-      Collections.sort(list);
-      byte[] toHash = new byte[Address.NUM_ADDRESS_BYTES * list.size()];
-      for (int i = 0; i < list.size(); i++) {
-         byte[] addressBytes = list.get(i).getAllAddressBytes();
-         System.arraycopy(addressBytes, 0, toHash, i * Address.NUM_ADDRESS_BYTES, Address.NUM_ADDRESS_BYTES);
-      }
-
-      return HexUtils.toHex(HashUtils.sha256(toHash));
-   }
-
    @Override
-   TransactionInventory getTransactionInventory(Collection<Address> addresses) {
-      String key = getAddressCollectionKey(addresses);
-      String string = get(TABLE_TRANSACTION_INVENTORY, key);
-      if (string == null) {
-         return null;
-      }
-
-      // Hex to bytes
-      byte[] bytes;
-      try {
-         bytes = HexUtils.toBytes(string);
-      } catch (RuntimeException e) {
-         return null;
-      }
-
-      // Parse
-      TransactionInventory inv;
-      try {
-         inv = new TransactionInventory(new ByteReader(bytes));
-      } catch (InsufficientBytesException e) {
-         return null;
-      }
-
-      return inv;
-   }
-
-   @Override
-   void setTransactionInventory(Collection<Address> addresses, TransactionInventory inv) {
+   protected synchronized void setTransactionInventory(Address address, TransactionInventory inv) {
       // A new inventory is stored for every unique address collection.
       // We need to make sure that we don't store too many inventories, so when
       // we reach the limit we delete a random entry
@@ -196,10 +152,44 @@ public class AndroidApiCache extends ApiCache {
          delete(TABLE_TRANSACTION_INVENTORY, randomKey);
       }
 
-      String key = getAddressCollectionKey(addresses);
+      String key = address.toString();
       byte[] bytes = inv.toByteWriter(new ByteWriter(2048)).toBytes();
       String hex = HexUtils.toHex(bytes);
       set(TABLE_TRANSACTION_INVENTORY, key, hex);
+   }
+
+   @Override
+   protected TransactionInventory getTransactionInventory(Collection<Address> addresses) {
+      List<ApiCache.TransactionInventory.Item> items = new LinkedList<ApiCache.TransactionInventory.Item>();
+      int maxHeight = -1;
+      for (Address address : addresses) {
+         String key = address.toString();
+         String string = get(TABLE_TRANSACTION_INVENTORY, key);
+         if (string == null) {
+            return null;
+         }
+
+         // Hex to bytes
+         byte[] bytes;
+         try {
+            bytes = HexUtils.toBytes(string);
+         } catch (RuntimeException e) {
+            return null;
+         }
+
+         // Parse
+         TransactionInventory inv;
+         try {
+            inv = new TransactionInventory(new ByteReader(bytes));
+         } catch (InsufficientBytesException e) {
+            return null;
+         }
+         items.addAll(inv.transactions);
+         maxHeight = Math.max(inv.chainHeight, maxHeight);
+      }
+      // Sort
+      Collections.sort(items);
+      return new TransactionInventory(items, maxHeight);
    }
 
    private String transactionSummaryToHex(TransactionSummary transaction) {

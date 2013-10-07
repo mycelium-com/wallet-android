@@ -89,7 +89,7 @@ public class SetLocalCurrencyActivity extends Activity {
 
       // Configure text view in an arcane manner.
       AutoCompleteTextView acTextView = (AutoCompleteTextView) findViewById(R.id.tvCurrency);
-      acTextView.setText(enteredString);
+      acTextView.setHint(enteredString);
       acTextView.setThreshold(0);
       acTextView.setAdapter(adapter);
       acTextView.setOnItemClickListener(itemClicked);

@@ -86,6 +86,7 @@ public class MbwManager {
    private String _pin;
    private Denomination _bitcoinDenomination;
    private WalletMode _walletMode;
+   private boolean _pulsingQrCodes;
    private String _fiatCurrency;
    private boolean _showHints;
    private boolean _expertMode;
@@ -93,6 +94,7 @@ public class MbwManager {
    private boolean _enableContinuousFocus;
    private String _proxy;
    private ExchangeRateCalculationMode _exchangeRateCalculationMethod;
+   private int _mainViewFragmentIndex;
 
    private MbwManager(Application application) {
       _applicationContext = application.getApplicationContext();
@@ -106,7 +108,7 @@ public class MbwManager {
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
       _cache = new AndroidApiCache(_applicationContext);
       _txOutDb = new TxOutDb(_applicationContext);
-      _asyncApi = new AndroidAsyncApi(Constants.mwapi, _cache);
+      _asyncApi = new AndroidAsyncApi(Constants.getMyceliumWalletApi(), _cache);
       _recordManager = new RecordManager(_applicationContext);
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
@@ -114,6 +116,7 @@ public class MbwManager {
       _pin = preferences.getString(Constants.PIN_SETTING, "");
       _walletMode = WalletMode.fromInteger(preferences.getInt(Constants.WALLET_MODE_SETTING,
             Constants.DEFAULT_WALLET_MODE.asInteger()));
+      _pulsingQrCodes = preferences.getBoolean(Constants.PULSING_QR_CODE_SETTING, true);
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
             Constants.DEFAULT_BITCOIN_DENOMINATION));
@@ -125,6 +128,7 @@ public class MbwManager {
       _exchangeRateCalculationMethod = ExchangeRateCalculationMode.fromName(preferences.getString(
             Constants.EXCHANGE_RATE_CALCULATION_METHOD_SETTING,
             Constants.DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD.toString()));
+      _mainViewFragmentIndex = preferences.getInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, 0);
 
       // Get the display metrics of this device
       DisplayMetrics dm = new DisplayMetrics();
@@ -198,6 +202,18 @@ public class MbwManager {
       SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
             Activity.MODE_PRIVATE).edit();
       editor.putInt(Constants.WALLET_MODE_SETTING, _walletMode.asInteger());
+      editor.commit();
+   }
+
+   public boolean getPulsingQrCodes() {
+      return _pulsingQrCodes;
+   }
+
+   public void setPulsingQrCodes(boolean enabled) {
+      _pulsingQrCodes = enabled;
+      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
+            Activity.MODE_PRIVATE).edit();
+      editor.putBoolean(Constants.PULSING_QR_CODE_SETTING, _pulsingQrCodes);
       editor.commit();
    }
 
@@ -364,5 +380,14 @@ public class MbwManager {
    private void noProxy() {
       System.clearProperty(PROXY_HOST);
       System.clearProperty(PROXY_PORT);
+   }
+
+   public int getMainViewFragmentIndex() {
+      return _mainViewFragmentIndex;
+   }
+
+   public void setMainViewFragmentIndex(int index) {
+      _mainViewFragmentIndex = index;
+      getEditor().putInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, _mainViewFragmentIndex).commit();
    }
 }

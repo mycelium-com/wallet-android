@@ -278,7 +278,7 @@ public class ExternalStorageManager {
 			return false;
 		}
 		// Stripped name must be a bitcoin address
-		return Address.fromString(stripped, Constants.network) != null;
+		return Address.fromString(stripped, Constants.getNetwork()) != null;
 	}
 
 	/**
@@ -305,7 +305,7 @@ public class ExternalStorageManager {
 		Bitmap qrAddress = Utils.getQRCodeBitmap(address, NEW_QR_SIZE, 0);
 
 		String base58 = record.key
-				.getBase58EncodedPrivateKey(Constants.network);
+				.getBase58EncodedPrivateKey(Constants.getNetwork());
 		String[] formattedBase58 = Utils.stringChopper(base58, 12);
 		Bitmap qrBase58 = Utils.getQRCodeBitmap(base58, NEW_QR_SIZE, 0);
 

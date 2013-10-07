@@ -43,15 +43,42 @@ import java.util.Random;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.mbwapi.api.*;
+import com.mrd.mbwapi.api.AddressShort;
+import com.mrd.mbwapi.api.AddressShortResult;
+import com.mrd.mbwapi.api.ApiException;
+import com.mrd.mbwapi.api.ApiObject;
+import com.mrd.mbwapi.api.BroadcastTransactionRequest;
+import com.mrd.mbwapi.api.BroadcastTransactionResponse;
+import com.mrd.mbwapi.api.ErrorCollectionRequest;
+import com.mrd.mbwapi.api.ErrorCollectionResponse;
+import com.mrd.mbwapi.api.GetTransactionDataRequest;
+import com.mrd.mbwapi.api.GetTransactionDataResponse;
+import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
+import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
+import com.mrd.mbwapi.api.QueryBalanceRequest;
+import com.mrd.mbwapi.api.QueryBalanceResponse;
+import com.mrd.mbwapi.api.QueryExchangeSummaryRequest;
+import com.mrd.mbwapi.api.QueryExchangeSummaryResponse;
+import com.mrd.mbwapi.api.QueryTransactionInventoryExResponse;
+import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
+import com.mrd.mbwapi.api.QueryTransactionInventoryResponse;
+import com.mrd.mbwapi.api.QueryTransactionSummaryRequest;
+import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
+import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
+import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 import com.mrd.mbwapi.util.SslUtils;
 
 public class MyceliumWalletApiImpl implements MyceliumWalletApi {
+
+   private static final int VERY_LONG_TIMEOUT_MS = 60000*10;
+   private static final int LONG_TIMEOUT_MS = 60000;
+   private static final int MEDIUM_TIMEOUT_MS = 20000;
+   private static final int SHORT_TIMEOUT_MS = 4000;
 
    public static class HttpEndpoint {
       public String baseUrlString;
@@ -128,7 +155,7 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
    @Override
    public ErrorCollectionResponse collectError(Throwable e, String version) throws ApiException {
-      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e,version ), RequestConst.ERROR_COLLECTOR);
+      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e, version), RequestConst.ERROR_COLLECTOR);
       return receiveResponse(ErrorCollectionResponse.class, connection);
    }
 
@@ -153,6 +180,13 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       return receiveResponse(QueryTransactionInventoryResponse.class, connection);
    }
 
+   @Override
+   public QueryTransactionInventoryExResponse queryTransactionInventoryEx(QueryTransactionInventoryRequest request)
+         throws ApiException {
+      HttpURLConnection connection = sendRequest(request, RequestConst.QUERY_TRANSACTION_INVENTORY_EX);
+      return receiveResponse(QueryTransactionInventoryExResponse.class, connection);
+   }
+   
    @Override
    public QueryTransactionSummaryResponse queryTransactionSummary(QueryTransactionSummaryRequest request)
          throws ApiException {
@@ -183,24 +217,55 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
    /**
     * Attempt to connect and send to a URL in our list of URLS, if it fails try
-    * the next until we have cycled through all URLs
+    * the next until we have cycled through all URLs. If this fails with a short
+    * timeout, retry all servers with a medium timeout, followed by a retry with
+    * long timeout.
     */
    private HttpURLConnection getConnectionAndSendRequest(ApiObject request, String function) {
+      HttpURLConnection connection;
+      connection = getConnectionAndSendRequestWithTimeout(request, function, SHORT_TIMEOUT_MS);
+      if (connection != null) {
+         return connection;
+      }
+      connection = getConnectionAndSendRequestWithTimeout(request, function, MEDIUM_TIMEOUT_MS);
+      if (connection != null) {
+         return connection;
+      }
+      connection = getConnectionAndSendRequestWithTimeout(request, function, LONG_TIMEOUT_MS);
+      if (connection != null) {
+         return connection;
+      }
+      return getConnectionAndSendRequestWithTimeout(request, function, VERY_LONG_TIMEOUT_MS);
+   }
+
+   /**
+    * Attempt to connect and send to a URL in our list of URLS, if it fails try
+    * the next until we have cycled through all URLs. timeout.
+    */
+   private HttpURLConnection getConnectionAndSendRequestWithTimeout(ApiObject request, String function, int timeout) {
       int originalConnectionIndex = _currentServerUrlIndex;
       while (true) {
          try {
-            HttpURLConnection connection = getHttpConnection(_serverEndpoints[_currentServerUrlIndex], function);
+            HttpURLConnection connection = getHttpConnection(_serverEndpoints[_currentServerUrlIndex], function,
+                  timeout);
             byte[] toSend = request.serialize(new ByteWriter(1024)).toBytes();
             connection.setRequestProperty("Content-Length", String.valueOf(toSend.length));
             connection.getOutputStream().write(toSend);
-            return connection;
-         } catch (IOException e) {
-            _currentServerUrlIndex = (_currentServerUrlIndex + 1) % _serverEndpoints.length;
-            if (_currentServerUrlIndex == originalConnectionIndex) {
-               // We have tried all URLs
-               return null;
+            int status = connection.getResponseCode();
+            if (status == 200) {
+               // If the status code is not 200 we cycle to the next server
+               return connection;
             }
+         } catch (IOException e) {
+            // handle below like the all status codes != 200
          }
+         // Try the next server
+         _currentServerUrlIndex = (_currentServerUrlIndex + 1) % _serverEndpoints.length;
+         if (_currentServerUrlIndex == originalConnectionIndex) {
+            // We have tried all URLs
+            return null;
+         }
+
       }
    }
 
@@ -229,7 +294,8 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       return bytes;
    }
 
-   private HttpURLConnection getHttpConnection(HttpEndpoint serverEndpoint, String function) throws IOException {
+   private HttpURLConnection getHttpConnection(HttpEndpoint serverEndpoint, String function, int timeout)
+         throws IOException {
       StringBuilder sb = new StringBuilder();
       String spec = sb.append(serverEndpoint.baseUrlString).append(API_PREFIX).append(function).toString();
       URL url = new URL(spec);
@@ -237,7 +303,8 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       if (serverEndpoint instanceof HttpsEndpoint) {
          SslUtils.configureTrustedCertificate(connection, ((HttpsEndpoint) serverEndpoint).certificateThumbprint);
       }
-      connection.setReadTimeout(60000);
+      connection.setConnectTimeout(timeout);
+      connection.setReadTimeout(timeout);
       connection.setDoInput(true);
       connection.setDoOutput(true);
       return connection;

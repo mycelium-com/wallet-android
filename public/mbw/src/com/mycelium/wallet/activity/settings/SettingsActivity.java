@@ -87,6 +87,7 @@ public class SettingsActivity extends PreferenceActivity {
    private CheckBoxPreference _expertMode;
    private CheckBoxPreference _continuousAutoFocus;
    private CheckBoxPreference _aggregatedView;
+   private CheckBoxPreference _pulsingQrCodes;
    private MbwManager _mbwManager;
    private Dialog _dialog;
    private EditTextPreference _proxy;
@@ -164,6 +165,11 @@ public class SettingsActivity extends PreferenceActivity {
       _continuousAutoFocus = (CheckBoxPreference) findPreference("continuousFocus");
       _continuousAutoFocus.setChecked(_mbwManager.getContinuousFocus());
       _continuousAutoFocus.setOnPreferenceClickListener(continuousAutoFocusClickListener);
+
+      // Pulsing QR codes
+      _pulsingQrCodes = (CheckBoxPreference) findPreference("pulsingQrCodes");
+      _pulsingQrCodes.setChecked(_mbwManager.getPulsingQrCodes());
+      _pulsingQrCodes.setOnPreferenceClickListener(pulsingQrCodeClickListener);
 
       // Aggregated View
       _aggregatedView = (CheckBoxPreference) findPreference("aggregatedView");
@@ -359,6 +365,14 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _mbwManager.setContinousFocus(p.isChecked());
+         return true;
+      }
+   };
+
+   private final OnPreferenceClickListener pulsingQrCodeClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.setPulsingQrCodes(p.isChecked());
          return true;
       }
    };

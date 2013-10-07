@@ -108,8 +108,8 @@ public interface MyceliumWalletApi {
     * unspent outputs and outputs currently being spent by that address.
     * 
     * @param request
-    *           a {@link QueryAddressSetStatusRequest} containing the set
-    *           of addresses to query
+    *           a {@link QueryAddressSetStatusRequest} containing the set of
+    *           addresses to query
     * @return a {@link QueryAddressSetStatusResponse}.
     * @throws ApiException
     */
@@ -120,14 +120,13 @@ public interface MyceliumWalletApi {
     * Get a list of transaction outputs identified by a list of out points.
     * 
     * @param request
-    *           a {@link GetTransactionDataRequest} containing the list
-    *           of out points to get transaction outputs for
+    *           a {@link GetTransactionDataRequest} containing the list of out
+    *           points to get transaction outputs for
     * @return a {@link GetTransactionDataResponse}.
     * @throws ApiException
     */
-   public GetTransactionDataResponse getTransactionData(GetTransactionDataRequest request)
-         throws ApiException;
-   
+   public GetTransactionDataResponse getTransactionData(GetTransactionDataRequest request) throws ApiException;
+
    /**
     * Query the transaction inventory of a set of Bitcoin addresses.
     * <p>
@@ -141,6 +140,25 @@ public interface MyceliumWalletApi {
     * @throws ApiException
     */
    public QueryTransactionInventoryResponse queryTransactionInventory(QueryTransactionInventoryRequest request)
+         throws ApiException;
+
+   /**
+    * Extended query of the transaction inventory of a set of Bitcoin addresses.
+    * <p>
+    * The result contains a list of transaction IDs for each address. The
+    * non-extended version returns a combined result. This extended function
+    * will be used going forward as it is more optimal for segregated views.
+    * <p>
+    * No more than {@link QueryTransactionInventoryRequest#MAXIMUM} transaction
+    * IDs can be queried at a time for each address.
+    * 
+    * @param request
+    *           a {@link QueryTransactionInventoryRequest} containing the set of
+    *           addresses to query
+    * @return a {@link QueryTransactionInventoryResponse}.
+    * @throws ApiException
+    */
+   public QueryTransactionInventoryExResponse queryTransactionInventoryEx(QueryTransactionInventoryRequest request)
          throws ApiException;
 
    /**

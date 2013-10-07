@@ -6,30 +6,82 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.4.2'
+        classpath androidBuildArtifact
     }
 }
 
 dependencies {
     instrumentTestCompile 'junit:junit:' + junitVersion
-    compile files('libs/android-support-v4.jar')
+    compile fileTree(dir: 'libs', include: '*.jar')
     compile project(':public:zxing-android')
-    compile project(':public:zxing-core')
-    compile project(':public:bitlib')
+//    compile project(':public:zxing-core')
+//    compile project(':public:bitlib')
     compile project(':public:mbwapi')
-    compile guavaArtifact
+    //flavor-specific dependencies
+    /*testnetCompile (':public:testnet-mbw')
+    prodnetCompile (':public:prodnet-mbw')
+*/
 
 }
 
 
 android {
+
+    compileOptions {
+        sourceCompatibility = 'VERSION_1_6'
+        targetCompatibility = 'VERSION_1_6'
+    }
+
     compileSdkVersion 17
     buildToolsVersion "17.0.0"
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 10
+
+        versionCode 44
+        versionName '0.8.5'
     }
+
+    signingConfigs {
+        release {
+            keyAlias = ''
+        }
+
+        testnetplay {
+            keyAlias = ''
+        }
+
+        debug {
+            storeFile file("../../keystore_debug")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+
+    buildTypes {
+        release {
+            runProguard true
+            proguardFile 'mbw.pro'
+        }
+
+    }
+
+    productFlavors{
+
+        prodnet {
+            packageName 'com.mycelium.wallet'
+            signingConfig signingConfigs.release
+        }
+
+        testnet{
+            packageName 'com.mycelium.testnetwallet'
+            versionName = defaultConfig.versionName + '-TESTNET'
+            signingConfig signingConfigs.testnetplay
+        }
+    }
+
 
     sourceSets {
         main {
@@ -42,20 +94,49 @@ android {
             assets.srcDirs = ['assets']
         }
 
-        instrumentTest.setRoot('tests')
+        testnet {
+            String testnetPath = 'testnet-mbw/'
+
+//            println 'testnet-manifest:' +manifest.srcFile
+//            manifest.srcFile = testnetPath + 'AndroidManifest.xml'
+            java.srcDirs = [testnetPath +'src']
+            res.srcDirs = [testnetPath + 'res']
+        }
+
+        prodnet {
+            String prodnetPath = 'prodnet-mbw/'
+          //  manifest.srcFile prodnetPath + 'AndroidManifest.xml'
+            java.srcDirs = [prodnetPath + 'src']
+            res.srcDirs = [prodnetPath + 'res']
+        }
+
         instrumentTest {
-            java.srcDirs = ['tests/src']
-            res.srcDirs = ['tests/res']
-            assets.srcDirs = ['tests/assets']
-            resources.srcDirs = ['tests/src']
+            java.srcDirs = ['instrumentTest/java']
         }
     }
 
-    buildTypes {
-        release {
-            runProguard false 
-            proguardFile 'mbw.pro'
-        }
-    }
 }
 
+if     (project.hasProperty('prodKeyStore') &&
+        project.hasProperty('prodKeyAlias') &&
+        project.hasProperty('prodKeyStorePassword') &&
+        project.hasProperty('prodKeyAliasPassword')) {
+    android.signingConfigs.release.storeFile = file('../../'+prodKeyStore)
+    android.signingConfigs.release.keyAlias = prodKeyAlias
+    android.signingConfigs.release.storePassword = prodKeyStorePassword
+    android.signingConfigs.release.keyPassword = prodKeyAliasPassword
+} else {
+    android.productFlavors.prodnet.signingConfig = null
+}
+
+if     (project.hasProperty('testKeyStore') &&
+        project.hasProperty('testKeyAlias') &&
+        project.hasProperty('testKeyStorePassword') &&
+        project.hasProperty('testKeyAliasPassword')) {
+    android.signingConfigs.testnetplay.storeFile = file('../../'+testKeyStore)
+    android.signingConfigs.testnetplay.keyAlias = testKeyAlias
+    android.signingConfigs.testnetplay.storePassword = testKeyStorePassword
+    android.signingConfigs.testnetplay.keyPassword = testKeyAliasPassword
+} else {
+    android.productFlavors.testnet.signingConfig = null
+}

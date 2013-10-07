@@ -1,8 +1,8 @@
 package com.mycelium.wallet.activity.main;
 
-import android.content.Intent;
+import java.util.Map;
+
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,35 +10,34 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.NetworkConnectionWatcher.ConnectionObserver;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.BalanceInfo;
 import com.mycelium.wallet.activity.receive.WithAmountActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.api.AbstractCallbackHandler;
-import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.api.AsyncTask;
 
-public class BalanceFragment extends Fragment implements ConnectionObserver {
+public class BalanceFragment extends Fragment implements WalletFragmentObserver {
 
    public interface BalanceFragmentContainer {
-      public Wallet getWallet();
 
       public MbwManager getMbwManager();
 
-      public void balanceChanged(BalanceInfo balance);
+      public void requestBalanceRefresh();
+
+      public void addObserver(WalletFragmentObserver observer);
+
+      public void removeObserver(WalletFragmentObserver observer);
+
    }
 
    private BalanceFragmentContainer _container;
    private MbwManager _mbwManager;
+   private RecordManager _recordManager;
    private View _root;
-   private AsyncTask _task;
-   private BalanceInfo _balance;
+   // private BalanceInfo _balance;
    private Double _oneBtcInFiat;
 
    @Override
@@ -51,26 +50,12 @@ public class BalanceFragment extends Fragment implements ConnectionObserver {
    public void onResume() {
       _container = (BalanceFragmentContainer) this.getActivity();
       _mbwManager = _container.getMbwManager();
-
-      Wallet wallet = _container.getWallet();
-      
-      if (wallet.canSpend()) {
-         _root.findViewById(R.id.btSend).setVisibility(View.VISIBLE);
-         _root.findViewById(R.id.vSendGap).setVisibility(View.VISIBLE);
-      } else{
-         _root.findViewById(R.id.btSend).setVisibility(View.GONE);
-         _root.findViewById(R.id.vSendGap).setVisibility(View.GONE);
-      }
-
-      if (!Utils.isConnected(this.getActivity())) {
-         Utils.toastConnectionError(this.getActivity());
-      }
-
+      _recordManager = _mbwManager.getRecordManager();
       _root.findViewById(R.id.llBalance).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View v) {
-            refresh();
+            _container.requestBalanceRefresh();
          }
       });
 
@@ -78,7 +63,7 @@ public class BalanceFragment extends Fragment implements ConnectionObserver {
 
          @Override
          public void onClick(View arg0) {
-            SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _container.getWallet(), false);
+            SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false);
          }
       });
 
@@ -86,89 +71,82 @@ public class BalanceFragment extends Fragment implements ConnectionObserver {
 
          @Override
          public void onClick(View arg0) {
-            Intent intent = new Intent(BalanceFragment.this.getActivity(), WithAmountActivity.class);
-            intent.putExtra("wallet", _container.getWallet());
-            startActivity(intent);
+            WithAmountActivity.callMe(BalanceFragment.this.getActivity(), _recordManager.getSelectedRecord());
          }
       });
-
-      refresh();
-      // Register for network going up/down callbacks
-      _mbwManager.getNetworkConnectionWatcher().addObserver(this);
-
+      // _balance =
+      // _container.getWallet().getLocalBalance(_mbwManager.getBlockChainAddressTracker());
+      updateUi();
+      _container.addObserver(this);
       super.onResume();
+   }
+
+   private Wallet getWallet() {
+      return _recordManager.getWallet(_mbwManager.getWalletMode());
    }
 
    @Override
    public void onDestroy() {
-      if (_task != null) {
-         _task.cancel();
-      }
       super.onDestroy();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getNetworkConnectionWatcher().removeObserver(this);
+      _container.removeObserver(this);
       super.onPause();
    }
 
-   private void refresh() {
-      Wallet wallet = _container.getWallet();
-      
-      if (_task != null) {
+   private void updateUi() {
+      if (!isAdded()) {
          return;
       }
+      Wallet wallet = getWallet();
+      BalanceInfo balance = wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
 
-      // Show cached balance and progress spinner
-      _root.findViewById(R.id.pbBalance).setVisibility(View.VISIBLE);
-      _root.findViewById(R.id.ivRefresh).setVisibility(View.GONE);
-      _balance = wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
-      updateBalance();
-
-      // Create a task for getting the current balance
-      // AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      // _task = api.getBalance(_record.address, new QueryBalanceHandler());
-      AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      _task = api.getExchangeSummary(_mbwManager.getFiatCurrency(), new QueryExchangeSummaryHandler());
-
-   }
-
-   private void updateBalance() {
-      View me = this.getView();
-      if (_balance == null) {
-         return;
-      }
-
-      if (_balance.isKnown()) {
-         updateKnownBalance();
+      if (wallet.canSpend()) {
+         // Show spend button
+         _root.findViewById(R.id.btSend).setVisibility(View.VISIBLE);
+         _root.findViewById(R.id.vSendGap).setVisibility(View.VISIBLE);
       } else {
-         updateUnknownBalance();
+         // Hide spend button
+         _root.findViewById(R.id.btSend).setVisibility(View.GONE);
+         _root.findViewById(R.id.vSendGap).setVisibility(View.GONE);
+      }
+
+      if (balance == null) {
+         return;
+      }
+
+      if (balance.isKnown()) {
+         updateUiKnownBalance(balance);
+      } else {
+         updateUiUnknownBalance();
       }
 
       // Set BTC rate
       if (_oneBtcInFiat == null) {
-         me.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
+         _root.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
       } else {
-         TextView tvBtcRate = (TextView) me.findViewById(R.id.tvBtcRate);
+         TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
          tvBtcRate.setVisibility(View.VISIBLE);
 
          String currency = _mbwManager.getFiatCurrency();
-         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, _oneBtcInFiat, _mbwManager.getExchangeRateCalculationMode().getShortName()));
+         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, _oneBtcInFiat,
+               _mbwManager.getExchangeRateCalculationMode().getShortName()));
 
       }
 
    }
 
-   private void updateKnownBalance() {
+   private void updateUiKnownBalance(BalanceInfo balance) {
 
       // Set Balance
-      ((TextView) _root.findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(_balance.unspent
-            + _balance.pendingChange));
+      ((TextView) _root.findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.unspent
+            + balance.pendingChange));
 
       // Show/Hide Receiving
-      if (_balance.pendingReceiving > 0) {
-         String receivingString = _mbwManager.getBtcValueString(_balance.pendingReceiving);
+      if (balance.pendingReceiving > 0) {
+         String receivingString = _mbwManager.getBtcValueString(balance.pendingReceiving);
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = (TextView) _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -178,8 +156,8 @@ public class BalanceFragment extends Fragment implements ConnectionObserver {
       }
 
       // Show/Hide Sending
-      if (_balance.pendingSending > 0) {
-         String sendingString = _mbwManager.getBtcValueString(_balance.pendingSending);
+      if (balance.pendingSending > 0) {
+         String sendingString = _mbwManager.getBtcValueString(balance.pendingSending);
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -195,89 +173,73 @@ public class BalanceFragment extends Fragment implements ConnectionObserver {
          TextView tvFiat = (TextView) _root.findViewById(R.id.tvFiat);
          tvFiat.setVisibility(View.VISIBLE);
 
-         Double converted = Utils.getFiatValue(_balance.unspent + _balance.pendingChange, _oneBtcInFiat);
+         Double converted = Utils.getFiatValue(balance.unspent + balance.pendingChange, _oneBtcInFiat);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
 
       }
    }
 
-   private void updateUnknownBalance() {
-      String questionMark = getResources().getString(R.string.question_mark);
+   private void updateUiUnknownBalance() {
 
-      // Set Balance
-      ((TextView) _root.findViewById(R.id.tvBalance)).setText(questionMark);
+      // Show "Tap to Refresh" instead of balance
+      ((TextView) _root.findViewById(R.id.tvBalance)).setText(R.string.tap_to_refresh);
 
-      // Set Receiving
-      String receivingText = getResources().getString(R.string.receiving, questionMark);
-      ((TextView) _root.findViewById(R.id.tvReceiving)).setText(receivingText);
+      // Hide Receiving
+      ((TextView) _root.findViewById(R.id.tvSending)).setVisibility(View.GONE);
 
-      // Set Sending
-      String sendingText = getResources().getString(R.string.sending, questionMark);
-      ((TextView) _root.findViewById(R.id.tvSending)).setText(sendingText);
+      // Hide Sending
+      ((TextView) _root.findViewById(R.id.tvSending)).setVisibility(View.GONE);
 
       // Set Fiat value
       _root.findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
    }
 
-   class WalletUpdateHandler implements Wallet.WalletUpdateHandler {
-
-      @Override
-      public void walletUpdatedCallback(Wallet wallet, boolean success) {
-         _root.findViewById(R.id.pbBalance).setVisibility(View.GONE);
-         _root.findViewById(R.id.ivRefresh).setVisibility(View.VISIBLE);
-         if (!success) {
-            Utils.toastConnectionError(BalanceFragment.this.getActivity());
-            _task = null;
-            return;
-         }
-         BalanceInfo balance = wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
-         if (!_balance.equals(balance)) {
-            _balance = balance;
-            updateBalance();
-            // Tell our parent that the balance changed
-            _container.balanceChanged(_balance);
-         }
-         _task = null;
-      }
-
-   }
-
-   class QueryExchangeSummaryHandler implements AbstractCallbackHandler<ExchangeSummary[]> {
-
-      @Override
-      public void handleCallback(ExchangeSummary[] response, ApiError exception) {
-         if (exception != null) {
-            Utils.toastConnectionError(BalanceFragment.this.getActivity());
-            _task = _container.getWallet().requestUpdate(_mbwManager.getBlockChainAddressTracker(),
-                  new WalletUpdateHandler());
-            _oneBtcInFiat = null;
-         } else {
-            _oneBtcInFiat = Utils.getLastTrade(response, _mbwManager.getExchangeRateCalculationMode());
-            updateBalance();
-            _task = _container.getWallet().requestUpdate(_mbwManager.getBlockChainAddressTracker(),
-                  new WalletUpdateHandler());
-         }
-      }
-
+   @Override
+   public void balanceUpdateStarted() {
+      // Show progress spinner and hide refresh icon
+      _root.findViewById(R.id.pbBalance).setVisibility(View.VISIBLE);
+      _root.findViewById(R.id.ivRefresh).setVisibility(View.GONE);
    }
 
    @Override
-   public void OnNetworkConnected() {
-      if (this.getActivity().isFinishing()) {
-         return;
-      }
-      new Handler().post(new Runnable() {
-         @Override
-         public void run() {
-            refresh();
-         }
-      });
+   public void balanceUpdateStopped() {
+      // Hide progress spinner and show refresh icon
+      _root.findViewById(R.id.pbBalance).setVisibility(View.GONE);
+      _root.findViewById(R.id.ivRefresh).setVisibility(View.VISIBLE);
    }
 
    @Override
-   public void OnNetworkDisconnected() {
+   public void walletChanged(Wallet wallet) {
+      updateUi();
+   }
 
+   @Override
+   public void balanceChanged(BalanceInfo info) {
+      // _balance = info;
+      updateUi();
+   }
+
+   @Override
+   public void transactionHistoryUpdateStarted() {
+   }
+
+   @Override
+   public void transactionHistoryUpdateStopped() {
+   }
+
+   @Override
+   public void transactionHistoryChanged() {
+   }
+
+   @Override
+   public void invoiceMapChanged(Map<String, String> invoiceMap) {
+   }
+   
+   @Override
+   public void newExchangeRate(Double oneBtcInFiat) {
+      _oneBtcInFiat = oneBtcInFiat;
+      updateUi();
    }
 
 }

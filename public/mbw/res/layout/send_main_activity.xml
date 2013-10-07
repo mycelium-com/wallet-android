@@ -141,7 +141,18 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:orientation="vertical" >
+                    
+                    <!-- Receiver Label -->
 
+                    <TextView
+                        android:id="@+id/tvReceiverLabel"
+                        style="@style/GenericText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/green"
+                        android:textSize="20sp"
+                        android:visibility="gone" />
+                    
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -162,12 +173,15 @@
                             android:textSize="20sp"
                             android:typeface="monospace" />
 
+                        <!-- Gap for Clear address button: Not shown for now, we will probably remove it entirely -->
+
                         <View
                             android:layout_width="10dp"
-                            android:layout_height="1dp" >
+                            android:layout_height="1dp"
+                            android:visibility="gone" >
                         </View>
 
-                        <!-- Scan button -->
+                        <!-- Clear address button: Not shown for now, we will probably remove it entirely -->
 
                         <ImageButton
                             android:id="@+id/btClearAddress"
@@ -178,19 +192,10 @@
                             android:background="@drawable/btn_transparent_slim"
                             android:contentDescription="@string/an_icon"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/delete_icon" />
+                            android:src="@drawable/delete_icon"
+                            android:visibility="gone" />
                     </LinearLayout>
 
-                    <!-- Receiver Label -->
-
-                    <TextView
-                        android:id="@+id/tvReceiverLabel"
-                        style="@style/GenericText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/green"
-                        android:textSize="20sp"
-                        android:visibility="gone" />
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>

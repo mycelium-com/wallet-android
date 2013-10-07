@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-    <string name="app_name">Mycelium Wallet</string>
+    <string name="app_name">Developer Mycelium Wallet</string>
     <string name="add">+</string>
     <string name="add_dialog_title">Add Address or Private Key</string>
     <string name="scan_desc">Scan bitcoin address or private key.</string>
@@ -43,7 +43,7 @@
     <string name="btc_balance">Balance: %1$s</string>
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$.2f %2$s</string>
-    <string name="qr_code">QR-Code</string>
+    <string name="qr_code">QR Code</string>
     <string name="address_book">Address Book</string>
     <string name="get_receiver_address">Get receiver address from:</string>
     <string name="one">1</string>
@@ -126,6 +126,8 @@
     <string name="pref_alternate_external_storage_summary">Specify an alternate external storage directory</string>
     <string name="pref_aggregated_view">Aggregated View</string>
     <string name="pref_aggregated_view_summary">With aggregated view you operate on all keys and addresses in parallel. With segregated view you operate on one key at a time.</string>
+    <string name="pref_pulsing_qr_codes">Pulsing QR Codes</string>
+    <string name="pref_pulsing_qr_codes_summary">Makes displayed QR codes fade up and down. Dim QR codes improve scanning on some devices</string>
     <string name="pref_set_pin">Set PIN Code</string>
     <string name="pref_set_pin_summary">Set a PIN code that restricts access to sending coins, exporting private keys, and changing the PIN code</string>
     <string name="pref_local_currency">Local Currency</string>
@@ -140,10 +142,10 @@
     <string name="pref_show_hints">Show Hints</string>
     <string name="pref_show_hints_summary">Enable or disable hints</string>
     <string name="pref_expert_mode">Expert Mode</string>
-    <string name="pref_expert_mode_summary">Enabling expert mode opens up additional features including advanced key management for those who know Bitcoin well</string>
+    <string name="pref_expert_mode_summary">Enabling expert mode opens up additional features including advanced key management and multiple wallets</string>
     <string name="pref_advanced_settings">Advanced Settings</string>
     <string name="pref_continuous_focus">Continuous Autofocus</string>
-    <string name="pref_continuous_focus_summary">Continuously attempt to autofocus when scanning QR-codes</string>
+    <string name="pref_continuous_focus_summary">Continuously attempt to autofocus when scanning QR codes</string>
     <string name="pref_autopay">Autopay Amount</string>
     <string name="pref_autopay_with_value">Autopay Amount (%1$s %2$.2f)</string>
     <string name="pref_autopay_summary">When scanning a barcode, Mycelium Wallet will automatically sign and send transactions below this amount. If a PIN has been set you are sill required to enter it.</string>
@@ -160,9 +162,8 @@
     <string name="pin_set">PIN code set</string>
     <string name="pin_confirm_pin">Confirm PIN Code</string>
     <string name="beta_build">Beta build version %1$s, use at your own risk.</string>
-    <string name="select_recipient">Select Recipient</string>
     <string name="address_book_empty">Your address book is empty</string>
-    <string name="show_qr_code">Show QR-code</string>
+    <string name="show_qr_code">Show QR code</string>
     <string name="delete_address_confirmation">Are you sure that you want to delete this address from your address book?</string>
     <string name="add_to_addressbook">Add to address book</string>
     <string name="edit">Edit</string>
@@ -177,7 +178,7 @@
     <string name="next_hint">Next</string>
     <string name="hint_1">Swipe to switch between viewing your balance and your transaction history.</string>
     <string name="hint_2">You should always have a backup of your private keys. To backup your private key click the options button and select Export Private Key.</string>
-    <string name="hint_3">You avoid casual misuse you can protect your wallet with a PIN code. To set a PIN code click the options button and select Settings.</string>
+    <string name="hint_3">To avoid casual misuse you can protect your wallet with a PIN code. To set a PIN code click the options button and select Settings.</string>
     <string name="hint_4">By default the local currency is set to US dollars. To change the local currency click the options button and select Settings.</string>
     <string name="hint_5">You can enable Expert Mode and unlock advanced features in settings.</string>
     <string name="share_bitcoin_address">Share your Bitcoin address&#8230;</string>
@@ -197,6 +198,7 @@
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
     <string name="btc_rate">1 BTC ~ %1$s %2$.2f (%3$s)</string>
+    <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
     <string name="read_only_warning">Warning: You are monitoring this address, but you cannot spend coins from it unless you have the private key elsewhere.</string>
     <string name="add_to_address_book_dialog_title">Add Address to Address Book</string>
     <string name="scan_address_book_desc">Scan bitcoin address.</string>
@@ -210,7 +212,6 @@
     <string name="cold_storage_title">You are about to spend from a private key in cold storage.</string>
     <string name="go_back">Back</string>
     <string name="keep_address">Keep as read-only by preserving the Bitcoin address</string>
-    <string name="question_delete_pk">This cannot be undone!\r\nDo you want to delete this private key?</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active">Active</string>
@@ -242,9 +243,8 @@
     <string name="abort">Abort</string>
     <string name="please_wait">Please wait &#8230;</string>
     <string name="managing_archive_key">You are managing a single archived key.</string>
-    <string name="managing_segregated_key">You are managing a single key.</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
-    <string name="fading_improves_scanning">Dim QR-codes improve scanning on some devices</string>
+    <string name="fading_improves_scanning">Dim QR codes improve scanning on some devices</string>
     <string name="paste">Paste</string>
     <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there&#8230;</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
@@ -255,5 +255,19 @@
     <string name="key_management">Key Management</string>
     <string name="redirecting_to_blockchain_info">Redirecting to blockchain.info</string>
     <string name="enter_local_currency">Enter your local currency</string>
+    <string name="tap_to_refresh">Tap to refresh</string>
+    <string name="using_address_from_clipboard">Using address from clipboard</string>
+    <string name="my_addresses">My Addresses</string>
+    <string name="foreign_addresses">Other Addresses</string>
+    <string name="delete_private_key_title">Delete Private Key?</string>
+    <string name="delete_address_title">Delete Bitcoin Address?</string>
+    <string name="delete_private_key_message">Do you want to delete this private key?</string>
+    <string name="delete_address_message">Do you want to delete this address?</string>
+    <string name="confirm_delete_pk_title">Are You Sure?</string>
+    <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nPrivate key address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\nPrivate key label:\n%1$s\n\nPrivate key address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_without_balance">This cannot be undone!\n\nPrivate key address:\n%1$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nPrivate key label:\n%1$s\n\nPrivate key address:\n%2$s\n\nDo you want to delete it?</string>
+    
     
 </resources>

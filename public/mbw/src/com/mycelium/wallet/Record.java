@@ -157,12 +157,13 @@ public class Record implements Serializable, Comparable<Record> {
    public Source source;
    public Tag tag;
    public BackupState backupState;
+   public String walletName;
 
    /**
     * Constructor used when creating a new record from a private key
     */
    private Record(InMemoryPrivateKey key, Source source) {
-      this(key, Address.fromStandardPublicKey(key.getPublicKey(), Constants.network), System.currentTimeMillis(),
+      this(key, Address.fromStandardPublicKey(key.getPublicKey(), Constants.getNetwork()), System.currentTimeMillis(),
             source, Tag.ACTIVE, BackupState.UNKNOWN);
    }
 
@@ -467,9 +468,9 @@ public class Record implements Serializable, Comparable<Record> {
       return null;
    }
 
-   public static Record recordFromBitcoinAddressString(String string) {
+   public static Record recordFromBitcoinAddressString(String addressString) {
       // Is it an address?
-      Address address = Utils.addressFromString(string);
+      Address address = Utils.addressFromString(addressString);
       if (address != null) {
          // We have an address
          return new Record(address);
@@ -477,29 +478,29 @@ public class Record implements Serializable, Comparable<Record> {
       return null;
    }
 
-   public static Record recordFromBase58Key(String string) {
+   public static Record recordFromBase58Key(String base58String) {
       // Is it a private key?
       try {
-         InMemoryPrivateKey key = new InMemoryPrivateKey(string, Constants.network);
+         InMemoryPrivateKey key = new InMemoryPrivateKey(base58String, Constants.getNetwork());
          return new Record(key, Source.IMPORTED_SPIA_PRIVATE_KEY);
       } catch (IllegalArgumentException e) {
          return null;
       }
    }
 
-   public static Record recordFromBase58KeyMimiFormat(String string) {
+   public static Record recordFromBase58KeyMimiFormat(String base58String) {
       // Is it a mini private key on the format proposed by Casascius?
-      if (string == null || string.length() < 2 || !string.startsWith("S")) {
+      if (base58String == null || base58String.length() < 2 || !base58String.startsWith("S")) {
          return null;
       }
       // Check that the string has a valid checksum
-      String withQuestionMark = string + "?";
+      String withQuestionMark = base58String + "?";
       byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes());
       if (checkHash[0] != 0x00) {
          return null;
       }
       // Now get the Sha256 hash and use it as the private key
-      byte[] privateKeyBytes = HashUtils.sha256(string.getBytes());
+      byte[] privateKeyBytes = HashUtils.sha256(base58String.getBytes());
       try {
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, false);
          return new Record(key, Source.IMPORTED_MINI_PRIVATE_KEY);
@@ -508,10 +509,10 @@ public class Record implements Serializable, Comparable<Record> {
       }
    }
 
-   public static Record recordFromBitcoinSpinnerBackup(String string) {
+   public static Record recordFromBitcoinSpinnerBackup(String bitcoinSpinnerBackupString) {
       try {
-         SpinnerPrivateUri spinnerKey = SpinnerPrivateUri.fromSpinnerUri(string);
-         if (!spinnerKey.network.equals(Constants.network)) {
+         SpinnerPrivateUri spinnerKey = SpinnerPrivateUri.fromSpinnerUri(bitcoinSpinnerBackupString);
+         if (!spinnerKey.network.equals(Constants.getNetwork())) {
             return null;
          }
          return new Record(spinnerKey.key, Source.IMPORTED_BITCOIN_SPINNER_PRIVATE_KEY);

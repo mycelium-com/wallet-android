@@ -157,10 +157,9 @@ public abstract class AsynchronousApi {
 
    /**
     * Create a new asynchronous API instance.
-    *
+    * 
     * @param api
-    *           The MWAPI instance used for communicating with the MWAPI
-    *           server.
+    *           The MWAPI instance used for communicating with the MWAPI server.
     * @param cache
     *           The account cache instance used.
     */
@@ -215,24 +214,27 @@ public abstract class AsynchronousApi {
                   addresses), Constants.TRANSACTION_HISTORY_LENGTH);
 
             // Get the inventory
-            QueryTransactionInventoryResponse inv = _api.queryTransactionInventory(request);
+            QueryTransactionInventoryExResponse inv = _api.queryTransactionInventoryEx(request);
             int chainHeight = inv.chainHeight;
 
             // Fetch what we can from the cache, the rest we get from the server
             List<TransactionSummary> txList = new LinkedList<TransactionSummary>();
             List<Sha256Hash> hashesToFetch = new LinkedList<Sha256Hash>();
-            for (QueryTransactionInventoryResponse.Item item : inv.transactions) {
-               // Fetch from cache
-               TransactionSummary txSummary = _cache.getTransactionSummary(item.hash.toString());
+            for (Map.Entry<Address, List<QueryTransactionInventoryExResponse.Item>> entry : inv.inventoryMap.entrySet()) {
+               for (QueryTransactionInventoryExResponse.Item item : entry.getValue()) {
+                  // Fetch from cache
+                  TransactionSummary txSummary = _cache.getTransactionSummary(item.hash.toString());
 
-               if (txSummary == null || txSummary.height == -1 || chainHeight - txSummary.height <= 6) {
-                  // Fetch transaction if we don't have it in our cache, if the
-                  // cached version is unconfirmed, or if
-                  // the height of the cached version is less than 6
-                  // confirmations
-                  hashesToFetch.add(item.hash);
-               } else {
-                  txList.add(txSummary);
+                  if (txSummary == null || txSummary.height == -1 || chainHeight - txSummary.height <= 6) {
+                     // Fetch transaction if we don't have it in our cache, if
+                     // the
+                     // cached version is unconfirmed, or if
+                     // the height of the cached version is less than 6
+                     // confirmations
+                     hashesToFetch.add(item.hash);
+                  } else {
+                     txList.add(txSummary);
+                  }
                }
             }
 
@@ -253,9 +255,11 @@ public abstract class AsynchronousApi {
             }
 
             // Insert inventory in cache
-            _cache.setTransactionInventory(addresses, toInventory(inv));
+            for (Map.Entry<Address, List<QueryTransactionInventoryExResponse.Item>> entry : inv.inventoryMap.entrySet()) {
+               _cache.setTransactionInventory(entry.getKey(), toInventory(entry.getValue(), inv.chainHeight));
+            }
 
-            // Sort
+            // Sort result
             Collections.sort(txList);
 
             _response = new QueryTransactionSummaryResponse(txList, chainHeight);
@@ -266,88 +270,14 @@ public abstract class AsynchronousApi {
       return caller;
    }
 
-   private TransactionInventory toInventory(QueryTransactionInventoryResponse response) {
-      List<Item> items = new LinkedList<TransactionInventory.Item>();
-      for (QueryTransactionInventoryResponse.Item item : response.transactions) {
-         items.add(new TransactionInventory.Item(item.hash, item.height));
+   private TransactionInventory toInventory(List<QueryTransactionInventoryExResponse.Item> items, int chainHeight) {
+      List<Item> translatedItems = new LinkedList<TransactionInventory.Item>();
+      for (QueryTransactionInventoryExResponse.Item item : items) {
+         translatedItems.add(new TransactionInventory.Item(item.hash, item.height));
       }
-      return new TransactionInventory(items, response.chainHeight);
+      return new TransactionInventory(translatedItems, chainHeight);
    }
 
-   // /**
-   // * Get the transaction history inventory of a list of bitcoin addresses.
-   // *
-   // * @param callbackHandler
-   // * The callback handler to call
-   // * @return an {@link AsyncTask} instance that allows the caller to cancel
-   // the
-   // * call back.
-   // */
-   // public AsyncTask getTransactionInventory(final List<Address> addresses,
-   // AbstractCallbackHandler<QueryTransactionInventoryResponse>
-   // callbackHandler) {
-   // AbstractCaller<QueryTransactionInventoryResponse> caller = new
-   // AbstractCaller<QueryTransactionInventoryResponse>(
-   // callbackHandler) {
-   //
-   // @Override
-   // protected void callFunction() throws ApiException {
-   // QueryTransactionInventoryRequest request = new
-   // QueryTransactionInventoryRequest(addresses, 15);
-   // _response = _api.queryTransactionInventory(request);
-   // }
-   //
-   // };
-   // executeRequest(caller);
-   // return caller;
-   // }
-   //
-   // /**
-   // * Get the transaction history inventory of a single bitcoin addresses.
-   // *
-   // * @param callbackHandler
-   // * The callback handler to call
-   // * @return an {@link AsyncTask} instance that allows the caller to cancel
-   // the
-   // * call back.
-   // */
-   // public AsyncTask getTransactionInventory(Address address,
-   // AbstractCallbackHandler<QueryTransactionInventoryResponse>
-   // callbackHandler) {
-   // final List<Address> addresses = new LinkedList<Address>();
-   // addresses.add(address);
-   // return getTransactionInventory(addresses, callbackHandler);
-   // }
-   //
-   // /**
-   // * Get the transaction summary for a list of transaction hashes.
-   // *
-   // * @param callbackHandler
-   // * The callback handler to call
-   // * @return an {@link AsyncTask} instance that allows the caller to cancel
-   // the
-   // * call back.
-   // */
-   // public AsyncTask getTransactionSummary(final List<Sha256Hash>
-   // transactionHashes,
-   // AbstractCallbackHandler<QueryTransactionSummaryResponse> callbackHandler)
-   // {
-   // AbstractCaller<QueryTransactionSummaryResponse> caller = new
-   // AbstractCaller<QueryTransactionSummaryResponse>(
-   // callbackHandler) {
-   //
-   // @Override
-   // protected void callFunction() throws ApiException {
-   // QueryTransactionSummaryRequest request = new
-   // QueryTransactionSummaryRequest(transactionHashes);
-   // _response = _api.queryTransactionSummary(request);
-   // }
-   //
-   // };
-   // executeRequest(caller);
-   // return caller;
-   // }
-   //
    /**
     * Get the unspent outputs of an address.
     * 

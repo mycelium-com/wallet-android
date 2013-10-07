@@ -48,11 +48,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-import android.os.Vibrator;
 import android.text.ClipboardManager;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,13 +62,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -137,7 +138,7 @@ public class Utils {
       }
 
       // Is it really an address?
-      Address address = Address.fromString(addressString, Constants.network);
+      Address address = Address.fromString(addressString, Constants.getNetwork());
       if (address == null) {
          return null;
       }
@@ -205,7 +206,7 @@ public class Utils {
    }
 
    public static AlertDialog showQrCode(final Context context, int titleMessageId, Bitmap qrCode, final String value,
-         int buttonLabelId) {
+         int buttonLabelId, boolean pulse) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       View layout = inflater.inflate(R.layout.qr_code_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -237,8 +238,9 @@ public class Utils {
       });
 
       // Make QR code fade along with the entire view
-      layout.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slow_pulse));
-
+      if (pulse) {
+         layout.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slow_pulse));
+      }
       qrCodeDialog.show();
       return qrCodeDialog;
    }
@@ -293,63 +295,6 @@ public class Utils {
       set.addAnimation(out);
       set.setFillAfter(true);
       view.startAnimation(set);
-   }
-
-   public static void showSetAddressLabelDialog(Context context, final AddressBookManager addressBook,
-         final String address) {
-      showSetAddressLabelDialog(context, addressBook, address, null);
-   }
-
-   public static void showSetAddressLabelDialog(final Context context, final AddressBookManager addressBook,
-         final String address, final Runnable postRunner) {
-      final Handler postHandler = new Handler();
-
-      LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      final View layout = inflater.inflate(R.layout.set_address_name_dialog, null);
-      AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
-      final AlertDialog dialog = builder.create();
-      final EditText et = (EditText) layout.findViewById(R.id.etLabel);
-      layout.findViewById(R.id.btOk).setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            EditText et = (EditText) layout.findViewById(R.id.etLabel);
-            String name = et.getText().toString();
-            String existing = addressBook.getAddressByName(name);
-            if (existing == null || existing.equals(address)) {
-               // No address exists with that name, or we are updating the
-               // existing entry with the same name. If the name is blank the
-               // entry will get deleted
-               addressBook.insertUpdateOrDeleteEntry(address, name);
-               dialog.dismiss();
-               if (postRunner != null) {
-                  postHandler.post(postRunner);
-               }
-            } else {
-               // Another address has the same name, we cannot have that. Show
-               // dialog and let user try again.
-               Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-               if (vibrator != null) {
-                  vibrator.vibrate(500);
-               }
-               Toast.makeText(context, R.string.address_label_not_unique, Toast.LENGTH_LONG).show();
-            }
-         }
-      });
-      layout.findViewById(R.id.btCancel).setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            dialog.dismiss();
-         }
-      });
-      String name = addressBook.getNameByAddress(address);
-      name = name == null ? "" : name;
-      et.setText(name);
-      et.selectAll();
-      InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
-      dialog.show();
    }
 
    public static void showHintDialog(final Context context, final MbwManager mbwManager, final HintManager hintManager) {
@@ -537,7 +482,7 @@ public class Utils {
       }
 
       // return as address, may return null
-      return Address.fromString(addressString, Constants.network);
+      return Address.fromString(addressString, Constants.getNetwork());
    }
 
    /**
@@ -680,6 +625,47 @@ public class Utils {
             });
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
+   }
+
+   public static void addHorizontalSwipeDotView(Context context, LinearLayout root, int dots, int selected) {
+      // Calculate size of dots and gaps
+      DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+      int imageSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, metrics);
+      int gapWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, metrics);
+
+      // Create layout parameters for images and gaps
+      LinearLayout.LayoutParams imageParameters = new LinearLayout.LayoutParams(imageSize, imageSize, 0);
+      LinearLayout.LayoutParams gapParameters = new LinearLayout.LayoutParams(gapWidth, 1, 0);
+
+      // Create horizontal layout
+      LinearLayout layout = new LinearLayout(context);
+      layout.setOrientation(LinearLayout.HORIZONTAL);
+      layout.setLayoutParams(new LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT, 0));
+
+      // Fetch drawables for full and line circles
+      Drawable full = context.getResources().getDrawable(R.drawable.circle_full_white);
+      Drawable line = context.getResources().getDrawable(R.drawable.circle_line_white);
+
+      boolean first = true;
+      for (int i = 0; i < dots; i++) {
+         if (first) {
+            first = false;
+         } else {
+            View gap = new View(context);
+            gap.setLayoutParams(gapParameters);
+            layout.addView(gap);
+         }
+         ImageView image = new ImageView(context);
+         image.setLayoutParams(imageParameters);
+         if (i == selected) {
+            image.setImageDrawable(full);
+         } else {
+            image.setImageDrawable(line);
+         }
+         layout.addView(image);
+      }
+
+      root.addView(layout);
    }
 
 }

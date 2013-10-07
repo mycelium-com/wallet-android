@@ -28,6 +28,11 @@
         android:layout="@layout/preference_layout"
         android:summary="@string/pref_continuous_focus_summary"
         android:title="@string/pref_continuous_focus" />
+    <CheckBoxPreference
+        android:key="pulsingQrCodes"
+        android:layout="@layout/preference_layout"
+        android:summary="@string/pref_pulsing_qr_codes_summary"
+        android:title="@string/pref_pulsing_qr_codes" />
 
     <!-- PIN Settings -->
 
@@ -59,7 +64,7 @@
             android:layout="@layout/preference_layout"
             android:summary="@string/pref_aggregated_view_summary"
             android:title="@string/pref_aggregated_view" />
-
+        
         <EditTextPreference
             android:inputType="numberDecimal"
             android:key="instantPayAmount"

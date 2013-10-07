@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity.receive;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.ClipboardManager;
@@ -47,16 +48,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
 
 public class ReceiveCoinsActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
+
+   public static void callMe(Activity currentActivity, Record record, Long amount) {
+      Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
+      intent.putExtra("record", record);
+      intent.putExtra("amount", amount);
+      currentActivity.startActivity(intent);
+   }
+
+   public static void callMe(Activity currentActivity, Record record) {
+      callMe(currentActivity, record, null);
+   }
 
    /** Called when the activity is first created. */
    @Override
@@ -67,21 +78,20 @@ public class ReceiveCoinsActivity extends Activity {
       MbwManager mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      Wallet wallet = Preconditions.checkNotNull((Wallet) getIntent().getSerializableExtra("wallet"));
+      Record record = Preconditions.checkNotNull((Record) getIntent().getSerializableExtra("record"));
       long amount = getIntent().getLongExtra("amount", 0);
 
       final String uri;
+      final String address = record.address.toString();
       if (amount == 0) {
          ((TextView) findViewById(R.id.tvTitle)).setText(R.string.bitcoin_address_title);
          findViewById(R.id.tvAmountLabel).setVisibility(View.GONE);
          findViewById(R.id.tvAmount).setVisibility(View.GONE);
-         // If there is no amount just use the bitcoin address instead of a
-         // complete Bitcoin URI
-         uri = wallet.getReceivingAddress().toString();
+         uri = "bitcoin:" + record.address.toString();
       } else {
          ((TextView) findViewById(R.id.tvTitle)).setText(R.string.payment_request);
          ((TextView) findViewById(R.id.tvAmount)).setText(mbwManager.getBtcValueString(amount));
-         uri = "bitcoin:" + wallet.getReceivingAddress().toString() + "?amount=" + CoinUtil.valueString(amount);
+         uri = "bitcoin:" + record.address.toString() + "?amount=" + CoinUtil.valueString(amount);
       }
 
       // QR code
@@ -90,10 +100,13 @@ public class ReceiveCoinsActivity extends Activity {
       iv.setImageBitmap(bitmap);
 
       // Make QR code fade along with the entire view
-      findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.slow_pulse));
+      if (mbwManager.getPulsingQrCodes()) {
+         findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.slow_pulse));
+         findViewById(R.id.tvPulseQrDescription).setVisibility(View.VISIBLE);
+      }
 
       // Show warning if the record has no private key
-      if (wallet.hasPrivateKeyForReceivingAddress()) {
+      if (record.hasPrivateKey()) {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
@@ -104,17 +117,22 @@ public class ReceiveCoinsActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(uri);
+            clipboard.setText(address);
             Toast.makeText(ReceiveCoinsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
          }
       });
 
-      String[] addressStrings = Utils.stringChopper(wallet.getReceivingAddress().toString(), 12);
+      String[] addressStrings = Utils.stringChopper(address, 12);
       ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
       ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
       ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
 
-      Utils.fadeViewInOut(findViewById(R.id.tvSplash));
+      // Only show "Show to Sender" splash to non experts
+      if (mbwManager.getExpertMode()) {
+         findViewById(R.id.tvSplash).setVisibility(View.INVISIBLE);
+      } else {
+         Utils.fadeViewInOut(findViewById(R.id.tvSplash));
+      }
    }
 
 }

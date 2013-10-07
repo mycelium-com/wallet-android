@@ -105,7 +105,7 @@ public class ManualAddressEntry extends Activity {
       @Override
       public void afterTextChanged(Editable editable) {
          _entered = editable.toString();
-         _address = Address.fromString(_entered.trim(), Constants.network);
+         _address = Address.fromString(_entered.trim(), Constants.getNetwork());
 
          findViewById(R.id.btOk).setEnabled(_address != null);
          boolean addressValid = _address != null;

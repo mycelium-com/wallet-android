@@ -50,10 +50,10 @@ import com.mycelium.wallet.RecordManager;
 
 public class CreateKeyActivity extends Activity {
 
-    private RecordManager _recordManager;
-    private Record _key;
+   private RecordManager _recordManager;
+   private Record _key;
 
-    /** Called when the activity is first created. */
+   /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -74,7 +74,7 @@ public class CreateKeyActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             Intent result = new Intent();
-            result.putExtra("base58key", _key.key.getBase58EncodedPrivateKey(Constants.network));
+            result.putExtra("base58key", _key.key.getBase58EncodedPrivateKey(Constants.getNetwork()));
             CreateKeyActivity.this.setResult(RESULT_OK, result);
             CreateKeyActivity.this.finish();
          }

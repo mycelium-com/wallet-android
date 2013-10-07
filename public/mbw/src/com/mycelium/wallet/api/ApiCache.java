@@ -50,13 +50,34 @@ public abstract class ApiCache {
 
    public static class TransactionInventory {
 
-      public static class Item {
+      public static class Item implements Comparable<Item> {
          public Sha256Hash hash;
          public int height;
 
          public Item(Sha256Hash hash, int height) {
             this.hash = hash;
             this.height = height;
+         }
+
+         @Override
+         public int compareTo(Item other) {
+            if (height == -1) {
+               if (other.height == -1) {
+                  return 0;
+               } else {
+                  return -1;
+               }
+            }
+
+            if (other.height == -1) {
+               return 1;
+            }
+            if (height < other.height) {
+               return -1;
+            } else if (height > other.height) {
+               return 1;
+            }
+            return 0;
          }
       }
 
@@ -99,12 +120,12 @@ public abstract class ApiCache {
 
    public abstract QueryTransactionSummaryResponse getTransactionSummaryList(Collection<Address> addresses);
 
-   abstract TransactionSummary getTransactionSummary(String txHash);
+   public abstract TransactionSummary getTransactionSummary(String txHash);
 
-   abstract void addTransactionSummary(TransactionSummary transaction);
+   public abstract void addTransactionSummary(TransactionSummary transaction);
 
-   abstract TransactionInventory getTransactionInventory(Collection<Address> address);
+   protected abstract void setTransactionInventory(Address address, TransactionInventory inv);
 
-   abstract void setTransactionInventory(Collection<Address> address, TransactionInventory inv);
+   protected abstract TransactionInventory getTransactionInventory(Collection<Address> address);
 
 }

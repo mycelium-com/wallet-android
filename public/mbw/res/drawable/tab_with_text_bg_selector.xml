@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Active tab -->
+    <item android:state_focused="false" android:state_pressed="false" android:state_selected="true"><shape android:shape="rectangle">
+            <gradient android:angle="-90" android:centerColor="#7F7F7F" android:endColor="#7F7F7F" android:startColor="#A8A8A8" />
+        </shape></item>
+    <!-- Inactive tab -->
+    <item android:state_focused="false" android:state_pressed="false" android:state_selected="false"><shape android:shape="rectangle">
+            <gradient android:angle="-90" android:centerColor="#303030" android:endColor="#303030" android:startColor="#303030" />
+        </shape></item>
+    <!-- Pressed tab -->
+    <item android:drawable="@android:color/transparent" android:state_pressed="true"/>
+    <!-- Selected tab (using d-pad) -->
+    <item android:drawable="@android:color/transparent" android:state_focused="true" android:state_pressed="false" android:state_selected="true"/>
+
+</selector>

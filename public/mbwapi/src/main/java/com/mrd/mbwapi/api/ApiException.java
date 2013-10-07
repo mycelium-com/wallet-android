@@ -55,4 +55,9 @@ public class ApiException extends Exception {
       super(message,e);
       errorCode = error;
    }
+
+   public ApiException(Throwable e) {
+      super(e);
+      errorCode = -1;
+   }
 }

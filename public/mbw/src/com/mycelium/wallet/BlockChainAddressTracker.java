@@ -386,7 +386,7 @@ public class BlockChainAddressTracker {
          List<SourcedTransactionOutput> sourcedOutputs, Map<Address, AddressOutputState> blockChainInfoMap) {
       // Insert outputs into confirmed and sending
       for (IndependentTransactionOutput output : outputs) {
-         Address address = output.script.getAddress(Constants.network);
+         Address address = output.script.getAddress(Constants.getNetwork());
          if (address == null) {
             continue;
          }

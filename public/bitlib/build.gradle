@@ -1,20 +1,9 @@
 apply plugin: 'java'
 
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
 dependencies {
     testCompile 'junit:junit:' + junitVersion
     compile guavaArtifact
-}
-sourceSets {
-    main {
-        java {
-            srcDir 'src'
-        }
-
-    }
-
-    test {
-        java {
-            srcDir 'test'
-        }
-    }
 }

@@ -1,9 +1,4 @@
 apply plugin: 'java'
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src'
-        }
-    }
-}
+sourceCompatibility = 1.6
+targetCompatibility = 1.6

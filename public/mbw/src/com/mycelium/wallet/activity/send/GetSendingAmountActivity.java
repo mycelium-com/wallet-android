@@ -394,20 +394,20 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
     */
    private AmountValidation checkSendAmount(long satoshis) {
       // Create transaction builder
-      StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.network);
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.getNetwork());
 
       // Try and add the output
       try {
          // Note, null address used here, we just use it for measuring the
          // transaction size
-         stb.addOutput(Address.getNullAddress(Constants.network), satoshis);
+         stb.addOutput(Address.getNullAddress(Constants.getNetwork()), satoshis);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
       }
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(_outputs, null, _privateKeyRing, Constants.network);
+         stb.createUnsignedTransaction(_outputs, null, _privateKeyRing, Constants.getNetwork());
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
       }

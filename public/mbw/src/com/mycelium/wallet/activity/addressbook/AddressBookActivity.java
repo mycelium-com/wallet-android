@@ -34,12 +34,12 @@
 
 package com.mycelium.wallet.activity.addressbook;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -53,10 +53,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TabHost;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -64,27 +66,93 @@ import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
+import com.mycelium.wallet.Record.Tag;
+import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.addressbook.EnterAddressLabelUtil.AddressLabelChangedHandler;
 
-public class AddressBookActivity extends ListActivity {
+public class AddressBookActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
+   public static final String ADDRESS_RESULT_NAME = "address_result";
 
    private String mSelectedAddress;
    private MbwManager _mbwManager;
+   private RecordManager _recordManager;
    private AddressBookManager _addressBook;
    private AlertDialog _qrCodeDialog;
    private Dialog _addDialog;
+   private boolean _selectMode;
+
+   public static void callMeForResult(Activity currentActivity, int requestCode) {
+      Intent intent = new Intent(currentActivity, AddressBookActivity.class);
+      intent.putExtra("selectMode", true);
+      currentActivity.startActivityForResult(intent, requestCode);
+   }
+
+   public static void callMe(Activity currentActivity) {
+      Intent intent = new Intent(currentActivity, AddressBookActivity.class);
+      currentActivity.startActivity(intent);
+   }
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.address_book);
-      registerForContextMenu(getListView());
+      setContentView(R.layout.address_book_activity);
+
       _mbwManager = MbwManager.getInstance(getApplication());
+      _recordManager = _mbwManager.getRecordManager();
       _addressBook = _mbwManager.getAddressBookManager();
-      findViewById(R.id.btAdd).setOnClickListener(new AddClicked());
-      this.getListView().setLongClickable(false);
+
+      // Get intent parameters
+      _selectMode = getIntent().getBooleanExtra("selectMode", false);
+
+      int currentTab = 1;
+      // Load state
+      if (savedInstanceState != null) {
+         currentTab = savedInstanceState.getInt("selectedTab");
+      }
+      ListView myList = (ListView) findViewById(R.id.lvMyAddresses);
+      ListView foreignList = (ListView) findViewById(R.id.lvForeignAddresses);
+      if (!_selectMode) {
+         registerForContextMenu(myList);
+         registerForContextMenu(foreignList);
+      }
+      myList.setLongClickable(false);
+      foreignList.setLongClickable(false);
+
+      myList.setOnItemClickListener(myListClickListener);
+      foreignList.setOnItemClickListener(foreignListClickListener);
+      // Show hide Add button
+      if (!_selectMode) {
+         findViewById(R.id.btAdd).setOnClickListener(new AddClicked());
+      } else {
+         findViewById(R.id.btAdd).setVisibility(View.GONE);
+      }
+
+      // Add tabs
+      TabHost tabs = (TabHost) findViewById(R.id.TabHost);
+      tabs.setup();
+      addTab(tabs, R.string.my_addresses, "my_addresses", R.id.lvMyAddresses);
+      addTab(tabs, R.string.foreign_addresses, "foreign_addresses", R.id.llForeignAddresses);
+      tabs.setCurrentTab(currentTab);
+   }
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      outState.putInt("selectedTab", ((TabHost) findViewById(R.id.TabHost)).getCurrentTab());
+   };
+
+   private void addTab(TabHost tabHost, int titleResourceId, String tag, int contentResourceId) {
+
+      View view = LayoutInflater.from(this).inflate(R.layout.tab_with_text, null);
+      TextView tv = (TextView) view.findViewById(R.id.tabsText);
+      tv.setText(titleResourceId);
+      TabHost.TabSpec spec = tabHost.newTabSpec(tag);
+      spec.setContent(contentResourceId);
+      spec.setIndicator(view);
+      tabHost.addTab(spec);
    }
 
    private class AddClicked implements OnClickListener {
@@ -113,27 +181,83 @@ public class AddressBookActivity extends ListActivity {
       super.onDestroy();
    }
 
-   public void updateEntries() {
-      List<Entry> entries = _addressBook.getEntries();
-      if (entries.isEmpty()) {
-         Toast.makeText(this, R.string.address_book_empty, Toast.LENGTH_SHORT).show();
+   private void updateEntries() {
+      updateForeignEntries();
+      updateMyEntries();
+   }
+
+   private void updateForeignEntries() {
+      List<Entry> all = _addressBook.getEntries();
+      List<Entry> foreign = new LinkedList<Entry>();
+      for (Entry entry : all) {
+         if (_recordManager.getRecord(entry.getAddress()) == null) {
+            foreign.add(entry);
+         }
       }
-      setListAdapter(new AddressBookAdapter(this, R.layout.address_book_row, entries));
+      ListView foreignList = (ListView) findViewById(R.id.lvForeignAddresses);
+      foreignList.setAdapter(new ForeignAddressBookAdapter(this, R.layout.address_book_foreign_row, foreign));
    }
 
-   @Override
-   protected void onListItemClick(ListView l, View v, int position, long id) {
-      mSelectedAddress = (String) v.getTag();
-      l.showContextMenuForChild(v);
+   private void updateMyEntries() {
+      // Build list of rows. Each wallet and record get a row
+      List<Row> rows = new LinkedList<Row>();
+      for (Record record : _recordManager.getRecords(Tag.ACTIVE)) {
+         // Add wallet names if we have more then one wallet
+         String rowName = _addressBook.getNameByAddress(record.address.toString());
+         rows.add(new Row(rowName, record));
+      }
+
+      ListView myList = (ListView) findViewById(R.id.lvMyAddresses);
+      myList.setAdapter(new MyAddressBookAdapter(this, R.layout.address_book_my_address_row, rows));
    }
 
-   ;
+   OnItemClickListener myListClickListener = new OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+         Row row = (Row) view.getTag();
+         if (row.record == null) {
+            // Wallet clicked
+            return;
+         }
+         if (_selectMode) {
+            Intent result = new Intent();
+            result.putExtra(ADDRESS_RESULT_NAME, row.record.address.toString());
+            setResult(RESULT_OK, result);
+            finish();
+         } else {
+            mSelectedAddress = row.record.address.toString();
+            listView.showContextMenuForChild(view);
+         }
+      }
+   };
+
+   OnItemClickListener foreignListClickListener = new OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+         if (_selectMode) {
+            String value = (String) view.getTag();
+            Intent result = new Intent();
+            result.putExtra(ADDRESS_RESULT_NAME, value);
+            setResult(RESULT_OK, result);
+            finish();
+         } else {
+            mSelectedAddress = (String) view.getTag();
+            listView.showContextMenuForChild(view);
+         }
+      }
+   };
 
    @Override
    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
       super.onCreateContextMenu(menu, v, menuInfo);
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.addressbook_context_menu, menu);
+      // hide delete for addresses we own
+      if (findViewById(R.id.lvMyAddresses) == v) {
+         menu.findItem(R.id.miDeleteAddress).setVisible(false);
+      }
    }
 
    @Override
@@ -161,14 +285,15 @@ public class AddressBookActivity extends ListActivity {
    };
 
    private void doEditEntry() {
-      Utils.showSetAddressLabelDialog(this, _addressBook, mSelectedAddress, updateRunnable);
+      EnterAddressLabelUtil.enterAddressLabel(this, _addressBook, mSelectedAddress, addressLabelChanged);
+
    }
 
    private void doShowQrCode() {
       String address = "bitcoin:" + mSelectedAddress;
       Bitmap bitmap = Utils.getLargeQRCodeBitmap(address, _mbwManager);
       _qrCodeDialog = Utils.showQrCode(this, R.string.bitcoin_address_title, bitmap, mSelectedAddress,
-            R.string.copy_address_to_clipboard);
+            R.string.copy_address_to_clipboard, _mbwManager.getPulsingQrCodes());
    }
 
    final Runnable pinProtectedDeleteEntry = new Runnable() {
@@ -196,9 +321,50 @@ public class AddressBookActivity extends ListActivity {
       alertDialog.show();
    }
 
-   private class AddressBookAdapter extends ArrayAdapter<Entry> {
+   private static class Row {
+      public String name;
+      public Record record;
 
-      public AddressBookAdapter(Context context, int textViewResourceId, List<Entry> objects) {
+      public Row(String name, Record record) {
+         this.name = name;
+         this.record = record;
+      }
+   }
+
+   private class MyAddressBookAdapter extends ArrayAdapter<Row> {
+
+      private LayoutInflater _inflater;
+
+      public MyAddressBookAdapter(Context context, int textViewResourceId, List<Row> objects) {
+         super(context, textViewResourceId, objects);
+         _inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      }
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+         Row e = getItem(position);
+
+         View v;
+         if (e.record == null) {
+            // Wallet row
+            v = Preconditions.checkNotNull(_inflater.inflate(R.layout.address_book_my_wallet_row, null));
+            ((TextView) v.findViewById(R.id.tvName)).setText(e.name);
+         } else {
+            // Record row
+            v = Preconditions.checkNotNull(_inflater.inflate(R.layout.address_book_my_address_row, null));
+            ((TextView) v.findViewById(R.id.tvName)).setText(e.name);
+            TextView tvAddress = (TextView) v.findViewById(R.id.tvAddress);
+            tvAddress.setText(Address.fromString(e.record.address.toString()).toMultiLineString());
+         }
+
+         v.setTag(e);
+         return v;
+      }
+   }
+
+   private class ForeignAddressBookAdapter extends ArrayAdapter<Entry> {
+
+      public ForeignAddressBookAdapter(Context context, int textViewResourceId, List<Entry> objects) {
          super(context, textViewResourceId, objects);
       }
 
@@ -214,14 +380,10 @@ public class AddressBookActivity extends ListActivity {
          TextView tvAddress = (TextView) v.findViewById(R.id.address_book_address);
          Entry e = getItem(position);
          tvName.setText(e.getName());
-         tvAddress.setText(formatAddress(e.getAddress()));
+         tvAddress.setText(Address.fromString(e.getAddress()).toMultiLineString());
          v.setTag(e.getAddress());
          return v;
       }
-   }
-
-   private static String formatAddress(String address) {
-      return Address.fromString(address).toMultiLineString();
    }
 
    private class AddDialog extends Dialog {
@@ -274,13 +436,15 @@ public class AddressBookActivity extends ListActivity {
       if (address == null) {
          return;
       }
-      Utils.showSetAddressLabelDialog(AddressBookActivity.this, _addressBook, address.toString(), updateRunnable);
+
+      EnterAddressLabelUtil.enterAddressLabel(AddressBookActivity.this, _addressBook, address.toString(),
+            addressLabelChanged);
    }
 
-   Runnable updateRunnable = new Runnable() {
+   private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
 
       @Override
-      public void run() {
+      public void OnAddressLabelChanged(String address, String label) {
          updateEntries();
       }
    };

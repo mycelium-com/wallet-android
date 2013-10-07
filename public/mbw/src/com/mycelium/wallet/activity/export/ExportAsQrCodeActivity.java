@@ -66,7 +66,7 @@ public class ExportAsQrCodeActivity extends Activity {
       // Get base58 encoded private key
       _mbwManager = MbwManager.getInstance(getApplication());
       Record record = _mbwManager.getRecordManager().getSelectedRecord();
-      final String base58 = record.key.getBase58EncodedPrivateKey(Constants.network);
+      final String base58 = record.key.getBase58EncodedPrivateKey(Constants.getNetwork());
 
       // Set QR code
       Bitmap bitmap = Utils.getLargeQRCodeBitmap(base58, _mbwManager);
@@ -84,8 +84,10 @@ public class ExportAsQrCodeActivity extends Activity {
       });
 
       // Make QR code fade along with the entire view
-      findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.slow_pulse));
-
+      if (_mbwManager.getPulsingQrCodes()) {
+         findViewById(R.id.llRoot).setAnimation(AnimationUtils.loadAnimation(this, R.anim.slow_pulse));
+         findViewById(R.id.tvPulseQrDescription).setVisibility(View.VISIBLE);
+      }
    }
 
 }

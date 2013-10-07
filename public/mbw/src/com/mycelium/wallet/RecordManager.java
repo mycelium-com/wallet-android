@@ -36,8 +36,10 @@ package com.mycelium.wallet;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -53,6 +55,7 @@ import com.mycelium.wallet.Record.Tag;
 public class RecordManager {
 
    private final RandomSource randomSource = new AndroidRandomSource();
+
    private Context _applicationContext;
    private List<Record> _records = null;
    private Record _defaultSpendingRecord = null;
@@ -77,19 +80,31 @@ public class RecordManager {
       return num;
    }
 
+   public List<String> getActiveWalletNames() {
+      Set<String> names = new HashSet<String>();
+      for (Record record : _records) {
+         if (record.tag == Tag.ACTIVE) {
+            names.add(record.walletName);
+         }
+      }
+      List<String> list = new ArrayList<String>(names);
+      Collections.sort(list);
+      return list;
+   }
+
    public synchronized Wallet getWallet(WalletMode mode) {
+      Record selected = getSelectedRecord();
       if (mode.equals(WalletMode.Segregated)) {
          // User is in segregated mode, make a wallet for the selected record
          // only
-         return new Wallet(getSelectedRecord());
+         return new Wallet(selected);
       } else {
-         Record selected = getSelectedRecord();
          if (selected.tag == Tag.ARCHIVE) {
             // User has chosen an archived record, make a wallet for the
             // selected record only
             return new Wallet(selected);
          } else {
-            return new Wallet(getRecords(Tag.ACTIVE), getSelectedRecord());
+            return new Wallet(getRecords(Tag.ACTIVE), selected);
          }
       }
    }
@@ -99,21 +114,42 @@ public class RecordManager {
       if (record != null) {
          return record;
       }
-      // If we didn't find a record it may have been deleted, select a new one
-      if (_defaultSpendingRecord != null) {
-         // Use the default spending record
-         _selectedAddress = _defaultSpendingRecord.address;
-         saveSelected(_applicationContext, _selectedAddress);
-      } else {
-         // If we have no default spending record, choose the first from the
-         // list. We always have at least one as we automatically create one if
-         // the last one is deleted
-         _selectedAddress = _records.get(0).address;
-         saveSelected(_applicationContext, _selectedAddress);
+      // If we didn't find a record it may have been deleted, select a random
+      // one from our list
+      if (_records.isEmpty()) {
+         // This should never happen
+         throw new RuntimeException("We have no records while finding default selection");
       }
-      return getRecord(_selectedAddress);
-
+      record = _records.get(0);
+      _selectedAddress = record.address;
+      saveSelected(_applicationContext, _selectedAddress);
+      return record;
    }
+
+   // public synchronized String getSelectedWalletName() {
+   // // See if there are any keys in the selected wallet
+   // if (!getActiveRecordsByWalletName(_selectedWalletName).isEmpty()) {
+   // // Everything normal
+   // return _selectedWalletName;
+   // }
+   //
+   // // We did not have any keys in the currently selected wallet
+   // // Select the first active key and use its wallet name
+   // List<String> list = getActiveWalletNames();
+   // if (list.isEmpty()) {
+   // // This should never happen. Make sure that we have a new random key in
+   // // the default wallet
+   // Record newRecord = Record.createRandom(randomSource, _defaultWalletName);
+   // Toast.makeText(_applicationContext, R.string.created_new_random_key,
+   // Toast.LENGTH_LONG).show();
+   // _records.add(newRecord);
+   // _selectedWalletName = newRecord.walletName;
+   // } else {
+   // _selectedWalletName = list.get(0);
+   // }
+   // saveSelected(_applicationContext, _selectedAddress, _selectedWalletName);
+   // return _selectedWalletName;
+   // }
 
    public synchronized void setSelectedRecord(Address address) {
       Record r = getRecordInt(address);
@@ -170,14 +206,6 @@ public class RecordManager {
          return null;
       }
       return r.copy();
-   }
-
-   /**
-    * Get the record we use for spending by default, or null if no record exists
-    * with a private keys
-    */
-   public Record getDefaultSpendingRecord() {
-      return getRecord(_defaultSpendingRecord.address);
    }
 
    /**
@@ -256,6 +284,17 @@ public class RecordManager {
       for (Record r : _records) {
          if (r.address.equals(address)) {
             r.source = source;
+            saveRecords();
+            return r.copy();
+         }
+      }
+      return null;
+   }
+
+   public synchronized Record setWalletNameForRecordByAddress(Address address, String walletName) {
+      for (Record r : _records) {
+         if (r.address.equals(address)) {
+            r.walletName = walletName;
             saveRecords();
             return r.copy();
          }
@@ -375,40 +414,42 @@ public class RecordManager {
 
    private void loadSelected() {
       SharedPreferences prefs = _applicationContext.getSharedPreferences("selected", Context.MODE_PRIVATE);
-      String lastAddress = prefs.getString("last", "");
+
+      boolean save = false;
+
+      // Load selected address
+      _selectedAddress = null;
+      String lastAddress = prefs.getString("last", null);
       Record record = getRecordInt(lastAddress);
       if (record != null) {
          _selectedAddress = record.address;
       }
-
       // If we don't have a selected address we automatically select one
       if (_selectedAddress == null) {
          // We do not have a current record, maybe we start up for the first
          // time or the last record was deleted
-         if (_defaultSpendingRecord != null) {
-            // Use the default spending record
-            _selectedAddress = _defaultSpendingRecord.address;
-            saveSelected(_applicationContext, _selectedAddress);
-         } else if (_records.size() != 0) {
-            // Alternatively use the first one on the list
-            _selectedAddress = _records.get(0).address;
-            saveSelected(_applicationContext, _selectedAddress);
-         } else {
-            // We have no records to select, this should not happen as we always
-            // create one if necessary
+         // We know that there is always at least one active record, check
+         // anyway
+         if (getRecords(Tag.ACTIVE).isEmpty()) {
+            throw new RuntimeException("There are no active records");
          }
+         _selectedAddress = getRecords(Tag.ACTIVE).get(0).address;
+         save = true;
+      }
+      if (save) {
+         saveSelected(_applicationContext, _selectedAddress);
       }
 
    }
 
-   private static void saveSelected(Context context, Address selected) {
+   private static void saveSelected(Context context, Address selectedAddress) {
       SharedPreferences prefs = context.getSharedPreferences("selected", Context.MODE_PRIVATE);
-      if (prefs.getString("last", "").equals(selected.toString())) {
+      if (prefs.getString("last", "").equals(selectedAddress.toString())) {
          // We already got it, no need to save
          return;
       }
       Editor editor = prefs.edit();
-      editor.putString("last", selected == null ? "" : selected.toString());
+      editor.putString("last", selectedAddress == null ? "" : selectedAddress.toString());
       editor.commit();
    }
 

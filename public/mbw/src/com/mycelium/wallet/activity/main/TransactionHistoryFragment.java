@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +13,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
@@ -34,7 +33,6 @@ import android.widget.Toast;
 import com.google.common.base.Joiner;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.TransactionSummary;
 import com.mrd.mbwapi.util.TransactionSummaryUtils;
@@ -42,31 +40,36 @@ import com.mrd.mbwapi.util.TransactionType;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.Wallet.BalanceInfo;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
-import com.mycelium.wallet.api.AbstractCallbackHandler;
-import com.mycelium.wallet.api.AndroidAsyncApi;
+import com.mycelium.wallet.activity.addressbook.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.addressbook.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.api.ApiCache;
-import com.mycelium.wallet.api.AsyncTask;
 
-public class TransactionHistoryFragment extends Fragment {
+public class TransactionHistoryFragment extends Fragment implements WalletFragmentObserver {
 
    public interface TransactionHistoryFragmentContainer {
-      public Wallet getWallet();
-
       public MbwManager getMbwManager();
+
+      public void requestTransactionHistoryRefresh();
+
+      public void addObserver(WalletFragmentObserver observer);
+
+      public void removeObserver(WalletFragmentObserver observer);
+
    }
 
    private TransactionHistoryFragmentContainer _container;
    private MbwManager _mbwManager;
+   private RecordManager _recordManager;
    private View _root;
-   private AsyncTask _task;
    private TransactionHistoryAdapter _transactionHistoryAdapter;
    private Map<String, String> _invoiceMap;
-   private QueryTransactionSummaryResponse _transactions;
    private ApiCache _cache;
    private AddressBookManager _addressBook;
+   AsyncTransactionHistoryUpdate _updater;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class TransactionHistoryFragment extends Fragment {
    public void onResume() {
       _container = (TransactionHistoryFragmentContainer) this.getActivity();
       _mbwManager = _container.getMbwManager();
+      _recordManager = _mbwManager.getRecordManager();
       _addressBook = _mbwManager.getAddressBookManager();
       _cache = _mbwManager.getCache();
 
@@ -85,25 +89,26 @@ public class TransactionHistoryFragment extends Fragment {
 
          @Override
          public void onClick(View v) {
-            refresh();
+            _container.requestTransactionHistoryRefresh();
          }
       });
 
       registerForContextMenu(_root.findViewById(R.id.lvTransactionHistory));
 
       // Update from cache
-      Set<Address> addressSet = _container.getWallet().getAddresses();
-      _transactions = _cache.getTransactionSummaryList(addressSet);
       updateTransactionHistory();
-
+      _container.addObserver(this);
       super.onResume();
    }
 
    @Override
+   public void onPause() {
+      _container.removeObserver(this);
+      super.onPause();
+   }
+
+   @Override
    public void onDestroy() {
-      if (_task != null) {
-         _task.cancel();
-      }
       super.onDestroy();
    }
 
@@ -164,8 +169,8 @@ public class TransactionHistoryFragment extends Fragment {
       if (t == null || _invoiceMap == null) {
          return null;
       }
-      Wallet wallet = _container.getWallet();
-      Set<Address> addressSet = wallet.getAddresses();
+      Wallet wallet = getWallet();
+      Set<Address> addressSet = wallet.getAddressSet();
       TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
       if (type != TransactionType.SentToOthers) {
          return null;
@@ -197,9 +202,17 @@ public class TransactionHistoryFragment extends Fragment {
       // Set the label of the address
       String address = getSingleForeignAddressForTransaction(selected);
       if (address != null) {
-         Utils.showSetAddressLabelDialog(getActivity(), _addressBook, address);
+         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address, addressLabelChanged);
       }
    }
+
+   private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
+
+      @Override
+      public void OnAddressLabelChanged(String address, String label) {
+         updateTransactionHistory();
+      }
+   };
 
    private void doShowDetails(TransactionSummary selected) {
       if (selected == null) {
@@ -217,97 +230,61 @@ public class TransactionHistoryFragment extends Fragment {
       if (tx == null) {
          return null;
       }
-      Wallet wallet = _container.getWallet();
-      Set<Address> addressSet = wallet.getAddresses();
+      Wallet wallet = getWallet();
+      Set<Address> addressSet = wallet.getAddressSet();
       TransactionType type = TransactionSummaryUtils.getTransactionType(tx, addressSet);
       return type.singleForeignAddress(tx, addressSet);
    }
 
-   public void refresh() {
-      if (_task != null) {
-         return;
-      }
-      if (_root == null) {
-         // Not yet initialized
-         return;
-      }
-
-      // Show cached balance and progress spinner
-      _root.findViewById(R.id.pbHistory).setVisibility(View.VISIBLE);
-      _root.findViewById(R.id.ivRefresh).setVisibility(View.GONE);
-      Wallet wallet = _container.getWallet();
-      Set<Address> addressSet = wallet.getAddresses();
-      _transactions = _cache.getTransactionSummaryList(addressSet);
-      updateTransactionHistory();
-      AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      _task = api.getTransactionSummary(addressSet, new QueryTransactionSummaryHandler());
+   private Wallet getWallet() {
+      return _recordManager.getWallet(_mbwManager.getWalletMode());
    }
 
-   class QueryTransactionSummaryHandler implements AbstractCallbackHandler<QueryTransactionSummaryResponse> {
-
-      @Override
-      public void handleCallback(QueryTransactionSummaryResponse response, ApiError exception) {
-         _root.findViewById(R.id.pbHistory).setVisibility(View.GONE);
-         _root.findViewById(R.id.ivRefresh).setVisibility(View.VISIBLE);
-         if (exception != null) {
-            Utils.toastConnectionError(getActivity());
-         } else {
-            _transactions = response;
-            updateTransactionHistory();
-            _task = fetchInvoices(_transactions);
-         }
-      }
-
-   }
-
-   private AsyncTask fetchInvoices(QueryTransactionSummaryResponse response) {
-      Wallet wallet = _container.getWallet();
-      Set<Address> addressSet = wallet.getAddresses();
-      List<String> addresses = new LinkedList<String>();
-      for (TransactionSummary t : response.transactions) {
-         TransactionType type = TransactionSummaryUtils.getTransactionType(t, addressSet);
-         if (type == TransactionType.SentToOthers) {
-            String[] candidates = TransactionSummaryUtils.getReceiversNotMe(t, addressSet);
-            if (candidates.length == 1) {
-               addresses.add(candidates[0]);
-            }
-         }
-      }
-      AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      return api.lookupInvoices(addresses, new LookupInvoicesHandler());
-   }
-
-   class LookupInvoicesHandler implements AbstractCallbackHandler<Map<String, String>> {
-
-      @Override
-      public void handleCallback(Map<String, String> response, ApiError exception) {
-         if (exception != null) {
-            // Ignore
-            _task = null;
-         } else {
-            _invoiceMap = response;
-            if (_transactionHistoryAdapter != null) {
-               _transactionHistoryAdapter.setInvoiceMap(response);
-            }
-         }
-         _task = null;
-      }
-   }
-
+   @SuppressWarnings("unchecked")
    private void updateTransactionHistory() {
-      if (_transactions == null || _transactions.transactions.size() == 0) {
-         _root.findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
-         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
-      } else {
-         Collections.sort(_transactions.transactions);
-         _root.findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
-         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
-         _transactionHistoryAdapter = new TransactionHistoryAdapter(getActivity(), _transactions);
-         ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(_transactionHistoryAdapter);
+      if (!isAdded()) {
+         return;
+      }
+      if (_updater != null) {
+         // Attempt to cancel the old one if it is still running
+         _updater.cancel(false);
+      }
+      Set<Address> addressSet = getWallet().getAddressSet();
+      _updater = new AsyncTransactionHistoryUpdate();
+      _updater.execute(addressSet);
+   }
+
+   private class AsyncTransactionHistoryUpdate extends AsyncTask<Set<Address>, Void, QueryTransactionSummaryResponse> {
+
+      @Override
+      protected QueryTransactionSummaryResponse doInBackground(Set<Address>... arg0) {
+         Set<Address> addressSet = getWallet().getAddressSet();
+         QueryTransactionSummaryResponse result = _cache.getTransactionSummaryList(addressSet);
+         if (result != null) {
+            Collections.sort(result.transactions);
+         }
+         return result;
+      }
+
+      @Override
+      protected void onPostExecute(QueryTransactionSummaryResponse result) {
+         if (!isAdded()) {
+            return;
+         }
+         if (result == null || result.transactions.size() == 0) {
+            _root.findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
+            _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
+         } else {
+            _root.findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
+            _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
+            _transactionHistoryAdapter = new TransactionHistoryAdapter(getActivity(), result);
+            ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(_transactionHistoryAdapter);
+         }
+         super.onPostExecute(result);
       }
    }
 
-   class TransactionHistoryAdapter extends ArrayAdapter<TransactionSummary> {
+   private class TransactionHistoryAdapter extends ArrayAdapter<TransactionSummary> {
       private Context _context;
       private Date _midnight;
       private DateFormat _hourFormat;
@@ -337,8 +314,8 @@ public class TransactionHistoryFragment extends Fragment {
          Locale locale = getResources().getConfiguration().locale;
          _hourFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
          _dayFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
-         Wallet wallet = _container.getWallet();
-         _addressSet = wallet.getAddresses();
+         Wallet wallet = getWallet();
+         _addressSet = wallet.getAddressSet();
       }
 
       @Override
@@ -408,6 +385,69 @@ public class TransactionHistoryFragment extends Fragment {
             addresses[i] = name;
          }
       }
+   }
+
+   @Override
+   public void walletChanged(Wallet wallet) {
+      if (!isAdded()) {
+         return;
+      }
+      updateTransactionHistory();
+   }
+
+   @Override
+   public void balanceUpdateStarted() {
+   }
+
+   @Override
+   public void balanceUpdateStopped() {
+   }
+
+   @Override
+   public void balanceChanged(BalanceInfo info) {
+   }
+
+   @Override
+   public void transactionHistoryUpdateStarted() {
+      if (!isAdded()) {
+         return;
+      }
+      // Show progress spinner
+      _root.findViewById(R.id.pbHistory).setVisibility(View.VISIBLE);
+      _root.findViewById(R.id.ivRefresh).setVisibility(View.GONE);
+   }
+
+   @Override
+   public void transactionHistoryUpdateStopped() {
+      if (!isAdded()) {
+         return;
+      }
+      // Show refresh icon
+      _root.findViewById(R.id.pbHistory).setVisibility(View.GONE);
+      _root.findViewById(R.id.ivRefresh).setVisibility(View.VISIBLE);
+   }
+
+   @Override
+   public void transactionHistoryChanged() {
+      if (!isAdded()) {
+         return;
+      }
+      updateTransactionHistory();
+   }
+
+   @Override
+   public void invoiceMapChanged(Map<String, String> invoiceMap) {
+      if (!isAdded()) {
+         return;
+      }
+      _invoiceMap = invoiceMap;
+      if (_transactionHistoryAdapter != null) {
+         _transactionHistoryAdapter.setInvoiceMap(invoiceMap);
+      }
+   }
+
+   @Override
+   public void newExchangeRate(Double oneBtcInFiat) {
    }
 
 }

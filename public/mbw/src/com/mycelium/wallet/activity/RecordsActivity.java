@@ -72,6 +72,8 @@ import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.BalanceInfo;
+import com.mycelium.wallet.activity.addressbook.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.addressbook.EnterAddressLabelUtil.AddressLabelChangedHandler;
 
 public class RecordsActivity extends Activity {
 
@@ -219,26 +221,46 @@ public class RecordsActivity extends Activity {
       keepAddrCheckbox.setChecked(false);
 
       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(RecordsActivity.this);
-      String title = record.hasPrivateKey() ? "Delete Private Key?" : "Delete Bitcoin Address?";
-      String message = record.hasPrivateKey() ? "Do you want to delete this private key?"
-            : "Do you want to delete this address?";
-      deleteDialog.setTitle(title);
-      deleteDialog.setMessage(message);
+      deleteDialog.setTitle(record.hasPrivateKey() ? R.string.delete_private_key_title : R.string.delete_address_title);
+      deleteDialog.setMessage(record.hasPrivateKey() ? R.string.delete_private_key_message
+            : R.string.delete_address_message);
 
       if (record.hasPrivateKey()) { // add checkbox only if private key is
          // present
          deleteDialog.setView(checkBoxView);
       }
 
-      deleteDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+      deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface arg0, int arg1) {
             if (record.hasPrivateKey()) {
+               Long satoshis = getPotentialBalance(record);
                AlertDialog.Builder confirmDialog = new AlertDialog.Builder(RecordsActivity.this);
-               String title = "Are You Sure?";
-               confirmDialog.setTitle(title);
-               confirmDialog.setMessage(getString(R.string.question_delete_pk));
-               confirmDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+               confirmDialog.setTitle(R.string.confirm_delete_pk_title);
+
+               // Set the message. There are four combinations, with and without
+               // label, with and without BTC amount.
+               String label = _addressBook.getNameByAddress(record.address.toString());
+               String message;
+               if (record.tag == Tag.ACTIVE && satoshis != null && satoshis > 0) {
+                  if (label != null && label.length() != 0) {
+                     message = getString(R.string.confirm_delete_pk_with_balance_with_label, label,
+                           record.address.toMultiLineString(), _mbwManager.getBtcValueString(satoshis));
+                  } else {
+                     message = getString(R.string.confirm_delete_pk_with_balance, record.address.toMultiLineString(),
+                           _mbwManager.getBtcValueString(satoshis));
+                  }
+               } else {
+                  if (label != null && label.length() != 0) {
+                     message = getString(R.string.confirm_delete_pk_without_balance_with_label, label,
+                           record.address.toMultiLineString());
+                  } else {
+                     message = getString(R.string.confirm_delete_pk_without_balance, record.address.toMultiLineString());
+                  }
+               }
+               confirmDialog.setMessage(message);
+               
+               confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                   public void onClick(DialogInterface arg0, int arg1) {
                      if (keepAddrCheckbox.isChecked()) {
@@ -251,7 +273,7 @@ public class RecordsActivity extends Activity {
                      Toast.makeText(RecordsActivity.this, R.string.private_key_deleted, Toast.LENGTH_LONG).show();
                   }
                });
-               confirmDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+               confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
                   public void onClick(DialogInterface arg0, int arg1) {
                   }
@@ -264,8 +286,22 @@ public class RecordsActivity extends Activity {
                Toast.makeText(RecordsActivity.this, R.string.bitcoin_address_deleted, Toast.LENGTH_LONG).show();
             }
          }
+
+         private Long getPotentialBalance(Record record) {
+            if (record.tag == Tag.ACTIVE) {
+               BalanceInfo balance = new Wallet(record).getLocalBalance(_mbwManager.getBlockChainAddressTracker());
+               if (balance.isKnown()) {
+                  return balance.unspent + balance.pendingChange + balance.pendingReceiving;
+               } else {
+                  return null;
+               }
+            } else {
+               return null;
+            }
+         }
+
       });
-      deleteDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+      deleteDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface arg0, int arg1) {
          }
@@ -627,19 +663,19 @@ public class RecordsActivity extends Activity {
    @Override
    public boolean onContextItemSelected(final MenuItem item) {
       if (item.getItemId() == R.id.miSetLabel) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedSetLabel);
+         setLabelOnSelected();
          return true;
       } else if (item.getItemId() == R.id.miDeleteAddress || item.getItemId() == R.id.miDeletePrivateKey) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedDeleteRecord);
+         deleteRecord(_recordManager.getSelectedRecord());
          return true;
       } else if (item.getItemId() == R.id.miExport) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedExport);
+         exportSelectedPrivateKey();
          return true;
       } else if (item.getItemId() == R.id.miArchive) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedArchive);
+         archiveSelected();
          return true;
       } else if (item.getItemId() == R.id.miActivate) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedActivate);
+         activateSelected();
          return true;
       } else {
          return false;
@@ -649,95 +685,71 @@ public class RecordsActivity extends Activity {
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       if (item.getItemId() == R.id.miSetLabel) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedSetLabel);
+         setLabelOnSelected();
          return true;
       } else if (item.getItemId() == R.id.miDeleteAddress || item.getItemId() == R.id.miDeletePrivateKey) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedDeleteRecord);
+         deleteRecord(_recordManager.getSelectedRecord());
          return true;
       } else if (item.getItemId() == R.id.miExport) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedExport);
+         exportSelectedPrivateKey();
          return true;
       } else if (item.getItemId() == R.id.miArchive) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedArchive);
+         archiveSelected();
          return true;
       } else if (item.getItemId() == R.id.miActivate) {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedActivate);
+         activateSelected();
          return true;
       }
       return super.onOptionsItemSelected(item);
    }
 
-   final Runnable pinProtectedSetLabel = new Runnable() {
+   private void setLabelOnSelected() {
+      EnterAddressLabelUtil.enterAddressLabel(RecordsActivity.this, _addressBook,
+            _recordManager.getSelectedRecord().address.toString(), addressLabelChanged);
+   }
+
+   private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
 
       @Override
-      public void run() {
-         Utils.showSetAddressLabelDialog(RecordsActivity.this, _addressBook,
-               _recordManager.getSelectedRecord().address.toString(), updateAfterSetLabel);
-      }
-   };
-
-   final Runnable updateAfterSetLabel = new Runnable() {
-
-      @Override
-      public void run() {
+      public void OnAddressLabelChanged(String address, String label) {
          update();
       }
    };
 
-   final Runnable pinProtectedDeleteRecord = new Runnable() {
-
-      @Override
-      public void run() {
-         deleteRecord(_recordManager.getSelectedRecord());
+   private void exportSelectedPrivateKey() {
+      Record record = _recordManager.getSelectedRecord();
+      if (record == null) {
+         return;
       }
-   };
+      Utils.exportPrivateKey(record, RecordsActivity.this);
+   }
 
-   final Runnable pinProtectedExport = new Runnable() {
+   private void activateSelected() {
+      _recordManager.activateRecordByAddress(_recordManager.getSelectedRecord().address);
+      update();
+      Toast.makeText(RecordsActivity.this, R.string.activated, Toast.LENGTH_LONG).show();
+   }
 
-      @Override
-      public void run() {
-         Record record = _recordManager.getSelectedRecord();
-         if (record == null) {
-            return;
+   private void archiveSelected() {
+
+      AlertDialog.Builder confirmDialog = new AlertDialog.Builder(RecordsActivity.this);
+      String title = "Archiving Key";
+      confirmDialog.setTitle(title);
+      confirmDialog.setMessage(getString(R.string.question_archive));
+      confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+         public void onClick(DialogInterface arg0, int arg1) {
+            _recordManager.archiveRecordByAddress(_recordManager.getSelectedRecord().address);
+            update();
+            Toast.makeText(RecordsActivity.this, R.string.archived, Toast.LENGTH_LONG).show();
          }
-         Utils.exportPrivateKey(record, RecordsActivity.this);
-      }
-   };
+      });
+      confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
-   final Runnable pinProtectedActivate = new Runnable() {
-
-      @Override
-      public void run() {
-         _recordManager.activateRecordByAddress(_recordManager.getSelectedRecord().address);
-         update();
-         Toast.makeText(RecordsActivity.this, R.string.activated, Toast.LENGTH_LONG).show();
-      }
-   };
-
-   final Runnable pinProtectedArchive = new Runnable() {
-
-      @Override
-      public void run() {
-
-         AlertDialog.Builder confirmDialog = new AlertDialog.Builder(RecordsActivity.this);
-         String title = "Archiving Key";
-         confirmDialog.setTitle(title);
-         confirmDialog.setMessage(getString(R.string.question_archive));
-         confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface arg0, int arg1) {
-               _recordManager.archiveRecordByAddress(_recordManager.getSelectedRecord().address);
-               update();
-               Toast.makeText(RecordsActivity.this, R.string.archived, Toast.LENGTH_LONG).show();
-            }
-         });
-         confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface arg0, int arg1) {
-            }
-         });
-         confirmDialog.show();
-      }
-   };
+         public void onClick(DialogInterface arg0, int arg1) {
+         }
+      });
+      confirmDialog.show();
+   }
 
 }

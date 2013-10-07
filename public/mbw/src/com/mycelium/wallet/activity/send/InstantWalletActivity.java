@@ -52,7 +52,7 @@ import com.mycelium.wallet.Wallet;
 public class InstantWalletActivity extends Activity {
 
    public static final int SCANNER_RESULT_CODE = 0;
-   
+
    private Long _amountToSend;
    private Address _receivingAddress;
    private MbwManager _mbwManager;
@@ -91,7 +91,8 @@ public class InstantWalletActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                Wallet wallet = new Wallet(record);
-               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet,_amountToSend, _receivingAddress, true);
+               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet, _amountToSend, _receivingAddress,
+                     true);
                InstantWalletActivity.this.finish();
             }
          });

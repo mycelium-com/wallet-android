@@ -62,12 +62,13 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
+import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Utils.BitcoinScanResult;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.SpendableOutputs;
-import com.mycelium.wallet.activity.addressbook.AddressChooserActivity;
+import com.mycelium.wallet.activity.addressbook.AddressBookActivity;
 import com.mycelium.wallet.api.AsyncTask;
 
 public class SendMainActivity extends Activity {
@@ -93,6 +94,7 @@ public class SendMainActivity extends Activity {
    private PrivateKeyRing _privateKeyRing;
    private UnsignedTransaction _unsigned;
    private AsyncTask _task;
+   private boolean _hasMoreThanOneWallet;
 
    public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat,
          boolean isColdStorage) {
@@ -118,6 +120,7 @@ public class SendMainActivity extends Activity {
       setContentView(R.layout.send_main_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
       _recordManager = _mbwManager.getRecordManager();
+      _hasMoreThanOneWallet = _recordManager.getActiveWalletNames().size() > 1;
 
       // Get intent parameters
       _wallet = (Wallet) getIntent().getSerializableExtra("wallet");
@@ -188,8 +191,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         Intent intent = new Intent(SendMainActivity.this, AddressChooserActivity.class);
-         startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+         AddressBookActivity.callMeForResult(SendMainActivity.this, ADDRESS_BOOK_RESULT_CODE);
       }
    };
 
@@ -208,6 +210,8 @@ public class SendMainActivity extends Activity {
       public void onClick(View arg0) {
          Address address = getClipboardAddress();
          if (address != null) {
+            Toast.makeText(SendMainActivity.this, getResources().getString(R.string.using_address_from_clipboard),
+                  Toast.LENGTH_SHORT).show();
             _receivingAddress = address;
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
@@ -264,7 +268,7 @@ public class SendMainActivity extends Activity {
       outputs.addAll(_spendable.change);
 
       // Create unsigned transaction
-      StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.network);
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(Constants.getNetwork());
 
       // Add the output
       try {
@@ -278,7 +282,7 @@ public class SendMainActivity extends Activity {
       try {
          // note that change address is explicitly not set here - change will
          // flow back to the address supplying the highest input
-         _unsigned = stb.createUnsignedTransaction(outputs, null, _privateKeyRing, Constants.network);
+         _unsigned = stb.createUnsignedTransaction(outputs, null, _privateKeyRing, Constants.getNetwork());
          return TransactionStatus.OK;
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
@@ -312,7 +316,19 @@ public class SendMainActivity extends Activity {
 
       // Set label if applicable
       TextView receiverLabel = (TextView) findViewById(R.id.tvReceiverLabel);
+
+      // See if the address is in the address book
       String label = _mbwManager.getAddressBookManager().getNameByAddress(_receivingAddress.toString());
+
+      // If not, see if it is one of our own active addresses and use the wallet
+      // name instead, but only if we have more than one wallet
+      if (label == null || label.length() == 0 && _hasMoreThanOneWallet) {
+         Record record = _recordManager.getRecord(_receivingAddress);
+         if (record != null && record.tag == Tag.ACTIVE) {
+            label = record.walletName;
+         }
+      }
+
       if (label == null || label.length() == 0) {
          // Hide label
          receiverLabel.setVisibility(View.GONE);
@@ -328,8 +344,21 @@ public class SendMainActivity extends Activity {
 
       // Show / hide warning
       Record record = _mbwManager.getRecordManager().getRecord(_receivingAddress);
-      if (record != null && !record.hasPrivateKey()) {
-         findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
+      if (record != null) {
+         TextView tvWarning = (TextView) findViewById(R.id.tvWarning);
+         if (record.hasPrivateKey()) {
+            // Show a warning as we are sending to one of our own addresses
+            tvWarning.setVisibility(View.VISIBLE);
+            tvWarning.setText(R.string.my_own_address_warning);
+            tvWarning.setTextColor(getResources().getColor(R.color.darkyellow));
+         } else {
+            // Show a warning as we are sending to one of our own addresses,
+            // which is read-only
+            tvWarning.setVisibility(View.VISIBLE);
+            tvWarning.setText(R.string.read_only_warning);
+            tvWarning.setTextColor(getResources().getColor(R.color.red));
+         }
+
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       }
@@ -500,10 +529,10 @@ public class SendMainActivity extends Activity {
          }
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
-         String s = Preconditions.checkNotNull(intent.getStringExtra(AddressChooserActivity.ADDRESS_RESULT_NAME));
+         String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookActivity.ADDRESS_RESULT_NAME));
          String result = s.trim();
          // Is it really an address?
-         Address address = Address.fromString(result, Constants.network);
+         Address address = Address.fromString(result, Constants.getNetwork());
          if (address == null) {
             return;
          }
@@ -529,7 +558,7 @@ public class SendMainActivity extends Activity {
       if (content == null) {
          return null;
       }
-      String string = content.toString();
+      String string = content.toString().trim();
       String addressString;
       if (string.matches("[a-zA-Z0-9]*")) {
          // Raw format
@@ -546,7 +575,7 @@ public class SendMainActivity extends Activity {
       }
 
       // Is it really an address?
-      Address address = Address.fromString(addressString, Constants.network);
+      Address address = Address.fromString(addressString, Constants.getNetwork());
       return address;
    }
 

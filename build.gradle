@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.6'
+    gradleVersion = '1.7'
 }
 
 subprojects {
@@ -15,6 +15,8 @@ subprojects {
     project.ext.set('guavaArtifact', 'com.google.guava:guava-jdk5:14.0.1' )
     project.ext.set('slf4jVersion', '1.7.2' )
     project.ext.set('junitVersion', '4.10' )
+    project.ext.set('androidBuildArtifact', 'com.android.tools.build:gradle:0.5.+' )
+
 
     version = '1.0'
 

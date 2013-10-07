@@ -150,7 +150,7 @@ public class StartupActivity extends Activity {
       private boolean hasPrivateKeyOnClipboard() {
          // do we have a private key on the clipboard?
          try {
-            new InMemoryPrivateKey(Utils.getClipboardString(StartupActivity.this), Constants.network);
+            new InMemoryPrivateKey(Utils.getClipboardString(StartupActivity.this), Constants.getNetwork());
             return true;
          } catch (IllegalArgumentException e) {
             return false;
@@ -246,7 +246,8 @@ public class StartupActivity extends Activity {
 
    private void normalStartup() {
       // Normal startup, show the selected record in the BalanceActivity
-      //Intent intent = new Intent(StartupActivity.this, BalanceActivity.class);
+      // Intent intent = new Intent(StartupActivity.this,
+      // BalanceActivity.class);
       Intent intent = new Intent(StartupActivity.this, MainActivity.class);
       startActivity(intent);
       finish();
@@ -269,7 +270,7 @@ public class StartupActivity extends Activity {
             return true;
          }
 
-         Address receivingAddress = Address.fromString(b.getAddress(), Constants.network);
+         Address receivingAddress = Address.fromString(b.getAddress(), Constants.getNetwork());
          if (receivingAddress == null) {
             Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
             finish();

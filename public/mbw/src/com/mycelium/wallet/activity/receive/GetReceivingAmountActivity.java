@@ -51,15 +51,22 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.AsyncTask;
 
 public class GetReceivingAmountActivity extends Activity implements NumberEntryListener {
 
-   private Wallet _wallet;
+   
+   public static void callMe(Activity currentActivity, Record record) {
+      Intent intent = new Intent(currentActivity, GetReceivingAmountActivity.class);
+      intent.putExtra("record", record);
+      currentActivity.startActivity(intent);
+   }
+   
+   private Record _record;
    private AsyncTask _task;
    private NumberEntry _numberEntry;
    private MbwManager _mbwManager;
@@ -75,7 +82,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      _wallet = (Wallet) getIntent().getSerializableExtra("wallet");
+      _record = (Record) getIntent().getSerializableExtra("record");
 
       // Load saved state
       Long amount = null;
@@ -110,10 +117,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
          @Override
          public void onClick(View arg0) {
             findViewById(R.id.btNext).setEnabled(false);
-            Intent intent = new Intent(GetReceivingAmountActivity.this, ReceiveCoinsActivity.class);
-            intent.putExtra("amount", getSatoshisToReceive());
-            intent.putExtra("wallet", _wallet);
-            startActivity(intent);
+            ReceiveCoinsActivity.callMe(GetReceivingAmountActivity.this, _record,getSatoshisToReceive());
             finish();
          }
       });

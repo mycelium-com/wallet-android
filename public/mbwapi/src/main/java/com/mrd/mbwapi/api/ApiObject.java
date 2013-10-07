@@ -62,6 +62,7 @@ public abstract class ApiObject {
    protected static final byte ADDRESS_SET_STATUS_RESPONSE_TYPE = (byte) 0x18;
    protected static final byte GET_TRANSACTION_DATA_REQUEST_TYPE = (byte) 0x19;
    protected static final byte GET_TRANSACTION_DATA_RESPONSE_TYPE = (byte) 0x20;
+   protected static final byte TRANSACTION_INVENTORY_EX_RESPONSE_TYPE = (byte) 0x21;
 
    public final ByteWriter serialize(ByteWriter writer) {
       byte[] payload = toByteWriter(new ByteWriter(1024)).toBytes();
@@ -95,6 +96,8 @@ public abstract class ApiObject {
             return new QueryTransactionInventoryRequest(payloadReader);
          } else if (type == TRANSACTION_INVENTORY_RESPONSE_TYPE) {
             return new QueryTransactionInventoryResponse(payloadReader);
+         } else if (type == TRANSACTION_INVENTORY_EX_RESPONSE_TYPE) {
+            return new QueryTransactionInventoryExResponse(payloadReader);
          } else if (type == TRANSACTION_SUMMARY_REQUEST_TYPE) {
             return new QueryTransactionSummaryRequest(payloadReader);
          } else if (type == TRANSACTION_SUMMARY_RESPONSE_TYPE) {

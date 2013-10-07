@@ -34,52 +34,29 @@
 
 package com.mycelium.wallet;
 
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.mbwapi.api.AddressShort;
-import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
-import com.mrd.mbwapi.impl.MyceliumWalletApiImpl.HttpEndpoint;
-import com.mrd.mbwapi.impl.MyceliumWalletApiImpl.HttpsEndpoint;
-import com.mrd.mbwapi.impl.shorten.BtcTo;
-import com.mrd.mbwapi.impl.shorten.Firstbits;
+import com.mrd.mbwapi.api.MyceliumWalletApi;
 
 public class Constants {
 
-   /**
-    * The thumbprint of the Mycelium certificate. We use this for pinning the
-    * server certificate.
-    */
-   private static final String myceliumThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
+   // Depending on which buildType is compiled in gradle, this is production
+   // network or test network
+   private static MbwEnvironment environment = Variants.useProdnet() ? new MbwProdEnvironment()
+         : new MbwTestEnvironment();
 
    /**
-    * Two redundant Mycelium wallet service servers
+    * Get the Bitcoin network parameters that the wallet operates on
     */
-   private static final HttpsEndpoint smws1 = new HttpsEndpoint("https://mws1.mycelium.com/mws", myceliumThumbprint);
-   private static final HttpsEndpoint smws2 = new HttpsEndpoint("https://mws2.mycelium.com/mws", myceliumThumbprint);
+   public static NetworkParameters getNetwork() {
+      return environment.getNetwork();
+   }
 
    /**
-    * Unencrypted wallet service endpoints, used for testing
+    * Get the API instance we use when communicating with the servers
     */
-   @SuppressWarnings("unused")
-   private static final HttpEndpoint mws1 = new HttpEndpoint("http://mws1.mycelium.com/mws");
-   @SuppressWarnings("unused")
-   private static final HttpEndpoint mws2 = new HttpEndpoint("http://mws2.mycelium.com/mws");
-
-   /**
-    * The set of endpoints we use. The wallet chooses a random endpoint and if
-    * it does not respond it round-robins through the list. This way we achieve
-    * client side load-balancing and fail-over.
-    */
-   private static final HttpEndpoint[] _serverEndpoints = new HttpEndpoint[] { smws1, smws2 };
-   public static final NetworkParameters network = NetworkParameters.productionNetwork;
-   private static List<AddressShort> shorteners = ImmutableList.of(new BtcTo(), new Firstbits());
-   public static final MyceliumWalletApiImpl mwapi = new MyceliumWalletApiImpl(_serverEndpoints, network, shorteners);
-   // public static final MyceliumWalletApiImpl mwapi = new
-   // MyceliumWalletApiImpl(new HttpEndpoint[]{new
-   // HttpEndpoint("http://192.168.1.139:8080/mws")}, network, shorteners);
+   public static MyceliumWalletApi getMyceliumWalletApi() {
+      return environment.getMwsApi();
+   }
 
    public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
 
@@ -99,6 +76,7 @@ public class Constants {
    public static final String DEFAULT_CURRENCY = "USD";
    public static final String WALLET_MODE_SETTING = "WalletMode";
    public static final WalletMode DEFAULT_WALLET_MODE = WalletMode.Aggregated;
+   public static final String PULSING_QR_CODE_SETTING = "PulsingQRCodes";
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
    public static final String DEFAULT_BITCOIN_DENOMINATION = "BTC";
    public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
@@ -109,6 +87,7 @@ public class Constants {
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
    public static final String EXCHANGE_RATE_CALCULATION_METHOD_SETTING = "ExchangeRateCalculationMethod";
    public static final ExchangeRateCalculationMode DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD = ExchangeRateCalculationMode.BITSTAMP;
+   public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
 
    public static final String TAG = "MyceliumWallet";
 }

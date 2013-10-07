@@ -35,11 +35,13 @@
 package com.mycelium.wallet;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -149,7 +151,7 @@ public class Wallet implements Serializable {
             return true;
          }
          // Cannot do instanceof for static inner classes
-         if (!getClass().equals(obj.getClass())) {
+         if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
          }
          BalanceInfo other = (BalanceInfo) obj;
@@ -183,21 +185,21 @@ public class Wallet implements Serializable {
    }
 
    private Set<Record> _records;
-   private Set<Address> _addresses;
+   private LinkedHashSet<Address> _addresses;
    private Record _receiving;
 
    public Wallet(Record record) {
-      _records = new HashSet<Record>();
+      _records = new LinkedHashSet<Record>();
       _records.add(record);
-      _addresses = new HashSet<Address>();
+      _addresses = new LinkedHashSet<Address>();
       _addresses.add(record.address);
       _receiving = record;
    }
 
    public Wallet(List<Record> records, Record receiving) {
-      _records = new HashSet<Record>();
+      _records = new LinkedHashSet<Record>();
       _records.addAll(records);
-      _addresses = new HashSet<Address>();
+      _addresses = new LinkedHashSet<Address>();
       for (Record record : records) {
          _addresses.add(record.address);
       }
@@ -208,15 +210,48 @@ public class Wallet implements Serializable {
       return _receiving.address;
    }
 
+   /**
+    * Change the receiving address but only if it is part of the wallet's record
+    * set
+    */
+   public void changeReceivingAddress(Address address) {
+      for (Record record : _records) {
+         if (record.address.equals(address)) {
+            _receiving = record;
+            System.out.println("New Address: " + _receiving.toString());
+            break;
+         }
+      }
+   }
+
    public boolean hasPrivateKeyForReceivingAddress() {
       return _receiving.hasPrivateKey();
    }
 
-   public Set<Address> getAddresses() {
+   public Set<Address> getAddressSet() {
       return Collections.unmodifiableSet(_addresses);
    }
 
-   private Set<Address> getAddressesWithKeys() {
+   /**
+    * Get addresses in the same order as the records the wallet was created from
+    */
+   public List<Address> getAddresses() {
+      return new ArrayList<Address>(_addresses);
+   }
+
+   public int getIndexOfReceivingAddress() {
+      int index = 0;
+      for (Address address : _addresses) {
+         if (address.equals(_receiving.address)) {
+            return index;
+         }
+         index++;
+      }
+      // Should not happen
+      throw new RuntimeException("Receiving address is not in wallet");
+   }
+
+   private Set<Address> getAddressSetWithKeys() {
       Set<Address> set = new HashSet<Address>();
       for (Record record : _records) {
          if (record.hasPrivateKey()) {
@@ -268,7 +303,7 @@ public class Wallet implements Serializable {
    }
 
    public SpendableOutputs getLocalSpendableOutputs(BlockChainAddressTracker blockChainAddressTracker) {
-      TransactionOutputInfo outputs = blockChainAddressTracker.getOutputInfo(getAddressesWithKeys());
+      TransactionOutputInfo outputs = blockChainAddressTracker.getOutputInfo(getAddressSetWithKeys());
 
       // We want to remove confirmed, change, and foreign coins that we are in
       // the process of sending before calculating the balance
@@ -333,6 +368,36 @@ public class Wallet implements Serializable {
          sum += output.value;
       }
       return sum;
+   }
+
+   @Override
+   public int hashCode() {
+      // Simply use the hash code of the first address
+      return _addresses.iterator().next().hashCode();
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj == this) {
+         return true;
+      }
+      if (!(obj instanceof Wallet)) {
+         return false;
+      }
+      Wallet other = (Wallet) obj;
+      if (_addresses.size() != other._addresses.size()) {
+         return false;
+      }
+      // Compare each address in the two wallets, order is maintained in the two
+      // lists
+      List<Address> first = getAddresses();
+      List<Address> second = other.getAddresses();
+      for (int i = 0; i < first.size(); i++) {
+         if (!first.get(i).equals(second.get(i))) {
+            return false;
+         }
+      }
+      return true;
    }
 
    public AsyncTask requestUpdate(BlockChainAddressTracker blockChainAddressTracker, final WalletUpdateHandler handler) {
