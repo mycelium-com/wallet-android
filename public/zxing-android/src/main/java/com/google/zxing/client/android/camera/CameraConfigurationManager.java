@@ -67,21 +67,21 @@ void initFromCameraParameters(Camera camera) {
     Display display = manager.getDefaultDisplay();
     int width = display.getWidth();
     int height = display.getHeight();
-    // We're landscape-only, and have apparently seen issues with display thinking it's portrait 
-    // when waking from sleep. If it's not landscape, assume it's mistaken and reverse them:
-    if (width < height) {
-      Log.i(TAG, "Display reports portrait orientation; assuming this is incorrect");
-      int temp = width;
-      width = height;
-      height = temp;
-    }
+//    // We're landscape-only, and have apparently seen issues with display thinking it's portrait 
+//    // when waking from sleep. If it's not landscape, assume it's mistaken and reverse them:
+//    if (width < height) {
+//      Log.i(TAG, "Display reports portrait orientation; assuming this is incorrect");
+//      int temp = width;
+//      width = height;
+//      height = temp;
+//    }
     screenResolution = new Point(width, height);
     Log.i(TAG, "Screen resolution: " + screenResolution);
     cameraResolution = findBestPreviewSizeValue(parameters, screenResolution);
     Log.i(TAG, "Camera resolution: " + cameraResolution);
   }
 
-  void setDesiredCameraParameters(Camera camera, boolean safeMode, boolean enableContinousFocus) {
+  void setDesiredCameraParameters(Camera camera, boolean safeMode, boolean enableContinousFocus, int rotation) {
     Camera.Parameters parameters = camera.getParameters();
 
     if (parameters == null) {
@@ -131,6 +131,8 @@ void initFromCameraParameters(Camera camera) {
 
     parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
     camera.setParameters(parameters);
+    
+    camera.setDisplayOrientation(rotation);
   }
 
   Point getCameraResolution() {

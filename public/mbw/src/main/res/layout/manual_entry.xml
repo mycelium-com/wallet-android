@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:text="@string/enter_bitcoin_address"
+        android:textSize="24sp" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="20dp" >
+    </View>
+
+    <EditText
+        android:id="@+id/etAddress"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textAutoComplete"
+        android:padding="20dp"
+        android:typeface="monospace" />
+
+    <TextView
+        android:id="@+id/tvBitcoinAddressValid"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15dp"
+        android:text="@string/bitcoin_address_valid"
+        android:textColor="@color/green"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvBitcoinAddressInvalid"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15dp"
+        android:text="@string/bitcoin_address_invalid"
+        android:textColor="@color/red"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/btOk"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:text="@string/ok"
+        android:textSize="20sp" />
+
+</LinearLayout>

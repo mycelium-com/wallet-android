@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/buttonspacing"
+        android:layout_gravity="left">
+        <!--<android.support.v7.widget.GridLayout-->
+
+
+        <LinearLayout
+            android:layout_marginTop="@dimen/buttonspacing"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/version_label"
+                android:width="@dimen/about_caption_size" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.99"
+                android:id="@+id/tvVersionNumber"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/buttonspacing">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/source_repo_label"
+                android:width="@dimen/about_caption_size" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/source_url"
+                android:id="@+id/tvSourceUrl"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/buttonspacing">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/authors_label"
+                android:width="@dimen/about_caption_size" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/authors"
+                android:singleLine="false" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/buttonspacing">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/homepage_label"
+                android:width="@dimen/about_caption_size" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/homepage_url"
+                android:id="@+id/tvHomepageUrl"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/buttonspacing">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contact_email_label"
+                android:width="@dimen/about_caption_size" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contact_email"
+                android:id="@+id/tvContactEmail"/>
+        </LinearLayout>
+
+</LinearLayout>
+        <Button
+            android:layout_marginTop="@dimen/buttonspacing"
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
+            android:text="@string/mycelium_license"
+            android:id="@+id/bt_license_mycelium"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
+            android:text="@string/zxing_license"
+            android:id="@+id/bt_license_zxing"
+            android:paddingTop="8dp"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
+            android:text="@string/pdfwriter_license"
+            android:id="@+id/bt_license_pdfwriter"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+    </LinearLayout>
+</ScrollView>

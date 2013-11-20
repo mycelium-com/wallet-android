@@ -1,35 +1,17 @@
 /*
- * Copyright 2013 Megion Research and Development GmbH
+ * Copyright 2013 Megion Research & Development GmbH
  *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.mrd.bitlib.util;
@@ -40,7 +22,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class Sha256Hash implements Serializable {
+import com.google.common.primitives.Ints;
+
+public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
    private static final long serialVersionUID = 1L;
 
    public static final Sha256Hash ZERO_HASH = new Sha256Hash();
@@ -94,8 +78,9 @@ public class Sha256Hash implements Serializable {
    }
 
    /**
-    * @param contents bytes of f.ex. a brainwallet
-    * @return  a sha256 hash out of any byte array, by applying SHA-256 once
+    * @param contents
+    *           bytes of f.ex. a brainwallet
+    * @return a sha256 hash out of any byte array, by applying SHA-256 once
     */
    public static Sha256Hash create(byte[] contents) {
       try {
@@ -148,5 +133,18 @@ public class Sha256Hash implements Serializable {
 
    public Sha256Hash duplicate() {
       return new Sha256Hash(_bytes);
+   }
+
+   @Override
+   public int compareTo(Sha256Hash o) {
+      for (int i = 0; i < HASH_LENGTH; i++) {
+         byte myByte = _bytes[i];
+         byte otherByte = o._bytes[i];
+
+         final int compare = Ints.compare(myByte, otherByte);
+         if (compare != 0)
+            return compare;
+      }
+      return 0;
    }
 }

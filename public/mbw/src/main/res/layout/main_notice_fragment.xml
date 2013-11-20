@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/btWarning"
+        style="@style/MyceliumButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
+        android:gravity="center_vertical"
+        android:paddingLeft="5dp"
+        android:text="@string/backup_missing"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/btHelp"
+        style="@style/MyceliumButton"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center"
+        android:text="@string/question_mark"
+        android:textSize="20sp" />
+
+</FrameLayout>

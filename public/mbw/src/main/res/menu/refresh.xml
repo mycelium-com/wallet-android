@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:yourapp="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/miRefresh"
+          android:icon="@drawable/holo_dark_ic_action_refresh"
+          android:title="@string/tap_to_refresh"
+          android:orderInCategory="1"
+          yourapp:showAsAction="ifRoom" />
+
+</menu>

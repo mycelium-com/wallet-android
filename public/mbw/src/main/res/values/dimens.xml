@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="page_margin_width">16dp</dimen>
+    <dimen name="ab_icon_size">16dp</dimen>
+    <dimen name="bigtext">22sp</dimen>
+    <dimen name="button_padding">10dp</dimen>
+    <dimen name="small_qrcode">130dp</dimen>
+    <dimen name="large_qrcode">260dp</dimen>
+    <dimen name="buttonspacing">30dp</dimen>
+    <dimen name="about_caption_size">120dp</dimen>
+    <dimen name="about_buttonsize">220dp</dimen>
+</resources>

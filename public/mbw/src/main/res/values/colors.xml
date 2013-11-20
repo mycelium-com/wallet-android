@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="red">#f00</color>
+    <color name="brightred">#f44</color>
+    <color name="green">#0f0</color>
+    <color name="semidarkgreen">#0c0</color>
+    <color name="darkgreen">#080</color>
+    <color name="black">#000</color>
+    <color name="darkblue">#2f6699</color>
+    <color name="brightblue">#449def</color>
+    <color name="brightgreen">#44ef9d</color>
+    
+    <color name="mycelium_midblue">#3e9bd3</color>
+    <color name="mycelium_brightblue">#5fcbf2</color>
+
+    <color name="greenblue">#0FF</color>
+    <color name="darkgrey">#444</color>
+    <color name="grey">#888</color>
+    <color name="lightgrey">#bbb</color>
+    <color name="white">#fff</color>
+    <color name="yellow">#ff0</color>
+    <color name="darkyellow">#880</color>
+    <color name="semidarkyellow">#cc0</color>
+    <!--<color name="selectedrecord">#04222f</color>-->
+    <color name="selectedrecord">#002e3e</color>
+    <color name="transparent">#00000000</color>
+    <color name="transparentgrey">#88888888</color>
+    <color name="buttoncolor">#ff1c3d5c</color>
+    
+    <drawable name="semi_black">#80000000</drawable>
+
+    <fraction name="background_alpha">50%</fraction>
+</resources>

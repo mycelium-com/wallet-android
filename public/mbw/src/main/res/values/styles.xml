@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="GenericButton" parent="@android:style/Widget.Button">
+        <!--        <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_height">wrap_content</item>
+                <item name="android:textColor">@color/button_text_color</item>
+                <item name="android:gravity">center</item>
+                <item name="android:layout_margin">3dp</item>
+                <item name="android:textStyle">bold</item>
+                <item name="android:shadowColor">#000000</item>
+                <item name="android:shadowDx">1</item>
+                <item name="android:shadowDy">1</item>
+                <item name="android:shadowRadius">2</item>-->
+    </style>
+
+    <style name="GenericText">
+        <!--
+                <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_height">wrap_content</item>
+                <item name="android:textColor">#ffffff</item>
+                <item name="android:layout_margin">3dp</item>
+                <item name="android:shadowColor">#000000</item>
+                <item name="android:shadowDx">1</item>
+                <item name="android:shadowDy">1</item>
+                <item name="android:shadowRadius">2</item>
+        -->
+    </style>
+
+    <style name="QRCodeStyle">
+        <item name="android:background">@drawable/qr_code</item>
+    </style>
+
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+
+    -->
+
+    <style name="AppBaseTheme" parent="Theme.AppCompat">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+
+        -->
+    </style>
+
+    <style name="MyceliumLauncher" parent="MyceliumModern">
+        <item name="android:windowBackground">@drawable/background_launcher_centered</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
+    <style name="MyceliumActionBar" parent="MyceliumModern">
+        <item name="android:windowBackground">@drawable/background_witherrors_centered</item>
+    </style>
+
+    <!-- Application theme. -->
+    <style name="MyceliumModern.Dialog" parent="Theme.AppCompat.CompactMenu.Dialog">
+
+        <item name="android:actionButtonStyle" tools:ignore="NewApi">@style/ActionButtonStyle</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="android:buttonStyle">@style/MyceliumButton</item>
+        <item name="android:textViewStyle">@style/MyceliumText</item>
+
+    </style>
+
+    <style name="MyceliumModern" parent="AppBaseTheme">
+        <!--<item name="android:windowFullscreen">true</item>-->
+        <!--   <item name="android:windowActionBar">false</item>
+           <item name="windowActionBar">false</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
+        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
+
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:actionButtonStyle" tools:ignore="NewApi">@style/ActionButtonStyle</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="android:buttonStyle">@style/MyceliumButton</item>
+        <item name="android:textViewStyle">@style/MyceliumText</item>
+    </style>
+
+    <style name="MyceliumSlimButton" parent="android:style/Widget.Button">
+        <item name="android:layout_marginLeft">1dp</item>
+        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:background">@drawable/btn_blue_slim</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+    <style name="MyceliumButton" parent="android:style/Widget.Button">
+        <!--<item name="android:textSize">19sp</item>-->
+        <!--<item name="android:layout_margin">0dip</item>-->
+        <!--<item name="android:background">#0000FF</item>-->
+        <item name="android:layout_marginLeft">3dp</item>
+        <item name="android:layout_marginRight">3dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/btn_blue</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+    <style name="MyceliumText" parent="android:TextAppearance">
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="ActionButtonStyle" parent="Widget.AppCompat.Light.ActionButton">
+        <item name="android:minWidth">0dip</item>
+<!--
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">0dip</item>
+-->
+    </style>
+
+</resources>

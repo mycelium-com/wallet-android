@@ -103,7 +103,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
       if (intent != null) {
          enableContinuousFocus = intent.getBooleanExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, false);
-      }else{
+      } else {
          enableContinuousFocus = true;
       }
 
@@ -390,7 +390,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          return;
       }
       try {
-         cameraManager.openDriver(surfaceHolder, enableContinuousFocus);
+         int rotation = new RotationUtil(this).getDisplayOrientationForCameraParameters();
+         cameraManager.openDriver(surfaceHolder, enableContinuousFocus, rotation);
          // Creating the handler starts the preview, which can also throw a
          // RuntimeException.
          if (handler == null) {

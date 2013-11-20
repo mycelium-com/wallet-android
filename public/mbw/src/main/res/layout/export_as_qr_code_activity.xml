@@ -1,0 +1,63 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignLeft="@+id/btCopyToClipboard"
+    android:layout_alignTop="@+id/tvTitle" >
+
+    <LinearLayout
+        android:id="@+id/llRoot"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="0dp" >
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/private_key"
+            android:textSize="30sp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="5dp" />
+
+        <com.mycelium.wallet.activity.util.QrImageView
+            android:id="@+id/ivQrCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:background="@color/white"
+            android:contentDescription="@string/an_icon"
+            android:longClickable="false"
+            android:maxHeight="@dimen/large_qrcode"
+            android:maxWidth="@dimen/large_qrcode"
+            android:minHeight="@dimen/large_qrcode"
+            android:minWidth="@dimen/large_qrcode" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tap_qr_code_desc"
+            android:textColor="@color/grey"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="5dp" />
+
+        <Button
+            android:id="@+id/btCopyToClipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="@string/copy_private_key_to_clipboard" />
+    </LinearLayout>
+
+</ScrollView>

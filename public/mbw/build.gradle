@@ -1,5 +1,10 @@
 apply plugin: 'android'
 
+repositories {
+    mavenCentral()
+}
+
+
 buildscript {
     repositories {
         mavenCentral()
@@ -12,16 +17,12 @@ buildscript {
 
 dependencies {
     instrumentTestCompile 'junit:junit:' + junitVersion
-    compile fileTree(dir: 'libs', include: '*.jar')
     compile project(':public:zxing-android')
-//    compile project(':public:zxing-core')
-//    compile project(':public:bitlib')
     compile project(':public:mbwapi')
-    //flavor-specific dependencies
-    /*testnetCompile (':public:testnet-mbw')
-    prodnetCompile (':public:prodnet-mbw')
-*/
-
+    compile 'com.squareup:otto:1.3.4'
+    compile 'com.android.support:appcompat-v7:18.0.+'
+    compile 'com.android.support:gridlayout-v7:18.0.+'
+//    compile 'com.squareup.picasso:picasso:2.1.1'
 }
 
 
@@ -32,15 +33,16 @@ android {
         targetCompatibility = 'VERSION_1_6'
     }
 
-    compileSdkVersion 17
-    buildToolsVersion "17.0.0"
+
+    compileSdkVersion 18
+    buildToolsVersion "18.1"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 10
+        targetSdkVersion 18
 
-        versionCode 44
-        versionName '0.8.5'
+        versionCode 59
+        versionName '1.0-rc7'
     }
 
     signingConfigs {
@@ -64,8 +66,13 @@ android {
         release {
             runProguard true
             proguardFile 'mbw.pro'
-        }
 
+            applicationVariants.all { variant ->
+                def file = variant.outputFile
+                def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
+                variant.outputFile = new File(file.parent, file.name.replace(".apk", versionExtension))
+            }
+        }
     }
 
     productFlavors{
@@ -74,6 +81,12 @@ android {
             packageName 'com.mycelium.wallet'
             signingConfig signingConfigs.release
         }
+
+        dev {
+            packageName 'com.mycelium.devwallet'
+            signingConfig signingConfigs.debug
+        }
+
 
         testnet{
             packageName 'com.mycelium.testnetwallet'
@@ -84,32 +97,6 @@ android {
 
 
     sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aild.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        testnet {
-            String testnetPath = 'testnet-mbw/'
-
-//            println 'testnet-manifest:' +manifest.srcFile
-//            manifest.srcFile = testnetPath + 'AndroidManifest.xml'
-            java.srcDirs = [testnetPath +'src']
-            res.srcDirs = [testnetPath + 'res']
-        }
-
-        prodnet {
-            String prodnetPath = 'prodnet-mbw/'
-          //  manifest.srcFile prodnetPath + 'AndroidManifest.xml'
-            java.srcDirs = [prodnetPath + 'src']
-            res.srcDirs = [prodnetPath + 'res']
-        }
-
         instrumentTest {
             java.srcDirs = ['instrumentTest/java']
         }

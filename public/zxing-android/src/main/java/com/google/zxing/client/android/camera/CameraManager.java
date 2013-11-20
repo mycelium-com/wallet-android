@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.google.zxing.PlanarYUVLuminanceSource;
+import com.google.zxing.client.android.RotationUtil;
 import com.google.zxing.client.android.camera.open.OpenCameraInterface;
 
 /**
@@ -40,8 +41,8 @@ public final class CameraManager {
 
    private static final String TAG = CameraManager.class.getSimpleName();
 
-   private static final int MIN_FRAME_WIDTH = 240;
-   private static final int MIN_FRAME_HEIGHT = 240;
+   private static final int MIN_FRAME_WIDTH = 1;
+   private static final int MIN_FRAME_HEIGHT = 1;
    private static final int MAX_FRAME_WIDTH = 960; // = 1920/2
    private static final int MAX_FRAME_HEIGHT = 540; // = 1080/2
 
@@ -55,6 +56,8 @@ public final class CameraManager {
    private boolean previewing;
    private int requestedFramingRectWidth;
    private int requestedFramingRectHeight;
+   private RotationUtil _rotationHelper;
+   
    /**
     * Preview frames are delivered here, which we pass on to the registered
     * handler. Make sure to clear the handler so it will only receive one
@@ -66,6 +69,7 @@ public final class CameraManager {
       this.context = context;
       this.configManager = new CameraConfigurationManager(context);
       previewCallback = new PreviewCallback(configManager);
+      _rotationHelper = new RotationUtil(context);
    }
 
    /**
@@ -77,7 +81,8 @@ public final class CameraManager {
     * @throws IOException
     *            Indicates the camera driver failed to open.
     */
-   public synchronized void openDriver(SurfaceHolder holder, boolean enableContinuousFocus) throws IOException {
+   public synchronized void openDriver(SurfaceHolder holder, boolean enableContinuousFocus, int rotation)
+         throws IOException {
       Camera theCamera = camera;
       if (theCamera == null) {
          try {
@@ -107,7 +112,7 @@ public final class CameraManager {
                                                                                      // these,
                                                                                      // temporarily
       try {
-         configManager.setDesiredCameraParameters(theCamera, false, enableContinuousFocus);
+         configManager.setDesiredCameraParameters(theCamera, false, enableContinuousFocus, rotation);
       } catch (RuntimeException re) {
          // Driver failed
          Log.w(TAG, "Camera rejected parameters. Setting only minimal safe-mode parameters");
@@ -118,7 +123,7 @@ public final class CameraManager {
             parameters.unflatten(parametersFlattened);
             try {
                theCamera.setParameters(parameters);
-               configManager.setDesiredCameraParameters(theCamera, true, enableContinuousFocus);
+               configManager.setDesiredCameraParameters(theCamera, true, enableContinuousFocus, rotation);
             } catch (RuntimeException re2) {
                // Well, darn. Give up
                Log.w(TAG, "Camera rejected even safe-mode parameters! No configuration");
@@ -232,6 +237,10 @@ public final class CameraManager {
          int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
          int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
 
+         // Make the view finder a square
+         width = Math.min(width, height);
+         height = width;
+         
          int leftOffset = (screenResolution.x - width) / 2;
          int topOffset = (screenResolution.y - height) / 2;
          framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
@@ -268,10 +277,17 @@ public final class CameraManager {
             // Called early, before init even finished
             return null;
          }
-         rect.left = rect.left * cameraResolution.x / screenResolution.x;
-         rect.right = rect.right * cameraResolution.x / screenResolution.x;
-         rect.top = rect.top * cameraResolution.y / screenResolution.y;
-         rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+         if (_rotationHelper.flipWidthAndHeight()) {
+            rect.left = rect.left * cameraResolution.y / screenResolution.x;
+            rect.right = rect.right * cameraResolution.y / screenResolution.x;
+            rect.top = rect.top * cameraResolution.x / screenResolution.y;
+            rect.bottom = rect.bottom * cameraResolution.x / screenResolution.y;
+         } else {
+            rect.left = rect.left * cameraResolution.x / screenResolution.x;
+            rect.right = rect.right * cameraResolution.x / screenResolution.x;
+            rect.top = rect.top * cameraResolution.y / screenResolution.y;
+            rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+         }
          framingRectInPreview = rect;
       }
       return framingRectInPreview;

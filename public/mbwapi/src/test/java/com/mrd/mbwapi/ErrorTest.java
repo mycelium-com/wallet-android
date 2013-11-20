@@ -1,12 +1,9 @@
 package com.mrd.mbwapi;
 
-import java.util.LinkedList;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.mbwapi.api.AddressShort;
 import com.mrd.mbwapi.api.ApiException;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 
@@ -17,8 +14,7 @@ public class ErrorTest {
    public void errorCollect() throws ApiException {
       MyceliumWalletApiImpl.HttpEndpoint[] endpoints = { new MyceliumWalletApiImpl.HttpEndpoint(
             "http://localhost:8080/mws") };
-      MyceliumWalletApiImpl toTest = new MyceliumWalletApiImpl(endpoints, NetworkParameters.productionNetwork,
-            new LinkedList<AddressShort>());
+      MyceliumWalletApiImpl toTest = new MyceliumWalletApiImpl(endpoints, NetworkParameters.productionNetwork);
 
       /*
        * ErrorCollectionResponse response = toTest.collectError(new

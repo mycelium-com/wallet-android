@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <fragment
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                class="com.mycelium.wallet.activity.main.AddressFragment" />
+
+            <fragment
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                class="com.mycelium.wallet.activity.main.BalanceFragment" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="5dp" />
+
+            <fragment
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                class="com.mycelium.wallet.activity.main.NoticeFragment" />
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/tvBuildText"
+        style="@style/MyceliumText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:textColor="@color/transparentgrey"
+        android:textSize="12sp" />
+
+</FrameLayout>

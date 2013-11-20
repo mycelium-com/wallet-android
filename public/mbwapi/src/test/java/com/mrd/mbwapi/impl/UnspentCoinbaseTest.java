@@ -41,14 +41,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.IndependentTransactionOutput;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.mbwapi.api.AddressShort;
 import com.mrd.mbwapi.api.GetTransactionDataRequest;
 import com.mrd.mbwapi.api.GetTransactionDataResponse;
 import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
@@ -67,7 +65,7 @@ public class UnspentCoinbaseTest {
       MyceliumWalletApiImpl.HttpEndpoint endpoint = new MyceliumWalletApiImpl.HttpEndpoint(
             "http://mws1.mycelium.com/mws");
       MyceliumWalletApiImpl api = new MyceliumWalletApiImpl(new MyceliumWalletApiImpl.HttpEndpoint[] { endpoint },
-            NetworkParameters.productionNetwork, ImmutableList.<AddressShort> of());
+            NetworkParameters.productionNetwork);
       Address miningAddress = Address.fromString("12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"); // second
                                                                                         // address
                                                                                         // in

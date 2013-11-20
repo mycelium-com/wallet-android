@@ -8,6 +8,15 @@
 -dontwarn com.google.zxing.**
 -dontwarn java.lang.management.**
 
+
+-keepclassmembers class ** {
+    @com.squareup.otto.Subscribe public *;
+    @com.squareup.otto.Produce public *;
+}
+
+-dontwarn android.support.**
+
+
 -optimizationpasses 5
 
 #When not preverifing in a case-insensitive filing system, such as Windows. Because this tool unpacks your processed jars, you should then use:

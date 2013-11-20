@@ -16,8 +16,14 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 17
-    buildToolsVersion "17.0"
+    compileSdkVersion 18
+    buildToolsVersion "18.1"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 10
+    }
+
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
         targetCompatibility = 'VERSION_1_6'
