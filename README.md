@@ -13,7 +13,7 @@ building
 
 to build everything from source, simply checkout the source and build using gradle
 note that you need a proper android sdk with *ANDROID_HOME* variable pointing to it.
-sdk versions 8 + 17 should be installed.
+Android SDK version 18 should be installed as well as the appcompat v7 rev. 19
 
     git clone https://github.com/mycelium-com/wallet.git
     cd wallet
@@ -26,7 +26,8 @@ in windows:
 
     gradlew.bat build
 
- - voila, you have an mbw.apk that you can install to your phone. 
+ - voila, look into wallet/public/mbw/build/apk to see the generated apk. 
+   there are versions for prodnet and testnet.
 
 alternatively you can install the latest version from the play store at
 
