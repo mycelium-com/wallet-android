@@ -113,7 +113,7 @@ public class ExportDestiller {
    }
 
    public static String exportPrivateKeys(Context context, String exportFormatString, long time,
-         List<ExportEntry> active, List<ExportEntry> archived, ExportProgressTracker progressTracker) {
+                                          List<ExportEntry> active, List<ExportEntry> archived, ExportProgressTracker progressTracker) {
 
       int pageWidth = PaperSize.EXECUTIVE_WIDTH;
       int pageHeight = PaperSize.EXECUTIVE_HEIGHT;
@@ -149,16 +149,14 @@ public class ExportDestiller {
       MyWriter writer = new MyWriter(pageWidth, pageHeight, 20, 20, 20, 20);
 
       // Watermark
-      Bitmap watermark = null;
+
       try {
+         Bitmap watermark;
          watermark = BitmapFactory.decodeResource(context.getResources(), R.drawable.mycelium_splash_notext_corner);
+         writer.addImage(0, 0, 126, 83, watermark);
       } catch (Exception e) {
          // We have observed some devices having problems loading the watermark,
          // if it happens we try to continue without adding it
-      }
-      if (watermark != null) {
-         writer.addImage(0, 0, 126, 83, watermark);
-         watermark = null;
       }
 
       progressTracker.watermarkCompleted();
@@ -313,7 +311,7 @@ public class ExportDestiller {
    }
 
    private static double addRecord(OffsetWriter writer, boolean active, int entryNum, int totalEntries,
-         ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
+                                   ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
       String address = entry.address;
       String encryptedKey = entry.encryptedKey;
       double fromTop = 0;
