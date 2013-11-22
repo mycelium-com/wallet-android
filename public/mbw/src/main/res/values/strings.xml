@@ -288,4 +288,7 @@
     <string name="contact_email_label">Feedback</string>
     <string name="cancelled">Cancelled</string>
     <string name="help_menu">Help</string>
+    <string name="invalid_password">Invalid Password</string>
+    <string name="retry_password_question">The password you entered is not valid.\nDo you wish to try again?</string>
+    <string name="send_bitcoins">Send Bitcoins</string>
 </resources>

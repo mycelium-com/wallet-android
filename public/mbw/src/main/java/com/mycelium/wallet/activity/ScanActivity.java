@@ -72,17 +72,30 @@ public class ScanActivity extends Activity {
    private static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
 
    private MbwManager _mbwManager;
+   private boolean _hasLaunchedScanner;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       _mbwManager = MbwManager.getInstance(this);
-      Utils.startScannerIntent(this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
+      if (savedInstanceState != null) {
+         _hasLaunchedScanner = savedInstanceState.getBoolean("hasLaunchedScanner", false);
+      }
    }
 
    @Override
    public void onResume() {
+      if (!_hasLaunchedScanner) {
+         Utils.startScannerIntent(this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
+         _hasLaunchedScanner = true;
+      }
       super.onResume();
+   }
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      outState.putBoolean("hasLaunchedScanner", _hasLaunchedScanner);
+      super.onSaveInstanceState(outState);
    }
 
    @Override

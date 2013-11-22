@@ -113,8 +113,8 @@ public class QrImageView extends ImageView {
    }
 
    private void initQRDraw() {
-       _alphaIndex = 0;
-       _tapToCycleBrightness = true;
+      _alphaIndex = 0;
+      _tapToCycleBrightness = true;
       // Initialize paint once
       _paint = new Paint();
       _qrImage = Bitmap.createBitmap(1, 1, Config.ARGB_8888);
@@ -131,6 +131,10 @@ public class QrImageView extends ImageView {
    }
 
    public void setQrCode(String qrCode) {
+      if (qrCode.equals(this.qrCodeText)) {
+         // Only update QR code if necessary
+         return;
+      }
       this.qrCodeText = qrCode;
       _qrImage = Utils.getMinimalQRCodeBitmap(qrCodeText);
       _qrImageScaled = null;

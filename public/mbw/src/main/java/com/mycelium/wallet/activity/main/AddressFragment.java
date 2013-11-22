@@ -53,6 +53,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -121,12 +122,11 @@ public class AddressFragment extends Fragment {
          return;
       }
 
-//      updateQrImage();
-      updateAddress();
+      // Update QR code
+      QrImageView qrButton = (QrImageView) Preconditions.checkNotNull(_root.findViewById(R.id.ivQR));
+      qrButton.setQrCode(getUri());
 
-   }
-
-   private void updateAddress() {
+      // Update address
       Address address = getRecord().address;
       // Show name of bitcoin address according to address book
       TextView tvAddressTitle = (TextView) _root.findViewById(R.id.tvAddressLabel);
@@ -145,11 +145,6 @@ public class AddressFragment extends Fragment {
       ((TextView) _root.findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
    }
 
-   /*private void updateQrImage() {
-      QrImageView qrImage = (QrImageView) _root.findViewById(R.id.ivQR);
-      qrImage.setQrCode(getUri());
-   }*/
-
    private String getUri() {
       return "bitcoin:" + getRecord().address.toString();
    }
@@ -161,13 +156,27 @@ public class AddressFragment extends Fragment {
       }
    }
 
+   /**
+    * Fires when record set changed
+    */
    @Subscribe
-   public void onSelectedChanged(SelectedRecordChanged r) {
+   public void recordSetChanged(RecordSetChanged event) {
       updateUi();
    }
 
+   /**
+    * Fires when the selected record changes
+    */
+   @Subscribe
+   public void selectedRecordChanged(SelectedRecordChanged event) {
+      updateUi();
+   }
+
+   /**
+    * Fires when the address book changed
+    */
    @Subscribe
    public void addressBookChanged(AddressBookChanged event) {
-      updateAddress();
+      updateUi();
    }
 }

@@ -42,13 +42,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.view.KeyEvent;
-import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
@@ -56,9 +61,26 @@ import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.TextNormalizer;
 import com.mycelium.wallet.activity.export.BackgroundKeyStretcher.PostRunner;
 
 public class DecryptPrivateKeyActivity extends Activity {
+
+   public static final CharMatcher LETTERS =
+         CharMatcher.inRange('a', 'z')
+               .or(CharMatcher.inRange('A', 'Z'));
+   public static final Splitter SPLIT_3 = Splitter.fixedLength(3);
+   public static final Joiner JOIN_SPACE = Joiner.on(' ');
+   public static final Function<String, String> PASS_NORMALIZER = new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+         String onlyLetters = LETTERS.retainFrom(input);
+         return JOIN_SPACE.join(SPLIT_3.split(onlyLetters)).toUpperCase();
+      }
+   };
+   public static final int PASSLENGTH_WITHSPACES = 21;
+
+   private EditText passwordEdit;
 
    public static void callMe(Activity currentActivity, String encryptedPrivateKey, int requestCode) {
       Intent intent = new Intent(currentActivity, DecryptPrivateKeyActivity.class);
@@ -72,15 +94,15 @@ public class DecryptPrivateKeyActivity extends Activity {
       fragment.startActivityForResult(intent, requestCode);
    }
 
-   private String _enteredText;
-   private boolean _waitingForInput;
    private BackgroundKeyStretcher _stretcher;
    private ProgressUpdater _progressUpdater;
    private String _encryptedPrivateKey;
    private MbwManager _mbwManager;
    private MrdExport.V1.Header _header;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -100,39 +122,47 @@ public class DecryptPrivateKeyActivity extends Activity {
          return;
       }
 
+      _progressUpdater = new ProgressUpdater();
+
+      passwordEdit = (EditText) findViewById(R.id.password);
+      passwordEdit.addTextChangedListener(new TextNormalizer(PASS_NORMALIZER, passwordEdit));
+
+      passwordEdit.addTextChangedListener(new TextWatcher() {
+         @Override
+         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+         }
+
+         @Override
+         public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+         }
+
+         @Override
+         public void afterTextChanged(Editable s) {
+            if (isValidPassword(s)) {
+               startKeyStretching();
+            }
+            updatePasswordText();
+         }
+      });
+
       if (savedInstanceState != null) {
-         _enteredText = savedInstanceState.getString("password");
-      }
-      if (_enteredText == null) {
-         _enteredText = "";
+         setPassword(savedInstanceState.getString("password"));
       }
 
       updatePasswordText();
 
-      _progressUpdater = new ProgressUpdater();
-      _stretcher = new BackgroundKeyStretcher();
-      // Make the root focusable otherwise we cannot force show the keyboard
-      View myView = findViewById(android.R.id.content);
-      myView.setFocusable(true);
-      myView.setFocusableInTouchMode(true);
-
-      // Start slightly delayed, otherwise we cannot force show the keyboard
-      new Handler().postDelayed(new Runnable() {
-
-         @Override
-         public void run() {
-            showKeyboardOrStartStretching();
-         }
-      }, 500);
+      showKeyboardOrStartStretching();
    }
 
+
    private void updatePasswordText() {
-      ((TextView) findViewById(R.id.tvPassword)).setText(getPasswordText(_enteredText));
-      ((TextView) findViewById(R.id.tvChecksum)).setText(getChecksumText(_enteredText));
-      if (_enteredText.length() != MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
+
+      if (getPassword().length() != MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_key_enter_password);
          ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
-      } else if (isChecksumValid(_enteredText)) {
+      } else if (MrdExport.isChecksumValid(getPassword())) {
          // Leave the status at what it is, it is updated by the progress
       } else {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_key_invalid_checksum);
@@ -145,37 +175,25 @@ public class DecryptPrivateKeyActivity extends Activity {
       if (this.isFinishing()) {
          return;
       }
-      if (_enteredText.length() == MrdExport.V1.V1_PASSPHRASE_LENGTH + 1 && isChecksumValid(_enteredText)) {
+      if (isValidPassword(passwordEdit.getText())) {
          startKeyStretching();
       } else {
          showKeyboard();
       }
    }
 
-   private static boolean isChecksumValid(String enteredText) {
-      if (enteredText.length() != MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
-         return false;
-      }
-      String password = enteredText.substring(0, MrdExport.V1.V1_PASSPHRASE_LENGTH);
-      char chechsumChar = MrdExport.V1.calculatePasswordChecksum(password);
-      return Character.toUpperCase(chechsumChar) == enteredText.charAt(MrdExport.V1.V1_PASSPHRASE_LENGTH);
+
+   private boolean isValidPassword(CharSequence s) {
+      return allCharsEntered(s) && MrdExport.isChecksumValid(getPassword());
    }
 
-   private void showKeyboard() {
-      _waitingForInput = true;
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.showSoftInput(findViewById(android.R.id.content), InputMethodManager.SHOW_FORCED);
-   }
-
-   private void hideKeyboard() {
-      _waitingForInput = false;
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
+   private boolean allCharsEntered(CharSequence s) {
+      return s.length() == PASSLENGTH_WITHSPACES;
    }
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
-      outState.putString("password", _enteredText);
+      outState.putString("password", getPassword());
       super.onSaveInstanceState(outState);
    }
 
@@ -193,66 +211,19 @@ public class DecryptPrivateKeyActivity extends Activity {
 
    @Override
    protected void onDestroy() {
-      _stretcher.terminate();
+      if (_stretcher != null)
+         _stretcher.terminate();
       super.onDestroy();
    }
 
-   @Override
-   public boolean onKeyDown(int keyCode, KeyEvent event) {
-      if (!_waitingForInput) {
-         return super.onKeyDown(keyCode, event);
-      }
-
-      if (keyCode == KeyEvent.KEYCODE_DEL) {
-         if (_enteredText.length() > 0) {
-            _enteredText = _enteredText.substring(0, _enteredText.length() - 1);
-            updatePasswordText();
-         }
-         return super.onKeyDown(keyCode, event);
-      }
-
-      if (_enteredText.length() >= MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
-         // This shouldn't really happen, but we check just in case.
-         return super.onKeyDown(keyCode, event);
-      }
-
-      int c = event.getUnicodeChar();
-      if (c >= 'a' && c <= 'z') {
-         char cc = (char) ('A' + (c - 'a'));
-         _enteredText = _enteredText + cc;
-      } else if (c >= 'A' && c <= 'Z') {
-         char cc = (char) c;
-         _enteredText = _enteredText + cc;
-      }
-      updatePasswordText();
-      if (_enteredText.length() == MrdExport.V1.V1_PASSPHRASE_LENGTH + 1 && isChecksumValid(_enteredText)) {
-         hideKeyboard();
-         startKeyStretching();
-      }
-      return super.onKeyDown(keyCode, event);
+   public String getPassword() {
+      Editable text = passwordEdit.getText();
+      if (text == null) return "";
+      return LETTERS.retainFrom(text);
    }
 
-   private static String getPasswordText(String password) {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < MrdExport.V1.V1_PASSPHRASE_LENGTH; i++) {
-         if (i < password.length()) {
-            sb.append(password.charAt(i));
-         } else {
-            sb.append('_');
-         }
-         if (i % 3 == 2) {
-            sb.append(' ');
-         }
-      }
-      return sb.toString();
-   }
-
-   private static String getChecksumText(String password) {
-      if (password.length() < MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
-         return "  _";
-      } else {
-         return "  " + password.charAt(MrdExport.V1.V1_PASSPHRASE_LENGTH);
-      }
+   public void setPassword(String _enteredText) {
+      passwordEdit.setText(_enteredText);
    }
 
    class ProgressUpdater implements Runnable {
@@ -276,15 +247,16 @@ public class DecryptPrivateKeyActivity extends Activity {
        */
       @Override
       public void run() {
-         // Copy reference so we don't risk loosing it
-         KdfParameters tracker = _stretcher.getProgressTracker();
+         if (_stretcher != null) {
+            // Copy reference so we don't risk loosing it
+            KdfParameters tracker = _stretcher.getProgressTracker();
 
-         if (tracker != null) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (tracker.getProgress() * 100) + "%");
-         } else {
-            ((TextView) findViewById(R.id.tvProgress)).setText("");
+            if (tracker != null) {
+               ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (tracker.getProgress() * 100) + "%");
+            } else {
+               ((TextView) findViewById(R.id.tvProgress)).setText("");
+            }
          }
-
          // Reschedule
          _handler.postDelayed(this, 300);
       }
@@ -292,10 +264,17 @@ public class DecryptPrivateKeyActivity extends Activity {
    }
 
    private void startKeyStretching() {
+      hideKeyboard();
+
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_stretching);
       ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
-      String password = _enteredText.substring(0, MrdExport.V1.V1_PASSPHRASE_LENGTH);
+      String password = getPassword().substring(0, MrdExport.V1.V1_PASSPHRASE_LENGTH);
       KdfParameters kdfParameters = KdfParameters.fromPassphraseAndHeader(password, _header);
+
+      if (_stretcher != null) {
+         _stretcher.terminate();
+      }
+      _stretcher = new BackgroundKeyStretcher();
       _stretcher.start(kdfParameters, new PostRunner() {
 
          @Override
@@ -308,6 +287,17 @@ public class DecryptPrivateKeyActivity extends Activity {
             }
          }
       });
+   }
+
+   private void showKeyboard() {
+      passwordEdit.requestFocus();
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.showSoftInputFromInputMethod(passwordEdit.getWindowToken(),0);
+   }
+
+   private void hideKeyboard() {
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(passwordEdit.getWindowToken(), 0);
    }
 
    private void tryDecrypt(MrdExport.V1.EncryptionParameters parameters) {
@@ -331,13 +321,13 @@ public class DecryptPrivateKeyActivity extends Activity {
    private void showRetryDialog() {
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-      builder.setTitle("Invalid Password");
-      builder.setMessage("The password you entred is not valid.\nDo you wish to try again?");
+      builder.setTitle(getString(R.string.invalid_password));
+      builder.setMessage(getString(R.string.retry_password_question));
 
       builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface dialog, int which) {
-            _enteredText = "";
+            setPassword("");
             updatePasswordText();
             showKeyboardOrStartStretching();
             dialog.dismiss();

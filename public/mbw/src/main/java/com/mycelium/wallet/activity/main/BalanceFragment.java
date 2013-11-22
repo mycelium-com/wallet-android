@@ -57,6 +57,7 @@ import com.mycelium.wallet.event.BlockchainError;
 import com.mycelium.wallet.event.BlockchainReady;
 import com.mycelium.wallet.event.ExchangeRateError;
 import com.mycelium.wallet.event.ExchangeRateUpdated;
+import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
 import com.squareup.otto.Subscribe;
 
@@ -256,8 +257,20 @@ public class BalanceFragment extends Fragment {
       _toaster.toastConnectionError();
    }
 
+   /**
+    * Fires when record set changed
+    */
    @Subscribe
-   public void onSelectedChanged(SelectedRecordChanged r) {
+   public void recordSetChanged(RecordSetChanged event) {
       updateUi();
    }
+
+   /**
+    * Fires when the selected record changes
+    */
+   @Subscribe
+   public void selectedRecordChanged(SelectedRecordChanged event) {
+      updateUi();
+   }
+   
 }

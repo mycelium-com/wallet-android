@@ -34,6 +34,15 @@ public class MrdExport {
    private static final byte[] MAGIC_COOKIE = new byte[] { (byte) 0xc4, (byte) 0x49, (byte) 0xdc };
    public static final int V1_VERSION = 1;
 
+   public static boolean isChecksumValid(String enteredText) {
+      if (enteredText.length() != V1.V1_PASSPHRASE_LENGTH + 1) {
+         return false;
+      }
+      String password = enteredText.substring(0, V1.V1_PASSPHRASE_LENGTH);
+      char chechsumChar = V1.calculatePasswordChecksum(password);
+      return Character.toUpperCase(chechsumChar) == enteredText.charAt(V1.V1_PASSPHRASE_LENGTH);
+   }
+
    public static class DecodingException extends Exception {
       private static final long serialVersionUID = 1L;
    }

@@ -32,48 +32,19 @@
             android:text="@string/import_decrypt_key_description"
             android:textSize="16sp" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal" >
-
-            <!-- Password -->
-
-            <TextView
-                android:id="@+id/tvPassword"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/brightblue"
-                android:textSize="19sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <!-- Checksum -->
-
-            <TextView
-                android:id="@+id/tvChecksum"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/brightgreen"
-                android:textSize="19sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="5dp" />
 
         <!-- Status -->
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/password"
+            android:inputType="textVisiblePassword|textCapCharacters"
+            android:maxLength="21"
+            android:singleLine="true"
+            android:gravity="center"
+            android:hint="YOU RPA SSW ORD ABC D"/>
 
         <TextView
             android:id="@+id/tvStatus"
@@ -83,7 +54,8 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/import_decrypt_key_enter_password"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:singleLine="false"/>
 
         <TextView
             android:id="@+id/tvProgress"

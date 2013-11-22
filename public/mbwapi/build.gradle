@@ -13,6 +13,7 @@ targetCompatibility = 1.6
 dependencies {
     compile project(':public:bitlib')
     compile guavaArtifact
+    compile 'com.squareup:otto:1.3.4'
     testCompile 'junit:junit:'+junitVersion
 
 }

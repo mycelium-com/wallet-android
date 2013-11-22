@@ -59,6 +59,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.RecordSetChanged;
+import com.mycelium.wallet.event.SelectedRecordChanged;
 import com.squareup.otto.Subscribe;
 
 public class NoticeFragment extends Fragment {
@@ -206,12 +207,24 @@ public class NoticeFragment extends Fragment {
 
    }
 
+   /**
+    * Fires when record set changed
+    */
    @Subscribe
    public void recordSetChanged(RecordSetChanged event) {
       _notice = determineNotice();
       updateUi();
    }
 
+   /**
+    * Fires when the selected record changes
+    */
+   @Subscribe
+   public void selectedRecordChanged(SelectedRecordChanged event) {
+      _notice = determineNotice();
+      updateUi();
+   }
+   
    @Subscribe
    public void addressBookChanged(AddressBookChanged event) {
       _notice = determineNotice();
