@@ -519,7 +519,7 @@ public class Utils {
     * with one comma or dot separator. A comma separator will be converted to a
     * dot. The resulting string will have at most the number of decimals
     * specified
-    * 
+    *
     * @param number
     *           the number to truncate
     * @param maxDecimalPlaces
@@ -764,10 +764,11 @@ public class Utils {
     * Prevent the OS from taking screenshots for the specified activity
     */
    public static void preventScreeshots(Activity activity) {
+      //looks like gingerbread devices have this issue more commonly than thought.
+      //future: make a setting for this, and somehow gather feedback what works,
+      // and a positive list of devices.
       if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.GINGERBREAD
-            && android.os.Build.MANUFACTURER.equalsIgnoreCase("samsung")) {
-         // On some Samsung devices using android 2.3 we cannot use the secure
-         // flag, as it makes the display scrambled.
+            || android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1){
          return;
       }
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
