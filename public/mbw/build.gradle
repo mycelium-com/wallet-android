@@ -38,11 +38,11 @@ android {
     buildToolsVersion "18.1"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 8
         targetSdkVersion 18
 
-        versionCode 61
-        versionName '1.0.1'
+        versionCode 64
+        versionName '1.0.2'
     }
 
     signingConfigs {

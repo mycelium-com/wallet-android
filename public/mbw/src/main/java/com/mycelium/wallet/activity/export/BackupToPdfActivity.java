@@ -59,6 +59,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -87,6 +88,8 @@ import com.mycelium.wallet.pdf.ExportDestiller.ExportEntry;
 import com.mycelium.wallet.pdf.ExportDestiller.ExportProgressTracker;
 
 public class BackupToPdfActivity extends Activity {
+
+   private static final String MYCELIUM_EXPORT_FOLDER = "mycelium";
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, BackupToPdfActivity.class);
@@ -284,7 +287,20 @@ public class BackupToPdfActivity extends Activity {
    }
 
    private String getFullExportFilePath() {
-      return _fileName;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+         return _fileName;
+      } else {
+         File externalStorageDir = Environment.getExternalStorageDirectory();
+         String directory = externalStorageDir.getAbsolutePath() + File.separatorChar + MYCELIUM_EXPORT_FOLDER;
+         File dirFile = new File(directory);
+         if (!dirFile.exists()) {
+            boolean wasCreated = dirFile.mkdirs();
+            Preconditions.checkArgument(wasCreated);
+         } else {
+            Preconditions.checkArgument(dirFile.isDirectory());
+         }
+         return directory + File.separatorChar + _fileName;
+      }
    }
 
    private void startKeyStretching() {
@@ -379,7 +395,7 @@ public class BackupToPdfActivity extends Activity {
 
       private String _pdfString;
 
-//      @SuppressLint("WorldReadableFiles")
+      @SuppressLint("WorldReadableFiles")
       @Override
       protected String doInBackground(Void... params) {
 
@@ -420,7 +436,11 @@ public class BackupToPdfActivity extends Activity {
    }
 
    private FileOutputStream getOutStream() throws FileNotFoundException {
-      return openFileOutput(getFullExportFilePath(), MODE_PRIVATE);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+         return openFileOutput(getFullExportFilePath(), MODE_PRIVATE);
+      } else {
+         return new FileOutputStream(getFullExportFilePath());
+      }
    }
 
    private void enableSharing() {
@@ -464,8 +484,12 @@ public class BackupToPdfActivity extends Activity {
    }
 
    private Uri getUri() {
-      String authority = getFileProviderAuthority();
-      return FileProvider.getUriForFile(this, authority, getFileStreamPath(getFullExportFilePath()));
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+         String authority = getFileProviderAuthority();
+         return FileProvider.getUriForFile(this, authority, getFileStreamPath(getFullExportFilePath()));
+      } else {
+         return Uri.fromFile(new File(getFullExportFilePath()));
+      }
    }
 
 
