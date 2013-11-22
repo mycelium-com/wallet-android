@@ -239,6 +239,10 @@ public class ExportDestiller {
             "To import a key in the Mycelium wallet you need to scan the private key QR code and");
       fromTop += 0.45;
       writer.addText(1F, fromTop, 12, "enter the encryption password.");
+      fromTop += 1F;
+
+      // Description 5
+      writer.addText(1F, fromTop, 12, "Note that the embedded PDF viewer in Windows 8 cannot display the QR codes properly.");
       fromTop += 1.7F;
 
       // Add first key to first page (we know that there will always be one

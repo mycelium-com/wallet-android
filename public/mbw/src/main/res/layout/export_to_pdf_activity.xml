@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="6dp"
             android:text="@string/encrypted_pdf_backup_title"
             android:textSize="24sp" />
 
@@ -82,7 +82,6 @@
                 android:textSize="19sp"
                 android:textStyle="bold"
                 android:typeface="monospace" />
-            
         </LinearLayout>
 
         <View
@@ -123,6 +122,16 @@
             android:gravity="center"
             android:textSize="18sp" />
 
+        <TextView
+            android:id="@+id/tvPdfNotice"
+            style="@style/GenericText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/pdf_compatibility_notice"
+            android:textSize="14sp" />
+
         <View
             android:layout_width="1dp"
             android:layout_height="2dp" />
@@ -136,6 +145,10 @@
             android:paddingRight="10dp"
             android:text="@string/share_pdf"
             android:textSize="20sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="2dp" />
     </LinearLayout>
 
 </ScrollView>

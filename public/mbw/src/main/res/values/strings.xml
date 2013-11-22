@@ -291,4 +291,5 @@
     <string name="invalid_password">Invalid Password</string>
     <string name="retry_password_question">The password you entered is not valid.\nDo you wish to try again?</string>
     <string name="send_bitcoins">Send Bitcoins</string>
+    <string name="pdf_compatibility_notice">Note: The default PDF viewer on Windows 8 cannot display this document properly.</string>
 </resources>

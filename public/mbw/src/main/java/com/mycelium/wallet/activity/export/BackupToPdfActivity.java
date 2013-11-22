@@ -379,7 +379,7 @@ public class BackupToPdfActivity extends Activity {
 
       private String _pdfString;
 
-      @SuppressLint("WorldReadableFiles")
+//      @SuppressLint("WorldReadableFiles")
       @Override
       protected String doInBackground(Void... params) {
 

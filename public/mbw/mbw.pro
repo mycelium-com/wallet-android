@@ -17,7 +17,7 @@
 -dontwarn android.support.**
 
 
--optimizationpasses 5
+-optimizationpasses 6
 
 #When not preverifing in a case-insensitive filing system, such as Windows. Because this tool unpacks your processed jars, you should then use:
 -dontusemixedcaseclassnames
