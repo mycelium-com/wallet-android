@@ -154,7 +154,7 @@ public class ExportDestiller {
          Bitmap watermark;
          watermark = BitmapFactory.decodeResource(context.getResources(), R.drawable.mycelium_splash_notext_corner);
          writer.addImage(0, 0, 126, 83, watermark);
-      } catch (Exception e) {
+      } catch (Throwable e) {
          // We have observed some devices having problems loading the watermark,
          // if it happens we try to continue without adding it
       }
