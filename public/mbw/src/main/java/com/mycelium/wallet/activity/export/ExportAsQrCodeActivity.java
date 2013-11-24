@@ -62,7 +62,7 @@ public class ExportAsQrCodeActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.export_as_qr_code_activity);
       // Prevent the OS from taking screenshots of this activity
-      Utils.preventScreeshots(this);
+      Utils.preventScreenshots(this);
 
       // Get base58 encoded private key
       _mbwManager = MbwManager.getInstance(getApplication());

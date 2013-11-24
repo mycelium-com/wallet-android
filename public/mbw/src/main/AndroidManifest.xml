@@ -39,6 +39,18 @@
         android:label="@string/app_name"
         android:theme="@style/MyceliumModern" >
 
+        <service
+            android:enabled="true"
+            android:exported="false"
+            android:name="com.mycelium.wallet.service.KeyStretcherService"
+            android:process=":Scrypt"/>
+
+        <service
+            android:enabled="true"
+            android:exported="false"
+            android:name="com.mycelium.wallet.service.ExportService"
+            android:process=":export"/>
+
         <activity
             android:name="com.mycelium.wallet.activity.StartupActivity"
             android:label="@string/app_short_name"

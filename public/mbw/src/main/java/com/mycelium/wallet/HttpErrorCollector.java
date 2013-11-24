@@ -34,20 +34,52 @@
 
 package com.mycelium.wallet;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.mrd.mbwapi.api.ApiException;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 
 public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
-   private final Thread.UncaughtExceptionHandler orig;
-   private final MyceliumWalletApi _api;
-   private final String _version;
 
-   public HttpErrorCollector(Thread.UncaughtExceptionHandler orig, MyceliumWalletApi api, String version) {
+   private final Thread.UncaughtExceptionHandler orig;
+   private final MyceliumWalletApi api;
+   private final String version;
+   private final ErrorMetaData metaData;
+
+   public HttpErrorCollector(Thread.UncaughtExceptionHandler orig, MyceliumWalletApi api, String version, ErrorMetaData metaData) {
       this.orig = orig;
-      _api = api;
-      _version = version;
+      this.api = api;
+      this.version = version;
+      this.metaData = metaData;
+   }
+
+   //todo make sure proxy is set before this. require as dependency?
+   public static void registerInVM(Context applicationContext) {
+      MbwEnvironment env = MbwEnvironment.determineEnvironment(applicationContext);
+      String version = MbwManager.determineVersion(applicationContext);
+      registerInVM(applicationContext,env, version);
+   }
+
+   public static void registerInVM(Context applicationContext, MbwEnvironment environment, String version) {
+      // Initialize error collector
+      boolean emailOnErrors = applicationContext.getResources().getBoolean(R.bool.email_on_errors);
+      if (emailOnErrors) {
+         Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
+         if (!(orig instanceof HttpErrorCollector)) {
+            ActivityManager am = (ActivityManager) applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
+            int memoryClass = am.getMemoryClass();
+/*
+            long maxMemory = Runtime.getRuntime().maxMemory();
+
+*/
+            final ErrorMetaData metaData = new ErrorMetaData(memoryClass, Build.VERSION.SDK_INT, Build.MODEL, Build.BRAND, Build.VERSION.RELEASE, Build.DEVICE);
+            Log.i(Constants.TAG, "registering exception handler from thread " + Thread.currentThread().getName());
+            Thread.setDefaultUncaughtExceptionHandler(new HttpErrorCollector(orig, environment.getMwsApi(), version, metaData));
+         }
+      }
    }
 
    @Override
@@ -56,7 +88,7 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
          @Override
          public void run() {
             try {
-               _api.collectError(throwable, _version);
+               api.collectError(throwable, version, metaData);
             } catch (RuntimeException e) {
                Log.e(Constants.TAG, "error while sending error", e);
             } catch (ApiException e) {

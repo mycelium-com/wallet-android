@@ -37,6 +37,7 @@ package com.mrd.mbwapi.api;
 import com.google.common.base.Throwables;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
+import com.mycelium.wallet.ErrorMetaData;
 
 
 public class ErrorCollectionRequest extends ApiObject {
@@ -45,9 +46,9 @@ public class ErrorCollectionRequest extends ApiObject {
    public final String error;
    public final String version;
 
-   public ErrorCollectionRequest(Throwable t, String version) {
+   public ErrorCollectionRequest(Throwable t, String version, ErrorMetaData metaData) {
       this.version = version;
-      this.error = Throwables.getStackTraceAsString(t);
+      this.error = Throwables.getStackTraceAsString(t) + "\n" + metaData.toString();
    }
 
    public ErrorCollectionRequest(ByteReader reader) {
@@ -55,7 +56,7 @@ public class ErrorCollectionRequest extends ApiObject {
          error = reader.getString();
          version = reader.getString();
       } catch (ByteReader.InsufficientBytesException e) {
-         throw new IllegalArgumentException("could not read error string",e);
+         throw new IllegalArgumentException("could not read error string", e);
       }
    }
 

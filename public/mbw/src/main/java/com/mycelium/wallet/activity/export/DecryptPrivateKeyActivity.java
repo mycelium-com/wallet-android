@@ -62,13 +62,14 @@ import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.TextNormalizer;
-import com.mycelium.wallet.activity.export.BackgroundKeyStretcher.PostRunner;
+import com.mycelium.wallet.service.KeyStretcherService;
+import com.mycelium.wallet.service.KeyStretcherService.Status;
+import com.mycelium.wallet.service.KeyStretcherServiceController;
+import com.mycelium.wallet.service.KeyStretcherServiceController.KeyStretcherServiceCallback;
 
-public class DecryptPrivateKeyActivity extends Activity {
+public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherServiceCallback {
 
-   public static final CharMatcher LETTERS =
-         CharMatcher.inRange('a', 'z')
-               .or(CharMatcher.inRange('A', 'Z'));
+   public static final CharMatcher LETTERS = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'));
    public static final Splitter SPLIT_3 = Splitter.fixedLength(3);
    public static final Joiner JOIN_SPACE = Joiner.on(' ');
    public static final Function<String, String> PASS_NORMALIZER = new Function<String, String>() {
@@ -94,7 +95,8 @@ public class DecryptPrivateKeyActivity extends Activity {
       fragment.startActivityForResult(intent, requestCode);
    }
 
-   private BackgroundKeyStretcher _stretcher;
+   private KeyStretcherServiceController _keyStretcherServiceController;
+   private KeyStretcherService.Status _stretchingStatus;
    private ProgressUpdater _progressUpdater;
    private String _encryptedPrivateKey;
    private MbwManager _mbwManager;
@@ -156,7 +158,6 @@ public class DecryptPrivateKeyActivity extends Activity {
       showKeyboardOrStartStretching();
    }
 
-
    private void updatePasswordText() {
 
       if (getPassword().length() != MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
@@ -181,7 +182,6 @@ public class DecryptPrivateKeyActivity extends Activity {
          showKeyboard();
       }
    }
-
 
    private boolean isValidPassword(CharSequence s) {
       return allCharsEntered(s) && MrdExport.isChecksumValid(getPassword());
@@ -211,14 +211,15 @@ public class DecryptPrivateKeyActivity extends Activity {
 
    @Override
    protected void onDestroy() {
-      if (_stretcher != null)
-         _stretcher.terminate();
+      if (_keyStretcherServiceController != null)
+         _keyStretcherServiceController.terminate();
       super.onDestroy();
    }
 
    public String getPassword() {
       Editable text = passwordEdit.getText();
-      if (text == null) return "";
+      if (text == null)
+         return "";
       return LETTERS.retainFrom(text);
    }
 
@@ -247,15 +248,24 @@ public class DecryptPrivateKeyActivity extends Activity {
        */
       @Override
       public void run() {
-         if (_stretcher != null) {
-            // Copy reference so we don't risk loosing it
-            KdfParameters tracker = _stretcher.getProgressTracker();
 
-            if (tracker != null) {
-               ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (tracker.getProgress() * 100) + "%");
-            } else {
+         if (_keyStretcherServiceController != null) {
+            // poll for status update
+            _keyStretcherServiceController.requestStatus();
+         }
+
+         if (_keyStretcherServiceController != null && _stretchingStatus != null) {
+            if (_stretchingStatus.error) {
+               ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
+               ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.red));
                ((TextView) findViewById(R.id.tvProgress)).setText("");
+            } else {
+               ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_stretchingStatus.progress * 100)
+                     + "%");
             }
+
+         } else {
+            ((TextView) findViewById(R.id.tvProgress)).setText("");
          }
          // Reschedule
          _handler.postDelayed(this, 300);
@@ -271,28 +281,18 @@ public class DecryptPrivateKeyActivity extends Activity {
       String password = getPassword().substring(0, MrdExport.V1.V1_PASSPHRASE_LENGTH);
       KdfParameters kdfParameters = KdfParameters.fromPassphraseAndHeader(password, _header);
 
-      if (_stretcher != null) {
-         _stretcher.terminate();
+      if (_keyStretcherServiceController != null) {
+         _keyStretcherServiceController.terminate();
       }
-      _stretcher = new BackgroundKeyStretcher();
-      _stretcher.start(kdfParameters, new PostRunner() {
-
-         @Override
-         public void onPostExecute(boolean error, EncryptionParameters parameters) {
-            if (error) {
-               ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
-               ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.red));
-            } else {
-               tryDecrypt(parameters);
-            }
-         }
-      });
+      _keyStretcherServiceController = new KeyStretcherServiceController();
+      _keyStretcherServiceController.bind(this, this);
+      _keyStretcherServiceController.start(kdfParameters);
    }
 
    private void showKeyboard() {
       passwordEdit.requestFocus();
       InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.showSoftInputFromInputMethod(passwordEdit.getWindowToken(),0);
+      imm.showSoftInputFromInputMethod(passwordEdit.getWindowToken(), 0);
    }
 
    private void hideKeyboard() {
@@ -346,6 +346,27 @@ public class DecryptPrivateKeyActivity extends Activity {
 
       AlertDialog alert = builder.create();
       alert.show();
+   }
+
+   @Override
+   public void onStatusReceived(Status status) {
+      if(_keyStretcherServiceController == null){
+         return;
+      }
+      _stretchingStatus = status;
+      if (_stretchingStatus.hasResult) {
+         _keyStretcherServiceController.requestResult();
+      }
+   }
+
+   @Override
+   public void onResultReceived(EncryptionParameters parameters) {
+      if(_keyStretcherServiceController == null){
+         return;
+      }
+      _keyStretcherServiceController.terminate();
+      _keyStretcherServiceController = null;
+      tryDecrypt(parameters);
    }
 
 }

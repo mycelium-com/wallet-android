@@ -68,6 +68,7 @@ import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
 import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 import com.mrd.mbwapi.util.SslUtils;
+import com.mycelium.wallet.ErrorMetaData;
 
 public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
@@ -154,8 +155,8 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
    }
 
    @Override
-   public ErrorCollectionResponse collectError(Throwable e, String version) throws ApiException {
-      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e, version), RequestConst.ERROR_COLLECTOR);
+   public ErrorCollectionResponse collectError(Throwable e, String version, ErrorMetaData metaData) throws ApiException {
+      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e, version,metaData), RequestConst.ERROR_COLLECTOR);
       return receiveResponse(ErrorCollectionResponse.class, connection);
    }
 

@@ -83,7 +83,6 @@ public class MbwManager {
    private int _displayWidth;
    private int _displayHeight;
    private ApiCache _cache;
-   private TxOutDb _txOutDb;
    private AndroidAsyncApi _asyncApi;
    private RecordManager _recordManager;
    private AddressBookManager _addressBookManager;
@@ -95,7 +94,6 @@ public class MbwManager {
    private String _fiatCurrency;
    private boolean _expertMode;
    private boolean _enableContinuousFocus;
-   private String _proxy;
    private ExchangeRateCalculationMode _exchangeRateCalculationMethod;
    private boolean _keyManagementLocked;
    private int _mainViewFragmentIndex;
@@ -106,27 +104,9 @@ public class MbwManager {
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
-
-      // Set up environment
-      String network = _applicationContext.getResources().getString(R.string.network);
-      if (network.equals("prodnet")) {
-         _environment = new MbwProdEnvironment();
-      } else if (network.equals("testnet")) {
-         _environment = new MbwTestEnvironment();
-      } else {
-         throw new RuntimeException("No network has been specified");
-      }
-
-      _version = determineVersion();
-
-      // Initialize error collector
-      boolean emailOnErrors = _applicationContext.getResources().getBoolean(R.bool.email_on_errors);
-      if (emailOnErrors) {
-         Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
-         if (!(orig instanceof HttpErrorCollector)) {
-            Thread.setDefaultUncaughtExceptionHandler(new HttpErrorCollector(orig, _environment.getMwsApi(), _version));
-         }
-      }
+      _environment = MbwEnvironment.determineEnvironment(_applicationContext);
+      _version = determineVersion(_applicationContext);
+      HttpErrorCollector.registerInVM(_applicationContext, _environment, _version);
 
       _eventBus = new Bus();
 
@@ -138,7 +118,7 @@ public class MbwManager {
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
       _cache = new AndroidApiCache(_applicationContext);
-      _txOutDb = new TxOutDb(_applicationContext);
+      TxOutDb _txOutDb = new TxOutDb(_applicationContext);
       _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _cache, _eventBus);
       _recordManager = new RecordManager(_applicationContext, _eventBus, _environment.getNetwork());
 
@@ -173,12 +153,12 @@ public class MbwManager {
       exploreHelper = new ExploreHelper();
    }
 
-   private String determineVersion() {
+   public static String determineVersion(Context applicationContext) {
       try {
-         PackageManager packageManager = _applicationContext.getPackageManager();
+         PackageManager packageManager = applicationContext.getPackageManager();
          if (packageManager != null) {
             final PackageInfo pInfo;
-            pInfo = packageManager.getPackageInfo(_applicationContext.getPackageName(), 0);
+            pInfo = packageManager.getPackageInfo(applicationContext.getPackageName(), 0);
             return pInfo.versionName;
          } else {
             Log.i(Constants.TAG, "unable to obtain packageManager");
@@ -373,9 +353,8 @@ public class MbwManager {
    }
 
    public void setProxy(String proxy) {
-      _proxy = proxy;
-      getEditor().putString(Constants.PROXY_SETTING, _proxy).commit();
-      ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(_proxy));
+      getEditor().putString(Constants.PROXY_SETTING, proxy).commit();
+      ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(proxy));
       if (vals.size() != 2) {
          noProxy();
          return;
@@ -433,7 +412,7 @@ public class MbwManager {
 
    /**
     * Get the version of the app as a string
-    * 
+    *
     * @return
     */
    public String getVersion() {

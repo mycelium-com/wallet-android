@@ -1,5 +1,6 @@
 package com.mrd.mbwapi;
 
+import com.mycelium.wallet.ErrorMetaData;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class ErrorTest {
       try {
          recurse();
       } catch (StackOverflowError err) {
-         toTest.collectError(err, "junit");
+         toTest.collectError(err, "junit", ErrorMetaData.DUMMY);
       }
    }
 

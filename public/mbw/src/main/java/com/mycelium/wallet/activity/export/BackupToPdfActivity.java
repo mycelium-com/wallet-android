@@ -47,7 +47,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -82,12 +81,16 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.export.BackgroundKeyStretcher.PostRunner;
 import com.mycelium.wallet.pdf.ExportDestiller;
 import com.mycelium.wallet.pdf.ExportDestiller.ExportEntry;
-import com.mycelium.wallet.pdf.ExportDestiller.ExportProgressTracker;
+import com.mycelium.wallet.service.ExportService;
+import com.mycelium.wallet.service.ExportServiceController;
+import com.mycelium.wallet.service.ExportServiceController.ExportServiceCallback;
+import com.mycelium.wallet.service.KeyStretcherService;
+import com.mycelium.wallet.service.KeyStretcherServiceController;
+import com.mycelium.wallet.service.KeyStretcherServiceController.KeyStretcherServiceCallback;
 
-public class BackupToPdfActivity extends Activity {
+public class BackupToPdfActivity extends Activity implements KeyStretcherServiceCallback, ExportServiceCallback {
 
    private static final String MYCELIUM_EXPORT_FOLDER = "mycelium";
 
@@ -105,13 +108,15 @@ public class BackupToPdfActivity extends Activity {
    private List<ExportEntry> _encryptedActiveKeys;
    private List<ExportEntry> _encryptedArchivedKeys;
    private MrdExport.V1.EncryptionParameters _exportParameters;
-   private BackgroundKeyStretcher _stretcher;
    private AsyncTask<Void, Void, Void> _encryptionTask;
-   private AsyncTask<Void, Void, String> _pdfTask;
+   // private AsyncTask<Void, Void, String> _pdfTask;
    private boolean _isPdfGenerated;
    private Double _encryptProgress;
-   private ExportProgressTracker _pdfProgressTracker;
    private ProgressUpdater _progressUpdater;
+   private KeyStretcherServiceController _keyStretcherServiceController;
+   private ExportServiceController _exportServiceController;
+   private KeyStretcherService.Status _stretchingStatus;
+   private ExportService.Status _exportStatus;
 
    /** Called when the activity is first created. */
    @SuppressWarnings("unchecked")
@@ -120,7 +125,7 @@ public class BackupToPdfActivity extends Activity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.export_to_pdf_activity);
-      Utils.preventScreeshots(this);
+      Utils.preventScreenshots(this);
 
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
@@ -143,7 +148,7 @@ public class BackupToPdfActivity extends Activity {
       }
 
       _fileName = getExportFileName(_backupTime);
-      _stretcher = new BackgroundKeyStretcher();
+      _keyStretcherServiceController = new KeyStretcherServiceController();
 
       // Populate Password
       ((TextView) findViewById(R.id.tvPassword)).setText(splitPassword(_password));
@@ -230,16 +235,32 @@ public class BackupToPdfActivity extends Activity {
       @Override
       public void run() {
          // Copy reference so we don't risk loosing it
-         KdfParameters tracker = _stretcher.getProgressTracker();
-         ExportProgressTracker pdfTracker = _pdfProgressTracker;
          Double encryptProgress = _encryptProgress;
 
-         if (tracker != null) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (tracker.getProgress() * 100) + "%");
+         if (_exportParameters == null) {
+            _keyStretcherServiceController.requestStatus();
+         }
+
+         if (_exportServiceController != null) {
+            _exportServiceController.requestStatus();
+         }
+
+         if (_stretchingStatus != null && _exportParameters == null) {
+            if (_stretchingStatus.error) {
+               ((TextView) findViewById(R.id.tvStatus)).setText(getResources().getString(R.string.out_of_memory_error));
+               ((TextView) findViewById(R.id.tvProgress)).setText("");
+            } else {
+               ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_stretchingStatus.progress * 100) + "%");
+            }
          } else if (encryptProgress != null) {
             ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (encryptProgress * 100) + "%");
-         } else if (pdfTracker != null) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (pdfTracker.getProgress() * 100) + "%");
+         } else if (_exportStatus != null && !_isPdfGenerated) {
+            if (_exportStatus.errorMessage != null) {
+               ((TextView) findViewById(R.id.tvStatus)).setText(_exportStatus.errorMessage);
+               ((TextView) findViewById(R.id.tvProgress)).setText("");
+            } else {
+               ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_exportStatus.progress * 100) + "%");
+            }
          } else {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
          }
@@ -258,14 +279,15 @@ public class BackupToPdfActivity extends Activity {
 
    @Override
    protected void onDestroy() {
-      _stretcher.terminate();
+      _keyStretcherServiceController.terminate();
+      _keyStretcherServiceController.unbind(this);
       if (_encryptionTask != null && _encryptionTask.getStatus() == Status.RUNNING) {
          _encryptionTask.cancel(true);
          _encryptionTask = null;
       }
-      if (_pdfTask != null && _pdfTask.getStatus() == Status.RUNNING) {
-         _pdfTask.cancel(true);
-         _pdfTask = null;
+      if (_exportServiceController != null) {
+         _exportServiceController.terminate();
+         _exportServiceController.unbind(this);
       }
       super.onDestroy();
    }
@@ -307,18 +329,8 @@ public class BackupToPdfActivity extends Activity {
       findViewById(R.id.btSharePdf).setEnabled(false);
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_stretching);
       KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource());
-      _stretcher.start(kdfParameters, new PostRunner() {
-
-         @Override
-         public void onPostExecute(boolean error, EncryptionParameters parameters) {
-            if (error) {
-               ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
-            } else {
-               _exportParameters = parameters;
-               startEncryptionTask();
-            }
-         }
-      });
+      _keyStretcherServiceController.bind(this, this);
+      _keyStretcherServiceController.start(kdfParameters);
    }
 
    private void startEncryptionTask() {
@@ -388,59 +400,16 @@ public class BackupToPdfActivity extends Activity {
    private void startPdfGeneration() {
       findViewById(R.id.btSharePdf).setEnabled(false);
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_creating);
-      _pdfTask = new GeneratePdfTask().execute();
-   }
 
-   private class GeneratePdfTask extends AsyncTask<Void, Void, String> {
+      _exportServiceController = new ExportServiceController();
 
-      private String _pdfString;
+      String exportFormatString = "Mycelium Backup 1.0";
 
-      @SuppressLint("WorldReadableFiles")
-      @Override
-      protected String doInBackground(Void... params) {
-
-         String exportFormatString = "Mycelium Backup 1.0";
-
-         // Generate PDF document
-         _pdfProgressTracker = ExportDestiller
-               .createExportProgressTracker(_encryptedActiveKeys, _encryptedArchivedKeys);
-         _pdfString = ExportDestiller.exportPrivateKeys(BackupToPdfActivity.this, exportFormatString, _backupTime,
-               _encryptedActiveKeys, _encryptedArchivedKeys, _pdfProgressTracker);
-         _pdfProgressTracker = null;
-
-         // Write document to file
-         try {
-
-            FileOutputStream stream;
-            stream = getOutStream();
-            stream.write(_pdfString.getBytes("UTF-8"));
-            stream.close();
-         } catch (IOException e) {
-            return "An error occurred while writing backup document to file: " + getFullExportFilePath();
-         }
-
-         return null;
-      }
-
-      @Override
-      protected void onPostExecute(String error) {
-         if (error != null) {
-            ((TextView) findViewById(R.id.tvStatus)).setText(error);
-            return;
-         }
-         _pdfTask = null;
-         _isPdfGenerated = true;
-         enableSharing();
-      }
-
-   }
-
-   private FileOutputStream getOutStream() throws FileNotFoundException {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-         return openFileOutput(getFullExportFilePath(), MODE_PRIVATE);
-      } else {
-         return new FileOutputStream(getFullExportFilePath());
-      }
+      // Generate PDF document
+      ExportDestiller.ExportPdfParameters p = new ExportDestiller.ExportPdfParameters(_backupTime, exportFormatString,
+            _encryptedActiveKeys, _encryptedArchivedKeys);
+      _exportServiceController.bind(this, this);
+      _exportServiceController.start(p, getFullExportFilePath());
    }
 
    private void enableSharing() {
@@ -492,7 +461,6 @@ public class BackupToPdfActivity extends Activity {
       }
    }
 
-
    private String getFileProviderAuthority() {
       try {
          PackageManager packageManager = getApplication().getPackageManager();
@@ -521,6 +489,70 @@ public class BackupToPdfActivity extends Activity {
 
    public boolean hasExternalStorage() {
       return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+   }
+
+   @Override
+   public void onStatusReceived(KeyStretcherService.Status status) {
+      _stretchingStatus = status;
+      if (_stretchingStatus.hasResult) {
+         _keyStretcherServiceController.requestResult();
+      }
+   }
+
+   @Override
+   public void onResultReceived(EncryptionParameters parameters) {
+      if (_exportParameters == null && parameters != null) {
+         _exportParameters = parameters;
+         startEncryptionTask();
+      }
+   }
+
+   @Override
+   public void onExportStatusReceived(ExportService.Status status) {
+      if (_exportServiceController == null) {
+         return;
+      }
+      _exportStatus = status;
+      if (_exportStatus.isComplete) {
+         if (_exportStatus.errorMessage == null) {
+            _exportServiceController.requestResult();
+         } else {
+            _exportServiceController.terminate();
+            _exportServiceController.unbind(this);
+            _exportServiceController = null;
+         }
+      }
+   }
+
+   @Override
+   public void onExportResultReceived(String result) {
+
+      // Write document to file
+      try {
+
+         FileOutputStream stream;
+         stream = getOutStream(this, getFullExportFilePath());
+         stream.write(result.getBytes("UTF-8"));
+         stream.close();
+      } catch (IOException e) {
+         ((TextView) findViewById(R.id.tvStatus)).setText("An error occurred while writing backup document to file: "
+               + getFullExportFilePath());
+         ((TextView) findViewById(R.id.tvProgress)).setText("");
+         _exportStatus = null;
+      }
+      _isPdfGenerated = true;
+      _exportServiceController.terminate();
+      _exportServiceController.unbind(this);
+      _exportServiceController = null;
+      enableSharing();
+   }
+
+   private static FileOutputStream getOutStream(Context context, String filePath) throws FileNotFoundException {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+         return context.openFileOutput(filePath, Context.MODE_PRIVATE);
+      } else {
+         return new FileOutputStream(filePath);
+      }
    }
 
 }

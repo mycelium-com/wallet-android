@@ -108,12 +108,30 @@ public class ExportDestiller {
 
    }
 
+   public static class ExportPdfParameters implements Serializable {
+      private static final long serialVersionUID = 1L;
+
+      public long time;
+      public String exportFormatString;
+      public List<ExportEntry> active;
+      public List<ExportEntry> archived;
+      public String file;
+
+      public ExportPdfParameters(long time, String exportFormatString, List<ExportEntry> active,
+            List<ExportEntry> archived) {
+         this.time = time;
+         this.exportFormatString = exportFormatString;
+         this.active = active;
+         this.archived = archived;
+      }
+   }
+
    public static ExportProgressTracker createExportProgressTracker(List<ExportEntry> active, List<ExportEntry> archived) {
       return new ExportProgressTracker(active, archived);
    }
 
-   public static String exportPrivateKeys(Context context, String exportFormatString, long time,
-                                          List<ExportEntry> active, List<ExportEntry> archived, ExportProgressTracker progressTracker) {
+   public static String exportPrivateKeys(Context context, ExportPdfParameters params,
+         ExportProgressTracker progressTracker) {
 
       int pageWidth = PaperSize.EXECUTIVE_WIDTH;
       int pageHeight = PaperSize.EXECUTIVE_HEIGHT;
@@ -130,15 +148,15 @@ public class ExportDestiller {
 
       // Count keys, active, archive
       int totalKeys = 0;
-      int activeRecords = active.size();
-      int archivedRecords = archived.size();
+      int activeRecords = params.active.size();
+      int archivedRecords = params.archived.size();
       int totalRecords = activeRecords + archivedRecords;
-      for (ExportEntry entry : active) {
+      for (ExportEntry entry : params.active) {
          if (entry.encryptedKey != null) {
             totalKeys++;
          }
       }
-      for (ExportEntry entry : archived) {
+      for (ExportEntry entry : params.archived) {
          if (entry.encryptedKey != null) {
             totalKeys++;
          }
@@ -171,7 +189,7 @@ public class ExportDestiller {
 
       // Creation Date
       writer.addText(1F, fromTop, 10, "Creation Date:");
-      writer.addText(4.2F, fromTop, 10, DateFormat.getDateInstance(DateFormat.LONG).format(new Date(time)));
+      writer.addText(4.2F, fromTop, 10, DateFormat.getDateInstance(DateFormat.LONG).format(new Date(params.time)));
       // writer.addText(4.2F, fromTop, 10, new Date(time).toLocaleString());
       fromTop += 0.4F;
 
@@ -182,7 +200,7 @@ public class ExportDestiller {
 
       // Export Format
       writer.addText(1F, fromTop, 10, "Backup Format:");
-      writer.addText(4.2F, fromTop, 10, exportFormatString);
+      writer.addText(4.2F, fromTop, 10, params.exportFormatString);
       fromTop += 0.4F;
 
       // Active Records
@@ -221,7 +239,8 @@ public class ExportDestiller {
       fromTop += 1F;
 
       // Description 2
-      writer.addText(1F, fromTop, 12, "Write the 15-character password and the checksum character from the display here:");
+      writer.addText(1F, fromTop, 12,
+            "Write the 15-character password and the checksum character from the display here:");
       fromTop += 0.8F;
 
       writer.setLineColor(0, 0.5, 1);
@@ -240,12 +259,13 @@ public class ExportDestiller {
       fromTop += 1F;
 
       // Description 5
-      writer.addText(1F, fromTop, 12, "Note that the embedded PDF viewer in Windows 8 cannot display the QR codes properly.");
+      writer.addText(1F, fromTop, 12,
+            "Note that the embedded PDF viewer in Windows 8 cannot display the QR codes properly.");
       fromTop += 1.7F;
 
       // Add first key to first page (we know that there will always be one
       // acrive record)
-      fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, 1, activeRecords, active.get(0), true,
+      fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, 1, activeRecords, params.active.get(0), true,
             progressTracker);
 
       // Add page number
@@ -260,14 +280,14 @@ public class ExportDestiller {
       fromTop = 0F;
 
       // Add remaining active records
-      for (int i = 1; i < active.size(); i++) {
+      for (int i = 1; i < params.active.size(); i++) {
          recordsOnThisPage++;
          boolean moreRecords = i != totalRecords - 1;
          boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1, active.size(), active.get(i),
-               lastRecordOnPage, progressTracker);
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1, params.active.size(),
+               params.active.get(i), lastRecordOnPage, progressTracker);
 
          // Add page number
          if (lastRecordOnPage) {
@@ -281,14 +301,14 @@ public class ExportDestiller {
       }
 
       // Add archived records
-      for (int i = 0; i < archived.size(); i++) {
+      for (int i = 0; i < params.archived.size(); i++) {
          recordsOnThisPage++;
-         boolean moreRecords = i != archived.size() - 1;
+         boolean moreRecords = i != params.archived.size() - 1;
          boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), false, i + 1, archived.size(), archived.get(i),
-               lastRecordOnPage, progressTracker);
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), false, i + 1, params.archived.size(),
+               params.archived.get(i), lastRecordOnPage, progressTracker);
 
          // Add page number
          if (lastRecordOnPage) {
@@ -311,7 +331,7 @@ public class ExportDestiller {
    }
 
    private static double addRecord(OffsetWriter writer, boolean active, int entryNum, int totalEntries,
-                                   ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
+         ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
       String address = entry.address;
       String encryptedKey = entry.encryptedKey;
       double fromTop = 0;

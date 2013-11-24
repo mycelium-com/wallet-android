@@ -1,6 +1,10 @@
 package com.lambdaworks.crypto;
 
-public class SCryptProgress {
+import java.io.Serializable;
+
+public class SCryptProgress implements Serializable{
+   private static final long serialVersionUID = 1L;
+   
    private int n;
    private long totalWork;
    private int progressN1;

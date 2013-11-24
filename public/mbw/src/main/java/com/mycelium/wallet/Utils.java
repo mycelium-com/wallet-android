@@ -519,7 +519,7 @@ public class Utils {
     * with one comma or dot separator. A comma separator will be converted to a
     * dot. The resulting string will have at most the number of decimals
     * specified
-    *
+    * 
     * @param number
     *           the number to truncate
     * @param maxDecimalPlaces
@@ -763,7 +763,7 @@ public class Utils {
    /**
     * Prevent the OS from taking screenshots for the specified activity
     */
-   public static void preventScreeshots(Activity activity) {
+   public static void preventScreenshots(Activity activity) {
       //looks like gingerbread devices have this issue more commonly than thought.
       //future: make a setting for this, and somehow gather feedback what works,
       // and a positive list of devices.

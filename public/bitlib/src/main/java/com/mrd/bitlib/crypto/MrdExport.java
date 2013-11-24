@@ -138,7 +138,8 @@ public class MrdExport {
 
       }
 
-      public static class KdfParameters {
+      public static class KdfParameters implements Serializable {
+         private static final long serialVersionUID = 1L;
 
          private String _passphrase;
          public byte[] salt;
@@ -178,6 +179,19 @@ public class MrdExport {
 
          public void terminate() {
             _scryptProgressTracker.terminate();
+         }
+
+         @Override
+         public boolean equals(Object obj) {
+            if (obj == this) {
+               return true;
+            }
+            if (!(obj instanceof KdfParameters)) {
+               return false;
+            }
+            KdfParameters other = (KdfParameters) obj;
+            return other._passphrase.equals(_passphrase) && other.n == n && other.r == r && other.p == p
+                  && BitUtils.areEqual(salt, other.salt);
          }
       }
 

@@ -34,10 +34,26 @@
 
 package com.mycelium.wallet;
 
+import android.content.Context;
+
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 
 public abstract class MbwEnvironment {
+
+   public static MbwEnvironment determineEnvironment(Context applicationContext) {
+      // Set up environment
+      String network = applicationContext.getResources().getString(R.string.network);
+      //todo proper IoC needed. it is not nice to refer to subclasses
+      if (network.equals("prodnet")) {
+         return new MbwProdEnvironment();
+      } else if (network.equals("testnet")) {
+         return new MbwTestEnvironment();
+      } else {
+         throw new RuntimeException("No network has been specified");
+      }
+   }
+
    public abstract NetworkParameters getNetwork();
 
    public abstract MyceliumWalletApi getMwsApi();

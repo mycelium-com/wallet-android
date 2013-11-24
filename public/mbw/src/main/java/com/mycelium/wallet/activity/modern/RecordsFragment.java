@@ -168,9 +168,7 @@ public class RecordsFragment extends Fragment {
    public void setUserVisibleHint(boolean isVisibleToUser) {
       super.setUserVisibleHint(isVisibleToUser);
       if (!isVisibleToUser) {
-         if (currentActionMode != null) {
-            currentActionMode.finish();
-         }
+         finishCurrentActionMode();
       }
    }
 
@@ -244,7 +242,7 @@ public class RecordsFragment extends Fragment {
                         _recordManager.deleteRecord(record.address);
                         _addressBook.deleteEntry(record.address.toString());
                      }
-                     currentActionMode.finish();
+                     finishCurrentActionMode();
                      update();
                      _toaster.toast(R.string.private_key_deleted, false);
                   }
@@ -258,7 +256,7 @@ public class RecordsFragment extends Fragment {
             } else {
                _recordManager.deleteRecord(record.address);
                _addressBook.deleteEntry(record.address.toString());
-               currentActionMode.finish();
+               finishCurrentActionMode();
                update();
                _toaster.toast(R.string.bitcoin_address_deleted, false);
             }
@@ -285,6 +283,12 @@ public class RecordsFragment extends Fragment {
       });
       deleteDialog.show();
 
+   }
+
+   private void finishCurrentActionMode() {
+      if (currentActionMode != null) {
+         currentActionMode.finish();
+      }
    }
 
    private boolean addRecord(Record record) {
