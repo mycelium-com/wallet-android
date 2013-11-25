@@ -101,7 +101,7 @@ public class NetworkConnectionWatcher implements Runnable {
                _isCurrentlyConnected = connected;
             }
          }
-      } catch (InterruptedException e) {
+      } catch (InterruptedException ignored) {
       }
 
    }

@@ -128,6 +128,7 @@ public class AndroidApiCache extends ApiCache {
       try {
          return ApiObject.deserialize(TransactionSummary.class, new ByteReader(bytes));
       } catch (ApiException e) {
+         //todo insert uncaught error handler
          // Something is wrong with the serialization, delete the cache entry
          delete(TABLE_TRANSACTION_SUMMARY, txHash);
          return null;
@@ -178,6 +179,7 @@ public class AndroidApiCache extends ApiCache {
          try {
             bytes = HexUtils.toBytes(string);
          } catch (RuntimeException e) {
+            //todo insert uncaught error handler
             return null;
          }
 
@@ -186,6 +188,7 @@ public class AndroidApiCache extends ApiCache {
          try {
             inv = new TransactionInventory(new ByteReader(bytes));
          } catch (InsufficientBytesException e) {
+            //todo insert uncaught error handler
             return null;
          }
          items.addAll(inv.transactions);
@@ -211,6 +214,7 @@ public class AndroidApiCache extends ApiCache {
          String value = cursor.getString(0);
          return value;
       } catch (Exception e) {
+         //todo insert uncaught error handler
          return null;
       } finally {
          if (cursor != null) {
@@ -230,7 +234,7 @@ public class AndroidApiCache extends ApiCache {
          }
          return keys;
       } catch (Exception e) {
-         // XXX: Use Andreas' error reporting
+         //todo insert uncaught error handler
       } finally {
          if (cursor != null) {
             cursor.close();

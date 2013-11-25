@@ -71,6 +71,7 @@ public class Toaster {
          }
       } catch (Resources.NotFoundException e) {
          return;
+         //todo insert uncaught error handler
       }
       toast(message, shortDuration);
    }

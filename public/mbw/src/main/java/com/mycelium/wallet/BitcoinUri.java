@@ -100,6 +100,7 @@ public class BitcoinUri implements Serializable {
          return new BitcoinUri(address, amount, label);
 
       } catch (Exception e) {
+         //todo insert uncaught error handler
          return null;
       }
    }

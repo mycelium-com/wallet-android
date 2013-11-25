@@ -459,7 +459,7 @@ public class Record implements Serializable, Comparable<Record> {
       }
 
       // Do we have a mini private key
-      record = recordFromBase58KeyMimiFormat(string, network);
+      record = recordFromBase58KeyMiniFormat(string, network);
       if (record != null) {
          return record;
       }
@@ -493,7 +493,7 @@ public class Record implements Serializable, Comparable<Record> {
       }
    }
 
-   public static Record recordFromBase58KeyMimiFormat(String base58String, NetworkParameters network) {
+   public static Record recordFromBase58KeyMiniFormat(String base58String, NetworkParameters network) {
       // Is it a mini private key on the format proposed by Casascius?
       if (base58String == null || base58String.length() < 2 || !base58String.startsWith("S")) {
          return null;
@@ -511,6 +511,7 @@ public class Record implements Serializable, Comparable<Record> {
          return new Record(key, Source.IMPORTED_MINI_PRIVATE_KEY, network);
       } catch (IllegalArgumentException e) {
          return null;
+         //todo insert uncaught error handler
       }
    }
 

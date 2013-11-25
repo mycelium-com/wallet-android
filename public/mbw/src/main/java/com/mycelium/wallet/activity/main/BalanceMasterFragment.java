@@ -77,6 +77,7 @@ public class BalanceMasterFragment extends Fragment {
                pInfo.versionName));
       } catch (NameNotFoundException e) {
          // Ignore
+         //todo insert uncaught error handler
       }
       super.onResume();
    }

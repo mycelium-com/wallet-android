@@ -246,6 +246,7 @@ public class AddressBookManager {
          try {
             stream = new BufferedReader(new InputStreamReader(applicationContext.openFileInput(ADDRESS_BOOK_FILE_NAME)));
          } catch (FileNotFoundException e) {
+            //todo insert uncaught error handler
             // ignore and return an empty set of addresses
             return entries;
          }

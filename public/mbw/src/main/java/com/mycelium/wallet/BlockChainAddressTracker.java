@@ -171,6 +171,7 @@ public class BlockChainAddressTracker {
                   Thread.sleep(100);// todo why?? if waiting for task do
                                     // future.await()
                } catch (InterruptedException e) {
+                  //todo insert uncaught error handler
                   // Ignore
                }
             }

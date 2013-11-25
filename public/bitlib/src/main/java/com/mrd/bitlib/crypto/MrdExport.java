@@ -44,6 +44,7 @@ public class MrdExport {
    }
 
    public static class DecodingException extends Exception {
+      //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
    }
 
@@ -85,6 +86,7 @@ public class MrdExport {
       }
 
       public static class InvalidChecksumException extends DecodingException {
+         //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
          private static final long serialVersionUID = 1L;
       }
 

@@ -469,6 +469,7 @@ public class Utils {
          clipboard.setText(string);
       } catch (Exception e) {
          // Ingore
+         //todo insert uncaught error handler
       }
    }
 
@@ -481,6 +482,7 @@ public class Utils {
          }
          return content.toString();
       } catch (Exception e) {
+         //todo insert uncaught error handler
          return "";
       }
    }
@@ -490,6 +492,7 @@ public class Utils {
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
          clipboard.setText("");
       } catch (Exception e) {
+         //todo insert uncaught error handler
          // Ignore
       }
    }

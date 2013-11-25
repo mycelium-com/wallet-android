@@ -57,29 +57,36 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
    }
 
    //todo make sure proxy is set before this. require as dependency?
-   public static void registerInVM(Context applicationContext) {
+   public static HttpErrorCollector registerInVM(Context applicationContext) {
       MbwEnvironment env = MbwEnvironment.determineEnvironment(applicationContext);
       String version = MbwManager.determineVersion(applicationContext);
-      registerInVM(applicationContext,env, version);
+      return registerInVM(applicationContext, version, env.getMwsApi());
    }
 
-   public static void registerInVM(Context applicationContext, MbwEnvironment environment, String version) {
+   public static HttpErrorCollector registerInVM(Context applicationContext, String version, MyceliumWalletApi api) {
       // Initialize error collector
       boolean emailOnErrors = applicationContext.getResources().getBoolean(R.bool.email_on_errors);
-      if (emailOnErrors) {
-         Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
-         if (!(orig instanceof HttpErrorCollector)) {
-            ActivityManager am = (ActivityManager) applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
-            int memoryClass = am.getMemoryClass();
-/*
-            long maxMemory = Runtime.getRuntime().maxMemory();
-
-*/
-            final ErrorMetaData metaData = new ErrorMetaData(memoryClass, Build.VERSION.SDK_INT, Build.MODEL, Build.BRAND, Build.VERSION.RELEASE, Build.DEVICE);
-            Log.i(Constants.TAG, "registering exception handler from thread " + Thread.currentThread().getName());
-            Thread.setDefaultUncaughtExceptionHandler(new HttpErrorCollector(orig, environment.getMwsApi(), version, metaData));
-         }
+      if (!emailOnErrors) {
+         return null;
       }
+      Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
+      if ((orig instanceof HttpErrorCollector)) {
+         return (HttpErrorCollector) orig;
+      }
+      Log.i(Constants.TAG, "registering exception handler from thread " + Thread.currentThread().getName());
+      HttpErrorCollector ret = new HttpErrorCollector(orig, api, version, buildMetaData(applicationContext));
+      Thread.setDefaultUncaughtExceptionHandler(ret);
+      return ret;
+
+   }
+
+   private static ErrorMetaData buildMetaData(Context applicationContext) {
+      ActivityManager am = (ActivityManager) applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
+      int memoryClass = am.getMemoryClass();
+/*
+         long maxMemory = Runtime.getRuntime().maxMemory();
+*/
+      return new ErrorMetaData(memoryClass, Build.VERSION.SDK_INT, Build.MODEL, Build.BRAND, Build.VERSION.RELEASE, Build.DEVICE);
    }
 
    @Override
@@ -87,17 +94,27 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
       new Thread() {
          @Override
          public void run() {
-            try {
-               api.collectError(throwable, version, metaData);
-            } catch (RuntimeException e) {
-               Log.e(Constants.TAG, "error while sending error", e);
-            } catch (ApiException e) {
-               Log.e(Constants.TAG, "error while sending error", e);
-            } finally {
-               Log.e(Constants.TAG, "uncaught exception", throwable);
-            }
+            reportErrorToServer(throwable);
          }
       }.start();
       orig.uncaughtException(thread, throwable);
+   }
+
+   /**
+    * use this method, if we expect an error,
+    * but we want to provide a meaningful error message instead of blowing up.
+    * in most cases we should blow up, though.
+    * @param throwable
+    */
+   public void reportErrorToServer(Throwable throwable) {
+      try {
+         api.collectError(throwable, version, metaData);
+      } catch (RuntimeException e) {
+         Log.e(Constants.TAG, "error while sending error", e);
+      } catch (ApiException e) {
+         Log.e(Constants.TAG, "error while sending error", e);
+      } finally {
+         Log.e(Constants.TAG, "uncaught exception", throwable);
+      }
    }
 }
