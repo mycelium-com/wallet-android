@@ -52,6 +52,7 @@ public class StandardTransactionBuilder {
    public static final long MINIMUM_OUTPUT_VALUE = 5430;
 
    public static class InsufficientFundsException extends Exception {
+      //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
 
       public long sending;
@@ -66,6 +67,7 @@ public class StandardTransactionBuilder {
    }
 
    public static class OutputTooSmallException extends Exception {
+      //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
 
       public long value;

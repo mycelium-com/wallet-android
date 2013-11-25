@@ -1,8 +1,41 @@
+/*
+ * Copyright 2013 Megion Research and Development GmbH
+ *
+ * Licensed under the Microsoft Reference Source License (MS-RSL)
+ *
+ * This license governs use of the accompanying software. If you use the software, you accept this license.
+ * If you do not accept the license, do not use the software.
+ *
+ * 1. Definitions
+ * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
+ * "You" means the licensee of the software.
+ * "Your company" means the company you worked for when you downloaded the software.
+ * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
+ * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
+ * software, and specifically excludes the right to distribute the software outside of your company.
+ * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
+ * under this license.
+ *
+ * 2. Grant of Rights
+ * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free copyright license to reproduce the software for reference use.
+ * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free patent license under licensed patents for reference use.
+ *
+ * 3. Limitations
+ * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
+ * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
+ * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
+ * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
+ * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
+ * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
+ * fitness for a particular purpose and non-infringement.
+ */
+
 package com.mycelium.wallet.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,6 +51,8 @@ import com.mycelium.wallet.HttpErrorCollector;
 import java.io.Serializable;
 
 public class KeyStretcherService extends Service {
+
+   private HttpErrorCollector _httpErrorCollector;
 
    public static class Status implements Serializable {
       private static final long serialVersionUID = 1L;
@@ -81,7 +116,7 @@ public class KeyStretcherService extends Service {
       }
 
       private void sendStatus(Messenger messenger) {
-         Message msg = Message.obtain(null, MSG_STATUS);
+         Message msg = Preconditions.checkNotNull(Message.obtain(null, MSG_STATUS));
          double progress = _kdfParameters == null ? 0 : _kdfParameters.getProgress();
          Bundle b = new Bundle();
          b.putSerializable("status", new Status(_stretcherThread == null, progress, _result != null, _error));
@@ -92,11 +127,12 @@ public class KeyStretcherService extends Service {
             // We ignore any exceptions from the caller, they asked for an
             // update
             // and we don't care if they are not around anymore
+            _httpErrorCollector.reportErrorToServer(e);
          }
       }
 
       private void sendResult(Messenger replyTo) {
-         Message msg = Message.obtain(null, MSG_RESULT);
+         Message msg = Preconditions.checkNotNull(Message.obtain(null, MSG_RESULT));
          Bundle b = new Bundle();
          b.putSerializable("result", _result);
          msg.setData(b);
@@ -106,6 +142,7 @@ public class KeyStretcherService extends Service {
             // We ignore any exceptions from the caller, they asked for an
             // update
             // and we don't care if they are not around anymore
+            _httpErrorCollector.reportErrorToServer(e);
          }
       }
 
@@ -118,7 +155,7 @@ public class KeyStretcherService extends Service {
             }
             try {
                t.join();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
                // Ignore
             }
          }
@@ -136,19 +173,13 @@ public class KeyStretcherService extends Service {
 
    @Override
    public void onCreate() {
-      HttpErrorCollector.registerInVM(getApplicationContext());
+      _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext());
       _serviceMessenger = new Messenger(new IncomingHandler());
    }
 
    @Override
    public void onDestroy() {
       super.onDestroy();
-   }
-
-   public class MyBinder extends Binder {
-      KeyStretcherService getService() {
-         return KeyStretcherService.this;
-      }
    }
 
    private class Runner implements Runnable {
@@ -161,13 +192,19 @@ public class KeyStretcherService extends Service {
          } catch (OutOfMemoryError e) {
             _result = null;
             _error = true;
-         } catch (InterruptedException e) {
+            reportIgnoredError(e);
+         } catch (InterruptedException ignored) {
             // This happens when it is terminated
             return;
          }
          _kdfParameters = null;
          _stretcherThread = null;
       }
+   }
+
+   private void reportIgnoredError(Throwable e) {
+      RuntimeException msg = new RuntimeException("we caught an exception and displayed a message to the user: \n" + _error, e);
+      _httpErrorCollector.reportErrorToServer(msg);
    }
 
 }

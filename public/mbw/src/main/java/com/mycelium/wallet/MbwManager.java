@@ -106,7 +106,7 @@ public class MbwManager {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.determineEnvironment(_applicationContext);
       _version = determineVersion(_applicationContext);
-      HttpErrorCollector.registerInVM(_applicationContext, _environment, _version);
+      HttpErrorCollector.registerInVM(_applicationContext, _version, _environment.getMwsApi());
 
       _eventBus = new Bus();
 
@@ -118,7 +118,7 @@ public class MbwManager {
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
       _cache = new AndroidApiCache(_applicationContext);
-      TxOutDb _txOutDb = new TxOutDb(_applicationContext);
+      TxOutDb txOutDb = new TxOutDb(_applicationContext);
       _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _cache, _eventBus);
       _recordManager = new RecordManager(_applicationContext, _eventBus, _environment.getNetwork());
 
@@ -146,7 +146,7 @@ public class MbwManager {
       _displayWidth = dm.widthPixels;
       _displayHeight = dm.heightPixels;
 
-      _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, _txOutDb, _applicationContext, _eventBus,
+      _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, txOutDb, _applicationContext, _eventBus,
             _environment.getNetwork());
       _addressBookManager = new AddressBookManager(_applicationContext, _eventBus);
       _syncManager = new SyncManager(_eventBus, this, _asyncApi, _recordManager, _blockChainAddressTracker);

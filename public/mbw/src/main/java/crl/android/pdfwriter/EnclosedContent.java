@@ -44,9 +44,13 @@ public class EnclosedContent extends Base {
 		mContent.append(Value);
 	}
 	
-	public String getContent() {
-		return mContent.toString();
-	}
+   public String getContent() {
+      return mContent.toString();
+   }
+
+   public int getContentSize() {
+      return mContent.length();
+   }
 
 	public void addContent(String Value) {
 		mContent.append(Value);

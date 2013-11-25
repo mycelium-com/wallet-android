@@ -122,16 +122,6 @@
             android:gravity="center"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/tvPdfNotice"
-            style="@style/GenericText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/pdf_compatibility_notice"
-            android:textSize="14sp" />
-
         <View
             android:layout_width="1dp"
             android:layout_height="2dp" />

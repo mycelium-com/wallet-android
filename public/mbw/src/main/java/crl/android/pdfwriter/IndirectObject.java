@@ -91,12 +91,18 @@ public class IndirectObject extends Base {
 	public String getStreamContent() {
 		return mStreamContent.getContent();
 	}
+
+   public int getStreamContentSize() {
+      return mStreamContent.getContentSize();
+   }
 	
 	protected String render() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(mID.toPDFString());
 		sb.append(" ");
 		// j-a-s-d: this can be performed in inherited classes DictionaryObject and StreamObject
+		// Removed by Jan. It seems that we can just add without updating the dictionary
+		// This saves time and memory resources significantly!
 		if (mDictionaryContent.hasContent()) {
 			mContent.setContent(mDictionaryContent.toPDFString());
 			if (mStreamContent.hasContent())

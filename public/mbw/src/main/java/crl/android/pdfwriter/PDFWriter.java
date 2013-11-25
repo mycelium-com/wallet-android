@@ -84,9 +84,13 @@ public class PDFWriter {
 		mCurrentPage.addLine(fromLeft, fromBottom, toLeft, toBottom);
 	}
 	
-	public void addRectangle(int fromLeft, int fromBottom, int toLeft, int toBottom) {
-		mCurrentPage.addRectangle(fromLeft, fromBottom, toLeft, toBottom);
-	}
+   public void addRectangle(int fromLeft, int fromBottom, int toLeft, int toBottom) {
+      mCurrentPage.addRectangle(fromLeft, fromBottom, toLeft, toBottom);
+   }
+
+   public void addFilledRectangle(double fromLeft, double fromBottom, double toLeft, double toBottom) {
+      mCurrentPage.addFilledRectangle(fromLeft, fromBottom, toLeft, toBottom);
+   }
 
 	public void addImage(int fromLeft, int fromBottom, Bitmap bitmap) {
 		addImage(fromLeft, fromBottom, bitmap, Transformation.DEGREES_0_ROTATION);

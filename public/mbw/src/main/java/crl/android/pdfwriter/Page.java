@@ -79,10 +79,12 @@ public class Page {
 	}
 	
 	private void addContent(String content) {
+      // Optimized by Jan. removed unnecessary copying 
+      // This saves time and memory resources significantly!
 		mPageContents.addStreamContent(content);
-		String streamContent = mPageContents.getStreamContent();
-		mPageContents.setDictionaryContent("  /Length " + Integer.toString(streamContent.length()) + "\n");
-		mPageContents.setStreamContent(streamContent);
+		//String streamContent = mPageContents.getStreamContent();
+		mPageContents.setDictionaryContent("  /Length " + Integer.toString(mPageContents.getStreamContentSize()) + "\n");
+		//mPageContents.setStreamContent(streamContent);
 	}
 	
 	public void addRawContent(String rawContent) {
@@ -130,6 +132,13 @@ public class Page {
 			Integer.toString(toLeft) + " " + Integer.toString(toBottom) + " re\nS\n"
 		);
 	}
+
+   public void addFilledRectangle(double fromLeft, double fromBottom, double toLeft, double toBottom) {
+      addContent(
+         Double.toString(fromLeft) + " " + Double.toString(fromBottom) + " " +
+         Double.toString(toLeft) + " " + Double.toString(toBottom) + " re\nf\n"
+      );
+   }
 	
 	private String ensureXObjectImage(XObjectImage xObject) {
 		for (XObjectImage x : mXObjects) {

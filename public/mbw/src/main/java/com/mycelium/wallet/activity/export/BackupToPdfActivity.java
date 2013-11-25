@@ -37,9 +37,6 @@ package com.mycelium.wallet.activity.export;
 import static android.text.format.DateFormat.getDateFormat;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date;
@@ -64,6 +61,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -81,8 +79,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.pdf.ExportDestiller;
-import com.mycelium.wallet.pdf.ExportDestiller.ExportEntry;
+import com.mycelium.wallet.pdf.ExportDistiller.ExportEntry;
+import com.mycelium.wallet.pdf.ExportPdfParameters;
 import com.mycelium.wallet.service.ExportService;
 import com.mycelium.wallet.service.ExportServiceController;
 import com.mycelium.wallet.service.ExportServiceController.ExportServiceCallback;
@@ -100,6 +98,8 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
    }
 
    private static final String FILE_NAME_PREFIX = "mycelium-backup";
+
+   private static final int SHARE_REQUEST_CODE = 1;
 
    private MbwManager _mbwManager;
    private long _backupTime;
@@ -214,7 +214,7 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
    }
 
    class ProgressUpdater implements Runnable {
-      Handler _handler;
+      final Handler _handler;
 
       ProgressUpdater() {
          _handler = new Handler();
@@ -278,6 +278,27 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
    }
 
    @Override
+   public void onBackPressed() {
+      // Delete export file. It may not be created when the user exits, so we
+      // don't check for that
+      
+      // XXX don't delete backup anyway... we may do it before the sharing has completed.
+      // XXX instead we should delete backup files when we start the backup process
+      //deleteBackupFile();
+      super.onBackPressed();
+   }
+
+   private void deleteBackupFile() {
+      boolean success;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+         success = this.deleteFile(getFullExportFilePath());
+      } else {
+         success = new File(getFullExportFilePath()).delete();
+      }
+      Log.i("BackupToPdfActivity", "Successfully deleted backup file: " + success);
+   }
+
+   @Override
    protected void onDestroy() {
       _keyStretcherServiceController.terminate();
       _keyStretcherServiceController.unbind(this);
@@ -289,6 +310,7 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
          _exportServiceController.terminate();
          _exportServiceController.unbind(this);
       }
+
       super.onDestroy();
    }
 
@@ -341,7 +363,7 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
 
    private class EncryptionTask extends AsyncTask<Void, Void, Void> {
 
-      private MrdExport.V1.EncryptionParameters _parameters;
+      private final MrdExport.V1.EncryptionParameters _parameters;
       private List<ExportEntry> _active;
       private List<ExportEntry> _archived;
 
@@ -406,7 +428,7 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
       String exportFormatString = "Mycelium Backup 1.0";
 
       // Generate PDF document
-      ExportDestiller.ExportPdfParameters p = new ExportDestiller.ExportPdfParameters(_backupTime, exportFormatString,
+      ExportPdfParameters p = new ExportPdfParameters(_backupTime, exportFormatString,
             _encryptedActiveKeys, _encryptedArchivedKeys);
       _exportServiceController.bind(this, this);
       _exportServiceController.start(p, getFullExportFilePath());
@@ -429,7 +451,8 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
       grantPermissions(intent, uri);
-      startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_with)));
+      startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.share_with)),
+            SHARE_REQUEST_CODE);
    }
 
    private String getSubject() {
@@ -461,6 +484,7 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
       }
    }
 
+   @SuppressWarnings("ConstantConditions") //ignore null checks in this method
    private String getFileProviderAuthority() {
       try {
          PackageManager packageManager = getApplication().getPackageManager();
@@ -478,17 +502,11 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      // revoke permissions
-      revokeUriPermission(getUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-      File exportedFile = getFileStreamPath(getFullExportFilePath());
-      boolean deleted = exportedFile.delete();
-      Preconditions.checkArgument(deleted);
+      if (requestCode == SHARE_REQUEST_CODE) {
+         // revoke permissions
+         revokeUriPermission(getUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      }
       super.onActivityResult(requestCode, resultCode, data);
-   }
-
-   public boolean hasExternalStorage() {
-      return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
    }
 
    @Override
@@ -515,43 +533,16 @@ public class BackupToPdfActivity extends Activity implements KeyStretcherService
       _exportStatus = status;
       if (_exportStatus.isComplete) {
          if (_exportStatus.errorMessage == null) {
-            _exportServiceController.requestResult();
+            _isPdfGenerated = true;
+            _exportServiceController.terminate();
+            _exportServiceController.unbind(this);
+            _exportServiceController = null;
+            enableSharing();
          } else {
             _exportServiceController.terminate();
             _exportServiceController.unbind(this);
             _exportServiceController = null;
          }
-      }
-   }
-
-   @Override
-   public void onExportResultReceived(String result) {
-
-      // Write document to file
-      try {
-
-         FileOutputStream stream;
-         stream = getOutStream(this, getFullExportFilePath());
-         stream.write(result.getBytes("UTF-8"));
-         stream.close();
-      } catch (IOException e) {
-         ((TextView) findViewById(R.id.tvStatus)).setText("An error occurred while writing backup document to file: "
-               + getFullExportFilePath());
-         ((TextView) findViewById(R.id.tvProgress)).setText("");
-         _exportStatus = null;
-      }
-      _isPdfGenerated = true;
-      _exportServiceController.terminate();
-      _exportServiceController.unbind(this);
-      _exportServiceController = null;
-      enableSharing();
-   }
-
-   private static FileOutputStream getOutStream(Context context, String filePath) throws FileNotFoundException {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-         return context.openFileOutput(filePath, Context.MODE_PRIVATE);
-      } else {
-         return new FileOutputStream(filePath);
       }
    }
 
