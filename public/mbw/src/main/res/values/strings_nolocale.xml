@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="btc">BTC</string>
+
+    <string name="one">1</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="four">4</string>
+    <string name="five">5</string>
+    <string name="six">6</string>
+    <string name="seven">7</string>
+    <string name="eight">8</string>
+    <string name="nine">9</string>
+    <string name="zero">0</string>
+    <string name="del">&lt;</string>
+    <string name="dot">.</string>
+
+
+    <string-array name="languages">
+        <item>de</item>
+        <item>en</item>
+        <item>es</item>
+        <item>it</item>
+        <item>pt</item>
+        <item>ru</item>
+        <item>zh</item>
+    </string-array>
+
+    <string-array name="languages_desc">
+        <item>Deutsch</item>
+        <item>English</item>
+        <item>Español</item>
+        <item>Italiano</item>
+        <item>Português</item>
+        <item>Русский язык</item>
+        <item>简体字</item>
+    </string-array>
+</resources>

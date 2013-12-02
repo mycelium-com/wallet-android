@@ -48,23 +48,19 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
-import com.mycelium.wallet.service.KeyStretcherService.Status;
+public class TaskExecutionServiceController {
 
-public class KeyStretcherServiceController {
+   public interface TaskExecutionServiceCallback {
+      public void onStatusReceived(ServiceTaskStatusEx status);
 
-   public interface KeyStretcherServiceCallback {
-      public void onStatusReceived(KeyStretcherService.Status status);
-
-      public void onResultReceived(MrdExport.V1.EncryptionParameters parameters);
+      public void onResultReceived(ServiceTask<?> result);
    }
 
    private class MyServiceConnection extends Handler implements ServiceConnection {
       private Messenger _serviceMessenger;
       private Messenger _myMessenger;
       private boolean _sendStop;
-      private KdfParameters _kdfParameters;
+      private ServiceTask<?> _task;
 
       public MyServiceConnection() {
          _myMessenger = new Messenger(this);
@@ -73,13 +69,12 @@ public class KeyStretcherServiceController {
       @Override
       public void handleMessage(Message msg) {
          switch (msg.what) {
-         case KeyStretcherService.MSG_STATUS:
-            Status status = (Status) msg.getData().getSerializable("status");
+         case TaskExecutionService.MSG_STATUS:
+            ServiceTaskStatusEx status = (ServiceTaskStatusEx) msg.getData().getSerializable("status");
             _callbackHandler.onStatusReceived(status);
             break;
-         case KeyStretcherService.MSG_RESULT:
-            MrdExport.V1.EncryptionParameters result = (MrdExport.V1.EncryptionParameters) msg.getData()
-                  .getSerializable("result");
+         case TaskExecutionService.MSG_RESULT:
+            ServiceTask<?> result = (ServiceTask<?>) msg.getData().getSerializable("result");
             _callbackHandler.onResultReceived(result);
             break;
          default:
@@ -92,8 +87,8 @@ public class KeyStretcherServiceController {
          if (_sendStop) {
             terminate();
          }
-         if (_kdfParameters != null) {
-            _error = start(_kdfParameters);
+         if (_task != null) {
+            _error = start(_task);
          }
       }
 
@@ -101,23 +96,23 @@ public class KeyStretcherServiceController {
          _serviceMessenger = null;
       }
 
-      public boolean start(KdfParameters kdfParameters) {
+      public boolean start(ServiceTask<?> task) {
          if (_serviceMessenger == null) {
             // Not yet connected, send it when we get a connection
-            _kdfParameters = kdfParameters;
+            _task = task;
             return false;
          }
          try {
-            Message msg = Message.obtain(null, KeyStretcherService.MSG_START);
+            Message msg = Message.obtain(null, TaskExecutionService.MSG_START);
             Bundle b = new Bundle();
-            b.putSerializable("kdfParameters", kdfParameters);
+            b.putSerializable("task", _task);
             msg.setData(b);
             msg.replyTo = _myMessenger;
             _serviceMessenger.send(msg);
-            _kdfParameters = null;
+            _task = null;
             return true;
          } catch (RemoteException e) {
-            Log.e("KeyStretcherService", "Remote exception: " + e.getMessage());
+            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
             return false;
          }
       }
@@ -128,12 +123,12 @@ public class KeyStretcherServiceController {
             return false;
          }
          try {
-            Message msg = Message.obtain(null, KeyStretcherService.MSG_GET_STATUS);
+            Message msg = Message.obtain(null, TaskExecutionService.MSG_GET_STATUS);
             msg.replyTo = _myMessenger;
             _serviceMessenger.send(msg);
             return true;
          } catch (RemoteException e) {
-            Log.e("KeyStretcherService", "Remote exception: " + e.getMessage());
+            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
             return false;
          }
       }
@@ -144,12 +139,12 @@ public class KeyStretcherServiceController {
             return false;
          }
          try {
-            Message msg = Message.obtain(null, KeyStretcherService.MSG_GET_RESULT);
+            Message msg = Message.obtain(null, TaskExecutionService.MSG_GET_RESULT);
             msg.replyTo = _myMessenger;
             _serviceMessenger.send(msg);
             return true;
          } catch (RemoteException e) {
-            Log.e("KeyStretcherService", "Remote exception: " + e.getMessage());
+            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
             return false;
          }
       }
@@ -161,12 +156,12 @@ public class KeyStretcherServiceController {
             return false;
          }
          try {
-            Message msg = Message.obtain(null, KeyStretcherService.MSG_TERMINATE);
+            Message msg = Message.obtain(null, TaskExecutionService.MSG_TERMINATE);
             _serviceMessenger.send(msg);
             _sendStop = false;
             return true;
          } catch (RemoteException e) {
-            Log.e("KeyStretcherService", "Remote exception: " + e.getMessage());
+            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
             return false;
          }
       }
@@ -174,21 +169,21 @@ public class KeyStretcherServiceController {
    }
 
    private MyServiceConnection _connection;
-   private KeyStretcherServiceCallback _callbackHandler;
+   private TaskExecutionServiceCallback _callbackHandler;
    private boolean _error;
 
    @SuppressLint("InlinedApi")
-   public KeyStretcherServiceController() {
+   public TaskExecutionServiceController() {
    }
 
    public boolean hasError() {
       return _error;
    }
 
-   public void bind(Activity activity, KeyStretcherServiceCallback callbackHandler) {
+   public void bind(Activity activity, TaskExecutionServiceCallback callbackHandler) {
       _connection = new MyServiceConnection();
       _callbackHandler = callbackHandler;
-      Intent intent = new Intent(activity, KeyStretcherService.class);
+      Intent intent = new Intent(activity, TaskExecutionService.class);
       activity.bindService(intent, _connection, Context.BIND_IMPORTANT | Context.BIND_AUTO_CREATE);
    }
 
@@ -200,8 +195,8 @@ public class KeyStretcherServiceController {
       activity.unbindService(_connection);
    }
 
-   public void start(KdfParameters kdfParameters) {
-      _connection.start(kdfParameters);
+   public void start(ServiceTask<?> task) {
+      _connection.start(task);
    }
 
    public void requestStatus() {

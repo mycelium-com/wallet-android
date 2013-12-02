@@ -166,7 +166,7 @@ public class ReceiveCoinsActivity extends Activity {
    private String getPaymentUri() {
       final StringBuilder uri = new StringBuilder("bitcoin:" + receivingAddress.address.toString());
       if (_amount != null) {
-         uri.append("?amount=").append(CoinUtil.valueString(_amount));
+         uri.append("?amount=").append(CoinUtil.valueString(_amount, false));
       }
       // XXX: For now we are not encoding the label. It makes the QR-code harder
       // to scan and should also be URI encoded

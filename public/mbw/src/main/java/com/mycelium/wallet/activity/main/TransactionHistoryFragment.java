@@ -241,8 +241,8 @@ public class TransactionHistoryFragment extends Fragment {
    private class TransactionHistoryAdapter extends ArrayAdapter<TransactionSummary> {
       private Context _context;
       private Date _midnight;
-      private DateFormat _hourFormat;
       private DateFormat _dayFormat;
+      private DateFormat _hourFormat;
       private Set<Address> _addressSet;
       private int _chainHeight;
 
@@ -257,8 +257,8 @@ public class TransactionHistoryFragment extends Fragment {
          _midnight = midnight.getTime();
          // Create date formats for hourly and day format
          Locale locale = getResources().getConfiguration().locale;
-         _hourFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
-         _dayFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+         _dayFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+         _hourFormat = android.text.format.DateFormat.getTimeFormat(_context);
          Wallet wallet = getWallet();
          _addressSet = wallet.getAddressSet();
       }
@@ -342,7 +342,7 @@ public class TransactionHistoryFragment extends Fragment {
 
          // Set Date
          Date date = new Date(record.time * 1000L);
-         DateFormat dateFormat = date.before(_midnight) ? _hourFormat : _dayFormat;
+         DateFormat dateFormat = date.before(_midnight) ? _dayFormat : _hourFormat;
          TextView tvDate = (TextView) rowView.findViewById(R.id.tvDate);
          tvDate.setText(dateFormat.format(date));
 

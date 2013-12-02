@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <ListPreference
+        android:key="user_language"
+        android:layout="@layout/preference_layout"
+        android:title="@string/pref_change_language" />
+
     <Preference
         android:key="local_currency"
         android:layout="@layout/preference_layout"

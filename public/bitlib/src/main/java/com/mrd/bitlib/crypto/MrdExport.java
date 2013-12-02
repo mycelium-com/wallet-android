@@ -44,7 +44,8 @@ public class MrdExport {
    }
 
    public static class DecodingException extends Exception {
-      //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
+      // todo consider refactoring this into a composite return value instead of
+      // an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
    }
 
@@ -67,7 +68,7 @@ public class MrdExport {
    }
 
    public static class V1 {
-
+      public static final String PASSWORD_CHARACTER_ENCODING = "US-ASCII";
       public static final int V1_PASSPHRASE_LENGTH = 15;
 
       public static final int DEFAULT_SCRYPT_N = 14;
@@ -79,14 +80,15 @@ public class MrdExport {
       private static final int V1_CHECKSUM_LENGTH = 4;
       private static final int V1_LENGTH = V1_HEADER_LENGTH + 32 + V1_CHECKSUM_LENGTH;
       private static final int V1_BLOCK_CIPHER_LENGTH = 16;
-      private static final int V1_CIPHER_KEY_LENGTH = 32;
+      public static final int V1_CIPHER_KEY_LENGTH = 32;
 
       public static class WrongNetworkException extends DecodingException {
          private static final long serialVersionUID = 1L;
       }
 
       public static class InvalidChecksumException extends DecodingException {
-         //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
+         // todo consider refactoring this into a composite return value instead
+         // of an exception. it is not really "exceptional"
          private static final long serialVersionUID = 1L;
       }
 
@@ -106,7 +108,7 @@ public class MrdExport {
           */
          public byte[] aesKey;
 
-         private EncryptionParameters(byte[] aesKey, KdfParameters kdfParameters) {
+         public EncryptionParameters(byte[] aesKey, KdfParameters kdfParameters) {
             n = kdfParameters.n;
             r = kdfParameters.r;
             p = kdfParameters.p;
@@ -128,8 +130,8 @@ public class MrdExport {
 
             try {
                // Derive AES Key using scrypt on passphrase and salt
-               byte[] aesKey = SCrypt.scrypt(p._passphrase.getBytes("US-ASCII"), p.salt, 1 << p.n, p.r, p.p,
-                     V1_CIPHER_KEY_LENGTH, p._scryptProgressTracker);
+               byte[] aesKey = SCrypt.scrypt(p.passphrase.getBytes(PASSWORD_CHARACTER_ENCODING), p.salt, 1 << p.n, p.r,
+                     p.p, V1_CIPHER_KEY_LENGTH, p._scryptProgressTracker);
                return new EncryptionParameters(aesKey, p);
             } catch (InterruptedException e) {
                throw e;
@@ -143,7 +145,7 @@ public class MrdExport {
       public static class KdfParameters implements Serializable {
          private static final long serialVersionUID = 1L;
 
-         private String _passphrase;
+         public String passphrase;
          public byte[] salt;
          public int n;
          public int r;
@@ -167,7 +169,7 @@ public class MrdExport {
                throw new RuntimeException(
                      "Parameter n can never be larger than 31. Note that n = 14 means scrypt with N = 16384");
             }
-            _passphrase = passphrase;
+            this.passphrase = passphrase;
             this.salt = salt;
             this.n = n;
             this.r = r;
@@ -181,19 +183,6 @@ public class MrdExport {
 
          public void terminate() {
             _scryptProgressTracker.terminate();
-         }
-
-         @Override
-         public boolean equals(Object obj) {
-            if (obj == this) {
-               return true;
-            }
-            if (!(obj instanceof KdfParameters)) {
-               return false;
-            }
-            KdfParameters other = (KdfParameters) obj;
-            return other._passphrase.equals(_passphrase) && other.n == n && other.r == r && other.p == p
-                  && BitUtils.areEqual(salt, other.salt);
          }
       }
 
@@ -591,7 +580,7 @@ public class MrdExport {
          // Calculate the SHA256 has of the password
          byte[] hash;
          try {
-            hash = HashUtils.sha256(password.getBytes("US-ASCII"));
+            hash = HashUtils.sha256(password.getBytes(PASSWORD_CHARACTER_ENCODING));
          } catch (UnsupportedEncodingException e) {
             // Never happens
             throw new RuntimeException(e);

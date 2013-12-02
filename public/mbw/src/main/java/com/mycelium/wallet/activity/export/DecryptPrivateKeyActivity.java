@@ -62,12 +62,14 @@ import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.TextNormalizer;
-import com.mycelium.wallet.service.KeyStretcherService;
-import com.mycelium.wallet.service.KeyStretcherService.Status;
-import com.mycelium.wallet.service.KeyStretcherServiceController;
-import com.mycelium.wallet.service.KeyStretcherServiceController.KeyStretcherServiceCallback;
+import com.mycelium.wallet.service.MrdKeyStretchingTask;
+import com.mycelium.wallet.service.ServiceTask;
+import com.mycelium.wallet.service.ServiceTaskStatusEx;
+import com.mycelium.wallet.service.ServiceTaskStatusEx.State;
+import com.mycelium.wallet.service.TaskExecutionServiceController;
+import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionServiceCallback;
 
-public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherServiceCallback {
+public class DecryptPrivateKeyActivity extends Activity implements TaskExecutionServiceCallback {
 
    public static final CharMatcher LETTERS = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'));
    public static final Splitter SPLIT_3 = Splitter.fixedLength(3);
@@ -95,12 +97,14 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
       fragment.startActivityForResult(intent, requestCode);
    }
 
-   private KeyStretcherServiceController _keyStretcherServiceController;
-   private KeyStretcherService.Status _stretchingStatus;
+   private TaskExecutionServiceController _taskExecutionServiceController;
+   private ServiceTaskStatusEx _taskStatus;
+   private boolean _oomDetected;
    private ProgressUpdater _progressUpdater;
    private String _encryptedPrivateKey;
    private MbwManager _mbwManager;
    private MrdExport.V1.Header _header;
+   private EncryptionParameters _encryptionParameters;
 
    /**
     * Called when the activity is first created.
@@ -123,6 +127,9 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
          finish();
          return;
       }
+
+      _taskExecutionServiceController = new TaskExecutionServiceController();
+      _taskExecutionServiceController.bind(this, this);
 
       _progressUpdater = new ProgressUpdater();
 
@@ -173,6 +180,8 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
    }
 
    private void showKeyboardOrStartStretching() {
+      _encryptionParameters = null;
+      
       if (this.isFinishing()) {
          return;
       }
@@ -211,8 +220,10 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
 
    @Override
    protected void onDestroy() {
-      if (_keyStretcherServiceController != null)
-         _keyStretcherServiceController.terminate();
+      if (_taskExecutionServiceController != null) {
+         _taskExecutionServiceController.terminate();
+         _taskExecutionServiceController.unbind(this);
+      }
       super.onDestroy();
    }
 
@@ -249,24 +260,22 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
       @Override
       public void run() {
 
-         if (_keyStretcherServiceController != null) {
-            // poll for status update
-            _keyStretcherServiceController.requestStatus();
-         }
-
-         if (_keyStretcherServiceController != null && _stretchingStatus != null) {
-            if (_stretchingStatus.error) {
-               ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
-               ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.red));
-               ((TextView) findViewById(R.id.tvProgress)).setText("");
-            } else {
-               ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_stretchingStatus.progress * 100)
-                     + "%");
-            }
-
-         } else {
+         if (_oomDetected) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
+            ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
+            return;
          }
+
+         if (_taskStatus == null || _taskStatus.state == State.NOTRUNNING) {
+            ((TextView) findViewById(R.id.tvProgress)).setText("");
+         } else if (_taskStatus.state == State.RUNNING) {
+            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_taskStatus.progress * 100) + "%");
+            ((TextView) findViewById(R.id.tvStatus)).setText(_taskStatus.statusMessage);
+
+         }
+
+         _taskExecutionServiceController.requestStatus();
+
          // Reschedule
          _handler.postDelayed(this, 300);
       }
@@ -276,17 +285,18 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
    private void startKeyStretching() {
       hideKeyboard();
 
-      ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_stretching);
       ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
       String password = getPassword().substring(0, MrdExport.V1.V1_PASSPHRASE_LENGTH);
       KdfParameters kdfParameters = KdfParameters.fromPassphraseAndHeader(password, _header);
 
-      if (_keyStretcherServiceController != null) {
-         _keyStretcherServiceController.terminate();
+      if (_taskExecutionServiceController != null) {
+         _taskExecutionServiceController.terminate();
+         _taskExecutionServiceController.unbind(this);
       }
-      _keyStretcherServiceController = new KeyStretcherServiceController();
-      _keyStretcherServiceController.bind(this, this);
-      _keyStretcherServiceController.start(kdfParameters);
+      _taskExecutionServiceController = new TaskExecutionServiceController();
+      _taskExecutionServiceController.bind(this, this);
+      MrdKeyStretchingTask task = new MrdKeyStretchingTask(kdfParameters, this);
+      _taskExecutionServiceController.start(task);
    }
 
    private void showKeyboard() {
@@ -300,7 +310,7 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
       imm.hideSoftInputFromWindow(passwordEdit.getWindowToken(), 0);
    }
 
-   private void tryDecrypt(MrdExport.V1.EncryptionParameters parameters) {
+   private void tryDecrypt(EncryptionParameters parameters) {
       try {
          String key = MrdExport.V1.decrypt(parameters, _encryptedPrivateKey, _mbwManager.getNetwork());
          // Success, return result
@@ -349,24 +359,28 @@ public class DecryptPrivateKeyActivity extends Activity implements KeyStretcherS
    }
 
    @Override
-   public void onStatusReceived(Status status) {
-      if(_keyStretcherServiceController == null){
-         return;
-      }
-      _stretchingStatus = status;
-      if (_stretchingStatus.hasResult) {
-         _keyStretcherServiceController.requestResult();
+   public void onStatusReceived(ServiceTaskStatusEx status) {
+      _taskStatus = status;
+      if (_taskStatus != null && _taskStatus.state == State.FINISHED && _encryptionParameters == null) {
+         _taskExecutionServiceController.requestResult();
       }
    }
 
    @Override
-   public void onResultReceived(EncryptionParameters parameters) {
-      if(_keyStretcherServiceController == null){
-         return;
+   public void onResultReceived(ServiceTask<?> result) {
+      _taskExecutionServiceController.terminate();
+      ((TextView) findViewById(R.id.tvProgress)).setText("");
+
+      MrdKeyStretchingTask task = (MrdKeyStretchingTask) result;
+      try {
+         _encryptionParameters = task.getResult();
+         tryDecrypt(_encryptionParameters);
+      } catch (OutOfMemoryError e) {
+         _oomDetected = true;
+         _mbwManager.reportIgnoredException(e);
+      } catch (Exception e) {
+         throw new RuntimeException(e);
       }
-      _keyStretcherServiceController.terminate();
-      _keyStretcherServiceController = null;
-      tryDecrypt(parameters);
    }
 
 }

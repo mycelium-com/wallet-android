@@ -36,9 +36,16 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
+import android.view.Surface;
 
 import com.google.common.base.Preconditions;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
+import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
@@ -47,7 +54,7 @@ import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.DecryptPrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 
@@ -63,6 +70,11 @@ public class ScanActivity extends Activity {
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
+   public static void callMe(Fragment fragment, int requestCode) {
+      Intent intent = new Intent(fragment.getActivity(), ScanActivity.class);
+      fragment.startActivityForResult(intent, requestCode);
+   }
+   
    private static final String RESULT_PAYLOAD = "payload";
    public static final String RESULT_ERROR = "error";
 
@@ -70,32 +82,127 @@ public class ScanActivity extends Activity {
    public static final String RESULT_URI_KEY = "uri";
    private static final int SCANNER_RESULT_CODE = 0;
    private static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
+   private static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 2;
 
    private MbwManager _mbwManager;
    private boolean _hasLaunchedScanner;
+   private int _preferredOrientation;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       _mbwManager = MbwManager.getInstance(this);
+
+      // Did we already launch the scanner?
       if (savedInstanceState != null) {
          _hasLaunchedScanner = savedInstanceState.getBoolean("hasLaunchedScanner", false);
       }
+
+      // Make sure that we make the screen rotate right after scanning
+      if (_hasLaunchedScanner) {
+         // the scanner has been launched earlier. This means that we have
+         // stored our previous orientation and that we want to try and restore
+         // it
+         Preconditions.checkNotNull(savedInstanceState);
+         _preferredOrientation = savedInstanceState.getInt("lastOrientation", -1);
+         if (getScreenOrientation() != _preferredOrientation) {
+            setRequestedOrientation(_preferredOrientation);
+         }
+      } else {
+         // The scanner has not been launched yet. Get our current orientation
+         // so we can restore it after scanning
+         _preferredOrientation = getScreenOrientation();
+      }
+
    }
 
    @Override
    public void onResume() {
       if (!_hasLaunchedScanner) {
-         Utils.startScannerIntent(this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
+         startScanner();
          _hasLaunchedScanner = true;
       }
       super.onResume();
    }
 
+   private void startScanner() {
+      Intent intent = new Intent(this, CaptureActivity.class);
+      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, _mbwManager.getContinuousFocus());
+      this.startActivityForResult(intent, SCANNER_RESULT_CODE);
+   }
+
+   public static void startScannerIntent(Activity activity, int requestCode, boolean enableContinuousFocus) {
+      Intent intent = buildScannerIntent(activity, enableContinuousFocus);
+      activity.startActivityForResult(intent, requestCode);
+   }
+
+   private static Intent buildScannerIntent(Activity activity, boolean enableContinuousFocus) {
+      Intent intent = new Intent(activity, CaptureActivity.class);
+      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus);
+      return intent;
+   }
+
    @Override
    protected void onSaveInstanceState(Bundle outState) {
+      outState.putInt("lastOrientation", _preferredOrientation);
       outState.putBoolean("hasLaunchedScanner", _hasLaunchedScanner);
       super.onSaveInstanceState(outState);
+   }
+
+   private int getScreenOrientation() {
+      int rotation = getWindowManager().getDefaultDisplay().getRotation();
+      DisplayMetrics dm = new DisplayMetrics();
+      getWindowManager().getDefaultDisplay().getMetrics(dm);
+      int width = dm.widthPixels;
+      int height = dm.heightPixels;
+      int orientation;
+      // if the device's natural orientation is portrait:
+      if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) && height > width
+            || (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) && width > height) {
+         switch (rotation) {
+         case Surface.ROTATION_0:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            break;
+         case Surface.ROTATION_90:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            break;
+         case Surface.ROTATION_180:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+            break;
+         case Surface.ROTATION_270:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+            break;
+         default:
+            // Unknown screen orientation. Defaulting to portrait.
+            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            break;
+         }
+      }
+      // if the device's natural orientation is landscape or if the device
+      // is square:
+      else {
+         switch (rotation) {
+         case Surface.ROTATION_0:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            break;
+         case Surface.ROTATION_90:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            break;
+         case Surface.ROTATION_180:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+            break;
+         case Surface.ROTATION_270:
+            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+            break;
+         default:
+            // Unknown screen orientation. Defaulting to landscape.
+            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            break;
+         }
+      }
+      return orientation;
    }
 
    @Override
@@ -112,8 +219,12 @@ public class ScanActivity extends Activity {
       if (requestCode == SCANNER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          handleScannerIntentResult(intent);
       } else if (requestCode == IMPORT_ENCRYPTED_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_OK) {
-         handleDecryptedPrivateKey(intent);
+         handleDecryptedMrdPrivateKey(intent);
       } else if (requestCode == IMPORT_ENCRYPTED_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_CANCELED) {
+         finishError(R.string.cancelled, "");
+      } else if (requestCode == IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_OK) {
+         handleDecryptedBip38PrivateKey(intent);
+      } else if (requestCode == IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_CANCELED) {
          finishError(R.string.cancelled, "");
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
@@ -136,15 +247,17 @@ public class ScanActivity extends Activity {
          return;
       }
       // Not an address or private key, maybe encrypted private key
-      if (isEncryptedPrivateKey(contents)) {
-         handleEncryptedPrivateKey(contents);
+      if (isMrdEncryptedPrivateKey(contents)) {
+         handleMrdEncryptedPrivateKey(contents);
+      } else if (Bip38.isBip38PrivateKey(contents)) {
+         handleBip38EncryptedPrivateKey(contents);
       } else {
          finishError(R.string.unrecognized_format, contents);
       }
 
    }
 
-   private boolean isEncryptedPrivateKey(String string) {
+   private boolean isMrdEncryptedPrivateKey(String string) {
       int version;
       try {
          version = MrdExport.decodeVersion(string);
@@ -154,7 +267,7 @@ public class ScanActivity extends Activity {
       return version == MrdExport.V1_VERSION;
    }
 
-   private void handleEncryptedPrivateKey(String encryptedPrivateKey) {
+   private void handleMrdEncryptedPrivateKey(String encryptedPrivateKey) {
       // Check the version
       int version = 0;
       try {
@@ -188,13 +301,24 @@ public class ScanActivity extends Activity {
       DecryptPrivateKeyActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_PRIVATE_KEY_CODE);
    }
 
-   private void handleDecryptedPrivateKey(Intent intent) {
+   private void handleBip38EncryptedPrivateKey(String encryptedPrivateKey) {
+      // Start activity to ask the user to enter a password and decrypt the key
+      DecryptBip38PrivateKeyActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
+   }
+
+   private void handleDecryptedMrdPrivateKey(Intent intent) {
       String key = intent.getStringExtra("base58Key");
-      // Cache the key for next import
+      // Cache the encryption parameters for next import
       EncryptionParameters encryptionParameters = (MrdExport.V1.EncryptionParameters) intent
             .getSerializableExtra("encryptionParameters");
       _mbwManager.setCachedEncryptionParameters(encryptionParameters);
       // Add the key
+      Record record = Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
+      finishOk(record, new BitcoinUri(record.address, null, null));
+   }
+
+   private void handleDecryptedBip38PrivateKey(Intent intent) {
+      String key = intent.getStringExtra("base58Key");
       Record record = Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
       finishOk(record, new BitcoinUri(record.address, null, null));
    }

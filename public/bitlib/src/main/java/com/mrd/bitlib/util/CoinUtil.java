@@ -18,6 +18,8 @@ package com.mrd.bitlib.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 /**
  * Utility for turning an amount of satoshis into a user friendly string. 1
@@ -28,10 +30,22 @@ public class CoinUtil {
    private static final BigDecimal BTC_IN_SATOSHIS = new BigDecimal(100000000);
    private static final BigDecimal mBTC_IN_SATOSHIS = new BigDecimal(100000);
    private static final BigDecimal uBTC_IN_SATOSHIS = new BigDecimal(100);
+   private static final DecimalFormat COIN_FORMAT;
+
+   static {
+      COIN_FORMAT = new DecimalFormat();
+      COIN_FORMAT.setGroupingSize(3);
+      COIN_FORMAT.setGroupingUsed(true);
+      COIN_FORMAT.setMaximumFractionDigits(8);
+      DecimalFormatSymbols symbols = COIN_FORMAT.getDecimalFormatSymbols();
+      symbols.setDecimalSeparator('.');
+      symbols.setGroupingSeparator(' ');
+      COIN_FORMAT.setDecimalFormatSymbols(symbols);
+   }
 
    public enum Denomination {
-      BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS), mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS), uBTC(2, "uBTC",
-            "\u00B5BTC", uBTC_IN_SATOSHIS);
+      BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS), mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS), uBTC(2, "uBTC", "\u00B5BTC",
+            uBTC_IN_SATOSHIS);
 
       private final int _decimalPlaces;
       private final String _asciiString;
@@ -67,7 +81,7 @@ public class CoinUtil {
       }
 
       public static Denomination fromString(String string) {
-         if(string == null){
+         if (string == null) {
             return BTC;
          }
          if (string.equals("BTC")) {
@@ -98,10 +112,12 @@ public class CoinUtil {
     * 
     * @param value
     *           The number of satoshis
+    * @param withThousandSeparator
+    *           Use ' ' as the 1000 grouping separator in the output 
     * @return The given value in satoshis as a string on the form "10.12345".
     */
-   public static String valueString(long value) {
-      return valueString(value, Denomination.BTC);
+   public static String valueString(long value, boolean withThousandSeparator) {
+      return valueString(value, Denomination.BTC, withThousandSeparator);
    }
 
    /**
@@ -116,12 +132,18 @@ public class CoinUtil {
     *           The number of satoshis
     * @param denomination
     *           The denomination to use
+    * @param withThousandSeparator
+    *           Use ' ' as the 1000 grouping separator in the output 
     * @return The given value in satoshis as a string on the form "10.12345".
     */
-   public static String valueString(long value, Denomination denomination) {
+   public static String valueString(long value, Denomination denomination, boolean withThousandSeparator) {
       BigDecimal d = BigDecimal.valueOf(value);
       d = d.divide(denomination.getOneUnitInSatoshis());
-      return d.toPlainString();
+      if (!withThousandSeparator) {
+         return d.toPlainString();
+      } else {
+         return COIN_FORMAT.format(d);
+      }
    }
 
    /**

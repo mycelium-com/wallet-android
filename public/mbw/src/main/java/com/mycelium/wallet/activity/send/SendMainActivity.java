@@ -63,9 +63,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Utils.BitcoinScanResult;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.SpendableOutputs;
+import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.api.AsyncTask;
@@ -73,7 +73,7 @@ import com.mycelium.wallet.api.AsyncTask;
 public class SendMainActivity extends Activity {
 
    private static final int GET_AMOUNT_RESULT_CODE = 1;
-   private static final int SCANNER_RESULT_CODE = 2;
+   private static final int SCAN_RESULT_CODE = 2;
    private static final int ADDRESS_BOOK_RESULT_CODE = 3;
    private static final int MANUAL_ENTRY_RESULT_CODE = 4;
 
@@ -178,7 +178,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         Utils.startScannerIntent(SendMainActivity.this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
+         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE);
       }
    };
 
@@ -400,7 +400,7 @@ public class SendMainActivity extends Activity {
 
    private String getFiatValue(long satoshis, Double oneBtcInFiat) {
       String currency = _mbwManager.getFiatCurrency();
-      Double converted = Utils.getFiatValue(satoshis, oneBtcInFiat);
+      String converted = Utils.getFiatValueAsString(satoshis, _oneBtcInFiat);
       return getResources().getString(R.string.approximate_fiat_value, currency, converted);
    }
 
@@ -465,21 +465,26 @@ public class SendMainActivity extends Activity {
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCANNER_RESULT_CODE && resultCode == RESULT_OK) {
-         BitcoinScanResult scanResult = Utils.parseScanResult(intent, _mbwManager.getNetwork());
+      if (requestCode == SCAN_RESULT_CODE) {
+         if (resultCode == RESULT_OK) {
 
-         // Bail out if we don't like the result
-         if (scanResult == null || scanResult.address == null) {
-            _mbwManager.vibrate();
-            Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
-            return;
-         }
+            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
+            BitcoinUri uri = (BitcoinUri) intent.getSerializableExtra(ScanActivity.RESULT_URI_KEY);
+            if (uri != null) {
+               _receivingAddress = uri.address;
+               if (uri.amount != null) {
+                  _amountToSend = uri.amount;
+               }
+            } else {
 
-         _receivingAddress = scanResult.address;
-
-         // Check if an amount was included
-         if (scanResult.amount != null) {
-            _amountToSend = scanResult.amount;
+               Preconditions.checkNotNull(record);
+               _receivingAddress = record.address;
+            }
+         } else {
+            String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+            if (error != null) {
+               Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+            }
          }
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser

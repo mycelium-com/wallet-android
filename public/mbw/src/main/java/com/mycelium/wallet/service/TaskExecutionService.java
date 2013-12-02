@@ -34,7 +34,9 @@
 
 package com.mycelium.wallet.service;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,31 +46,11 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.HttpErrorCollector;
 
-import java.io.Serializable;
-
-public class KeyStretcherService extends Service {
+public class TaskExecutionService extends Service {
 
    private HttpErrorCollector _httpErrorCollector;
-
-   public static class Status implements Serializable {
-      private static final long serialVersionUID = 1L;
-
-      public final boolean isStretching;
-      public final double progress;
-      public final boolean hasResult;
-      public final boolean error;
-
-      public Status(boolean isStretching, double progress, boolean hasResult, boolean error) {
-         this.isStretching = isStretching;
-         this.progress = progress;
-         this.hasResult = hasResult;
-         this.error = error;
-      }
-   }
 
    public static final int MSG_START = 1;
    public static final int MSG_GET_STATUS = 2;
@@ -77,49 +59,64 @@ public class KeyStretcherService extends Service {
    public static final int MSG_RESULT = 4;
    public static final int MSG_TERMINATE = 5;
    private Messenger _serviceMessenger;
-   private KdfParameters _kdfParameters;
-   private Thread _stretcherThread;
-   private MrdExport.V1.EncryptionParameters _result;
-   private boolean _error;
+   private Context _applicationContext;
+   private Thread _taskThread;
+   ServiceTaskStatusEx.State _state;
+   private ServiceTask<?> _currentTask;
 
-   //@SuppressLint("HandlerLeak")
+   @SuppressLint("HandlerLeak")
    private class IncomingHandler extends Handler {
       @Override
       public void handleMessage(Message msg) {
          switch (msg.what) {
-            case MSG_START:
-               Bundle bundle = Preconditions.checkNotNull(msg.getData());
-               KdfParameters kdfParameters = (KdfParameters) bundle.getSerializable("kdfParameters");
-               start(Preconditions.checkNotNull(kdfParameters));
-               break;
-            case MSG_GET_STATUS:
-               sendStatus(msg.replyTo);
-               break;
-            case MSG_GET_RESULT:
-               sendResult(msg.replyTo);
-               break;
-            case MSG_TERMINATE:
-               terminate();
-               stopSelf();
-               break;
-            default:
-               super.handleMessage(msg);
+         case MSG_START:
+            Bundle bundle = Preconditions.checkNotNull(msg.getData());
+            ServiceTask<?> task = (ServiceTask<?>) bundle.getSerializable("task");
+            start(Preconditions.checkNotNull(task));
+            break;
+         case MSG_GET_STATUS:
+            sendStatus(msg.replyTo);
+            break;
+         case MSG_GET_RESULT:
+            sendResult(msg.replyTo);
+            break;
+         case MSG_TERMINATE:
+            terminate();
+            stopSelf();
+            break;
+         default:
+            super.handleMessage(msg);
          }
       }
 
-      private void start(KdfParameters kdfParameters) {
+      private void start(ServiceTask<?> task) {
          // We may have a stretching going on already, stop it
          terminate();
-         _kdfParameters = kdfParameters;
-         _stretcherThread = new Thread(new Runner());
-         _stretcherThread.start();
+         _state = ServiceTaskStatusEx.State.STARTING;
+         _currentTask = task;
+         _taskThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+               _state = ServiceTaskStatusEx.State.RUNNING;
+               _currentTask.run(_applicationContext);
+               _taskThread = null;
+               _state = ServiceTaskStatusEx.State.FINISHED;
+            }
+         });
+         _taskThread.start();
       }
 
       private void sendStatus(Messenger messenger) {
          Message msg = Preconditions.checkNotNull(Message.obtain(null, MSG_STATUS));
-         double progress = _kdfParameters == null ? 0 : _kdfParameters.getProgress();
          Bundle b = new Bundle();
-         b.putSerializable("status", new Status(_stretcherThread == null, progress, _result != null, _error));
+         if (_currentTask == null) {
+            b.putSerializable("status", null);
+         } else {
+            ServiceTaskStatus status = _currentTask.getStatus();
+            ServiceTaskStatusEx statusEx = new ServiceTaskStatusEx(status.statusMessage, status.progress, _state);
+            b.putSerializable("status", statusEx);
+         }
          msg.setData(b);
          try {
             messenger.send(msg);
@@ -134,7 +131,11 @@ public class KeyStretcherService extends Service {
       private void sendResult(Messenger replyTo) {
          Message msg = Preconditions.checkNotNull(Message.obtain(null, MSG_RESULT));
          Bundle b = new Bundle();
-         b.putSerializable("result", _result);
+         if (_currentTask == null || _state != ServiceTaskStatusEx.State.FINISHED) {
+            b.putSerializable("result", null);
+         } else {
+            b.putSerializable("result", _currentTask);
+         }
          msg.setData(b);
          try {
             replyTo.send(msg);
@@ -147,11 +148,10 @@ public class KeyStretcherService extends Service {
       }
 
       private void terminate() {
-         Thread t = _stretcherThread;
+         Thread t = _taskThread;
          if (t != null) {
-            KdfParameters params = _kdfParameters;
-            if (params != null) {
-               params.terminate();
+            if (_currentTask != null) {
+               _currentTask.terminate();
             }
             try {
                t.join();
@@ -159,9 +159,9 @@ public class KeyStretcherService extends Service {
                // Ignore
             }
          }
-         _stretcherThread = null;
-         _error = false;
-         _result = null;
+         _state = ServiceTaskStatusEx.State.NOTRUNNING;
+         _taskThread = null;
+         _currentTask = null;
       }
 
    }
@@ -173,6 +173,8 @@ public class KeyStretcherService extends Service {
 
    @Override
    public void onCreate() {
+      _state = ServiceTaskStatusEx.State.NOTRUNNING;
+      _applicationContext = this.getApplicationContext();
       _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext());
       _serviceMessenger = new Messenger(new IncomingHandler());
    }
@@ -180,31 +182,6 @@ public class KeyStretcherService extends Service {
    @Override
    public void onDestroy() {
       super.onDestroy();
-   }
-
-   private class Runner implements Runnable {
-
-      @Override
-      public void run() {
-         try {
-            _result = MrdExport.V1.EncryptionParameters.generate(_kdfParameters);
-            _error = false;
-         } catch (OutOfMemoryError e) {
-            _result = null;
-            _error = true;
-            reportIgnoredError(e);
-         } catch (InterruptedException ignored) {
-            // This happens when it is terminated
-            return;
-         }
-         _kdfParameters = null;
-         _stretcherThread = null;
-      }
-   }
-
-   private void reportIgnoredError(Throwable e) {
-      RuntimeException msg = new RuntimeException("we caught an exception and displayed a message to the user: \n" + _error, e);
-      _httpErrorCollector.reportErrorToServer(msg);
    }
 
 }

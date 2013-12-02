@@ -131,7 +131,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       // Set amount
       String amountString;
       if (amount != null) {
-         amountString = CoinUtil.valueString(amount, _mbwManager.getBitcoinDenomination());
+         amountString = CoinUtil.valueString(amount, _mbwManager.getBitcoinDenomination(), false);
       } else {
          amountString = "";
       }
@@ -275,7 +275,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          btCurrency.setText(_mbwManager.getFiatCurrency());
 
          // Set Fiat balance
-         Double fiatBalance = Utils.getFiatValue(_balance, _oneBtcInFiat);
+         String fiatBalance = Utils.getFiatValueAsString(_balance, _oneBtcInFiat);
          String balanceString = getResources().getString(R.string.max_fiat, fiatBalance, _mbwManager.getFiatCurrency());
          ((TextView) findViewById(R.id.tvMaxAmount)).setText(balanceString);
 
@@ -340,7 +340,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
             tvAlternateAmount.setText(_mbwManager.getBtcValueString(satoshis));
          } else {
             // Show Fiat as alternate amount
-            Double converted = Utils.getFiatValue(satoshis, _oneBtcInFiat);
+            String converted = Utils.getFiatValueAsString(satoshis, _oneBtcInFiat);
             String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
             tvAlternateAmount.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
          }

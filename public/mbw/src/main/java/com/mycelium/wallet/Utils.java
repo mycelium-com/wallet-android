@@ -36,6 +36,8 @@ package com.mycelium.wallet;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,7 +57,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.text.ClipboardManager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -80,8 +81,6 @@ import com.google.common.collect.Iterables;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
@@ -97,21 +96,18 @@ import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 @SuppressWarnings("deprecation")
 public class Utils {
 
-   public static void startScannerIntent(Activity activity, int requestCode, boolean enableContinuousFocus) {
-      Intent intent = buildScannerIntent(activity, enableContinuousFocus);
-      activity.startActivityForResult(intent, requestCode);
-   }
+   private static final DecimalFormat FIAT_FORMAT;
 
-   public static void startScannerIntent(Fragment fragment, int requestCode, boolean enableContinuousFocus) {
-      Intent intent = buildScannerIntent(fragment.getActivity(), enableContinuousFocus);
-      fragment.startActivityForResult(intent, requestCode);
-   }
-
-   private static Intent buildScannerIntent(Activity activity, boolean enableContinuousFocus) {
-      Intent intent = new Intent(activity, CaptureActivity.class);
-      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus);
-      return intent;
+   static {
+      FIAT_FORMAT = new DecimalFormat();
+      FIAT_FORMAT.setGroupingSize(3);
+      FIAT_FORMAT.setGroupingUsed(true);
+      FIAT_FORMAT.setMaximumFractionDigits(2);
+      FIAT_FORMAT.setMinimumFractionDigits(2);
+      DecimalFormatSymbols symbols = FIAT_FORMAT.getDecimalFormatSymbols();
+      symbols.setDecimalSeparator('.');
+      symbols.setGroupingSeparator(' ');
+      FIAT_FORMAT.setDecimalFormatSymbols(symbols);
    }
 
    @SuppressLint("NewApi")
@@ -123,6 +119,31 @@ public class Utils {
       } else {
          view.setAlpha(alpha);
       }
+   }
+
+   public static String loadEnglish(int resId) {
+      //complex code messes up stuff, hardcoding two strings
+      if (resId == R.string.settings) {
+         return "Settings";
+      }
+      if (resId == R.string.pref_change_language) {
+         return "Change Language";
+      }
+      throw new UnsupportedOperationException("not implemented");
+
+      /*Resources standardResources = getResources();
+      AssetManager assets = standardResources.getAssets();
+      DisplayMetrics metrics = standardResources.getDisplayMetrics();
+      Configuration config = new Configuration(standardResources.getConfiguration());
+      config.locale = Locale.US;
+      Resources defaultResources = new Resources(assets, metrics, config);
+
+      String lang = Locale.getDefault().getLanguage();
+      String settingsEn = null;
+      if (!lang.equals("en")) {
+         settingsEn = defaultResources.getString(resId);
+      }
+      return settingsEn;*/
    }
 
    public static class BitcoinScanResult {
@@ -379,6 +400,14 @@ public class Utils {
       return Double.valueOf(satoshis) * oneBtcInFiat / Constants.ONE_BTC_IN_SATOSHIS;
    }
 
+   public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat) {
+      Double converted = getFiatValue(satoshis, oneBtcInFiat);
+      if (converted == null) {
+         return null;
+      }
+      return FIAT_FORMAT.format(converted);
+   }
+
    private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100L);
    private static final BigDecimal BTC_IN_SATOSHIS = BigDecimal.valueOf(Constants.ONE_BTC_IN_SATOSHIS);
 
@@ -469,7 +498,7 @@ public class Utils {
          clipboard.setText(string);
       } catch (Exception e) {
          // Ingore
-         //todo insert uncaught error handler
+         // todo insert uncaught error handler
       }
    }
 
@@ -482,7 +511,7 @@ public class Utils {
          }
          return content.toString();
       } catch (Exception e) {
-         //todo insert uncaught error handler
+         // todo insert uncaught error handler
          return "";
       }
    }
@@ -492,7 +521,7 @@ public class Utils {
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
          clipboard.setText("");
       } catch (Exception e) {
-         //todo insert uncaught error handler
+         // todo insert uncaught error handler
          // Ignore
       }
    }
@@ -767,11 +796,13 @@ public class Utils {
     * Prevent the OS from taking screenshots for the specified activity
     */
    public static void preventScreenshots(Activity activity) {
-      //looks like gingerbread devices have this issue more commonly than thought.
-      //future: make a setting for this, and somehow gather feedback what works,
+      // looks like gingerbread devices have this issue more commonly than
+      // thought.
+      // future: make a setting for this, and somehow gather feedback what
+      // works,
       // and a positive list of devices.
       if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.GINGERBREAD
-            || android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1){
+            || android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1) {
          return;
       }
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);

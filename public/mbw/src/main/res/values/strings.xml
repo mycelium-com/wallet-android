@@ -37,26 +37,13 @@
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>
     <string name="enter_amount_title">Enter Amount</string>
-    <string name="btc">BTC</string>
     <string name="sample_address">1Bmc9QwQgmuN\r\nWTxo5PjzPWeS\r\nF4d3aHx6hH</string>
     <string name="btc_balance">Balance: %1$s</string>
     <string name="max_btc">Spendable: %1$s</string>
-    <string name="max_fiat">Spendable: %1$.2f %2$s</string>
+    <string name="max_fiat">Spendable: %1$s %2$s</string>
     <string name="qr_code">QR Code</string>
     <string name="address_book">Address Book</string>
     <string name="get_receiver_address">Get receiver address from:</string>
-    <string name="one">1</string>
-    <string name="two">2</string>
-    <string name="three">3</string>
-    <string name="four">4</string>
-    <string name="five">5</string>
-    <string name="six">6</string>
-    <string name="seven">7</string>
-    <string name="eight">8</string>
-    <string name="nine">9</string>
-    <string name="zero">0</string>
-    <string name="del">&lt;</string>
-    <string name="dot">.</string>
     <string name="next">Next</string>
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
@@ -80,7 +67,7 @@
     <string name="your_balance">Your balance:</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="balance">Balance</string>
-    <string name="approximate_fiat_value">~%1$s %2$.2f</string>
+    <string name="approximate_fiat_value">~%1$s %2$s</string>
     <string name="no_server_connection">No Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
@@ -158,10 +145,10 @@
     <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somehere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
-    <string name="btc_rate">1 BTC ~ %1$s %2$.2f (%3$s)</string>
+    <string name="btc_rate">1 BTC ~ %1$s %2$s (%3$s)</string>
     <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
     <string name="read_only_warning">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</string>
-    <string name="add_to_address_book_dialog_title">Add Address to Address Book</string>
+    <string name="add_to_address_book_dialog_title">Add Address</string>
     <string name="scan_address_book_desc">Scan Bitcoin address.</string>
     <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
     <string name="aggregated">Aggregated</string>
@@ -255,7 +242,7 @@
     <string name="tab_balance">Balance</string>
     <string name="tab_transactions">Transactions</string>
     <string name="tab_addresses">Address Book</string>
-    <string name="active_key_limit_reached">The  maximum number of active addresses is 10 and and you have reached the limit.\n\nYou can have as many archived addresses as you like, and you can always activate an archived address.\n\nTo add another address please archive one of your existing addresses.</string>
+    <string name="active_key_limit_reached">The maximum number of active addresses is 10 and you have reached the limit.\n\nYou can have as many archived addresses as you like, and you can always activate an archived address.\n\nTo add another address please archive one of your existing addresses.</string>
     <string name="key_management_disabled_desc">This page gives access to advanced Bitcoin key management features for experts in Bitcoin.\n\nYou can enable Expert Mode in Settings.</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="background_image">background image</string>
@@ -276,7 +263,7 @@
     <string name="mycelium_license">Mycelium License</string>
     <string name="zxing_license">ZXing License</string>
     <string name="pdfwriter_license">Android PDF Writer License</string>
-    <string name="scanned_address_need_private_key">You have scanned this Bitcoin address:\n\n%1$s\n\nYou need to scan a private key.\n\nOn paper wallets the private is often located next to the Bitcoin address.</string>
+    <string name="scanned_address_need_private_key">You have scanned this Bitcoin address:\n\n%1$s\n\nYou need to scan a private key.\n\nOn paper wallets the private key is often located next to the Bitcoin address.</string>
     <string name="source_url">https://github.com/mycelium-com/wallet</string>
     <string name="source_repo_label">Source Repository</string>
     <string name="version_label">Version</string>
@@ -291,4 +278,10 @@
     <string name="invalid_password">Invalid Password</string>
     <string name="retry_password_question">The password you entered is not valid.\nDo you wish to try again?</string>
     <string name="send_bitcoins">Send Bitcoins</string>
+    <string name="import_decrypt_bip38_description">You are about to decrypt a BIP38 password protected private key.</string>
+    <string name="import_decrypt_bip38_enter_password">Enter the BIP38 encryption password.</string>
+    <string name="import_decrypt_bip38_invalid_password">The password entered is not correct.</string>
+    <string name="decrypt_button">Decrypt</string>
+    <string name="pref_change_language">Change Language</string>
+
 </resources>

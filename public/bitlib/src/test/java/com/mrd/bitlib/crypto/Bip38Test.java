@@ -37,55 +37,88 @@ package com.mrd.bitlib.crypto;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.UnsupportedEncodingException;
+
 import org.junit.Test;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.HexUtils;
 
 public class Bip38Test {
 
    @Test
-   public void encryptNoCompression() {
-      String encoded = Bip38.encrypt("TestingOneTwoThree", "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR", null,
-            NetworkParameters.productionNetwork);
+   public void encryptNoCompression() throws InterruptedException {
+      String encoded = Bip38.encryptNoEcMultiply("TestingOneTwoThree",
+            "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR", null, NetworkParameters.productionNetwork);
       assertEquals(encoded, "6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg");
       assertTrue(Bip38.isBip38PrivateKey(encoded));
    }
 
    @Test
-   public void decryptNoCompression() {
+   public void decryptNoCompression() throws InterruptedException {
       String decoded = Bip38.decrypt("6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg",
             "TestingOneTwoThree", null, NetworkParameters.productionNetwork);
       assertEquals(decoded, "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR");
    }
 
    @Test
-   public void encryptCompression1() {
-      String encoded = Bip38.encrypt("TestingOneTwoThree", "L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP",
-            null, NetworkParameters.productionNetwork);
+   public void encryptCompression1() throws InterruptedException {
+      String encoded = Bip38.encryptNoEcMultiply("TestingOneTwoThree",
+            "L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP", null, NetworkParameters.productionNetwork);
       assertEquals(encoded, "6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo");
       assertTrue(Bip38.isBip38PrivateKey(encoded));
    }
 
    @Test
-   public void decryptCompression1() {
+   public void decryptCompression1() throws InterruptedException {
       String decoded = Bip38.decrypt("6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo",
             "TestingOneTwoThree", null, NetworkParameters.productionNetwork);
       assertEquals(decoded, "L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP");
    }
 
    @Test
-   public void encryptCompression2() {
-      String encoded = Bip38.encrypt("Satoshi", "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7", null,
-            NetworkParameters.productionNetwork);
+   public void encryptCompression2() throws InterruptedException {
+      String encoded = Bip38.encryptNoEcMultiply("Satoshi", "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7",
+            null, NetworkParameters.productionNetwork);
       assertEquals(encoded, "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7");
       assertTrue(Bip38.isBip38PrivateKey(encoded));
    }
 
    @Test
-   public void decryptCompression2() {
+   public void decryptCompression2() throws InterruptedException {
       String decoded = Bip38.decrypt("6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7", "Satoshi", null,
             NetworkParameters.productionNetwork);
       assertEquals(decoded, "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7");
    }
 
+   @Test
+   public void decryptNoCompressionWithEcMultiplyNoLot1() throws InterruptedException {
+      String decoded = Bip38.decrypt("6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX",
+            "TestingOneTwoThree", null, NetworkParameters.productionNetwork);
+      assertEquals(decoded, "5K4caxezwjGCGfnoPTZ8tMcJBLB7Jvyjv4xxeacadhq8nLisLR2");
+   }
+
+   @Test
+   public void decryptNoCompressionWithEcMultiplyNoLot2() throws InterruptedException {
+      String decoded = Bip38.decrypt("6PfLGnQs6VZnrNpmVKfjotbnQuaJK4KZoPFrAjx1JMJUa1Ft8gnf5WxfKd", "Satoshi", null,
+            NetworkParameters.productionNetwork);
+      assertEquals(decoded, "5KJ51SgxWaAYR13zd9ReMhJpwrcX47xTJh2D3fGPG9CM8vkv5sH");
+   }
+
+   @Test
+   public void decryptNoCompressionWithEcMultiplyWithLot1() throws InterruptedException {
+      String decoded = Bip38.decrypt("6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j", "MOLON LABE", null,
+            NetworkParameters.productionNetwork);
+      assertEquals(decoded, "5JLdxTtcTHcfYcmJsNVy1v2PMDx432JPoYcBTVVRHpPaxUrdtf8");
+   }
+
+   @Test
+   public void decryptNoCompressionWithEcMultiplyWithLot2() throws InterruptedException, UnsupportedEncodingException {
+      // "MOLON LABE" using greek characters  = "ΜΟΛΩΝ ΛΑΒΕ" 
+      String passphrase = "\u039C\u039F\u039B\u03A9\u039D \u039B\u0391\u0392\u0395";
+      assertEquals("ce9cce9fce9bcea9ce9d20ce9bce91ce92ce95", HexUtils.toHex(passphrase.getBytes("UTF-8")));
+      String decoded = Bip38.decrypt("6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH", passphrase, null,
+            NetworkParameters.productionNetwork);
+      assertEquals(decoded, "5KMKKuUmAkiNbA3DazMQiLfDq47qs8MAEThm4yL8R2PhV1ov33D");
+   }
 }

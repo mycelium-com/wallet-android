@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <!-- Title -->
+
+        <TextView
+            style="@style/GenericText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:text="@string/import_decrypt_key_title"
+            android:textSize="24sp" />
+
+        <!-- Descrption -->
+
+        <TextView
+            style="@style/GenericText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/import_decrypt_bip38_description"
+            android:textSize="16sp" />
+
+        <!-- Status -->
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/password"
+            android:inputType="textVisiblePassword"
+            android:singleLine="true"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            style="@style/GenericText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/import_decrypt_bip38_enter_password"
+            android:textSize="16sp"
+            android:singleLine="false"/>
+
+        <TextView
+            android:id="@+id/tvProgress"
+            style="@style/GenericText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="18sp" />
+        
+        <Button
+            android:id="@+id/btDecrypt"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_blue"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/decrypt_button"
+            android:textSize="20sp" />
+        
+    </LinearLayout>
+
+</ScrollView>

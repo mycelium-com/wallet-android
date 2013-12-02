@@ -52,14 +52,18 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.wallet.ExchangeRateCalculationMode;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.WalletMode;
 
+import java.util.Locale;
 /**
  * PreferenceActivity is a built-in Activity for preferences management
  * <p/>
@@ -76,13 +80,10 @@ public class SettingsActivity extends PreferenceActivity {
    private static final int GET_CURRENCY_RESULT_CODE = 0;
 
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
-   private Preference _clearPin;
-   private Preference _setPin;
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
-   private CheckBoxPreference _expertMode;
-   private CheckBoxPreference _continuousAutoFocus;
+   private ListPreference _language;
    private CheckBoxPreference _aggregatedView;
    private MbwManager _mbwManager;
    private Dialog _dialog;
@@ -93,6 +94,7 @@ public class SettingsActivity extends PreferenceActivity {
          return extractAmount(input);
       }
    };
+   private ImmutableMap<String,String> _languageLookup;
 
    @SuppressWarnings("deprecation")
    @Override
@@ -140,22 +142,47 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
+      _language = (ListPreference) findPreference("user_language");
+      _language.setTitle(getLanguageSettingTitle());
+      _language.setDefaultValue(Locale.getDefault().getLanguage());
+      _language.setSummary(_mbwManager.getLanguage());
+      _language.setValue(_mbwManager.getLanguage());
+
+      _languageLookup = loadLanguageLookups();
+      _language.setSummary(_languageLookup.get(_mbwManager.getLanguage()));
+
+      _language.setEntries(R.array.languages_desc);
+      _language.setEntryValues(R.array.languages);
+      _language.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+         @Override
+         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            String lang = newValue.toString();
+            _mbwManager.setLanguage(lang);
+            WalletApplication app = (WalletApplication) getApplication();
+            app.applyLanguageChange(lang);
+
+            restart();
+
+            return true;
+         }
+      });
+
       // Set PIN
-      _setPin = Preconditions.checkNotNull(findPreference("setPin"));
-      _setPin.setOnPreferenceClickListener(setPinClickListener);
+      Preference setPin = Preconditions.checkNotNull(findPreference("setPin"));
+      setPin.setOnPreferenceClickListener(setPinClickListener);
 
       // Clear PIN
       updateClearPin();
 
       // Expert Mode
-      _expertMode = (CheckBoxPreference) findPreference("expertMode");
-      _expertMode.setChecked(_mbwManager.getExpertMode());
-      _expertMode.setOnPreferenceClickListener(expertModeClickListener);
+      CheckBoxPreference expertMode = (CheckBoxPreference) findPreference("expertMode");
+      expertMode.setChecked(_mbwManager.getExpertMode());
+      expertMode.setOnPreferenceClickListener(expertModeClickListener);
 
       // Show Swipe Animation
-      _continuousAutoFocus = (CheckBoxPreference) findPreference("continuousFocus");
-      _continuousAutoFocus.setChecked(_mbwManager.getContinuousFocus());
-      _continuousAutoFocus.setOnPreferenceClickListener(continuousAutoFocusClickListener);
+      CheckBoxPreference continuousFocus = (CheckBoxPreference) findPreference("continuousFocus");
+      continuousFocus.setChecked(_mbwManager.getContinuousFocus());
+      continuousFocus.setOnPreferenceClickListener(continuousAutoFocusClickListener);
 
       // Aggregated View
       _aggregatedView = (CheckBoxPreference) findPreference("aggregatedView");
@@ -177,6 +204,31 @@ public class SettingsActivity extends PreferenceActivity {
       });
 
       applyExpertMode();
+   }
+
+   private String getLanguageSettingTitle() {
+      String displayed = getResources().getString(R.string.pref_change_language);
+      String english = Utils.loadEnglish(R.string.pref_change_language);
+      return english.equals(displayed) ? displayed : displayed + " / " + english;
+   }
+
+   private ImmutableMap<String, String> loadLanguageLookups() {
+      String[] langDesc = getResources().getStringArray(R.array.languages_desc);
+      String[] langs = getResources().getStringArray(R.array.languages);
+
+      ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
+      for (int i = 0; i < langs.length; i++) {
+         String lang = langs[i];
+         String desc = langDesc[i];
+         b.put(lang,desc);
+      }
+      return b.build();
+   }
+
+   private void restart() {
+      Intent running = getIntent();
+      finish();
+      startActivity(running);
    }
 
    private void applyExpertMode() {
@@ -234,9 +286,9 @@ public class SettingsActivity extends PreferenceActivity {
 
    @SuppressWarnings("deprecation")
    private void updateClearPin() {
-      _clearPin = findPreference("clearPin");
-      _clearPin.setEnabled(_mbwManager.isPinProtected());
-      _clearPin.setOnPreferenceClickListener(clearPinClickListener);
+      Preference clearPin = findPreference("clearPin");
+      clearPin.setEnabled(_mbwManager.isPinProtected());
+      clearPin.setOnPreferenceClickListener(clearPinClickListener);
    }
 
    @Override

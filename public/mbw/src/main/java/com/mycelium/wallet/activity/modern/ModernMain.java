@@ -64,7 +64,8 @@ import com.mycelium.wallet.event.RefreshStatus;
 import com.squareup.otto.Subscribe;
 
 public class ModernMain extends ActionBarActivity {
-   
+
+   private static final int REQUEST_SETTING_CHANGED = 5;
    private MbwManager _mbwManager;
 
    ViewPager mViewPager;
@@ -143,10 +144,19 @@ public class ModernMain extends ActionBarActivity {
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.main_activity_options_menu, menu);
+      addEnglishSetting(menu.findItem(R.id.miSettings));
       inflater.inflate(R.menu.refresh, menu);
       inflater.inflate(R.menu.record_options_menu_global, menu);
       inflater.inflate(R.menu.addressbook_options_global, menu);
       return true;
+   }
+
+   private void addEnglishSetting(MenuItem settingsItem) {
+      String displayed = getResources().getString(R.string.settings);
+      String settingsEn = Utils.loadEnglish(R.string.settings);
+      if (!settingsEn.equals(displayed)) {
+         settingsItem.setTitle(settingsItem.getTitle() + " (" + settingsEn + ")");
+      }
    }
 
    // controlling the behavior here is the safe but slightly slower responding
@@ -186,11 +196,9 @@ public class ModernMain extends ActionBarActivity {
    @SuppressWarnings("unused")
    private boolean canObtainLocation() {
       final boolean hasFeature = getPackageManager().hasSystemFeature("android.hardware.location.network");
-      if (!hasFeature)
+      if (!hasFeature) {
          return false;
-      if (!hasFeature)
-         return false;
-
+      }
       String permission = "android.permission.ACCESS_COARSE_LOCATION";
       int res = checkCallingOrSelfPermission(permission);
       return (res == PackageManager.PERMISSION_GRANTED);
@@ -204,7 +212,7 @@ public class ModernMain extends ActionBarActivity {
          return true;
       } else if (itemId == R.id.miSettings) {
          Intent intent = new Intent(this, SettingsActivity.class);
-         startActivity(intent);
+         startActivityForResult(intent, REQUEST_SETTING_CHANGED);
          return true;
       } else if (itemId == R.id.miBackup) {
          Utils.pinProtectedBackup(this);
@@ -225,13 +233,26 @@ public class ModernMain extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
    }
 
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == REQUEST_SETTING_CHANGED) {
+         //restart activity if language changes
+         //or anything else in settings. this makes some of the listeners obsolete
+         Intent running = getIntent();
+         finish();
+         startActivity(running);
+      } else {
+         super.onActivityResult(requestCode, resultCode, data);
+      }
+   }
+
    private void openMyceliumHelp() {
       Intent intent = new Intent(Intent.ACTION_VIEW);
       intent.setData(Uri.parse(Constants.MYCELIUM_WALLET_HELP_URL));
       startActivity(intent);
       Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
    }
-   
+
    @Subscribe
    public void setRefreshAnimation(RefreshStatus refreshAnimation) {
       if (refreshItem != null) {

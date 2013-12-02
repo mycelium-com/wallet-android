@@ -57,6 +57,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -68,6 +69,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
@@ -76,7 +78,7 @@ import com.squareup.otto.Subscribe;
 
 public class AddressBookFragment extends Fragment {
 
-   public static final int SCANNER_RESULT_CODE = 0;
+   public static final int SCAN_RESULT_CODE = 0;
    public static final String ADDRESS_RESULT_NAME = "address_result";
    public static final String OWN = "own";
    public static final String SELECT_ONLY = "selectOnly";
@@ -173,8 +175,7 @@ public class AddressBookFragment extends Fragment {
          findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
          findViewById(R.id.lvForeignAddresses).setVisibility(View.VISIBLE);
          ListView list = (ListView) findViewById(R.id.lvForeignAddresses);
-         list.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_my_address_row,
-               toShow));
+         list.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_my_address_row, toShow));
       }
    }
 
@@ -193,8 +194,7 @@ public class AddressBookFragment extends Fragment {
          findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
          findViewById(R.id.lvForeignAddresses).setVisibility(View.VISIBLE);
          ListView foreignList = (ListView) findViewById(R.id.lvForeignAddresses);
-         foreignList
-               .setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_foreign_row, toShow));
+         foreignList.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_foreign_row, toShow));
       }
    }
 
@@ -349,7 +349,7 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               Utils.startScannerIntent(AddressBookFragment.this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
+               ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE);
                AddDialog.this.dismiss();
             }
 
@@ -380,24 +380,33 @@ public class AddressBookFragment extends Fragment {
 
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCANNER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-         if (!"QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
-            return;
+      if (requestCode == SCAN_RESULT_CODE) {
+         if (resultCode == Activity.RESULT_OK) {
+            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
+            Preconditions.checkNotNull(record);
+            addFromRecord(record);
+         } else {
+            String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+            if (error != null) {
+               Toast.makeText(this.getActivity(), error, Toast.LENGTH_LONG).show();
+            }
          }
-         String contents = intent.getStringExtra("SCAN_RESULT").trim();
-         addFromString(contents);
       }
    }
 
    private void addFromString(String addressString) {
-      Address address = Utils.addressFromString(addressString, _mbwManager.getNetwork());
-      if (address == null) {
+      Record record = Record.fromString(addressString, _mbwManager.getNetwork());
+      if (record == null) {
          new Toaster(getActivity()).toast(R.string.unrecognized_format, false);
          return;
       }
-      if (_recordManager.getRecord(address) == null) {
+      addFromRecord(record);
+   }
+
+   private void addFromRecord(Record record) {
+      if (_recordManager.getRecord(record.address) == null) {
          // Only add addresses we are not already tracking
-         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address.toString(), "",
+         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, record.address.toString(), "",
                addressLabelChanged);
       } else {
          Utils.showSimpleMessageDialog(getActivity(), R.string.address_already_exists);

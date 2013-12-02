@@ -45,6 +45,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.BalanceInfo;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.RecordManager;
@@ -169,7 +170,8 @@ public class BalanceFragment extends Fragment {
          tvBtcRate.setVisibility(View.VISIBLE);
 
          String currency = _mbwManager.getFiatCurrency();
-         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, _oneBtcInFiat,
+         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _oneBtcInFiat);
+         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted,
                _mbwManager.getExchangeRateCalculationMode().getShortName()));
 
       }
@@ -213,7 +215,7 @@ public class BalanceFragment extends Fragment {
          TextView tvFiat = (TextView) _root.findViewById(R.id.tvFiat);
          tvFiat.setVisibility(View.VISIBLE);
 
-         Double converted = Utils.getFiatValue(balance.unspent + balance.pendingChange, _oneBtcInFiat);
+         String converted = Utils.getFiatValueAsString(balance.unspent + balance.pendingChange, _oneBtcInFiat);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
       }
@@ -272,5 +274,5 @@ public class BalanceFragment extends Fragment {
    public void selectedRecordChanged(SelectedRecordChanged event) {
       updateUi();
    }
-   
+
 }

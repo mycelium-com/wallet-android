@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -101,12 +103,14 @@ public class MbwManager {
    private MbwEnvironment _environment;
    private final ExploreHelper exploreHelper;
    private final String _version;
+   private HttpErrorCollector _httpErrorCollector;
+   private String _language;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.determineEnvironment(_applicationContext);
       _version = determineVersion(_applicationContext);
-      HttpErrorCollector.registerInVM(_applicationContext, _version, _environment.getMwsApi());
+      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _version, _environment.getMwsApi());
 
       _eventBus = new Bus();
 
@@ -129,7 +133,7 @@ public class MbwManager {
             Constants.DEFAULT_WALLET_MODE.asInteger()));
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
-            Constants.DEFAULT_BITCOIN_DENOMINATION));
+            Denomination.mBTC.toString()));
       _expertMode = preferences.getBoolean(Constants.EXPERT_MODE_SETTING, getExpertModeDefault());
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING,
             getContinuousFocusDefault());
@@ -151,6 +155,7 @@ public class MbwManager {
       _addressBookManager = new AddressBookManager(_applicationContext, _eventBus);
       _syncManager = new SyncManager(_eventBus, this, _asyncApi, _recordManager, _blockChainAddressTracker);
       exploreHelper = new ExploreHelper();
+      _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
    }
 
    public static String determineVersion(Context applicationContext) {
@@ -317,7 +322,7 @@ public class MbwManager {
 
    public String getBtcValueString(long satoshis, String formatString) {
       Denomination d = getBitcoinDenomination();
-      String valueString = CoinUtil.valueString(satoshis, d);
+      String valueString = CoinUtil.valueString(satoshis, d, true);
       return String.format(formatString, valueString, d.getUnicodeName());
    }
 
@@ -412,7 +417,7 @@ public class MbwManager {
 
    /**
     * Get the version of the app as a string
-    *
+    * 
     * @return
     */
    public String getVersion() {
@@ -421,5 +426,21 @@ public class MbwManager {
 
    public ExploreHelper getExploreHelper() {
       return exploreHelper;
+   }
+
+   public void reportIgnoredException(Throwable e) {
+      RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n", e);
+      _httpErrorCollector.reportErrorToServer(msg);
+   }
+
+   public String getLanguage() {
+      return _language;
+   }
+
+   public void setLanguage(String _language) {
+      this._language = _language;
+      SharedPreferences.Editor editor = getEditor();
+      editor.putString(Constants.LANGUAGE_SETTING, _language);
+      editor.commit();
    }
 }

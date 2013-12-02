@@ -32,41 +32,27 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
+package com.mycelium.wallet.pdf;
 
-public class Constants {
+import java.io.Serializable;
+import java.util.List;
 
-   public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
+/**
+* Created by andreas on 11/25/13.
+*/
+public class ExportPdfParameters implements Serializable {
+   private static final long serialVersionUID = 1L;
 
-   /**
-    * The number of transactions to display in our transaction history. The
-    * higher the number the more bandwidth we require from the smartphone.
-    */
-   public static final int TRANSACTION_HISTORY_LENGTH = 20;
+   public long time;
+   public String exportFormatString;
+   public List<ExportDistiller.ExportEntry> active;
+   public List<ExportDistiller.ExportEntry> archived;
 
-   /**
-    * Settings and their default values
-    */
-   public static final String SETTINGS_NAME = "settings";
-   public static final String PIN_SETTING = "PIN";
-   public static final String PROXY_SETTING = "proxy";
-   public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
-   public static final String DEFAULT_CURRENCY = "USD";
-   public static final String WALLET_MODE_SETTING = "WalletMode";
-   public static final WalletMode DEFAULT_WALLET_MODE = WalletMode.Segregated;
-   public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
-   public static final String DEFAULT_BITCOIN_DENOMINATION = "BTC";
-   public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
-   public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
-   public static final String EXPERT_MODE_SETTING = "ExpertMode";
-   public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
-   public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
-   public static final String EXCHANGE_RATE_CALCULATION_METHOD_SETTING = "ExchangeRateCalculationMethod";
-   public static final ExchangeRateCalculationMode DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD = ExchangeRateCalculationMode.BITSTAMP;
-   public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
-   public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help.html";
-   public static final String LANGUAGE_SETTING = "user_language";
-
-
-   public static final String TAG = "MyceliumWallet";
+   public ExportPdfParameters(long time, String exportFormatString, List<ExportDistiller.ExportEntry> active,
+                              List<ExportDistiller.ExportEntry> archived) {
+      this.time = time;
+      this.exportFormatString = exportFormatString;
+      this.active = active;
+      this.archived = archived;
+   }
 }

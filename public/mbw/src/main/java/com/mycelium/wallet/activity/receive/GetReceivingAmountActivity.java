@@ -95,7 +95,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       // Set amount
       String amountString;
       if (amount != null) {
-         amountString = CoinUtil.valueString(amount);
+         amountString = CoinUtil.valueString(amount, _mbwManager.getBitcoinDenomination(), false);
          ((TextView) findViewById(R.id.tvAmount)).setText(amountString);
       } else {
          amountString = "";
@@ -229,7 +229,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
             tvAlternateAmount.setText(_mbwManager.getBtcValueString(satoshis));
          } else {
             // Show Fiat as alternate amount
-            Double converted = Utils.getFiatValue(satoshis, _oneBtcInFiat);
+            String converted = Utils.getFiatValueAsString(satoshis, _oneBtcInFiat);
             String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
             tvAlternateAmount.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
          }

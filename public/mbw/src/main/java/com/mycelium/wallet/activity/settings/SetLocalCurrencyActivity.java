@@ -58,7 +58,6 @@ import com.mycelium.wallet.R;
 public class SetLocalCurrencyActivity extends Activity {
 
    public static final String CURRENCY_RESULT_NAME = "currency";
-   private MbwManager _mbwManager;
    private Map<String, String> _currencySelectionToCurrencyMap;
 
    @Override
@@ -66,9 +65,9 @@ public class SetLocalCurrencyActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.settings_local_currency_activity);
 
-      _mbwManager = MbwManager.getInstance(this.getApplication());
       ((AutoCompleteTextView) findViewById(R.id.tvCurrency)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-      String enteredString = _mbwManager.getFiatCurrency();
+      MbwManager mbwManager = MbwManager.getInstance(this.getApplication());
+      String enteredString = mbwManager.getFiatCurrency();
       // Load saved state
       if (savedInstanceState != null) {
          enteredString = savedInstanceState.getString("entered");

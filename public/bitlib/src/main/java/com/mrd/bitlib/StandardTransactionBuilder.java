@@ -171,7 +171,7 @@ public class StandardTransactionBuilder {
       @Override
       public String toString() {
          StringBuilder sb = new StringBuilder();
-         String fee = CoinUtil.valueString(calculateFee());
+         String fee = CoinUtil.valueString(calculateFee(), false);
          sb.append(String.format("Fee: %s", fee)).append('\n');
          int max = Math.max(_funding.length, _outputs.length);
          for (int i = 0; i < max; i++) {
@@ -204,7 +204,7 @@ public class StandardTransactionBuilder {
       }
 
       private String getValue(Long value) {
-         return String.format("(%s)", CoinUtil.valueString(value));
+         return String.format("(%s)", CoinUtil.valueString(value, false));
       }
 
    }

@@ -37,19 +37,14 @@
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/MyceliumModern" >
+        android:theme="@style/MyceliumModern"
+        android:name="com.mycelium.wallet.WalletApplication" >
 
         <service
             android:enabled="true"
             android:exported="false"
-            android:name="com.mycelium.wallet.service.KeyStretcherService"
-            android:process=":Scrypt"/>
-
-        <service
-            android:enabled="true"
-            android:exported="false"
-            android:name="com.mycelium.wallet.service.ExportService"
-            android:process=":export"/>
+            android:name="com.mycelium.wallet.service.TaskExecutionService"
+            android:process=":Task"/>
 
         <activity
             android:name="com.mycelium.wallet.activity.StartupActivity"
@@ -82,12 +77,13 @@
         <activity android:name="com.mycelium.wallet.activity.ScanActivity" />
         <activity android:name="com.mycelium.wallet.activity.CreateKeyActivity" />
         <activity android:name="com.mycelium.wallet.activity.TransactionDetailsActivity" />
-        <activity android:name="com.mycelium.wallet.activity.settings.SettingsActivity" />
+        <activity android:name="com.mycelium.wallet.activity.settings.SettingsActivity"/>
         <activity android:name="com.mycelium.wallet.activity.settings.SetLocalCurrencyActivity" />
         <activity android:name="com.mycelium.wallet.activity.export.ExportAsQrCodeActivity" />
         <activity android:name="com.mycelium.wallet.activity.export.BackupToPdfActivity" />
         <activity android:name="com.mycelium.wallet.activity.export.DecryptPrivateKeyActivity" />
         <activity android:name="com.mycelium.wallet.activity.export.VerifyBackupActivity" />
+        <activity android:name="com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity" />
         <activity android:name="com.mycelium.wallet.activity.send.BroadcastTransactionActivity" />
         <activity android:name="com.mycelium.wallet.activity.send.GetSpendingRecordActivity" />
         <activity android:name="com.mycelium.wallet.activity.send.GetSendingAmountActivity" />
@@ -108,7 +104,7 @@
         <activity android:name="com.mycelium.wallet.activity.receive.ReceiveCoinsActivity" />
         <activity
             android:name="com.google.zxing.client.android.CaptureActivity"
-            android:configChanges="keyboardHidden"
+            android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>

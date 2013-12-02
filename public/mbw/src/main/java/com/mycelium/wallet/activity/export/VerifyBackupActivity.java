@@ -42,6 +42,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
@@ -50,10 +51,11 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.ScanActivity;
 
 public class VerifyBackupActivity extends Activity {
 
-   public static final int SCANNER_RESULT_CODE = 0;
+   public static final int SCAN_RESULT_CODE = 0;
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
 
    public static void callMe(Activity currentActivity) {
@@ -87,13 +89,12 @@ public class VerifyBackupActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            Utils.startScannerIntent(VerifyBackupActivity.this, SCANNER_RESULT_CODE, _mbwManager.getContinuousFocus());
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE);
          }
 
       });
 
-      findViewById(R.id.btClipboard).setEnabled(
-            Record.isRecord(Utils.getClipboardString(this), _mbwManager.getNetwork()));
+      findViewById(R.id.btClipboard).setEnabled(isVerifiable());
       findViewById(R.id.btClipboard).setOnClickListener(new android.view.View.OnClickListener() {
 
          @Override
@@ -104,6 +105,12 @@ public class VerifyBackupActivity extends Activity {
 
       });
 
+   }
+
+   private boolean isVerifiable() {
+      String clipboardString = Utils.getClipboardString(this);
+      return Record.isRecord(clipboardString, _mbwManager.getNetwork())
+            || isEncryptedPrivateKey(clipboardString);
    }
 
    @Override
@@ -123,7 +130,7 @@ public class VerifyBackupActivity extends Activity {
       _mbwManager.setCachedEncryptionParameters(_cachedParameters);
       super.onPause();
    }
-   
+
    @Override
    protected void onDestroy() {
       _mbwManager.clearCachedEncryptionParameters();
@@ -239,23 +246,18 @@ public class VerifyBackupActivity extends Activity {
 
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCANNER_RESULT_CODE && resultCode == RESULT_OK) {
-         if (!"QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
-            return;
+      if (requestCode == SCAN_RESULT_CODE) {
+         if (resultCode == RESULT_OK) {
+            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
+            Preconditions.checkNotNull(record);
+            verify(record);
+         } else {
+            String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+            if (error != null) {
+               Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+            }
          }
-         String base58Key = intent.getStringExtra("SCAN_RESULT").trim();
-         verifyPrivateKeyBackup(base58Key);
-      } else if (requestCode == IMPORT_ENCRYPTED_PRIVATE_KEY_CODE && resultCode == RESULT_OK) {
-         handleDecryptedPrivateKey(intent);
       }
-   }
-
-   private void handleDecryptedPrivateKey(Intent intent) {
-      String key = intent.getStringExtra("base58Key");
-      // Cache the key for next import
-      _cachedParameters = (MrdExport.V1.EncryptionParameters) intent.getSerializableExtra("encryptionParameters");
-      // Add the key
-      verifyPrivateKeyBackup(key);
    }
 
 }
