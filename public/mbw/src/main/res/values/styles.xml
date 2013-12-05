@@ -105,7 +105,7 @@
     </style>
 
     <style name="ActionButtonStyle" parent="Widget.AppCompat.Light.ActionButton">
-        <item name="android:minWidth">0dip</item>
+        <item name="android:minWidth">1dip</item>
 <!--
         <item name="android:paddingLeft">0dip</item>
         <item name="android:paddingRight">0dip</item>
