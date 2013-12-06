@@ -41,7 +41,7 @@ public class Bip38KeyDecryptionTask extends ServiceTask<String> {
 
    @Override
    protected ServiceTaskStatus getStatus() {
-      return new ServiceTaskStatus(_statusMessage, _progress.getProgress());
+      return new ServiceTaskStatus(_statusMessage, _progress == null ? 0 : _progress.getProgress());
    }
 
 }

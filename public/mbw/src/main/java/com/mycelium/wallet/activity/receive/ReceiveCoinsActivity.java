@@ -72,9 +72,9 @@ public class ReceiveCoinsActivity extends Activity {
     */
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      super.onCreate(savedInstanceState);
       setContentView(R.layout.receive_coins_activity);
 
       _mbwManager = MbwManager.getInstance(getApplication());

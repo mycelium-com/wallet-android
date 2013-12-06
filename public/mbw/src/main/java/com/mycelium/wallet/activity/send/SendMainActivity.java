@@ -114,8 +114,8 @@ public class SendMainActivity extends Activity {
    @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+      super.onCreate(savedInstanceState);
       setContentView(R.layout.send_main_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
       _recordManager = _mbwManager.getRecordManager();
@@ -472,7 +472,8 @@ public class SendMainActivity extends Activity {
             BitcoinUri uri = (BitcoinUri) intent.getSerializableExtra(ScanActivity.RESULT_URI_KEY);
             if (uri != null) {
                _receivingAddress = uri.address;
-               if (uri.amount != null) {
+               if (uri.amount != null && _amountToSend == null) {
+                  // Only set amount from URI if no amount was entered already
                   _amountToSend = uri.amount;
                }
             } else {

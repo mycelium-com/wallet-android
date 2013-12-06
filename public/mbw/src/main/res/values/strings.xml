@@ -142,7 +142,7 @@
     <string name="export_single_private_key_warning">You are about to export the private key that controls all the Bitcoins of the selected address.\n\nAnyone who gains access to this key can take possession of the Bitcoins it controls.\n\nDo you want to continue?</string>
     <string name="backup_single_private_key_warning">You are about to back up the private key that controls all the Bitcoins of your Mycelium Bitcoin Wallet.\n\nAnyone who gains access to this key can take possession of your Bitcoins.\n\nDo you want to continue?</string>
     <string name="backup_all_warning">You are about to back up the private keys that control all the Bitcoins of your Mycelium Bitcoin Wallet.\n\nAnyone who gains access to those keys can take possession of your Bitcoins.\n\nDo you want to continue?</string>
-    <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somehere safe.\n\nDo you want to continue?</string>
+    <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
     <string name="btc_rate">1 BTC ~ %1$s %2$s (%3$s)</string>

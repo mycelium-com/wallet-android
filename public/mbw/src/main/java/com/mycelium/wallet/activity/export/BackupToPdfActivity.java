@@ -384,7 +384,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    @Override
    public void onStatusReceived(ServiceTaskStatusEx status) {
       _taskStatus = status;
-      if (_taskStatus.state == State.FINISHED) {
+      if (_taskStatus != null && _taskStatus.state == State.FINISHED) {
          _taskExecutionServiceController.requestResult();
       }
    }

@@ -88,8 +88,8 @@ public class SendInitializationActivity extends Activity {
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+      super.onCreate(savedInstanceState);
       setContentView(R.layout.send_initialization_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
       // Get intent parameters

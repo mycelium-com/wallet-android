@@ -92,8 +92,8 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+      super.onCreate(savedInstanceState);
       setContentView(R.layout.get_sending_amount_activity);
       _toast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
       _mbwManager = MbwManager.getInstance(getApplication());
