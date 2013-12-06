@@ -43,9 +43,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.MrdExport.DecodingException;
-import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
@@ -55,8 +52,7 @@ import com.mycelium.wallet.activity.ScanActivity;
 
 public class VerifyBackupActivity extends Activity {
 
-   public static final int SCAN_RESULT_CODE = 0;
-   public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
+   private static final int SCAN_RESULT_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, VerifyBackupActivity.class);
@@ -65,7 +61,6 @@ public class VerifyBackupActivity extends Activity {
 
    private MbwManager _mbwManager;
    private RecordManager _recordManager;
-   private MrdExport.V1.EncryptionParameters _cachedParameters;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -76,15 +71,6 @@ public class VerifyBackupActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _recordManager = _mbwManager.getRecordManager();
 
-      // We may have cached parameters, so we could avoid to input them again
-      _cachedParameters = _mbwManager.getCachedEncryptionParameters();
-
-      // We may have saved the parameters, and are recreated because the user
-      // rotated the device or something
-      if (savedInstanceState != null) {
-         _cachedParameters = (MrdExport.V1.EncryptionParameters) savedInstanceState.getSerializable("cachedParameters");
-      }
-
       findViewById(R.id.btScan).setOnClickListener(new android.view.View.OnClickListener() {
 
          @Override
@@ -94,41 +80,29 @@ public class VerifyBackupActivity extends Activity {
 
       });
 
-      findViewById(R.id.btClipboard).setEnabled(isVerifiable());
+      findViewById(R.id.btClipboard).setEnabled(hasPrivateKeyOnClipboard());
       findViewById(R.id.btClipboard).setOnClickListener(new android.view.View.OnClickListener() {
 
          @Override
          public void onClick(View v) {
             String privateKey = Utils.getClipboardString(VerifyBackupActivity.this);
-            verifyPrivateKeyBackup(privateKey);
+            verifyClipboardPrivateKey(privateKey);
          }
 
       });
 
    }
 
-   private boolean isVerifiable() {
+   private boolean hasPrivateKeyOnClipboard() {
       String clipboardString = Utils.getClipboardString(this);
-      return Record.isRecord(clipboardString, _mbwManager.getNetwork())
-            || isEncryptedPrivateKey(clipboardString);
-   }
-
-   @Override
-   protected void onSaveInstanceState(Bundle outState) {
-      outState.putSerializable("cachedParameters", _cachedParameters);
-      super.onSaveInstanceState(outState);
+      Record record = Record.fromString(clipboardString, _mbwManager.getNetwork());
+      return record != null && record.hasPrivateKey();
    }
 
    @Override
    protected void onResume() {
       updateUi();
       super.onResume();
-   }
-
-   @Override
-   protected void onPause() {
-      _mbwManager.setCachedEncryptionParameters(_cachedParameters);
-      super.onPause();
    }
 
    @Override
@@ -161,19 +135,14 @@ public class VerifyBackupActivity extends Activity {
       return num;
    }
 
-   private void verifyPrivateKeyBackup(String keyString) {
+   private void verifyClipboardPrivateKey(String keyString) {
       Record record = Record.fromString(keyString, _mbwManager.getNetwork());
       if (record != null) {
          verify(record);
          return;
       }
 
-      // Could be an encrypted private key
-      if (isEncryptedPrivateKey(keyString)) {
-         handleEncryptedPrivateKey(keyString);
-      } else {
-         Toast.makeText(VerifyBackupActivity.this, R.string.unrecognized_private_key_format, Toast.LENGTH_SHORT).show();
-      }
+      Toast.makeText(VerifyBackupActivity.this, R.string.unrecognized_private_key_format, Toast.LENGTH_SHORT).show();
    }
 
    private void verify(Record record) {
@@ -191,49 +160,6 @@ public class VerifyBackupActivity extends Activity {
       } else {
          ShowDialogMessage(R.string.verify_backup_no_such_record, false);
       }
-   }
-
-   private void handleEncryptedPrivateKey(String encryptedPrivateKey) {
-
-      // Check the version
-      int version = 0;
-      try {
-         version = MrdExport.decodeVersion(encryptedPrivateKey);
-      } catch (DecodingException e) {
-         // Ignore, we fail gracefully in the version check below
-      }
-      if (version != MrdExport.V1_VERSION) {
-         Toast.makeText(VerifyBackupActivity.this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
-      }
-
-      // Try and decrypt with cached parameters if we have them
-      if (_cachedParameters != null) {
-         try {
-            String key = MrdExport.V1.decrypt(_cachedParameters, encryptedPrivateKey, _mbwManager.getNetwork());
-            Record record = Record.fromString(key, _mbwManager.getNetwork());
-            verify(record);
-            return;
-         } catch (InvalidChecksumException e) {
-            // We cannot reuse the cached password, fall through and decrypt
-            // with an entered password
-         } catch (DecodingException e) {
-            Toast.makeText(VerifyBackupActivity.this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
-            return;
-         }
-      }
-
-      // Start activity to ask the user to enter a password and decrypt the key
-      DecryptPrivateKeyActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_PRIVATE_KEY_CODE);
-   }
-
-   private boolean isEncryptedPrivateKey(String string) {
-      int version;
-      try {
-         version = MrdExport.decodeVersion(string);
-      } catch (DecodingException e) {
-         return false;
-      }
-      return version == MrdExport.V1_VERSION;
    }
 
    private void ShowDialogMessage(int messageResource, final boolean quit) {

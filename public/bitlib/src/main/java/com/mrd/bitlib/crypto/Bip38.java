@@ -30,7 +30,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.HexUtils;
 
 public class Bip38 {
 

@@ -41,8 +41,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 18
 
-        versionCode 79
-        versionName '1.1.1'
+        versionCode 80
+        versionName '1.1.2'
     }
 
     signingConfigs {

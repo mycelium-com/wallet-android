@@ -39,9 +39,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -104,7 +107,18 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
 
       _progressUpdater = new ProgressUpdater();
 
+      Button btDecrypt = (Button) findViewById(R.id.btDecrypt);
+      btDecrypt.setEnabled(false);
+      btDecrypt.setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View v) {
+            startKeyStretching();
+         }
+      });
+
       passwordEdit = (EditText) findViewById(R.id.password);
+      passwordEdit.addTextChangedListener(passwordWatcher);
 
       if (savedInstanceState != null) {
          String password = savedInstanceState.getString("password");
@@ -112,14 +126,24 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
             passwordEdit.setText(password);
          }
       }
-      findViewById(R.id.btDecrypt).setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            startKeyStretching();
-         }
-      });
+      
    }
+
+   TextWatcher passwordWatcher = new TextWatcher() {
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+         findViewById(R.id.btDecrypt).setEnabled(s.length() > 0);
+      }
+
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+      }
+   };
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
@@ -188,7 +212,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
 
    private void startKeyStretching() {
       findViewById(R.id.btDecrypt).setEnabled(false);
-
+      passwordEdit.setEnabled(false);
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_stretching);
       ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
       String password = ((EditText) findViewById(R.id.password)).getText().toString();
