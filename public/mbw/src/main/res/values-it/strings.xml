@@ -266,4 +266,6 @@
   <string name="import_decrypt_bip38_invalid_password">La password immessa non è corretta.</string>
   <string name="decrypt_button">Decritta</string>
   <string name="pref_change_language">Seleziona lingua</string>
+  <string name="addressbook_cannot_add_private_key">Non è possibile aggiungere una chiave privata alla rubrica.\n\nPuoi importare chiavi private dalla scheda \"Chiavi\"</string>
+  <string name="archiving_key_title">Archiviazione chiave</string>
 </resources>

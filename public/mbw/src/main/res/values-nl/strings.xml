@@ -4,8 +4,8 @@
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_record_title">Adres of private key toevoegen</string>
   <string name="add_record_desc">U staat op het punt om een Bitcoin adres of private key toe te voegen aan uw portemonnee.\n\n• Als u een Bitcoin adres toevoegt kunt u hiervan het saldo bekijken maar niets uitgeven.\n\n• Als u een private key toevoegt krijgt u een Bitcoin adres waarvan u het saldo wel kunt besteden.</string>
-  <string name="scan_desc">Scan Bitcoin adres of private key.</string>
-  <string name="clipboard_desc">Bitcoin adres of private key importeren vanaf klembord.</string>
+  <string name="scan_desc">Scan een Bitcoin adres of private key.</string>
+  <string name="clipboard_desc">Importeer een Bitcoin adres of private key vanaf het klembord.</string>
   <string name="random_desc">Maak een nieuwe willekeurige private key aan.</string>
   <string name="scan">Scan</string>
   <string name="clipboard">Klembord</string>
@@ -187,7 +187,7 @@
   <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan worden gemaakt!\n\nPrivate key adres:\n%1$s\n\nWilt u deze verwijderen?</string>
   <string name="confirm_delete_pk_without_balance_with_label">Dit kan niet ongedaan worden gemaakt!\n\nPrivate key label:\n%1$s\n\nPrivate key adres:\n%2$s\n\nWilt u deze verwijderen?</string>
   <string name="verify_private_key_backup">Back-up verifiëren</string>
-  <string name="verify_backup_dialog_title">Back-up private key verifiëren</string>
+  <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
   <string name="verify_backup_desc">Een goede back-up van uw private keys is een belangrijk onderdeel van het beheren van uw Bitcoin tegoeden.\n\nDoor uw back-up te verifiëren kunt u controlen of deze werkt zodat dat u geen geld verliest als uw Android apparaat verloren raakt of is beschadigd.</string>
   <string name="verify_backup_scan_desc">Controleer of private key back-up door het scannen van de private key QR code. \nVerschillende formaten worden geaccepteerd, met inbegrip van de Mycelium gecodeerde papieren back-up.</string>
   <string name="verify_backup_clipboard_desc">Private key back-ups verifiëren door middel van de private key op klembord.</string>
@@ -202,10 +202,10 @@
   <string name="verify_backup_message_text_2">Vervolgens selecteert u de optie back-up verifiëren om uw back-up te controleren.</string>
   <string name="verify_backup_message_non_expert">Het lijkt erop dat u geen back-up van uw private key heeft gemaakt.\n\nSelecteer de optie back-up om een back-up te maken van uw private key.\n\nDaarna klikt u op de optie back-up controleren om uw back-up verifiëren.</string>
   <string name="verify_backup_message_expert">Het lijkt erop dat u een of meer Bitcoin private keys heeft waar nog geen back-up van is.\n\nSelecteer de optie back-up om een back-up van uw keys te maken.\n\nDaarna klikt u op de optie-up controleren om uw back-up te verifiëren.</string>
-  <string name="encrypted_pdf_backup_title">Gecodeerde PDF-back-up</string>
-  <string name="encrypted_pdf_backup_description">U staat op het punt om uw versleutelde private keys naar PDF document op te slaan.\nHet PDF-document kan veilig worden gedeeld via e-mail of met andere apps die u hebt geïnstalleerd, zoals bijvoorbeeld Dropbox. Dit is veilig omdat uw private keys zijn versleuteld.</string>
-  <string name="encrypted_pdf_backup_password_description_1">Dit is het random wachtwoord met checksum dat wordt gebruikt voor het versleutelen van deze back-up.</string>
-  <string name="encrypted_pdf_backup_password_description_2">Dit is uw enige kans om het wachtwoord voor deze back-up te zien.\nUw volgende back-up zal gebruik maken van een ander wachtwoord.\nSchrijf het op en bewaar op een veilige plaats!</string>
+  <string name="encrypted_pdf_backup_title">Versleutelde PDF back-up</string>
+  <string name="encrypted_pdf_backup_description">U staat op het punt om uw versleutelde private keys naar een PDF document op te slaan.\nHet PDF-document kan veilig worden gedeeld via e-mail of met andere apps die u heeft geïnstalleerd, zoals bijvoorbeeld Dropbox. Dit is veilig omdat uw private keys zijn versleuteld.</string>
+  <string name="encrypted_pdf_backup_password_description_1">Hieronder staat het random wachtwoord met controlegetal dat gebruikt zal worden voor het versleutelen van deze back-up.</string>
+  <string name="encrypted_pdf_backup_password_description_2">Dit is uw enige kans om het wachtwoord voor deze back-up in te zien.\nUw volgende back-up zal gebruik maken van een ander willekeurig wachtwoord.\nSchrijf daarom het wachtwoord op en bewaar deze op een veilige plaats!</string>
   <string name="encrypted_pdf_backup_stretching">De sleutel voor bestandscodering wordt voorbereid…</string>
   <string name="encrypted_pdf_backup_encrypting">Private keys versleutelen…</string>
   <string name="encrypted_pdf_backup_creating">Aanmaken van PDF-document…</string>
@@ -253,7 +253,7 @@
   <string name="scanned_address_need_private_key">U heeft een scan gemaakt van dit Bitcoin adres:\n\n%1$s\n\nU dient een private key te scannen.\n\nOp papieren portefeuilles staat de persoonlijke sleutel vaak naast het Bitcoin adres vermeld.</string>
   <string name="source_repo_label">Broncode</string>
   <string name="version_label">Versie</string>
-  <string name="authors_label">Ontwikkeld door</string>
+  <string name="authors_label">Ontwikkelaars</string>
   <string name="homepage_label">Homepage</string>
   <string name="contact_email_label">Feedback</string>
   <string name="cancelled">Geannuleerd</string>

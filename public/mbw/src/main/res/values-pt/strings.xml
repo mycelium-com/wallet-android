@@ -266,4 +266,6 @@
   <string name="import_decrypt_bip38_invalid_password">A senha digitada não é correta.</string>
   <string name="decrypt_button">Desencriptar</string>
   <string name="pref_change_language">Alterar idioma</string>
+  <string name="addressbook_cannot_add_private_key">Você não pode adicionar uma chave privada ao livro de endereços.\n\nVocê pode importar chaves privadas no separador Chaves</string>
+  <string name="archiving_key_title">Arquivando Chave</string>
 </resources>

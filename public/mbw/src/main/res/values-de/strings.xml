@@ -36,7 +36,7 @@
   <string name="enter_amount_title">Betrag eingeben</string>
   <string name="btc_balance">Saldo: %1$s</string>
   <string name="max_btc">Sie können maximal ausgeben:%1$s</string>
-  <string name="max_fiat">Sie können maximal ausgeben:%1$s %2$s</string>
+  <string name="max_fiat">Sie können maximal %1$s %2$s ausgeben</string>
   <string name="qr_code">QR-Code</string>
   <string name="address_book">Adressbuch</string>
   <string name="get_receiver_address">Importiere Empfänger-Adresse aus:</string>
@@ -269,6 +269,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="import_decrypt_bip38_invalid_password">Das eingegebene Passwort ist falsch.</string>
   <string name="decrypt_button">Entschlüsseln</string>
   <string name="pref_change_language">Sprache wechseln</string>
-  <string name="addressbook_cannot_add_private_key">Sie können zum Adressbuch keine privaten Schlüssel hinzufügen.\n\nPrivate Schlüssel können Sie zum Schlüsseltab hinzufügen</string>
+  <string name="addressbook_cannot_add_private_key">Sie können zum Adressbuch keine privaten Schlüssel hinzufügen.\n\nPrivate Schlüssel können Sie im \"Schlüssel\" Tab hinzufügen</string>
   <string name="archiving_key_title">Schlüssel wird archiviert</string>
 </resources>
