@@ -39,7 +39,7 @@ import android.annotation.SuppressLint;
 public enum ExchangeRateCalculationMode {
 
    UNKNOWN(0, "UNKNOWN", "UNKNOWN"), MT_GOX(1, "MtGox", "MtGox"), BITSTAMP(2, "Bitstamp", "Bitstamp"), WEIGHTED_AVERAGE(
-         3, "Weighted Average", "Avg");
+         3, "Weighted Average", "Avg"), BTC_CHINA(4, "BTC China", "BTC China");
 
    @SuppressLint("UseSparseArrays")
    private static final ExchangeRateCalculationMode[] ORDERED_ARRAY;
@@ -49,8 +49,9 @@ public enum ExchangeRateCalculationMode {
       // Construct an ordered array not including UNKNOWN
       ORDERED_ARRAY = new ExchangeRateCalculationMode[ExchangeRateCalculationMode.values().length - 1];
       ORDERED_ARRAY[0] = BITSTAMP;
-      ORDERED_ARRAY[1] = MT_GOX;
-      ORDERED_ARRAY[2] = WEIGHTED_AVERAGE;
+      ORDERED_ARRAY[1] = BTC_CHINA;
+      ORDERED_ARRAY[2] = MT_GOX;
+      ORDERED_ARRAY[3] = WEIGHTED_AVERAGE;
    }
 
    /**
@@ -66,6 +67,8 @@ public enum ExchangeRateCalculationMode {
          return BITSTAMP;
       case 3:
          return WEIGHTED_AVERAGE;
+      case 4:
+         return BTC_CHINA;
       default:
          return UNKNOWN;
       }
@@ -86,6 +89,8 @@ public enum ExchangeRateCalculationMode {
          return BITSTAMP;
       } else if (name.equals(WEIGHTED_AVERAGE.toString())) {
          return WEIGHTED_AVERAGE;
+      } else if (name.equals(BTC_CHINA.toString())) {
+         return BTC_CHINA;
       } else {
          return UNKNOWN;
       }

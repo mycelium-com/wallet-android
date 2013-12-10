@@ -3,7 +3,7 @@
 <resources>
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_record_title">Agregar una dirección o una clave privada</string>
-  <string name="add_record_desc">Está a punto de añadir una dirección Bitcoin o su clave privada de acceso a su monedero.\n\n• Si añade una dirección Bitcoin podrá controlar su balance pero no gastar parte de él.\n\n•Si añade una clave privada podrá obtener una dirección de Bitcoin desde la que gastar.</string>
+  <string name="add_record_desc">Está a punto de añadir una dirección Bitcoin o su clave privada de acceso a su monedero.\n\n• Si añade una dirección Bitcoin podrá controlar su saldo pero no gastar parte de él.\n\n•Si añade una clave privada podrá obtener una dirección de Bitcoin desde la que gastar.</string>
   <string name="scan_desc">Escanear una dirección Bitcoin o una clave privada.</string>
   <string name="clipboard_desc">Importar una dirección Bitcoin o una clave privada desde el portapapeles.</string>
   <string name="random_desc">Crear una nueva clave privada al azar.</string>
@@ -34,7 +34,7 @@
   <string name="amount_label">Importe:</string>
   <string name="amount_title">Importe</string>
   <string name="enter_amount_title">Introduzca el importe</string>
-  <string name="btc_balance">Balance: %1$s</string>
+  <string name="btc_balance">Saldo: %1$s</string>
   <string name="max_btc">Disponible: %1$s</string>
   <string name="max_fiat">Utilizable: %1$s %2$s</string>
   <string name="qr_code">Código QR</string>
@@ -60,9 +60,9 @@
   <string name="copied_to_clipboard">Copiado en el portapapeles</string>
   <string name="private_key">Clave Privada</string>
   <string name="your_bitcoin_address">Su dirección Bitcoin:</string>
-  <string name="your_balance">Su balance:</string>
+  <string name="your_balance">Su saldo:</string>
   <string name="bitcoin_address_title">Dirección Bitcoin</string>
-  <string name="balance">Balance</string>
+  <string name="balance">Saldo</string>
   <string name="no_server_connection">Sin conexión con el servidor</string>
   <string name="no_network_connection">Sin conexión de red</string>
   <string name="invalid_bitcoin_uri">URl de Bitcoin no válido</string>
@@ -133,7 +133,7 @@
   <string name="payment_request">Solicitud de Pago</string>
   <string name="show_to_sender">Mostrar al remitente</string>
   <string name="bitcoin_address_label">Dirección Bitcoin:</string>
-  <string name="export_single_private_key_warning">Estás a punto de exportar la clave privada que controla todos los Bitcoins de la dirección seleccionada.\n\nQuien sea que abtenga acceso a esta clave puede tomar posesión de los Bitcoins que controla.\n\n¿Desea continuar?</string>
+  <string name="export_single_private_key_warning">Estás a punto de exportar la clave privada que controla todos los Bitcoins de la dirección seleccionada.\n\nQuien sea que obtenga acceso a esta clave puede tomar posesión de los Bitcoins que controla.\n\n¿Desea continuar?</string>
   <string name="backup_single_private_key_warning">Está a punto de hacer una copia de seguridad de la clave privada que controla todos los Bitcoins de su Mycelium Bitcoin Wallet.\n\nCualquiera que tenga acceso a esta clave podrá apropiarse de todos sus Bitcoins.\n\n¿Desea continuar?</string>
   <string name="backup_all_warning">Está a punto de hacer una copia de seguridad de las claves privadas que controlan todos los Bitcoins de su Mycelium Bitcoin Wallet.\n\n. Cualquiera que tenga acceso a esas claves podrá apropiarse de sus Bitcoins.\n\n.¿Desea continuar?</string>
   <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: no es suficiente almacenar su clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Desea continuar?</string>
@@ -158,7 +158,7 @@
   <string name="archive_name_empty">Archivado (Vacío)</string>
   <string name="activate_action">Activar</string>
   <string name="archive_action">Archivo</string>
-  <string name="question_archive">Aunque las claves archivadas no se suman a su balance, siempre puede seleccionarlas y controlarlas como claves individuales en la visión de balance.\r\n\r\nPuede volver a activar las claves archivadas.\r\n\r\n¿Desea archivar esta clave?</string>
+  <string name="question_archive">Aunque las claves archivadas no se suman a su saldo, siempre puede seleccionarlas y controlarlas como claves individuales en la visión de balance.\r\n\r\nPuede volver a activar las claves archivadas.\r\n\r\n¿Desea archivar esta clave?</string>
   <string name="archived">Archivado</string>
   <string name="activated">Activado</string>
   <string name="please_wait">Por favor, espere…</string>
@@ -227,7 +227,7 @@
   <string name="optional_amount">Cantidad opcional</string>
   <string name="show_qr_code_menu">Mostrar código QR</string>
   <string name="tab_keys">Claves</string>
-  <string name="tab_balance">Balance</string>
+  <string name="tab_balance">Saldo</string>
   <string name="tab_transactions">Transacciones</string>
   <string name="tab_addresses">Libreta de direcciones</string>
   <string name="active_key_limit_reached">El número máximo de direcciones activas es 10 y usted ya ha alcanzado ese límite.\n\nPuede disponer de cuantas direcciones archivadas desee, y siempre puede activar una dirección archivada.\n\nPara añadir otra dirección, por favor, archive una de las existentes.</string>
@@ -266,4 +266,6 @@
   <string name="import_decrypt_bip38_invalid_password">La contraseña introducida no es correcta.</string>
   <string name="decrypt_button">Descifrar</string>
   <string name="pref_change_language">Cambiar Idioma</string>
+  <string name="addressbook_cannot_add_private_key">No se puede añadir una clave privada a la libreta de direcciones.\n\nPuedes importar claves privadas con la pestaña de Claves</string>
+  <string name="archiving_key_title">Archivando la clave</string>
 </resources>

@@ -283,5 +283,7 @@
     <string name="import_decrypt_bip38_invalid_password">The password entered is not correct.</string>
     <string name="decrypt_button">Decrypt</string>
     <string name="pref_change_language">Change Language</string>
-
+    <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Keys tab</string>
+    <string name="archiving_key_title">Archiving Key</string>
+    
 </resources>

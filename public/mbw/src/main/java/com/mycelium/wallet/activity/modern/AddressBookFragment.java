@@ -384,6 +384,10 @@ public class AddressBookFragment extends Fragment {
          if (resultCode == Activity.RESULT_OK) {
             Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
             Preconditions.checkNotNull(record);
+            if(record.hasPrivateKey()){
+               Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
+               return;
+            }
             addFromRecord(record);
          } else {
             String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);

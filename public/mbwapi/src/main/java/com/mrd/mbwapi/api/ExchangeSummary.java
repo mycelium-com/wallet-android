@@ -44,7 +44,7 @@ import com.mrd.bitlib.util.ByteWriter;
 public class ExchangeSummary extends ApiObject {
 
    public enum ExchangeId {
-      Unknown("Unknown"), BitStamp("BitStamp"), MtGox("MtGox");
+      Unknown("Unknown"), BitStamp("BitStamp"), MtGox("MtGox"), BtcChina("BTC China");
 
       private String _name;
 
@@ -57,6 +57,8 @@ public class ExchangeSummary extends ApiObject {
             return BitStamp;
          } else if (name.equals(MtGox._name)) {
             return MtGox;
+         } else if (name.equals(BtcChina._name)) {
+            return BtcChina;
          } else {
             return Unknown;
          }
@@ -92,6 +94,10 @@ public class ExchangeSummary extends ApiObject {
       this.satoshiVolume = satoshiVolume;
    }
 
+   public ExchangeSummary(ExchangeSummary o) {
+      this(o.exchange, o.time, o.currency, o.high, o.low, o.last, o.bid, o.ask, o.satoshiVolume);
+   }
+
    protected ExchangeSummary(ByteReader reader) throws InsufficientBytesException {
       exchange = ExchangeId.fromString(reader.getString());
       time = reader.getLongLE();
@@ -115,8 +121,8 @@ public class ExchangeSummary extends ApiObject {
       sb.append(" currency: ").append(currency);
       sb.append(" high: ").append(high);
       sb.append(" low: ").append(low);
-      sb.append(" bid: ").append(low);
-      sb.append(" ask: ").append(low);
+      sb.append(" bid: ").append(bid);
+      sb.append(" ask: ").append(ask);
       sb.append(" last: ").append(last);
       sb.append(" volume: ").append(satoshiVolume);
       return sb.toString();

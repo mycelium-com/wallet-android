@@ -184,9 +184,9 @@
   <string name="delete_address_message">Вы хотите  удалить этот адрес?</string>
   <string name="confirm_delete_pk_title">Вы уверены?</string>
   <string name="confirm_delete_pk_with_balance">Операция необратима!\n\nПриватный ключ:\n%1$s\n\nНа нем %2$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Операция необратима!\n\nИмя ключа:\n%1$s\n\nПриватный ключ:\n%2$s\n\nНа нем %3$s\n\nВы хотите удалить его?</string>
+  <string name="confirm_delete_pk_with_balance_with_label">Операция необратима!\n\nПриватный ключ:\n%1$s\n\nИмя ключа:\n%2$s\n\nНа нем %3$s\n\nВы хотите удалить его?</string>
   <string name="confirm_delete_pk_without_balance">Это не может быть отменено! \n\nПриватный  ключ:\n%1$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Операция необратима ! \n\n Имя ключа:\n%2$s\n\n Приватный  ключ :\n%1$s\n\n Вы хотите удалить его?</string>
+  <string name="confirm_delete_pk_without_balance_with_label">Операция необратима!\n\nИмя ключа:\n%1$s\n\nПриватный  ключ:\n%2$s\n\nВы хотите удалить его?</string>
   <string name="verify_private_key_backup">Проверить резервную копию</string>
   <string name="verify_backup_dialog_title">Проверить резервную копию приватного ключа</string>
   <string name="verify_backup_desc">Надлежащее резервное копирование приватного ключа является краеугольным камнем при управлении вашими биткойнами.\n\nОсуществив проверку резервного копирования, вы убеждаетесь, что ваша резервная копия в порядке и что вы не потеряете ваши средства, даже если ваше устройство потеряется или повредится.</string>
@@ -267,22 +267,6 @@
   <string name="import_decrypt_bip38_invalid_password">Введенный пароль неверный.</string>
   <string name="decrypt_button">Расшифровать</string>
   <string name="pref_change_language">Изменить язык</string>
-  <string-array name="languages">
-    <item>de</item>
-    <item>en</item>
-    <item>es</item>
-    <item>it</item>
-    <item>pt</item>
-    <item>ru</item>
-    <item>zh</item>
-  </string-array>
-  <string-array name="languages_desc">
-    <item>Deutsch</item>
-    <item>English</item>
-    <item>Español</item>
-    <item>Italiano</item>
-    <item>Português</item>
-    <item>Русский язык</item>
-    <item>简体字</item>
-  </string-array>
+  <string name="addressbook_cannot_add_private_key">В адресную книгу приватный ключ  не  добавляется.\n\nПриватные  ключи можно импортировать в  разделе Ключи.</string>
+  <string name="archiving_key_title">Архивирование ключа</string>
 </resources>

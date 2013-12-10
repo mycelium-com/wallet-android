@@ -269,4 +269,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="import_decrypt_bip38_invalid_password">Das eingegebene Passwort ist falsch.</string>
   <string name="decrypt_button">Entschlüsseln</string>
   <string name="pref_change_language">Sprache wechseln</string>
+  <string name="addressbook_cannot_add_private_key">Sie können zum Adressbuch keine privaten Schlüssel hinzufügen.\n\nPrivate Schlüssel können Sie zum Schlüsseltab hinzufügen</string>
+  <string name="archiving_key_title">Schlüssel wird archiviert</string>
 </resources>

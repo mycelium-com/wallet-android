@@ -18,6 +18,7 @@ package com.mrd.bitlib.crypto;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 
 import Rijndael.Rijndael;
 
@@ -117,17 +118,13 @@ public class MrdExport {
          }
 
          /**
-          * Generate encryption parameters using a passphrase and a progress
-          * tracker
-          * 
-          * @param passphrase
-          *           the passphrase to generate an AES key with
-          * @param p
-          *           the progress tracker
+          * Generate encryption parameters using given params including progress tracker
+          *
+          * @param p KeyDerivationParameters including progress tracker
           * @throws InterruptedException
+          * @throws java.lang.OutOfMemoryError if the heap is not large enough. catch this if you want to provide a fallback.
           */
-         public static EncryptionParameters generate(KdfParameters p) throws InterruptedException {
-
+         public static EncryptionParameters generate(KdfParameters p) throws InterruptedException, OutOfMemoryError {
             try {
                // Derive AES Key using scrypt on passphrase and salt
                byte[] aesKey = SCrypt.scrypt(p.passphrase.getBytes(PASSWORD_CHARACTER_ENCODING), p.salt, 1 << p.n, p.r,
@@ -135,11 +132,12 @@ public class MrdExport {
                return new EncryptionParameters(aesKey, p);
             } catch (InterruptedException e) {
                throw e;
-            } catch (Exception e) {
+            } catch (GeneralSecurityException e) {
+               throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
                throw new RuntimeException(e);
             }
          }
-
       }
 
       public static class KdfParameters implements Serializable {

@@ -482,9 +482,11 @@ public class SendMainActivity extends Activity {
                _receivingAddress = record.address;
             }
          } else {
-            String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
-            if (error != null) {
-               Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+            if (intent != null) {
+               String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+               if (error != null) {
+                  Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+               }
             }
          }
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {

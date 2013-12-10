@@ -32,58 +32,18 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.service;
+package com.mycelium.wallet;
 
-import android.content.Context;
+public class UserFacingException extends Exception {
 
-import com.lambdaworks.crypto.SCryptProgress;
-import com.mrd.bitlib.crypto.Bip38;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.UserFacingException;
+   public final FailType failType;
 
-public class Bip38KeyDecryptionTask extends ServiceTask<String> {
-   private static final long serialVersionUID = 1L;
-
-   private String _bip38PrivateKeyString;
-   private String _passphrase;
-   private NetworkParameters _network;
-   private String _statusMessage;
-   private SCryptProgress _progress;
-
-   public Bip38KeyDecryptionTask(String bip38PrivateKeyString, String passphrase, Context context,
-                                 NetworkParameters network) {
-      _bip38PrivateKeyString = bip38PrivateKeyString;
-      _passphrase = passphrase;
-      _network = network;
-      _statusMessage = context.getResources().getString(R.string.import_decrypt_stretching);
+   public enum FailType{
+      OOME
    }
 
-   @Override
-   protected String doTask(Context context) throws UserFacingException {
-      _progress = Bip38.getScryptProgressTracker();
-      // Do BIP38 decryption
-      String result;
-      try {
-         result = Bip38.decrypt(_bip38PrivateKeyString, _passphrase, _progress, _network);
-      } catch (InterruptedException e) {
-         return null;
-      } catch (OutOfMemoryError e) {
-         throw new UserFacingException(e);
-      }
-      // The result may be null
-      return result;
+   public UserFacingException(OutOfMemoryError e) {
+      super(e);
+      this.failType = FailType.OOME;
    }
-
-   @Override
-   protected void terminate() {
-      // Tell scrypt to stop
-      _progress.terminate();
-   }
-
-   @Override
-   protected ServiceTaskStatus getStatus() {
-      return new ServiceTaskStatus(_statusMessage, _progress == null ? 0 : _progress.getProgress());
-   }
-
 }

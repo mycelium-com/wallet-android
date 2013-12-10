@@ -53,6 +53,7 @@ import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.crypto.Bip38.Bip38PrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.service.Bip38KeyDecryptionTask;
 import com.mycelium.wallet.service.ServiceTask;
@@ -256,15 +257,11 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
             setResult(RESULT_OK, result);
             this.finish();
          }
-      } catch (OutOfMemoryError e) {
+      } catch (UserFacingException e) {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
          ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.red));
          ((TextView) findViewById(R.id.tvProgress)).setText("");
          _mbwManager.reportIgnoredException(e);
-      } catch (Exception e) {
-         throw new RuntimeException(e);
       }
-
    }
-
 }

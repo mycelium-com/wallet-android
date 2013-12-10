@@ -49,8 +49,6 @@
 
     <style name="MyceliumLauncher" parent="MyceliumModern">
         <item name="android:windowBackground">@drawable/background_launcher_centered</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowNoTitle">true</item>
     </style>
 
 

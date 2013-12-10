@@ -69,6 +69,7 @@ import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.service.CreateMrdBackupTask;
 import com.mycelium.wallet.service.ServiceTask;
@@ -394,11 +395,9 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       CreateMrdBackupTask task = (CreateMrdBackupTask) result;
       try {
          _isPdfGenerated = task.getResult();
-      } catch (OutOfMemoryError e) {
+      } catch (UserFacingException e) {
          _oomDetected = true;
          _mbwManager.reportIgnoredException(e);
-      } catch (Exception e) {
-         throw new RuntimeException(e);
       }
       if (_isPdfGenerated) {
          enableSharing();

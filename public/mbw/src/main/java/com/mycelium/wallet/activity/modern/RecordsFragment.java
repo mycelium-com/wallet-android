@@ -720,8 +720,7 @@ public class RecordsFragment extends Fragment {
    private void archive(final Address address) {
 
       AlertDialog.Builder confirmDialog = new AlertDialog.Builder(getActivity());
-      String title = "Archiving Key";
-      confirmDialog.setTitle(title);
+      confirmDialog.setTitle(R.string.archiving_key_title);
       confirmDialog.setMessage(getString(R.string.question_archive));
       confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 

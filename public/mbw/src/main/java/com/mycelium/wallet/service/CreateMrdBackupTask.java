@@ -1,5 +1,40 @@
+/*
+ * Copyright 2013 Megion Research and Development GmbH
+ *
+ * Licensed under the Microsoft Reference Source License (MS-RSL)
+ *
+ * This license governs use of the accompanying software. If you use the software, you accept this license.
+ * If you do not accept the license, do not use the software.
+ *
+ * 1. Definitions
+ * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
+ * "You" means the licensee of the software.
+ * "Your company" means the company you worked for when you downloaded the software.
+ * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
+ * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
+ * software, and specifically excludes the right to distribute the software outside of your company.
+ * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
+ * under this license.
+ *
+ * 2. Grant of Rights
+ * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free copyright license to reproduce the software for reference use.
+ * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free patent license under licensed patents for reference use.
+ *
+ * 3. Limitations
+ * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
+ * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
+ * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
+ * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
+ * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
+ * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
+ * fitness for a particular purpose and non-infringement.
+ */
+
 package com.mycelium.wallet.service;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -16,6 +51,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.RecordManager;
+import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.pdf.ExportDistiller;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportEntry;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportProgressTracker;
@@ -77,38 +113,43 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    }
 
    @Override
-   protected Boolean doTask(Context context) throws Exception {
-
-      // Generate Encryption parameters by doing key stretching
-      EncryptionParameters encryptionParameters;
+   protected Boolean doTask(Context context) throws UserFacingException {
       try {
-         encryptionParameters = EncryptionParameters.generate(_kdfParameters);
-      } catch (InterruptedException e) {
-         return false;
-      }
+         // Generate Encryption parameters by doing key stretching
+         EncryptionParameters encryptionParameters;
+         try {
+            encryptionParameters = EncryptionParameters.generate(_kdfParameters);
+         } catch (InterruptedException e) {
+            return false;
+         }
 
-      // Encrypt
-      _encryptionProgress = 0D;
-      double increment = 1D / (_active.size() + _archived.size());
-      // Encrypt active
-      List<ExportEntry> encryptedActiveKeys = new LinkedList<ExportEntry>();
-      for (EntryToExport e : _active) {
-         encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network));
-         _encryptionProgress += increment;
-      }
-      // Encrypt archived
-      List<ExportEntry> encryptedArchivedKeys = new LinkedList<ExportEntry>();
-      for (EntryToExport e : _archived) {
-         encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network));
-         _encryptionProgress += increment;
-      }
+         // Encrypt
+         _encryptionProgress = 0D;
+         double increment = 1D / (_active.size() + _archived.size());
+         // Encrypt active
+         List<ExportEntry> encryptedActiveKeys = new LinkedList<ExportEntry>();
+         for (EntryToExport e : _active) {
+            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network));
+            _encryptionProgress += increment;
+         }
+         // Encrypt archived
+         List<ExportEntry> encryptedArchivedKeys = new LinkedList<ExportEntry>();
+         for (EntryToExport e : _archived) {
+            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network));
+            _encryptionProgress += increment;
+         }
 
-      // Generate PDF document
-      String exportFormatString = "Mycelium Backup 1.0";
-      ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
-            encryptedActiveKeys, encryptedArchivedKeys);
-      _pdfProgress = ExportDistiller.createExportProgressTracker(exportParameters.active, exportParameters.active);
-      ExportDistiller.exportPrivateKeysToFile(context, exportParameters, _pdfProgress, _exportFilePath);
+         // Generate PDF document
+         String exportFormatString = "Mycelium Backup 1.0";
+         ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
+               encryptedActiveKeys, encryptedArchivedKeys);
+         _pdfProgress = ExportDistiller.createExportProgressTracker(exportParameters.active, exportParameters.active);
+         ExportDistiller.exportPrivateKeysToFile(context, exportParameters, _pdfProgress, _exportFilePath);
+      } catch (OutOfMemoryError e) {
+         throw new UserFacingException(e);
+      } catch (IOException e) {
+         throw new RuntimeException(e);
+      }
 
       return true;
    }

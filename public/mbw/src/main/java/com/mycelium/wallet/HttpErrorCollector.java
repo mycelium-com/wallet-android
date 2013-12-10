@@ -91,12 +91,7 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
 
    @Override
    public void uncaughtException(final Thread thread, final Throwable throwable) {
-      new Thread() {
-         @Override
-         public void run() {
-            reportErrorToServer(throwable);
-         }
-      }.start();
+      reportErrorToServer(throwable);
       orig.uncaughtException(thread, throwable);
    }
 
@@ -106,15 +101,20 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
     * in most cases we should blow up, though.
     * @param throwable
     */
-   public void reportErrorToServer(Throwable throwable) {
-      try {
-         api.collectError(throwable, version, metaData);
-      } catch (RuntimeException e) {
-         Log.e(Constants.TAG, "error while sending error", e);
-      } catch (ApiException e) {
-         Log.e(Constants.TAG, "error while sending error", e);
-      } finally {
-         Log.e(Constants.TAG, "uncaught exception", throwable);
-      }
+   public void reportErrorToServer(final Throwable throwable) {
+      new Thread(){
+         @Override
+         public void run() {
+            try {
+               api.collectError(throwable, version, metaData);
+            } catch (RuntimeException e) {
+               Log.e(Constants.TAG, "error while sending error", e);
+            } catch (ApiException e) {
+               Log.e(Constants.TAG, "error while sending error", e);
+            } finally {
+               Log.e(Constants.TAG, "uncaught exception", throwable);
+            }
+         }
+      }.start();
    }
 }

@@ -63,7 +63,7 @@ public class UnspentCoinbaseTest {
    @Test
    public void testQueryUnspentOutputs() throws Exception {
       MyceliumWalletApiImpl.HttpEndpoint endpoint = new MyceliumWalletApiImpl.HttpEndpoint(
-            "http://mws1.mycelium.com/mws");
+            "https://mws1.mycelium.com/mws");
       MyceliumWalletApiImpl api = new MyceliumWalletApiImpl(new MyceliumWalletApiImpl.HttpEndpoint[] { endpoint },
             NetworkParameters.productionNetwork);
       Address miningAddress = Address.fromString("12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"); // second

@@ -22,6 +22,7 @@
         <item>en</item>
         <item>es</item>
         <item>it</item>
+        <item>nl</item>
         <item>pt</item>
         <item>ru</item>
         <item>zh</item>
@@ -32,8 +33,9 @@
         <item>English</item>
         <item>Español</item>
         <item>Italiano</item>
+        <item>Nederlands</item>
         <item>Português</item>
-        <item>Русский язык</item>
+        <item>Русский</item>
         <item>简体字</item>
     </string-array>
 </resources>

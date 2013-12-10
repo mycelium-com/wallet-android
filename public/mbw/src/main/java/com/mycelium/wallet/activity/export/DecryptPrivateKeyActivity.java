@@ -61,6 +61,7 @@ import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.activity.TextNormalizer;
 import com.mycelium.wallet.service.MrdKeyStretchingTask;
 import com.mycelium.wallet.service.ServiceTask;
@@ -181,7 +182,7 @@ public class DecryptPrivateKeyActivity extends Activity implements TaskExecution
 
    private void showKeyboardOrStartStretching() {
       _encryptionParameters = null;
-      
+
       if (this.isFinishing()) {
          return;
       }
@@ -375,11 +376,9 @@ public class DecryptPrivateKeyActivity extends Activity implements TaskExecution
       try {
          _encryptionParameters = task.getResult();
          tryDecrypt(_encryptionParameters);
-      } catch (OutOfMemoryError e) {
+      } catch (UserFacingException e) {
          _oomDetected = true;
          _mbwManager.reportIgnoredException(e);
-      } catch (Exception e) {
-         throw new RuntimeException(e);
       }
    }
 
