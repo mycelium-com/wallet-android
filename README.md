@@ -13,7 +13,7 @@ building
 
 to build everything from source, simply checkout the source and build using gradle
 note that you need a proper android sdk with *ANDROID_HOME* variable pointing to it.
-Android SDK version 18 should be installed as well as the appcompat v7 rev. 19
+Android SDK version 19 should be installed as well as the appcompat v7 rev. 19
 
     git clone https://github.com/mycelium-com/wallet.git
     cd wallet
