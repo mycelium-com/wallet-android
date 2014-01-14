@@ -143,7 +143,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          String exportFormatString = "Mycelium Backup 1.0";
          ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
                encryptedActiveKeys, encryptedArchivedKeys);
-         _pdfProgress = ExportDistiller.createExportProgressTracker(exportParameters.active, exportParameters.active);
+         _pdfProgress = new ExportProgressTracker(exportParameters.getAllEntries());
          ExportDistiller.exportPrivateKeysToFile(context, exportParameters, _pdfProgress, _exportFilePath);
       } catch (OutOfMemoryError e) {
          throw new UserFacingException(e);

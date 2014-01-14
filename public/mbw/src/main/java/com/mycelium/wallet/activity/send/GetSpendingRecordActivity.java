@@ -71,6 +71,7 @@ public class GetSpendingRecordActivity extends Activity {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 

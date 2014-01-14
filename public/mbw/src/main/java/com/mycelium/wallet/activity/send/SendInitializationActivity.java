@@ -73,6 +73,7 @@ public class SendInitializationActivity extends Activity {
       intent.putExtra("wallet", wallet);
       intent.putExtra("isColdStorage", isColdStorage);
       intent.putExtra("oneBtcInFiat", oneBtcInFiat);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
@@ -83,6 +84,7 @@ public class SendInitializationActivity extends Activity {
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
       intent.putExtra("isColdStorage", isColdStorage);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 

@@ -60,6 +60,7 @@ public class BroadcastTransactionActivity extends Activity {
    public static void callMe(Activity currentActivity, Transaction transaction) {
       Intent intent = new Intent(currentActivity, BroadcastTransactionActivity.class);
       intent.putExtra("transaction", transaction);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 

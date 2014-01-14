@@ -255,6 +255,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       super.onBackPressed();
    }
 
+   @SuppressWarnings("unused")
    private void deleteBackupFile() {
       boolean success;
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {

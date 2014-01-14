@@ -3,6 +3,7 @@ package com.mycelium.wallet;
 import java.io.Serializable;
 
 public class ErrorMetaData implements Serializable{
+   private static final long serialVersionUID = 1L;
    public static final ErrorMetaData DUMMY = new ErrorMetaData(0, 0, "junit", "junit", "junit", "junit");
    private final int totalMemory;
    private final int sdk_level;

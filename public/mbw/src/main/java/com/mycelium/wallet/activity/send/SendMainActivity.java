@@ -108,6 +108,7 @@ public class SendMainActivity extends Activity {
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
       intent.putExtra("isColdStorage", isColdStorage);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 

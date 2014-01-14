@@ -44,7 +44,7 @@ import com.mrd.bitlib.util.ByteWriter;
 public class ExchangeSummary extends ApiObject {
 
    public enum ExchangeId {
-      Unknown("Unknown"), BitStamp("BitStamp"), MtGox("MtGox"), BtcChina("BTC China");
+      Unknown("Unknown"), BitStamp("BitStamp"), MtGox("MtGox"), BtcChina("BTC China"), BtcE("BTC-E");
 
       private String _name;
 
@@ -59,6 +59,8 @@ public class ExchangeSummary extends ApiObject {
             return MtGox;
          } else if (name.equals(BtcChina._name)) {
             return BtcChina;
+         } else if (name.equals(BtcE._name)) {
+            return BtcE;
          } else {
             return Unknown;
          }

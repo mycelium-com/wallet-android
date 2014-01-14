@@ -34,19 +34,21 @@
 
 package com.mycelium.wallet.pdf;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
 import java.io.Serializable;
 import java.util.List;
 
-/**
-* Created by andreas on 11/25/13.
-*/
 public class ExportPdfParameters implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   public long time;
-   public String exportFormatString;
-   public List<ExportDistiller.ExportEntry> active;
-   public List<ExportDistiller.ExportEntry> archived;
+   public final long time;
+   public final String exportFormatString;
+   private final List<ExportDistiller.ExportEntry> active;
+   private final List<ExportDistiller.ExportEntry> archived;
 
    public ExportPdfParameters(long time, String exportFormatString, List<ExportDistiller.ExportEntry> active,
                               List<ExportDistiller.ExportEntry> archived) {
@@ -54,5 +56,47 @@ public class ExportPdfParameters implements Serializable {
       this.exportFormatString = exportFormatString;
       this.active = active;
       this.archived = archived;
+   }
+
+   public Iterable<ExportDistiller.ExportEntry> getAllEntries() {
+      return Iterables.concat(active, archived);
+   }
+
+   public int getNumActive() {
+      return active.size();
+   }
+
+   public int getNumArchived() {
+      return archived.size();
+   }
+
+   public List<ExportDistiller.ExportEntry> activeWithoutFirst() {
+      if (active.size() <= 1) return ImmutableList.of();
+      return active.subList(1, active.size());
+   }
+
+   public List<ExportDistiller.ExportEntry> archiveWithoutFirst() {
+      if (active.isEmpty()) {
+         return archived.subList(1, archived.size());
+      } else {
+         return archived;
+      }
+   }
+
+   public ExportDistiller.ExportEntry firstEntry() {
+      if (active.isEmpty()) return archived.get(0);
+      return active.get(0);
+   }
+
+   public int entriesWithEncryptedKeys() {
+      Iterable<ExportDistiller.ExportEntry> entries = Iterables.concat(active, archived);
+      FluentIterable<ExportDistiller.ExportEntry> entryWithKey = FluentIterable.from(entries).filter(
+            new Predicate<ExportDistiller.ExportEntry>() {
+               @Override
+               public boolean apply(ExportDistiller.ExportEntry input) {
+                  return input.encryptedKey != null;
+               }
+            });
+      return entryWithKey.size();
    }
 }

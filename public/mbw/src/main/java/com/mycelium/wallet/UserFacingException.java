@@ -35,7 +35,8 @@
 package com.mycelium.wallet;
 
 public class UserFacingException extends Exception {
-
+   private static final long serialVersionUID = 1L;
+   
    public final FailType failType;
 
    public enum FailType{

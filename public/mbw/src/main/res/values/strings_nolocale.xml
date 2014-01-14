@@ -21,6 +21,7 @@
         <item>de</item>
         <item>en</item>
         <item>es</item>
+        <!-- <item>iw</item>  -->
         <item>it</item>
         <item>nl</item>
         <item>pt</item>
@@ -32,6 +33,7 @@
         <item>Deutsch</item>
         <item>English</item>
         <item>Español</item>
+        <!-- <item>עברית</item> -->
         <item>Italiano</item>
         <item>Nederlands</item>
         <item>Português</item>

@@ -95,10 +95,10 @@ public class ExportDistiller {
       private int _totalWork;
       private int _workCompleted;
 
-      private ExportProgressTracker(List<ExportEntry> active, List<ExportEntry> archived) {
+      public ExportProgressTracker(Iterable<ExportEntry> entries) {
          // Sum up all the work to do
          _totalWork = WATER_MARK_WORK;
-         for (ExportEntry entry : active) {
+         for (ExportEntry entry : entries) {
             _totalWork += ADDRESS_WORK;
             if (entry.encryptedKey != null) {
                _totalWork += PRIVATE_KEY_WORK;
@@ -122,10 +122,6 @@ public class ExportDistiller {
          return (double) _workCompleted / (double) _totalWork;
       }
 
-   }
-
-   public static ExportProgressTracker createExportProgressTracker(List<ExportEntry> active, List<ExportEntry> archived) {
-      return new ExportProgressTracker(active, archived);
    }
 
    public static String exportPrivateKeysToFile(Context context, ExportPdfParameters params,
@@ -172,20 +168,10 @@ public class ExportDistiller {
       }
 
       // Count keys, active, archive
-      int totalKeys = 0;
-      int activeRecords = params.active.size();
-      int archivedRecords = params.archived.size();
+      final int totalKeys = params.entriesWithEncryptedKeys();
+      int activeRecords = params.getNumActive();
+      int archivedRecords = params.getNumArchived();
       int totalRecords = activeRecords + archivedRecords;
-      for (ExportEntry entry : params.active) {
-         if (entry.encryptedKey != null) {
-            totalKeys++;
-         }
-      }
-      for (ExportEntry entry : params.archived) {
-         if (entry.encryptedKey != null) {
-            totalKeys++;
-         }
-      }
 
       int totalPages = 1 + ((totalRecords - 1 + RECORDS_PR_PAGE - 1) / RECORDS_PR_PAGE) + 1;
 
@@ -294,7 +280,7 @@ public class ExportDistiller {
 
       // Add first key to first page (we know that there will always be one
       // acrive record)
-      fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, 1, activeRecords, params.active.get(0), true,
+      fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, 1, activeRecords, params.firstEntry(), true,
             progressTracker);
 
       // Add page number
@@ -309,14 +295,16 @@ public class ExportDistiller {
       fromTop = 0F;
 
       // Add remaining active records
-      for (int i = 1; i < params.active.size(); i++) {
+      List<ExportEntry> activeWithoutFirst = params.activeWithoutFirst();
+        for (int i = 0; i < activeWithoutFirst.size(); i++) {
+         ExportEntry exportEntry = activeWithoutFirst.get(i);
          recordsOnThisPage++;
          boolean moreRecords = i != totalRecords - 1;
          boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1, params.active.size(),
-               params.active.get(i), lastRecordOnPage, progressTracker);
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1, params.getNumActive(),
+               exportEntry, lastRecordOnPage, progressTracker);
 
          // Add page number
          if (lastRecordOnPage) {
@@ -330,14 +318,15 @@ public class ExportDistiller {
       }
 
       // Add archived records
-      for (int i = 0; i < params.archived.size(); i++) {
+      List<ExportEntry> archiveWithoutFirst = params.archiveWithoutFirst();
+      for (int i = 0; i < archiveWithoutFirst.size(); i++) {
          recordsOnThisPage++;
-         boolean moreRecords = i != params.archived.size() - 1;
+         boolean moreRecords = i != archiveWithoutFirst.size() - 1;
          boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), false, i + 1, params.archived.size(),
-               params.archived.get(i), lastRecordOnPage, progressTracker);
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), false, i + 1, archiveWithoutFirst.size(),
+               archiveWithoutFirst.get(i), lastRecordOnPage, progressTracker);
 
          // Add page number
          if (lastRecordOnPage) {
