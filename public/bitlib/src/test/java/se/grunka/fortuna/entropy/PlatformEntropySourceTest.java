@@ -9,14 +9,14 @@ import se.grunka.fortuna.accumulator.EventScheduler;
 
 import static org.junit.Assert.assertEquals;
 
-public class URandomEntropySourceTest {
+public class PlatformEntropySourceTest {
 
-    private URandomEntropySource target;
+    private PlatformEntropySource target;
     private int schedules, adds;
 
     @Before
     public void before() throws Exception {
-        target = new URandomEntropySource();
+        target = new PlatformEntropySource();
         schedules = 0;
         adds = 0;
     }

@@ -31,7 +31,7 @@ public class FortunaRandomSource extends RandomSource {
    private final Fortuna fortuna;
 
    public FortunaRandomSource() {
-      fortuna = Fortuna.createInstance(Iterables.concat(jmxSources(),defaultSources(), linuxSource()));
+      fortuna = Fortuna.createInstance(Iterables.concat(jmxSources(),defaultSources(), platformSource()));
    }
 
    @Override
@@ -56,10 +56,8 @@ public class FortunaRandomSource extends RandomSource {
               , new UptimeEntropySource());
    }
 
-   private List<EntropySource> linuxSource() {
-      if (new File("/dev/urandom").exists()) {
-         return ImmutableList.<EntropySource>of(new URandomEntropySource());
-      } else return ImmutableList.of();
+   private List<EntropySource> platformSource() {
+         return ImmutableList.<EntropySource>of(new PlatformEntropySource());
    }
 
 

@@ -42,7 +42,7 @@ public class Fortuna extends Random {
               , new ThreadTimeEntropySource()
               , new UptimeEntropySource());
       if (new File("/dev/urandom").exists()) {
-         b.add(new URandomEntropySource());
+         b.add(new PlatformEntropySource());
       }
       return b.build();
 
