@@ -16,8 +16,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
 
     defaultConfig {
         minSdkVersion 8
@@ -27,6 +27,10 @@ android {
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
         targetCompatibility = 'VERSION_1_6'
+    }
+
+    lintOptions {
+        abortOnError false
     }
 
 }
