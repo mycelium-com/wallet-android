@@ -34,8 +34,12 @@
 
 package com.mycelium.wallet.activity;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -48,11 +52,14 @@ import android.widget.TextView;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
+
+import com.mrd.mbwapi.api.ApiError;
+import com.mrd.mbwapi.api.WalletVersionResponse;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-
-import java.io.IOException;
-import java.io.InputStream;
+import com.mycelium.wallet.VersionManager;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.api.AbstractCallbackHandler;
 
 public class AboutActivity extends Activity {
    @Override
@@ -61,15 +68,55 @@ public class AboutActivity extends Activity {
 
       setContentView(R.layout.about_activity);
 
-      ((TextView) findViewById(R.id.tvVersionNumber)).setText(MbwManager.getInstance(this).getVersion());
+      final MbwManager mbwManager = MbwManager.getInstance(this);
+      final VersionManager versionManager = mbwManager.getVersionManager();
+      String version = versionManager.getVersion();
+      ((TextView) findViewById(R.id.tvVersionNumber)).setText(version);
       findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
       findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));
+
+      findViewById(R.id.bt_check_update).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            final ProgressDialog progress = ProgressDialog.show(AboutActivity.this, getString(R.string.update_check), getString(R.string.please_wait), true);
+            versionManager.forceCheckForUpdate(new AbstractCallbackHandler<WalletVersionResponse>() {
+               @Override
+               public void handleCallback(WalletVersionResponse response, ApiError exception) {
+                  progress.dismiss();
+                  if (exception != null) {
+                     new Toaster(AboutActivity.this).toast(R.string.version_check_failed, false);
+                     mbwManager.reportIgnoredException(new RuntimeException(exception.errorMessage));
+                  } else {
+                     showVersionInfo(versionManager, response);
+                  }
+               }
+            });
+         }
+      });
 
       setLinkTo((TextView) findViewById(R.id.tvSourceUrl), R.string.source_url);
       setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
       setMailTo((TextView) findViewById(R.id.tvContactEmail), R.string.contact_email);
+   }
+
+   private void showVersionInfo(VersionManager versionManager, WalletVersionResponse response) {
+      if (versionManager.isSameVersion(response.versionNumber)) {
+         new AlertDialog.Builder(this)
+               .setMessage(getString(R.string.version_uptodate, response.versionNumber))
+               .setTitle(getString(R.string.update_check))
+               .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialog, int which) {
+                     dialog.dismiss();
+                  }
+               })
+               .create()
+               .show();
+      } else {
+         versionManager.showVersionDialog(response, this);
+      }
    }
 
    private void setLinkTo(TextView textView, int res) {

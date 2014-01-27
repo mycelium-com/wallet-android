@@ -12,11 +12,17 @@ building
 ========
 
 to build everything from source, simply checkout the source and build using gradle
-note that you need 
+on the build system you need
 
- * Android SDK version 19 with *ANDROID_HOME* variable pointing to it.
- * appcompat v7 rev. 19 (Android Support Library + Android Support Repository)
+ * JDK 1.7
 
+then you need to use the Android SDK manager to install the following components:
+
+ * Android SDK version 19 with *ANDROID_HOME* variable pointing to the directory
+ * SDK Platform Tools 19.0.1
+ * Android SDK build Tools 19.0.1
+ * Android 4.4.2 (API 19)
+ * appcompat v7 rev. 19.0.1 (Android Support Library + Android Support Repository)
 
 on the console write
 

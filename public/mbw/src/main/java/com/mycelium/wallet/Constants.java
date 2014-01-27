@@ -55,8 +55,6 @@ public class Constants {
    public static final String WALLET_MODE_SETTING = "WalletMode";
    public static final WalletMode DEFAULT_WALLET_MODE = WalletMode.Segregated;
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
-   public static final String DEFAULT_BITCOIN_DENOMINATION = "BTC";
-   public static final String CURRENT_HINT_INDEX_SETTING = "CurrentHintIndex";
    public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    public static final String EXPERT_MODE_SETTING = "ExpertMode";
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
@@ -66,7 +64,10 @@ public class Constants {
    public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
    public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help.html";
    public static final String LANGUAGE_SETTING = "user_language";
+   public static final String IGNORED_VERSIONS = "ignored_versions";
+   public static final String LAST_UPDATE_CHECK = "last_update_check";
 
 
    public static final String TAG = "MyceliumWallet";
+   public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
 }

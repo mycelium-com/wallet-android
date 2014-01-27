@@ -3,12 +3,12 @@ repositories {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
+    gradleVersion = '1.10'
 }
 
 ext {
     guavaArtifact = 'com.google.guava:guava-jdk5:14.0.1'
-    androidBuildArtifact = 'com.android.tools.build:gradle:0.7.+'
+    androidBuildArtifact = 'com.android.tools.build:gradle:0.8.+'
     slf4jVersion = '1.7.2'
     junitVersion ='4.8.1'
 }

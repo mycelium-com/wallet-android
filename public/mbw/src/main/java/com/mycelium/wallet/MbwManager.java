@@ -40,12 +40,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -53,6 +50,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
+import com.squareup.otto.Bus;
+
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
@@ -63,7 +62,6 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.event.SelectedRecordChanged;
 import com.mycelium.wallet.persistence.TxOutDb;
-import com.squareup.otto.Bus;
 
 public class MbwManager {
 
@@ -102,15 +100,16 @@ public class MbwManager {
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
    private MbwEnvironment _environment;
    private final ExploreHelper exploreHelper;
-   private final String _version;
    private HttpErrorCollector _httpErrorCollector;
    private String _language;
+   private final VersionManager _versionManager;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.determineEnvironment(_applicationContext);
-      _version = determineVersion(_applicationContext);
-      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _version, _environment.getMwsApi());
+      String version = VersionManager.determineVersion(_applicationContext);
+
+      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _environment.getMwsApi());
 
       _eventBus = new Bus();
 
@@ -153,24 +152,10 @@ public class MbwManager {
       _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, txOutDb, _applicationContext, _eventBus,
             _environment.getNetwork());
       _addressBookManager = new AddressBookManager(_applicationContext, _eventBus);
-      _syncManager = new SyncManager(_eventBus, this, _asyncApi, _recordManager, _blockChainAddressTracker);
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-   }
-
-   public static String determineVersion(Context applicationContext) {
-      try {
-         PackageManager packageManager = applicationContext.getPackageManager();
-         if (packageManager != null) {
-            final PackageInfo pInfo;
-            pInfo = packageManager.getPackageInfo(applicationContext.getPackageName(), 0);
-            return pInfo.versionName;
-         } else {
-            Log.i(Constants.TAG, "unable to obtain packageManager");
-         }
-      } catch (PackageManager.NameNotFoundException ignored) {
-      }
-      return "unknown";
+      _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
+       _syncManager = new SyncManager(_eventBus, this, _asyncApi, _recordManager, _blockChainAddressTracker,_versionManager);
    }
 
    /**
@@ -320,7 +305,7 @@ public class MbwManager {
       return getBtcValueString(satoshis, _btcValueFormatString);
    }
 
-   public String getBtcValueString(long satoshis, String formatString) {
+   private String getBtcValueString(long satoshis, String formatString) {
       Denomination d = getBitcoinDenomination();
       String valueString = CoinUtil.valueString(satoshis, d, true);
       return String.format(formatString, valueString, d.getUnicodeName());
@@ -415,14 +400,6 @@ public class MbwManager {
       return _environment.getNetwork();
    }
 
-   /**
-    * Get the version of the app as a string
-    * 
-    * @return
-    */
-   public String getVersion() {
-      return _version;
-   }
 
    public ExploreHelper getExploreHelper() {
       return exploreHelper;
@@ -442,5 +419,9 @@ public class MbwManager {
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.LANGUAGE_SETTING, _language);
       editor.commit();
+   }
+
+   public VersionManager getVersionManager() {
+      return _versionManager;
    }
 }

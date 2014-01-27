@@ -44,10 +44,12 @@ import android.os.Handler;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.RecordManager;
@@ -61,6 +63,7 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity;
 public class StartupActivity extends Activity {
 
    private static final int MINIMUM_SPLASH_TIME = 500;
+   private static final int REQUEST_FROM_URI = 2;
    private boolean _hasClipboardExportedPrivateKeys;
    private AlertDialog _alertDialog;
 
@@ -205,17 +208,38 @@ public class StartupActivity extends Activity {
          if (mbwManager.getWalletMode() == WalletMode.Segregated) {
             // If we are in segregated mode let the user choose which record to
             // use
-            GetSpendingRecordActivity.callMe(this, amountToSend, receivingAddress);
+            GetSpendingRecordActivity.callMeWithResult(this, amountToSend, receivingAddress, REQUEST_FROM_URI);
          } else {
             Wallet wallet = recordManager.getWallet(mbwManager.getWalletMode());
-            SendInitializationActivity.callMe(this, wallet, amountToSend, receivingAddress, false);
+            SendInitializationActivity.callMeWithResult(this, wallet, amountToSend, receivingAddress, false, REQUEST_FROM_URI);
          }
-         finish();
+         //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
          return true;
       }
 
       // The intent was not a Bitcoin URI
       return false;
+   }
+
+   @Override
+   protected void onPause() {
+      super.onPause();
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      //double-check result data, in case some downstream code messes up.
+      if (requestCode != REQUEST_FROM_URI){
+         setResult(RESULT_CANCELED);
+      }else if (resultCode == RESULT_OK) {
+         Bundle extras = Preconditions.checkNotNull(data.getExtras());
+         Preconditions.checkState(extras.keySet().size() == 1); //check no additional data
+         Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
+         setResult(RESULT_OK, data);
+      } else {
+         setResult(RESULT_CANCELED);
+      }
+      finish();
    }
 
 }

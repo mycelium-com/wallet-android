@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
     <string name="add_record_title">Add Address or Private Key</string>
@@ -285,5 +286,14 @@
     <string name="pref_change_language">Change Language</string>
     <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Keys tab</string>
     <string name="archiving_key_title">Archiving Key</string>
-    
+    <string name="new_version_exists">A new Version is available</string>
+    <string name="check_update">Check for Update</string>
+    <string name="version_check_failed">Unable to receive Version information</string>
+    <string name="version_uptodate">Your Wallet is up to date with version %s</string>
+    <string name="update_check">Update check</string>
+    <string name="ignore_update">Ignore this update</string>
+    <string name="get_from">Get from</string>
+    <string name="mycelium_com">mycelium.com</string>
+    <string name="google_play">Google Play</string>
+
 </resources>

@@ -77,15 +77,26 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
+   public static void callMeWithResult(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress,
+         boolean isColdStorage, int request) {
+      Intent intent = prepareSendingIntent(currentActivity, wallet, amountToSend, receivingAddress, isColdStorage);
+      currentActivity.startActivityForResult(intent, request);
+
+   }
    public static void callMe(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress,
          boolean isColdStorage) {
+      Intent intent = prepareSendingIntent(currentActivity, wallet, amountToSend, receivingAddress, isColdStorage);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      currentActivity.startActivity(intent);
+   }
+
+   private static Intent prepareSendingIntent(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("wallet", wallet);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
       intent.putExtra("isColdStorage", isColdStorage);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-      currentActivity.startActivity(intent);
+      return intent;
    }
 
    @Override

@@ -46,6 +46,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.BroadcastTransactionResponse;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
@@ -116,7 +117,7 @@ public class BroadcastTransactionActivity extends Activity {
          } else {
             // Include the transaction hash in the response
             Intent result = new Intent();
-            result.putExtra("transaction_hash", response.hash.toString());
+            result.putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, response.hash.toString());
             setResult(RESULT_OK, result);
             Toast.makeText(me, getResources().getString(R.string.transaction_sent), Toast.LENGTH_LONG).show();
          }

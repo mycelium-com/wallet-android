@@ -1,4 +1,4 @@
-package com.mycelium.wallet;
+package com.mrd.mbwapi.api;
 
 import java.io.Serializable;
 

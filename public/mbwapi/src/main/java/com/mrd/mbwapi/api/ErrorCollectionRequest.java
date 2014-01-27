@@ -37,7 +37,6 @@ package com.mrd.mbwapi.api;
 import com.google.common.base.Throwables;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mycelium.wallet.ErrorMetaData;
 
 
 public class ErrorCollectionRequest extends ApiObject {

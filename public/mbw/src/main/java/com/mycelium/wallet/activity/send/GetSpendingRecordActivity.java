@@ -63,16 +63,11 @@ public class GetSpendingRecordActivity extends Activity {
    private MbwManager _mbwManager;
    private AddressBookManager _addressBook;
 
-   public static void callMe(Activity currentActivity) {
-      callMe(currentActivity, null, null);
-   }
-
-   public static void callMe(Activity currentActivity, Long amountToSend, Address receivingAddress) {
+   public static void callMeWithResult(Activity currentActivity, Long amountToSend, Address receivingAddress, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-      currentActivity.startActivity(intent);
+      currentActivity.startActivityForResult(intent, request);
    }
 
    @Override
