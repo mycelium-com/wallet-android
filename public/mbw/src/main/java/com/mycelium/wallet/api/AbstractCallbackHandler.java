@@ -48,7 +48,7 @@ public interface AbstractCallbackHandler<T> {
     * @param response
     *           The response received from the server or null if an error
     *           occurred.
-    * @param error
+    * @param exception
     *           Is null unless an error occurred.
     */
    public void handleCallback(T response, ApiError exception);

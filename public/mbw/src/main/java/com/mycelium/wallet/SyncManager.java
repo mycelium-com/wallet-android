@@ -55,13 +55,15 @@ public class SyncManager {
 
 
    Set<String> runningProcesses = Sets.newHashSet();
+    private VersionManager versionManager;
 
-   public SyncManager(Bus eventBus, MbwManager _mbwManager, AndroidAsyncApi asyncApi, RecordManager recordManager, BlockChainAddressTracker tracker) {
+    public SyncManager(Bus eventBus, MbwManager _mbwManager, AndroidAsyncApi asyncApi, RecordManager recordManager, BlockChainAddressTracker tracker, VersionManager versionManager) {
       this.eventBus = eventBus;
       this._mbwManager = _mbwManager;
       this.asyncApi = asyncApi;
       this.recordManager = recordManager;
       this.tracker = tracker;
+      this.versionManager = versionManager;
       eventBus.register(this); //does not need unregister,
       // since it is a singleton and will be killed with the whole VM
    }
@@ -72,6 +74,7 @@ public class SyncManager {
       balanceBeforeRefresh = wallet.getLocalBalance(tracker);
       //request balance update
       wallet.requestUpdate(tracker);
+      versionManager.checkForUpdate();
    }
 
    //for sync purposes, we select a different wallet than normally, ignoring segregated mode setting.

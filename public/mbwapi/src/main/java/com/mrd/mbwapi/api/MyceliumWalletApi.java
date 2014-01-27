@@ -35,7 +35,6 @@
 package com.mrd.mbwapi.api;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.ErrorMetaData;
 
 /**
  * The Mycelium Bitcoin Wallet API interface. This interface describes all the
@@ -194,4 +193,7 @@ public interface MyceliumWalletApi {
    public ErrorCollectionResponse collectError(Throwable e, String version, ErrorMetaData metaData) throws ApiException;
 
    ExchangeSummary[] getRate(CurrencyCode currencyCode) throws ApiException;
+
+   WalletVersionResponse getVersionInfo(WalletVersionRequest request) throws ApiException;
+
 }

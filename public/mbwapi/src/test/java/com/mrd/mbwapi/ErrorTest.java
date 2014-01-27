@@ -1,11 +1,11 @@
 package com.mrd.mbwapi;
 
-import com.mycelium.wallet.ErrorMetaData;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.ApiException;
+import com.mrd.mbwapi.api.ErrorMetaData;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 
 @Ignore

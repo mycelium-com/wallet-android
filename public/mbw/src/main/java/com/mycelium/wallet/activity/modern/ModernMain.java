@@ -50,6 +50,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.squareup.otto.Subscribe;
+
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -61,7 +63,7 @@ import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.event.RefreshStatus;
-import com.squareup.otto.Subscribe;
+import com.mycelium.wallet.event.WalletVersionEvent;
 
 public class ModernMain extends ActionBarActivity {
 
@@ -119,7 +121,7 @@ public class ModernMain extends ActionBarActivity {
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
-      _mbwManager.getSyncManager().triggerUpdate();
+       _mbwManager.getSyncManager().triggerUpdate();
       supportInvalidateOptionsMenu();
       super.onResume();
    }
@@ -127,7 +129,7 @@ public class ModernMain extends ActionBarActivity {
    @Override
    protected void onPause() {
       _mbwManager.getEventBus().unregister(this);
-      super.onPause();
+       super.onPause();
    }
 
    @Override
@@ -264,6 +266,15 @@ public class ModernMain extends ActionBarActivity {
       } else {
          Log.i(Constants.TAG, "unable to set refresh animation since the item is not there..");
       }
+   }
+
+
+   @Subscribe
+   public void onNewVersion(final WalletVersionEvent event) {
+       if (!event.response.isPresent()) {
+         return;
+      }
+      _mbwManager.getVersionManager().showIfRelevant(event.response.get(), this);
    }
 
 }

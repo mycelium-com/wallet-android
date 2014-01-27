@@ -43,32 +43,8 @@ import java.util.Random;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.mbwapi.api.ApiException;
-import com.mrd.mbwapi.api.ApiObject;
-import com.mrd.mbwapi.api.BroadcastTransactionRequest;
-import com.mrd.mbwapi.api.BroadcastTransactionResponse;
-import com.mrd.mbwapi.api.CurrencyCode;
-import com.mrd.mbwapi.api.ErrorCollectionRequest;
-import com.mrd.mbwapi.api.ErrorCollectionResponse;
-import com.mrd.mbwapi.api.ExchangeSummary;
-import com.mrd.mbwapi.api.GetTransactionDataRequest;
-import com.mrd.mbwapi.api.GetTransactionDataResponse;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
-import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
-import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
-import com.mrd.mbwapi.api.QueryBalanceRequest;
-import com.mrd.mbwapi.api.QueryBalanceResponse;
-import com.mrd.mbwapi.api.QueryExchangeSummaryRequest;
-import com.mrd.mbwapi.api.QueryExchangeSummaryResponse;
-import com.mrd.mbwapi.api.QueryTransactionInventoryExResponse;
-import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
-import com.mrd.mbwapi.api.QueryTransactionInventoryResponse;
-import com.mrd.mbwapi.api.QueryTransactionSummaryRequest;
-import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
-import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
-import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
+import com.mrd.mbwapi.api.*;
 import com.mrd.mbwapi.util.SslUtils;
-import com.mycelium.wallet.ErrorMetaData;
 
 public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
@@ -180,6 +156,13 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       HttpURLConnection connection = sendRequest(request, RequestConst.QUERY_TRANSACTION_SUMMARY);
       return receiveResponse(QueryTransactionSummaryResponse.class, connection);
    }
+
+   @Override
+   public WalletVersionResponse getVersionInfo(WalletVersionRequest request) throws ApiException {
+      HttpURLConnection connection = sendRequest(request, RequestConst.WALLET_VERSION);
+      return receiveResponse(WalletVersionResponse.class, connection);
+   }
+
 
    private HttpURLConnection sendRequest(ApiObject request, String function) throws ApiException {
       try {

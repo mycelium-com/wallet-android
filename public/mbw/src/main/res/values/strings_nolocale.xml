@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
 
     <string name="btc">BTC</string>
 
@@ -18,6 +19,7 @@
 
 
     <string-array name="languages">
+        <item>da</item>
         <item>de</item>
         <item>en</item>
         <item>es</item>
@@ -30,6 +32,7 @@
     </string-array>
 
     <string-array name="languages_desc">
+        <item>Dansk</item>
         <item>Deutsch</item>
         <item>English</item>
         <item>Español</item>

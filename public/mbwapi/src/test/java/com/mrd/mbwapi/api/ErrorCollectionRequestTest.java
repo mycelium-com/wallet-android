@@ -1,7 +1,6 @@
 package com.mrd.mbwapi.api;
 
 import com.mrd.bitlib.util.ByteWriter;
-import com.mycelium.wallet.ErrorMetaData;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:tools="http://schemas.android.com/tools"
+            android:orientation="vertical"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent">
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:gravity="center">
+
+        <TextView
+                android:layout_marginTop="@dimen/buttonspacing"
+                android:layout_marginBottom="@dimen/buttonspacing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="1.3.5"
+                android:id="@+id/versionNumber"
+                tools:ignore="HardcodedText"/>
+        <Button
+                style="@style/MyceliumButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ignore_update"
+                android:id="@+id/ignoreUpdate"
+                android:layout_marginBottom="15dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Placeholder Text\nwhat you are missing in the new version\n *) new feature 1\n *) new feature 2\n *) new feature 3\n *) new feature 4\n *) new feature 5\n *) new feature 6"
+                android:id="@+id/updateMessage"
+                android:singleLine="false"
+                tools:ignore="HardcodedText" android:layout_marginBottom="30dp" android:layout_marginTop="30dp"
+                />
+
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/get_from"
+                android:layout_marginBottom="15dp"
+                android:id="@+id/getFrom"/>
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+            <Button
+                    style="@style/MyceliumButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mycelium_com"
+                    android:id="@+id/getMycelium" android:layout_weight="1" android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"/>
+            <Button
+                    style="@style/MyceliumButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/google_play"
+                    android:id="@+id/getPlay"
+                    android:layout_weight="1" android:layout_marginRight="10dp" android:layout_marginLeft="10dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

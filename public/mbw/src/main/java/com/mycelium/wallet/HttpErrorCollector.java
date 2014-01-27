@@ -40,6 +40,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.mrd.mbwapi.api.ApiException;
+import com.mrd.mbwapi.api.ErrorMetaData;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 
 public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
@@ -59,7 +60,7 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
    //todo make sure proxy is set before this. require as dependency?
    public static HttpErrorCollector registerInVM(Context applicationContext) {
       MbwEnvironment env = MbwEnvironment.determineEnvironment(applicationContext);
-      String version = MbwManager.determineVersion(applicationContext);
+      String version = VersionManager.determineVersion(applicationContext);
       return registerInVM(applicationContext, version, env.getMwsApi());
    }
 
@@ -99,10 +100,11 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
     * use this method, if we expect an error,
     * but we want to provide a meaningful error message instead of blowing up.
     * in most cases we should blow up, though.
+    *
     * @param throwable
     */
    public void reportErrorToServer(final Throwable throwable) {
-      new Thread(){
+      new Thread() {
          @Override
          public void run() {
             try {

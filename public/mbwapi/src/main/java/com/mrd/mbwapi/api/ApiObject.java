@@ -63,6 +63,8 @@ public abstract class ApiObject {
    protected static final byte GET_TRANSACTION_DATA_REQUEST_TYPE = (byte) 0x19;
    protected static final byte GET_TRANSACTION_DATA_RESPONSE_TYPE = (byte) 0x20;
    protected static final byte TRANSACTION_INVENTORY_EX_RESPONSE_TYPE = (byte) 0x21;
+   protected static final byte WALLET_VERSION_REQUEST_TYPE = (byte) 0x22;
+   protected static final byte WALLET_VERSION_RESPONSE_TYPE = (byte) 0x23;
 
    public final ByteWriter serialize(ByteWriter writer) {
       byte[] payload = toByteWriter(new ByteWriter(1024)).toBytes();
@@ -124,6 +126,10 @@ public abstract class ApiObject {
             return new GetTransactionDataRequest(payloadReader);
          } else if (type == GET_TRANSACTION_DATA_RESPONSE_TYPE) {
             return new GetTransactionDataResponse(payloadReader);
+         } else if (type == WALLET_VERSION_REQUEST_TYPE) {
+            return new WalletVersionRequest(payloadReader);
+         } else if (type == WALLET_VERSION_RESPONSE_TYPE) {
+            return new WalletVersionResponse(payloadReader);
          } else {
             throw new ApiException(MyceliumWalletApi.ERROR_CODE_UNKNOWN_TYPE, "Error deserializing server response");
          }

@@ -34,6 +34,15 @@
 
 package com.mycelium.wallet.api;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
+
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.Transaction;
@@ -42,10 +51,13 @@ import com.mrd.mbwapi.api.*;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.api.ApiCache.TransactionInventory;
 import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
-import com.mycelium.wallet.event.*;
-import com.squareup.otto.Bus;
-
-import java.util.*;
+import com.mycelium.wallet.event.BlockchainError;
+import com.mycelium.wallet.event.ExchangeRateError;
+import com.mycelium.wallet.event.ExchangeRateUpdated;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TransactionHistoryReady;
+import com.mycelium.wallet.event.WalletVersionEvent;
 
 
 /**
@@ -60,6 +72,7 @@ public abstract class AsynchronousApi {
 
    public static final String PROCESS_EXCHANGE_RATE = "ExchangeRate";
    public static final String PROCESS_TX_SUMMARY = "Transaction summary";
+   public static final String PROCESS_UPDATECHECK = "update check";
 
 
    private final MyceliumWalletApi _api;
@@ -80,6 +93,34 @@ public abstract class AsynchronousApi {
 
 
    abstract protected CallbackRunnerInvoker createCallbackRunnerInvoker();
+
+
+   public void getWalletVersion(final WalletVersionRequest versionRequest) {
+      eventBus.post(new SyncStarted(PROCESS_UPDATECHECK));
+      AbstractCallbackHandler<WalletVersionResponse> callback = new AbstractCallbackHandler<WalletVersionResponse>() {
+         @Override
+         public void handleCallback(WalletVersionResponse response, ApiError exception) {
+            eventBus.post(new SyncStopped(PROCESS_UPDATECHECK));
+            final WalletVersionEvent latestVersion;
+            if (response == null) {
+               latestVersion = new WalletVersionEvent();
+            } else {
+               latestVersion = new WalletVersionEvent(response);
+            }
+            eventBus.post(latestVersion);
+         }
+      };
+      getWalletVersion(versionRequest,callback);
+   }
+
+   public void getWalletVersion(final WalletVersionRequest req, AbstractCallbackHandler<WalletVersionResponse> callback) {
+      executeRequest(new AbstractCaller<WalletVersionResponse>(callback) {
+         @Override
+         protected void callFunction() throws ApiException {
+            _response = _api.getVersionInfo(req);
+         }
+      });
+   }
 
    abstract private class SynchronousFunctionCaller implements Runnable, AsyncTask {
 

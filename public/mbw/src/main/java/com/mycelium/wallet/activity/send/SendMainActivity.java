@@ -86,6 +86,7 @@ public class SendMainActivity extends Activity {
    private Wallet _wallet;
    private SpendableOutputs _spendable;
    private Double _oneBtcInFiat; // May be null
+   //todo Andreas refactor this to hold bitocoin Uri
    private Long _amountToSend;
    private Address _receivingAddress;
    private boolean _isColdStorage;
@@ -205,15 +206,17 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         Address address = getClipboardAddress();
-         if (address != null) {
+         BitcoinUri uri = getUriFromClipboard();
+         if (uri != null) {
             Toast.makeText(SendMainActivity.this, getResources().getString(R.string.using_address_from_clipboard),
                   Toast.LENGTH_SHORT).show();
-            _receivingAddress = address;
+            _receivingAddress = uri.address;
+            if (uri.amount != null) {
+               _amountToSend = uri.amount;
+            }
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
          }
-
       }
    };
 
@@ -413,7 +416,7 @@ public class SendMainActivity extends Activity {
 
    @Override
    protected void onResume() {
-      findViewById(R.id.btClipboard).setEnabled(getClipboardAddress() != null);
+      findViewById(R.id.btClipboard).setEnabled(getUriFromClipboard() != null);
       updateUi();
       super.onResume();
    }
@@ -514,7 +517,7 @@ public class SendMainActivity extends Activity {
       updateUi();
    }
 
-   private Address getClipboardAddress() {
+   private BitcoinUri getUriFromClipboard() {
       String content = Utils.getClipboardString(SendMainActivity.this);
       if (content.length() == 0) {
          return null;
@@ -522,12 +525,16 @@ public class SendMainActivity extends Activity {
       String string = content.toString().trim();
       if (string.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Address.fromString(string, _mbwManager.getNetwork());
+         Address address = Address.fromString(string, _mbwManager.getNetwork());
+         if (address == null){
+            return null;
+         }
+         return new BitcoinUri(address,null,null);
       } else {
          BitcoinUri b = BitcoinUri.parse(string, _mbwManager.getNetwork());
          if (b != null) {
             // On URI format
-            return b.address;
+            return b;
          }
       }
       return null;

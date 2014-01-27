@@ -3,9 +3,9 @@
 <resources>
   <string name="app_name">Mycelium 比特币钱包</string>
   <string name="add_record_title">添加地址或密钥</string>
-  <string name="add_record_desc">您正在添加比特币地址或密匙到您的钱包。添加比特币地址将有助于您的随时查看您的资金状况，但是并不支持支付功能。添加密匙可以获得支持支付的比特币地址。</string>
+  <string name="add_record_desc">您正在添加比特币地址或密匙到您的钱包。如您添加是比特币地址您可以随时地观察您的资金余额状况，但是并不支持支付功能。如您添加是密匙您将会获得支持支付功能的比特币地址。</string>
   <string name="scan_desc">请扫描比特币地址或密匙。</string>
-  <string name="clipboard_desc">输入剪贴板的比特币地址或密匙</string>
+  <string name="clipboard_desc">导入剪贴板的比特币地址或密匙</string>
   <string name="random_desc">创建新的随机密匙</string>
   <string name="scan">扫描</string>
   <string name="clipboard">剪贴板</string>
@@ -13,8 +13,8 @@
   <string name="close">退出</string>
   <string name="sending">正在汇款 %1$s</string>
   <string name="receiving">正在收款 %1$s</string>
-  <string name="imported_bitcoin_address">比特币地址输入成功</string>
-  <string name="imported_private_key">密钥输入成功</string>
+  <string name="imported_bitcoin_address">比特币地址输导入成功</string>
+  <string name="imported_private_key">密钥导入成功</string>
   <string name="key_already_present">密钥已存在</string>
   <string name="upgraded_address_to_key">成功通过密钥升级比特币地址</string>
   <string name="address_already_present">您已查看比特币地址</string>
@@ -268,4 +268,6 @@
   <string name="import_decrypt_bip38_invalid_password">输入的密码不是正确的</string>
   <string name="decrypt_button">解密</string>
   <string name="pref_change_language">选择语言</string>
+  <string name="addressbook_cannot_add_private_key">你不能添加密钥到地址簿。\n\n你可以在密钥选项中导入密钥</string>
+  <string name="archiving_key_title">存档密钥</string>
 </resources>
