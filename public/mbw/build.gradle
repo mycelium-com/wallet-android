@@ -33,9 +33,6 @@ android {
         targetCompatibility = 'VERSION_1_6'
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     compileSdkVersion 19
     buildToolsVersion "19.0.1"
