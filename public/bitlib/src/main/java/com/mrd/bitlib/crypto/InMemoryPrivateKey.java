@@ -24,11 +24,13 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 import com.google.bitcoinj.Base58;
+
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 /**
  * A Bitcoin private key that is kept in memory.
@@ -51,7 +53,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    /**
     * Construct a random private key using a secure random source with optional
     * compressed public keys.
-    * 
+    *
     * @param  randomSource
     *           The random source from which the private key will be
     *           deterministically generated.
@@ -85,7 +87,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    /**
     * Construct from private key bytes. Using this constructor yields
     * uncompressed public keys.
-    * 
+    *
     * @param bytes
     *           The private key as an array of bytes
     */
@@ -93,10 +95,14 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       this(bytes, false);
    }
 
+   public InMemoryPrivateKey(Sha256Hash hash, boolean compressed) {
+       this(hash.getBytes(),compressed);
+   }
+
    /**
     * Construct from private key bytes. Using this constructor yields
     * uncompressed public keys.
-    * 
+    *
     * @param bytes
     *           The private key as an array of bytes
     * @param compressed
@@ -121,7 +127,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
 
    /**
     * Construct from private and public key bytes
-    * 
+    *
     * @param priBytes
     *           The private key as an array of bytes
     */
@@ -185,9 +191,9 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    }
 
    @Override
-   protected BigInteger[] generateSignature(byte[] message, RandomSource randomSource) {
+   protected Signature generateSignature(Sha256Hash messageHash, RandomSource randomSource) {
       BigInteger n = Parameters.n;
-      BigInteger e = calculateE(n, message);
+      BigInteger e = calculateE(n, messageHash.getBytes()); //leaving strong typing here
       BigInteger r = null;
       BigInteger s = null;
       // 5.3.2
@@ -220,12 +226,13 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
          s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
       } while (s.equals(BigInteger.ZERO));
 
-      BigInteger[] res = new BigInteger[2];
+      // Enforce low S value
+      if(s.compareTo(Parameters.MAX_SIG_S) == 1){
+         // If the signature is larger than MAX_SIG_S, inverse it
+         s = Parameters.n.subtract(s);
+      }
 
-      res[0] = r;
-      res[1] = s;
-
-      return res;
+      return new Signature(r, s);
    }
 
    private BigInteger calculateE(BigInteger n, byte[] message) {
@@ -275,7 +282,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       byte[] keyBytes = getPrivateKeyBytes();
       System.arraycopy(keyBytes, 0, toEncode, 1, keyBytes.length);
       // Set checksum
-      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32);
+      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32).firstFourBytes();
       System.arraycopy(checkSum, 0, toEncode, 1 + 32, 4);
       // Encode
       return Base58.encode(toEncode);
@@ -291,7 +298,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       // Set compressed indicator
       toEncode[33] = 0x01;
       // Set checksum
-      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1);
+      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1).firstFourBytes();
       System.arraycopy(checkSum, 0, toEncode, 1 + 32 + 1, 4);
       // Encode
       return Base58.encode(toEncode);

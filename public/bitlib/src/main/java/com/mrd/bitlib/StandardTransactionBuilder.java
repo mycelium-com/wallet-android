@@ -26,25 +26,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.PublicKeyRing;
 import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.ScriptInput;
-import com.mrd.bitlib.model.ScriptInputStandard;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.ScriptOutputMultisig;
-import com.mrd.bitlib.model.ScriptOutputStandard;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 public class StandardTransactionBuilder {
 
@@ -87,9 +79,9 @@ public class StandardTransactionBuilder {
 
       // The data to make a signature on. For transactions this is the
       // transaction hash
-      public byte[] toSign;
+      public Sha256Hash toSign;
 
-      public SigningRequest(PublicKey publicKey, byte[] toSign) {
+      public SigningRequest(PublicKey publicKey, Sha256Hash toSign) {
          this.publicKey = publicKey;
          this.toSign = toSign;
       }
@@ -105,10 +97,10 @@ public class StandardTransactionBuilder {
       private NetworkParameters _network;
 
       private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-            PublicKeyRing keyRing, NetworkParameters network) {
+                                  PublicKeyRing keyRing, NetworkParameters network) {
          _network = network;
-         _outputs = outputs.toArray(new TransactionOutput[] {});
-         _funding = funding.toArray(new UnspentTransactionOutput[] {});
+         _outputs = outputs.toArray(new TransactionOutput[]{});
+         _funding = funding.toArray(new UnspentTransactionOutput[]{});
          _signingRequests = new SigningRequest[_funding.length];
 
          // Create empty input scripts pointing at the right out points
@@ -143,7 +135,7 @@ public class StandardTransactionBuilder {
             inputs[i].script = ScriptInput.fromOutputScript(_funding[i].script);
 
             // Calculate the transaction hash that has to be signed
-            byte[] hash = hashTransaction(transaction);
+            Sha256Hash hash = hashTransaction(transaction);
 
             // Set the input to the empty script again
             inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
@@ -236,7 +228,7 @@ public class StandardTransactionBuilder {
    }
 
    public static List<byte[]> generateSignatures(SigningRequest[] requests, PrivateKeyRing keyRing,
-         RandomSource randomSource) {
+                                                 RandomSource randomSource) {
       List<byte[]> signatures = new LinkedList<byte[]>();
       for (SigningRequest request : requests) {
          BitcoinSigner signer = keyRing.findSignerByPublicKey(request.publicKey);
@@ -254,22 +246,18 @@ public class StandardTransactionBuilder {
    /**
     * Create an unsigned transaction without specifying a fee. The fee is
     * automatically calculated to pass minimum relay and mining requirements.
-    * 
-    * @param unspent
-    *           The list of unspent transaction outputs that can be used as
-    *           funding
-    * @param changeAddress
-    *           The address to send any change to. If null the change address
-    *           will be set to the address of one of the spent outputs.
-    * @param keyRing
-    *           The public key ring matching the unspent outputs
-    * @param network
-    *           The network we are working on
+    *
+    * @param unspent       The list of unspent transaction outputs that can be used as
+    *                      funding
+    * @param changeAddress The address to send any change to. If null the change address
+    *                      will be set to the address of one of the spent outputs.
+    * @param keyRing       The public key ring matching the unspent outputs
+    * @param network       The network we are working on
     * @return An unsigned transaction or null if not enough funds were available
     * @throws InsufficientFundsException
     */
    public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> unspent, Address changeAddress,
-         PublicKeyRing keyRing, NetworkParameters network) throws InsufficientFundsException {
+                                                        PublicKeyRing keyRing, NetworkParameters network) throws InsufficientFundsException {
       long fee = MINIMUM_MINER_FEE;
       while (true) {
          UnsignedTransaction unsigned;
@@ -295,24 +283,19 @@ public class StandardTransactionBuilder {
     * Create an unsigned transaction with a specific miner fee. Note that
     * specifying a miner fee that is too low may result in hanging transactions
     * that never confirm.
-    * 
-    * @param inventory
-    *           The list of unspent transaction outputs that can be used as
-    *           funding
-    * @param changeAddress
-    *           The address to send any change to
-    * @param fee
-    *           The miner fee to pay. Specifying zero may result in hanging
-    *           transactions.
-    * @param keyRing
-    *           The public key ring matching the unspent outputs
-    * @param network
-    *           The network we are working on
+    *
+    * @param inventory     The list of unspent transaction outputs that can be used as
+    *                      funding
+    * @param changeAddress The address to send any change to
+    * @param fee           The miner fee to pay. Specifying zero may result in hanging
+    *                      transactions.
+    * @param keyRing       The public key ring matching the unspent outputs
+    * @param network       The network we are working on
     * @return An unsigned transaction or null if not enough funds were available
     * @throws InsufficientFundsException
     */
    public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> inventory,
-         Address changeAddress, long fee, PublicKeyRing keyRing, NetworkParameters network)
+                                                        Address changeAddress, long fee, PublicKeyRing keyRing, NetworkParameters network)
          throws InsufficientFundsException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
@@ -437,7 +420,7 @@ public class StandardTransactionBuilder {
       return sum;
    }
 
-   private static byte[] hashTransaction(Transaction t) {
+   private static Sha256Hash hashTransaction(Transaction t) {
       ByteWriter writer = new ByteWriter(1024);
       t.toByteWriter(writer);
       // We also have to write a hash type.
@@ -454,9 +437,8 @@ public class StandardTransactionBuilder {
     * bytes for each input. (The type of scripts we generate are 138-140 bytes
     * long). This allows us to give a good estimate of the final transaction
     * size, and determine whether out fee size is large enough.
-    * 
-    * @param unsigned
-    *           The unsigned transaction to estimate the size of
+    *
+    * @param unsigned The unsigned transaction to estimate the size of
     * @return The estimated transaction size
     */
    private static int estimateTransacrionSize(UnsignedTransaction unsigned) {

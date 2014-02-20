@@ -16,15 +16,21 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import se.grunka.fortuna.Fortuna;
 import se.grunka.fortuna.accumulator.EntropySource;
-import se.grunka.fortuna.entropy.*;
+import se.grunka.fortuna.entropy.FreeMemoryEntropySource;
+import se.grunka.fortuna.entropy.GarbageCollectorEntropySource;
+import se.grunka.fortuna.entropy.LoadAverageEntropySource;
+import se.grunka.fortuna.entropy.PlatformEntropySource;
+import se.grunka.fortuna.entropy.SchedulingEntropySource;
+import se.grunka.fortuna.entropy.ThreadTimeEntropySource;
+import se.grunka.fortuna.entropy.UptimeEntropySource;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 public class FortunaRandomSource extends RandomSource {
 

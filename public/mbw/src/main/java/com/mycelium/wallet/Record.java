@@ -47,6 +47,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 /**
  * Current Serialized Format: <HEX encoded 21 byte address>| <Bitcoin address
@@ -500,12 +501,12 @@ public class Record implements Serializable, Comparable<Record> {
       }
       // Check that the string has a valid checksum
       String withQuestionMark = base58String + "?";
-      byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes());
+      byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes()).firstFourBytes();
       if (checkHash[0] != 0x00) {
          return null;
       }
       // Now get the Sha256 hash and use it as the private key
-      byte[] privateKeyBytes = HashUtils.sha256(base58String.getBytes());
+      Sha256Hash privateKeyBytes = HashUtils.sha256(base58String.getBytes());
       try {
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, false);
          return new Record(key, Source.IMPORTED_MINI_PRIVATE_KEY, network);
@@ -531,9 +532,8 @@ public class Record implements Serializable, Comparable<Record> {
     * Add a record from a seed using the same mechanism as brainwallet.org
     */
    public static Record recordFromRandomSeed(String seed, boolean compressed, NetworkParameters network) {
-      byte[] bytes = null;
-      bytes = HashUtils.sha256(seed.getBytes());
-      InMemoryPrivateKey key = new InMemoryPrivateKey(bytes, compressed);
+      Sha256Hash hash = HashUtils.sha256(seed.getBytes());
+      InMemoryPrivateKey key = new InMemoryPrivateKey(hash, compressed);
       return new Record(key, Source.IMPORTED_SEED_PRIVATE_KEY, network);
    }
 

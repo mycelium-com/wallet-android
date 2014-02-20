@@ -25,10 +25,10 @@ import Rijndael.Rijndael;
 import com.google.common.io.BaseEncoding;
 import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptProgress;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 public class MrdExport {
 
@@ -406,7 +406,7 @@ public class MrdExport {
 
          // Create AES initialization vector from checksum
          byte[] IV = new byte[V1_BLOCK_CIPHER_LENGTH];
-         byte[] hash = HashUtils.sha256(parameters.salt, checksum);
+         byte[] hash = HashUtils.sha256(parameters.salt, checksum).getBytes();
          System.arraycopy(hash, 0, IV, 0, IV.length);
 
          // Initialize AES key
@@ -477,7 +477,7 @@ public class MrdExport {
 
          // Create AES initialization vector from checksum
          byte[] IV = new byte[V1_BLOCK_CIPHER_LENGTH];
-         byte[] hash = HashUtils.sha256(parameters.salt, checksum);
+         byte[] hash = HashUtils.sha256(parameters.salt, checksum).getBytes();
          System.arraycopy(hash, 0, IV, 0, V1_BLOCK_CIPHER_LENGTH);
 
          // Initialize AES key
@@ -576,7 +576,7 @@ public class MrdExport {
        */
       public static char calculatePasswordChecksum(String password) {
          // Calculate the SHA256 has of the password
-         byte[] hash;
+         Sha256Hash hash;
          try {
             hash = HashUtils.sha256(password.getBytes(PASSWORD_CHARACTER_ENCODING));
          } catch (UnsupportedEncodingException e) {
@@ -584,7 +584,7 @@ public class MrdExport {
             throw new RuntimeException(e);
          }
          // Regard first four bytes as a positive integer
-         long asInteger = BitUtils.uint32ToLong(hash, 0);
+         long asInteger = BitUtils.uint32ToLong(hash.firstFourBytes(), 0);
 
          // Find the corresponding index in our alphabet, this is out checksum
          int index = (int) (asInteger % ALPHABET.length);
@@ -597,8 +597,8 @@ public class MrdExport {
        */
       private static byte[] calculateChecksum(InMemoryPrivateKey key, NetworkParameters network) {
          try {
-            byte[] hash = HashUtils.sha256(Address.fromStandardPublicKey(key.getPublicKey(), network).toString()
-                  .getBytes("US-ASCII"));
+            String address = key.getPublicKey().toAddress(network).toString();
+            byte[] hash = HashUtils.sha256(address.getBytes("US-ASCII")).getBytes();
             byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
             System.arraycopy(hash, 0, checksum, 0, V1_CHECKSUM_LENGTH);
             return checksum;

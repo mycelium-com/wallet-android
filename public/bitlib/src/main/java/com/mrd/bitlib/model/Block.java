@@ -56,8 +56,8 @@ public class Block {
       try {
          // Parse header
          int version = reader.getIntLE();
-         Sha256Hash prevBlockHash = reader.getSha256Hash(true);
-         Sha256Hash merkleRoot = reader.getSha256Hash(true);
+         Sha256Hash prevBlockHash = reader.getSha256Hash().reverse();
+         Sha256Hash merkleRoot = reader.getSha256Hash().reverse();
          int time = reader.getIntLE();
          int difficultyTarget = reader.getIntLE();
          int nonce = reader.getIntLE();
@@ -113,7 +113,7 @@ public class Block {
       if (_hash == null) {
          ByteWriter writer = new ByteWriter(2000);
          headerToByteWriter(writer);
-         _hash = new Sha256Hash(HashUtils.doubleSha256(writer.toBytes()), true);
+         _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
       }
       return _hash;
    }

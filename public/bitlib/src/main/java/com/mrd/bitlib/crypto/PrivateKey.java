@@ -17,9 +17,11 @@
 package com.mrd.bitlib.crypto;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 
 import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
+
 
 public abstract class PrivateKey implements BitcoinSigner, Serializable {
 
@@ -28,48 +30,21 @@ public abstract class PrivateKey implements BitcoinSigner, Serializable {
    public abstract PublicKey getPublicKey();
 
    @Override
-   public byte[] makeStandardBitcoinSignature(byte[] transactionSigningHash, RandomSource randomSource) {
+   public byte[] makeStandardBitcoinSignature(Sha256Hash transactionSigningHash, RandomSource randomSource) {
       byte[] signature = signMessage(transactionSigningHash, randomSource);
       ByteWriter writer = new ByteWriter(1024);
       // Add signature
       writer.putBytes(signature);
       // Add hash type
-      writer.put((byte) ((0 + 1) | 0));
+      writer.put((byte) ((0 + 1) | 0)); // move to constant to document
       return writer.toBytes();
    }
 
-   protected byte[] signMessage(byte[] message, RandomSource randomSource) {
-      BigInteger[] signature = generateSignature(message, randomSource);
-      // Write DER encoding of signature
-      ByteWriter writer = new ByteWriter(1024);
-      // Write tag
-      writer.put((byte) 0x30);
-      // Write total length
-      byte[] s1 = signature[0].toByteArray();
-      byte[] s2 = signature[1].toByteArray();
-      int totalLength = 2 + s1.length + 2 + s2.length;
-      if (totalLength > 127) {
-         // We assume that the total length never goes beyond a 1-byte
-         // representation
-         throw new RuntimeException("Unsupported signature length: " + totalLength);
-      }
-      writer.put((byte) (totalLength & 0xFF));
-      // Write type
-      writer.put((byte) 0x02);
-      // We assume that the length never goes beyond a 1-byte representation
-      writer.put((byte) (s1.length & 0xFF));
-      // Write bytes
-      writer.putBytes(s1);
-      // Write type
-      writer.put((byte) 0x02);
-      // We assume that the length never goes beyond a 1-byte representation
-      writer.put((byte) (s2.length & 0xFF));
-      // Write bytes
-      writer.putBytes(s2);
-      return writer.toBytes();
+   protected byte[] signMessage(Sha256Hash message, RandomSource randomSource) {
+      return generateSignature(message, randomSource).derEncode();
    }
 
-   protected abstract BigInteger[] generateSignature(byte[] message, RandomSource randomSource);
+   protected abstract Signature generateSignature(Sha256Hash message, RandomSource randomSource);
 
    @Override
    public int hashCode() {
@@ -84,5 +59,27 @@ public abstract class PrivateKey implements BitcoinSigner, Serializable {
       PrivateKey other = (PrivateKey) obj;
       return getPublicKey().equals(other.getPublicKey());
    }
+
+   public SignedMessage signMessage(String message, RandomSource randomSource) {
+      byte[] data = Signatures.formatMessageForSigning(message);
+      Sha256Hash hash = HashUtils.doubleSha256(data);
+      Signature sig = generateSignature(hash, randomSource);
+      // Now we have to work backwards to figure out the recId needed to recover the signature.
+      PublicKey targetPubKey = getPublicKey();
+      boolean compressed = targetPubKey.isCompressed();
+      int recId = -1;
+      for (int i = 0; i < 4; i++) {
+
+         PublicKey k = SignedMessage.recoverFromSignature(i, sig, hash, compressed);
+         if (k != null && targetPubKey.equals(k)) {
+            recId = i;
+            break;
+         }
+      }
+      return SignedMessage.from(sig, targetPubKey, recId);
+//      return Base64.encodeToString(sigData,false);
+
+   }
+
 
 }

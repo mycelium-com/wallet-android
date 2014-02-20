@@ -75,7 +75,7 @@ public class Point implements Serializable {
          return new byte[1];
       }
 
-      int length = EcTools.getByteLength(_x);
+      int length = EcTools.getByteLength(_x.getFieldSize());
 
       if (_compressed) {
          byte PC;
@@ -200,4 +200,7 @@ public class Point implements Serializable {
       return _x.hashCode() ^ _y.hashCode();
    }
 
+   public Point multiply(BigInteger n) {
+      return EcTools.multiply(this, n);
+   }
 }

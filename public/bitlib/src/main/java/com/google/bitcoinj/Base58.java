@@ -21,6 +21,7 @@ package com.google.bitcoinj;
  */
 
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -168,8 +169,8 @@ public class Base58 {
       byte[] bytes = copyOfRange(tmp, 0, tmp.length - 4);
       byte[] checksum = copyOfRange(tmp, tmp.length - 4, tmp.length);
 
-      tmp = HashUtils.doubleSha256(bytes);
-      byte[] hash = copyOfRange(tmp, 0, 4);
+      Sha256Hash sha256Hash = HashUtils.doubleSha256(bytes);
+      byte[] hash = sha256Hash.firstFourBytes();
       if (!Arrays.equals(checksum, hash)) {
          return null;
       }

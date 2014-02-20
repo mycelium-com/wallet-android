@@ -49,6 +49,7 @@
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
 -keep public class com.android.vending.licensing.ILicensingService
+-keep public class HoneycombAsyncTaskExecInterface
 
 
 #To remove debug logs:

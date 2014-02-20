@@ -16,79 +16,49 @@
 
 package com.mrd.bitlib.util;
 
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.util.Arrays;
+
+/**
+ * represents the result of a SHA256 hashing operation
+ * prefer to use the static factory methods.
+ */
 public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
    private static final long serialVersionUID = 1L;
 
-   public static final Sha256Hash ZERO_HASH = new Sha256Hash();
    public static final int HASH_LENGTH = 32;
+   public static final Sha256Hash ZERO_HASH = of(new byte[HASH_LENGTH]);
 
    final private byte[] _bytes;
    private int _hash;
 
-   private Sha256Hash() {
-      this._bytes = new byte[32];
-      _hash = -1;
-   }
-
    public Sha256Hash(byte[] bytes) {
+      Preconditions.checkArgument(bytes.length == HASH_LENGTH);
       this._bytes = bytes;
       _hash = -1;
    }
 
-   public Sha256Hash(byte[] bytes, boolean reverse) {
-      if (reverse) {
-         this._bytes = BitUtils.reverseBytes(bytes);
-      } else {
-         this._bytes = bytes;
-
-      }
-      _hash = -1;
-   }
-
-   public Sha256Hash(byte[] bytes, int offset, boolean reverse) {
-      _bytes = new byte[32];
-      if (reverse) {
-         // Copy 32 byte hash from offset and reverse byte order
-         for (int i = 0; i < _bytes.length; i++) {
-            _bytes[i] = bytes[offset + 32 - 1 - i];
-         }
-      } else {
-         System.arraycopy(bytes, offset, _bytes, 0, 32);
-      }
-      _hash = -1;
-   }
-
-   public Sha256Hash(ByteBuffer buf, boolean reverse) {
-      byte[] bytes = new byte[32];
-      buf.get(bytes, 0, 32);
-      if (reverse) {
-         this._bytes = BitUtils.reverseBytes(bytes);
-      } else {
-         this._bytes = bytes;
-      }
-      _hash = -1;
-   }
-
    /**
-    * @param contents
-    *           bytes of f.ex. a brainwallet
-    * @return a sha256 hash out of any byte array, by applying SHA-256 once
+    * takes 32 bytes and stores them as hash. does not actually hash, this is done in HashUtils
+    * @param bytes to be stored
     */
-   public static Sha256Hash create(byte[] contents) {
-      try {
-         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-         return new Sha256Hash(digest.digest(contents));
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e); // Cannot happen.
-      }
+   public static Sha256Hash of(byte[] bytes) {
+      return new Sha256Hash(bytes);
+   }
+
+   public static Sha256Hash copyOf(byte[] bytes, int offset) {
+      return new Sha256Hash(bytes, offset);
+   }
+
+   private Sha256Hash(byte[] bytes, int offset) {
+      //defensive copy, since incoming bytes is of arbitrary length
+      _bytes = new byte[HASH_LENGTH];
+       System.arraycopy(bytes, offset, _bytes, 0, HASH_LENGTH);
+      _hash = -1;
    }
 
    @Override
@@ -116,23 +86,11 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
 
    @Override
    public String toString() {
-      return HexUtils.toHex(_bytes);
+      return toHex();
    }
 
    public byte[] getBytes() {
       return _bytes;
-   }
-
-   public void toByteBuffer(ByteBuffer buf, boolean reverse) {
-      if (reverse) {
-         buf.put(BitUtils.reverseBytes(_bytes));
-      } else {
-         buf.put(_bytes);
-      }
-   }
-
-   public Sha256Hash duplicate() {
-      return new Sha256Hash(_bytes);
    }
 
    @Override
@@ -147,4 +105,37 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
       }
       return 0;
    }
+
+   public Sha256Hash reverse() {
+      return new Sha256Hash(BitUtils.reverseBytes(_bytes));
+   }
+
+   public int length() {
+      return HASH_LENGTH;
+   }
+
+   public BigInteger toPositiveBigInteger() {
+      return new BigInteger(1, _bytes);
+   }
+
+   public boolean startsWith(byte[] checksum) {
+      Preconditions.checkArgument(checksum.length < HASH_LENGTH); //typcially 4
+      for (int i = 0, checksumLength = checksum.length; i < checksumLength; i++) {
+         if (_bytes[i] != checksum[i]) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+   public byte[] firstFourBytes() {
+      byte[] ret = new byte[4];
+      System.arraycopy(_bytes, 0, ret, 0, 4);
+      return ret;
+   }
+
+   public String toHex() {
+      return HexUtils.toHex(_bytes);
+   }
+
 }

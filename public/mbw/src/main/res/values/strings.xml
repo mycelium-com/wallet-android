@@ -272,7 +272,6 @@
     <string name="authors">Jan Møller\nAndreas Petersson\nMegion Research &amp; Development GmbH</string>
     <string name="homepage_label">Homepage</string>
     <string name="homepage_url">http://mycelium.com</string>
-    <string name="contact_email">developers@mycelium.com</string>
     <string name="contact_email_label">Feedback</string>
     <string name="cancelled">Cancelled</string>
     <string name="help_menu">Help</string>
@@ -295,5 +294,13 @@
     <string name="get_from">Get from</string>
     <string name="mycelium_com">mycelium.com</string>
     <string name="google_play">Google Play</string>
+    <string name="sign_message">Sign Message</string>
+    <string name="enter_message_hint">Please enter the message that you want to sign here</string>
+    <string name="copy_signature">Copy Signature to Clipboard</string>
+    <string name="share_signature">Share Text + Signature</string>
+    <string name="sig_copied">Signature copied to clipboard</string>
+    <string name="signed_message_subject">Bitcoin signed message</string>
+    <string name="signed_message_share">Share Bitcoin signed message</string>
+    <string name="signing_inprogress">Signing Message…</string>
 
 </resources>

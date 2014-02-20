@@ -56,4 +56,8 @@ public class ScriptInput extends Script {
       super(script, isCoinBase);
    }
 
+   public byte[] getUnmalleableBytes() {
+      // We cannot do this for scripts we do not understand
+      return null;
+   }
 }

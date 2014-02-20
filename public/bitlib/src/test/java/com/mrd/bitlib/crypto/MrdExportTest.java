@@ -38,6 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
@@ -60,30 +61,18 @@ public class MrdExportTest {
    private static final String TEST_KEY_BASE58_COMPRESSED = "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7";
    private static final String TEST_KEY_COMPRESSED_ENCRYPTED = "xEncEXICAQIDBNVyfG5593-TQkkbWyV-HsF2QZFXev3ouiBuMEELJZrM6mKwjw";
 
-   /**
-    * Really simple random generator that forms a ring using a small prime. It
-    * generates the same random sequence every time.Don't use where security
-    * matters.
-    */
 
-   public static class StaticSimpleRandomSource extends RandomSource {
-      private long _state;
-
-      public StaticSimpleRandomSource() {
-         _state = 104723;
+   @Test
+   public void passwordChecksum() {
+      Assert.assertEquals('c', MrdExport.V1.calculatePasswordChecksum("abc"));
+      Assert.assertEquals('v', MrdExport.V1.calculatePasswordChecksum(""));
+      Assert.assertEquals('g', MrdExport.V1.calculatePasswordChecksum("a b c"));
+      try {
+         MrdExport.V1.calculatePasswordChecksum(null);
+         fail();
+      } catch (NullPointerException ignored) {
       }
-
-      @Override
-      public void nextBytes(byte[] bytes) {
-         for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) (_state & 0xFFL);
-            _state *= _state;
-            _state %= 104729;
-         }
-      }
-
    }
-
    /**
     * Verify that a different salt gives a different AES key
     */

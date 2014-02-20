@@ -16,7 +16,9 @@
 
 package com.mrd.bitlib.model;
 
+import com.mrd.bitlib.crypto.Signatures;
 import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class ScriptInputStandard extends ScriptInput {
@@ -116,6 +118,19 @@ public class ScriptInputStandard extends ScriptInput {
     */
    public byte[] getPublicKeyBytes() {
       return _publicKeyBytes;
+   }
+   
+   @Override
+   public byte[] getUnmalleableBytes() {
+      byte[][] bytes = Signatures.decodeSignatureParameterBytes(new ByteReader(_signature));
+      if (bytes == null) {
+         // unable to decode signature
+         return null;
+      }
+      ByteWriter writer = new ByteWriter(bytes[0].length + bytes[1].length);
+      writer.putBytes(bytes[0]);
+      writer.putBytes(bytes[1]);
+      return writer.toBytes();
    }
 
 }

@@ -25,11 +25,13 @@ import Rijndael.Rijndael;
 import com.google.bitcoinj.Base58;
 import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptProgress;
+
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 public class Bip38 {
 
@@ -42,16 +44,16 @@ public class Bip38 {
 
    /**
     * Encrypt a SIPA formatted private key with a passphrase using BIP38.
-    * <p>
+    * <p/>
     * This is a helper function that does everything in one go. You can call the
     * individual functions if you wish to separate it into more phases.
     *
     * @throws InterruptedException
     */
    public static String encryptNoEcMultiply(String passphrase, String base58EncodedPrivateKey,
-         SCryptProgress progressTracker, NetworkParameters network) throws InterruptedException {
+                                            SCryptProgress progressTracker, NetworkParameters network) throws InterruptedException {
       InMemoryPrivateKey key = new InMemoryPrivateKey(base58EncodedPrivateKey, NetworkParameters.productionNetwork);
-      Address address = Address.fromStandardPublicKey(key.getPublicKey(), NetworkParameters.productionNetwork);
+      Address address = key.getPublicKey().toAddress(NetworkParameters.productionNetwork);
       byte[] salt = Bip38.calculateScryptSalt(address);
       byte[] stretchedKeyMaterial = bip38Stretch1(passphrase, salt, progressTracker, SCRYPT_LENGTH);
       return encryptNoEcMultiply(stretchedKeyMaterial, key, salt);
@@ -80,7 +82,8 @@ public class Bip38 {
    public static String encryptNoEcMultiply(byte[] stretcedKeyMaterial, InMemoryPrivateKey key, byte[] salt) {
 
       // Encoded result
-      byte[] encoded = new byte[39 + 4];
+      int checksumLength = 4;
+      byte[] encoded = new byte[39 + checksumLength];
       int index = 0;
       encoded[index++] = (byte) 0x01;
       encoded[index++] = (byte) 0x42;
@@ -128,8 +131,9 @@ public class Bip38 {
       index += encryptedHalf2.length;
 
       // Checksum
-      byte[] checkSum = HashUtils.doubleSha256(encoded, 0, 39);
-      System.arraycopy(checkSum, 0, encoded, 39, 4);
+      Sha256Hash checkSum = HashUtils.doubleSha256(encoded, 0, 39);
+      byte[] start = checkSum.firstFourBytes();
+      System.arraycopy(start, 0, encoded, 39, checksumLength);
 
       // Base58 encode
       String result = Base58.encode(encoded);
@@ -226,14 +230,14 @@ public class Bip38 {
 
    /**
     * Decrypt a BIP38 formatted private key with a passphrase.
-    * <p>
+    * <p/>
     * This is a helper function that does everything in one go. You can call the
     * individual functions if you wish to separate it into more phases.
     *
     * @throws InterruptedException
     */
    public static String decrypt(String bip38PrivateKeyString, String passphrase, SCryptProgress progressTracker,
-         NetworkParameters network) throws InterruptedException {
+                                NetworkParameters network) throws InterruptedException {
       Bip38PrivateKey bip38Key = parseBip38PrivateKey(bip38PrivateKeyString);
       if (bip38Key == null) {
          return null;
@@ -247,7 +251,7 @@ public class Bip38 {
    }
 
    public static String decryptEcMultiply(Bip38PrivateKey bip38Key, String passphrase, SCryptProgress progressTracker,
-         NetworkParameters network) throws InterruptedException {
+                                          NetworkParameters network) throws InterruptedException {
       // Get 8 byte Owner Salt
       byte[] ownerEntropy = new byte[8];
       System.arraycopy(bip38Key.data, 0, ownerEntropy, 0, 8);
@@ -265,7 +269,9 @@ public class Bip38 {
          byte[] tmp = new byte[40];
          System.arraycopy(passFactor, 0, tmp, 0, 32);
          System.arraycopy(ownerEntropy, 0, tmp, 32, 8);
-         passFactor = HashUtils.doubleSha256(tmp);
+         //we convert to byte[] here since this can be a sha256 or Scrypt result.
+         // might make sense to introduce a 32 byte scrypt type
+         passFactor = HashUtils.doubleSha256(tmp).getBytes();
       }
 
       InMemoryPrivateKey key = new InMemoryPrivateKey(passFactor, true);
@@ -318,11 +324,10 @@ public class Bip38 {
       System.arraycopy(unencryptedPart2, 8, seedB, 16, 8);
 
       // Generate factorB
-      byte[] factorB;
-      factorB = HashUtils.sha256(seedB);
-      factorB = HashUtils.sha256(factorB);
+      Sha256Hash factorB;
+      factorB = HashUtils.doubleSha256(seedB);
 
-      BigInteger privateKey = new BigInteger(1, passFactor).multiply(new BigInteger(1, factorB)).mod(Parameters.n);
+      BigInteger privateKey = new BigInteger(1, passFactor).multiply(factorB.toPositiveBigInteger()).mod(Parameters.n);
       byte[] keyBytes = new byte[32];
       byte[] bytes = privateKey.toByteArray();
       if (bytes.length <= keyBytes.length) {
@@ -336,7 +341,7 @@ public class Bip38 {
       InMemoryPrivateKey finalKey = new InMemoryPrivateKey(keyBytes, bip38Key.compressed);
 
       // Validate result
-      Address address = Address.fromStandardPublicKey(finalKey.getPublicKey(), network);
+      Address address = finalKey.getPublicKey().toAddress(network);
       byte[] newSalt = calculateScryptSalt(address);
       if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
          // The passphrase is either invalid or we are on the wrong network
@@ -349,7 +354,7 @@ public class Bip38 {
    }
 
    public static String decryptNoEcMultiply(Bip38PrivateKey bip38Key, byte[] stretcedKeyMaterial,
-         NetworkParameters network) {
+                                            NetworkParameters network) {
       // Derive Keys
       byte[] derivedHalf1 = new byte[32];
       System.arraycopy(stretcedKeyMaterial, 0, derivedHalf1, 0, 32);
@@ -384,7 +389,7 @@ public class Bip38 {
       InMemoryPrivateKey key = new InMemoryPrivateKey(complete, bip38Key.compressed);
 
       // Validate result
-      Address address = Address.fromStandardPublicKey(key.getPublicKey(), network);
+      Address address = key.getPublicKey().toAddress(network);
       byte[] newSalt = calculateScryptSalt(address);
       if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
          // The passphrase is either invalid or we are on the wrong network
@@ -402,15 +407,13 @@ public class Bip38 {
 
    /**
     * Calculate scrypt salt from Bitcoin address
-    * <p>
+    * <p/>
     * BIP38 uses a scrypt salt which depends on the Bitcoin address. This method
     * takes a Bitcoin address and calculates the BIP38 salt.
     */
    public static byte[] calculateScryptSalt(Address address) {
-      byte[] salt = new byte[4];
-      byte[] hash = HashUtils.doubleSha256(address.toString().getBytes());
-      System.arraycopy(hash, 0, salt, 0, salt.length);
-      return salt;
+      Sha256Hash hash = HashUtils.doubleSha256(address.toString().getBytes());
+      return hash.firstFourBytes();
    }
 
    private static void xorBytes(byte[] toApply, byte[] target) {

@@ -27,8 +27,8 @@ public class NetworkParameters implements Serializable {
    private static final long serialVersionUID = 1L;
 
    public static final int PROTOCOL_VERSION = 70001;
-   public static NetworkParameters testNetwork;
-   public static NetworkParameters productionNetwork;
+   public static final NetworkParameters testNetwork;
+   public static final NetworkParameters productionNetwork;
    private static byte[] TESTNET_GENESIS_BLOCK;
 
    private static byte[] PRODNET_GENESIS_BLOCK;

@@ -26,6 +26,10 @@ public class Parameters {
    public static final Point G;
    public static final BigInteger n;
    public static final BigInteger h;
+   /**
+    * The maximum number a signature can have in version 3 transactions
+    */
+   public static final BigInteger MAX_SIG_S;
 
    static {
       BigInteger p = new BigInteger(1,
@@ -38,5 +42,6 @@ public class Parameters {
             + "483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8"));
       n = new BigInteger(1, HexUtils.toBytes("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"));
       h = BigInteger.ONE;
+      MAX_SIG_S = new BigInteger(1, HexUtils.toBytes("7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0")); 
    }
 }

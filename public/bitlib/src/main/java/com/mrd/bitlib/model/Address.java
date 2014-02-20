@@ -25,6 +25,7 @@ import com.google.bitcoinj.Base58;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 public class Address implements Serializable, Comparable<Address> {
 
@@ -119,9 +120,8 @@ public class Address implements Serializable, Comparable<Address> {
     * Construct a Bitcoin address from an array of bytes containing both the
     * address version and address bytes, but without the checksum (1 + 20 = 21
     * bytes).
-    * 
-    * @param bytes
-    *           containing the full address representation 1 + 20 bytes.
+    *
+    * @param bytes containing the full address representation 1 + 20 bytes.
     */
    public Address(byte[] bytes) {
       _bytes = bytes;
@@ -135,11 +135,9 @@ public class Address implements Serializable, Comparable<Address> {
     * <p/>
     * Note: No attempt is made to verify that the byte array and string
     * representation match.
-    * 
-    * @param bytes
-    *           containing the full address representation 1 + 20 bytes.
-    * @param stringAddress
-    *           the string representation of a Bitcoin address
+    *
+    * @param bytes         containing the full address representation 1 + 20 bytes.
+    * @param stringAddress the string representation of a Bitcoin address
     */
    public Address(byte[] bytes, String stringAddress) {
       _bytes = bytes;
@@ -169,7 +167,7 @@ public class Address implements Serializable, Comparable<Address> {
    /**
     * Get the address as an array of bytes. The array contains the one byte
     * address type and the 20 address bytes, totaling 21 bytes.
-    * 
+    *
     * @return The address as an array of 21 bytes.
     */
    public byte[] getAllAddressBytes() {
@@ -188,8 +186,8 @@ public class Address implements Serializable, Comparable<Address> {
          byte[] addressBytes = new byte[1 + 20 + 4];
          addressBytes[0] = _bytes[0];
          System.arraycopy(_bytes, 0, addressBytes, 0, NUM_ADDRESS_BYTES);
-         byte[] checkSum = HashUtils.doubleSha256(addressBytes, 0, NUM_ADDRESS_BYTES);
-         System.arraycopy(checkSum, 0, addressBytes, NUM_ADDRESS_BYTES, 4);
+         Sha256Hash checkSum = HashUtils.doubleSha256(addressBytes, 0, NUM_ADDRESS_BYTES);
+         System.arraycopy(checkSum.getBytes(), 0, addressBytes, NUM_ADDRESS_BYTES, 4);
          _address = Base58.encode(addressBytes);
       }
       return _address;
@@ -245,6 +243,16 @@ public class Address implements Serializable, Comparable<Address> {
       sb.append(address.substring(12, 24)).append("\r\n");
       sb.append(address.substring(24));
       return sb.toString();
+   }
+
+   public NetworkParameters getNetwork() {
+      if (matchesNetwork(NetworkParameters.productionNetwork, getVersion())) return NetworkParameters.productionNetwork;
+      if (matchesNetwork(NetworkParameters.testNetwork, getVersion())) return NetworkParameters.testNetwork;
+      throw new IllegalStateException("unknown network");
+   }
+
+   private boolean matchesNetwork(NetworkParameters prod, byte version) {
+      return prod.getStandardAddressHeader() == version || prod.getMultisigAddressHeader() == version;
    }
 
 }

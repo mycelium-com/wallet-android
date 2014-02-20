@@ -20,10 +20,10 @@ import java.io.Serializable;
 
 import com.mrd.bitlib.model.Script.ScriptParsingException;
 import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class TransactionInput implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -48,7 +48,7 @@ public class TransactionInput implements Serializable {
 
    public static TransactionInput fromByteReader(ByteReader reader) throws TransactionInputParsingException {
       try {
-         Sha256Hash outPointHash = reader.getSha256Hash(true);
+         Sha256Hash outPointHash = reader.getSha256Hash().reverse();
          int outPointIndex = reader.getIntLE();
          int scriptSize = (int) reader.getCompactInt();
          byte[] script = reader.getBytes(scriptSize);
@@ -93,6 +93,19 @@ public class TransactionInput implements Serializable {
       writer.putCompactInt(script.length);
       writer.putBytes(script);
       writer.putIntLE(sequence);
+   }
+
+   public byte[] getUnmalleableBytes() {
+      byte[] scriptBytes = script.getUnmalleableBytes();
+      if (scriptBytes == null) {
+         return null;
+      }
+      ByteWriter writer = new ByteWriter(32 + 4 + scriptBytes.length + 4);
+      writer.putSha256Hash(outPoint.hash, true);
+      writer.putIntLE(outPoint.index);
+      writer.putBytes(scriptBytes);
+      writer.putIntLE(sequence);
+      return writer.toBytes();
    }
 
    @Override

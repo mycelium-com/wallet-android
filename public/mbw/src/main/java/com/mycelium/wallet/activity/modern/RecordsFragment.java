@@ -77,6 +77,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.WalletMode;
 import com.mycelium.wallet.activity.AddRecordActivity;
+import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.event.BlockchainReady;
@@ -539,6 +540,9 @@ public class RecordsFragment extends Fragment {
                } else if (id == R.id.miExport) {
                   exportSelectedPrivateKey();
                   return true;
+               } else if (id == R.id.miSignMessage) {
+                  signMessage();
+                  return true;
                }
                return false;
             }
@@ -564,6 +568,24 @@ public class RecordsFragment extends Fragment {
       }
 
    };
+
+   private void signMessage(){
+      if (!RecordsFragment.this.isAdded()) {
+         return;
+      }
+      _mbwManager.runPinProtectedFunction(RecordsFragment.this.getActivity(), new Runnable() {
+
+         @Override
+         public void run() {
+            if (!RecordsFragment.this.isAdded()) {
+               return;
+            }
+            MessageSigningActivity.callMe(getActivity(), _recordManager.getSelectedRecord());
+         }
+
+      });
+
+   }
 
    /**
     * Show a message to the user explaining what it means to select a different

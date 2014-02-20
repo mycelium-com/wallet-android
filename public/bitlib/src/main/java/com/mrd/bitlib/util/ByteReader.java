@@ -93,15 +93,8 @@ public class ByteReader {
    }
 
    public Sha256Hash getSha256Hash() throws InsufficientBytesException {
-      return new Sha256Hash(getBytes(32));
-   }
-
-   public Sha256Hash getSha256Hash(boolean reverse) throws InsufficientBytesException {
-      checkAvailable(32);
-      if (reverse) {
-         return new Sha256Hash(BitUtils.reverseBytes(getBytes(32)));
-      }
-      return new Sha256Hash(getBytes(32));
+      checkAvailable(Sha256Hash.HASH_LENGTH);
+      return Sha256Hash.of(getBytes(Sha256Hash.HASH_LENGTH));
    }
 
    public int getPosition() {

@@ -390,9 +390,11 @@ public class AddressBookFragment extends Fragment {
             }
             addFromRecord(record);
          } else {
-            String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
-            if (error != null) {
-               Toast.makeText(this.getActivity(), error, Toast.LENGTH_LONG).show();
+            if (intent != null) {
+               String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+               if (error != null) {
+                  Toast.makeText(this.getActivity(), error, Toast.LENGTH_LONG).show();
+               }
             }
          }
       }

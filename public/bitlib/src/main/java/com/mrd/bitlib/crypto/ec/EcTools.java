@@ -30,8 +30,8 @@ public class EcTools {
    /**
     * Get the length of the byte encoding of a field element
     */
-   public static int getByteLength(FieldElement fe) {
-      return (fe.getFieldSize() + 7) / 8;
+   public static int getByteLength(int fieldSize) {
+      return (fieldSize + 7) / 8;
    }
 
    /**
@@ -104,4 +104,11 @@ public class EcTools {
       return R;
    }
 
+   //ported from BitcoinJ
+   public static Point decompressKey(BigInteger x, boolean firstBit) {
+      int size = 1 + getByteLength(Parameters.curve.getFieldSize()); //hmmm..
+      byte[] dest = integerToBytes(x, size);
+      dest[0] = (byte) (firstBit ? 0x03 : 0x02); //hmm
+      return Parameters.curve.decodePoint(dest);
+   }
 }

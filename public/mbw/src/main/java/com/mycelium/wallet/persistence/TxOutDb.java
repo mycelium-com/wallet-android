@@ -506,7 +506,7 @@ public class TxOutDb {
    }
 
    private OutPoint bytesToOutPoint(byte[] bytes) {
-      Sha256Hash hash = new Sha256Hash(bytes, 0, false);
+      Sha256Hash hash = Sha256Hash.copyOf(bytes, 0);
       int index = ((bytes[32] & 0xFF) << 0) | ((bytes[33] & 0xFF) << 8);
       return new OutPoint(hash, index);
    }

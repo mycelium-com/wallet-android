@@ -16,16 +16,19 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.io.Serializable;
 import java.math.BigInteger;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class PublicKey implements Serializable {
@@ -38,6 +41,11 @@ public class PublicKey implements Serializable {
 
    public PublicKey(byte[] publicKeyBytes) {
       _pubKeyBytes = publicKeyBytes;
+   }
+
+   public Address toAddress(NetworkParameters networkParameters) {
+      byte[] hashedPublicKey = getPublicKeyHash();
+      return Address.fromStandardBytes(hashedPublicKey, networkParameters);
    }
 
    public byte[] getPublicKeyBytes() {
@@ -71,11 +79,11 @@ public class PublicKey implements Serializable {
       return HexUtils.toHex(_pubKeyBytes);
    }
 
-   public boolean verifyStandardBitcoinSignature(byte[] data, byte[] signature) {
+   public boolean verifyStandardBitcoinSignature(Sha256Hash data, byte[] signature) {
       // Decode parameters r and s
       ByteReader reader = new ByteReader(signature);
 
-      BigInteger[] params = decodeSignatureParameters(reader);
+      Signature params = Signatures.decodeSignatureParameters(reader);
       if (params == null) {
          return false;
       }
@@ -83,7 +91,7 @@ public class PublicKey implements Serializable {
       if (reader.available() != 1) {
          return false;
       }
-      return verifySignature(data, params[0], params[1], getQ());
+      return Signatures.verifySignature(data.getBytes(), params, getQ());
    }
 
    /**
@@ -93,114 +101,11 @@ public class PublicKey implements Serializable {
       return getQ().isCompressed();
    }
 
-   private Point getQ() {
+   Point getQ() {
       if (_Q == null) {
          _Q = Parameters.curve.decodePoint(_pubKeyBytes);
       }
       return _Q;
-   }
-
-   private static BigInteger[] decodeSignatureParameters(ByteReader reader) {
-      try {
-         // Read tag, must be 0x30
-         if ((((int) reader.get()) & 0xFF) != 0x30) {
-            return null;
-         }
-
-         // Read total length as a byte, standard inputs never get longer than
-         // this
-         int length = ((int) reader.get()) & 0xFF;
-
-         // Read first type, must be 0x02
-         if ((((int) reader.get()) & 0xFF) != 0x02) {
-            return null;
-         }
-
-         // Read first length
-         int length1 = ((int) reader.get()) & 0xFF;
-
-         // Read first byte array
-         byte[] bytes1 = reader.getBytes(length1);
-
-         // Make sure BigInteger regards it as positive
-         bytes1 = makePositive(bytes1);
-
-         // Read second type, must be 0x02
-         if ((((int) reader.get()) & 0xFF) != 0x02) {
-            return null;
-         }
-
-         // Read second length
-         int length2 = ((int) reader.get()) & 0xFF;
-
-         // Read second byte array
-         byte[] bytes2 = reader.getBytes(length2);
-
-         // Make sure BigInteger regards it as positive
-         bytes2 = makePositive(bytes2);
-
-         // Validate that the lengths add up to the total
-         if (2 + length1 + 2 + length2 != length) {
-            return null;
-         }
-
-         BigInteger[] result = new BigInteger[] { new BigInteger(bytes1), new BigInteger(bytes2) };
-         return result;
-      } catch (InsufficientBytesException e) {
-         return null;
-      }
-   }
-
-   private static byte[] makePositive(byte[] bytes) {
-      if (bytes[0] < 0) {
-         byte[] temp = new byte[bytes.length + 1];
-         System.arraycopy(bytes, 0, temp, 1, bytes.length);
-         return temp;
-      }
-      return bytes;
-   }
-
-   private static boolean verifySignature(byte[] message, BigInteger r, BigInteger s, Point Q) {
-      BigInteger n = Parameters.n;
-      BigInteger e = calculateE(n, message);
-
-      // r in the range [1,n-1]
-      if (r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0) {
-         return false;
-      }
-
-      // s in the range [1,n-1]
-      if (s.compareTo(BigInteger.ONE) < 0 || s.compareTo(n) >= 0) {
-         return false;
-      }
-
-      BigInteger c = s.modInverse(n);
-
-      BigInteger u1 = e.multiply(c).mod(n);
-      BigInteger u2 = r.multiply(c).mod(n);
-
-      Point G = Parameters.G;
-
-      Point point = EcTools.sumOfTwoMultiplies(G, u1, Q, u2);
-
-      BigInteger v = point.getX().toBigInteger().mod(n);
-
-      return v.equals(r);
-   }
-
-   private static BigInteger calculateE(BigInteger n, byte[] message) {
-      if (n.bitLength() > message.length * 8) {
-         return new BigInteger(1, message);
-      } else {
-         int messageBitLength = message.length * 8;
-         BigInteger trunc = new BigInteger(1, message);
-
-         if (messageBitLength - n.bitLength() > 0) {
-            trunc = trunc.shiftRight(messageBitLength - n.bitLength());
-         }
-
-         return trunc;
-      }
    }
 
 }

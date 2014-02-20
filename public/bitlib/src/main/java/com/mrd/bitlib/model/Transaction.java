@@ -48,6 +48,7 @@ public class Transaction implements Serializable {
    public int lockTime;
 
    private Sha256Hash _hash;
+   private Sha256Hash _unmalleableHash;
 
    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {
       try {
@@ -119,9 +120,28 @@ public class Transaction implements Serializable {
       if (_hash == null) {
          ByteWriter writer = new ByteWriter(2000);
          toByteWriter(writer);
-         _hash = new Sha256Hash(HashUtils.doubleSha256(writer.toBytes()), true);
+         _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
       }
       return _hash;
+   }
+
+   /**
+    * Calculate the unmalleable hash of this transaction. If the signature bytes
+    * for an input cannot be determined the result is null
+    */
+   public Sha256Hash getUmnalleableHash() {
+      if (_unmalleableHash == null) {
+         ByteWriter writer = new ByteWriter(2000);
+         for (TransactionInput i : inputs) {
+            byte[] bytes = i.getUnmalleableBytes();
+            if (bytes == null) {
+               return null;
+            }
+            writer.putBytes(bytes);
+         }
+         _unmalleableHash = HashUtils.doubleSha256(writer.toBytes()).reverse();
+      }
+      return _unmalleableHash;
    }
 
    @Override
