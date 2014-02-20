@@ -109,6 +109,7 @@
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
         <activity android:name="com.mycelium.wallet.activity.UpdateNotificationActivity"/>
+        <activity android:name="com.mycelium.wallet.activity.MessageSigningActivity"/>
     </application>
 
 </manifest>
