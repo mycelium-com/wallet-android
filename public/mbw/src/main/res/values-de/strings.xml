@@ -280,4 +280,12 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="get_from">Download von</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">Signiere Nachricht</string>
+  <string name="enter_message_hint">Bitte geben Sie hier die zu signierende Nachricht ein.</string>
+  <string name="copy_signature">Signatur in die Zwischenablage kopieren</string>
+  <string name="share_signature">Text + Signatur teilen</string>
+  <string name="sig_copied">Signatur in die Zwischenablage kopiert</string>
+  <string name="signed_message_subject">Bitcoin signierte Nachricht</string>
+  <string name="signed_message_share">Teile Bitcoin signierte Nachricht</string>
+  <string name="signing_inprogress">Signiere Nachricht…</string>
 </resources>
