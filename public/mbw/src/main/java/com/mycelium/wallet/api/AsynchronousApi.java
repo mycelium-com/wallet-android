@@ -40,24 +40,35 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
-
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.mbwapi.api.*;
+import com.mrd.mbwapi.api.ApiError;
+import com.mrd.mbwapi.api.ApiException;
+import com.mrd.mbwapi.api.BroadcastTransactionRequest;
+import com.mrd.mbwapi.api.BroadcastTransactionResponse;
+import com.mrd.mbwapi.api.GetTransactionDataRequest;
+import com.mrd.mbwapi.api.GetTransactionDataResponse;
+import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
+import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
+import com.mrd.mbwapi.api.QueryTransactionInventoryExResponse;
+import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
+import com.mrd.mbwapi.api.QueryTransactionSummaryRequest;
+import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
+import com.mrd.mbwapi.api.TransactionSummary;
+import com.mrd.mbwapi.api.WalletVersionRequest;
+import com.mrd.mbwapi.api.WalletVersionResponse;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.api.ApiCache.TransactionInventory;
 import com.mycelium.wallet.api.ApiCache.TransactionInventory.Item;
 import com.mycelium.wallet.event.BlockchainError;
-import com.mycelium.wallet.event.ExchangeRateError;
-import com.mycelium.wallet.event.ExchangeRateUpdated;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionHistoryReady;
 import com.mycelium.wallet.event.WalletVersionEvent;
+import com.squareup.otto.Bus;
 
 
 /**
@@ -192,39 +203,6 @@ public abstract class AsynchronousApi {
    private synchronized void executeRequest(SynchronousFunctionCaller caller) {
       Thread thread = new Thread(caller);
       thread.start();
-   }
-
-   /**
-    * Get a summary of the current exchange rates
-    *
-    * @return an {@link AsyncTask} instance that allows the caller to cancel the
-    * call back.
-    */
-   public AsyncTask getExchangeSummary(final String currency) {
-      eventBus.post(new SyncStarted(PROCESS_EXCHANGE_RATE));
-      final AbstractCallbackHandler<ExchangeSummary[]> callback = new AbstractCallbackHandler<ExchangeSummary[]>() {
-         @Override
-         public void handleCallback(ExchangeSummary[] response, ApiError exception) {
-            if (exception != null) {
-               eventBus.post(new ExchangeRateError(exception));
-            } else {
-               eventBus.post(new ExchangeRateUpdated(response));
-            }
-            eventBus.post(new SyncStopped(PROCESS_EXCHANGE_RATE));
-         }
-      };
-
-      AbstractCaller<ExchangeSummary[]> caller = new AbstractCaller<ExchangeSummary[]>(callback) {
-
-         @Override
-         protected void callFunction() throws ApiException {
-            CurrencyCode code = CurrencyCode.fromShortString(currency);
-            _response = _api.getRate(code);
-         }
-
-      };
-      executeRequest(caller);
-      return caller;
    }
 
    /**

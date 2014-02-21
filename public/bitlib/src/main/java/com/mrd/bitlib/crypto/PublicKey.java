@@ -16,11 +16,9 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.math.BigInteger;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.Address;
@@ -29,7 +27,6 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class PublicKey implements Serializable {
 

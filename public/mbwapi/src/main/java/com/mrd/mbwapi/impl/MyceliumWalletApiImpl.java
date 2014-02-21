@@ -101,8 +101,14 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
    @Override
    public QueryExchangeSummaryResponse queryExchangeSummary(QueryExchangeSummaryRequest request) throws ApiException {
-      HttpURLConnection connection = sendRequest(request, RequestConst.QUERY_EXCHANGE_SUMMARY);
+      HttpURLConnection connection = sendRequest(request, RequestConst.LEGACY_QUERY_EXCHANGE_SUMMARY);
       return receiveResponse(QueryExchangeSummaryResponse.class, connection);
+   }
+
+   @Override
+   public QueryExchangeRatesResponse queryExchangeRates(QueryExchangeRatesRequest request) throws ApiException {
+      HttpURLConnection connection = sendRequest(request, RequestConst.QUERY_EXCHANGE_RATES);
+      return receiveResponse(QueryExchangeRatesResponse.class, connection);
    }
 
    @Override
@@ -132,7 +138,8 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
    @Override
    public ErrorCollectionResponse collectError(Throwable e, String version, ErrorMetaData metaData) throws ApiException {
-      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e, version,metaData), RequestConst.ERROR_COLLECTOR);
+      HttpURLConnection connection = sendRequest(new ErrorCollectionRequest(e, version, metaData),
+            RequestConst.ERROR_COLLECTOR);
       return receiveResponse(ErrorCollectionResponse.class, connection);
    }
 
@@ -162,7 +169,6 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       HttpURLConnection connection = sendRequest(request, RequestConst.WALLET_VERSION);
       return receiveResponse(WalletVersionResponse.class, connection);
    }
-
 
    private HttpURLConnection sendRequest(ApiObject request, String function) throws ApiException {
       try {

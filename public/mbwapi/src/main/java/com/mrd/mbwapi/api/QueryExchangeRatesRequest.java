@@ -32,14 +32,43 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.event;
+package com.mrd.mbwapi.api;
 
-import com.mrd.mbwapi.api.ExchangeSummary;
+import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
+import com.mrd.bitlib.util.ByteWriter;
 
-public class ExchangeRateUpdated {
-   public final ExchangeSummary[] exchangeSummaries;
+public class QueryExchangeRatesRequest extends ApiObject {
 
-   public ExchangeRateUpdated(ExchangeSummary[] exchangeSummaries) {
-      this.exchangeSummaries = exchangeSummaries;
+   /**
+    * The currency code for the currency to obtain exchange rates for
+    */
+   public String currency;
+
+   public QueryExchangeRatesRequest(String currency) {
+      this.currency = currency;
    }
+
+   protected QueryExchangeRatesRequest(ByteReader reader) throws InsufficientBytesException {
+      currency = reader.getString();
+      // Payload may contain more, but we ignore it for forwards
+      // compatibility
+   }
+
+   @Override
+   protected ByteWriter toByteWriter(ByteWriter writer) {
+      writer.putString(currency);
+      return writer;
+   }
+
+   @Override
+   protected byte getType() {
+      return ApiObject.EXCHANGE_RATES_REQUEST_TYPE;
+   }
+
+   @Override
+   public String toString() {
+      return currency;
+   }
+
 }

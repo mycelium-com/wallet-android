@@ -32,15 +32,53 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.event;
+package com.mrd.mbwapi.api;
 
-import com.mrd.mbwapi.api.ApiError;
+import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
+import com.mrd.bitlib.util.ByteWriter;
 
-public class ExchangeRateError {
-   public final ApiError apiError;
+public class QueryExchangeRatesResponse extends ApiObject {
 
-   public ExchangeRateError(ApiError apiError) {
+   /**
+    * The currency code for the currency the exchange rates it for
+    */
+   public final String currency;
 
-      this.apiError = apiError;
+   /**
+    * Information about Bitcoin exchange rates from zero or more exchanges for
+    * the selected currency
+    */
+   public final ExchangeRate[] exchangeRates;
+
+   public QueryExchangeRatesResponse(String currency, ExchangeRate[] exchangeRates) {
+      this.currency = currency;
+      this.exchangeRates = exchangeRates;
+   }
+
+   protected QueryExchangeRatesResponse(ByteReader reader) throws InsufficientBytesException, ApiException {
+      currency = reader.getString();
+      int num = reader.getIntLE();
+      exchangeRates = new ExchangeRate[num];
+      for (int i = 0; i < num; i++) {
+         exchangeRates[i] = ApiObject.deserialize(ExchangeRate.class, reader);
+      }
+      // Payload may contain more, but we ignore it for forwards
+      // compatibility
+   }
+
+   @Override
+   protected ByteWriter toByteWriter(ByteWriter writer) {
+      writer.putString(currency);
+      writer.putIntLE(exchangeRates.length);
+      for (ExchangeRate exchangeRate : exchangeRates) {
+         exchangeRate.serialize(writer);
+      }
+      return writer;
+   }
+
+   @Override
+   protected byte getType() {
+      return ApiObject.EXCHANGE_RATES_RESPONSE_TYPE;
    }
 }

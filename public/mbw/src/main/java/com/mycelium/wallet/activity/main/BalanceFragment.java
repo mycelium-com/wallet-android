@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,8 +45,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.BalanceInfo;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.RecordManager;
@@ -56,8 +59,6 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.event.BlockchainError;
 import com.mycelium.wallet.event.BlockchainReady;
-import com.mycelium.wallet.event.ExchangeRateError;
-import com.mycelium.wallet.event.ExchangeRateUpdated;
 import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
 import com.squareup.otto.Subscribe;
@@ -68,7 +69,7 @@ public class BalanceFragment extends Fragment {
    private RecordManager _recordManager;
    private View _root;
    // private BalanceInfo _balance;
-   private Double _oneBtcInFiat;
+   private ExchangeRate _exchangeRate;
    private Toaster _toaster;
 
    @Override
@@ -106,12 +107,18 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onResume() {
+      _mbwManager.getExchamgeRateManager().subscribe(excahngeSubscriber);
+      _exchangeRate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+      if (_exchangeRate == null || _exchangeRate.price == null) {
+         _mbwManager.getExchamgeRateManager().requestRefresh();
+      }
       _mbwManager.getEventBus().register(this);
       _root.findViewById(R.id.btSend).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
-            SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false, _oneBtcInFiat);
+            SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false,
+                  _exchangeRate == null ? null : (_exchangeRate.price == null ? null : _exchangeRate.price));
          }
       });
 
@@ -133,6 +140,7 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onPause() {
+      _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -163,17 +171,20 @@ public class BalanceFragment extends Fragment {
       }
 
       // Set BTC rate
-      if (_oneBtcInFiat == null) {
+      if (_exchangeRate == null) {
+         // No rate, will probably get one soon
          _root.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
+      } else if (_exchangeRate.price == null) {
+         // We have no price, exchange not available
+         TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
+         tvBtcRate.setVisibility(View.VISIBLE);
+         tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _exchangeRate.name));
       } else {
          TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
          tvBtcRate.setVisibility(View.VISIBLE);
-
          String currency = _mbwManager.getFiatCurrency();
-         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _oneBtcInFiat);
-         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted,
-               _mbwManager.getExchangeRateCalculationMode().getShortName()));
-
+         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRate.price);
+         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _exchangeRate.name));
       }
 
    }
@@ -209,13 +220,13 @@ public class BalanceFragment extends Fragment {
       }
 
       // Set Fiat value
-      if (_oneBtcInFiat == null) {
+      if (_exchangeRate == null || _exchangeRate.price == null) {
          _root.findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
       } else {
          TextView tvFiat = (TextView) _root.findViewById(R.id.tvFiat);
          tvFiat.setVisibility(View.VISIBLE);
 
-         String converted = Utils.getFiatValueAsString(balance.unspent + balance.pendingChange, _oneBtcInFiat);
+         String converted = Utils.getFiatValueAsString(balance.unspent + balance.pendingChange, _exchangeRate.price);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
       }
@@ -237,17 +248,21 @@ public class BalanceFragment extends Fragment {
       _root.findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
    }
 
-   @Subscribe
-   public void newExchangeRate(ExchangeRateUpdated response) {
-      _oneBtcInFiat = Utils.getLastTrade(response.exchangeSummaries, _mbwManager.getExchangeRateCalculationMode());
-      updateUi();
-   }
+   private ExchangeRateManager.EventSubscriber excahngeSubscriber = new ExchangeRateManager.EventSubscriber(
+         new Handler()) {
 
-   @Subscribe
-   public void exchangeRateUnavailable(ExchangeRateError exception) {
-      _toaster.toastConnectionError();
-      _oneBtcInFiat = null;
-   }
+      @Override
+      public void refreshingExchangeRatesFailed() {
+         _toaster.toastConnectionError();
+         _exchangeRate = null;
+      }
+
+      @Override
+      public void refreshingEcahngeRatesSuccedded() {
+         _exchangeRate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         updateUi();
+      }
+   };
 
    @Subscribe
    public void balanceChanged(BlockchainReady blockchainReady) {

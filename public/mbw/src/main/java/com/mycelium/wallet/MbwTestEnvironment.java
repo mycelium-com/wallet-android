@@ -45,6 +45,9 @@ public class MbwTestEnvironment extends MbwEnvironment {
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpsEndpoint(
          "https://node3.mycelium.com/mwstestnet", myceliumThumbprint);
 
+//   private static final MyceliumWalletApiImpl.HttpEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpEndpoint(
+//         "http://192.168.1.139:8086");
+
    /**
     * The set of endpoints we use for testnet. The wallet chooses a random
     * endpoint and if it does not respond it round-robins through the list. This

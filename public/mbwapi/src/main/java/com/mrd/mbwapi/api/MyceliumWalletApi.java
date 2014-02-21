@@ -77,14 +77,13 @@ public interface MyceliumWalletApi {
 
    /**
     * Query the exchange summary for a currency code.
-    * 
-    * @param request
-    *           a {@link QueryBalanceRequest} containing the set of addresses to
-    *           query
-    * @return a {@link QueryBalanceResponse}.
-    * @throws ApiException
     */
    public QueryExchangeSummaryResponse queryExchangeSummary(QueryExchangeSummaryRequest request) throws ApiException;
+
+   /**
+    * Query the exchange rates for a currency code.
+    */
+   public QueryExchangeRatesResponse queryExchangeRates(QueryExchangeRatesRequest request) throws ApiException;
 
    /**
     * Query the unspent outputs of a set of Bitcoin addresses.

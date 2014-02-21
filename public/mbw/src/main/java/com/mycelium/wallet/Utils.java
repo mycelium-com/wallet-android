@@ -87,7 +87,6 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mrd.mbwapi.api.ExchangeSummary;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
@@ -122,7 +121,7 @@ public class Utils {
    }
 
    public static String loadEnglish(int resId) {
-      //complex code messes up stuff, hardcoding two strings
+      // complex code messes up stuff, hardcoding two strings
       if (resId == R.string.settings) {
          return "Settings";
       }
@@ -131,19 +130,18 @@ public class Utils {
       }
       throw new UnsupportedOperationException("not implemented");
 
-      /*Resources standardResources = getResources();
-      AssetManager assets = standardResources.getAssets();
-      DisplayMetrics metrics = standardResources.getDisplayMetrics();
-      Configuration config = new Configuration(standardResources.getConfiguration());
-      config.locale = Locale.US;
-      Resources defaultResources = new Resources(assets, metrics, config);
-
-      String lang = Locale.getDefault().getLanguage();
-      String settingsEn = null;
-      if (!lang.equals("en")) {
-         settingsEn = defaultResources.getString(resId);
-      }
-      return settingsEn;*/
+      /*
+       * Resources standardResources = getResources(); AssetManager assets =
+       * standardResources.getAssets(); DisplayMetrics metrics =
+       * standardResources.getDisplayMetrics(); Configuration config = new
+       * Configuration(standardResources.getConfiguration()); config.locale =
+       * Locale.US; Resources defaultResources = new Resources(assets, metrics,
+       * config);
+       * 
+       * String lang = Locale.getDefault().getLanguage(); String settingsEn =
+       * null; if (!lang.equals("en")) { settingsEn =
+       * defaultResources.getString(resId); } return settingsEn;
+       */
    }
 
    public static class BitcoinScanResult {
@@ -418,78 +416,6 @@ public class Utils {
       BigDecimal fiatCents = fiatValue.multiply(ONE_HUNDRED);
       BigDecimal oneBtcInFiatCents = BigDecimal.valueOf(oneBtcInFiat).multiply(ONE_HUNDRED);
       return fiatCents.multiply(BTC_IN_SATOSHIS).divide(oneBtcInFiatCents, 0, RoundingMode.HALF_UP).longValue();
-   }
-
-   public static Double getLastTrade(ExchangeSummary[] summaries, ExchangeRateCalculationMode mode) {
-      if (mode == ExchangeRateCalculationMode.WEIGHTED_AVERAGE) {
-         if (haveVolumes(summaries)) {
-            return getLastTradeWeightedAverage(summaries);
-         } else {
-            // For some reason we do not have volumes, calculate the average
-            // instead
-            return getLastTradeAverage(summaries);
-         }
-      }
-      ExchangeSummary summary = findExchangeSummary(mode.toString(), summaries);
-      if (summary == null) {
-         return null;
-      }
-      return summary.last.doubleValue();
-   }
-
-   private static ExchangeSummary findExchangeSummary(String exchangeName, ExchangeSummary[] summaries) {
-      for (ExchangeSummary summary : summaries) {
-         if (summary.exchange.toString().equalsIgnoreCase(exchangeName)) {
-            return summary;
-         }
-      }
-      // Not found
-      return null;
-   }
-
-   /**
-    * Get the weighted average of the latest trade from an array of
-    * ExchangeSummary instances
-    */
-   private static Double getLastTradeWeightedAverage(ExchangeSummary[] summaries) {
-      if (summaries.length == 0) {
-         return null;
-      }
-      long volumeSum = 0;
-      for (ExchangeSummary summary : summaries) {
-         volumeSum += summary.satoshiVolume;
-      }
-      double sumOfContributions = 0;
-      for (ExchangeSummary summary : summaries) {
-         long weight = summary.satoshiVolume * 1000000 / volumeSum;
-         double contribution = summary.last.doubleValue() * weight / 1000000;
-         sumOfContributions += contribution;
-      }
-      return sumOfContributions;
-   }
-
-   /**
-    * Get the average of the latest trade from an array of ExchangeSummary
-    * instances
-    */
-   private static Double getLastTradeAverage(ExchangeSummary[] summaries) {
-      if (summaries.length == 0) {
-         return null;
-      }
-      double sum = 0;
-      for (ExchangeSummary summary : summaries) {
-         sum += summary.last.doubleValue();
-      }
-      return sum / summaries.length;
-   }
-
-   private static boolean haveVolumes(ExchangeSummary[] summaries) {
-      for (ExchangeSummary summary : summaries) {
-         if (summary.satoshiVolume <= 0) {
-            return false;
-         }
-      }
-      return true;
    }
 
    public static void setClipboardString(String string, Context context) {

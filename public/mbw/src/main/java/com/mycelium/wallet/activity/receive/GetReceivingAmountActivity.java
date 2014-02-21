@@ -39,22 +39,20 @@ import java.math.BigDecimal;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.mbwapi.api.ExchangeRate;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.api.AsyncTask;
-import com.mycelium.wallet.event.ExchangeRateError;
-import com.mycelium.wallet.event.ExchangeRateUpdated;
-import com.squareup.otto.Subscribe;
 
 public class GetReceivingAmountActivity extends Activity implements NumberEntryListener {
 
@@ -65,7 +63,6 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   private AsyncTask _task;
    private NumberEntry _numberEntry;
    private MbwManager _mbwManager;
    private boolean _enterFiatAmount;
@@ -82,7 +79,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      Long amount = (Long)getIntent().getSerializableExtra("amount");
+      Long amount = (Long) getIntent().getSerializableExtra("amount");
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -125,8 +122,6 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
       checkEntry();
 
-      AndroidAsyncApi api = _mbwManager.getAsyncApi();
-      _task = api.getExchangeSummary(_mbwManager.getFiatCurrency());
    }
 
    @Override
@@ -136,20 +131,22 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
    }
 
    @Override
-   protected void onDestroy() {
-      cancelEverything();
-      super.onDestroy();
+   protected void onResume() {
+      _mbwManager.getExchamgeRateManager().subscribe(excahngeSubscriber);
+      ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+      if (rate == null) {
+         _mbwManager.getExchamgeRateManager().requestRefresh();
+      } else {
+         _oneBtcInFiat = rate.price;
+      }
+      findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
+      super.onResume();
    }
 
    @Override
    protected void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
       super.onPause();
-   }
-   @Override
-   protected void onResume() {
-      _mbwManager.getEventBus().register(this);
-      super.onResume();
    }
 
    private final OnClickListener switchCurrencyListener = new OnClickListener() {
@@ -202,12 +199,6 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       _numberEntry.setEntry(newAmount, newDecimalPlaces);
    }
 
-   private void cancelEverything() {
-      if (_task != null) {
-         _task.cancel();
-      }
-   }
-
    @Override
    public void onEntryChanged(String entry) {
       ((TextView) findViewById(R.id.tvAmount)).setText(entry);
@@ -245,7 +236,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
    }
 
-   //todo de-duplicate code
+   // todo de-duplicate code
    private Long getFiatCentsToReceive() {
       Double fiatAmount;
       BigDecimal entry = _numberEntry.getEntryAsBigDecimal();
@@ -277,17 +268,26 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       }
    }
 
-   @Subscribe
-   public void newExchangeRate(ExchangeRateUpdated response) {
-      _oneBtcInFiat = Utils.getLastTrade(response.exchangeSummaries, _mbwManager.getExchangeRateCalculationMode());
-      findViewById(R.id.btCurrency).setEnabled(true);
-      updateAmounts(_numberEntry.getEntry());
-   }
+   private ExchangeRateManager.EventSubscriber excahngeSubscriber = new ExchangeRateManager.EventSubscriber(
+         new Handler()) {
 
-   @Subscribe
-   public void exchangeRateUnavailable(ExchangeRateError exception) {
-      Utils.toastConnectionError(GetReceivingAmountActivity.this);
-      _oneBtcInFiat = null;
-   }
+      @Override
+      public void refreshingExchangeRatesFailed() {
+         Utils.toastConnectionError(GetReceivingAmountActivity.this);
+         _oneBtcInFiat = null;
+         findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
+      }
+
+      @Override
+      public void refreshingEcahngeRatesSuccedded() {
+         ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         if (rate != null) {
+            _oneBtcInFiat = rate.price; // price may still be null, in that case
+                                        // we continue without
+            findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
+            updateAmounts(_numberEntry.getEntry());
+         }
+      }
+   };
 
 }

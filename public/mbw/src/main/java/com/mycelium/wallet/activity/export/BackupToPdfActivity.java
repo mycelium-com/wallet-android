@@ -150,7 +150,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    }
 
    @Override
-   protected void onSaveInstanceState(@SuppressWarnings("NullableProblems") Bundle outState) {
+   protected void onSaveInstanceState(Bundle outState) {
       outState.putLong("backupTime", _backupTime);
       outState.putString("password", _password);
       outState.putBoolean("isPdfGenerated", _isPdfGenerated);
@@ -351,7 +351,6 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       PackageManager packageManager = Preconditions.checkNotNull(getPackageManager());
       List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
       for (ResolveInfo resolveInfo : resInfoList) {
-         @SuppressWarnings("ConstantConditions")
          String packageName = resolveInfo.activityInfo.packageName;
          grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
       }
@@ -366,7 +365,6 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       }
    }
 
-   @SuppressWarnings("ConstantConditions")
    // ignore null checks in this method
    private String getFileProviderAuthority() {
       try {

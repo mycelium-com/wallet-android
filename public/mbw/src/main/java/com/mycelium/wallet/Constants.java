@@ -59,8 +59,6 @@ public class Constants {
    public static final String EXPERT_MODE_SETTING = "ExpertMode";
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
-   public static final String EXCHANGE_RATE_CALCULATION_METHOD_SETTING = "ExchangeRateCalculationMethod";
-   public static final ExchangeRateCalculationMode DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD = ExchangeRateCalculationMode.BITSTAMP;
    public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
    public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help.html";
    public static final String LANGUAGE_SETTING = "user_language";

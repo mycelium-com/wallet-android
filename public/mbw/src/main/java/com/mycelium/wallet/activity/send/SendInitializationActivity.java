@@ -42,17 +42,15 @@ import android.view.View;
 import android.view.Window;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.mbwapi.api.ExchangeSummary;
+import com.mrd.mbwapi.api.ExchangeRate;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.SpendableOutputs;
-import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.event.BlockchainError;
 import com.mycelium.wallet.event.BlockchainReady;
-import com.mycelium.wallet.event.ExchangeRateError;
-import com.mycelium.wallet.event.ExchangeRateUpdated;
 import com.squareup.otto.Subscribe;
 
 public class SendInitializationActivity extends Activity {
@@ -65,8 +63,8 @@ public class SendInitializationActivity extends Activity {
    private Handler _synchnozingHandler;
    private Handler _slowNetworkHandler;
    private SpendableOutputs _spendable;
-   private ExchangeSummary[] _exchangeSummaries;
    private boolean _done;
+   private boolean _ignoreExchangeRates;
 
    public static void callMe(Activity currentActivity, Wallet wallet, boolean isColdStorage, Double oneBtcInFiat) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
@@ -77,12 +75,13 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   public static void callMeWithResult(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress,
-         boolean isColdStorage, int request) {
+   public static void callMeWithResult(Activity currentActivity, Wallet wallet, Long amountToSend,
+         Address receivingAddress, boolean isColdStorage, int request) {
       Intent intent = prepareSendingIntent(currentActivity, wallet, amountToSend, receivingAddress, isColdStorage);
       currentActivity.startActivityForResult(intent, request);
 
    }
+
    public static void callMe(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress,
          boolean isColdStorage) {
       Intent intent = prepareSendingIntent(currentActivity, wallet, amountToSend, receivingAddress, isColdStorage);
@@ -90,7 +89,8 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   private static Intent prepareSendingIntent(Activity currentActivity, Wallet wallet, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+   private static Intent prepareSendingIntent(Activity currentActivity, Wallet wallet, Long amountToSend,
+         Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("wallet", wallet);
       intent.putExtra("amountToSend", amountToSend);
@@ -134,6 +134,7 @@ public class SendInitializationActivity extends Activity {
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
+      _mbwManager.getExchamgeRateManager().subscribe(excahngeSubscriber);
       _synchnozingHandler = new Handler();
       _synchnozingHandler.postDelayed(showSynchronizing, 2000);
       _slowNetworkHandler = new Handler();
@@ -150,6 +151,7 @@ public class SendInitializationActivity extends Activity {
       if (_slowNetworkHandler != null) {
          _slowNetworkHandler.removeCallbacks(showSlowNetwork);
       }
+      _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -188,14 +190,27 @@ public class SendInitializationActivity extends Activity {
       finish();
    }
 
-   @Subscribe
-   public void newExchangeRate(ExchangeRateUpdated response) {
-      _exchangeSummaries = response.exchangeSummaries;
-      // May return null if the selected exchange is not in the result set
-      _oneBtcInFiat = Utils.getLastTrade(response.exchangeSummaries, _mbwManager.getExchangeRateCalculationMode());
-      // Check whether we are done
-      continueIfDoneOrSynchronize();
-   }
+   private ExchangeRateManager.EventSubscriber excahngeSubscriber = new ExchangeRateManager.EventSubscriber(
+         new Handler()) {
+
+      @Override
+      public void refreshingExchangeRatesFailed() {
+         Utils.toastConnectionError(SendInitializationActivity.this);
+         finish();
+      }
+
+      @Override
+      public void refreshingEcahngeRatesSuccedded() {
+         ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         if (rate != null) {
+            _oneBtcInFiat = rate.price; // price may still be null, in that case
+                                        // we continue without
+            _ignoreExchangeRates = true;
+         }
+         // Check whether we are done
+         continueIfDoneOrSynchronize();
+      }
+   };
 
    private void continueIfDoneOrSynchronize() {
       if (_done) {
@@ -207,26 +222,21 @@ public class SendInitializationActivity extends Activity {
          return;
       }
 
-      // One BTC in fiat might be null even when exchange summaries are not
-      // null. This happens when the array of exchanges does not include the one
-      // we are looking for. In that case we continue without an exchange rate.
-      if (_oneBtcInFiat == null && _exchangeSummaries == null) {
-         // Request exchange rate update
-         AndroidAsyncApi api = _mbwManager.getAsyncApi();
-         api.getExchangeSummary(_mbwManager.getFiatCurrency());
-         return;
+      if (_oneBtcInFiat == null && !_ignoreExchangeRates) {
+         ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         if (rate == null) {
+            // We need a refresh
+            _mbwManager.getExchamgeRateManager().requestRefresh();
+            return;
+         }
+         _oneBtcInFiat = rate.price; // price may still be null, in that case we
+                                     // just proceed and do without
       }
 
       // We are done call next activity
       _done = true;
       SendMainActivity.callMe(this, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress,
             _isColdStorage);
-      finish();
-   }
-
-   @Subscribe
-   public void exchangeRateUnavailable(ExchangeRateError exception) {
-      Utils.toastConnectionError(this);
       finish();
    }
 }

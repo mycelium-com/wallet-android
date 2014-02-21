@@ -34,50 +34,52 @@
 
 package com.mycelium.wallet;
 
+import java.util.Set;
+
 import android.util.Log;
+
 import com.google.common.collect.Sets;
-import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.BlockchainReady;
+import com.mycelium.wallet.event.RefreshStatus;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TransactionHistoryReady;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-
-import java.util.Set;
 
 public class SyncManager {
 
    private final Bus eventBus;
    private final MbwManager _mbwManager;
-   private final AndroidAsyncApi asyncApi;
    private final RecordManager recordManager;
    private final BlockChainAddressTracker tracker;
 
    private BalanceInfo balanceBeforeRefresh;
 
-
    Set<String> runningProcesses = Sets.newHashSet();
-    private VersionManager versionManager;
+   private VersionManager versionManager;
 
-    public SyncManager(Bus eventBus, MbwManager _mbwManager, AndroidAsyncApi asyncApi, RecordManager recordManager, BlockChainAddressTracker tracker, VersionManager versionManager) {
+   public SyncManager(Bus eventBus, MbwManager _mbwManager, RecordManager recordManager,
+         BlockChainAddressTracker tracker, VersionManager versionManager) {
       this.eventBus = eventBus;
       this._mbwManager = _mbwManager;
-      this.asyncApi = asyncApi;
       this.recordManager = recordManager;
       this.tracker = tracker;
       this.versionManager = versionManager;
-      eventBus.register(this); //does not need unregister,
+      eventBus.register(this); // does not need unregister,
       // since it is a singleton and will be killed with the whole VM
    }
 
    public void triggerUpdate() {
-      asyncApi.getExchangeSummary(_mbwManager.getFiatCurrency());
       Wallet wallet = getWallet();
       balanceBeforeRefresh = wallet.getLocalBalance(tracker);
-      //request balance update
+      // request balance update
       wallet.requestUpdate(tracker);
       versionManager.checkForUpdate();
    }
 
-   //for sync purposes, we select a different wallet than normally, ignoring segregated mode setting.
+   // for sync purposes, we select a different wallet than normally, ignoring
+   // segregated mode setting.
    private Wallet getWallet() {
       final Record selectedRecord = recordManager.getSelectedRecord();
       if (selectedRecord.tag == Record.Tag.ARCHIVE) {
@@ -91,14 +93,14 @@ public class SyncManager {
    public void balanceChanged(BlockchainReady blockchainReady) {
       final BalanceInfo balanceAfterRefresh = getWallet().getLocalBalance(_mbwManager.getBlockChainAddressTracker());
       if (!balanceAfterRefresh.equals(balanceBeforeRefresh)) {
-         //refresh history
+         // refresh history
          _mbwManager.getAsyncApi().getTransactionSummary(getWallet().getAddressSet());
       }
    }
 
    @Subscribe
    public void transactionsUpdated(TransactionHistoryReady transactionHistoryReady) {
-      //interesting, but it seems we are done already
+      // interesting, but it seems we are done already
    }
 
    @Subscribe
@@ -118,7 +120,6 @@ public class SyncManager {
          eventBus.post(new RefreshStatus(false));
       }
    }
-
 
    public RefreshStatus currentStatus() {
       return new RefreshStatus(!runningProcesses.isEmpty());

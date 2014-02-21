@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet.activity.settings;
 
+import java.util.Locale;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +57,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
-import com.mycelium.wallet.ExchangeRateCalculationMode;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
@@ -63,7 +65,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.WalletMode;
 
-import java.util.Locale;
 /**
  * PreferenceActivity is a built-in Activity for preferences management
  * <p/>
@@ -94,7 +95,7 @@ public class SettingsActivity extends PreferenceActivity {
          return extractAmount(input);
       }
    };
-   private ImmutableMap<String,String> _languageLookup;
+   private ImmutableMap<String, String> _languageLookup;
 
    @SuppressWarnings("deprecation")
    @Override
@@ -127,16 +128,27 @@ public class SettingsActivity extends PreferenceActivity {
 
       // Exchange Source
       _exchangeSource = (ListPreference) findPreference("exchange_source");
+      ExchangeRateManager exchangeManager = _mbwManager.getExchamgeRateManager();
+      CharSequence[] exchangeNames = exchangeManager.getExchangeRateNames().toArray(new String[] {});
+      _exchangeSource.setEntries(exchangeNames);
+      if (exchangeNames.length == 0) {
+         _exchangeSource.setEnabled(false);
+      } else {
+         String currentName = exchangeManager.getCurrentRateName();
+         if (currentName == null) {
+            currentName = "";
+         }
+         _exchangeSource.setEntries(exchangeNames);
+         _exchangeSource.setEntryValues(exchangeNames);
+         _exchangeSource.setDefaultValue(currentName);
+         _exchangeSource.setValue(currentName);
+      }
       _exchangeSource.setTitle(exchangeSourceTitle());
-      _exchangeSource.setDefaultValue(_mbwManager.getExchangeRateCalculationMode().toString());
-      _exchangeSource.setValue(_mbwManager.getExchangeRateCalculationMode().toString());
-      _exchangeSource.setEntries(ExchangeRateCalculationMode.orderedNames());
-      _exchangeSource.setEntryValues(ExchangeRateCalculationMode.orderedNames());
       _exchangeSource.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            _mbwManager.setExchangeRateCalculationMode(ExchangeRateCalculationMode.fromName(newValue.toString()));
+            _mbwManager.getExchamgeRateManager().setCurrentRateName(newValue.toString());
             _exchangeSource.setTitle(exchangeSourceTitle());
             return true;
          }
@@ -220,7 +232,7 @@ public class SettingsActivity extends PreferenceActivity {
       for (int i = 0; i < langs.length; i++) {
          String lang = langs[i];
          String desc = langDesc[i];
-         b.put(lang,desc);
+         b.put(lang, desc);
       }
       return b.build();
    }
@@ -275,8 +287,11 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private String exchangeSourceTitle() {
-      return getResources().getString(R.string.pref_exchange_source_with_value,
-            _mbwManager.getExchangeRateCalculationMode().getShortName());
+      String name = _mbwManager.getExchamgeRateManager().getCurrentRateName();
+      if (name == null) {
+         name = "";
+      }
+      return getResources().getString(R.string.pref_exchange_source_with_value, name);
    }
 
    private String bitcoinDenominationTitle() {

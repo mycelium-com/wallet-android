@@ -50,8 +50,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import com.squareup.otto.Bus;
-
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
@@ -62,6 +60,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.event.SelectedRecordChanged;
 import com.mycelium.wallet.persistence.TxOutDb;
+import com.squareup.otto.Bus;
 
 public class MbwManager {
 
@@ -94,7 +93,6 @@ public class MbwManager {
    private String _fiatCurrency;
    private boolean _expertMode;
    private boolean _enableContinuousFocus;
-   private ExchangeRateCalculationMode _exchangeRateCalculationMethod;
    private boolean _keyManagementLocked;
    private int _mainViewFragmentIndex;
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
@@ -103,6 +101,7 @@ public class MbwManager {
    private HttpErrorCollector _httpErrorCollector;
    private String _language;
    private final VersionManager _versionManager;
+   private final ExchangeRateManager _exchangeRateManager;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -136,9 +135,6 @@ public class MbwManager {
       _expertMode = preferences.getBoolean(Constants.EXPERT_MODE_SETTING, getExpertModeDefault());
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING,
             getContinuousFocusDefault());
-      _exchangeRateCalculationMethod = ExchangeRateCalculationMode.fromName(preferences.getString(
-            Constants.EXCHANGE_RATE_CALCULATION_METHOD_SETTING,
-            Constants.DEFAULT_EXCHANGE_RATE_CALCULATION_METHOD.toString()));
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
       _mainViewFragmentIndex = preferences.getInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, 0);
 
@@ -155,7 +151,8 @@ public class MbwManager {
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
-       _syncManager = new SyncManager(_eventBus, this, _asyncApi, _recordManager, _blockChainAddressTracker,_versionManager);
+      _syncManager = new SyncManager(_eventBus, this, _recordManager, _blockChainAddressTracker, _versionManager);
+      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _environment.getMwsApi(), this);
    }
 
    /**
@@ -217,24 +214,16 @@ public class MbwManager {
       _eventBus.post(new SelectedRecordChanged(_recordManager.getSelectedRecord()));
    }
 
-   public ExchangeRateCalculationMode getExchangeRateCalculationMode() {
-      return _exchangeRateCalculationMethod;
-   }
-
-   public void setExchangeRateCalculationMode(ExchangeRateCalculationMode mode) {
-      _exchangeRateCalculationMethod = mode;
-      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE).edit();
-      editor.putString(Constants.EXCHANGE_RATE_CALCULATION_METHOD_SETTING, _exchangeRateCalculationMethod.toString());
-      editor.commit();
-   }
-
    public AndroidAsyncApi getAsyncApi() {
       return _asyncApi;
    }
 
    public RecordManager getRecordManager() {
       return _recordManager;
+   }
+
+   public ExchangeRateManager getExchamgeRateManager() {
+      return _exchangeRateManager;
    }
 
    public AddressBookManager getAddressBookManager() {
@@ -399,7 +388,6 @@ public class MbwManager {
    public NetworkParameters getNetwork() {
       return _environment.getNetwork();
    }
-
 
    public ExploreHelper getExploreHelper() {
       return exploreHelper;
