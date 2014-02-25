@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
+    <string name="app_name">Testnet Bits of Gold Wallet</string>
+    <string name="app_short_name">Testnet Bits of Gold</string>
+    <string name="encrypted_pdf_backup_email_title">Bits of Gold Backup</string>
+    <string name="encrypted_pdf_backup_email_text">Your Bits of Gold wallet backup is attached.\r\n\r\nFollow these simple steps to secure your funds:\r\n1. Print the PDF document.\r\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\r\n3. Verify that you can import the private keys to your Bits of Gold Wallet.\r\n4. Store the printout in a safe place.</string>
+    <string name="going_to_mycelium_com_help">Going to www.mycelium.com</string>
+    <string name="mycelium_license">Bits of Gold License</string>
+    <string name="source_url">https://github.com/mycelium-com/wallet</string>
+    <string name="homepage_url">https://www.bitsofgold.co.il</string>
+    <string name="mycelium_com">bitsofgold.co.il</string>
+</resources>
