@@ -139,6 +139,7 @@
   <string name="export_to_clipboard_warning">Предупреждение: Экспорт приватного ключа в буфер обмена делает его доступным для  других приложений на вашем устройстве.\n\n Держать ваш приватный ключ в буфере обмена рискованно, необходимо переместить его в  безопасное место.\n\nХотите продолжить?</string>
   <string name="found_clipboard_private_key_title">В буфере обмена обнаружен приватный ключ</string>
   <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\r\nВы хотите удалить его?</string>
+  <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
   <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
   <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
   <string name="add_to_address_book_dialog_title">Добавить адрес </string>
@@ -278,4 +279,12 @@
   <string name="get_from">Получить из</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">Подписать сообщение</string>
+  <string name="enter_message_hint">Введите сообщение, которое хотите подписать</string>
+  <string name="copy_signature">Копировать подпись в буфер обмена</string>
+  <string name="share_signature">Поделиться текстом + подписью</string>
+  <string name="sig_copied">Подпись скопирована в буфер обмена</string>
+  <string name="signed_message_subject">Сообщение с биткойн-подписью</string>
+  <string name="signed_message_share">Поделиться сообщением с биткойн-подписью</string>
+  <string name="signing_inprogress">Сообщение подписывается&#8230;</string>
 </resources>

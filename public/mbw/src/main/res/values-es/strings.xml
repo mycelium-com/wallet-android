@@ -139,6 +139,7 @@
   <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: no es suficiente almacenar su clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Desea continuar?</string>
   <string name="found_clipboard_private_key_title">Clave privada encontrada en portapapeles</string>
   <string name="found_clipboard_private_keys_message">¿El Portapapeles contiene una clave Privada.\r\nDesea eliminarla?</string>
+  <string name="exchange_source_not_available">Tipo de cambio actual no disponible para %1$s</string>
   <string name="my_own_address_warning">Nota: Estás enviando a una de tus propias direcciones.</string>
   <string name="read_only_warning">Atención: su monedero no dispone de la clave privada para esta dirección.\nNo puede gastar las monedas recibidas a no ser que disponga de la clave privada en algún otro lugar.</string>
   <string name="add_to_address_book_dialog_title">Añadir dirección</string>
@@ -173,6 +174,7 @@
   <string name="bitcoin_address_valid">Dirección Bitcoin Válida</string>
   <string name="key_management">Gestión de claves</string>
   <string name="redirecting_to_blockchain_info">Redirigiendo a blockchain.info</string>
+  <string name="enter_local_currency">Introduce tu moneda local</string>
   <string name="tap_to_refresh">Pulsar para actualizar</string>
   <string name="using_address_from_clipboard">Utilizando una dirección del portapapeles</string>
   <string name="my_addresses">Mis Direcciones</string>
@@ -277,4 +279,12 @@
   <string name="get_from">Obtener de</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">Firma el mensaje</string>
+  <string name="enter_message_hint">Por favor, introduce aquí el mensaje que quieres firmar.</string>
+  <string name="copy_signature">Copia la firma en el portapapeles</string>
+  <string name="share_signature">Comparte el texto + la firma</string>
+  <string name="sig_copied">Firma copiada en el portapapeles</string>
+  <string name="signed_message_subject">Mensaje de bitcoins firmado</string>
+  <string name="signed_message_share">Compartir mensaje firmado de Bitcoins</string>
+  <string name="signing_inprogress">Mensaje firmado...</string>
 </resources>

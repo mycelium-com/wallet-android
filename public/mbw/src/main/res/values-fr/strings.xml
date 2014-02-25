@@ -139,6 +139,7 @@
   <string name="export_to_clipboard_warning">AVERTISSEMENT : Expédier la clé privée vers le presse-papiers l\'expose à toutes autres applications de votre appareil.\n\nNote : garder votre clé privée sur le presse-papiers ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer?</string>
   <string name="found_clipboard_private_key_title">Une clé privée se trouve dans le presse-papiers</string>
   <string name="found_clipboard_private_keys_message">Le presse-papiers contient un clé privée.\r\nVoulez-vous la supprimer?</string>
+  <string name="exchange_source_not_available">Taux de change non disponible %1$s</string>
   <string name="my_own_address_warning">Remarque : Vous l\'envoyez à une de vos propres adresses.</string>
   <string name="read_only_warning">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</string>
   <string name="add_to_address_book_dialog_title">Ajouter une adresse</string>
@@ -278,4 +279,12 @@
   <string name="get_from">Obtenir de</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">Message authentifié</string>
+  <string name="enter_message_hint">Entrez le message que vous voulez authentifier ici</string>
+  <string name="copy_signature">Copie de l\'authentification au presse-papiers</string>
+  <string name="share_signature">Texte partagé + authentifier</string>
+  <string name="sig_copied">Authentification copiée vers le presse-papiers</string>
+  <string name="signed_message_subject">Message Bitcoin authentifié</string>
+  <string name="signed_message_share">Partagez le message Bitcoin authentifié</string>
+  <string name="signing_inprogress">Authentification en cours&#8230;</string>
 </resources>

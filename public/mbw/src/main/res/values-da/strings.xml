@@ -139,11 +139,13 @@
   <string name="export_to_clipboard_warning">Advarsel: Eksportering af den private nøgle til Udklipsholderen vil gøre den tilgængelig for andre apps.\n\nNote: Det er ikke nok at gemme den private nøgle til udklipsholderen, du skal også indsætte den et sikkert sted.\n\nVil du fortsætte?</string>
   <string name="found_clipboard_private_key_title">Privat Nøgle Fundet i Udklipsholderen</string>
   <string name="found_clipboard_private_keys_message">Udklipsholderen indeholder en privat nøgle.\r\nVil du slette den?</string>
+  <string name="exchange_source_not_available">Exchange kilde er ikke tilgængelig for %1$s</string>
   <string name="my_own_address_warning">Note: Du sender til en af dine egne adresser.</string>
   <string name="read_only_warning">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge modtaget mønter, jo mindre du har den private nøgle et andet sted.</string>
   <string name="add_to_address_book_dialog_title">Tilføj Adresse</string>
   <string name="scan_address_book_desc">Skan Bitcoin adresse.</string>
   <string name="clipboard_address_book_desc">Hent Bitcoin adresse fra udklipsholderen.</string>
+  <string name="aggregated">Vælg din lokale valuta</string>
   <string name="max">Max</string>
   <string name="get_private_key">Hent privat nøgle fra:</string>
   <string name="cold_storage">Cold Storage</string>
@@ -173,6 +175,7 @@
   <string name="bitcoin_address_valid">Bitcoin Adresse Gyldig</string>
   <string name="key_management">Nøglehåndtering</string>
   <string name="redirecting_to_blockchain_info">Omdirigerer til blockchain.info</string>
+  <string name="enter_local_currency">Vælg din lokale valuta</string>
   <string name="tap_to_refresh">Tryk for at opdatere</string>
   <string name="using_address_from_clipboard">Brug adresse fra udklipsholderen</string>
   <string name="my_addresses">Mine Adresser</string>
@@ -268,4 +271,19 @@
   <string name="pref_change_language">Skift Sprog</string>
   <string name="addressbook_cannot_add_private_key">Du kan ikke tilføje en privat nøgle til adressebogen.\n\nDu kan importere private nøgler i fanen nøgler</string>
   <string name="archiving_key_title">Arkiveret Nøgle</string>
+  <string name="new_version_exists">En ny version er tilgængelig</string>
+  <string name="check_update">Check for Update</string>
+  <string name="version_check_failed">Versions check fejlede</string>
+  <string name="version_uptodate">Din wallet kører seneste version %s</string>
+  <string name="update_check">Update Check</string>
+  <string name="ignore_update">Ignorer denne version</string>
+  <string name="get_from">Hent Via</string>
+  <string name="sign_message">Signer Besked</string>
+  <string name="enter_message_hint">Skriv en besked som du vil signere</string>
+  <string name="copy_signature">Kopier Signatur til Clipboard</string>
+  <string name="share_signature">Del Besked + Signatur</string>
+  <string name="sig_copied">Signatur kopieret</string>
+  <string name="signed_message_subject">Signeret Bitcoin besked</string>
+  <string name="signed_message_share">Del Signeret Besked</string>
+  <string name="signing_inprogress">Signerer Besked&#8230;</string>
 </resources>

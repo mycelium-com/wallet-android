@@ -24,7 +24,7 @@
   <string name="receive">Empfangen</string>
   <string name="private_key_deleted">Privater Schlüssel entfernt, Bitcoin-Adresse bleibt bestehen</string>
   <string name="bitcoin_address_deleted">Bitcoin Adresse gelöscht</string>
-  <string name="new_bitcoin_address_created">Es wurde ein neuer privater Schlüssel generiert, welcher folgende Bitcoin Addresse erzeugt:</string>
+  <string name="new_bitcoin_address_created">Es wurde ein neuer privater Schlüssel generiert, welcher folgende Bitcoin Adresse erzeugt:</string>
   <string name="shuffle">Mischen</string>
   <string name="use">Benutzen</string>
   <string name="select_spending_address">Sender-Adresse wählen</string>
@@ -141,6 +141,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
   <string name="found_clipboard_private_key_title">Privater Schlüssel in der Zwischenablage gefunden</string>
   <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\r\nMöchten Sie ihn löschen?</string>
+  <string name="exchange_source_not_available">Wechselkurs für %1$s nicht verfügbar</string>
   <string name="my_own_address_warning">Achtung: Sie senden Bitcoins zu einer Ihrer eigenen Adressen</string>
   <string name="read_only_warning">Hinweis: Ihre Wallet hat keinen privaten Schlüssel für diese Adresse. \nSie können erhaltene Bitcoins nur ausgeben, wenn Sie den privaten Schlüssel an einem anderen Ort haben.</string>
   <string name="add_to_address_book_dialog_title">Adresse zum Adressbuch hinzufügen</string>
@@ -175,6 +176,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="bitcoin_address_valid">Gültige Bitcoin-Adresse</string>
   <string name="key_management">Schlüsselverwaltung</string>
   <string name="redirecting_to_blockchain_info">Sie werden zu blockchain.info weitergeleitet</string>
+  <string name="enter_local_currency">Geben Sie Ihre lokale Währung ein</string>
   <string name="tap_to_refresh">Zum Aktualisieren hier tippen</string>
   <string name="using_address_from_clipboard">Bitcoin-Adresse aus der Zwischenablage wird verwendet</string>
   <string name="my_addresses">Meine Adressen</string>
@@ -287,5 +289,5 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="sig_copied">Signatur in die Zwischenablage kopiert</string>
   <string name="signed_message_subject">Bitcoin signierte Nachricht</string>
   <string name="signed_message_share">Teile Bitcoin signierte Nachricht</string>
-  <string name="signing_inprogress">Signiere Nachricht…</string>
+  <string name="signing_inprogress">Signiere Nachricht&#8230;</string>
 </resources>

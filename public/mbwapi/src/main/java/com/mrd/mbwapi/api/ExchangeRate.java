@@ -63,7 +63,7 @@ public class ExchangeRate extends ApiObject {
       time = reader.getLongLE();
       currency = reader.getString();
       String priceString = reader.getString();
-      if (priceString.isEmpty()) {
+      if (priceString.length() == 0) {
          price = null;
       } else {
          Double p;

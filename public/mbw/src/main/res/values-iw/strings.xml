@@ -4,7 +4,7 @@
   <string name="app_name">Mycelium ארנק ביטקוין</string>
   <string name="add_record_title">הוסף כתובת (מפתח ציבורי) או מפתח פרטי</string>
   <string name="add_record_desc">אתם עומדים להוסיף כתובת ביטקוין (או מפתח) לארנק שלכם.\n\n•אם תוסיפו כתובת ביטקוין, תוכלו לעקוב אחר היתרה, אך לא להשתמש בה.\n\n•אם תוסיפו מפתח תקבלו כתובת ביטקוין ממנו תוכלו לשלוח.</string>
-  <string name="scan_desc">סרוק כתובת או מפתח.</string>
+  <string name="scan_desc">סרוק כתובת ביטקוין או מפתח פרטי.</string>
   <string name="clipboard_desc">ייבא כתובת או מפתח מהעתק הדבק.</string>
   <string name="random_desc">צור מפתח אקראי חדש.</string>
   <string name="scan">סרוק</string>
@@ -14,7 +14,7 @@
   <string name="sending">שולח %1$s</string>
   <string name="receiving">מקבל %1$s</string>
   <string name="imported_bitcoin_address">כתובת ביטקוין יובאה לארנק.</string>
-  <string name="imported_private_key">מפתח יובא לארנק.</string>
+  <string name="imported_private_key">מפתח פרטי יובא לארנק.</string>
   <string name="key_already_present">המפתח כבר קיים</string>
   <string name="upgraded_address_to_key">מפתח הוסף לכתובת המתאימה</string>
   <string name="address_already_present">הכתובת כבר קיימת</string>
@@ -139,6 +139,7 @@
   <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
   <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
   <string name="found_clipboard_private_keys_message">הלוח (clipboard) מכיל מפתח פרטי.\r\nהאם ברצונך למחוק אותו?</string>
+  <string name="exchange_source_not_available">לא קיים שער המרה עבור %1$s</string>
   <string name="my_own_address_warning">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</string>
   <string name="read_only_warning">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</string>
   <string name="add_to_address_book_dialog_title">הוספת כתובת</string>
@@ -173,6 +174,7 @@
   <string name="bitcoin_address_valid">כתובת ביטקוין תקינה</string>
   <string name="key_management">ניהול מפתחות</string>
   <string name="redirecting_to_blockchain_info">מנתב אל blockchain.info</string>
+  <string name="enter_local_currency">הזן את המטבע המקומי שלך</string>
   <string name="tap_to_refresh">לחצו לרענן</string>
   <string name="using_address_from_clipboard">משתמש בכתובת מהעתק-הדבק</string>
   <string name="my_addresses">הכתובות שלי</string>
@@ -277,4 +279,12 @@
   <string name="get_from">מקור עדכון</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">חתום על הודעה</string>
+  <string name="enter_message_hint">נא הזן את ההודעה עליה ברצונך לחתום</string>
+  <string name="copy_signature">העתק חתימה ללוח העתק הדבק (Clipboard)</string>
+  <string name="share_signature">שתף טקסט + חתימה</string>
+  <string name="sig_copied">חתימה הועתקה ללוח העתק הדבק (Clipboard)</string>
+  <string name="signed_message_subject">הודעת ביטקוין חתומה</string>
+  <string name="signed_message_share">שתף הודעת ביטקוין חתומה</string>
+  <string name="signing_inprogress">חותם על הודעה&#8230;</string>
 </resources>
