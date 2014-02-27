@@ -139,7 +139,7 @@
   <string name="export_to_clipboard_warning">UWAGA: Eksportowanie klucza prywatnego do schowka moze zostac przechwycone przez wszystkie aplikacje na Twoim urzadzeniu.\n\nNote: Skopiowanie do schowka nie jest wystarczajace, musisz jeszcze wkleic zawartosc w bezpieczne miejsce.\n\nCzy chcesz kontynuowac?</string>
   <string name="found_clipboard_private_key_title">Znaleziono w schowku klucz prywatny</string>
   <string name="found_clipboard_private_keys_message">Schowek zawiera klucz prywatny.\r\nChcesz go usunac?</string>
-  <string name="exchange_source_not_available">Kurs nie jest dostępna dla %1$ s </string>
+  <string name="exchange_source_not_available">Kurs nie jest dostępna dla %1$s</string>
   <string name="my_own_address_warning">Uwaga: wysylasz do jednego ze swoich adresow.</string>
   <string name="read_only_warning">Uwaga: Twoj portfel nie zawiera klucza prywatnego do tego adresu.\nNie bedziesz mogl(a) wyslac otrzymanych funduszy chyba ze masz klucz prywatny gdzies indziej.</string>
   <string name="add_to_address_book_dialog_title">Dodaj adres</string>
