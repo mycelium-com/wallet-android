@@ -140,6 +140,7 @@
   <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
   <string name="found_clipboard_private_key_title">密钥在剪贴板上</string>
   <string name="found_clipboard_private_keys_message">密匙在剪贴板上\r\n您想删除它码</string>
+  <string name="exchange_source_not_available">%1$s汇率不可以用</string>
   <string name="my_own_address_warning">注意：您正在发送到您自己的地址之一</string>
   <string name="read_only_warning">警告：您的钱包没有此地址的密钥\n您不能花费比特币除非您在其他的地方有密钥</string>
   <string name="add_to_address_book_dialog_title">添加地址</string>
@@ -174,6 +175,7 @@
   <string name="bitcoin_address_valid">比特币地址有效</string>
   <string name="key_management">密钥管理</string>
   <string name="redirecting_to_blockchain_info">正在重定向到 blockchain.info</string>
+  <string name="enter_local_currency">请输入您的本地货币</string>
   <string name="tap_to_refresh">点击可刷新</string>
   <string name="using_address_from_clipboard">使用剪贴板中的地址</string>
   <string name="my_addresses">我的地址</string>
@@ -279,4 +281,12 @@
   <string name="get_from">从获取</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">信息签名</string>
+  <string name="enter_message_hint">请输入您想要在这里签名的信息</string>
+  <string name="copy_signature">将签名复制到剪贴板</string>
+  <string name="share_signature">分享文字 + 签名</string>
+  <string name="sig_copied">复制到剪贴板上的签名</string>
+  <string name="signed_message_subject">比特币签名的信息</string>
+  <string name="signed_message_share">共享比特币签名的信息</string>
+  <string name="signing_inprogress">信息签名......</string>
 </resources>

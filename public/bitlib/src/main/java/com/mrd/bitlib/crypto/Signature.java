@@ -16,6 +16,7 @@
 
 package com.mrd.bitlib.crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import com.mrd.bitlib.util.ByteWriter;
@@ -25,7 +26,8 @@ import com.mrd.bitlib.util.ByteWriter;
  * depending on the context, encode wrapping is needed. subclass this to represent additional metadata
  * SIGHASH type, deterministic r, etc.
  */
-public class Signature {
+public class Signature implements Serializable {
+   private static final long serialVersionUID = -7537263193002961466L;
 
    public final BigInteger r;
    public final BigInteger s;

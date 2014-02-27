@@ -16,6 +16,7 @@
 
 package com.mrd.bitlib.crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -30,7 +31,8 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
-public class SignedMessage {
+public class SignedMessage implements Serializable{
+   private static final long serialVersionUID = 1188125594280603453L;
 
    private final Signature signature;
    private final PublicKey publicKey;

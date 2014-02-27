@@ -18,11 +18,10 @@ package com.mrd.bitlib.crypto;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
-
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
@@ -31,9 +30,18 @@ import com.mrd.bitlib.util.ByteWriter;
 
 public class Signatures {
 
-   private static final byte[] HEADER = "Bitcoin Signed Message:\n".getBytes(Charsets.UTF_8);
-   private static final byte[] SIGNING_HEADER = standardSigningHeader();
+   private static final byte[] HEADER;
+   private static final byte[] SIGNING_HEADER;
 
+   static{
+      try {
+         HEADER = "Bitcoin Signed Message:\n".getBytes("UTF-8");
+      } catch (UnsupportedEncodingException e) {
+         throw new RuntimeException(e);
+      }
+      SIGNING_HEADER = standardSigningHeader();
+   }
+   
     public static Signature decodeSignatureParameters(ByteReader reader) {
         byte[][] bytes = decodeSignatureParameterBytes(reader);
         if(bytes == null){
@@ -148,7 +156,12 @@ public class Signatures {
 
    @VisibleForTesting
    static byte[] formatMessageForSigning(String message) {
-      byte[] messageBytes = message.getBytes(Charsets.UTF_8);
+      byte[] messageBytes;
+      try {
+         messageBytes = message.getBytes("UTF-8");
+      } catch (UnsupportedEncodingException e) {
+         throw new RuntimeException(e);
+      }
       ByteWriter writer = new ByteWriter(messageBytes.length + SIGNING_HEADER.length + 1);
       writer.putBytes(SIGNING_HEADER);
       writer.putCompactInt(message.length());
