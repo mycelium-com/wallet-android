@@ -106,7 +106,10 @@
 }
 
 #keep classes used for deserializing json
--keepclasseswithmembers class com.mycelium.lt.location.*
+-keepclasseswithmembers class com.mycelium.lt.location.** {
+  <init>(...);
+  *;
+}
 -keep public class com.mycelium.lt.api.** {
   <init>(...);
  }
