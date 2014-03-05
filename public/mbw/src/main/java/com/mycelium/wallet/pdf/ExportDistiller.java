@@ -54,6 +54,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -303,7 +304,7 @@ public class ExportDistiller {
          boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1, params.getNumActive(),
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1 + 1, params.getNumActive(),
                exportEntry, lastRecordOnPage, progressTracker);
 
          // Add page number
@@ -363,7 +364,7 @@ public class ExportDistiller {
       fromTop += 0.5;
 
       // Label
-      if (entry.label != null && entry.label.length() > 0) {
+      if (entry.label != null && entry.label.length() > 0 && isASCII(entry.label)) {
          // Use Monospace font, this allows us to calculate the width of the
          // label
          writer.setMonoFont();
@@ -439,7 +440,11 @@ public class ExportDistiller {
       fromTop += 0.5F;
       return fromTop;
    }
-
+   
+   private static boolean isASCII(String string){
+      return CharMatcher.ASCII.matchesAllOf(string);
+   }
+   
    private static void addPasswordBoxes(OffsetWriter offsetWriter) {
       offsetWriter.setLineColor(0, 0.5, 1);
       add3PasswordBoxes(new OffsetWriter(0F, 0F, offsetWriter));

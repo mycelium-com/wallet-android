@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet;
 
+import com.mycelium.lt.api.model.GpsLocation;
+
 public class Constants {
 
    public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
@@ -65,7 +67,24 @@ public class Constants {
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String LAST_UPDATE_CHECK = "last_update_check";
 
-
    public static final String TAG = "MyceliumWallet";
+
+   // Local Trader constants
+   public static final String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
+   public static final String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";
+   public static final String LOCAL_TRADER_NICKNAME_SETTING = "nickname";
+   public static final String LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING = "lastTraderSync";
+   public static final String LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING = "lastTraderNotification";
+   public static final String LOCAL_TRADER_LOCATION_NAME_SETTING = "locationName";
+   public static final String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
+   public static final String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
+   public static final GpsLocation LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocation(48.2162845, 16.2484715, "Penzing, Vienna");
+   public static final String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
+   public static final String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
+
+
+   public static final String IGNORE_NEW_API = "NewApi";
+
    public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
+
 }

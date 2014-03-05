@@ -40,7 +40,6 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import com.mycelium.wallet.R;
 
 public class NumberEntry {
 
@@ -82,7 +81,11 @@ public class NumberEntry {
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btSeven), 7);
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btEight), 8);
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btNine), 9);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btDot), DOT);
+      if (_maxDecimals > 0) {
+         setClickListener((Button) _llNumberEntry.findViewById(R.id.btDot), DOT);
+      } else{
+         ((Button) _llNumberEntry.findViewById(R.id.btDot)).setText("");
+      }
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btZero), 0);
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btDel), DEL);
    }

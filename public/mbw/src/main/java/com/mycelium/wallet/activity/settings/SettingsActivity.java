@@ -64,6 +64,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.lt.LocalTraderManager;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -86,7 +87,9 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _exchangeSource;
    private ListPreference _language;
    private CheckBoxPreference _aggregatedView;
+   private CheckBoxPreference _ltDisable;
    private MbwManager _mbwManager;
+   private LocalTraderManager _ltManager;
    private Dialog _dialog;
    private EditTextPreference _proxy;
    public static final Function<String, String> AUTOPAY_EXTRACT = new Function<String, String>() {
@@ -103,6 +106,7 @@ public class SettingsActivity extends PreferenceActivity {
       super.onCreate(savedInstanceState);
       addPreferencesFromResource(R.xml.preferences);
       _mbwManager = MbwManager.getInstance(SettingsActivity.this.getApplication());
+      _ltManager = _mbwManager.getLocalTraderManager();
       // Bitcoin Denomination
       _bitcoinDenomination = (ListPreference) findPreference("bitcoin_denomination");
       _bitcoinDenomination.setTitle(bitcoinDenominationTitle());
@@ -185,6 +189,11 @@ public class SettingsActivity extends PreferenceActivity {
 
       // Clear PIN
       updateClearPin();
+
+      // Local Trader
+      _ltDisable = (CheckBoxPreference) findPreference("ltDisable");
+      _ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
+      _ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
       // Expert Mode
       CheckBoxPreference expertMode = (CheckBoxPreference) findPreference("expertMode");
@@ -387,6 +396,14 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _mbwManager.setContinousFocus(p.isChecked());
+         return true;
+      }
+   };
+
+   private final OnPreferenceClickListener ltDisableLocalTraderClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _ltManager.setLocalTraderDisabled(p.isChecked());
          return true;
       }
    };

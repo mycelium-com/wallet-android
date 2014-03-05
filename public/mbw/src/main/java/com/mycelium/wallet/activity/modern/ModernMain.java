@@ -238,8 +238,9 @@ public class ModernMain extends ActionBarActivity {
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == REQUEST_SETTING_CHANGED) {
-         //restart activity if language changes
-         //or anything else in settings. this makes some of the listeners obsolete
+         // restart activity if language changes
+         // or anything else in settings. this makes some of the listeners
+         // obsolete
          Intent running = getIntent();
          finish();
          startActivity(running);

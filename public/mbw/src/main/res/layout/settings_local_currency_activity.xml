@@ -19,14 +19,12 @@
         android:layout_height="10dp" >
     </View>
 
-    <com.mycelium.wallet.activity.settings.InstantAutoComplete
+    <com.mycelium.wallet.activity.util.InstantAutoComplete
         android:id="@+id/tvCurrency"
         style="Widget.AppCompat.Base.AutoCompleteTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:popupBackground="@drawable/abc_menu_dropdown_panel_holo_dark"
-            >
-    </com.mycelium.wallet.activity.settings.InstantAutoComplete>
+        android:popupBackground="@drawable/abc_menu_dropdown_panel_holo_dark"/>
 
     <View
         android:layout_width="1dp"

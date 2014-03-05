@@ -32,39 +32,14 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.settings;
-import android.content.Context;  
-import android.graphics.Rect;
-import android.util.AttributeSet;
-import android.widget.AutoCompleteTextView;
+package com.mycelium.lt.location;
 
-public class InstantAutoComplete extends AutoCompleteTextView {
+import java.util.ArrayList;
+import java.util.Collection;
 
-    public InstantAutoComplete(Context context) {
-        super(context);
-    }
-
-    public InstantAutoComplete(Context arg0, AttributeSet arg1) {
-        super(arg0, arg1);
-    }
-
-    public InstantAutoComplete(Context arg0, AttributeSet arg1, int arg2) {
-        super(arg0, arg1, arg2);
-    }
-
-    @Override
-    public boolean enoughToFilter() {
-        return true;
-    }
-
-
-    @Override
-    protected void onFocusChanged(boolean focused, int direction,
-            Rect previouslyFocusedRect) {
-        super.onFocusChanged(focused, direction, previouslyFocusedRect);
-        if (focused) {
-            performFiltering(getText(), 0);
-        }
-    }
+public class AddressComponent {
+   public String longName;
+   public String shortName;
+   public Collection<String> types = new ArrayList<String>();
 
 }

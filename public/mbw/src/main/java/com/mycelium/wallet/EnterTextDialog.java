@@ -55,7 +55,7 @@ public class EnterTextDialog {
 
       private String _newText;
       private String _oldText;
-      
+
       protected EnterTextHandler() {
       }
 
@@ -103,8 +103,8 @@ public class EnterTextDialog {
       }
    }
 
-   public static void show(final Context context, int titleResourceId, String hintText,
-         final String currentText, final EnterTextHandler enterNameHandler) {
+   public static void show(final Context context, int titleResourceId, String hintText, final String currentText,
+         boolean singleLine, final EnterTextHandler enterNameHandler) {
       final Handler postHandler = new Handler();
 
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -116,6 +116,7 @@ public class EnterTextDialog {
       if (hintText != null) {
          et.setHint(hintText);
       }
+      et.setSingleLine(singleLine);
       final Button btOk = (Button) layout.findViewById(R.id.btOk);
       et.addTextChangedListener(new TextWatcher() {
 

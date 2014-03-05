@@ -44,6 +44,18 @@
             android:title="@string/pref_set_pin" />
     </PreferenceCategory>
 
+    <!-- Local Trader Settings -->
+
+    <PreferenceCategory android:title="@string/lt_pref_category" >
+        <CheckBoxPreference
+            android:key="ltDisable"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/lt_disable_preference_summary"
+            android:title="@string/lt_disable_preference" />
+        
+    </PreferenceCategory>
+
+    
     <!-- Advanced Settiings -->
 
     <PreferenceCategory

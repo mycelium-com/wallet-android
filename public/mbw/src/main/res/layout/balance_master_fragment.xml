@@ -30,6 +30,15 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 class="com.mycelium.wallet.activity.main.NoticeFragment" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="5dp" />
+
+            <fragment
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                class="com.mycelium.wallet.activity.main.LocalTraderFragment" />
         </LinearLayout>
     </ScrollView>
 

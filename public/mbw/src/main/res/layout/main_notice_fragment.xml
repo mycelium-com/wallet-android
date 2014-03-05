@@ -9,9 +9,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
         android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
         android:gravity="center_vertical"
+        android:paddingBottom="7dp"
         android:paddingLeft="5dp"
+        android:paddingTop="8dp"
         android:text="@string/backup_missing"
         android:textSize="16sp" />
 

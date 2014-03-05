@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools"
-           tools:ignore="MissingTranslation">
+<resources
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:ignore="MissingTranslation">
 
     <string name="contact_email">info@mycelium.com</string>
     <string name="btc">BTC</string>
@@ -32,6 +33,7 @@
         <item>pl</item>
         <item>pt</item>
         <item>ru</item>
+        <item>sk</item>
         <item>zh</item>
     </string-array>
 
@@ -48,6 +50,7 @@
         <item>Polski</item>
         <item>Português</item>
         <item>Русский</item>
+        <item>Slovenská</item>
         <item>简体字</item>
     </string-array>
 </resources>

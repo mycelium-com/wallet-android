@@ -61,6 +61,9 @@ import com.mycelium.wallet.event.BlockchainError;
 import com.mycelium.wallet.event.BlockchainReady;
 import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
+import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
+import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.activity.LtMainActivity;
 import com.squareup.otto.Subscribe;
 
 public class BalanceFragment extends Fragment {
@@ -112,27 +115,42 @@ public class BalanceFragment extends Fragment {
       if (_exchangeRate == null || _exchangeRate.price == null) {
          _mbwManager.getExchamgeRateManager().requestRefresh();
       }
+      _mbwManager.getLocalTraderManager().subscribe(ltSubscriber);
       _mbwManager.getEventBus().register(this);
-      _root.findViewById(R.id.btSend).setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false,
-                  _exchangeRate == null ? null : (_exchangeRate.price == null ? null : _exchangeRate.price));
-         }
-      });
-
-      _root.findViewById(R.id.btReceive).setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            ReceiveCoinsActivity.callMe(BalanceFragment.this.getActivity(), _recordManager.getSelectedRecord());
-         }
-      });
-
+      _root.findViewById(R.id.btSend).setOnClickListener(sendClickListener);
+      _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
+//      _root.findViewById(R.id.btTrade).setOnClickListener(tradeClickListener);
       updateUi();
       super.onResume();
    }
+
+   OnClickListener sendClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false,
+               _exchangeRate == null ? null : (_exchangeRate.price == null ? null : _exchangeRate.price));
+      }
+   };
+
+   OnClickListener receiveClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         ReceiveCoinsActivity.callMe(getActivity(), _recordManager.getSelectedRecord());
+      }
+   };
+
+   OnClickListener tradeClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
+         boolean newActivity = ltManager.hasLocalTraderAccount() && ltManager.needsTraderSynchronization();
+         LtMainActivity.callMe(getActivity(), newActivity ? LtMainActivity.TAB_TYPE.ACTIVE_TRADES
+               : LtMainActivity.TAB_TYPE.DEFAULT);
+      }
+   };
 
    private Wallet getWallet() {
       return _recordManager.getWallet(_mbwManager.getWalletMode());
@@ -140,6 +158,7 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onPause() {
+      _mbwManager.getLocalTraderManager().unsubscribe(ltSubscriber);
       _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
@@ -187,6 +206,16 @@ public class BalanceFragment extends Fragment {
          tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _exchangeRate.name));
       }
 
+//      // Hide/Show Local Trader trade button
+//      LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
+//      if (ltManager.isLocalTraderDisabled()) {
+//         _root.findViewById(R.id.llLocalTrader).setVisibility(View.GONE);
+//      } else {
+//         _root.findViewById(R.id.llLocalTrader).setVisibility(View.VISIBLE);
+//         // Local Trader update dot
+//         _root.findViewById(R.id.ivDot).setVisibility(
+//               ltManager.hasLocalTraderAccount() && ltManager.needsTraderSynchronization() ? View.VISIBLE : View.GONE);
+//      }
    }
 
    private void updateUiKnownBalance(Wallet wallet, BalanceInfo balance) {
@@ -289,5 +318,19 @@ public class BalanceFragment extends Fragment {
    public void selectedRecordChanged(SelectedRecordChanged event) {
       updateUi();
    }
+
+   private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
+
+      @Override
+      public void onLtError(int errorCode) {
+         // Ignore
+      }
+
+      @Override
+      public void onLtTraderActicityNotification() {
+         updateUi();
+      }
+
+   };
 
 }

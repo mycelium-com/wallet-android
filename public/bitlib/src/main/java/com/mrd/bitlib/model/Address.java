@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.bitcoinj.Base58;
-import com.mrd.bitlib.crypto.PublicKey;
+
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -106,14 +106,6 @@ public class Address implements Serializable, Comparable<Address> {
       all[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
       System.arraycopy(bytes, 0, all, 1, 20);
       return new Address(all);
-   }
-
-   public static Address fromStandardPublicKey(PublicKey key, NetworkParameters network) {
-      byte[] hashedPublicKey = HashUtils.addressHash(key.getPublicKeyBytes());
-      byte[] addressBytes = new byte[1 + 20];
-      addressBytes[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
-      System.arraycopy(hashedPublicKey, 0, addressBytes, 1, 20);
-      return new Address(addressBytes);
    }
 
    /**

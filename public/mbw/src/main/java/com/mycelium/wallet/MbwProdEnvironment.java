@@ -37,6 +37,7 @@ package com.mycelium.wallet;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
+import com.mycelium.lt.api.LtApi;
 
 public class MbwProdEnvironment extends MbwEnvironment {
    /**
@@ -48,20 +49,20 @@ public class MbwProdEnvironment extends MbwEnvironment {
    /**
     * Two redundant Mycelium wallet service servers for prodnet
     */
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1 = new MyceliumWalletApiImpl.HttpsEndpoint("https://mws1.mycelium.com/mws",
-           myceliumThumbprint);
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint("https://mws2.mycelium.com/mws",
-           myceliumThumbprint);
+   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1 = new MyceliumWalletApiImpl.HttpsEndpoint(
+         "https://mws1.mycelium.com/mws", myceliumThumbprint);
+   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint(
+         "https://mws2.mycelium.com/mws", myceliumThumbprint);
 
    /**
     * The set of endpoints we use for prodnet. The wallet chooses a random
     * endpoint and if it does not respond it round-robins through the list. This
     * way we achieve client side load-balancing and fail-over.
     */
-   private static final MyceliumWalletApiImpl.HttpEndpoint[] prodnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[]{httpsProdnetEndpoint1,
-           httpsProdnetEndpoint2};
+   private static final MyceliumWalletApiImpl.HttpEndpoint[] prodnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] {
+         httpsProdnetEndpoint1, httpsProdnetEndpoint2 };
    private static final MyceliumWalletApiImpl prodnetApi = new MyceliumWalletApiImpl(prodnetServerEndpoints,
-           NetworkParameters.productionNetwork);
+         NetworkParameters.productionNetwork);
 
    @Override
    public NetworkParameters getNetwork() {
@@ -71,5 +72,10 @@ public class MbwProdEnvironment extends MbwEnvironment {
    @Override
    public MyceliumWalletApi getMwsApi() {
       return prodnetApi;
+   }
+
+   @Override
+   public LtApi getLocalTraderApi() {
+      throw new RuntimeException("Not Implemented");
    }
 }

@@ -105,6 +105,13 @@
     public static <fields>;
 }
 
+#keep classes used for deserializing json
+-keepclasseswithmembers class com.mycelium.lt.location.*
+-keep public class com.mycelium.lt.api.** {
+  <init>(...);
+ }
+-dontwarn com.fasterxml.jackson.**
+
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 
 #To keep callback calls. Uncomment if using any

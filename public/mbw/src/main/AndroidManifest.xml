@@ -12,19 +12,24 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!--this can now even be skipped since we don't use sdcard anymore-->
+    <!--  Permissions required for Google Cloud Messaging -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
+    <!-- this can now even be skipped since we don't use sdcard anymore -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!--
-         Disabled functionality
-         <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-feature android:name="android.hardware.location.network" android:required="false" />
-    <uses-feature android:name="android.hardware.location" android:required="false" />
--->
-
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
@@ -34,22 +39,29 @@
         android:required="false" />
 
     <application
+        android:name="com.mycelium.wallet.WalletApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/MyceliumModern"
-        android:name="com.mycelium.wallet.WalletApplication" >
+        android:theme="@style/MyceliumModern" >
+
+        <!--  Service for Google Cloud Messaging -->
+        <service android:name="com.mycelium.wallet.lt.notification.GcmIntentService" />
 
         <service
+            android:name="com.mycelium.wallet.service.TaskExecutionService"
             android:enabled="true"
             android:exported="false"
-            android:name="com.mycelium.wallet.service.TaskExecutionService"
-            android:process=":Task"/>
+            android:process=":Task" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/abc_max_action_buttons" />
 
         <activity
             android:name="com.mycelium.wallet.activity.StartupActivity"
             android:label="@string/app_short_name"
-            android:theme="@style/MyceliumLauncher">
+            android:theme="@style/MyceliumLauncher" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -67,17 +79,16 @@
                 <data android:scheme="bitcoin" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.mycelium.wallet.activity.modern.ModernMain"
-            android:theme="@style/MyceliumActionBar"  />
+            android:theme="@style/MyceliumActionBar" />
         <activity android:name="com.mycelium.wallet.activity.AboutActivity" />
         <activity android:name="com.mycelium.wallet.activity.modern.GetFromAddressBookActivity" />
         <activity android:name="com.mycelium.wallet.activity.AddRecordActivity" />
         <activity android:name="com.mycelium.wallet.activity.ScanActivity" />
         <activity android:name="com.mycelium.wallet.activity.CreateKeyActivity" />
         <activity android:name="com.mycelium.wallet.activity.TransactionDetailsActivity" />
-        <activity android:name="com.mycelium.wallet.activity.settings.SettingsActivity"/>
+        <activity android:name="com.mycelium.wallet.activity.settings.SettingsActivity" />
         <activity android:name="com.mycelium.wallet.activity.settings.SetLocalCurrencyActivity" />
         <activity android:name="com.mycelium.wallet.activity.export.ExportAsQrCodeActivity" />
         <activity android:name="com.mycelium.wallet.activity.export.BackupToPdfActivity" />
@@ -104,12 +115,23 @@
         <activity android:name="com.mycelium.wallet.activity.receive.ReceiveCoinsActivity" />
         <activity
             android:name="com.google.zxing.client.android.CaptureActivity"
-            android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
-        <activity android:name="com.mycelium.wallet.activity.UpdateNotificationActivity"/>
-        <activity android:name="com.mycelium.wallet.activity.MessageSigningActivity"/>
+        <activity android:name="com.mycelium.wallet.lt.activity.LtMainActivity" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader1Activity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader2Activity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.SolveCaptchaActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.TradeActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.ChangeLocationActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.ChangePriceActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateInstantBuyOrderActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.sell.CreateOrEditSellOrderActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.SendRequestActivity" />
+        <activity android:name="com.mycelium.wallet.activity.UpdateNotificationActivity" />
+        <activity android:name="com.mycelium.wallet.activity.MessageSigningActivity" />
     </application>
 
 </manifest>

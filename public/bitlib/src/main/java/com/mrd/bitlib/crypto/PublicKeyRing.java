@@ -42,7 +42,7 @@ public class PublicKeyRing {
     * Add a public key to the key ring.
     */
    public void addPublicKey(PublicKey key, NetworkParameters network) {
-      Address address = Address.fromStandardPublicKey(key, network);
+      Address address = key.toAddress(network);
       _addresses.add(address);
       _addressSet.add(address);
       _publicKeys.put(address, key);

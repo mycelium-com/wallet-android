@@ -59,7 +59,7 @@ public class EnterAddressLabelUtil {
       }
       currentName = currentName.length() == 0 ? defaultName : currentName;
       String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
-      EnterTextDialog.show(context, title_id, hintText, currentName, new EnterAddressLabelHandler(addressBookManager,
+      EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(addressBookManager,
             address, invalidOkToastMessage, changeHandler));
 
    }

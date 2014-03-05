@@ -34,9 +34,14 @@
 
 package com.mycelium.wallet;
 
+import android.util.Log;
+
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
+import com.mycelium.lt.api.LtApi;
+import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.lt.api.LtApiClient.Logger;
 
 public class MbwTestEnvironment extends MbwEnvironment {
 
@@ -57,6 +62,30 @@ public class MbwTestEnvironment extends MbwEnvironment {
    private static final MyceliumWalletApiImpl testnetApi = new MyceliumWalletApiImpl(testnetServerEndpoints,
          NetworkParameters.testNetwork);
 
+   /**
+    * Local Trader API for testnet
+    */
+//   private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpEndpoint(
+//         "http://192.168.1.139:8080/trade/");
+
+   private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
+         "https://node3.mycelium.com/lttestnet/", myceliumThumbprint);
+
+   private static final LtApiClient testnetLocalTraderApi = new LtApiClient(testnetLocalTraderEndpoint, new Logger() {
+
+      @Override
+      public void logError(String message, Exception e) {
+         Log.e("", message, e);
+
+      }
+
+      @Override
+      public void logError(String message) {
+         Log.e("", message);
+
+      }
+   });
+
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
@@ -65,5 +94,10 @@ public class MbwTestEnvironment extends MbwEnvironment {
    @Override
    public MyceliumWalletApi getMwsApi() {
       return testnetApi;
+   }
+
+   @Override
+   public LtApi getLocalTraderApi() {
+      return testnetLocalTraderApi;
    }
 }

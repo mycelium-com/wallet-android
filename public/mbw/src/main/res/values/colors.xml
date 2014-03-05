@@ -2,7 +2,6 @@
 <resources>
 
     <color name="red">#f00</color>
-    <color name="brightred">#f44</color>
     <color name="green">#0f0</color>
     <color name="semidarkgreen">#0c0</color>
     <color name="darkgreen">#080</color>
@@ -16,6 +15,7 @@
 
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
+    <color name="darkdarkgrey">#222</color>
     <color name="grey">#888</color>
     <color name="lightgrey">#bbb</color>
     <color name="white">#fff</color>
@@ -29,6 +29,10 @@
     <color name="buttoncolor">#ff1c3d5c</color>
     
     <drawable name="semi_black">#80000000</drawable>
+
+    <color name="status_green">#bbdd99</color>
+    <color name="status_red">#ffea5e5e</color>
+    <color name="status_yellow">#ddb352</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

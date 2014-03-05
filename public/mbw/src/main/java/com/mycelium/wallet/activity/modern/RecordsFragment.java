@@ -505,6 +505,9 @@ public class RecordsFragment extends Fragment {
          if (record.hasPrivateKey()) {
             menus.add(R.menu.record_options_menu_privkey);
          }
+         if (record.address.equals(_mbwManager.getLocalTraderManager().getLocalTraderAddress())) {
+            menus.add(R.menu.record_options_menu_detach);
+         }
 
          ActionBarActivity parent = (ActionBarActivity) getActivity();
 
@@ -542,6 +545,9 @@ public class RecordsFragment extends Fragment {
                   return true;
                } else if (id == R.id.miSignMessage) {
                   signMessage();
+                  return true;
+               } else if (id == R.id.miDetach) {
+                  detachFromLocalTrader();
                   return true;
                }
                return false;
@@ -690,6 +696,39 @@ public class RecordsFragment extends Fragment {
                return;
             }
             Utils.exportSelectedPrivateKey(RecordsFragment.this.getActivity());
+         }
+
+      });
+   }
+
+   private void detachFromLocalTrader() {
+      if (!RecordsFragment.this.isAdded()) {
+         return;
+      }
+      _mbwManager.runPinProtectedFunction(RecordsFragment.this.getActivity(), new Runnable() {
+
+         @Override
+         public void run() {
+            if (!RecordsFragment.this.isAdded()) {
+               return;
+            }
+            AlertDialog.Builder confirmDialog = new AlertDialog.Builder(getActivity());
+            confirmDialog.setTitle(R.string.lt_detaching_title);
+            confirmDialog.setMessage(getString(R.string.lt_detaching_question));
+            confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+               public void onClick(DialogInterface arg0, int arg1) {
+                  _mbwManager.getLocalTraderManager().unsetLocalTraderAccount();
+                  _toaster.toast(R.string.lt_detached, false);
+                  update();
+               }
+            });
+            confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+               public void onClick(DialogInterface arg0, int arg1) {
+               }
+            });
+            confirmDialog.show();
          }
 
       });

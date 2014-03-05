@@ -59,6 +59,8 @@ import com.mycelium.wallet.api.AndroidApiCache;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.event.SelectedRecordChanged;
+import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.persistence.TxOutDb;
 import com.squareup.otto.Bus;
 
@@ -85,6 +87,7 @@ public class MbwManager {
    private AndroidAsyncApi _asyncApi;
    private RecordManager _recordManager;
    private AddressBookManager _addressBookManager;
+   private LocalTraderManager _localTraderManager;
    private BlockChainAddressTracker _blockChainAddressTracker;
    private final String _btcValueFormatString;
    private String _pin;
@@ -113,8 +116,7 @@ public class MbwManager {
       _eventBus = new Bus();
 
       // Preferences
-      SharedPreferences preferences = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE);
+      SharedPreferences preferences = getPreferences();
       setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
       // Initialize proxy early, to enable error reporting during startup..
 
@@ -123,6 +125,11 @@ public class MbwManager {
       TxOutDb txOutDb = new TxOutDb(_applicationContext);
       _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _cache, _eventBus);
       _recordManager = new RecordManager(_applicationContext, _eventBus, _environment.getNetwork());
+
+      // Local Trader
+      TradeSessionDb tradeSessionDb = new TradeSessionDb(_applicationContext);
+      _localTraderManager = new LocalTraderManager(_applicationContext, _recordManager, tradeSessionDb,
+            _environment.getLocalTraderApi(), this);
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
@@ -205,10 +212,17 @@ public class MbwManager {
       return _walletMode;
    }
 
+   private SharedPreferences getPreferences() {
+      return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+   }
+
+   private SharedPreferences.Editor getEditor() {
+      return getPreferences().edit();
+   }
+
    public void setWalletMode(WalletMode mode) {
       _walletMode = mode;
-      SharedPreferences.Editor editor = _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME,
-            Activity.MODE_PRIVATE).edit();
+      SharedPreferences.Editor editor = getEditor();
       editor.putInt(Constants.WALLET_MODE_SETTING, _walletMode.asInteger());
       editor.commit();
       _eventBus.post(new SelectedRecordChanged(_recordManager.getSelectedRecord()));
@@ -216,6 +230,10 @@ public class MbwManager {
 
    public AndroidAsyncApi getAsyncApi() {
       return _asyncApi;
+   }
+
+   public LocalTraderManager getLocalTraderManager() {
+      return _localTraderManager;
    }
 
    public RecordManager getRecordManager() {
@@ -325,10 +343,6 @@ public class MbwManager {
    public void setContinousFocus(boolean disableContinousFocus) {
       _enableContinuousFocus = disableContinousFocus;
       getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).commit();
-   }
-
-   private SharedPreferences.Editor getEditor() {
-      return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
    }
 
    public void setProxy(String proxy) {

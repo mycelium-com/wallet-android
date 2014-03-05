@@ -235,12 +235,12 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       return new Signature(r, s);
    }
 
-   private BigInteger calculateE(BigInteger n, byte[] message) {
-      if (n.bitLength() > message.length * 8) {
-         return new BigInteger(1, message);
+   private BigInteger calculateE(BigInteger n, byte[] messageHash) {
+      if (n.bitLength() > messageHash.length * 8) {
+         return new BigInteger(1, messageHash);
       } else {
-         int messageBitLength = message.length * 8;
-         BigInteger trunc = new BigInteger(1, message);
+         int messageBitLength = messageHash.length * 8;
+         BigInteger trunc = new BigInteger(1, messageHash);
 
          if (messageBitLength - n.bitLength() > 0) {
             trunc = trunc.shiftRight(messageBitLength - n.bitLength());

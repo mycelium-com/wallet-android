@@ -34,20 +34,13 @@
 
 package com.mycelium.wallet;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -70,6 +63,9 @@ import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -92,6 +88,14 @@ import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+
 @SuppressWarnings("deprecation")
 public class Utils {
 
@@ -109,7 +113,7 @@ public class Utils {
       FIAT_FORMAT.setDecimalFormatSymbols(symbols);
    }
 
-   @SuppressLint("NewApi")
+   @SuppressLint(Constants.IGNORE_NEW_API)
    public static void setAlpha(View view, float alpha) {
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
          AlphaAnimation aa = new AlphaAnimation(alpha, alpha);
@@ -324,9 +328,13 @@ public class Utils {
       }
    }
 
-   public static void moveViewX(View view, int startDeltaX, int endDeltaY, long duration) {
+   public static void moveView(View view, int startDeltaX, int startDeltaY, long duration) {
+      moveView(view, startDeltaX, startDeltaY, 0, 0, duration);
+   }
+
+   public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
       AnimationSet set = new AnimationSet(true);
-      Animation move = new TranslateAnimation(startDeltaX, endDeltaY, 0, 0);
+      Animation move = new TranslateAnimation(startDeltaX, endDeltaX, startDeltaY, endDeltaY);
       move.setDuration(duration);
       move.setFillAfter(true);
       move.setZAdjustment(Animation.ZORDER_TOP);
@@ -358,8 +366,12 @@ public class Utils {
    }
 
    public static void showSimpleMessageDialog(final Context context, int messageResource) {
+      showSimpleMessageDialog(context, messageResource, null);
+   }
+
+   public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable postRunner) {
       String message = context.getResources().getString(messageResource);
-      showSimpleMessageDialog(context, message);
+      showSimpleMessageDialog(context, message, postRunner);
    }
 
    /**
@@ -367,12 +379,69 @@ public class Utils {
     * or the back button to make it disappear.
     */
    public static void showSimpleMessageDialog(final Context context, String message) {
+      showSimpleMessageDialog(context, message, null);
+   }
+
+   /**
+    * Show a dialog without buttons that displays a message. Click the message
+    * or the back button to make it disappear.
+    */
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
       TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
       tvMessage.setText(message);
+      layout.findViewById(R.id.btOk).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View v) {
+            dialog.dismiss();
+            if (postRunner != null) {
+               postRunner.run();
+            }
+         }
+      });
+      dialog.show();
+   }
+
+   /**
+    * Show an optional message/
+    * <p>
+    * The user can check a "never shot this again" check box and the message
+    * will never get displayed again.
+    * 
+    * @param context
+    *           The context
+    * @param messageId
+    *           The resource ID of the message to show
+    */
+   public static void showOptionalMessage(final Context context, final int messageId) {
+      SharedPreferences settings = context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE);
+      boolean ignore = settings.getBoolean(Integer.toString(messageId), false);
+      if (ignore) {
+         // The user has opted never to get this message shown again
+         return;
+      }
+
+      LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      final View layout = inflater.inflate(R.layout.optional_message_dialog, null);
+      AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
+      final AlertDialog dialog = builder.create();
+      TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
+      tvMessage.setText(messageId);
+      CheckBox cb = (CheckBox) layout.findViewById(R.id.checkbox);
+      cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+         @Override
+         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            // Persist checked state
+            context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE).edit()
+                  .putBoolean(Integer.toString(messageId), isChecked).commit();
+         }
+      });
+
       layout.findViewById(R.id.btOk).setOnClickListener(new OnClickListener() {
 
          @Override
@@ -733,4 +802,5 @@ public class Utils {
       }
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
+
 }

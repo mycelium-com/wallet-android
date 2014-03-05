@@ -34,27 +34,34 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import java.util.Set;
+
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
-import com.mycelium.wallet.Record.Tag;
 
-import java.util.Set;
+import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.AddressBookManager;
+import com.mycelium.wallet.BalanceInfo;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
+import com.mycelium.wallet.Record.Tag;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.Wallet;
 
 public class RecordRowBuilder {
 
    public static View buildRecordView(Resources resources, MbwManager mbwManager, LayoutInflater inflater,
-                                      AddressBookManager addressBook, ViewGroup parent, Record record, boolean isSelected, boolean hasFocus,
-                                      Set<Address> selectedAddresses) {
+         AddressBookManager addressBook, ViewGroup parent, Record record, boolean isSelected, boolean hasFocus,
+         Set<Address> selectedAddresses) {
       View rowView = inflater.inflate(R.layout.record_row, parent, false);
 
       // Make grey if not part of the balance
 
-      if (!selectedAddresses.contains(record.address)){
+      if (!selectedAddresses.contains(record.address)) {
          Utils.setAlpha(rowView, 0.5f);
       }
 
@@ -129,6 +136,13 @@ public class RecordRowBuilder {
          rowView.findViewById(R.id.tvNoBackupWarning).setVisibility(View.VISIBLE);
       } else {
          rowView.findViewById(R.id.tvNoBackupWarning).setVisibility(View.GONE);
+      }
+
+      // Show/hide key icon
+      if (record.address.equals(mbwManager.getLocalTraderManager().getLocalTraderAddress())) {
+         rowView.findViewById(R.id.tvTraderKey).setVisibility(View.VISIBLE);
+      } else {
+         rowView.findViewById(R.id.tvTraderKey).setVisibility(View.GONE);
       }
 
       return rowView;

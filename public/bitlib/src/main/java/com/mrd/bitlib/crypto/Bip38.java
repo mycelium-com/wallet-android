@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 
 import Rijndael.Rijndael;
-
 import com.google.bitcoinj.Base58;
 import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptProgress;

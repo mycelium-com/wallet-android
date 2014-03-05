@@ -45,7 +45,10 @@ import android.content.SharedPreferences.Editor;
 import android.widget.Toast;
 
 import com.google.common.base.Joiner;
+import com.squareup.otto.Bus;
+
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -54,7 +57,6 @@ import com.mycelium.wallet.Record.Source;
 import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
-import com.squareup.otto.Bus;
 
 public class RecordManager {
 
@@ -159,7 +161,7 @@ public class RecordManager {
    }
 
    /**
-    * Get a list of records with private keys
+    * Get a list of records with private keys and the specified tag
     */
    public synchronized List<Record> getRecordsWithPrivateKeys(Tag tag) {
       List<Record> list = new ArrayList<Record>(_records.size());
@@ -172,10 +174,41 @@ public class RecordManager {
    }
 
    /**
+    * Get a list of records with private keys
+    */
+   public synchronized List<Record> getRecordsWithPrivateKeys() {
+      List<Record> list = new ArrayList<Record>(_records.size());
+      for (Record r : _records) {
+         if (r.hasPrivateKey()) {
+            list.add(r.copy());
+         }
+      }
+      return list;
+   }
+
+   /**
     * Get a copy of a record identified by address or null if none is found.
     */
    public synchronized Record getRecord(Address address) {
+      if(address == null){
+         return null;
+      }
       Record r = getRecordInt(address);
+      if (r == null) {
+         return null;
+      }
+      return r.copy();
+   }
+
+   /**
+    * Get a copy of a record identified by a public key or null if none is
+    * found.
+    */
+   public synchronized Record getRecord(PublicKey publicKey) {
+      if(publicKey == null){
+         return null;
+      }
+      Record r = getRecordInt(publicKey);
       if (r == null) {
          return null;
       }
@@ -242,7 +275,7 @@ public class RecordManager {
     * Verify private key backup
     */
    public synchronized boolean verifyPrivateKeyBackup(InMemoryPrivateKey key) {
-      Address address = Address.fromStandardPublicKey(key.getPublicKey(), _network);
+      Address address = key.getPublicKey().toAddress(_network);
 
       // See if we have a that matches
       Record existing = getRecordInt(address);
@@ -383,6 +416,18 @@ public class RecordManager {
    private Record getRecordInt(String stringAddress) {
       for (Record r : _records) {
          if (r.address.toString().equals(stringAddress)) {
+            return r;
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Get a record identified by an address or null if none is found
+    */
+   private Record getRecordInt(PublicKey publicKey) {
+      for (Record r : _records) {
+         if (r.hasPrivateKey() && r.key.getPublicKey().equals(publicKey)) {
             return r;
          }
       }

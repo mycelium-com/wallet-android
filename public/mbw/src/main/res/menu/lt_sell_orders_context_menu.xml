@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/miActivate"
+        android:title="@string/lt_activate_menu"/>
+        <item
+        android:id="@+id/miDeactivate"
+        android:title="@string/lt_deactivate_menu"/>
+    <item
+        android:id="@+id/miEdit"
+        android:title="@string/edit"/>
+    <item
+        android:id="@+id/miDelete"
+        android:title="@string/delete"/>
+
+</menu>

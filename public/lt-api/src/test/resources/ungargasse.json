@@ -1,0 +1,63 @@
+{
+   "results" : [
+      {
+         "address_components" : [
+            {
+               "long_name" : "6",
+               "short_name" : "6",
+               "types" : [ "street_number" ]
+            },
+            {
+               "long_name" : "Ungargasse",
+               "short_name" : "Ungarg.",
+               "types" : [ "route" ]
+            },
+            {
+               "long_name" : "Landstraße",
+               "short_name" : "Landstraße",
+               "types" : [ "sublocality", "political" ]
+            },
+            {
+               "long_name" : "Vienna",
+               "short_name" : "Vienna",
+               "types" : [ "locality", "political" ]
+            },
+            {
+               "long_name" : "Vienna",
+               "short_name" : "Vienna",
+               "types" : [ "administrative_area_level_1", "political" ]
+            },
+            {
+               "long_name" : "Austria",
+               "short_name" : "AT",
+               "types" : [ "country", "political" ]
+            },
+            {
+               "long_name" : "1030",
+               "short_name" : "1030",
+               "types" : [ "postal_code" ]
+            }
+         ],
+         "formatted_address" : "Ungargasse 6, 1030 Vienna, Austria",
+         "geometry" : {
+            "location" : {
+               "lat" : 48.2038297,
+               "lng" : 16.3852372
+            },
+            "location_type" : "ROOFTOP",
+            "viewport" : {
+               "northeast" : {
+                  "lat" : 48.2051786802915,
+                  "lng" : 16.3865861802915
+               },
+               "southwest" : {
+                  "lat" : 48.2024807197085,
+                  "lng" : 16.3838882197085
+               }
+            }
+         },
+         "types" : [ "street_address" ]
+      }
+   ],
+   "status" : "OK"
+}

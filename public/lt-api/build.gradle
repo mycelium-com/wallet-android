@@ -1,0 +1,15 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+dependencies {
+    compile project(':public:bitlib')
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.0'
+    testCompile 'junit:junit:' + junitVersion
+}

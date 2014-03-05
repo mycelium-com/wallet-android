@@ -38,6 +38,7 @@ import android.content.Context;
 
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mycelium.lt.api.LtApi;
 
 public abstract class MbwEnvironment {
 
@@ -57,4 +58,7 @@ public abstract class MbwEnvironment {
    public abstract NetworkParameters getNetwork();
 
    public abstract MyceliumWalletApi getMwsApi();
+
+   public abstract LtApi getLocalTraderApi();
+   
 }

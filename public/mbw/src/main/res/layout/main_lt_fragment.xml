@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llLocalTrader"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" >
+
+        <ImageButton
+            android:id="@+id/btTrade"
+            style="@style/MyceliumButton"
+            android:layout_width="144dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal"
+            android:adjustViewBounds="true"
+            android:background="@drawable/btn_blue_slim"
+            android:contentDescription="@string/an_icon"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/cash2btc" />
+
+        <FrameLayout
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="right"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/ivDot"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:contentDescription="@string/an_icon"
+                android:src="@drawable/circle_full_green" >
+            </ImageView>
+        </FrameLayout>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:text="@string/lt_experimental"
+        android:textColor="@color/lightgrey"
+        android:textSize="18sp" />
+
+</LinearLayout>

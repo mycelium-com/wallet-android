@@ -39,6 +39,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
@@ -89,6 +90,24 @@ public class MrdExportTest {
       EncryptionParameters p2 = EncryptionParameters.generate(kdfParameters2);
       assertFalse(BitUtils.areEqual(p1.aesKey, p2.aesKey));
 
+   }
+
+   @Test
+   @Ignore
+   public void testSpeed() throws InterruptedException {
+      long start = System.currentTimeMillis();
+      int tries = 1000;
+      for (int i = 0; i < tries; i++) {
+         KdfParameters params = new KdfParameters("123" + i, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N, MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+         EncryptionParameters.generate(params);
+      }
+
+      double duration = (System.currentTimeMillis() - start)/1000.0;
+      System.out.println("duration:" + duration+" s");
+      double speed = (double) tries / duration;
+      double secondperTry = 1/speed;
+
+      System.out.println("secondperTry "+ secondperTry+" / s ");
    }
 
    /**
