@@ -41,6 +41,7 @@ public class Geocode {
    public Collection<String> types = new ArrayList<String>();
    public String formattedAddress;
    public Collection<AddressComponent> addressComponents = new ArrayList<AddressComponent>();
+   public Collection<String> postcodeLocalities = new ArrayList<String>();
    public Geometry geometry;
    public boolean partialMatch;
 

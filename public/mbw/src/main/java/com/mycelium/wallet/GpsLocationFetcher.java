@@ -69,7 +69,8 @@ public class GpsLocationFetcher {
       if (lastKnownLocation == null)
          return null;
       final List<Geocode> list;
-      JsonCoder jsonCoder = new JsonCoder();
+      String language = MbwManager.getInstance(context).getLanguage();
+      JsonCoder jsonCoder = new JsonCoder(language);
       GeocodeResponse response = jsonCoder.getFromLocation(lastKnownLocation.getLatitude(),
             lastKnownLocation.getLongitude());
       list = response.results;

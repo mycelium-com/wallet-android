@@ -74,10 +74,10 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:layout_marginTop="-8dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="-8dp"
                         android:text="@string/lt_price_of_one_btc_label"
                         android:textColor="@color/lightgrey"
                         android:textSize="12sp"
@@ -133,19 +133,45 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
+            <!-- Location -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"
+                android:text="@string/lt_location_label"
+                android:textColor="@color/lightgrey" />
+
+            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="18sp" />
+
             <!-- Description -->
+
+            <TextView
+                android:id="@+id/tvDescriptionLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="7dp"
+                android:text="@string/lt_description_label"
+                android:textColor="@color/lightgrey" />
 
             <TextView
                 android:id="@+id/tvDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
                 android:gravity="left"
                 android:textSize="18sp"
                 android:textStyle="italic" />
 
-            <!-- Buy Button -->
+            <!-- Buy/Edit Button -->
 
             <Button
                 android:id="@+id/btBuy"

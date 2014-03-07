@@ -28,6 +28,7 @@ import com.mycelium.wallet.lt.api.GetCaptcha;
 import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
 import com.mycelium.wallet.lt.api.GetOpenTradeSessions;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
+import com.mycelium.wallet.lt.api.GetSellOrder;
 import com.mycelium.wallet.lt.api.GetSellOrders;
 import com.mycelium.wallet.lt.api.GetTradeSession;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -216,6 +217,10 @@ public abstract class LocalTraderEventSubscriber {
    }
 
    public void onLtSellOrderEdited(EditSellOrder request) {
+      onLtGenericSuccess(request);
+   }
+
+   public void onLtSellOrderRetrieved(SellOrder sellOrder, GetSellOrder request) {
       onLtGenericSuccess(request);
    }
 

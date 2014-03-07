@@ -29,8 +29,8 @@
   <string name="use">Usa</string>
   <string name="select_spending_address">Seleziona indirizzo da cui inviare bitcoin</string>
   <string name="receiver_label">Destinatario:</string>
-  <string name="enter_recipient_title">Inserisci indirizzo del destinatario</string>
-  <string name="recipient_title">Indirizzo del destinatario</string>
+  <string name="enter_recipient_title">Inserisci indirizzo destinatario</string>
+  <string name="recipient_title">Indirizzo destinatario</string>
   <string name="amount_label">Importo:</string>
   <string name="amount_title">Importo</string>
   <string name="enter_amount_title">Inserisci importo</string>
@@ -39,7 +39,7 @@
   <string name="max_fiat">Spendibili: %1$s %2$s</string>
   <string name="qr_code">Codice QR</string>
   <string name="address_book">Rubrica</string>
-  <string name="get_receiver_address">Ottieni l\'indirizzo del destinatario da:</string>
+  <string name="get_receiver_address">Ottieni indirizzo destinatario da:</string>
   <string name="next">Avanti</string>
   <string name="insufficient_funds">Fondi insufficienti</string>
   <string name="insufficient_funds_for_fee">Fondi insufficienti per pagare la commissione</string>
@@ -98,7 +98,7 @@
   <string name="pref_aggregated_view">Vista aggregata</string>
   <string name="pref_aggregated_view_summary">Con la vista aggregata gestisci tutte le chiavi e gli indirizzi in parallelo. Con la vista separata gestisci una chiave per volta.</string>
   <string name="pref_set_pin">Imposta codice PIN</string>
-  <string name="pref_set_pin_summary">Imposta un codice PIN per bloccare l\'invio di bitcoin, l\'esportazione di chiavi private e la modifica del codice PIN stesso</string>
+  <string name="pref_set_pin_summary">Imposta un PIN per bloccare l\'invio di bitcoin, l\'esportazione di chiavi private e la modifica del codice PIN stesso</string>
   <string name="pref_local_currency">Valuta locale</string>
   <string name="pref_local_currency_with_currency">Valuta locale (%1$s)</string>
   <string name="pref_local_currency_summary">Seleziona la valuta fiat locale</string>
@@ -109,7 +109,7 @@
   <string name="pref_bitcoin_denomination_with_denomination">Denominazione (%1$s)</string>
   <string name="pref_bitcoin_denomination_summary">Imposta la denominazione preferita per i Bitcoin. BTC, mBTC o μBTC</string>
   <string name="pref_expert_mode">Modalità avanzata</string>
-  <string name="pref_expert_mode_summary">In modalità esperto verranno attivate funzioni aggiuntive, tra cui la gestione avanzata delle chiavi e i portafogli multipli</string>
+  <string name="pref_expert_mode_summary">Attiva funzioni aggiuntive, tra cui la gestione avanzata delle chiavi e i portafogli multipli</string>
   <string name="pref_advanced_settings">Impostazioni avanzate</string>
   <string name="pref_continuous_focus">Autofocus continuo</string>
   <string name="pref_continuous_focus_summary">Autofocus continuo durante la scansione di codici QR</string>
@@ -155,8 +155,8 @@
   <string name="manual_entry">Inserisci manualmente</string>
   <string name="active_name">Attive</string>
   <string name="active_name_empty">Attive (vuoto)</string>
-  <string name="archive_name">In archivio</string>
-  <string name="archive_name_empty">In archivio (vuoto)</string>
+  <string name="archive_name">Archiviate</string>
+  <string name="archive_name_empty">Archiviate (vuoto)</string>
   <string name="activate_action">Attiva</string>
   <string name="archive_action">Archivia</string>
   <string name="question_archive">Le chiavi archiviate non sono sommate al tuo saldo, ma puoi sempre selezionarle per monitorarle come una singola chiave nella scheda del saldo.\r\n\r\nLe chiavi archiviate possono essere riattivate di nuovo.\r\n\r\nDesideri archiviare questa chiave?</string>
@@ -169,7 +169,7 @@
   <string name="paste">Incolla</string>
   <string name="slow_network">La tua connessione di rete sembra lenta.\nPotrebbe essere necessario un po\' di tempo&#8230;</string>
   <string name="broadcasting_transaction">Trasmissione della transazione</string>
-  <string name="enter_bitcoin_address">Inserisci indirizzo bitcoin</string>
+  <string name="enter_bitcoin_address">Inserisci indirizzo Bitcoin</string>
   <string name="bitcoin_address_invalid">Indirizzo bitcoin non valido</string>
   <string name="bitcoin_address_valid">Indirizzo bitcoin valido</string>
   <string name="key_management">Gestione chiavi</string>
@@ -233,7 +233,7 @@
   <string name="tab_transactions">Transazioni</string>
   <string name="tab_addresses">Rubrica</string>
   <string name="active_key_limit_reached">Il numero massimo di indirizzi attivi è 10 ed hai raggiunto il limite.\n\nIn archivio puoi avere quanti indirizzi desideri, i quali possono essere attivati in qualsiasi momento.\n\nPer aggiungere un altro indirizzo è necessario archiviare uno degli indirizzi attivi.</string>
-  <string name="key_management_disabled_desc">Questo pagina dà accesso alle funzioni avanzate per la gestione delle chiavi, per utenti esperti in Bitcoin.\n\nPuoi attivare la modalità esperto nelle impostazioni.</string>
+  <string name="key_management_disabled_desc">Questa pagina dà accesso alle funzioni avanzate per la gestione delle chiavi, per utenti esperti in Bitcoin.\n\nPuoi attivare la modalità avanzata nelle impostazioni.</string>
   <string name="scan_qr_code">Codice QR</string>
   <string name="background_image">immagine di sfondo</string>
   <string name="going_to_mycelium_com_help">Connessione a www.mycelium.com</string>

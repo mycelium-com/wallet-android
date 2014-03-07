@@ -63,7 +63,7 @@ import com.mycelium.wallet.lt.api.GetTraderInfo;
 public class LtMainActivity extends ActionBarActivity {
 
    public enum TAB_TYPE {
-      DEFAULT, ACTIVE_TRADES
+      DEFAULT, ACTIVE_TRADES, TRADE_HISTORY
    };
 
    public static void callMe(Context context, TAB_TYPE tabToSelect) {
@@ -167,7 +167,7 @@ public class LtMainActivity extends ActionBarActivity {
    @Override
    protected void onResume() {
       checkGooglePlayServices();
-      _ltManager.enableNotifications(false);
+//      _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
       _ltManager.startMonitoringTrader();
       if (_ltManager.hasLocalTraderAccount()) {
@@ -180,7 +180,7 @@ public class LtMainActivity extends ActionBarActivity {
    protected void onPause() {
       _ltManager.stopMonitoringTrader();
       _ltManager.unsubscribe(ltSubscriber);
-      _ltManager.enableNotifications(true);
+//      _ltManager.enableNotifications(true);
       super.onPause();
    }
 
@@ -207,6 +207,8 @@ public class LtMainActivity extends ActionBarActivity {
       switch (tabType) {
       case ACTIVE_TRADES:
          return _myActiveTradesTab;
+      case TRADE_HISTORY:
+         return _myTradeHistoryTab;
       default:
          return _myNearestTradesTab;
       }

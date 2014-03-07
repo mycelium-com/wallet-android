@@ -6,7 +6,7 @@
   <string name="add_record_desc">Práve idete pridávať Bitcoinovú adresu alebo privátny kľúč do Vašej peňaženky.\n\n• Keď pridáte Bitcoinovú adresu, budete môcť monitorovať jej stav.\n\n• Keď pridáte privátny kľúč, môžte pomocou danej Bitcoinovej adresy platiť.</string>
   <string name="scan_desc">Skenovať Bitcoinovú adresu alebo privátny kľúč.</string>
   <string name="clipboard_desc">Importovať Bitcoinovú adresu alebo privátny kľúč zo schránky.</string>
-  <string name="random_desc">Vytvor nový náhodný privátný kľúč.</string>
+  <string name="random_desc">Vytvoriť nový náhodný privátný kľúč.</string>
   <string name="scan">Skenovať</string>
   <string name="clipboard">Schránka</string>
   <string name="random">Náhoda</string>
@@ -20,7 +20,7 @@
   <string name="address_already_present">Bitcoinová adresa sa už sleduje</string>
   <string name="an_icon">ikona</string>
   <string name="confirmations">%d Potvrdení</string>
-  <string name="send">Pošli</string>
+  <string name="send">Poslať</string>
   <string name="receive">Prijať</string>
   <string name="private_key_deleted">Privátny kľúč bol vymazaný.</string>
   <string name="bitcoin_address_deleted">Bitcoinová adresa bola vymazaná</string>
@@ -33,7 +33,7 @@
   <string name="recipient_title">Príjemcova Adresa</string>
   <string name="amount_label">Suma:</string>
   <string name="amount_title">Suma</string>
-  <string name="enter_amount_title">Zadajte Sumu</string>
+  <string name="enter_amount_title">Zadať Sumu</string>
   <string name="btc_balance">Zostatok: %1$s</string>
   <string name="max_btc">K Útrate: %1$s</string>
   <string name="max_fiat">K Útrate: %1$s %2$s</string>
@@ -45,8 +45,8 @@
   <string name="insufficient_funds_for_fee">Nedostatok prostriedkov na zaplatenie poplatku</string>
   <string name="amount_too_small">Posielaná suma je primalá</string>
   <string name="amount_too_small_short">Suma transakcie je príliš malá</string>
-  <string name="miner_fee_label">Trasakčný poplatok:</string>
-  <string name="miner_fee_title">Transakčný poplatok</string>
+  <string name="miner_fee_label">Poplatok za transakciu:</string>
+  <string name="miner_fee_title">Poplatok za transakciu</string>
   <string name="synchronizing">Synchronizuje sa</string>
   <string name="transaction_not_sent">Neúspešne sa odoslala transakcia</string>
   <string name="transaction_sent">Transakcia bola odoslaná</string>
@@ -112,10 +112,10 @@
   <string name="pref_expert_mode_summary">Aktivovanie Expertného Módu Vám sprístupní ďalšie funkcionality vrátane pokročilej správy kľúčov a viacerých peňaženiek</string>
   <string name="pref_advanced_settings">Pokročilé Nastavenia</string>
   <string name="pref_continuous_focus">Kontinuálne Zaostrovanie</string>
-  <string name="pref_continuous_focus_summary">Kontinuálne sa bude snažiť zaostrovať pri skenovaní QR kódu</string>
+  <string name="pref_continuous_focus_summary">Kontinuálne zaostrovanie môže zlepšiť proces skenovania QR kódu</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Používa sa)</string>
-  <string name="pref_socks_proxy_not_enabled">Socks Proxy (Nepoúžíva sa)</string>
+  <string name="pref_socks_proxy_not_enabled">Socks Proxy (Nepoužíva sa)</string>
   <string name="pref_socks_proxy_summary">Pre komunikáciu cez reštriktívne firewally alebo Tor s použitím Orbot, vložte hostiteľské meno a port, napr. \'localhost:9050\'</string>
   <string name="settings">Nastavenia</string>
   <string name="pin_invalid_pin">Nesprávny PIN kód</string>
@@ -143,7 +143,7 @@
   <string name="my_own_address_warning">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</string>
   <string name="read_only_warning">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</string>
   <string name="add_to_address_book_dialog_title">Pridať Adresu</string>
-  <string name="scan_address_book_desc">Skenuj Bitcoinovú Adresu.</string>
+  <string name="scan_address_book_desc">Skenovať Bitcoinovú Adresu.</string>
   <string name="clipboard_address_book_desc">Použi Bitcoinovú Adresu zo Schránky.</string>
   <string name="max">Max</string>
   <string name="get_private_key">Získaj Privátny Kľúč z:</string>
@@ -152,13 +152,13 @@
   <string name="cold_storage_desc">Rozhodli ste sa utratiť z Privátneho Kľúča v offlinovom úložisku. Toto môže byť Privátny Kľúč z Papierovej Zálohy alebo Privátny Kľúč z papierka z Bitcoinového Automatu. Rôzne formáty sú podporované.\n\nRaz keď bola transakcia poslaná, každá stopa Privátneho Kľúča bude zmazaná z pamäti.</string>
   <string name="go_back">Naspäť</string>
   <string name="keep_address">Udrž Bitcoinovú adresu ako sledovaciu</string>
-  <string name="manual_entry">Ručné Vloženie</string>
+  <string name="manual_entry">Vložiť Ručne</string>
   <string name="active_name">Aktívne</string>
   <string name="active_name_empty">Aktívne ( Prázdne )</string>
   <string name="archive_name">Archivované</string>
   <string name="archive_name_empty">Archivované (Prázdne)</string>
   <string name="activate_action">Aktivovať</string>
-  <string name="archive_action">Archivuj</string>
+  <string name="archive_action">Archivovať</string>
   <string name="question_archive">Archivované Kľúče sa nepridávajú k Vášmu zostatku, ale vždy ich môžte vybrať a monitorovať ich ako jednotlivé kľúče v pohľade na zostatky.\r\n\r\nArchivované kľúče môžu byť aktivované znova.\r\n\r\nChcete Archivovať tento kľúč?</string>
   <string name="archived">Archivovaná</string>
   <string name="activated">Aktivované</string>
@@ -188,7 +188,7 @@
   <string name="confirm_delete_pk_with_balance_with_label">Toto je nezvratná operácia!\n\nŠtítok Privátneho Kľúča:\n%1$s\n\nAdresa Privátneho Kľúču:\n%2$s\n\nObsahuje %3$s\n\nChcete ho naozaj vymazať?</string>
   <string name="confirm_delete_pk_without_balance">Toto je nezvratná operácia!\n\nAdresa Privátneho Kľúča\n%1$s\n\nChcete ho vymazať?</string>
   <string name="confirm_delete_pk_without_balance_with_label">Toto je nezvratná operácia!\n\nŠtítok Privátneho Kľúča:\n%1$s\n\nAdresa Privátneho Kľúča:\n%2$s\n\nChcete ho vymazať?</string>
-  <string name="verify_private_key_backup">Skontroluj Zálohu</string>
+  <string name="verify_private_key_backup">Skontrolovať Zálohu</string>
   <string name="verify_backup_dialog_title">Skontroluj Zálohu Privátneho Kľúča</string>
   <string name="verify_backup_desc">Správna Záloha Privátneho Kľúča je základným kameňom, keď spravujete svoje Bitcoinové financie.\n\nOverovaním si Vašej Zálohy sa uistíte, že Vaše Zálohy fungujú a tým pádom nestratíte Bitcoinové financie, keď sa Váše Androidové Zariadenie stratí alebo pokazí.</string>
   <string name="verify_backup_scan_desc">Overte si Zálohu Privátneho Kľúča naskenovaním QR kódu Privátneho Kľúča.\nRôzne formáty sú akceptované, vrátane šifrovanej papierovej Mycelium Zálohy.</string>
@@ -199,7 +199,7 @@
   <string name="verify_backup_ok">Zálohy Privátneho Kľúču boli úspešne overené pre nasledujúce adresy:\n\n%1$s</string>
   <string name="verify_backup_ignored">Záloha pre tento Privátny Kľúč bude ignorovaná.</string>
   <string name="backup_not_verified">Záloha nie je overená</string>
-  <string name="verify_backup_title">Zálohuj a Skontroluj</string>
+  <string name="verify_backup_title">Zálohovať a Skontrolovať</string>
   <string name="verify_backup_message_text_1">Správna Záloha Privátneho Kľúča je základnym kameňom pri spravovani Vašich Bitcoinových financií.\nMáte jeden alebo viac Bitcoinových Privátnych Kľúčov pre ktoré neboli zálohy nikdy overené.\n\nProsím vyberte si spôsob Zálohovania pre zálohu Vašich kľúčov.</string>
   <string name="verify_backup_message_text_2">Následne si vyberte možnosť Overiť Zálohu a overte si Vašu zálohu.</string>
   <string name="verify_backup_message_non_expert">Zdá sa, že ste si nezálohovali Váš Privátny Kľúč.\n\nProsím vyberte si možnosť Zálohy pre zálohovanie Vášho Privátneho Kľúča.\n\nPotom zvoľte možnosť Overiť Zálohu a overíte si Vašu Zálohu.</string>
@@ -224,8 +224,8 @@
   <string name="import_decrypt_stretching">Pripravujem Dešifrovací Kľúč&#8230;</string>
   <string name="out_of_memory_error">Chyba: Vaše zariadenie nemá dostatok pamäti uskutočniť túto úlohu</string>
   <string name="your_name_placeholder">Vaše Meno</string>
-  <string name="share_payment_request">Zdieľaj platobnú požiadavku</string>
-  <string name="share_bitcoin_address">Zdieľaj Bitcoinovú Adresu</string>
+  <string name="share_payment_request">Zdielať platobnú požiadavku</string>
+  <string name="share_bitcoin_address">Zdielať Bitcoinovú Adresu</string>
   <string name="optional_amount">Suma</string>
   <string name="show_qr_code_menu">Ukáž QR kód</string>
   <string name="tab_keys">Kľúče</string>
@@ -248,7 +248,7 @@
   <string name="backup_missing">Chýba Záloha</string>
   <string name="explore">Prehľadávať</string>
   <string name="getting_location">Získavam Pozíciu&#8230;</string>
-  <string name="about">O</string>
+  <string name="about">O aplikácii</string>
   <string name="mycelium_license">Mycelium Licencia</string>
   <string name="zxing_license">ZXing Licencia</string>
   <string name="pdfwriter_license">Android PDF Writer Licencia</string>

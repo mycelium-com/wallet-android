@@ -49,7 +49,6 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,6 +69,7 @@ import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.LtAndroidUtils.PremiumChoice;
 import com.mycelium.wallet.lt.LtAndroidUtils.PriceFormulaChoice;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
+import com.mycelium.wallet.lt.activity.EnterFiatAmountActivity;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.CreateSellOrder;
 import com.mycelium.wallet.lt.api.EditSellOrder;
@@ -79,6 +79,8 @@ import com.mycelium.wallet.lt.api.Request;
 public class CreateOrEditSellOrderActivity extends Activity {
 
    protected static final int CHANGE_LOCATION_REQUEST_CODE = 0;
+   protected static final int ENTER_MAX_AMOUNT_REQUEST_CODE = 1;
+   protected static final int ENTER_MIN_AMOUNT_REQUEST_CODE = 2;
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, CreateOrEditSellOrderActivity.class);
@@ -99,12 +101,14 @@ public class CreateOrEditSellOrderActivity extends Activity {
    private Button _btChange;
    private Button _btEdit;
    private TextView _tvDescription;
-   private EditText _etMinAmount;
-   private EditText _etMaxAmount;
+   private TextView _tvMinAmount;
+   private TextView _tvMaxAmount;
    private ArrayList<PriceFormula> _priceFormulas;
    private SellOrder _sellOrder;
    private GpsLocation _location;
    private String _currency;
+   private int _minAmount;
+   private int _maxAmount;
 
    /** Called when the activity is first created. */
    @SuppressWarnings("unchecked")
@@ -125,16 +129,18 @@ public class CreateOrEditSellOrderActivity extends Activity {
       _btEdit.setOnClickListener(editClickListener);
       _btCreate = (Button) findViewById(R.id.btCreate);
       _btCreate.setOnClickListener(createOrEditClickListener);
-      _etMinAmount = (EditText) findViewById(R.id.etMinimum);
-      _etMaxAmount = (EditText) findViewById(R.id.etMaximum);
+      _tvMinAmount = (TextView) findViewById(R.id.tvMinAmount);
+      _tvMaxAmount = (TextView) findViewById(R.id.tvMaxAmount);
+      findViewById(R.id.btEditMin).setOnClickListener(editMinAmountClickListener);
+      findViewById(R.id.btEditMax).setOnClickListener(editMaxAmountClickListener);
       _tvDescription = (TextView) findViewById(R.id.tvDescription);
 
       _sellOrder = (SellOrder) getIntent().getSerializableExtra("sellOrder");
 
       // Populate premium
       double premium = isEdit() ? _sellOrder.premium : LtAndroidConstants.DEFAULT_PREMIUM;
-      int minAmount = isEdit() ? _sellOrder.minimumFiat : -1;
-      int maxAmount = isEdit() ? _sellOrder.maximumFiat : -1;
+      _minAmount = isEdit() ? _sellOrder.minimumFiat : -1;
+      _maxAmount = isEdit() ? _sellOrder.maximumFiat : -1;
       String description = isEdit() ? _sellOrder.description : null;
       PriceFormula priceFormula = isEdit() ? _sellOrder.priceFormula : null;
       _location = isEdit() ? _sellOrder.location : _ltManager.getUserLocation();
@@ -146,18 +152,12 @@ public class CreateOrEditSellOrderActivity extends Activity {
             priceFormula = (PriceFormula) savedInstanceState.getSerializable("priceFormula");
          }
          premium = savedInstanceState.getInt("premium", Spinner.INVALID_POSITION);
-         minAmount = savedInstanceState.getInt("minAmount", -1);
-         maxAmount = savedInstanceState.getInt("maxAmount", -1);
+         _minAmount = savedInstanceState.getInt("minAmount", -1);
+         _maxAmount = savedInstanceState.getInt("maxAmount", -1);
          description = savedInstanceState.getString("description");
       }
 
       LtAndroidUtils.populatePremiumSpinner(this, _spPremium, premium);
-      if (minAmount != -1) {
-         _etMinAmount.setText(Integer.toString(minAmount));
-      }
-      if (maxAmount != -1) {
-         _etMaxAmount.setText(Integer.toString(maxAmount));
-      }
       if (description != null) {
          _tvDescription.setText(description);
       }
@@ -165,16 +165,16 @@ public class CreateOrEditSellOrderActivity extends Activity {
          LtAndroidUtils.populatePriceFormulaSpinner(this, _spPriceFormula, _priceFormulas, priceFormula);
       }
 
-      _etMinAmount.addTextChangedListener(textWatcher);
-      _etMaxAmount.addTextChangedListener(textWatcher);
       _spPriceFormula.setOnItemSelectedListener(spinnerItemSelected);
-      // Set currencies
-      ((TextView) findViewById(R.id.tvCurrency1)).setText(_currency);
-      ((TextView) findViewById(R.id.tvCurrency2)).setText(_currency);
+
+      // Set amount hints
+      _tvMinAmount.setHint(String.format("%s %s", Integer.toString(10), _currency));
+      _tvMaxAmount.setHint(String.format("%s %s", Integer.toString(1000), _currency));
+
       // Set title
       ((TextView) findViewById(R.id.tvTitle)).setText(isEdit() ? R.string.lt_edit_sell_order_title
             : R.string.lt_create_sell_order_title);
-      _btCreate.setText(isEdit() ? R.string.lt_edit_button : R.string.lt_create_button);
+      _btCreate.setText(isEdit() ? R.string.lt_done_button : R.string.lt_create_button);
       enableUi();
    }
 
@@ -218,10 +218,10 @@ public class CreateOrEditSellOrderActivity extends Activity {
       if (_spPremium.getSelectedItemPosition() == Spinner.INVALID_POSITION) {
          return false;
       }
-      if (getMinAmount() == -1) {
+      if (getMinAmount() < 1) {
          return false;
       }
-      if (getMaxAmount() == -1) {
+      if (getMaxAmount() < 1) {
          return false;
       }
       if (getMinAmount() > getMaxAmount()) {
@@ -247,32 +247,34 @@ public class CreateOrEditSellOrderActivity extends Activity {
    }
 
    private int getMinAmount() {
-      try {
-         int amount = Integer.parseInt(_etMinAmount.getEditableText().toString());
-         if (amount < 0) {
-            return -1;
-         }
-         return amount;
-      } catch (NumberFormatException e) {
-         return -1;
-      }
+      return _minAmount;
    }
 
    private int getMaxAmount() {
-      try {
-         int amount = Integer.parseInt(_etMaxAmount.getEditableText().toString());
-         if (amount < 0) {
-            return -1;
-         }
-         return amount;
-      } catch (NumberFormatException e) {
-         return -1;
-      }
+      return _maxAmount;
    }
 
    private String getDescription() {
       return _tvDescription.getText().toString();
    }
+
+   private OnClickListener editMinAmountClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         EnterFiatAmountActivity.callMe(CreateOrEditSellOrderActivity.this, _currency, _minAmount == -1 ? null
+               : _minAmount, ENTER_MIN_AMOUNT_REQUEST_CODE);
+      }
+   };
+
+   private OnClickListener editMaxAmountClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         EnterFiatAmountActivity.callMe(CreateOrEditSellOrderActivity.this, _currency, _maxAmount == -1 ? null
+               : _maxAmount, ENTER_MAX_AMOUNT_REQUEST_CODE);
+      }
+   };
 
    private OnClickListener changeClickListener = new OnClickListener() {
 
@@ -327,6 +329,12 @@ public class CreateOrEditSellOrderActivity extends Activity {
       } else {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.svForm).setVisibility(View.VISIBLE);
+         if (_minAmount != -1) {
+            _tvMinAmount.setText(String.format("%s %s", Integer.toString(_minAmount), _currency));
+         }
+         if (_maxAmount != -1) {
+            _tvMaxAmount.setText(String.format("%s %s", Integer.toString(_maxAmount), _currency));
+         }
          ((TextView) findViewById(R.id.tvLocation)).setText(_location.name);
       }
    }
@@ -391,8 +399,13 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == CHANGE_LOCATION_REQUEST_CODE && resultCode == RESULT_OK) {
-         // Get result from address chooser (may be null)
          _location = (GpsLocation) intent.getSerializableExtra("location");
+      } else if (requestCode == ENTER_MAX_AMOUNT_REQUEST_CODE && resultCode == RESULT_OK) {
+         _maxAmount = (Integer) intent.getSerializableExtra("amount");
+         enableUi();
+      } else if (requestCode == ENTER_MIN_AMOUNT_REQUEST_CODE && resultCode == RESULT_OK) {
+         _minAmount = (Integer) intent.getSerializableExtra("amount");
+         enableUi();
       } else {
          // We didn't like what we got, bail
       }

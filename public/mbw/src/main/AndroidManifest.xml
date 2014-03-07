@@ -54,9 +54,12 @@
             android:exported="false"
             android:process=":Task" />
 
+        <!--hack - hardcode to be able to support froyo-->
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/abc_max_action_buttons" />
+            android:value="3265000" />
+
+            <!--android:value="@integer/google_play_services_version" />-->
 
         <activity
             android:name="com.mycelium.wallet.activity.StartupActivity"
@@ -120,13 +123,15 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
-        <activity android:name="com.mycelium.wallet.lt.activity.LtMainActivity" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name="com.mycelium.wallet.lt.activity.LtMainActivity"/>
         <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader1Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader2Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.SolveCaptchaActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.TradeActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.ChangeLocationActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.EnterLocationActivity" android:windowSoftInputMode="stateVisible"/>
         <activity android:name="com.mycelium.wallet.lt.activity.ChangePriceActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.EnterFiatAmountActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateInstantBuyOrderActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.sell.CreateOrEditSellOrderActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.SendRequestActivity" />

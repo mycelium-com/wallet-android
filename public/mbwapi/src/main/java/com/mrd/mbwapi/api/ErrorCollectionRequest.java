@@ -70,4 +70,12 @@ public class ErrorCollectionRequest extends ApiObject {
    protected byte getType() {
       return ERROR_REQUEST_TYPE;
    }
+
+   @Override
+   public String toString() {
+      return "ErrorCollectionRequest{" +
+            "error='" + error + '\'' +
+            ", version='" + version + '\'' +
+            '}';
+   }
 }

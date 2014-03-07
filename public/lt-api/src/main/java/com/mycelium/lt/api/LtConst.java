@@ -42,6 +42,7 @@ public class LtConst {
       public static final String LIST_SELL_ORDERS = "listSellOrders";
       public static final String GET_SUPPORTED_PRICE_FORMULAS = "getSupportedPriceFormulas";
       public static final String CREATE_SELL_ORDER = "createSellOrder";
+      public static final String GET_SELL_ORDER = "getSellOrder";
       public static final String EDIT_SELL_ORDER = "editSellOrder";
       public static final String ACTIVATE_SELL_ORDER = "activateSellOrder";
       public static final String DEACTIVATE_SELL_ORDER = "deactivateSellOrder";

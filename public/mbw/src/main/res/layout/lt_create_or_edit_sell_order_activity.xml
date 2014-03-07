@@ -10,7 +10,7 @@
     android:orientation="vertical" >
 
     <TextView
-            android:id="@+id/tvTitle"
+        android:id="@+id/tvTitle"
         style="@style/MyceliumText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -85,6 +85,8 @@
                         android:text="@string/lt_change_button" />
                 </LinearLayout>
 
+                <!-- Base Price -->
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -103,6 +105,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" />
+
+                <!-- Premium -->
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -123,6 +127,8 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" />
 
+                <!-- Minimum Amount -->
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -135,43 +141,48 @@
                     android:textSize="16sp" />
 
                 <LinearLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
                     android:orientation="horizontal" >
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="10dp"
                         android:text="*"
                         android:textColor="@color/red"
                         android:textSize="18sp"
                         tools:ignore="HardcodedText" />
 
-                    <EditText
-                        android:id="@+id/etMinimum"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginRight="10dp"
-                        android:hint="@string/lt_create_order_choose_minimum_hint"
-                        android:inputType="number"
-                        android:maxLength="10"
-                        android:singleLine="true"
-                        android:textSize="18sp" />
-
                     <TextView
-                        android:id="@+id/tvCurrency1"
+                        android:id="@+id/tvMinAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:gravity="left"
-                        android:textSize="16sp" />
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="20sp" />
+
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="1dp" >
+                    </View>
+
+                    <ImageButton
+                        android:id="@+id/btEditMin"
+                        style="@style/MyceliumSlimButton"
+                        android:layout_width="75dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/an_icon"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/keyboard_icon" />
                 </LinearLayout>
+
+                <!-- Maximum Amount -->
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -185,43 +196,48 @@
                     android:textSize="16sp" />
 
                 <LinearLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
                     android:orientation="horizontal" >
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="10dp"
                         android:text="*"
                         android:textColor="@color/red"
                         android:textSize="18sp"
                         tools:ignore="HardcodedText" />
 
-                    <EditText
-                        android:id="@+id/etMaximum"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginRight="10dp"
-                        android:hint="@string/lt_create_order_choose_maximum_hint"
-                        android:inputType="number"
-                        android:maxLength="10"
-                        android:singleLine="true"
-                        android:textSize="18sp" />
-
                     <TextView
-                        android:id="@+id/tvCurrency2"
+                        android:id="@+id/tvMaxAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:gravity="left"
-                        android:textSize="16sp" />
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="20sp" />
+
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="1dp" >
+                    </View>
+
+                    <ImageButton
+                        android:id="@+id/btEditMax"
+                        style="@style/MyceliumSlimButton"
+                        android:layout_width="75dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/an_icon"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/keyboard_icon" />
                 </LinearLayout>
+
+                <!-- Description -->
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -251,6 +267,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginTop="8dp"
                     android:text="@string/lt_edit_description_button" />
 
                 <!-- Create Button -->
@@ -260,7 +277,7 @@
                     android:layout_width="130dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="25dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:text="@string/lt_create_button"

@@ -82,16 +82,23 @@ public class GcmIntentService extends IntentService {
          Log.w(TAG, "Local trader last change is zero");
          return;
       }
+      String type = extras.getString("type");
+      
       // Let local trader know what the latest trader change timestamp is
       if (ltManager.setLastTraderNotification(lastChange) && ltManager.areNotificationsEnabled()) {
          // We got GC notification that was news to us, make a notification
-         showNotification();
+         showNotification(type);
       }
    }
 
-   private void showNotification() {
-      Intent intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES);
-      PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+   private void showNotification(String type) {
+      Intent intent;
+      if(LtApi.TRADE_FINAL_NOTIFICATION_TYPE.equals(type)){
+         intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.TRADE_HISTORY);
+      }else{
+         intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES);
+      }
+      PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
       String title = getResources().getString(R.string.lt_mycelium_local_trader_title);
       String message = getResources().getString(R.string.lt_new_trading_activity_message);
 

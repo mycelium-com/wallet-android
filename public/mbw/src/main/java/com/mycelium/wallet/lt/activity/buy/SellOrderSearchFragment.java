@@ -62,6 +62,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
+import com.mycelium.wallet.lt.activity.SendRequestActivity;
+import com.mycelium.wallet.lt.api.GetSellOrder;
 import com.mycelium.wallet.lt.api.SellOrderSearch;
 
 public class SellOrderSearchFragment extends Fragment {
@@ -244,21 +246,34 @@ public class SellOrderSearchFragment extends Fragment {
 
          // Selected item displays more stuff
          if (isSelected) {
-            TextView tvDescription = (TextView) card.findViewById(R.id.tvDescription);
             card.findViewById(R.id.lvSelectedInfo).setVisibility(View.VISIBLE);
+            
+            // Location
+            TextView tvLocation = (TextView) card.findViewById(R.id.tvLocation);
+            tvLocation.setText(orderItem.location.name);
+            
+            // Description
+            TextView tvDescriptionLabel = (TextView) card.findViewById(R.id.tvDescriptionLabel);
+            TextView tvDescription = (TextView) card.findViewById(R.id.tvDescription);
             if (orderItem.description.trim().length() == 0) {
                tvDescription.setVisibility(View.GONE);
+               tvDescriptionLabel.setVisibility(View.GONE);
             } else {
                tvDescription.setVisibility(View.VISIBLE);
+               tvDescriptionLabel.setVisibility(View.VISIBLE);
                tvDescription.setText(orderItem.description);
             }
+            
+            // Button
             Button btBuy = (Button) card.findViewById(R.id.btBuy);
             if (orderItem.nickname.equals(_ltManager.getNickname())) {
-               // This is ourselves, remove buy option
-               btBuy.setVisibility(View.GONE);
+               // This is ourselves, show edit button
+               btBuy.setText(R.string.lt_edit_button);
+               btBuy.setOnClickListener(editClickListener);
             } else {
+               // Show buy button
+               btBuy.setText(R.string.lt_buy_button);
                btBuy.setOnClickListener(buyClickListener);
-               btBuy.setVisibility(View.VISIBLE);
             }
 
          } else {
@@ -308,6 +323,15 @@ public class SellOrderSearchFragment extends Fragment {
       @Override
       public void onClick(View v) {
          CreateInstantBuyOrderActivity.callMe(getActivity(), _selected);
+      }
+   };
+
+   OnClickListener editClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+         SendRequestActivity.callMe(getActivity(), new GetSellOrder(_selected.id),
+               getString(R.string.lt_edit_sell_order_title));
       }
    };
 

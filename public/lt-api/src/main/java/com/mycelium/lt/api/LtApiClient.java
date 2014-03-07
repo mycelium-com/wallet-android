@@ -216,6 +216,15 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<SellOrder> getSellOrder(UUID sessionId, UUID sellOrderId) {
+      LtRequest r = new LtRequest(_httpEndpoint, Function.GET_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<SellOrder>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> editSellOrder(UUID sessionId, UUID sellOrderId, TradeParameters params) {
       LtRequest r = new LtRequest(_httpEndpoint, Function.EDIT_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());

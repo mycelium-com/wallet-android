@@ -19,7 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="5dp"
-            android:text="@string/lt_enter_amount_to_trade_title"
+            android:text="@string/lt_enter_amount_title"
             android:textSize="24sp" />
 
         <!-- Amount: -->
@@ -34,10 +34,9 @@
 
             <TextView
                 android:id="@+id/tvAmount"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
-                android:layout_weight="1"
                 android:gravity="right"
                 android:hint="@string/amount_hint"
                 android:lines="1"
@@ -68,13 +67,13 @@
         <!-- Start Trading Button -->
 
         <Button
-            android:id="@+id/btStartTrading"
+            android:id="@+id/btUse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="@string/lt_start_trading_button"
+            android:text="@string/lt_use_button"
             android:textSize="20sp" />
     </LinearLayout>
 

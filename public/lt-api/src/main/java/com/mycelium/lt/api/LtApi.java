@@ -60,6 +60,11 @@ public interface LtApi {
    public final static int ERROR_CODE_INVALID_FUNDING_TRANSACTION = 18;
 
    public static final String TRADE_ACTIVITY_NOTIFICATION_KEY = "tradeActivity";
+   
+   
+   public static final String TRADE_CREATED_NOTIFICATION_TYPE = "trade_created";
+   public static final String TRADE_CHANGED_NOTIFICATION_TYPE = "trade_changed";
+   public static final String TRADE_FINAL_NOTIFICATION_TYPE = "trade_final";
 
    public LtResponse<LtSession> createSession(int apiVersion, String locale, String bitcoinDenomination);
 
@@ -76,6 +81,8 @@ public interface LtApi {
    public LtResponse<List<PriceFormula>> getSupportedPriceFormulas(UUID sessionId);
 
    public LtResponse<UUID> createSellOrder(UUID sessionId, TradeParameters params);
+   
+   public LtResponse<SellOrder> getSellOrder(UUID sessionId, UUID sellOrderId);
 
    public LtResponse<Void> deleteSellOrder(UUID sessionId, UUID sellOrderId);
    

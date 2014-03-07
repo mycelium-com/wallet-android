@@ -46,6 +46,12 @@ import java.net.URLEncoder;
 
 public class JsonCoder {
 
+   final String language;
+
+   public JsonCoder(String language) {
+      this.language = language;
+   }
+
    public GeocodeResponse query(String address, int maxresults) {
       final InputStream inputData;
       final String encodedAddress;
@@ -54,7 +60,7 @@ public class JsonCoder {
       } catch (UnsupportedEncodingException e) {
          throw new RuntimeException(e);
       }
-      String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + encodedAddress + "&sensor=true";
+      String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + encodedAddress + "&sensor=true&language=" + language;
       try {
          inputData = new URL(url).openStream();
       } catch (IOException e) {
@@ -78,7 +84,7 @@ public class JsonCoder {
 
    public GeocodeResponse getFromLocation(double latitude, double longitude) {
       final InputStream inputData;
-      String url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&sensor=true";
+      String url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&sensor=true&language=" + language;
       try {
          inputData = new URL(url).openStream();
       } catch (IOException e) {

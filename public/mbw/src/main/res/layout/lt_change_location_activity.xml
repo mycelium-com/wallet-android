@@ -27,14 +27,6 @@
         android:text="@string/lt_changing_location_desc"
         android:textSize="16sp" />
 
-    <AutoCompleteTextView
-        android:id="@+id/atvLocation"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:dropDownWidth="fill_parent"
-        android:inputType="textPostalAddress|textMultiLine" />
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,29 +35,47 @@
         android:orientation="horizontal" >
 
         <ImageButton
-            android:id="@+id/btCrosshair"
-            style="@style/MyceliumButton"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/btn_blue_slim"
+            android:id="@+id/btEnter"
+            style="@style/MyceliumSlimButton"
+            android:layout_width="75dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
             android:contentDescription="@string/an_icon"
-            android:src="@android:drawable/ic_menu_mylocation" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/keyboard_icon" />
 
         <View
             android:layout_width="10dp"
             android:layout_height="1dp" />
 
-        <Button
-            android:id="@+id/btUse"
+        <ImageButton
+            android:id="@+id/btCrosshair"
             style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_gravity="center_vertical"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="@string/lt_use_button"
-            android:textSize="16sp" />
+            android:background="@drawable/btn_blue_slim"
+            android:contentDescription="@string/an_icon"
+            android:src="@android:drawable/ic_menu_mylocation" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvLocation"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/btUse"
+        style="@style/MyceliumButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/lt_use_button"
+        android:textSize="16sp" />
 
 </LinearLayout>

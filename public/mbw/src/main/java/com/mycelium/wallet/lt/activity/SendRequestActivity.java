@@ -50,6 +50,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.activity.sell.CreateOrEditSellOrderActivity;
 import com.mycelium.wallet.lt.api.CreateInstantBuyOrder;
 import com.mycelium.wallet.lt.api.CreateSellOrder;
 import com.mycelium.wallet.lt.api.EditSellOrder;
@@ -178,11 +179,18 @@ public class SendRequestActivity extends Activity {
          Toast.makeText(SendRequestActivity.this, R.string.lt_sell_order_created, Toast.LENGTH_LONG).show();
          finish();
       }
+
       public void onLtSellOrderEdited(EditSellOrder request) {
          Toast.makeText(SendRequestActivity.this, R.string.lt_sell_order_edited, Toast.LENGTH_LONG).show();
          finish();
       };
-      
+
+      public void onLtSellOrderRetrieved(com.mycelium.lt.api.model.SellOrder sellOrder,
+            com.mycelium.wallet.lt.api.GetSellOrder request) {
+         CreateOrEditSellOrderActivity.callMe(SendRequestActivity.this, sellOrder);
+         finish();
+      };
+
    };
 
 }

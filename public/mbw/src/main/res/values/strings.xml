@@ -288,8 +288,9 @@
     <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Keys tab</string>
     <!--  LT start -->
     <string name="lt_buy_button">Buy</string>
+    <string name="lt_edit_button">Edit</string>
     <string name="lt_trade_button">Trade</string>
-    <string name="lt_localization_not_available">This feature requires your device to be able to tell its current location. It seems that your device cannot do that.</string>
+    <string name="lt_localization_not_available">This feature requires your device to be able to tell its current location. It seems that your device cannot do that. Try enabling location services in your device settings.</string>
     <string name="lt_create_account_title">Creating Trader Account</string>
     <string name="lt_create_account_address_desc">You are using Local Trader for the first time and need to enter a few details.\n\nChoose the Bitcoin address you wish to link to your trader account:</string>
     <string name="lt_use_button">Use</string>
@@ -313,9 +314,7 @@
     <string name="lt_create_order_choose_base_price">Choose the base price:</string>
     <string name="lt_create_sell_order_choose_premium">Choose the premium you wish to add on top of the base price:</string>
     <string name="lt_create_order_choose_minimum">Choose the minimum amount to trade:</string>
-    <string name="lt_create_order_choose_minimum_hint">10</string>
     <string name="lt_create_order_choose_maximum">Choose the maximum amount to trade:</string>
-    <string name="lt_create_order_choose_maximum_hint">100</string>
     <string name="lt_create_order_description">Optional description of your order:</string>
     <string name="lt_create_order_description_too_long">The description is too long</string>
     <string name="lt_create_order_description_hint">Buy from me because&#8230;</string>
@@ -334,6 +333,7 @@
     <string name="lt_trader_label">Trader</string>
     <string name="lt_trader_age_days">%1$s days</string>
     <string name="lt_rating_label">Rating</string>
+    <string name="lt_location_label">Location</string>
     <string name="lt_description_label">Description</string>
     <string name="lt_searching">Searching</string>
     <string name="lt_place_instant_buy_order_title">Creating Trade Request</string>
@@ -341,7 +341,7 @@
     <string name="lt_refresh_market_rate_button">Refresh Market Rate</string>
     <string name="lt_change_price_button">Change Price</string>
     <string name="lt_change_button">Change</string>
-    <string name="lt_edit_button">Edit</string>
+    <string name="lt_done_button">Done</string>
     <string name="lt_edit_description_button">Edit Description</string>
     <string name="lt_you_buy_at_label">You buy at:</string>
     <string name="lt_you_sell_at_label">You sell at:</string>
@@ -361,7 +361,7 @@
     <string name="lt_btc_price">%1$s %2$s/BTC</string>
     <string name="lt_chat_message_title">Enter Message</string>
     <string name="lt_chat_message_hint">Message&#8230;</string>
-    <string name="lt_cannot_affort_trade">Your wallet does not have enough funds</string>
+    <string name="lt_cannot_affort_trade">Your wallet does not have enough funds.\nTo complete this deal you have to add more funds to your wallet.</string>
     <string name="lt_confirm_delete_sell_order_title">Delete Sell Order?</string>
     <string name="lt_confirm_delete_sell_order_message">Do you want to delete this sell order?</string>
     <string name="lt_transaction_confidence">transaction confidence %1$s%%</string>
@@ -386,7 +386,6 @@
     <string name="lt_solve_captcha_title">Are You a Human?</string>
     <string name="lt_solve_captcha_desc">Please solve this captcha.\nThis is to prevent spam.</string>
     <string name="lt_captcha_wrong">Wrong solution, please try again.</string>
-    <string name="lt_done_button">Done</string>
     <string name="lt_never_show_again_label">Don\'t show this again</string>
     <string name="lt_google_play_services_not_available">Your device cannot integrate with Google Play Services, and may not get automatic notifications when trade updates occur.</string>
     <string name="lt_mycelium_local_trader_title">Mycelium Local Trader</string>
@@ -405,7 +404,8 @@
     <string name="lt_total_bought_label">Total Bought</string>
     <string name="lt_local_trader_comission_label">Local Trader Commission</string>
     <string name="lt_start_trading_button">Start Trading</string>
-    <string name="lt_enter_amount_title">Enter Amount to Trade</string>
+    <string name="lt_enter_amount_to_trade_title">Enter Amount to Trade</string>
+    <string name="lt_enter_amount_title">Enter Amount</string>
     <string name="lt_order_active">Active until %1$s</string>
     <string name="lt_order_inactive">Inactive</string>
     <string name="lt_activate_menu">Activate</string>
@@ -415,6 +415,8 @@
     <string name="lt_confirm_cash_received">Did you receive %1$s %2$s and are you ready to send the bitcoins to %3$s?</string>
     <string name="lt_confirm_abort">Do you wish to abort the trade?"</string>
     <string name="lt_confirm_abort_penalty">Because both of you accepted the deal your ratings may get a penalty.\nDo you wish to abort the trade?"</string>
+    <string name="lt_enter_location_tite">Enter Location</string>
+    <string name="lt_location_hint">Enter city or address</string>
     
 <!--  LT end -->
 

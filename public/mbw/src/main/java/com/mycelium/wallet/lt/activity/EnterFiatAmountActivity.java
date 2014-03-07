@@ -32,44 +32,36 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.lt.activity.buy;
-
-import java.util.Locale;
+package com.mycelium.wallet.lt.activity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.mrd.bitlib.model.Address;
-import com.mycelium.lt.api.model.SellOrderSearchItem;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.lt.activity.SendRequestActivity;
-import com.mycelium.wallet.lt.api.CreateInstantBuyOrder;
-import com.mycelium.wallet.lt.api.Request;
 
-public class CreateInstantBuyOrderActivity extends Activity implements NumberEntryListener {
+public class EnterFiatAmountActivity extends Activity implements NumberEntryListener {
 
-   public static void callMe(Activity currentActivity, SellOrderSearchItem sellOrderSearchItem) {
-      Intent intent = new Intent(currentActivity, CreateInstantBuyOrderActivity.class);
-      intent.putExtra("sellOrderSearchItem", sellOrderSearchItem);
-      currentActivity.startActivity(intent);
+   public static void callMe(Activity currentActivity, String currency, Integer amount, int requestCode) {
+      Intent intent = new Intent(currentActivity, EnterFiatAmountActivity.class);
+      intent.putExtra("currency", currency);
+      intent.putExtra("amount", amount);
+      currentActivity.startActivityForResult(intent, requestCode);
    }
-
-   private SellOrderSearchItem _sellOrderSearchItem;
 
    private NumberEntry _numberEntry;
    protected MbwManager _mbwManager;
    private TextView _tvAmount;
-   private Button _btStartTrading;
+   private Button _btUse;
 
    /**
     * Called when the activity is first created.
@@ -79,15 +71,13 @@ public class CreateInstantBuyOrderActivity extends Activity implements NumberEnt
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.lt_create_instant_buy_order_activity);
+      setContentView(R.layout.lt_enter_fiat_amount_activity);
 
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      _sellOrderSearchItem = (SellOrderSearchItem) getIntent().getSerializableExtra("sellOrderSearchItem");
-
-      // Get intent parameters
-      Integer amount = null;
+      Integer amount = (Integer) getIntent().getSerializableExtra("amount");
+      String currency = getIntent().getStringExtra("currency");
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -105,24 +95,20 @@ public class CreateInstantBuyOrderActivity extends Activity implements NumberEnt
       _numberEntry = new NumberEntry(0, this, this, numberString);
 
       _tvAmount = (TextView) findViewById(R.id.tvAmount);
+      _tvAmount.setHint(Integer.toString(0));
 
-      String hint = String.format(new Locale(_mbwManager.getLanguage()), "%d-%d", _sellOrderSearchItem.minimumFiat,
-            _sellOrderSearchItem.maximumFiat);
-      _tvAmount.setHint(hint);
-
-      _btStartTrading = (Button) findViewById(R.id.btStartTrading);
-      _btStartTrading.setOnClickListener(startTradingClickListener);
-      ((TextView) findViewById(R.id.tvCurrency)).setText(_sellOrderSearchItem.currency);
+      _btUse = (Button) findViewById(R.id.btUse);
+      _btUse.setOnClickListener(useClickListener);
+      ((TextView) findViewById(R.id.tvCurrency)).setText(currency);
    }
 
-   OnClickListener startTradingClickListener = new OnClickListener() {
+   OnClickListener useClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-         Address address = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode()).getReceivingAddress();
-         Request request = new CreateInstantBuyOrder(_sellOrderSearchItem.id, getNumber(), address);
-         SendRequestActivity.callMe(CreateInstantBuyOrderActivity.this, request,
-               getString(R.string.lt_place_instant_buy_order_title));
+         Intent result = new Intent();
+         result.putExtra("amount", getNumber());
+         setResult(RESULT_OK, result);
          finish();
       }
    };
@@ -154,17 +140,12 @@ public class CreateInstantBuyOrderActivity extends Activity implements NumberEnt
       if (number == null) {
          // Nothing entered
          _tvAmount.setText("");
-         _btStartTrading.setEnabled(false);
-      } else if (number < _sellOrderSearchItem.minimumFiat || number > _sellOrderSearchItem.maximumFiat) {
-         // Number too small or too large
-         _tvAmount.setText(number.toString());
-         _tvAmount.setTextColor(getResources().getColor(R.color.red));
-         _btStartTrading.setEnabled(false);
+         _btUse.setEnabled(false);
       } else {
          // Everything ok
          _tvAmount.setText(number.toString());
          _tvAmount.setTextColor(getResources().getColor(R.color.white));
-         _btStartTrading.setEnabled(true);
+         _btUse.setEnabled(true);
       }
    }
 

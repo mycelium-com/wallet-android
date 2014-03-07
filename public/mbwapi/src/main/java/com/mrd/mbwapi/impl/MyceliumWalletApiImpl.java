@@ -233,6 +233,7 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
                return connection;
             }
          } catch (IOException e) {
+            e.printStackTrace();
             // handle below like the all status codes != 200
          }
          // Try the next server

@@ -116,6 +116,7 @@ public class TradeActivity extends Activity {
    private ChatAdapter _chatAdapter;
    private Ringtone _updateSound;
    private boolean _dingOnUpdates;
+   private boolean _didShowInsufficientFunds;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -399,7 +400,7 @@ public class TradeActivity extends Activity {
 
       if (!canWeAffordThis) {
          if (tradeSession.acceptAction.isEnabled() || tradeSession.releaseBtcAction.isEnabled()) {
-            Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
+            displayInsufficientFunds();
          }
       }
 
@@ -409,7 +410,14 @@ public class TradeActivity extends Activity {
       applyActionStateToButton(tradeSession.changePriceAction, _btChangePrice);
       applyActionStateToButton(tradeSession.releaseBtcAction, canWeAffordThis, _btCashReceived);
       applyActionStateToButton(tradeSession.sendMessageAction, _btSendMessage);
+   }
 
+   private void displayInsufficientFunds() {
+      if (!_didShowInsufficientFunds) {
+         // Only show this dialog once for every time the activity is displayed
+         Utils.showSimpleMessageDialog(this, R.string.lt_cannot_affort_trade);
+         _didShowInsufficientFunds = true;
+      }
    }
 
    private void applyActionStateToButton(ActionState state, Button button) {

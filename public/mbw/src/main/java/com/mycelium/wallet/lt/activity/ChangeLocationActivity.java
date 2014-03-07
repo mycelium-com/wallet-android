@@ -35,32 +35,23 @@
 package com.mycelium.wallet.lt.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Filter;
-import android.widget.Filterable;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.location.Geocode;
-import com.mycelium.lt.location.JsonCoder;
 import com.mycelium.wallet.GpsLocationFetcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.lt.AddressDescription;
 import com.mycelium.wallet.lt.LocalTraderManager;
 
-import java.util.List;
-
 public class ChangeLocationActivity extends Activity {
+
+   protected static final int ENTER_LOCATION_REQUEST_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, ChangeLocationActivity.class);
@@ -79,7 +70,7 @@ public class ChangeLocationActivity extends Activity {
    private LocalTraderManager _ltManager;
    private GpsLocation _chosenAddress;
    private Button _btUse;
-   private AutoCompleteTextView _atvLocation;
+   private TextView _tvLocation;
    private GpsLocationFetcher.Callback _gpsLocationCallback;
    private boolean _persist;
 
@@ -90,6 +81,9 @@ public class ChangeLocationActivity extends Activity {
       setContentView(R.layout.lt_change_location_activity);
       _mbwManager = MbwManager.getInstance(this);
       _ltManager = _mbwManager.getLocalTraderManager();
+
+      _btUse = (Button) findViewById(R.id.btUse);
+      _tvLocation = (TextView) findViewById(R.id.tvLocation);
 
       // Load intent parameters
       _persist = getIntent().getBooleanExtra("persist", false);
@@ -104,15 +98,8 @@ public class ChangeLocationActivity extends Activity {
          _chosenAddress = _ltManager.getUserLocation();
       }
 
-      _atvLocation = (AutoCompleteTextView) findViewById(R.id.atvLocation);
-      _atvLocation.setText(_chosenAddress.name);
-      _atvLocation.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.lt_location_item));
-      _atvLocation.setOnItemClickListener(atvLocationItemClickListener);
-      _atvLocation.setOnClickListener(atvLocationClickListener);
-
-      _btUse = (Button) findViewById(R.id.btUse);
-
       _btUse.setOnClickListener(useClickListener);
+      findViewById(R.id.btEnter).setOnClickListener(enterClickListener);
 
       findViewById(R.id.btCrosshair).setOnClickListener(crossHairClickListener);
 
@@ -121,9 +108,8 @@ public class ChangeLocationActivity extends Activity {
          @Override
          protected void onGpsLocationObtained(GpsLocation location) {
             if (location != null) {
-               _atvLocation.setText(location.name);
                _chosenAddress = location;
-               updateUseButton();
+               updateUi();
             } else {
                Toast.makeText(ChangeLocationActivity.this, R.string.lt_localization_not_available, Toast.LENGTH_LONG)
                      .show();
@@ -141,10 +127,9 @@ public class ChangeLocationActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         _atvLocation.setText("");
          _chosenAddress = null;
+         updateUi();
          GpsLocationFetcher.getNetworkLocation(_gpsLocationCallback);
-         updateUseButton();
       }
    };
 
@@ -162,9 +147,17 @@ public class ChangeLocationActivity extends Activity {
       }
    };
 
+   OnClickListener enterClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         EnterLocationActivity.callMeForResult(ChangeLocationActivity.this, ENTER_LOCATION_REQUEST_CODE);
+      }
+   };
+
    @Override
    protected void onResume() {
-      updateUseButton();
+      updateUi();
       super.onResume();
    }
 
@@ -173,83 +166,21 @@ public class ChangeLocationActivity extends Activity {
       super.onPause();
    }
 
-   private void updateUseButton() {
+   private void updateUi() {
+      if (_chosenAddress != null) {
+         _tvLocation.setText(_chosenAddress.name);
+      } else {
+         _tvLocation.setText("");
+      }
       _btUse.setEnabled(_chosenAddress != null);
+
    }
 
-   OnItemClickListener atvLocationItemClickListener = new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         AddressDescription itemAtPosition = (AddressDescription) parent.getItemAtPosition(position);
-         _chosenAddress = address2Location(itemAtPosition);
-         _atvLocation.clearFocus();
-         updateUseButton();
-      }
-
-   };
-
-   OnClickListener atvLocationClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         _chosenAddress = null;
-         _atvLocation.selectAll();
-         updateUseButton();
-      }
-   };
-
-   private GpsLocation address2Location(AddressDescription addr) {
-      return new GpsLocation(addr.location.getLatitude(), addr.location.getLongitude(), addr.toString());
-   }
-
-   private List<Geocode> autocompleteInternal(String input) {
-      JsonCoder geocoder = new JsonCoder();
-      return geocoder.query(input, 5).results;
-   }
-
-   public class PlacesAutoCompleteAdapter extends ArrayAdapter<AddressDescription> implements Filterable {
-      private List<Geocode> resultList;
-
-      public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
-         super(context, textViewResourceId);
-      }
-
-      @Override
-      public int getCount() {
-         return resultList.size();
-      }
-
-      @Override
-      public AddressDescription getItem(int index) {
-         return new AddressDescription(resultList.get(index));
-      }
-
-      @Override
-      public Filter getFilter() {
-         return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-               FilterResults filterResults = new FilterResults();
-               if (constraint != null) {
-                  // Retrieve the auto-complete results.
-                  resultList = autocompleteInternal(constraint.toString());
-
-                  // Assign the data to the FilterResults
-                  filterResults.values = resultList;
-                  filterResults.count = resultList.size();
-               }
-               return filterResults;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-               if (results != null && results.count > 0) {
-                  notifyDataSetChanged();
-               } else {
-                  notifyDataSetInvalidated();
-               }
-            }
-         };
+   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      if (requestCode == ENTER_LOCATION_REQUEST_CODE && resultCode == RESULT_OK) {
+         _chosenAddress = (GpsLocation) intent.getSerializableExtra("location");
+      } else {
+         // We didn't like what we got, bail
       }
    }
 
