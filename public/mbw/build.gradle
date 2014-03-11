@@ -41,8 +41,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 88
-        versionName '1.1.10'
+        versionCode 90
+        versionName '1.1.11'
     }
 
     signingConfigs {
@@ -77,6 +77,12 @@ android {
 
     productFlavors {
 
+        bitsofgold {
+            packageName 'il.co.bitsofgold.wallet'
+            versionName = defaultConfig.versionName + '-BOG'
+            signingConfig signingConfigs.release
+        }
+
         prodnet {
             packageName 'com.mycelium.wallet'
             signingConfig signingConfigs.release
@@ -86,8 +92,6 @@ android {
             packageName 'com.mycelium.devwallet'
             signingConfig signingConfigs.debug
         }
-
-
         testnet {
             packageName 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'

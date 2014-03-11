@@ -242,7 +242,7 @@ public class RecordManager {
     * Verify private key backup
     */
    public synchronized boolean verifyPrivateKeyBackup(InMemoryPrivateKey key) {
-      Address address = Address.fromStandardPublicKey(key.getPublicKey(), _network);
+      Address address = key.getPublicKey().toAddress(_network);
 
       // See if we have a that matches
       Record existing = getRecordInt(address);

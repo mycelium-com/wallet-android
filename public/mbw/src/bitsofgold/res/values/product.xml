@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+    <string name="network">prodnet</string>
+    <bool name="email_on_errors">true</bool>
+
+</resources>
