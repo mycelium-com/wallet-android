@@ -1,5 +1,13 @@
 apply plugin: 'java'
 
+def defaultEncoding = 'UTF-8'
+compileJava {
+    options.encoding = defaultEncoding
+}
+compileTestJava {
+    options.encoding = defaultEncoding
+}
+
 repositories {
     mavenCentral()
 }

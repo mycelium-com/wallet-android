@@ -56,7 +56,7 @@ public class AddressTest {
    public void toStringTest() {
       InMemoryPrivateKey priv = new InMemoryPrivateKey(RANDOM_SOURCE);
       PublicKey pub = priv.getPublicKey();
-      Address addr = Address.fromStandardPublicKey(pub, NetworkParameters.productionNetwork);
+      Address addr = pub.toAddress(NetworkParameters.productionNetwork);
       System.out.println(addr.toString());
    }
 
