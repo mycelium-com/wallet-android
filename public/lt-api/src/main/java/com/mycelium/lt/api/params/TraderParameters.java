@@ -3,6 +3,7 @@ package com.mycelium.lt.api.params;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.Address;
 
+//todo rename TadeParameters / TraderParameters confusing
 public class TraderParameters {
    @JsonProperty
    public String nickname;

@@ -36,6 +36,7 @@ package com.mycelium.wallet.lt.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -44,6 +45,7 @@ import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -51,9 +53,14 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.AboutActivity;
+import com.mycelium.wallet.activity.export.VerifyBackupActivity;
+import com.mycelium.wallet.activity.send.InstantWalletActivity;
+import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.SellOrderSearchFragment;
@@ -145,6 +152,7 @@ public class LtMainActivity extends ActionBarActivity {
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.lt_sell_orders_options_global, menu);
+      inflater.inflate(R.menu.lt_activity_options_menu, menu);
       return true;
    }
 
@@ -167,7 +175,8 @@ public class LtMainActivity extends ActionBarActivity {
    @Override
    protected void onResume() {
       checkGooglePlayServices();
-//      _ltManager.enableNotifications(false);
+      showWelcomeMessage();
+      // _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
       _ltManager.startMonitoringTrader();
       if (_ltManager.hasLocalTraderAccount()) {
@@ -180,8 +189,32 @@ public class LtMainActivity extends ActionBarActivity {
    protected void onPause() {
       _ltManager.stopMonitoringTrader();
       _ltManager.unsubscribe(ltSubscriber);
-//      _ltManager.enableNotifications(true);
+      // _ltManager.enableNotifications(true);
       super.onPause();
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      final int itemId = item.getItemId();
+      if (itemId == R.id.miHowTo) {
+         openLocalTraderHelp();
+      }
+      return super.onOptionsItemSelected(item);
+   }
+
+
+   private void openLocalTraderHelp() {
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setData(Uri.parse(Constants.LOCAL_TRADER_HELP_URL));
+      startActivity(intent);
+      Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
+   }
+
+   /**
+    * Show welcome message
+    */
+   private void showWelcomeMessage() {
+      Utils.showOptionalMessage(this, R.string.lt_welcome_message);
    }
 
    /**

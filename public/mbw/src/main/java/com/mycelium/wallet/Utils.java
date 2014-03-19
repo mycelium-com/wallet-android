@@ -417,12 +417,12 @@ public class Utils {
     * @param messageId
     *           The resource ID of the message to show
     */
-   public static void showOptionalMessage(final Context context, final int messageId) {
+   public static boolean showOptionalMessage(final Context context, final int messageId) {
       SharedPreferences settings = context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE);
       boolean ignore = settings.getBoolean(Integer.toString(messageId), false);
       if (ignore) {
          // The user has opted never to get this message shown again
-         return;
+         return false;
       }
 
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -450,6 +450,7 @@ public class Utils {
          }
       });
       dialog.show();
+      return true;
    }
 
    /**

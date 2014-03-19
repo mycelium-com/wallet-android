@@ -6,7 +6,7 @@ package com.mrd.bitlib.crypto;
  * matters.
  */
 
-public class StaticSimpleRandomSource extends RandomSource {
+public class StaticSimpleRandomSource implements RandomSource {
    private long _state;
 
    public StaticSimpleRandomSource() {

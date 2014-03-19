@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 
 public class TradeSessionChangeMonitor {
    private static final String TAG = "TradeSessionChangeMonitor";
@@ -31,7 +31,7 @@ public class TradeSessionChangeMonitor {
          return _lastChange;
       }
 
-      public abstract void onTradeSessionChanged(TradeSessionStatus s);
+      public abstract void onTradeSessionChanged(TradeSession s);
 
    }
 
@@ -70,7 +70,7 @@ public class TradeSessionChangeMonitor {
                }
                try {
                   // Wait for session change
-                  final TradeSessionStatus result = _api.waitForTradeSessionChange(_sessionId,
+                  final TradeSession result = _api.waitForTradeSessionChange(_sessionId,
                         _listener.getTradeSessionId(), timestamp).getResult();
 
                   if (_isCancelled) {

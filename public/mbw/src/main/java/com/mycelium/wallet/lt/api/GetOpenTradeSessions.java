@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
@@ -24,7 +24,7 @@ public class GetOpenTradeSessions extends Request {
       try {
 
          // Call function
-         final List<TradeSessionStatus> list = api.getActiveTradeSessions(sessionId).getResult();
+         final List<TradeSession> list = api.getActiveTradeSessions(sessionId).getResult();
 
          // Update database
          context.updateLocalTradeSessions(list);

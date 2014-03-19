@@ -8,11 +8,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 
-public class TradeSessionStatus implements Serializable {
+public class TradeSession implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @JsonProperty
    public final UUID id;
+   @JsonProperty
+   public final long creationTime;
    @JsonProperty
    public final long lastChange;
    @JsonProperty
@@ -38,7 +40,11 @@ public class TradeSessionStatus implements Serializable {
    @JsonProperty
    public final String ownerName;
    @JsonProperty
+   public final Address ownerId;
+   @JsonProperty
    public final String peerName;
+   @JsonProperty
+   public final Address peerId;
    @JsonProperty
    public final boolean isOwner;
    @JsonProperty
@@ -63,15 +69,18 @@ public class TradeSessionStatus implements Serializable {
    public final boolean isWaitingForPeerAccept;
    @JsonProperty
    public final boolean isOpen;
+   @JsonProperty
+   public final GpsLocation location;
 
-   public TradeSessionStatus(@JsonProperty("id") UUID id, @JsonProperty("lastChange") long lastChange,
+   public TradeSession(@JsonProperty("id") UUID id, @JsonProperty("creationTime") long creationTime, @JsonProperty("lastChange") long lastChange,
          @JsonProperty("priceFormula") PriceFormula priceFormula, @JsonProperty("premium") double premium,
          @JsonProperty("currency") String currency, @JsonProperty("fiatTraded") int fiatTraded,
          @JsonProperty("satoshisAtMarketPrice") long satoshisAtMarketPrice,
          @JsonProperty("satoshisFromSeller") long satoshisFromSeller,
          @JsonProperty("satoshisForBuyer") long satoshisForBuyer, @JsonProperty("buyerAddress") Address buyerAddress,
          @JsonProperty("feeAddress") Address feeAddress, @JsonProperty("chatEntries") List<ChatEntry> chatEntries,
-         @JsonProperty("ownerName") String ownerName, @JsonProperty("peerName") String peerName,
+         @JsonProperty("ownerName") String ownerName, @JsonProperty("ownerId") Address ownerId,
+         @JsonProperty("peerName") String peerName, @JsonProperty("peerId") Address peerId,
          @JsonProperty("isOwner") boolean isOwner, @JsonProperty("isBuyer") boolean isBuyer,
          @JsonProperty("statusText") String statusText, @JsonProperty("confidence") Double confidence,
          @JsonProperty("acceptAction") ActionState acceptAction, @JsonProperty("abortAction") ActionState abortAction,
@@ -79,8 +88,9 @@ public class TradeSessionStatus implements Serializable {
          @JsonProperty("changePriceAction") ActionState changePriceAction,
          @JsonProperty("releaseBtcAction") ActionState releaseBtcAction,
          @JsonProperty("sendMessageAction") ActionState sendMessageAction,
-         @JsonProperty("isWaitingForPeerAccept") boolean isWaitingForPeerAccept, @JsonProperty("isOpen") boolean isOpen) {
+         @JsonProperty("isWaitingForPeerAccept") boolean isWaitingForPeerAccept, @JsonProperty("isOpen") boolean isOpen, @JsonProperty("location") GpsLocation location) {
       this.id = id;
+      this.creationTime = creationTime;
       this.lastChange = lastChange;
       this.priceFormula = priceFormula;
       this.premium = premium;
@@ -93,7 +103,9 @@ public class TradeSessionStatus implements Serializable {
       this.feeAddress = feeAddress;
       this.chatEntries = chatEntries;
       this.ownerName = ownerName;
+      this.ownerId = ownerId;
       this.peerName = peerName;
+      this.peerId = peerId;
       this.isOwner = isOwner;
       this.isBuyer = isBuyer;
       this.statusText = statusText;
@@ -106,6 +118,7 @@ public class TradeSessionStatus implements Serializable {
       this.sendMessageAction = sendMessageAction;
       this.isWaitingForPeerAccept = isWaitingForPeerAccept;
       this.isOpen = isOpen;
+      this.location = location;
       Preconditions.checkState(satoshisFromSeller >= satoshisForBuyer);
       Preconditions.checkState(satoshisForBuyer > 0);
    }
@@ -120,10 +133,10 @@ public class TradeSessionStatus implements Serializable {
       if (obj == this) {
          return true;
       }
-      if (!(obj instanceof TradeSessionStatus)) {
+      if (!(obj instanceof TradeSession)) {
          return false;
       }
-      return id.equals(((TradeSessionStatus) obj).id);
+      return id.equals(((TradeSession) obj).id);
    }
 
 }

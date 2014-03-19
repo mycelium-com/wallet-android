@@ -9,9 +9,10 @@ import android.os.Handler;
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.lt.api.model.PriceFormula;
+import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.lt.api.model.SellOrder;
 import com.mycelium.lt.api.model.SellOrderSearchItem;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.lt.api.AbortTrade;
 import com.mycelium.wallet.lt.api.AcceptTrade;
@@ -28,6 +29,7 @@ import com.mycelium.wallet.lt.api.GetCaptcha;
 import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
 import com.mycelium.wallet.lt.api.GetOpenTradeSessions;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
+import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
 import com.mycelium.wallet.lt.api.GetSellOrder;
 import com.mycelium.wallet.lt.api.GetSellOrders;
 import com.mycelium.wallet.lt.api.GetTradeSession;
@@ -116,14 +118,14 @@ public abstract class LocalTraderEventSubscriber {
    /**
     * Called when the local trade session list has been updated
     */
-   public void onLtOpenTradeSessionsFetched(List<TradeSessionStatus> list, GetOpenTradeSessions request) {
+   public void onLtOpenTradeSessionsFetched(List<TradeSession> list, GetOpenTradeSessions request) {
       onLtGenericSuccess(request);
    }
 
    /**
     * Called when the a local trade session has been updated
     */
-   public void onLtTradeSessionFetched(TradeSessionStatus tradeSession, GetTradeSession request) {
+   public void onLtTradeSessionFetched(TradeSession tradeSession, GetTradeSession request) {
       onLtGenericSuccess(request);
    }
 
@@ -192,7 +194,7 @@ public abstract class LocalTraderEventSubscriber {
       onLtGenericSuccess(request);
    }
 
-   public void onLtFinalTradeSessionsFetched(List<TradeSessionStatus> list, GetFinalTradeSessions request) {
+   public void onLtFinalTradeSessionsFetched(List<TradeSession> list, GetFinalTradeSessions request) {
       onLtGenericSuccess(request);
    }
 
@@ -221,6 +223,10 @@ public abstract class LocalTraderEventSubscriber {
    }
 
    public void onLtSellOrderRetrieved(SellOrder sellOrder, GetSellOrder request) {
+      onLtGenericSuccess(request);
+   }
+
+   public void onLtPublicTraderInfoFetched(PublicTraderInfo info, GetPublicTraderInfo request) {
       onLtGenericSuccess(request);
    }
 

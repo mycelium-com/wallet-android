@@ -56,7 +56,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.PriceFormula;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.Constants;
@@ -75,7 +75,7 @@ public class ChangePriceActivity extends Activity {
 
    public static final String RESULT_STRING = "result";
 
-   public static void callMeForResult(Activity currentActivity, TradeSessionStatus tradeSession, int requestCode) {
+   public static void callMeForResult(Activity currentActivity, TradeSession tradeSession, int requestCode) {
       Intent intent = new Intent(currentActivity, ChangePriceActivity.class);
       intent.putExtra("tradeSession", tradeSession);
       currentActivity.startActivityForResult(intent, requestCode);
@@ -83,7 +83,7 @@ public class ChangePriceActivity extends Activity {
 
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private TradeSessionStatus _tradeSession;
+   private TradeSession _tradeSession;
    private Spinner _spPriceFormula;
    private Spinner _spPremium;
    private Button _btChange;
@@ -107,7 +107,7 @@ public class ChangePriceActivity extends Activity {
       _btChange.setOnClickListener(changeClickListener);
 
       // Load intent arguments
-      _tradeSession = (TradeSessionStatus) getIntent().getSerializableExtra("tradeSession");
+      _tradeSession = (TradeSession) getIntent().getSerializableExtra("tradeSession");
 
       double premium = _tradeSession.premium;
       PriceFormula priceFormula = _tradeSession.priceFormula;

@@ -51,7 +51,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 
 public class TradeSessionDb {
 
@@ -63,7 +63,7 @@ public class TradeSessionDb {
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "tradesession.db";
-      private static final int DATABASE_VERSION = 16;
+      private static final int DATABASE_VERSION = 19;
 
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -72,14 +72,12 @@ public class TradeSessionDb {
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE active (id TEXT PRIMARY KEY, isBuy BOOLEAN, session BLOB);");
-         db.execSQL("CREATE TABLE viewtime (id TEXT PRIMARY KEY, viewtime INTEGER);");
+         db.execSQL("CREATE TABLE IF NOT EXISTS viewtime (id TEXT PRIMARY KEY, viewtime INTEGER);");
       }
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         db.execSQL("DROP TABLE IF EXISTS sessions");
          db.execSQL("DROP TABLE IF EXISTS active");
-         db.execSQL("DROP TABLE IF EXISTS viewtime");
          onCreate(db);
       }
    }
@@ -125,7 +123,7 @@ public class TradeSessionDb {
    /**
     * Get one session from the database
     */
-   public TradeSessionStatus get(UUID id) {
+   public TradeSession get(UUID id) {
       Cursor cursor = null;
       try {
          cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, "id = \"" + id.toString() + "\"", null,
@@ -185,13 +183,13 @@ public class TradeSessionDb {
    /**
     * Get all active sessions from the database
     */
-   public Collection<TradeSessionStatus> getAll() {
+   public Collection<TradeSession> getAll() {
       Cursor cursor = null;
       try {
-         List<TradeSessionStatus> entries = new LinkedList<TradeSessionStatus>();
+         List<TradeSession> entries = new LinkedList<TradeSession>();
          cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, null, null, null, null, null);
          while (cursor.moveToNext()) {
-            TradeSessionStatus session = sessionFromBlob(cursor.getBlob(0));
+            TradeSession session = sessionFromBlob(cursor.getBlob(0));
             if (session == null) {
                // Ignore anything we cannot parse... happens if the
                // serialization changes
@@ -213,14 +211,14 @@ public class TradeSessionDb {
    /**
     * Get all sessions from the database
     */
-   public Collection<TradeSessionStatus> getBuyTradeSessions() {
+   public Collection<TradeSession> getBuyTradeSessions() {
       Cursor cursor = null;
       try {
-         List<TradeSessionStatus> entries = new LinkedList<TradeSessionStatus>();
+         List<TradeSession> entries = new LinkedList<TradeSession>();
          cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, "isBuy=?", new String[] { "1" }, null,
                null, null);
          while (cursor.moveToNext()) {
-            TradeSessionStatus session = sessionFromBlob(cursor.getBlob(0));
+            TradeSession session = sessionFromBlob(cursor.getBlob(0));
             if (session == null) {
                // Ignore anything we cannot parse... happens if the
                // serialization changes
@@ -239,14 +237,14 @@ public class TradeSessionDb {
       }
    }
 
-   public Collection<TradeSessionStatus> getSellTradeSessions() {
+   public Collection<TradeSession> getSellTradeSessions() {
       Cursor cursor = null;
       try {
-         List<TradeSessionStatus> entries = new LinkedList<TradeSessionStatus>();
+         List<TradeSession> entries = new LinkedList<TradeSession>();
          cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, "isBuy=?", new String[] { "0" }, null,
                null, null);
          while (cursor.moveToNext()) {
-            TradeSessionStatus session = sessionFromBlob(cursor.getBlob(0));
+            TradeSession session = sessionFromBlob(cursor.getBlob(0));
             if (session == null) {
                // Ignore anything we cannot parse... happens if the
                // serialization changes
@@ -268,7 +266,7 @@ public class TradeSessionDb {
    /**
     * Insert a trade session, and set the viewed time to zero.
     */
-   public synchronized void insert(TradeSessionStatus session) {
+   public synchronized void insert(TradeSession session) {
       try {
          _insert.bindString(1, session.id.toString());
          _insert.bindLong(2, session.isBuyer ? 1 : 0);
@@ -283,7 +281,7 @@ public class TradeSessionDb {
    /**
     * Mark this session as viewed at its current lastChange timestamp
     */
-   public synchronized void markViewed(TradeSessionStatus session) {
+   public synchronized void markViewed(TradeSession session) {
       try {
          _setViewTime.bindString(1, session.id.toString());
          _setViewTime.bindLong(2, session.lastChange);
@@ -320,7 +318,7 @@ public class TradeSessionDb {
     * Update a session which already exists in the database. This is without
     * changing its viewed status.
     */
-   public synchronized void update(TradeSessionStatus session) {
+   public synchronized void update(TradeSession session) {
       try {
          _updateSession.bindBlob(1, sessionToBlob(session));
          _updateSession.bindString(2, session.id.toString());
@@ -360,7 +358,7 @@ public class TradeSessionDb {
       }
    }
 
-   private static byte[] sessionToBlob(TradeSessionStatus session) throws IOException {
+   private static byte[] sessionToBlob(TradeSession session) throws IOException {
       ByteArrayOutputStream bout = new ByteArrayOutputStream(1024);
       ObjectOutputStream out = new ObjectOutputStream(bout);
       out.writeObject(session);
@@ -370,12 +368,12 @@ public class TradeSessionDb {
       return result;
    }
 
-   private static TradeSessionStatus sessionFromBlob(byte[] blob) throws IOException {
+   private static TradeSession sessionFromBlob(byte[] blob) throws IOException {
       ByteArrayInputStream bin = new ByteArrayInputStream(blob);
       ObjectInputStream in = new ObjectInputStream(bin);
-      TradeSessionStatus session;
+      TradeSession session;
       try {
-         session = (TradeSessionStatus) in.readObject();
+         session = (TradeSession) in.readObject();
       } catch (ClassNotFoundException e) {
          return null;
       }

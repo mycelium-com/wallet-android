@@ -22,9 +22,10 @@ import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.api.model.PriceFormula;
+import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.lt.api.model.SellOrder;
 import com.mycelium.lt.api.model.SellOrderSearchItem;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.ChatMessageParameters;
@@ -278,39 +279,39 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<LinkedList<TradeSessionStatus>> getActiveTradeSessions(UUID sessionId) {
-      LtRequest r = new LtRequest(_httpEndpoint, Function.GET_OPEN_TRADE_SESSIONS);
+   public LtResponse<LinkedList<TradeSession>> getActiveTradeSessions(UUID sessionId) {
+      LtRequest r = new LtRequest(_httpEndpoint, Function.GET_ACTIVE_TRADE_SESSIONS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      return sendRequest(r, new TypeReference<LtResponse<LinkedList<TradeSessionStatus>>>() {
+      return sendRequest(r, new TypeReference<LtResponse<LinkedList<TradeSession>>>() {
       });
    }
 
    @Override
-   public LtResponse<LinkedList<TradeSessionStatus>> getFinalTradeSessions(UUID sessionId, int limit, int offset) {
+   public LtResponse<LinkedList<TradeSession>> getFinalTradeSessions(UUID sessionId, int limit, int offset) {
       LtRequest r = new LtRequest(_httpEndpoint, Function.GET_FINAL_TRADE_SESSIONS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.LIMIT, Integer.toString(limit));
       r.addQueryParameter(Param.OFFSET, Integer.toString(offset));
-      return sendRequest(r, new TypeReference<LtResponse<LinkedList<TradeSessionStatus>>>() {
+      return sendRequest(r, new TypeReference<LtResponse<LinkedList<TradeSession>>>() {
       });
    }
 
    @Override
-   public LtResponse<LinkedList<TradeSessionStatus>> getTradeSessions(UUID sessionId, int limit, int offset) {
+   public LtResponse<LinkedList<TradeSession>> getTradeSessions(UUID sessionId, int limit, int offset) {
       LtRequest r = new LtRequest(_httpEndpoint, Function.GET_TRADE_SESSIONS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.LIMIT, Integer.toString(limit));
       r.addQueryParameter(Param.OFFSET, Integer.toString(offset));
-      return sendRequest(r, new TypeReference<LtResponse<LinkedList<TradeSessionStatus>>>() {
+      return sendRequest(r, new TypeReference<LtResponse<LinkedList<TradeSession>>>() {
       });
    }
 
    @Override
-   public LtResponse<TradeSessionStatus> getTradeSession(UUID sessionId, UUID tradeSessionId) {
+   public LtResponse<TradeSession> getTradeSession(UUID sessionId, UUID tradeSessionId) {
       LtRequest r = new LtRequest(_httpEndpoint, Function.GET_TRADE_SESSION);
       r.addQueryParameter("sessionId", sessionId.toString()).addQueryParameter(Param.TRADE_SESSION_ID,
             tradeSessionId.toString());
-      return sendRequest(r, new TypeReference<LtResponse<TradeSessionStatus>>() {
+      return sendRequest(r, new TypeReference<LtResponse<TradeSession>>() {
       });
    }
 
@@ -340,13 +341,13 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<TradeSessionStatus> waitForTradeSessionChange(UUID sessionId, UUID tradeSessionId,
+   public LtResponse<TradeSession> waitForTradeSessionChange(UUID sessionId, UUID tradeSessionId,
          long tradeSessionTimestamp) {
       LtRequest r = new LtRequest(_httpEndpoint, Function.WAIT_FOR_TRADE_SESSION_CHANGE);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.TRADE_SESSION_ID, tradeSessionId.toString());
       r.addQueryParameter(Param.TIMESTAMP, Long.toString(tradeSessionTimestamp));
-      return sendRequest(r, new TypeReference<LtResponse<TradeSessionStatus>>() {
+      return sendRequest(r, new TypeReference<LtResponse<TradeSession>>() {
       });
    }
 
@@ -400,6 +401,16 @@ public class LtApiClient implements LtApi {
       return sendRequest(r, new TypeReference<LtResponse<TraderInfo>>() {
       });
    }
+   
+   @Override
+   public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, Address traderIdentity) {
+      LtRequest r = new LtRequest(_httpEndpoint, Function.GET_PUBLIC_TRADER_INFO);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.TRADER_ID, traderIdentity.toString());
+      return sendRequest(r, new TypeReference<LtResponse<PublicTraderInfo>>() {
+      });
+   }
+
 
    @Override
    public LtResponse<Captcha> getCaptcha(UUID sessionId) {

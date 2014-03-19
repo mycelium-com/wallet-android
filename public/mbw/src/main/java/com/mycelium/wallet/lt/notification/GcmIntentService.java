@@ -83,7 +83,7 @@ public class GcmIntentService extends IntentService {
          return;
       }
       String type = extras.getString("type");
-      
+
       // Let local trader know what the latest trader change timestamp is
       if (ltManager.setLastTraderNotification(lastChange) && ltManager.areNotificationsEnabled()) {
          // We got GC notification that was news to us, make a notification
@@ -93,9 +93,9 @@ public class GcmIntentService extends IntentService {
 
    private void showNotification(String type) {
       Intent intent;
-      if(LtApi.TRADE_FINAL_NOTIFICATION_TYPE.equals(type)){
+      if (LtApi.TRADE_FINAL_NOTIFICATION_TYPE.equals(type)) {
          intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.TRADE_HISTORY);
-      }else{
+      } else {
          intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES);
       }
       PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -112,10 +112,14 @@ public class GcmIntentService extends IntentService {
       long[] pattern = { 500, 500 };
       builder.setVibrate(pattern);
 
+      LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
+
       // Make a sound
-      Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-      if (alarmSound != null) {
-         builder.setSound(alarmSound);
+      if (ltManager.playSounfOnTradeNotification()) {
+         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+         if (alarmSound != null) {
+            builder.setSound(alarmSound);
+         }
       }
 
       // Notify

@@ -10,9 +10,10 @@ import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.api.model.PriceFormula;
+import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.lt.api.model.SellOrder;
 import com.mycelium.lt.api.model.SellOrderSearchItem;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.ChatMessageParameters;
@@ -33,11 +34,12 @@ public interface LtApi {
    public static final int MAXIMUM_SELL_ORDER_DESCRIPTION_LENGTH = 1024 * 10;
    public static final int MAXIMUM_SELL_ORDER_SEARCH_LIMIT = 100;
    public static final int MAX_CHAT_MESSAGE_SIZE = 1024;
+   public static final int MAX_LOCATION_NAME_LENGTH = 1024;
 
    /**
     * The current version of the Local Trader API
     */
-   public static final int VERSION = 3;
+   public static final int VERSION = 4;
 
    public final static int ERROR_CODE_SUCCESS = 0;
    public final static int ERROR_CODE_NO_SERVER_CONNECTION = 1;
@@ -65,7 +67,7 @@ public interface LtApi {
    public static final String TRADE_CREATED_NOTIFICATION_TYPE = "trade_created";
    public static final String TRADE_CHANGED_NOTIFICATION_TYPE = "trade_changed";
    public static final String TRADE_FINAL_NOTIFICATION_TYPE = "trade_final";
-
+   
    public LtResponse<LtSession> createSession(int apiVersion, String locale, String bitcoinDenomination);
 
    public LtResponse<Captcha> getCaptcha(UUID sessionId);
@@ -74,6 +76,12 @@ public interface LtApi {
 
    public LtResponse<Void> createTrader(UUID sessionId, TraderParameters params);
 
+   /**
+    * Return the Nickname of the Trader
+    * @param sessionId session Id obtained from createSession
+    * @param params
+    * @return
+    */
    public LtResponse<String> traderLogin(UUID sessionId, LoginParameters params);
 
    public LtResponse<Collection<SellOrder>> listSellOrders(UUID sessionId);
@@ -96,13 +104,13 @@ public interface LtApi {
 
    public LtResponse<UUID> createInstantBuyOrder(UUID sessionId, InstantBuyOrderParameters params);
 
-   public LtResponse<LinkedList<TradeSessionStatus>> getActiveTradeSessions(UUID sessionId);
+   public LtResponse<LinkedList<TradeSession>> getActiveTradeSessions(UUID sessionId);
 
-   public LtResponse<LinkedList<TradeSessionStatus>> getFinalTradeSessions(UUID sessionId, int limit, int offset);
+   public LtResponse<LinkedList<TradeSession>> getFinalTradeSessions(UUID sessionId, int limit, int offset);
 
-   public LtResponse<LinkedList<TradeSessionStatus>> getTradeSessions(UUID sessionId, int limit, int offset);
+   public LtResponse<LinkedList<TradeSession>> getTradeSessions(UUID sessionId, int limit, int offset);
 
-   public LtResponse<TradeSessionStatus> getTradeSession(UUID sessionId, UUID tradeSessionId);
+   public LtResponse<TradeSession> getTradeSession(UUID sessionId, UUID tradeSessionId);
 
    public LtResponse<Void> acceptTrade(UUID sessionId, UUID tradeSessionId, long tradeSessionTimestamp);
 
@@ -119,6 +127,8 @@ public interface LtApi {
    public LtResponse<Boolean> releaseBtc(UUID sessionId, ReleaseBtcParameters params);
 
    public LtResponse<TraderInfo> getTraderInfo(UUID sessionId);
+   
+   public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, Address traderIdentity);
 
    /**
     * Get the last change timestamp for a trader identity without authentication
@@ -126,7 +136,7 @@ public interface LtApi {
     */
    public LtResponse<Long> getLastTradeSessionChange(Address traderIdentity);
 
-   public LtResponse<TradeSessionStatus> waitForTradeSessionChange(UUID sessionId, UUID tradeSessionId,
+   public LtResponse<TradeSession> waitForTradeSessionChange(UUID sessionId, UUID tradeSessionId,
          long tradeSessionTimestamp);
 
    public LtResponse<Void> stopWaitingForTradeSessionChange(UUID token);

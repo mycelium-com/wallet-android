@@ -88,6 +88,7 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _language;
    private CheckBoxPreference _aggregatedView;
    private CheckBoxPreference _ltDisable;
+   private CheckBoxPreference _ltNotificationSound;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private Dialog _dialog;
@@ -195,6 +196,10 @@ public class SettingsActivity extends PreferenceActivity {
       _ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
       _ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
+      _ltNotificationSound = (CheckBoxPreference) findPreference("ltNotificationSound");
+      _ltNotificationSound.setChecked(_ltManager.playSounfOnTradeNotification());
+      _ltNotificationSound.setOnPreferenceClickListener(ltNotificationSoundClickListener);
+
       // Expert Mode
       CheckBoxPreference expertMode = (CheckBoxPreference) findPreference("expertMode");
       expertMode.setChecked(_mbwManager.getExpertMode());
@@ -225,6 +230,7 @@ public class SettingsActivity extends PreferenceActivity {
       });
 
       applyExpertMode();
+      applyLocalTraderEnablement();
    }
 
    private String getLanguageSettingTitle() {
@@ -258,6 +264,11 @@ public class SettingsActivity extends PreferenceActivity {
       _proxy.setEnabled(expert);
    }
 
+   private void applyLocalTraderEnablement() {
+      boolean ltDisabled = _ltManager.isLocalTraderDisabled();
+      _ltNotificationSound.setEnabled(!ltDisabled);
+   }
+   
    private String getSocksProxyTitle() {
       String host = System.getProperty(MbwManager.PROXY_HOST);
       String port = System.getProperty(MbwManager.PROXY_PORT);
@@ -404,6 +415,15 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _ltManager.setLocalTraderDisabled(p.isChecked());
+         applyLocalTraderEnablement();
+         return true;
+      }
+   };
+
+   private final OnPreferenceClickListener ltNotificationSoundClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _ltManager.setPlaySoundOnTradeNotification(p.isChecked());
          return true;
       }
    };

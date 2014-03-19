@@ -61,7 +61,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -76,7 +76,7 @@ public class ActiveTradesFragment extends Fragment {
    private LocalTraderManager _ltManager;
    private ActionMode currentActionMode;
    @SuppressWarnings("unused")
-   private TradeSessionStatus _selectedTradeSession;
+   private TradeSession _selectedTradeSession;
    private TradeSessionsAdapter _tradeSessionAdapter;
 
    @Override
@@ -107,7 +107,7 @@ public class ActiveTradesFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _tradeSessionAdapter = new TradeSessionsAdapter(getActivity(), new ArrayList<TradeSessionStatus>());
+      _tradeSessionAdapter = new TradeSessionsAdapter(getActivity(), new ArrayList<TradeSession>());
       ListView list = (ListView) findViewById(R.id.lvRecentTrades);
       list.setAdapter(_tradeSessionAdapter);
       updateUi();
@@ -126,14 +126,14 @@ public class ActiveTradesFragment extends Fragment {
       super.onDestroy();
    }
 
-   private List<TradeSessionStatus> createTradeSessionList() {
+   private List<TradeSession> createTradeSessionList() {
       LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
-      List<TradeSessionStatus> list = new LinkedList<TradeSessionStatus>();
+      List<TradeSession> list = new LinkedList<TradeSession>();
       list.addAll(ltManager.getLocalTradeSessions());
-      Collections.sort(list, new Comparator<TradeSessionStatus>() {
+      Collections.sort(list, new Comparator<TradeSession>() {
 
          @Override
-         public int compare(TradeSessionStatus lhs, TradeSessionStatus rhs) {
+         public int compare(TradeSession lhs, TradeSession rhs) {
 
             if (lhs.lastChange > rhs.lastChange) {
                return -1;
@@ -152,7 +152,7 @@ public class ActiveTradesFragment extends Fragment {
          return;
       }
 
-      List<TradeSessionStatus> tradeSessions = createTradeSessionList();
+      List<TradeSession> tradeSessions = createTradeSessionList();
       if (tradeSessions.size() == 0) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
          findViewById(R.id.lvRecentTrades).setVisibility(View.GONE);
@@ -163,7 +163,7 @@ public class ActiveTradesFragment extends Fragment {
          // list.setAdapter(new TradeSessionsAdapter(getActivity(),
          // tradeSessions));
          _tradeSessionAdapter.clear();
-         for (TradeSessionStatus tradeSession : tradeSessions) {
+         for (TradeSession tradeSession : tradeSessions) {
             _tradeSessionAdapter.add(tradeSession);
          }
          _tradeSessionAdapter.notifyDataSetChanged();
@@ -188,19 +188,19 @@ public class ActiveTradesFragment extends Fragment {
 
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         _selectedTradeSession = (TradeSessionStatus) view.getTag();
-         TradeActivity.callMe(ActiveTradesFragment.this.getActivity(), ((TradeSessionStatus) view.getTag()).id);
+         _selectedTradeSession = (TradeSession) view.getTag();
+         TradeActivity.callMe(ActiveTradesFragment.this.getActivity(), ((TradeSession) view.getTag()).id);
       }
    };
 
-   private class TradeSessionsAdapter extends ArrayAdapter<TradeSessionStatus> {
+   private class TradeSessionsAdapter extends ArrayAdapter<TradeSession> {
       private Context _context;
       private Date _midnight;
       private DateFormat _dayFormat;
       private DateFormat _hourFormat;
       private Locale _locale;
 
-      public TradeSessionsAdapter(Context context, List<TradeSessionStatus> objects) {
+      public TradeSessionsAdapter(Context context, List<TradeSession> objects) {
          super(context, R.layout.lt_active_trade_session_row, objects);
          _context = context;
          // Get the time at last midnight
@@ -224,7 +224,7 @@ public class ActiveTradesFragment extends Fragment {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_active_trade_session_row, null));
          }
-         TradeSessionStatus o = getItem(position);
+         TradeSession o = getItem(position);
 
          // Dot
          boolean viewed = _mbwManager.getLocalTraderManager().isViewed(o);
@@ -281,6 +281,9 @@ public class ActiveTradesFragment extends Fragment {
 
       @Override
       public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
+         if (!isAdded()) {
+            return;
+         }
          updateUi();
          // Hide spinner
          findViewById(R.id.pbWait).setVisibility(View.GONE);

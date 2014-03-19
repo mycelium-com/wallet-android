@@ -27,7 +27,7 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.api.model.LtSession;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.wallet.AndroidRandomSource;
@@ -62,6 +62,7 @@ public class LocalTraderManager {
    private GpsLocation _currentLocation;
    private String _nickname;
    private boolean _isLocalTraderDisabled;
+   private boolean _playSoundOnTradeNotification;
    private TraderChangeMonitor _traderChangeMonitor;
    private TradeSessionChangeMonitor _tradeSessionChangeMonitor;
    private boolean _notificationsEnabled;
@@ -102,7 +103,7 @@ public class LocalTraderManager {
                   Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
 
       _isLocalTraderDisabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, false);
-
+      _playSoundOnTradeNotification = preferences.getBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
       _lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
       _lastTraderNotification = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, 0);
 
@@ -173,9 +174,9 @@ public class LocalTraderManager {
    public interface LocalManagerApiContext {
       public void handleErrors(Request request, int errorCode);
 
-      public void updateLocalTradeSessions(Collection<TradeSessionStatus> collection);
+      public void updateLocalTradeSessions(Collection<TradeSession> collection);
 
-      public void updateSingleTradeSession(TradeSessionStatus tradeSession);
+      public void updateSingleTradeSession(TradeSession tradeSession);
 
       public void cacheTraderInfo(TraderInfo traderInfo);
    }
@@ -263,11 +264,11 @@ public class LocalTraderManager {
          }
       }
 
-      public void updateLocalTradeSessions(Collection<TradeSessionStatus> collection) {
+      public void updateLocalTradeSessions(Collection<TradeSession> collection) {
          LocalTraderManager.this.updateLocalTradeSessions(collection);
       }
 
-      public void updateSingleTradeSession(TradeSessionStatus tradeSession) {
+      public void updateSingleTradeSession(TradeSession tradeSession) {
          LocalTraderManager.this.updateSingleTradeSession(tradeSession);
       }
 
@@ -390,19 +391,19 @@ public class LocalTraderManager {
    /**
     * May return null
     */
-   public synchronized TradeSessionStatus getLocalTradeSession(UUID tradeSessionId) {
+   public synchronized TradeSession getLocalTradeSession(UUID tradeSessionId) {
       return _db.get(tradeSessionId);
    }
 
-   public synchronized Collection<TradeSessionStatus> getLocalTradeSessions() {
+   public synchronized Collection<TradeSession> getLocalTradeSessions() {
       return _db.getAll();
    }
 
-   public synchronized Collection<TradeSessionStatus> getLocalBuyTradeSessions() {
+   public synchronized Collection<TradeSession> getLocalBuyTradeSessions() {
       return _db.getBuyTradeSessions();
    }
 
-   public synchronized Collection<TradeSessionStatus> getLocalSellTradeSessions() {
+   public synchronized Collection<TradeSession> getLocalSellTradeSessions() {
       return _db.getSellTradeSessions();
    }
 
@@ -418,23 +419,23 @@ public class LocalTraderManager {
       return _db.countSellTradeSessions();
    }
 
-   public synchronized boolean isViewed(TradeSessionStatus tradeSession) {
+   public synchronized boolean isViewed(TradeSession tradeSession) {
       return _db.getViewTimeById(tradeSession.id) >= tradeSession.lastChange;
    }
 
-   public synchronized void markViewed(TradeSessionStatus tradeSession) {
+   public synchronized void markViewed(TradeSession tradeSession) {
       _db.markViewed(tradeSession);
    }
 
-   private synchronized void updateLocalTradeSessions(Collection<TradeSessionStatus> remoteList) {
+   private synchronized void updateLocalTradeSessions(Collection<TradeSession> remoteList) {
       // Get all the local sessions
-      Collection<TradeSessionStatus> localList = _db.getAll();
+      Collection<TradeSession> localList = _db.getAll();
 
       // Iterate over local items to find records to delete or update locally
-      Iterator<TradeSessionStatus> localIt = localList.iterator();
+      Iterator<TradeSession> localIt = localList.iterator();
       while (localIt.hasNext()) {
-         TradeSessionStatus localItem = localIt.next();
-         TradeSessionStatus remoteItem = findAndEliminate(localItem, remoteList);
+         TradeSession localItem = localIt.next();
+         TradeSession remoteItem = findAndEliminate(localItem, remoteList);
          if (remoteItem == null) {
             // A local item is not in the remote list, remove it locally
             _db.delete(localItem.id);
@@ -447,15 +448,15 @@ public class LocalTraderManager {
       }
 
       // Iterate over remaining remote items and insert them
-      Iterator<TradeSessionStatus> remoteIt = remoteList.iterator();
+      Iterator<TradeSession> remoteIt = remoteList.iterator();
       while (remoteIt.hasNext()) {
-         TradeSessionStatus remoteItem = remoteIt.next();
+         TradeSession remoteItem = remoteIt.next();
          _db.insert(remoteItem);
       }
 
    }
 
-   private synchronized void updateSingleTradeSession(TradeSessionStatus item) {
+   private synchronized void updateSingleTradeSession(TradeSession item) {
       _db.insert(item);
    }
 
@@ -467,10 +468,10 @@ public class LocalTraderManager {
       return _cachedTraderInfo;
    }
 
-   private TradeSessionStatus findAndEliminate(TradeSessionStatus item, Collection<TradeSessionStatus> list) {
-      Iterator<TradeSessionStatus> it = list.iterator();
+   private TradeSession findAndEliminate(TradeSession item, Collection<TradeSession> list) {
+      Iterator<TradeSession> it = list.iterator();
       while (it.hasNext()) {
-         TradeSessionStatus t = it.next();
+         TradeSession t = it.next();
          if (t.equals(item)) {
             it.remove();
             return t;
@@ -479,7 +480,7 @@ public class LocalTraderManager {
       return null;
    }
 
-   private boolean needsUpdate(TradeSessionStatus oldValue, TradeSessionStatus newValue) {
+   private boolean needsUpdate(TradeSession oldValue, TradeSession newValue) {
       Preconditions.checkArgument(oldValue.id.equals(newValue.id));
       return oldValue.lastChange < newValue.lastChange;
    }
@@ -591,6 +592,17 @@ public class LocalTraderManager {
       return _isLocalTraderDisabled;
    }
 
+   public void setPlaySoundOnTradeNotification(boolean enabled) {
+      SharedPreferences.Editor editor = getEditor();
+      _playSoundOnTradeNotification = enabled;
+      editor.putBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, enabled);
+      editor.commit();
+   }
+
+   public boolean playSounfOnTradeNotification() {
+      return _playSoundOnTradeNotification;
+   }
+   
    public boolean isCaptchaRequired(Request request) {
       if (request instanceof CreateSellOrder) {
          return _session == null ? true : _session.captcha.contains(LtSession.CaptchaCommands.CREATE_SELL_ORDER);
@@ -674,75 +686,6 @@ public class LocalTraderManager {
 
    private SharedPreferences getGcmPreferences() {
       return _context.getSharedPreferences(Constants.LOCAL_TRADER_GCM_SETTINGS_NAME, Activity.MODE_PRIVATE);
-   }
-
-   public static float calculate5StarRating(int successfulSales, int abortedSales, int successfulBuys, int abortedBuys,
-         long traderAgeMs) {
-      float traderAgeDays = ((float) traderAgeMs) / 1000 / 60 / 60 / 24;
-
-      int successful = successfulSales + successfulBuys;
-
-      int aborted = abortedSales + abortedBuys;
-
-      float ageComponent = getAgeRatingComponent(traderAgeDays);
-      float successComponent = getVolumeRatingComponent(successful + aborted)
-            * getRatingMultiplierBySuccess(successful, aborted);
-      float rating = ageComponent + successComponent;
-
-      // Rating should now be a number between -1 and 6
-
-      rating = Math.min(5.0F, rating);
-      rating = Math.max(0F, rating);
-      return rating;
-   }
-
-   /**
-    * The number of trades done with a maximum of 4
-    */
-   private static float getVolumeRatingComponent(int totalTrades) {
-      return Math.min((float) totalTrades, 4F);
-   }
-
-   private static float getAgeRatingComponent(float traderAgeDays) {
-      if (traderAgeDays < 0.1F) {
-         // rating is 0 stars if the trader is brand new
-         return 0F;
-      } else if (traderAgeDays < 0.5) {
-         // 0.5 stars if the trader has been around for less than half a day
-         return 0.5F;
-      } else if (traderAgeDays < 1) {
-         // 1 star if the trader has been around for less than 1 day
-         return 1F;
-      } else if (traderAgeDays < 2) {
-         // 1.25 stars if the trader has been around for less than 2 days
-         return 1.25F;
-      } else if (traderAgeDays < 3) {
-         // 1.5 stars if the trader has been around for less than 3 days
-         return 1.5F;
-      } else if (traderAgeDays < 14) {
-         // 1.75 stars if the trader has been around for less than 14 days
-         return 1.75F;
-      } else {
-         // 2 stars if the trader is older than 14 days
-         return 2F;
-      }
-   }
-
-   /**
-    * The success multiplier is a number between -1 and 1
-    */
-   private static float getRatingMultiplierBySuccess(int success, int abort) {
-      int total = success + abort;
-      if (total == 0) {
-         return 0F;
-      }
-      // Make multiplier a number between 0 and 1 based on success ratio
-      float multiplier = ((float) success) / total;
-
-      // make multiplier a number between -1 and 1
-
-      multiplier = (2 * multiplier) - 1;
-      return multiplier;
    }
 
 }

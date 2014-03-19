@@ -15,13 +15,14 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.lt.api.model.PriceFormula;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -31,7 +32,7 @@ import com.mycelium.wallet.Wallet.SpendableOutputs;
 
 public class TradeActivityUtil {
 
-   public static boolean canAffordTrade(TradeSessionStatus tradeSession, MbwManager mbwManager) {
+   public static boolean canAffordTrade(TradeSession tradeSession, MbwManager mbwManager) {
       // Create default wallet
       Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
 
@@ -44,7 +45,7 @@ public class TradeActivityUtil {
       return createUnsignedTransaction(tradeSession, mbwManager, spendable, keyRing, mbwManager.getNetwork()) != null;
    }
 
-   public static Transaction createSignedTransaction(TradeSessionStatus tradeSession, MbwManager mbwManager) {
+   public static Transaction createSignedTransaction(TradeSession tradeSession, MbwManager mbwManager) {
       // Create default wallet
       Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
 
@@ -71,9 +72,9 @@ public class TradeActivityUtil {
       return tx;
    }
 
-   private static UnsignedTransaction createUnsignedTransaction(TradeSessionStatus tradeSession, MbwManager mbwManager,
+   private static UnsignedTransaction createUnsignedTransaction(TradeSession tradeSession, MbwManager mbwManager,
          SpendableOutputs spendable, PrivateKeyRing keyRing, NetworkParameters network) {
-      Preconditions.checkArgument(tradeSession.satoshisForBuyer > StandardTransactionBuilder.MINIMUM_OUTPUT_VALUE);
+      Preconditions.checkArgument(tradeSession.satoshisForBuyer > TransactionUtils.MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(tradeSession.satoshisFromSeller >= tradeSession.satoshisForBuyer);
       long localTraderFee = tradeSession.satoshisFromSeller - tradeSession.satoshisForBuyer;
 
@@ -92,7 +93,7 @@ public class TradeActivityUtil {
       try {
          stb.addOutput(receiverAddress, tradeSession.satoshisForBuyer);
 
-         if (localTraderFee >= StandardTransactionBuilder.MINIMUM_OUTPUT_VALUE) {
+         if (localTraderFee >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
             stb.addOutput(localTraderFeeAddress, localTraderFee);
          }
       } catch (OutputTooSmallException e) {

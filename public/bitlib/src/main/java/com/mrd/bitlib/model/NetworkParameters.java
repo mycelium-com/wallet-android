@@ -151,4 +151,8 @@ public class NetworkParameters implements Serializable {
       return other._standardAddressHeader == _standardAddressHeader;
    }
 
+   @Override
+   public String toString() {
+      return isProdnet() ? "prodnet" : "testnet";
+   }
 }

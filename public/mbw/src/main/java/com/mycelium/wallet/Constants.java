@@ -40,6 +40,11 @@ public class Constants {
 
    public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
 
+   public static final long MS_PR_SECOND = 1000L;
+   public static final long MS_PR_MINUTE = MS_PR_SECOND * 60;
+   public static final long MS_PR_HOUR = MS_PR_MINUTE * 60;
+   public static final long MS_PR_DAY = MS_PR_HOUR * 24;
+
    /**
     * The number of transactions to display in our transaction history. The
     * higher the number the more bandwidth we require from the smartphone.
@@ -78,10 +83,12 @@ public class Constants {
    public static final String LOCAL_TRADER_LOCATION_NAME_SETTING = "locationName";
    public static final String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
    public static final String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
-   public static final GpsLocation LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocation(48.2162845, 16.2484715, "Penzing, Vienna");
+   public static final GpsLocation LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocation(48.2162845, 16.2484715,
+         "Penzing, Vienna");
    public static final String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
+   public static final String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
    public static final String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
-
+   public static final String LOCAL_TRADER_HELP_URL = "http://www.mycelium.com/lt/help.html";
 
    public static final String IGNORE_NEW_API = "NewApi";
 

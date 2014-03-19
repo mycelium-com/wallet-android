@@ -53,6 +53,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
+import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
@@ -365,7 +366,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    private long getMaxAmount() {
       long satoshis = _balance;
       while (true) {
-         satoshis -= StandardTransactionBuilder.MINIMUM_MINER_FEE;
+         satoshis -= TransactionUtils.DEFAULT_MINER_FEE;
          AmountValidation result = checkSendAmount(satoshis);
          if (result == AmountValidation.Ok) {
             return satoshis;

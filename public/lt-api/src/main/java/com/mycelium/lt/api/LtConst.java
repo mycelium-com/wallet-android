@@ -48,7 +48,7 @@ public class LtConst {
       public static final String DEACTIVATE_SELL_ORDER = "deactivateSellOrder";
       public static final String DELETE_SELL_ORDER = "deleteSellOrder";
       public static final String CREATE_INSTANT_BUY_ORDER = "createInstantBuyOrder";
-      public static final String GET_OPEN_TRADE_SESSIONS = "getOpenTradeSessions";
+      public static final String GET_ACTIVE_TRADE_SESSIONS = "getActiveTradeSessions";
       public static final String GET_FINAL_TRADE_SESSIONS = "getFinalTradeSessions";
       public static final String GET_TRADE_SESSIONS = "getTradeSessions";
       public static final String GET_TRADE_SESSION = "getTradeSession";
@@ -63,6 +63,7 @@ public class LtConst {
       public static final String REQUEST_MARKET_RATE_REFRESH = "requestMarketRateRefresh";
       public static final String REQUEST_RELEASE_BTC = "releaseBtc";
       public static final String GET_TRADER_INFO = "getTraderInfo";
+      public static final String GET_PUBLIC_TRADER_INFO = "getPublicTraderInfo";
       public static final String GET_CAPTCHA = "getCaptcha";
       public static final String SOLVE_CAPTCHA = "solveCaptcha";
       public static final String GET_LAST_TRADE_SESSION_CHANGE = "getLastTradeSessionChange";

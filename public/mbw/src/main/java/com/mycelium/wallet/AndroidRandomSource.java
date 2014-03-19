@@ -41,7 +41,7 @@ import java.io.IOException;
 
 import com.mrd.bitlib.crypto.RandomSource;
 
-public class AndroidRandomSource extends RandomSource {
+public class AndroidRandomSource implements RandomSource {
 
    @Override
    public synchronized void nextBytes(byte[] bytes) {

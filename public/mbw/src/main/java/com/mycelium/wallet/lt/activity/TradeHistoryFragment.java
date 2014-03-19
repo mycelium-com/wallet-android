@@ -61,7 +61,7 @@ import android.widget.TextView;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
-import com.mycelium.lt.api.model.TradeSessionStatus;
+import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -75,7 +75,7 @@ public class TradeHistoryFragment extends Fragment {
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    @SuppressWarnings("unused")
-   private TradeSessionStatus _selectedTradeSession;
+   private TradeSession _selectedTradeSession;
    private Wrapper _myAdapter;
 
    @Override
@@ -106,7 +106,7 @@ public class TradeHistoryFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _myAdapter = new Wrapper(getActivity(), new ArrayList<TradeSessionStatus>());
+      _myAdapter = new Wrapper(getActivity(), new ArrayList<TradeSession>());
       if (_ltManager.hasLocalTraderAccount()) {
          ListView list = (ListView) findViewById(R.id.lvRecentTrades);
          list.setAdapter(_myAdapter);
@@ -131,19 +131,19 @@ public class TradeHistoryFragment extends Fragment {
 
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         _selectedTradeSession = (TradeSessionStatus) view.getTag();
-         TradeActivity.callMe(TradeHistoryFragment.this.getActivity(), ((TradeSessionStatus) view.getTag()).id);
+         _selectedTradeSession = (TradeSession) view.getTag();
+         TradeActivity.callMe(TradeHistoryFragment.this.getActivity(), ((TradeSession) view.getTag()).id);
       }
    };
 
-   private class TradeSessionsAdapter extends ArrayAdapter<TradeSessionStatus> {
+   private class TradeSessionsAdapter extends ArrayAdapter<TradeSession> {
       private Context _context;
       private Date _midnight;
       private DateFormat _dayFormat;
       private DateFormat _hourFormat;
       private Locale _locale;
 
-      public TradeSessionsAdapter(Context context, List<TradeSessionStatus> objects) {
+      public TradeSessionsAdapter(Context context, List<TradeSession> objects) {
          super(context, R.layout.lt_historic_trade_session_row, objects);
          _context = context;
          // Get the time at last midnight
@@ -167,7 +167,7 @@ public class TradeHistoryFragment extends Fragment {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_historic_trade_session_row, null));
          }
-         TradeSessionStatus o = getItem(position);
+         TradeSession o = getItem(position);
 
          // Dot
          boolean viewed = _mbwManager.getLocalTraderManager().isViewed(o);
@@ -198,18 +198,18 @@ public class TradeHistoryFragment extends Fragment {
    private class Wrapper extends EndlessAdapter {
       private static final int FETCH_LIMIT = 10;
       private RotateAnimation rotate = null;
-      private List<TradeSessionStatus> _fetched;
-      private List<TradeSessionStatus> _toAdd;
+      private List<TradeSession> _fetched;
+      private List<TradeSession> _toAdd;
       private GetFinalTradeSessions _request;
 
-      private Wrapper(Context ctxt, ArrayList<TradeSessionStatus> list) {
+      private Wrapper(Context ctxt, ArrayList<TradeSession> list) {
          super(new TradeSessionsAdapter(ctxt, list));
          rotate = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
          rotate.setDuration(600);
          rotate.setRepeatMode(Animation.RESTART);
          rotate.setRepeatCount(Animation.INFINITE);
-         _fetched = new LinkedList<TradeSessionStatus>();
-         _toAdd = new LinkedList<TradeSessionStatus>();
+         _fetched = new LinkedList<TradeSession>();
+         _toAdd = new LinkedList<TradeSession>();
          _ltManager.subscribe(ltSubscriber);
       }
 
@@ -220,13 +220,13 @@ public class TradeHistoryFragment extends Fragment {
             detach();
          }
 
-         public void onLtFinalTradeSessionsFetched(List<TradeSessionStatus> list, GetFinalTradeSessions request) {
+         public void onLtFinalTradeSessionsFetched(List<TradeSession> list, GetFinalTradeSessions request) {
 
             synchronized (_fetched) {
                if (_request != request) {
                   return;
                }
-               for (TradeSessionStatus item : list) {
+               for (TradeSession item : list) {
                   _fetched.add(item);
                }
                _fetched.notify();
@@ -264,7 +264,7 @@ public class TradeHistoryFragment extends Fragment {
             }
          }
          synchronized (_toAdd) {
-            for (TradeSessionStatus item : _fetched) {
+            for (TradeSession item : _fetched) {
                _toAdd.add(item);
             }
          }
@@ -278,7 +278,7 @@ public class TradeHistoryFragment extends Fragment {
          synchronized (_toAdd) {
             TradeSessionsAdapter a = (TradeSessionsAdapter) getWrappedAdapter();
 
-            for (TradeSessionStatus item : _toAdd) {
+            for (TradeSession item : _toAdd) {
                a.add(item);
             }
             _toAdd.clear();

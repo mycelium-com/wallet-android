@@ -32,7 +32,7 @@ import se.grunka.fortuna.entropy.UptimeEntropySource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
-public class FortunaRandomSource extends RandomSource {
+public class FortunaRandomSource implements RandomSource {
 
    private final Fortuna fortuna;
 

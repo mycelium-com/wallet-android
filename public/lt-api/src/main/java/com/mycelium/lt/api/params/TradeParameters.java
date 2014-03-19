@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mycelium.lt.api.model.GpsLocation;
-
+//todo rename TadeParameters / TraderParameters confusing
 public class TradeParameters implements Serializable {
    private static final long serialVersionUID = 1L;
 

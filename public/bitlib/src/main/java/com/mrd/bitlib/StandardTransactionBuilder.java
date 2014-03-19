@@ -40,9 +40,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 
 public class StandardTransactionBuilder {
 
-   public static final long MINIMUM_MINER_FEE = 10000;
-   public static final long MINIMUM_OUTPUT_VALUE = 5430;
-
    public static class InsufficientFundsException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
@@ -210,7 +207,7 @@ public class StandardTransactionBuilder {
    }
 
    public void addOutput(Address sendTo, long value) throws OutputTooSmallException {
-      if (value < MINIMUM_OUTPUT_VALUE) {
+      if (value < TransactionUtils.MINIMUM_OUTPUT_VALUE) {
          throw new OutputTooSmallException(value);
       }
       _outputs.add(createOutput(sendTo, value));
@@ -258,7 +255,7 @@ public class StandardTransactionBuilder {
     */
    public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> unspent, Address changeAddress,
                                                         PublicKeyRing keyRing, NetworkParameters network) throws InsufficientFundsException {
-      long fee = MINIMUM_MINER_FEE;
+      long fee = TransactionUtils.DEFAULT_MINER_FEE;
       while (true) {
          UnsignedTransaction unsigned;
          try {
@@ -270,12 +267,12 @@ public class StandardTransactionBuilder {
          int txSize = estimateTransacrionSize(unsigned);
          // fee is based on the size of the transaction, we have to pay for
          // every 1000 bytes
-         long requiredFee = (1 + (txSize / 1000)) * MINIMUM_MINER_FEE;
+         long requiredFee = (1 + (txSize / 1000)) * TransactionUtils.DEFAULT_MINER_FEE;
          if (fee >= requiredFee) {
             return unsigned;
          }
          // collect coins anew with an increased fee
-         fee += MINIMUM_MINER_FEE;
+         fee += TransactionUtils.DEFAULT_MINER_FEE;
       }
    }
 
@@ -326,7 +323,7 @@ public class StandardTransactionBuilder {
 
       if (change > 0) {
          // We have more funds than needed, add an output to our change address
-         if (change >= MINIMUM_OUTPUT_VALUE) {
+         if (change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
             // But only if the change is larger than the minimum output accepted
             // by the network
             outputs.add(createOutput(changeAddress, change));

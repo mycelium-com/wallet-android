@@ -36,10 +36,8 @@ package com.mycelium.wallet.lt.activity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -47,26 +45,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.LtAndroidUtils;
+import com.mycelium.wallet.lt.activity.TraderInfoAdapter.InfoItem;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.Request;
 
 public class TraderInfoFragment extends Fragment {
 
    protected static final int CREATE_TRADER_RESULT_CODE = 0;
-   private static final long MS_PR_DAY = 1000 * 60 * 60 * 24;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private TradeInfoAdapter _adapter;
+   private TraderInfoAdapter _adapter;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,7 +100,7 @@ public class TraderInfoFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _adapter = new TradeInfoAdapter(getActivity(), new ArrayList<InfoItem>());
+      _adapter = new TraderInfoAdapter(getActivity(), new ArrayList<TraderInfoAdapter.InfoItem>());
       ListView list = (ListView) findViewById(R.id.lvTraderInfo);
       list.setAdapter(_adapter);
       updateUi();
@@ -146,53 +144,37 @@ public class TraderInfoFragment extends Fragment {
       _adapter.clear();
       _adapter.add(new InfoItem(getString(R.string.lt_trader_name_label), i.nickname));
       _adapter.add(new InfoItem(getString(R.string.lt_trader_address_label), i.address.toMultiLineString()));
-      _adapter.add(new InfoItem(getString(R.string.lt_trader_age_label), getResources().getString(R.string.lt_trader_age_days,
-            i.traderAgeMs / MS_PR_DAY)));
+      _adapter.add(new InfoItem(getString(R.string.lt_trader_age_label), getResources().getString(
+            R.string.lt_time_in_days, i.traderAgeMs / Constants.MS_PR_DAY)));
       _adapter.add(new InfoItem(getString(R.string.lt_successful_sells_label), Integer.toString(i.successfulSales)));
       _adapter.add(new InfoItem(getString(R.string.lt_aborted_sells_label), Integer.toString(i.abortedSales)));
-      _adapter.add(new InfoItem(getString(R.string.lt_total_sold_label), _mbwManager.getBtcValueString(i.totalBtcSold)));
+      _adapter
+            .add(new InfoItem(getString(R.string.lt_total_sold_label), _mbwManager.getBtcValueString(i.totalBtcSold)));
       _adapter.add(new InfoItem(getString(R.string.lt_successful_buys_label), Integer.toString(i.successfulBuys)));
       _adapter.add(new InfoItem(getString(R.string.lt_aborted_buys_label), Integer.toString(i.abortedBuys)));
-      _adapter.add(new InfoItem(getString(R.string.lt_total_bought_label), _mbwManager.getBtcValueString(i.totalBtcBought)));
-      _adapter.add(new InfoItem(getString(R.string.lt_local_trader_comission_label), roundDoubleHalfUp(i.localTraderPremium, 2)
-            .toString() + "%"));
+      _adapter.add(new InfoItem(getString(R.string.lt_total_bought_label), _mbwManager
+            .getBtcValueString(i.totalBtcBought)));
+
+      // Rating
+      float rating = LtAndroidUtils.calculate5StarRating(i.successfulSales, i.abortedSales, i.successfulBuys,
+            i.abortedBuys, i.traderAgeMs);
+      _adapter.add(new InfoItem(getString(R.string.lt_rating_label), rating));
+
+      // Median trade time
+      if (i.tradeMedianMs != null) {
+         String hourString = LtAndroidUtils.getApproximateTimeInHours(getActivity(), i.tradeMedianMs);
+         _adapter.add(new InfoItem(getString(R.string.lt_expected_trade_time_label), hourString));
+      }
+
+      // Commission
+      _adapter.add(new InfoItem(getString(R.string.lt_local_trader_commission_label), roundDoubleHalfUp(
+            i.localTraderPremium, 2).toString()
+            + "%"));
+
    }
 
    private static Double roundDoubleHalfUp(double value, int decimals) {
       return BigDecimal.valueOf(value).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
-   }
-
-   private class InfoItem {
-      final String label;
-      final String value;
-
-      public InfoItem(String label, String value) {
-         this.label = label;
-         this.value = value;
-      }
-   }
-
-   private class TradeInfoAdapter extends ArrayAdapter<InfoItem> {
-      private Context _context;
-
-      public TradeInfoAdapter(Context context, List<InfoItem> objects) {
-         super(context, R.layout.lt_trader_info_row, objects);
-         _context = context;
-      }
-
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
-         View v = convertView;
-         if (v == null) {
-            LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_row, null));
-         }
-         InfoItem o = getItem(position);
-
-         ((TextView) v.findViewById(R.id.tvLabel)).setText(o.label);
-         ((TextView) v.findViewById(R.id.tvValue)).setText(o.value);
-         return v;
-      }
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {

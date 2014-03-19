@@ -36,6 +36,8 @@ public class SellOrderSearchItem implements Serializable {
    public final int distanceInMeters;
    @JsonProperty
    public final long traderAgeMs;
+   @JsonProperty
+   public final Long tradeMedianMs;
 
    public SellOrderSearchItem(@JsonProperty("id") UUID id, @JsonProperty("nickname") String nickname,
          @JsonProperty("description") String description, @JsonProperty("successfulSales") int successfulSales,
@@ -43,7 +45,8 @@ public class SellOrderSearchItem implements Serializable {
          @JsonProperty("abortedBuys") int abortedBuys, @JsonProperty("currency") String currency,
          @JsonProperty("minimumFiat") int minimumFiat, @JsonProperty("maximumFiat") int maximumFiat,
          @JsonProperty("oneBtcInFiat") double oneBtcInFiat, @JsonProperty("location") GpsLocation location,
-         @JsonProperty("distanceInMeters") int distanceInMeters, @JsonProperty("traderAgeMs") long traderAgeMs) {
+         @JsonProperty("distanceInMeters") int distanceInMeters, @JsonProperty("traderAgeMs") long traderAgeMs,
+         @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
       this.id = id;
       this.nickname = nickname;
       this.description = description;
@@ -58,6 +61,7 @@ public class SellOrderSearchItem implements Serializable {
       this.location = location;
       this.distanceInMeters = distanceInMeters;
       this.traderAgeMs = traderAgeMs;
+      this.tradeMedianMs = tradeMedianMs;
    }
 
 }

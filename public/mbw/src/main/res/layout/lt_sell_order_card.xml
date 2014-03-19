@@ -133,6 +133,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
+            <!-- Expected Trade Time -->
+
+            <TextView
+                android:id="@+id/tvExpectedTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="7dp"
+                android:text="@string/lt_expected_trade_time_label"
+                android:textColor="@color/lightgrey" />
+
+            <TextView
+                android:id="@+id/tvExpectedTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="18sp" />
+
             <!-- Location -->
 
             <TextView

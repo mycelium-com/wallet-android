@@ -21,12 +21,14 @@
 
     <!-- Value -->
 
-    <TextView
-        android:id="@+id/tvValue"
+    <RatingBar
+        android:id="@+id/rating"
+        style="?android:attr/ratingBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:gravity="center"
-        android:textSize="20sp" />
+        android:numStars="5"
+        android:rating="3.2"
+        android:stepSize="0.01" />
 
 </LinearLayout>

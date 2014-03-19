@@ -47,7 +47,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 
 public class SignatureSValueTest {
 
-   public class FakeRandom extends RandomSource {
+   public class FakeRandom implements RandomSource {
 
       @Override
       public void nextBytes(byte[] bytes) {

@@ -61,6 +61,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.GetSellOrder;
@@ -240,18 +241,29 @@ public class SellOrderSearchFragment extends Fragment {
          tvTraderAge.setText(traderAge);
          setTraderAgeColor(tvTraderAge, traderAgeDays);
          RatingBar ratingBar = (RatingBar) card.findViewById(R.id.seller_rating);
-         float rating = LocalTraderManager.calculate5StarRating(orderItem.successfulSales, orderItem.abortedSales,
+         float rating = LtAndroidUtils.calculate5StarRating(orderItem.successfulSales, orderItem.abortedSales,
                orderItem.successfulBuys, orderItem.abortedBuys, orderItem.traderAgeMs);
          ratingBar.setRating(rating);
 
          // Selected item displays more stuff
          if (isSelected) {
             card.findViewById(R.id.lvSelectedInfo).setVisibility(View.VISIBLE);
-            
+
+            // Expected Trade Time
+            if (orderItem.tradeMedianMs == null) {
+               card.findViewById(R.id.tvExpectedTimeLabel).setVisibility(View.GONE);
+               card.findViewById(R.id.tvExpectedTime).setVisibility(View.GONE);
+            } else {
+               card.findViewById(R.id.tvExpectedTimeLabel).setVisibility(View.VISIBLE);
+               TextView tvExpectedTime = (TextView) card.findViewById(R.id.tvExpectedTime);
+               tvExpectedTime.setVisibility(View.VISIBLE);
+               String hourString = LtAndroidUtils.getApproximateTimeInHours(_context, orderItem.tradeMedianMs);
+               tvExpectedTime.setText(hourString);
+            }
             // Location
             TextView tvLocation = (TextView) card.findViewById(R.id.tvLocation);
             tvLocation.setText(orderItem.location.name);
-            
+
             // Description
             TextView tvDescriptionLabel = (TextView) card.findViewById(R.id.tvDescriptionLabel);
             TextView tvDescription = (TextView) card.findViewById(R.id.tvDescription);
@@ -263,7 +275,7 @@ public class SellOrderSearchFragment extends Fragment {
                tvDescriptionLabel.setVisibility(View.VISIBLE);
                tvDescription.setText(orderItem.description);
             }
-            
+
             // Button
             Button btBuy = (Button) card.findViewById(R.id.btBuy);
             if (orderItem.nickname.equals(_ltManager.getNickname())) {
@@ -298,7 +310,7 @@ public class SellOrderSearchFragment extends Fragment {
       };
 
       private String getTraderAgeString(int days) {
-         return getResources().getString(R.string.lt_trader_age_days, days);
+         return getResources().getString(R.string.lt_time_in_days, days);
       }
 
       private String getDistanceString(SellOrderSearchItem item) {

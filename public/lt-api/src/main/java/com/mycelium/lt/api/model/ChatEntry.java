@@ -22,6 +22,8 @@ public class ChatEntry implements Serializable {
    public static final int EVENT_SUBTYPE_BTC_RELEASED = 8;
    public static final int EVENT_SUBTYPE_BTC_CONFIRMED = 9;
    public static final int EVENT_SUBTYPE_TRADE_OWNER_CHANGE_PRICE = 10;
+   public static final int EVENT_SUBTYPE_TIMEOUT = 11;
+   
 
    @JsonProperty
    public long time;

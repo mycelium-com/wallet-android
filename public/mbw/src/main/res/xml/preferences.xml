@@ -52,6 +52,12 @@
             android:layout="@layout/preference_layout"
             android:summary="@string/lt_disable_preference_summary"
             android:title="@string/lt_disable_preference" />
+
+        <CheckBoxPreference
+            android:key="ltNotificationSound"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/lt_sound_on_trade_preference_summary"
+            android:title="@string/lt_sound_on_trade_preference" />
         
     </PreferenceCategory>
 

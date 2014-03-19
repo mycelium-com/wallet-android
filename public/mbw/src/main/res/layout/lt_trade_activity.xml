@@ -214,31 +214,74 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- Chat -->
-
-        <ListView
-            android:id="@+id/lvChat"
+        <FrameLayout
+            android:id="@+id/bottomPanel"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/btn_transparent_slim_stroke"
-            android:divider="@null"
-            android:dividerHeight="0dp"
-            android:fadeScrollbars="false" />
+            android:layout_height="fill_parent" >
 
-        <!-- Send Message Button -->
+            <LinearLayout
+                android:id="@+id/infoPanel"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@drawable/btn_transparent_slim_stroke"
+                android:orientation="vertical"
+                android:visibility="invisible" >
 
-        <Button
-            android:id="@+id/btSendMessage"
-            style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="5dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/lt_send_message_button"
-            android:textSize="16sp" />
+                <ListView
+                    android:id="@+id/lvInfo"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="@android:color/transparent" />
+            </LinearLayout>
+
+            <!-- Chat View -->
+
+            <LinearLayout
+                android:id="@+id/chatPanel"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
+
+                <ListView
+                    android:id="@+id/lvChat"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/btn_transparent_slim_stroke"
+                    android:divider="@null"
+                    android:dividerHeight="0dp"
+                    android:fadeScrollbars="false"
+                    android:listSelector="@android:color/transparent" />
+
+                <!-- Enter Chat message -->
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+
+                    <EditText
+                        android:id="@+id/etMessage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:hint="@string/lt_chat_message_hint"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:textSize="16sp" />
+
+                    <ImageButton
+                        android:id="@+id/btSendMessage"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity="center"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/an_icon"
+                        android:src="@drawable/send" />
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
 
 </FrameLayout>
