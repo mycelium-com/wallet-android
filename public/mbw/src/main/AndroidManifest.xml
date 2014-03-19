@@ -127,7 +127,7 @@
         <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader1Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader2Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.SolveCaptchaActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.TradeActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.TradeActivity" android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity android:name="com.mycelium.wallet.lt.activity.ChangeLocationActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.EnterLocationActivity" android:windowSoftInputMode="stateVisible"/>
         <activity android:name="com.mycelium.wallet.lt.activity.ChangePriceActivity" />
