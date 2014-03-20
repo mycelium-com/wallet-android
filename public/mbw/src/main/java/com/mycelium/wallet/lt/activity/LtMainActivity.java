@@ -40,6 +40,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
@@ -61,6 +62,7 @@ import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
+import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.SellOrderSearchFragment;
@@ -112,6 +114,8 @@ public class LtMainActivity extends ActionBarActivity {
 
       _actionBar = getSupportActionBar();
       _actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+      //to provide up navigation from actionbar, in case the modern main activity is not on the stack
+      _actionBar.setDisplayHomeAsUpEnabled(true);
 
       _tabsAdapter = new TabsAdapter(this, _viewPager);
 
@@ -198,6 +202,15 @@ public class LtMainActivity extends ActionBarActivity {
       final int itemId = item.getItemId();
       if (itemId == R.id.miHowTo) {
          openLocalTraderHelp();
+      }
+      if (itemId == android.R.id.home) {
+          // Respond to the action bar's home button, navigates to parent activity
+    	  // TODO: as soon as this bug is resolved, NavUtils should be used.
+    	  // http://code.google.com/p/android/issues/detail?id=58520
+          // NavUtils.navigateUpFromSameTask(this);
+    	  startActivity(new Intent(this, ModernMain.class));
+    	  
+          return true;
       }
       return super.onOptionsItemSelected(item);
    }

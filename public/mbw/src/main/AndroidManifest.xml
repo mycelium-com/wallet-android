@@ -123,7 +123,14 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
-        <activity android:name="com.mycelium.wallet.lt.activity.LtMainActivity"/>
+        <activity
+            android:name="com.mycelium.wallet.lt.activity.LtMainActivity"
+            android:parentActivityName="com.mycelium.wallet.activity.modern.ModernMain" >
+        	<!-- Parent activity to provide up navigation from home button, and meta-data to support 4.0 and lower -->
+        	<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.mycelium.wallet.activity.modern.ModernMain" />
+        </activity>
         <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader1Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader2Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.SolveCaptchaActivity" />
