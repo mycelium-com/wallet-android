@@ -1,1 +1,1 @@
-include "public:bitlib", "public:mbw","public:mbwapi", "public:zxing-android", "public:zxing-core"
+include "public:bitlib", "public:mbw","public:mbwapi", "public:zxing-android", "public:zxing-core", "public:backuputil"
