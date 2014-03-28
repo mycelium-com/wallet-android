@@ -89,6 +89,7 @@ public class SettingsActivity extends PreferenceActivity {
    private CheckBoxPreference _aggregatedView;
    private CheckBoxPreference _ltDisable;
    private CheckBoxPreference _ltNotificationSound;
+   private CheckBoxPreference _ltMilesKilometers;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private Dialog _dialog;
@@ -200,6 +201,10 @@ public class SettingsActivity extends PreferenceActivity {
       _ltNotificationSound.setChecked(_ltManager.playSounfOnTradeNotification());
       _ltNotificationSound.setOnPreferenceClickListener(ltNotificationSoundClickListener);
 
+      _ltMilesKilometers = (CheckBoxPreference) findPreference("ltMilesKilometers");
+      _ltMilesKilometers.setChecked(_ltManager.useMiles());
+      _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
+
       // Expert Mode
       CheckBoxPreference expertMode = (CheckBoxPreference) findPreference("expertMode");
       expertMode.setChecked(_mbwManager.getExpertMode());
@@ -267,6 +272,7 @@ public class SettingsActivity extends PreferenceActivity {
    private void applyLocalTraderEnablement() {
       boolean ltDisabled = _ltManager.isLocalTraderDisabled();
       _ltNotificationSound.setEnabled(!ltDisabled);
+      _ltMilesKilometers.setEnabled(!ltDisabled);
    }
    
    private String getSocksProxyTitle() {
@@ -424,6 +430,14 @@ public class SettingsActivity extends PreferenceActivity {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
          _ltManager.setPlaySoundOnTradeNotification(p.isChecked());
+         return true;
+      }
+   };
+   
+   private final OnPreferenceClickListener ltMilesKilometersClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _ltManager.setUseMiles(p.isChecked());
          return true;
       }
    };

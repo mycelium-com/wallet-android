@@ -66,7 +66,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * Local Trader API for testnet
     */
 //   private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpEndpoint(
-//         "http://192.168.1.139:8080/trade/");
+//         "http://192.168.1.139:8089/trade/");
 
    private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
          "https://node3.mycelium.com/lttestnet/", myceliumThumbprint);

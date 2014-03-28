@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.lt.ApiUtils;
@@ -36,12 +37,13 @@ public class CreateTrader extends Request {
 
       // Sign session ID with private key
       String sigHashSessionId = ApiUtils.generateUuidHashSignature(_privateKey, sessionId, new AndroidRandomSource());
-      Address address = _privateKey.getPublicKey().toAddress(_network);
+      PublicKey publicKey = _privateKey.getPublicKey();
+      Address address = publicKey.toAddress(_network);
 
       try {
 
          // Call function
-         TraderParameters params = new TraderParameters(_nickname, address, sigHashSessionId);
+         TraderParameters params = new TraderParameters(_nickname, address, publicKey, sigHashSessionId);
          api.createTrader(sessionId, params).getResult();
 
          // Notify Success

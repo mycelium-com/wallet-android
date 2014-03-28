@@ -414,12 +414,14 @@ public class Utils {
     * 
     * @param context
     *           The context
-    * @param messageId
+    * @param messageResourceId
     *           The resource ID of the message to show
     */
-   public static boolean showOptionalMessage(final Context context, final int messageId) {
+   public static boolean showOptionalMessage(final Context context, int messageResourceId) {
+      String message = context.getString(messageResourceId);
+      final String optionalMessageId = Integer.toString(message.hashCode());
       SharedPreferences settings = context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE);
-      boolean ignore = settings.getBoolean(Integer.toString(messageId), false);
+      boolean ignore = settings.getBoolean(optionalMessageId, false);
       if (ignore) {
          // The user has opted never to get this message shown again
          return false;
@@ -430,7 +432,7 @@ public class Utils {
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
       TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
-      tvMessage.setText(messageId);
+      tvMessage.setText(message);
       CheckBox cb = (CheckBox) layout.findViewById(R.id.checkbox);
       cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -438,7 +440,7 @@ public class Utils {
          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             // Persist checked state
             context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE).edit()
-                  .putBoolean(Integer.toString(messageId), isChecked).commit();
+                  .putBoolean(optionalMessageId, isChecked).commit();
          }
       });
 

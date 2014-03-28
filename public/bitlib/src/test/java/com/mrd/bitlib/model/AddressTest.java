@@ -36,6 +36,7 @@ package com.mrd.bitlib.model;
 
 import java.security.SecureRandom;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -58,6 +59,32 @@ public class AddressTest {
       PublicKey pub = priv.getPublicKey();
       Address addr = pub.toAddress(NetworkParameters.productionNetwork);
       System.out.println(addr.toString());
+   }
+
+   @Test
+   public void standardAddressTest() {
+      Address tAddr = Address.fromString("muvtKjWtqcxrsDYfvFCgGnkmB4EqEcU8Bk");
+      Assert.assertNotNull(tAddr);
+      Assert.assertFalse(tAddr.isMultisig(tAddr.getNetwork()));
+      Assert.assertTrue(tAddr.getNetwork().isTestnet());
+
+      Address pAddr = Address.fromString("1NiKrdcsiat3NVRu5XCmGkzZhZDTGXabU5");
+      Assert.assertNotNull(pAddr);
+      Assert.assertFalse(pAddr.isMultisig(pAddr.getNetwork()));
+      Assert.assertTrue(pAddr.getNetwork().isProdnet());
+   }
+
+   @Test
+   public void multisigAddressTest() {
+      Address tAddr = Address.fromString("2N9ZkpDh83uygvhTSy5syYADZvDuVZi8mRH");
+      Assert.assertNotNull(tAddr);
+      Assert.assertTrue(tAddr.isMultisig(tAddr.getNetwork()));
+      Assert.assertTrue(tAddr.getNetwork().isTestnet());
+
+      Address pAddr = Address.fromString("31qh3GkM3RLPfMy86XjisS7bVkz7Pz8wee");
+      Assert.assertNotNull(pAddr);
+      Assert.assertTrue(pAddr.isMultisig(pAddr.getNetwork()));
+      Assert.assertTrue(pAddr.getNetwork().isProdnet());
    }
 
 }

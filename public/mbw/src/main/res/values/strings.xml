@@ -325,12 +325,17 @@
     <string name="lt_disable_preference_summary">Disable Local Trader functionality</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
+    <string name="lt_miles_kilometers_preference">Use Miles for Distances</string>
+    <string name="lt_miles_kilometers_preference_summary">Use miles instead of kilometers for distances</string>
     <string name="lt_detached">Local Trader account detached</string>
     <string name="lt_error_api_occurred">An error occurred</string>
     <string name="lt_error_incompatible_version">Your wallet needs an upgrade to use this functionality</string>
     <string name="lt_account_does_not_exist">Your trader account does not exist.</string>
     <string name="lt_price_label">Price</string>
     <string name="lt_distance_label">Distance</string>
+    <string name="lt_distance_in_kilometers">%1$s Km</string>
+    <string name="lt_distance_in_miles">%1$s Miles</string>
+    <string name="lt_distance_not_applicable">Omnipresent</string>
     <string name="lt_limits_label">Limits</string>
     <string name="lt_trader_label">Trader</string>
     <string name="lt_time_in_days">%1$s days</string>
@@ -426,6 +431,8 @@
     <string name="lt_location_hint">Enter city or address</string>
     <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">WELCOME!\n\nMycelium Local Trader lets you trade cash for bitcoins by finding traders in your local area, without you having to trust an exchange provider with your money. All trades are done directly in person.\n\nUntil September 1st, 2014, Mycelium is offering a special promotional rate of just 0.2% fee per trade for trades using the Local Trader system.</string>
     <string name="lt_how_to_trade_menu">How to Trade</string>
+    <string name="lt_going_to_website">Going to %1$s</string>
+    <string name="lt_buy_sell_button">Buy / Sell Bitcoin</string>
     
 <!--  LT end -->
 

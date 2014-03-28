@@ -67,8 +67,7 @@ public class Address implements Serializable, Comparable<Address> {
       if (addr == null) {
          return null;
       }
-      int version = addr.getVersion();
-      if (version != network.getStandardAddressHeader() && version != network.getMultisigAddressHeader()) {
+      if(!addr.isValidAddress(network)){
          return null;
       }
       return addr;
@@ -243,8 +242,8 @@ public class Address implements Serializable, Comparable<Address> {
       throw new IllegalStateException("unknown network");
    }
 
-   private boolean matchesNetwork(NetworkParameters prod, byte version) {
-      return prod.getStandardAddressHeader() == version || prod.getMultisigAddressHeader() == version;
+   private boolean matchesNetwork(NetworkParameters network, byte version) {
+      return ((byte) (network.getStandardAddressHeader() & 0xFF)) == version || ((byte) (network.getMultisigAddressHeader() & 0xFF)) == version;
    }
 
 }

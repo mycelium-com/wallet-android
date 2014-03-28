@@ -44,7 +44,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 94
+        versionCode 97
         versionName '1.2.0'
     }
 
@@ -94,7 +94,7 @@ android {
 
         testnet {
             packageName 'com.mycelium.testnetwallet'
-            versionName = defaultConfig.versionName + '-ALPHA2-TESTNET'
+            versionName = defaultConfig.versionName + '-ALPHA5-TESTNET'
             signingConfig signingConfigs.testnetplay
         }
     }

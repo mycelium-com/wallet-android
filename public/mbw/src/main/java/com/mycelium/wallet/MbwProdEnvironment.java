@@ -34,10 +34,14 @@
 
 package com.mycelium.wallet;
 
+import android.util.Log;
+
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 import com.mycelium.lt.api.LtApi;
+import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.lt.api.LtApiClient.Logger;
 
 public class MbwProdEnvironment extends MbwEnvironment {
    /**
@@ -64,6 +68,30 @@ public class MbwProdEnvironment extends MbwEnvironment {
    private static final MyceliumWalletApiImpl prodnetApi = new MyceliumWalletApiImpl(prodnetServerEndpoints,
          NetworkParameters.productionNetwork);
 
+   /**
+    * Local Trader API for testnet
+    */
+//   private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpEndpoint(
+//         "http://192.168.1.139:8087/trade/");
+
+   private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
+         "https://node2.mycelium.com/ltprodnet/", myceliumThumbprint);
+
+   private static final LtApiClient prodnetLocalTraderApi = new LtApiClient(testnetLocalTraderEndpoint, new Logger() {
+
+      @Override
+      public void logError(String message, Exception e) {
+         Log.e("", message, e);
+
+      }
+
+      @Override
+      public void logError(String message) {
+         Log.e("", message);
+
+      }
+   });
+   
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;
@@ -76,6 +104,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
 
    @Override
    public LtApi getLocalTraderApi() {
-      throw new RuntimeException("Not Implemented");
+      return prodnetLocalTraderApi;
    }
 }

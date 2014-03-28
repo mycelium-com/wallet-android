@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mrd.bitlib.crypto.PublicKey;
 
 public class SellOrderSearchItem implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -12,6 +13,8 @@ public class SellOrderSearchItem implements Serializable {
    public final UUID id;
    @JsonProperty
    public final String nickname;
+   @JsonProperty
+   public final PublicKey publicKey;
    @JsonProperty
    public final String description;
    @JsonProperty
@@ -40,15 +43,16 @@ public class SellOrderSearchItem implements Serializable {
    public final Long tradeMedianMs;
 
    public SellOrderSearchItem(@JsonProperty("id") UUID id, @JsonProperty("nickname") String nickname,
-         @JsonProperty("description") String description, @JsonProperty("successfulSales") int successfulSales,
-         @JsonProperty("abortedSales") int abortedSales, @JsonProperty("successfulBuys") int successfulBuys,
-         @JsonProperty("abortedBuys") int abortedBuys, @JsonProperty("currency") String currency,
-         @JsonProperty("minimumFiat") int minimumFiat, @JsonProperty("maximumFiat") int maximumFiat,
-         @JsonProperty("oneBtcInFiat") double oneBtcInFiat, @JsonProperty("location") GpsLocation location,
-         @JsonProperty("distanceInMeters") int distanceInMeters, @JsonProperty("traderAgeMs") long traderAgeMs,
-         @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
+         @JsonProperty("publicKey") PublicKey publicKey, @JsonProperty("description") String description,
+         @JsonProperty("successfulSales") int successfulSales, @JsonProperty("abortedSales") int abortedSales,
+         @JsonProperty("successfulBuys") int successfulBuys, @JsonProperty("abortedBuys") int abortedBuys,
+         @JsonProperty("currency") String currency, @JsonProperty("minimumFiat") int minimumFiat,
+         @JsonProperty("maximumFiat") int maximumFiat, @JsonProperty("oneBtcInFiat") double oneBtcInFiat,
+         @JsonProperty("location") GpsLocation location, @JsonProperty("distanceInMeters") int distanceInMeters,
+         @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
       this.id = id;
       this.nickname = nickname;
+      this.publicKey = publicKey;
       this.description = description;
       this.successfulSales = successfulSales;
       this.abortedSales = abortedSales;

@@ -175,7 +175,7 @@ public class SellOrderSearchFragment extends Fragment {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvSearching).setVisibility(View.GONE);
          findViewById(R.id.lvRecords).setVisibility(View.VISIBLE);
-         _recordsAdapter = new SellOrderAdapter(getActivity(), _sellOrders);
+         _recordsAdapter = new SellOrderAdapter(getActivity(), _sellOrders, _ltManager.useMiles());
          ListView listView = (ListView) findViewById(R.id.lvRecords);
          listView.setAdapter(_recordsAdapter);
       }
@@ -197,14 +197,13 @@ public class SellOrderSearchFragment extends Fragment {
       private static final long MS_PER_DAY = 1000 * 60 * 60 * 24;
       private Locale _locale;
       private Context _context;
-      private boolean _useKilometers;
+      private boolean _useMiles;
 
-      public SellOrderAdapter(Context context, List<SellOrderSearchItem> objects) {
+      public SellOrderAdapter(Context context, List<SellOrderSearchItem> objects, boolean useMiles) {
          super(context, R.layout.lt_sell_order_card, objects);
          _locale = new Locale("en", "US");
          _context = context;
-         // XXX we need to determine whether to use miles or kilometers
-         _useKilometers = true;
+         _useMiles = useMiles;
       }
 
       @Override
@@ -317,14 +316,11 @@ public class SellOrderSearchFragment extends Fragment {
          if (isOmnipresent(item)) {
             // This trader is not limited by distance, and can trade anywhere in
             // the world
-            // XXX use strings.xml
-            return "Omnipresent";
-         } else if (_useKilometers) {
-            // XXX use strings.xml
-            return String.format(_locale, "%d Km", item.distanceInMeters / 1000);
+            return getString(R.string.lt_distance_not_applicable);
+         } else if (_useMiles) {
+            return getString(R.string.lt_distance_in_miles, Integer.toString(item.distanceInMeters / METERS_PR_MILE));
          } else {
-            // XXX use strings.xml
-            return String.format(_locale, "%d Miles", item.distanceInMeters / METERS_PR_MILE);
+            return getString(R.string.lt_distance_in_kilometers, Integer.toString(item.distanceInMeters / 1000));
          }
 
       }

@@ -59,7 +59,13 @@
             android:summary="@string/lt_sound_on_trade_preference_summary"
             android:title="@string/lt_sound_on_trade_preference" />
         
-    </PreferenceCategory>
+        <CheckBoxPreference
+            android:key="ltMilesKilometers"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/lt_miles_kilometers_preference_summary"
+            android:title="@string/lt_miles_kilometers_preference" />
+        
+        </PreferenceCategory>
 
     
     <!-- Advanced Settiings -->

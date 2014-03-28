@@ -34,6 +34,9 @@
 
 package com.mycelium.wallet.lt.activity;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +52,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -186,10 +190,10 @@ public class TradeActivity extends Activity {
 
       _lvChat = (ListView) findViewById(R.id.lvChat);
       _lvChat.setAdapter(_chatAdapter);
-      _lvChat.setOnItemClickListener(flipItemClickListener);
+      _lvChat.setOnItemClickListener(chatItemClickListener);
 
       _lvInfo = (ListView) findViewById(R.id.lvInfo);
-      _lvInfo.setOnItemClickListener(flipItemClickListener);
+      _lvInfo.setOnItemClickListener(infoItemClickListener);
 
    }
 
@@ -373,7 +377,62 @@ public class TradeActivity extends Activity {
       }
    };
 
-   OnItemClickListener flipItemClickListener = new OnItemClickListener() {
+   OnItemClickListener chatItemClickListener = new OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> adapter, View view, int arg2, long arg3) {
+         if (view != null) {
+            TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
+            if (tvMessage != null) {
+               String text = tvMessage.getText().toString();
+               Uri uri = getUriFromAnyText(text);
+               if (uri != null) {
+                  Intent intent = new Intent(Intent.ACTION_VIEW);
+                  intent.setData(uri);
+                  startActivity(intent);
+                  String toast = getString(R.string.lt_going_to_website, uri.getHost());
+                  Toast.makeText(TradeActivity.this, toast, Toast.LENGTH_LONG).show();
+                  return;
+               }
+            }
+         }
+         flipChatAndInfoPanels();
+      }
+
+      private Uri getUriFromAnyText(String text) {
+         if (text == null) {
+            return null;
+         }
+         int start = text.indexOf("http://");
+         if (start == -1) {
+            start = text.indexOf("https://");
+         }
+         if (start == -1) {
+            return null;
+         }
+         int end = text.indexOf(' ', start);
+         if (end == -1) {
+            end = text.length();
+         }
+         String urlString = text.substring(start, end);
+         try {
+            URL url = new URL(urlString);
+            String protocol = url.getProtocol();
+            if (protocol.equals("http") || protocol.equals("https")) {
+               // Converting URL to URI to Uri, a bit stupid though
+               Uri uri = Uri.parse(url.toURI().toString());
+               return uri;
+            }
+         } catch (MalformedURLException e) {
+            // pass through
+         } catch (URISyntaxException e) {
+            // pass through
+         }
+         return null;
+      }
+   };
+
+   OnItemClickListener infoItemClickListener = new OnItemClickListener() {
 
       @Override
       public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -488,7 +547,7 @@ public class TradeActivity extends Activity {
       if (_tradeSession.location != null) {
          a.add(new InfoItem(getString(R.string.lt_location_label), _tradeSession.location.name));
       }
-      
+
       if (_peerInfo == null) {
          // We don't have the peer info yet
          return;

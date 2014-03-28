@@ -40,7 +40,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
@@ -58,10 +57,6 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.AboutActivity;
-import com.mycelium.wallet.activity.export.VerifyBackupActivity;
-import com.mycelium.wallet.activity.send.InstantWalletActivity;
-import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -100,6 +95,7 @@ public class LtMainActivity extends ActionBarActivity {
    ActionBar.Tab _myTraderInfoTab;
    ActionBar _actionBar;
    private TAB_TYPE _tabToSelect;
+   private boolean _hasWelcomed;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -115,7 +111,8 @@ public class LtMainActivity extends ActionBarActivity {
       _actionBar = getSupportActionBar();
       _actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
       //to provide up navigation from actionbar, in case the modern main activity is not on the stack
-      _actionBar.setDisplayHomeAsUpEnabled(true);
+      //todo find solution
+//      _actionBar.setDisplayHomeAsUpEnabled(true);
 
       _tabsAdapter = new TabsAdapter(this, _viewPager);
 
@@ -150,6 +147,10 @@ public class LtMainActivity extends ActionBarActivity {
       _tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra("tabToSelect", TAB_TYPE.DEFAULT.ordinal())];
       _actionBar.selectTab(enumToTab(_tabToSelect));
 
+      // Load saved state
+      if (savedInstanceState != null) {
+         _hasWelcomed = savedInstanceState.getBoolean("hasWelcomed", false);
+      }
    }
 
    @Override
@@ -173,6 +174,7 @@ public class LtMainActivity extends ActionBarActivity {
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
+      outState.putBoolean("hasWelcomed", _hasWelcomed);
       super.onSaveInstanceState(outState);
    }
 
@@ -203,18 +205,19 @@ public class LtMainActivity extends ActionBarActivity {
       if (itemId == R.id.miHowTo) {
          openLocalTraderHelp();
       }
-      if (itemId == android.R.id.home) {
-          // Respond to the action bar's home button, navigates to parent activity
-    	  // TODO: as soon as this bug is resolved, NavUtils should be used.
-    	  // http://code.google.com/p/android/issues/detail?id=58520
-          // NavUtils.navigateUpFromSameTask(this);
-    	  startActivity(new Intent(this, ModernMain.class));
-    	  
-          return true;
-      }
+      //todo find solution
+//      if (itemId == android.R.id.home) {
+//         // Respond to the action bar's home button, navigates to parent activity
+//         // TODO: as soon as this bug is resolved, NavUtils should be used.
+//         // http://code.google.com/p/android/issues/detail?id=58520
+//         // NavUtils.navigateUpFromSameTask(this);
+//         startActivity(new Intent(this, ModernMain.class));
+//         finish();
+//
+//         return true;
+//      }
       return super.onOptionsItemSelected(item);
    }
-
 
    private void openLocalTraderHelp() {
       Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -227,7 +230,11 @@ public class LtMainActivity extends ActionBarActivity {
     * Show welcome message
     */
    private void showWelcomeMessage() {
-      Utils.showOptionalMessage(this, R.string.lt_welcome_message);
+      if (!_hasWelcomed) {
+         // Only show welcome message per activity instance
+         _hasWelcomed = true;
+         Utils.showOptionalMessage(this, R.string.lt_welcome_message);
+      }
    }
 
    /**

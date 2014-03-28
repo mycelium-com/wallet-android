@@ -63,6 +63,7 @@ public class LocalTraderManager {
    private String _nickname;
    private boolean _isLocalTraderDisabled;
    private boolean _playSoundOnTradeNotification;
+   private boolean _useMiles;
    private TraderChangeMonitor _traderChangeMonitor;
    private TradeSessionChangeMonitor _tradeSessionChangeMonitor;
    private boolean _notificationsEnabled;
@@ -104,6 +105,7 @@ public class LocalTraderManager {
 
       _isLocalTraderDisabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, false);
       _playSoundOnTradeNotification = preferences.getBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
+      _useMiles = preferences.getBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, false);
       _lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
       _lastTraderNotification = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, 0);
 
@@ -601,6 +603,17 @@ public class LocalTraderManager {
 
    public boolean playSounfOnTradeNotification() {
       return _playSoundOnTradeNotification;
+   }
+
+   public void setUseMiles(boolean enabled) {
+      SharedPreferences.Editor editor = getEditor();
+      _useMiles = enabled;
+      editor.putBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, enabled);
+      editor.commit();
+   }
+
+   public boolean useMiles() {
+      return _useMiles;
    }
    
    public boolean isCaptchaRequired(Request request) {

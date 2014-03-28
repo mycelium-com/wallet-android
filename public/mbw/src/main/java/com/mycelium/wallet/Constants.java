@@ -87,6 +87,7 @@ public class Constants {
          "Penzing, Vienna");
    public static final String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
    public static final String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
+   public static final String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
    public static final String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
    public static final String LOCAL_TRADER_HELP_URL = "http://www.mycelium.com/lt/help.html";
 

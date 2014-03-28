@@ -11,18 +11,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" >
 
-        <ImageButton
+        <Button
             android:id="@+id/btTrade"
             style="@style/MyceliumButton"
-            android:layout_width="144dp"
-            android:layout_height="48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:adjustViewBounds="true"
-            android:background="@drawable/btn_blue_slim"
-            android:contentDescription="@string/an_icon"
-            android:padding="4dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/cash2btc" />
+            android:text="@string/lt_buy_sell_button"
+            android:textSize="20sp" />
 
         <FrameLayout
             android:layout_width="15dp"

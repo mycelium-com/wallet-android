@@ -39,7 +39,7 @@ public interface LtApi {
    /**
     * The current version of the Local Trader API
     */
-   public static final int VERSION = 4;
+   public static final int VERSION = 6;
 
    public final static int ERROR_CODE_SUCCESS = 0;
    public final static int ERROR_CODE_NO_SERVER_CONNECTION = 1;
@@ -60,6 +60,7 @@ public interface LtApi {
    public static final int ERROR_CODE_WAIT_TIMEOUT = 16;
    public final static int ERROR_CODE_TRADED_AMOUNT_TOO_SMALL = 17;
    public final static int ERROR_CODE_INVALID_FUNDING_TRANSACTION = 18;
+   public final static int ERROR_CODE_PRICE_FORMULA_NOT_AVAILABLE = 19;
 
    public static final String TRADE_ACTIVITY_NOTIFICATION_KEY = "tradeActivity";
    
