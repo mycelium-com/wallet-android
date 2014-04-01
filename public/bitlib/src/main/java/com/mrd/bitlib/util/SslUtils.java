@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.util;
+package com.mrd.bitlib.util;
 
 import java.net.URLConnection;
 import java.security.KeyManagementException;
@@ -53,7 +53,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.mrd.bitlib.util.HexUtils;
 
 /**
  * SSL Utilities.

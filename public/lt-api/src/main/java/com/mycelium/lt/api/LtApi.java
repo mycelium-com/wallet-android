@@ -16,7 +16,7 @@ import com.mycelium.lt.api.model.SellOrderSearchItem;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
-import com.mycelium.lt.api.params.ChatMessageParameters;
+import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
 import com.mycelium.lt.api.params.InstantBuyOrderParameters;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.lt.api.params.ReleaseBtcParameters;
@@ -33,13 +33,13 @@ public interface LtApi {
    public static final int MAXIMUM_TRADER_NAME_LENGTH = 20;
    public static final int MAXIMUM_SELL_ORDER_DESCRIPTION_LENGTH = 1024 * 10;
    public static final int MAXIMUM_SELL_ORDER_SEARCH_LIMIT = 100;
-   public static final int MAX_CHAT_MESSAGE_SIZE = 1024;
+   public static final int MAX_ENCRYPTED_CHAT_MESSAGE_SIZE = 2048;
    public static final int MAX_LOCATION_NAME_LENGTH = 1024;
 
    /**
     * The current version of the Local Trader API
     */
-   public static final int VERSION = 6;
+   public static final int VERSION = 7;
 
    public final static int ERROR_CODE_SUCCESS = 0;
    public final static int ERROR_CODE_NO_SERVER_CONNECTION = 1;
@@ -117,7 +117,7 @@ public interface LtApi {
 
    public LtResponse<Void> abortTrade(UUID sessionId, UUID tradeSessionId);
 
-   public LtResponse<Void> sendChatMessage(UUID sessionId, ChatMessageParameters params);
+   public LtResponse<Void> sendEncryptedChatMessage(UUID sessionId, EncryptedChatMessageParameters params);
 
    public LtResponse<Void> requestMarketRateRefresh(UUID sessionId, UUID tradeSessionId);
 

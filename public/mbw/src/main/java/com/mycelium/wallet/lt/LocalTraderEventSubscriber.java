@@ -38,7 +38,7 @@ import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.Request;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SellOrderSearch;
-import com.mycelium.wallet.lt.api.SendChatMessage;
+import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
 import com.mycelium.wallet.lt.api.SolveCaptcha;
 import com.mycelium.wallet.lt.api.TryLogin;
 
@@ -170,7 +170,7 @@ public abstract class LocalTraderEventSubscriber {
       onLtGenericSuccess(request);
    }
 
-   public void onLtChatMessageSent(SendChatMessage request) {
+   public void onLtEncryptedChatMessageSent(SendEncryptedChatMessage request) {
       onLtGenericSuccess(request);
    }
 

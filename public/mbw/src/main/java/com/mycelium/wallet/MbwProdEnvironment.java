@@ -69,15 +69,14 @@ public class MbwProdEnvironment extends MbwEnvironment {
          NetworkParameters.productionNetwork);
 
    /**
-    * Local Trader API for testnet
+    * Local Trader API for prodnet
     */
-//   private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpEndpoint(
-//         "http://192.168.1.139:8087/trade/");
-
-   private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
-         "https://node2.mycelium.com/ltprodnet/", myceliumThumbprint);
-
-   private static final LtApiClient prodnetLocalTraderApi = new LtApiClient(testnetLocalTraderEndpoint, new Logger() {
+   private static final LtApiClient.HttpsEndpoint prodnetLocalTraderDefaultEndpoint = new LtApiClient.HttpsEndpoint(
+         "https://lt2.mycelium.com/ltprodnet/", myceliumThumbprint);
+   private static final LtApiClient.HttpsEndpoint prodnetLocalTraderFailoverEndpoint = new LtApiClient.HttpsEndpoint(
+         "https://lt1.mycelium.com/ltprodnet/", myceliumThumbprint);
+   
+   private static final LtApiClient prodnetLocalTraderApi = new LtApiClient(prodnetLocalTraderDefaultEndpoint, prodnetLocalTraderFailoverEndpoint, new Logger() {
 
       @Override
       public void logError(String message, Exception e) {

@@ -27,20 +27,13 @@ import java.security.NoSuchAlgorithmException;
 public class HashUtils {
 
    private static final String SHA256 = "SHA-256";
+   private static final String SHA512 = "SHA-512";
 
    public static Sha256Hash sha256(byte[] data) {
       MessageDigest digest;
       digest = getSha256Digest();
       digest.update(data, 0, data.length);
       return Sha256Hash.of(digest.digest());
-   }
-
-   private static MessageDigest getSha256Digest() {
-      try {
-         return MessageDigest.getInstance(SHA256);
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e); //cannot happen
-      }
    }
 
    public static Sha256Hash sha256(byte[] data1, byte[] data2) {
@@ -50,6 +43,14 @@ public class HashUtils {
       digest.update(data2, 0, data2.length);
       return new Sha256Hash(digest.digest());
 
+   }
+
+   private static MessageDigest getSha256Digest() {
+      try {
+         return MessageDigest.getInstance(SHA256);
+      } catch (NoSuchAlgorithmException e) {
+         throw new RuntimeException(e); //cannot happen
+      }
    }
 
    public static Sha256Hash doubleSha256(byte[] data) {
@@ -71,6 +72,30 @@ public class HashUtils {
       digest.update(data, offset, length);
       return new Sha256Hash(digest.digest(digest.digest()));
 
+   }
+
+   public static Sha512Hash sha512(byte[] data) {
+      MessageDigest digest;
+      digest = getSha512Digest();
+      digest.update(data, 0, data.length);
+      return Sha512Hash.of(digest.digest());
+   }
+
+   public static Sha512Hash sha512(byte[] data1, byte[] data2) {
+      MessageDigest digest;
+      digest = getSha512Digest();
+      digest.update(data1, 0, data1.length);
+      digest.update(data2, 0, data2.length);
+      return new Sha512Hash(digest.digest());
+
+   }
+
+   private static MessageDigest getSha512Digest() {
+      try {
+         return MessageDigest.getInstance(SHA512);
+      } catch (NoSuchAlgorithmException e) {
+         throw new RuntimeException(e); //cannot happen
+      }
    }
 
    /**

@@ -433,6 +433,11 @@
     <string name="lt_how_to_trade_menu">How to Trade</string>
     <string name="lt_going_to_website">Going to %1$s</string>
     <string name="lt_buy_sell_button">Buy / Sell Bitcoin</string>
+    <string name="lt_invalid_chat_message">Invalid chat message sent by %1$s</string>
+    <string name="lt_accept_terms_title">Terms and Conditions</string>
+    <string name="lt_terms_desc">Use Mycelium Local Trader at your own risk!</string>
+    <string name="lt_accept_button">Accept</string>
+    <string name="lt_decline_button">Decline</string>
     
 <!--  LT end -->
 

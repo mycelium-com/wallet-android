@@ -113,6 +113,11 @@ public class MbwManager {
 
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _environment.getMwsApi());
 
+      if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.GINGERBREAD) {
+         // Disable HTTP keep-alive on systems predating Gingerbread
+         System.setProperty("http.keepAlive", "false");
+      }
+      
       _eventBus = new Bus();
 
       // Preferences

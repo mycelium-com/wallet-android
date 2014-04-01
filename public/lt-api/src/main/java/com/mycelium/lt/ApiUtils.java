@@ -30,12 +30,12 @@ public class ApiUtils {
       return true;
    }
 
-   private static String uuidToMessage(UUID uuid){
+   private static String uuidToMessage(UUID uuid) {
       byte[] uuidBytes = uuidToBytes(uuid);
       Sha256Hash uuidHash = HashUtils.doubleSha256(uuidBytes);
       return new StringBuilder().append(SIGNATURE_PREFIX).append(uuidHash.toHex()).toString();
    }
-   
+
    public static String generateUuidHashSignature(InMemoryPrivateKey key, UUID uuid, RandomSource randomSource) {
       return key.signMessage(uuidToMessage(uuid), randomSource).getBase64Signature();
    }
@@ -51,5 +51,6 @@ public class ApiUtils {
       }
       return ba.toByteArray();
    }
+
 
 }

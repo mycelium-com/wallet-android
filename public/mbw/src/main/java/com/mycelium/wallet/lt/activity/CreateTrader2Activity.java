@@ -34,43 +34,44 @@
 
 package com.mycelium.wallet.lt.activity;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mycelium.lt.InputValidator;
-import com.mycelium.lt.api.LtApi;
+import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.lt.api.CreateTrader;
+import com.mycelium.wallet.lt.api.TryLogin;
 
 public class CreateTrader2Activity extends Activity {
 
-   public static void callMe(Activity currentActivity, InMemoryPrivateKey privateKey) {
+   public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, CreateTrader2Activity.class);
-      intent.putExtra("privateKey", privateKey);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private EditText _etName;
-   private Button _btCreate;
-   private InMemoryPrivateKey _privateKey;
+   private List<InMemoryPrivateKey> _privateKeys;
+   private Spinner _spAddress;
+   private Button _btUse;
 
    /** Called when the activity is first created. */
    @Override
@@ -80,38 +81,84 @@ public class CreateTrader2Activity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       _ltManager = _mbwManager.getLocalTraderManager();
 
-      _etName = ((EditText) findViewById(R.id.etName));
-      _btCreate = (Button) findViewById(R.id.btUse);
+      _spAddress = (Spinner) findViewById(R.id.spAddress);
+      _btUse = (Button) findViewById(R.id.btUse);
 
-      _btCreate.setOnClickListener(createClickListener);
+      _btUse.setOnClickListener(new OnClickListener() {
 
-      // Load intent parameters
-      _privateKey = (InMemoryPrivateKey) Preconditions.checkNotNull(getIntent().getSerializableExtra("privateKey"));
+         @Override
+         public void onClick(View arg0) {
+            _spAddress.setEnabled(false);
+            _btUse.setEnabled(false);
+            // Show progress bar while waiting
+            findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
 
-      // XXX load saved name
-      enableDisableOk();
+            InMemoryPrivateKey privateKey = getSelectedPrivateKey();
+            if (privateKey == null) {
+               return;
+            }
+            _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
+         }
+      });
 
-      _etName.addTextChangedListener(nameWatcher);
+      // Populate address chooser
+      AddressBookManager addressBook = _mbwManager.getAddressBookManager();
+      _privateKeys = new LinkedList<InMemoryPrivateKey>();
+      List<String> choices = new LinkedList<String>();
+      for (Record r : _mbwManager.getRecordManager().getAllRecords()) {
+         if (!r.hasPrivateKey()) {
+            continue;
+         }
+         String name = addressBook.getNameByAddress(r.address.toString());
+         if (name == null || name.length() == 0) {
+            name = getShortAddress(r.address.toString());
+         }
+         choices.add(name);
+         _privateKeys.add(r.key);
+      }
+      ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, choices);
+      dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      _spAddress.setAdapter(dataAdapter);
+
+      // Load saved state
+      if (savedInstanceState != null) {
+         int selectedIndex = savedInstanceState.getInt("selectedIndex", Spinner.INVALID_POSITION);
+         if (selectedIndex != Spinner.INVALID_POSITION) {
+            _spAddress.setSelection(selectedIndex);
+         }
+      }
+      _btUse.setEnabled(_spAddress.getSelectedItemPosition() != Spinner.INVALID_POSITION);
    }
 
-   OnClickListener createClickListener = new OnClickListener() {
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      outState.putInt("selectedIndex", _spAddress.getSelectedItemPosition());
+      super.onSaveInstanceState(outState);
+   }
 
-      @Override
-      public void onClick(View arg0) {
-         enableUi(false);
-         // Show progress bar while waiting
-         findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
-         // Try create trader
-         _ltManager.makeRequest(new CreateTrader(_privateKey, getNickName(), _mbwManager.getLanguage(), _mbwManager
-               .getNetwork()));
-      }
-   };
+   private static String getShortAddress(String addressString) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(addressString.substring(0, 6));
+      sb.append("...");
+      sb.append(addressString.substring(addressString.length() - 6));
+      return sb.toString();
+   }
 
    @Override
    protected void onResume() {
       _ltManager.subscribe(ltSubscriber);
+      if (_privateKeys.size() == 1) {
+         // We have exactly one private key, use it automatically
+         findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
+         findViewById(R.id.llRoot).setVisibility(View.GONE);
+         _ltManager.makeRequest(new TryLogin(_privateKeys.get(0), _mbwManager.getNetwork()));
+      } else {
+         // Let the user choose which private key to use
+         findViewById(R.id.pbWait).setVisibility(View.GONE);
+         findViewById(R.id.llRoot).setVisibility(View.VISIBLE);
+      }
       super.onResume();
-   }
+   };
 
    @Override
    protected void onPause() {
@@ -119,50 +166,20 @@ public class CreateTrader2Activity extends Activity {
       super.onPause();
    }
 
-   private void enableUi(boolean enabled) {
-      _etName.setEnabled(enabled);
-      _btCreate.setEnabled(enabled);
-   }
-
-   TextWatcher nameWatcher = new TextWatcher() {
-
-      @Override
-      public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+   private InMemoryPrivateKey getSelectedPrivateKey() {
+      int index = _spAddress.getSelectedItemPosition();
+      if (index == Spinner.INVALID_POSITION) {
+         return null;
       }
-
-      @Override
-      public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-      }
-
-      @Override
-      public void afterTextChanged(Editable editable) {
-         enableDisableOk();
-      }
-   };
-
-   private void enableDisableOk() {
-      _btCreate.setEnabled(InputValidator.isValidTraderName(getNickName()));
-   }
-
-   private String getNickName() {
-      Editable text = _etName.getText();
-      if (text == null)
-         return "";
-      return text.toString();
+      return _privateKeys.get(index);
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
 
       @Override
       public void onLtError(int errorCode) {
-         if (errorCode == LtApi.ERROR_CODE_TRADER_NICKNAME_NOT_UNIQUE) {
-            // The name was not available, let the user choose another name
-            Toast.makeText(CreateTrader2Activity.this, R.string.lt_error_account_name_taken, Toast.LENGTH_LONG).show();
-         } else {
-            // Some other error
-            Toast.makeText(CreateTrader2Activity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
-            finish();
-         }
+         Toast.makeText(CreateTrader2Activity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+         finish();
       }
 
       @Override
@@ -170,18 +187,26 @@ public class CreateTrader2Activity extends Activity {
          Utils.toastConnectionError(CreateTrader2Activity.this);
          finish();
          return true;
-      }
+      };
 
       @Override
-      public void onLtTraderCreated(CreateTrader request) {
-         // Create Trader Success
-         // Hide progress bar
-         findViewById(R.id.pbWait).setVisibility(View.GONE);
-         _ltManager.setLocalTraderData(_privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), getNickName());
+      public boolean onLtNoTraderAccount() {
+         // No existing trader with this key, normal case.
+         // Proceed to creation step 2
+         InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
+         CreateTrader3Activity.callMe(CreateTrader2Activity.this, privateKey);
+         finish();
+         return true;
+      };
+
+      @Override
+      public void onLtLogin(String nickname, TryLogin request) {
+         // We are already registered with this key
+         InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
+         _ltManager.setLocalTraderData(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), nickname);
          setResult(RESULT_OK);
          finish();
-      }
-
+      };
    };
 
 }

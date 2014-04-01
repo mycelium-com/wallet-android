@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 
 public class TradeSession implements Serializable {
@@ -42,9 +43,13 @@ public class TradeSession implements Serializable {
    @JsonProperty
    public final Address ownerId;
    @JsonProperty
+   public final PublicKey ownerPublicKey;
+   @JsonProperty
    public final String peerName;
    @JsonProperty
    public final Address peerId;
+   @JsonProperty
+   public final PublicKey peerPublicKey;
    @JsonProperty
    public final boolean isOwner;
    @JsonProperty
@@ -72,15 +77,16 @@ public class TradeSession implements Serializable {
    @JsonProperty
    public final GpsLocation location;
 
-   public TradeSession(@JsonProperty("id") UUID id, @JsonProperty("creationTime") long creationTime, @JsonProperty("lastChange") long lastChange,
-         @JsonProperty("priceFormula") PriceFormula priceFormula, @JsonProperty("premium") double premium,
-         @JsonProperty("currency") String currency, @JsonProperty("fiatTraded") int fiatTraded,
-         @JsonProperty("satoshisAtMarketPrice") long satoshisAtMarketPrice,
+   public TradeSession(@JsonProperty("id") UUID id, @JsonProperty("creationTime") long creationTime,
+         @JsonProperty("lastChange") long lastChange, @JsonProperty("priceFormula") PriceFormula priceFormula,
+         @JsonProperty("premium") double premium, @JsonProperty("currency") String currency,
+         @JsonProperty("fiatTraded") int fiatTraded, @JsonProperty("satoshisAtMarketPrice") long satoshisAtMarketPrice,
          @JsonProperty("satoshisFromSeller") long satoshisFromSeller,
          @JsonProperty("satoshisForBuyer") long satoshisForBuyer, @JsonProperty("buyerAddress") Address buyerAddress,
          @JsonProperty("feeAddress") Address feeAddress, @JsonProperty("chatEntries") List<ChatEntry> chatEntries,
          @JsonProperty("ownerName") String ownerName, @JsonProperty("ownerId") Address ownerId,
-         @JsonProperty("peerName") String peerName, @JsonProperty("peerId") Address peerId,
+         @JsonProperty("ownerPublicKey") PublicKey ownerPublicKey, @JsonProperty("peerName") String peerName,
+         @JsonProperty("peerId") Address peerId, @JsonProperty("peerPublicKey") PublicKey peerPublicKey,
          @JsonProperty("isOwner") boolean isOwner, @JsonProperty("isBuyer") boolean isBuyer,
          @JsonProperty("statusText") String statusText, @JsonProperty("confidence") Double confidence,
          @JsonProperty("acceptAction") ActionState acceptAction, @JsonProperty("abortAction") ActionState abortAction,
@@ -88,7 +94,8 @@ public class TradeSession implements Serializable {
          @JsonProperty("changePriceAction") ActionState changePriceAction,
          @JsonProperty("releaseBtcAction") ActionState releaseBtcAction,
          @JsonProperty("sendMessageAction") ActionState sendMessageAction,
-         @JsonProperty("isWaitingForPeerAccept") boolean isWaitingForPeerAccept, @JsonProperty("isOpen") boolean isOpen, @JsonProperty("location") GpsLocation location) {
+         @JsonProperty("isWaitingForPeerAccept") boolean isWaitingForPeerAccept,
+         @JsonProperty("isOpen") boolean isOpen, @JsonProperty("location") GpsLocation location) {
       this.id = id;
       this.creationTime = creationTime;
       this.lastChange = lastChange;
@@ -104,8 +111,10 @@ public class TradeSession implements Serializable {
       this.chatEntries = chatEntries;
       this.ownerName = ownerName;
       this.ownerId = ownerId;
+      this.ownerPublicKey = ownerPublicKey;
       this.peerName = peerName;
       this.peerId = peerId;
+      this.peerPublicKey = peerPublicKey;
       this.isOwner = isOwner;
       this.isBuyer = isBuyer;
       this.statusText = statusText;

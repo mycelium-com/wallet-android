@@ -36,6 +36,8 @@ package com.mycelium.wallet.lt.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -96,6 +98,7 @@ public class LtMainActivity extends ActionBarActivity {
    ActionBar _actionBar;
    private TAB_TYPE _tabToSelect;
    private boolean _hasWelcomed;
+   private Ringtone _updateSound;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -146,6 +149,9 @@ public class LtMainActivity extends ActionBarActivity {
       // Load the tab to select from intent
       _tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra("tabToSelect", TAB_TYPE.DEFAULT.ordinal())];
       _actionBar.selectTab(enumToTab(_tabToSelect));
+
+      _updateSound = RingtoneManager
+            .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -291,6 +297,15 @@ public class LtMainActivity extends ActionBarActivity {
 
       @Override
       public void onLtTraderActicityNotification() {
+         // Vibrate
+         _mbwManager.vibrate();
+         // Make a sound if applicable
+         if (_ltManager.playSounfOnTradeNotification()) {
+            if (_updateSound != null) {
+               _updateSound.play();
+            }
+         }
+
          _ltManager.makeRequest(new GetTraderInfo());
       }
 

@@ -76,8 +76,11 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.lt.ChatMessageEncryptionKey;
+import com.mycelium.lt.ChatMessageEncryptionKey.InvalidChatMessage;
 import com.mycelium.lt.api.model.ActionState;
 import com.mycelium.lt.api.model.ChatEntry;
 import com.mycelium.lt.api.model.PublicTraderInfo;
@@ -98,7 +101,7 @@ import com.mycelium.wallet.lt.api.ChangeTradeSessionPrice;
 import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
-import com.mycelium.wallet.lt.api.SendChatMessage;
+import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
 
 public class TradeActivity extends Activity {
 
@@ -138,6 +141,7 @@ public class TradeActivity extends Activity {
    private boolean _didShowInsufficientFunds;
    private TraderInfoAdapter _tradeInfoAdapter;
    private PublicTraderInfo _peerInfo;
+   public ChatMessageEncryptionKey _key;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -194,7 +198,6 @@ public class TradeActivity extends Activity {
 
       _lvInfo = (ListView) findViewById(R.id.lvInfo);
       _lvInfo.setOnItemClickListener(infoItemClickListener);
-
    }
 
    @Override
@@ -221,6 +224,16 @@ public class TradeActivity extends Activity {
       _ltManager.unsubscribe(ltSubscriber);
       _ltManager.enableNotifications(true);
       super.onPause();
+   }
+
+   private ChatMessageEncryptionKey getChatMessageEncryptionKey() {
+      Preconditions.checkState(_tradeSession != null);
+      if (_key == null) {
+         PublicKey foreignPublicKey = _tradeSession.isOwner ? _tradeSession.peerPublicKey
+               : _tradeSession.ownerPublicKey;
+         _key = _ltManager.generateChatMessageEncryptionKey(foreignPublicKey, _tradeSession.id);
+      }
+      return _key;
    }
 
    OnClickListener refreshClickListener = new OnClickListener() {
@@ -366,7 +379,7 @@ public class TradeActivity extends Activity {
       _etMessage.setText("");
       disableButtons();
       _dingOnUpdates = false;
-      _ltManager.makeRequest(new SendChatMessage(_tradeSession.id, msg));
+      _ltManager.makeRequest(new SendEncryptedChatMessage(_tradeSession.id, msg, getChatMessageEncryptionKey()));
    }
 
    OnClickListener flipChatClickListener = new OnClickListener() {
@@ -642,6 +655,7 @@ public class TradeActivity extends Activity {
       private int _ownerMessageBackgroundColor;
       private int _peerMessageBackgroundColor;
       private int _eventBackgroundColor;
+      private int _invalidMessageBackgroundColor;
 
       public ChatAdapter(Context context, List<ChatEntry> objects) {
          super(context, R.layout.lt_chat_entry_row, objects);
@@ -664,6 +678,7 @@ public class TradeActivity extends Activity {
          _peerMessageBackgroundColor = 0x11FFFFFF; // slightly transparent white
                                                    // (dark grey)
          _eventBackgroundColor = 0x00FFFFFF; // transparent white (black)
+         _invalidMessageBackgroundColor = 0xFFFF0000; // red
       }
 
       @Override
@@ -687,24 +702,42 @@ public class TradeActivity extends Activity {
          TextView tvDate = (TextView) v.findViewById(R.id.tvDate);
          tvDate.setText(dateString);
 
-         // Message
+         // Message text and color
          TextView tvMessage = (TextView) v.findViewById(R.id.tvMessage);
-         tvMessage.setText(o.message);
-
+         String text;
+         int color;
          // Message Color
          switch (o.type) {
          case ChatEntry.TYPE_EVENT:
-            v.setBackgroundColor(_eventBackgroundColor);
+            text = o.message;
+            color = _eventBackgroundColor;
             break;
          case ChatEntry.TYPE_OWNER_CHAT:
-            v.setBackgroundColor(_ownerMessageBackgroundColor);
+            try {
+               text = new StringBuilder().append(_tradeSession.ownerName).append(": ")
+                     .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
+               color = _ownerMessageBackgroundColor;
+            } catch (InvalidChatMessage e) {
+               text = getString(R.string.lt_invalid_chat_message, _tradeSession.ownerName);
+               color = _invalidMessageBackgroundColor;
+            }
             break;
          case ChatEntry.TYPE_PEER_CHAT:
-            v.setBackgroundColor(_peerMessageBackgroundColor);
+            try {
+               text = new StringBuilder().append(_tradeSession.peerName).append(": ")
+                     .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
+               color = _peerMessageBackgroundColor;
+            } catch (InvalidChatMessage e) {
+               text = getString(R.string.lt_invalid_chat_message, _tradeSession.peerName);
+               color = _invalidMessageBackgroundColor;
+            }
             break;
          default:
-            v.setBackgroundColor(_eventBackgroundColor);
+            text = "";
+            color = _eventBackgroundColor;
          }
+         tvMessage.setText(text);
+         v.setBackgroundColor(color);
 
          v.setTag(o);
          return v;

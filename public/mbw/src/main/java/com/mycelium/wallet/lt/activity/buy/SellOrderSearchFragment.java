@@ -214,31 +214,41 @@ public class SellOrderSearchFragment extends Fragment {
          LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
          final View card = Preconditions.checkNotNull(vi.inflate(R.layout.lt_sell_order_card, null));
 
+         // Price
          String price = String.format(_locale, "%s %s", orderItem.oneBtcInFiat, orderItem.currency);
          TextView tvPrice = (TextView) card.findViewById(R.id.tvPrice);
          tvPrice.setText(price);
          setPriceColor(tvPrice, orderItem);
+         
+         // Distance
          TextView tvDistance = (TextView) card.findViewById(R.id.tvDistance);
          tvDistance.setText(getDistanceString(orderItem));
          setDistanceColor(tvDistance, orderItem);
+         
+         // Limits
          String limits = String.format(_locale, "%d - %d %s", orderItem.minimumFiat, orderItem.maximumFiat,
                orderItem.currency);
          ((TextView) card.findViewById(R.id.tvLimits)).setText(limits);
          String trader = String.format(_locale, "%s", orderItem.nickname);
+         
+         // Trader Name
          final TextView tvTraderName = (TextView) card.findViewById(R.id.tvTrader);
          tvTraderName.setText(trader);
          if (orderItem.nickname.equals(_ltManager.getNickname())) {
             // it is our order, so lets show a different background
             setBackgroundResource(card.findViewById(R.id.thingWithBackground),
                   R.drawable.background_sell_order_card_own);
-            tvTraderName.append(" " + _context.getString(R.string.lt_thats_you));
+            tvTraderName.append("\n" + _context.getString(R.string.lt_thats_you));
          }
 
+         // Trader Age
          int traderAgeDays = (int) (orderItem.traderAgeMs / MS_PER_DAY);
          String traderAge = getTraderAgeString(traderAgeDays);
          TextView tvTraderAge = (TextView) card.findViewById(R.id.tvTraderAge);
          tvTraderAge.setText(traderAge);
          setTraderAgeColor(tvTraderAge, traderAgeDays);
+         
+         // Rating
          RatingBar ratingBar = (RatingBar) card.findViewById(R.id.seller_rating);
          float rating = LtAndroidUtils.calculate5StarRating(orderItem.successfulSales, orderItem.abortedSales,
                orderItem.successfulBuys, orderItem.abortedBuys, orderItem.traderAgeMs);

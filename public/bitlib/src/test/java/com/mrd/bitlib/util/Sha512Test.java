@@ -32,53 +32,43 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.lt.activity;
+package com.mrd.bitlib.util;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import java.io.UnsupportedEncodingException;
 
-import com.mycelium.wallet.R;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CreateTrader1Activity extends Activity {
+public class Sha512Test {
 
-   public static void callMe(Activity currentActivity, int requestCode) {
-      Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
-      currentActivity.startActivityForResult(intent, requestCode);
+   private static final String TEST1_STRING = "abc";
+   private static final Sha512Hash TEST1_RESULT = new Sha512Hash(HexUtils.toBytes("ddaf35a193617aba"
+         + "cc417349ae204131" + "12e6fa4e89a97ea2" + "0a9eeee64b55d39" + "a2192992a274fc1a8" + "36ba3c23a3feebbd"
+         + "454d4423643ce80e" + "2a9ac94fa54ca49f"));
+
+   private static final String TEST2_STRING = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+   private static final Sha512Hash TEST2_RESULT = new Sha512Hash(HexUtils.toBytes("204a8fc6dda82f0a"
+         + "0ced7beb8e08a416" + "57c16ef468b228a8" + "279be331a703c335" + "96fd15c13b1b07f9" + "aa1d3bea57789ca0"
+         + "31ad85c7a71dd703" + "54ec631238ca3445"));
+
+   private static final String TEST3_STRING = "";
+   private static final Sha512Hash TEST3_RESULT = new Sha512Hash(HexUtils.toBytes("cf83e1357eefb8bd"
+         + "f1542850d66d8007" + "d620e4050b5715dc" + "83f4a921d36ce9ce" + "47d0d13c5d85f2b0" + "ff8318d2877eec2f"
+         + "63b931bd47417a81" + "a538327af927da3e"));
+
+   @Test
+   public void testVectorsTest() {
+      Assert.assertEquals(TEST1_RESULT, HashUtils.sha512(stringToBytes(TEST1_STRING)));
+      Assert.assertEquals(TEST2_RESULT, HashUtils.sha512(stringToBytes(TEST2_STRING)));
+      Assert.assertEquals(TEST3_RESULT, HashUtils.sha512(stringToBytes(TEST3_STRING)));
    }
 
-   private Button _btAccept;
-   private Button _btDecline;
-
-   /** Called when the activity is first created. */
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.lt_create_trader_1_activity);
-
-      _btAccept = (Button) findViewById(R.id.btAccept);
-      _btDecline = (Button) findViewById(R.id.btDecline);
-
-      _btAccept.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            CreateTrader2Activity.callMe(CreateTrader1Activity.this);
-            finish();
-         }
-      });
-
-      _btDecline.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            finish();
-         }
-      });
-
+   private byte[] stringToBytes(String string) {
+      try {
+         return string.getBytes("US-ASCII");
+      } catch (UnsupportedEncodingException e) {
+         throw new RuntimeException();
+      }
    }
 
 }

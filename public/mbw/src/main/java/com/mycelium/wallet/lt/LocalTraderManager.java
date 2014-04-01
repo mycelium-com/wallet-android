@@ -21,8 +21,10 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.lt.ApiUtils;
+import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.model.GpsLocation;
@@ -104,7 +106,8 @@ public class LocalTraderManager {
                   Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
 
       _isLocalTraderDisabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, false);
-      _playSoundOnTradeNotification = preferences.getBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
+      _playSoundOnTradeNotification = preferences.getBoolean(
+            Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
       _useMiles = preferences.getBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, false);
       _lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
       _lastTraderNotification = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, 0);
@@ -514,6 +517,11 @@ public class LocalTraderManager {
       return null;
    }
 
+   public ChatMessageEncryptionKey generateChatMessageEncryptionKey(PublicKey foreignPublicKey,
+         UUID tradeSessionId) {
+      return ChatMessageEncryptionKey.fromEcdh(foreignPublicKey, getLocalTraderPrivateKey(), tradeSessionId);
+   }
+
    public void unsetLocalTraderAccount() {
       _session = null;
       _localTraderAddress = null;
@@ -615,7 +623,7 @@ public class LocalTraderManager {
    public boolean useMiles() {
       return _useMiles;
    }
-   
+
    public boolean isCaptchaRequired(Request request) {
       if (request instanceof CreateSellOrder) {
          return _session == null ? true : _session.captcha.contains(LtSession.CaptchaCommands.CREATE_SELL_ORDER);

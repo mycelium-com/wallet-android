@@ -108,6 +108,18 @@ public class Base58 {
       }
    }
 
+   /**
+    * Encode an array of bytes as Base58 with an appended checksum as in Bitcoin
+    * address encoding
+    */
+   public static String encodeWithChecksum(byte[] input) {
+      byte[] b = new byte[input.length + 4];
+      System.arraycopy(input, 0, b, 0, input.length);
+      Sha256Hash checkSum = HashUtils.doubleSha256(b, 0, input.length);
+      System.arraycopy(checkSum.getBytes(), 0, b, input.length, 4);
+      return encode(b);
+   }
+   
    public static byte[] decode(String input) {
       if (input.length() == 0) {
          return new byte[0];

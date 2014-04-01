@@ -28,7 +28,6 @@ public class TraderInfo extends PublicTraderInfo implements Serializable {
          @JsonProperty("activeTradeSesions") LinkedList<TradeSession> activeTradeSesions) {
       super(nickname, address, traderAgeMs, lastChange, successfulSales, successfulBuys, abortedSales, abortedBuys,
             tradeMedianMs);
-      this.nickname = nickname;
       this.localTraderPremium = localTraderPremium;
       this.totalBtcBought = totalBtcBought;
       this.totalBtcSold = totalBtcSold;

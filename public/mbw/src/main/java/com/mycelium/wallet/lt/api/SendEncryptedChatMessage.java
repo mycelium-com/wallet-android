@@ -3,22 +3,25 @@ package com.mycelium.wallet.lt.api;
 import java.util.Collection;
 import java.util.UUID;
 
+import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.params.ChatMessageParameters;
+import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
-public class SendChatMessage extends Request {
+public class SendEncryptedChatMessage extends Request {
    private static final long serialVersionUID = 1L;
 
    private UUID _tradeSessionId;
    private String _message;
+   private ChatMessageEncryptionKey _key;
 
-   public SendChatMessage(UUID tradeSessionId, String message) {
+   public SendEncryptedChatMessage(UUID tradeSessionId, String message, ChatMessageEncryptionKey key) {
       super(true, true);
       _tradeSessionId = tradeSessionId;
       _message = message;
+      _key = key;
    }
 
    @Override
@@ -27,8 +30,9 @@ public class SendChatMessage extends Request {
 
       try {
          // Call function
-         ChatMessageParameters params = new ChatMessageParameters(_tradeSessionId, _message);
-         api.sendChatMessage(sessionId, params).getResult();
+         EncryptedChatMessageParameters params = EncryptedChatMessageParameters.fromPlaintextParameters(
+               _tradeSessionId, _message, _key);
+         api.sendEncryptedChatMessage(sessionId, params).getResult();
 
          // Notify
          synchronized (subscribers) {
@@ -37,7 +41,7 @@ public class SendChatMessage extends Request {
 
                   @Override
                   public void run() {
-                     s.onLtChatMessageSent(SendChatMessage.this);
+                     s.onLtEncryptedChatMessageSent(SendEncryptedChatMessage.this);
                   }
                });
             }

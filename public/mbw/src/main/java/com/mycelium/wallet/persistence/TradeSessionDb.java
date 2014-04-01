@@ -51,6 +51,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
+import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TradeSession;
 
 public class TradeSessionDb {
@@ -63,7 +64,10 @@ public class TradeSessionDb {
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "tradesession.db";
-      private static final int DATABASE_VERSION = 19;
+      private static final int MINOR_DATABASE_VERSION = 1;
+      // Automatically increase the database version when the LT API version
+      // increases. Also allow for minor database versions which is useful during development.
+      private static final int DATABASE_VERSION = LtApi.VERSION << 8 + MINOR_DATABASE_VERSION;
 
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -143,7 +147,6 @@ public class TradeSessionDb {
       }
    }
 
-
    /**
     * Count the number of buy trade sessions
     */
@@ -155,7 +158,7 @@ public class TradeSessionDb {
          return 0;
       }
    }
-   
+
    /**
     * Count the number of buy trade sessions
     */

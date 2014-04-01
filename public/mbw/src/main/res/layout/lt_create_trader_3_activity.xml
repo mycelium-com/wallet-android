@@ -7,10 +7,10 @@
         android:id="@+id/pbWait"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
     <ScrollView
-        android:id="@+id/llRoot"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="top" >
@@ -19,8 +19,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
+            android:gravity="center"
             android:orientation="vertical" >
 
             <TextView
@@ -30,6 +29,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/lt_create_account_title"
                 android:textSize="24sp" />
 
@@ -39,19 +39,24 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="15dp"
-                android:text="@string/lt_create_account_address_desc"
+                android:gravity="left"
+                android:text="@string/lt_create_account_name_desc"
                 android:textSize="16sp" />
 
-            <Spinner
-                android:id="@+id/spAddress"
+            <EditText
+                android:id="@+id/etName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp" />
+                android:layout_marginRight="10dp"
+                android:hint="@string/lt_create_account_name_hint"
+                android:inputType="textNoSuggestions|textVisiblePassword|textCapSentences"
+                android:maxLength="20"
+                android:singleLine="true"
+                android:textSize="18sp" />
 
-            <!-- Use Button -->
+            <!-- Create Button -->
 
             <Button
                 android:id="@+id/btUse"

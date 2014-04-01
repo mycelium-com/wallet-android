@@ -152,4 +152,27 @@ public class BitUtils {
       return buf;
    }
 
+   // Arrays.copyOf implementation which we can use also on Java versions <
+   // 1.6
+   public static byte[] copyOf(byte[] original, int newLength) {
+      if (newLength < 0) {
+         throw new IllegalArgumentException();
+      }
+      byte[] buf = new byte[newLength];
+      int lastIndex = Math.min(original.length, newLength);
+      System.arraycopy(original, 0, buf, 0, lastIndex);
+      return buf;
+   }
+
+   // Arrays.copyOfRange implementation which we can use also on Java versions <
+   // 1.6
+   public static byte[] copyOfRange(byte[] original, int from, int to) {
+      if (to < from || from < 0 || from > original.length) {
+         throw new IllegalArgumentException();
+      }
+      byte[] buf = new byte[to - from];
+      int lastIndex = Math.min(original.length, to);
+      System.arraycopy(original, from, buf, 0, lastIndex - from);
+      return buf;
+   }
 }

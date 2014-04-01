@@ -64,6 +64,14 @@ final public class ByteWriter {
       _buf[_index++] = (byte) (0xFF & (value >> 24));
    }
 
+   public void putIntBE(int value) {
+      ensureCapacity(4);
+      _buf[_index++] = (byte) (0xFF & (value >> 24));
+      _buf[_index++] = (byte) (0xFF & (value >> 16));
+      _buf[_index++] = (byte) (0xFF & (value >> 8));
+      _buf[_index++] = (byte) (0xFF & (value >> 0));
+   }
+
    public void putLongLE(long value) {
       ensureCapacity(8);
       _buf[_index++] = (byte) (0xFFL & (value >> 0));
@@ -74,6 +82,18 @@ final public class ByteWriter {
       _buf[_index++] = (byte) (0xFFL & (value >> 40));
       _buf[_index++] = (byte) (0xFFL & (value >> 48));
       _buf[_index++] = (byte) (0xFFL & (value >> 56));
+   }
+
+   public void putLongBE(long value) {
+      ensureCapacity(8);
+      _buf[_index++] = (byte) (0xFFL & (value >> 56));
+      _buf[_index++] = (byte) (0xFFL & (value >> 48));
+      _buf[_index++] = (byte) (0xFFL & (value >> 40));
+      _buf[_index++] = (byte) (0xFFL & (value >> 32));
+      _buf[_index++] = (byte) (0xFFL & (value >> 24));
+      _buf[_index++] = (byte) (0xFFL & (value >> 16));
+      _buf[_index++] = (byte) (0xFFL & (value >> 8));
+      _buf[_index++] = (byte) (0xFFL & (value >> 0));
    }
 
    public void putBytes(byte[] value) {

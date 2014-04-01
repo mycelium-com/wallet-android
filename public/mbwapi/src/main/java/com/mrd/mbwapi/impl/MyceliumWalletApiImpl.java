@@ -43,8 +43,36 @@ import java.util.Random;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.mbwapi.api.*;
-import com.mrd.mbwapi.util.SslUtils;
+import com.mrd.bitlib.util.SslUtils;
+import com.mrd.mbwapi.api.ApiException;
+import com.mrd.mbwapi.api.ApiObject;
+import com.mrd.mbwapi.api.BroadcastTransactionRequest;
+import com.mrd.mbwapi.api.BroadcastTransactionResponse;
+import com.mrd.mbwapi.api.CurrencyCode;
+import com.mrd.mbwapi.api.ErrorCollectionRequest;
+import com.mrd.mbwapi.api.ErrorCollectionResponse;
+import com.mrd.mbwapi.api.ErrorMetaData;
+import com.mrd.mbwapi.api.ExchangeSummary;
+import com.mrd.mbwapi.api.GetTransactionDataRequest;
+import com.mrd.mbwapi.api.GetTransactionDataResponse;
+import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mrd.mbwapi.api.QueryAddressSetStatusRequest;
+import com.mrd.mbwapi.api.QueryAddressSetStatusResponse;
+import com.mrd.mbwapi.api.QueryBalanceRequest;
+import com.mrd.mbwapi.api.QueryBalanceResponse;
+import com.mrd.mbwapi.api.QueryExchangeRatesRequest;
+import com.mrd.mbwapi.api.QueryExchangeRatesResponse;
+import com.mrd.mbwapi.api.QueryExchangeSummaryRequest;
+import com.mrd.mbwapi.api.QueryExchangeSummaryResponse;
+import com.mrd.mbwapi.api.QueryTransactionInventoryExResponse;
+import com.mrd.mbwapi.api.QueryTransactionInventoryRequest;
+import com.mrd.mbwapi.api.QueryTransactionInventoryResponse;
+import com.mrd.mbwapi.api.QueryTransactionSummaryRequest;
+import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
+import com.mrd.mbwapi.api.QueryUnspentOutputsRequest;
+import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
+import com.mrd.mbwapi.api.WalletVersionRequest;
+import com.mrd.mbwapi.api.WalletVersionResponse;
 
 public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
@@ -231,6 +259,13 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
             if (status == 200) {
                // If the status code is not 200 we cycle to the next server
                return connection;
+            }
+            if (status == -1) {
+               // We have observed that status -1 might be returned when doing
+               // HTTPS session reuse on old android devices.
+               // Disabling http.keepAlive fixes it, but it has to be done before any HTTP connections are made.
+               // Maybe the caller forgot to call System.setProperty("http.keepAlive", "false"); for old devices?
+               System.out.println("HTTP status = -1 Caller may have forgotten to call System.setProperty(\"http.keepAlive\", \"false\"); for old devices");
             }
          } catch (IOException e) {
             e.printStackTrace();

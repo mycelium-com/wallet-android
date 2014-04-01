@@ -58,6 +58,12 @@ public class ByteReader {
             | ((_buf[_index++] & 0xFF) << 24);
    }
 
+   public int getIntBE() throws InsufficientBytesException {
+      checkAvailable(4);
+      return ((_buf[_index++] & 0xFF) << 24) | ((_buf[_index++] & 0xFF) << 16) | ((_buf[_index++] & 0xFF) << 8)
+            | ((_buf[_index++] & 0xFF) << 0);
+   }
+
    public long getLongLE() throws InsufficientBytesException {
       checkAvailable(8);
       return ((_buf[_index++] & 0xFFL) << 0) | ((_buf[_index++] & 0xFFL) << 8) | ((_buf[_index++] & 0xFFL) << 16)

@@ -11,30 +11,17 @@ import java.net.URLEncoder;
 public class LtRequest {
    private StringBuilder _sb;
    private boolean _firstParameter;
-   private LtApiClient.HttpEndpoint _endpoint;
    private String _postString;
 
-   public LtRequest(LtApiClient.HttpEndpoint endpoint, String function) {
-      _endpoint = endpoint;
+   public LtRequest(String function) {
       _sb = new StringBuilder();
       _firstParameter = true;
-      _sb.append(endpoint.baseUrlString).append(function);
+      _sb.append(function);
       _postString = "";
    }
 
-   public URL getUrl() throws MalformedURLException {
-      return new URL(toString());
-   }
-
-   public boolean isHttps() {
-      return _endpoint instanceof LtApiClient.HttpsEndpoint;
-   }
-
-   public String getCertificateThumbprint() {
-      if (isHttps()) {
-         return ((LtApiClient.HttpsEndpoint) _endpoint).certificateThumbprint;
-      }
-      return null;
+   public URL getUrl(String baseUrl) throws MalformedURLException {
+      return new URL(baseUrl+toString());
    }
 
    public String getPostString() {

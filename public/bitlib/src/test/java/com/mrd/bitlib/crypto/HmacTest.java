@@ -32,53 +32,43 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.lt.activity;
+package com.mrd.bitlib.crypto;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import static org.junit.Assert.assertTrue;
 
-import com.mycelium.wallet.R;
+import java.util.Arrays;
 
-public class CreateTrader1Activity extends Activity {
+import org.junit.Test;
 
-   public static void callMe(Activity currentActivity, int requestCode) {
-      Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
-      currentActivity.startActivityForResult(intent, requestCode);
-   }
+import com.mrd.bitlib.util.HexUtils;
 
-   private Button _btAccept;
-   private Button _btDecline;
+public class HmacTest {
 
-   /** Called when the activity is first created. */
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.lt_create_trader_1_activity);
+   private static final byte[] TEST_1_KEY = HexUtils.toBytes("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b");
+   private static final byte[] TEST_1_DATA = HexUtils.toBytes("4869205468657265");
+   private static final byte[] TEST_1_RESULT = HexUtils
+         .toBytes("87aa7cdea5ef619d4ff0b4241a1d6cb0" + "2379f4e2ce4ec2787ad0b30545e17cde"
+               + "daa833b7d6b8a702038b274eaea3f4e4" + "be9d914eeb61f1702e696c203a126854");
 
-      _btAccept = (Button) findViewById(R.id.btAccept);
-      _btDecline = (Button) findViewById(R.id.btDecline);
+   private static final byte[] TEST_2_KEY = HexUtils.toBytes("4a656665");
+   private static final byte[] TEST_2_DATA = HexUtils.toBytes("7768617420646f2079612077616e7420"
+         + "666f72206e6f7468696e673f");
+   private static final byte[] TEST_2_RESULT = HexUtils
+         .toBytes("164b7a7bfcf819e2e395fbe73b56e0a3" + "87bd64222e831fd610270cd7ea250554"
+               + "9758bf75c05a994a6d034f65f8f0e6fd" + "caeab1a34d4a6b4b636e070a38bce737");
 
-      _btAccept.setOnClickListener(new OnClickListener() {
+   private static final byte[] TEST_3_KEY = HexUtils.toBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+   private static final byte[] TEST_3_DATA = HexUtils.toBytes("dddddddddddddddddddddddddddddddd"
+         + "dddddddddddddddddddddddddddddddd" + "dddddddddddddddddddddddddddddddd" + "dddd");
+   private static final byte[] TEST_3_RESULT = HexUtils
+         .toBytes("fa73b0089d56a284efb0f0756c890be9" + "b1b5dbdd8ee81a3655f83e33b2279d39"
+               + "bf3e848279a722c806b485a47e67c807" + "b946a337bee8942674278859e13292fb");
 
-         @Override
-         public void onClick(View arg0) {
-            CreateTrader2Activity.callMe(CreateTrader1Activity.this);
-            finish();
-         }
-      });
-
-      _btDecline.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            finish();
-         }
-      });
-
+   @Test
+   public void hmacSha512Test() throws InterruptedException {
+      assertTrue(Arrays.equals(TEST_1_RESULT, Hmac.hmacSha512(TEST_1_KEY, TEST_1_DATA)));
+      assertTrue(Arrays.equals(TEST_2_RESULT, Hmac.hmacSha512(TEST_2_KEY, TEST_2_DATA)));
+      assertTrue(Arrays.equals(TEST_3_RESULT, Hmac.hmacSha512(TEST_3_KEY, TEST_3_DATA)));
    }
 
 }
