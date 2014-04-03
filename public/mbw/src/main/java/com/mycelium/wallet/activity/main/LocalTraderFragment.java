@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +46,7 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 
@@ -82,13 +84,14 @@ public class LocalTraderFragment extends Fragment {
    @Override
    public void onResume() {
       _root.findViewById(R.id.btTrade).setOnClickListener(tradeClickListener);
+      _mbwManager.getLocalTraderManager().subscribe(ltSubscriber);
       updateUi();
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      _mbwManager.getLocalTraderManager().unsubscribe(ltSubscriber);
       super.onPause();
    }
 
@@ -118,5 +121,19 @@ public class LocalTraderFragment extends Fragment {
          _root.findViewById(R.id.ivDot).setVisibility(showDot ? View.VISIBLE : View.GONE);
       }
    }
+
+   private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
+
+      @Override
+      public void onLtError(int errorCode) {
+         // Ignore
+      }
+
+      @Override
+      public void onLtTraderActicityNotification(long timestamp) {
+         updateUi();
+      }
+
+   };
 
 }

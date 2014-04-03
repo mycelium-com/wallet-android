@@ -61,7 +61,6 @@ import com.mycelium.wallet.event.BlockchainError;
 import com.mycelium.wallet.event.BlockchainReady;
 import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
-import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.squareup.otto.Subscribe;
 
 public class BalanceFragment extends Fragment {
@@ -113,7 +112,6 @@ public class BalanceFragment extends Fragment {
       if (_exchangeRate == null || _exchangeRate.price == null) {
          _mbwManager.getExchamgeRateManager().requestRefresh();
       }
-      _mbwManager.getLocalTraderManager().subscribe(ltSubscriber);
       _mbwManager.getEventBus().register(this);
       _root.findViewById(R.id.btSend).setOnClickListener(sendClickListener);
       _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
@@ -145,7 +143,6 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onPause() {
-      _mbwManager.getLocalTraderManager().unsubscribe(ltSubscriber);
       _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
@@ -306,19 +303,5 @@ public class BalanceFragment extends Fragment {
    public void selectedRecordChanged(SelectedRecordChanged event) {
       updateUi();
    }
-
-   private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
-      @Override
-      public void onLtError(int errorCode) {
-         // Ignore
-      }
-
-      @Override
-      public void onLtTraderActicityNotification() {
-         updateUi();
-      }
-
-   };
 
 }

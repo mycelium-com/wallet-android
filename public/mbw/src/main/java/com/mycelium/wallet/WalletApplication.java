@@ -34,17 +34,16 @@
 
 package com.mycelium.wallet;
 
+import java.util.Locale;
+
 import android.app.Application;
 import android.content.res.Configuration;
 import android.util.Log;
 
-import java.util.Locale;
-
 public class WalletApplication extends Application {
 
    @Override
-   public void onCreate()
-   {
+   public void onCreate() {
       String lang = MbwManager.getInstance(this).getLanguage();
       applyLanguageChange(lang);
       super.onCreate();
@@ -53,7 +52,7 @@ public class WalletApplication extends Application {
    @Override
    public void onConfigurationChanged(Configuration newConfig) {
       String setLanguage = MbwManager.getInstance(this).getLanguage();
-      if (!Locale.getDefault().getLanguage().equals(setLanguage)){
+      if (!Locale.getDefault().getLanguage().equals(setLanguage)) {
          applyLanguageChange(setLanguage);
       }
       super.onConfigurationChanged(newConfig);
@@ -61,14 +60,26 @@ public class WalletApplication extends Application {
    }
 
    public void applyLanguageChange(String lang) {
-      Log.i(Constants.TAG,"switching to lang "+ lang);
+      Log.i(Constants.TAG, "switching to lang " + lang);
       Configuration config = getBaseContext().getResources().getConfiguration();
-      if (! "".equals(lang) && ! config.locale.getLanguage().equals(lang))
-      {
-         Locale locale = new Locale(lang);
-         Locale.setDefault(locale);
-         config.locale = locale;
-         getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+      if (!"".equals(lang)) {
+         Locale locale = stringToLocale(lang);
+         if (!config.locale.equals(stringToLocale(lang))) {
+            Locale.setDefault(locale);
+            config.locale = locale;
+            getBaseContext().getResources().updateConfiguration(config,
+                  getBaseContext().getResources().getDisplayMetrics());
+         }
+      }
+   }
+
+   private Locale stringToLocale(String lang) {
+      if (lang.equals("zh-CN") || lang.equals("zh")) {
+         return Locale.SIMPLIFIED_CHINESE;
+      } else if (lang.equals("zh-TW")) {
+         return Locale.TRADITIONAL_CHINESE;
+      } else {
+         return new Locale(lang);
       }
    }
 }

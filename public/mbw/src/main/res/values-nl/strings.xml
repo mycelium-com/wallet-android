@@ -139,6 +139,7 @@
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
   <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\r\nWilt u deze verwijderen?</string>
+  <string name="exchange_source_not_available">Wisselkoers is momenteel niet beschikbaar voor %1$s</string>
   <string name="my_own_address_warning">Opmerking: U verzendt naar een van uw eigen adressen.</string>
   <string name="read_only_warning">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</string>
   <string name="add_to_address_book_dialog_title">Adres toevoegen</string>
@@ -173,6 +174,7 @@
   <string name="bitcoin_address_valid">Bitcoin adres geldig</string>
   <string name="key_management">Sleutelbeheer</string>
   <string name="redirecting_to_blockchain_info">Omleiden naar blockchain.info</string>
+  <string name="enter_local_currency">Voer uw lokale valuta in</string>
   <string name="tap_to_refresh">Tik hier om te vernieuwen</string>
   <string name="using_address_from_clipboard">Maak gebruik van adres op klembord</string>
   <string name="my_addresses">Mijn adressen</string>
@@ -277,4 +279,12 @@
   <string name="get_from">Ophalen van</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
+  <string name="sign_message">Bericht ondertekenen</string>
+  <string name="enter_message_hint">Voer hier het bericht in dat u wilt ondertekenen</string>
+  <string name="copy_signature">Handtekening naar Klembord kopiëren</string>
+  <string name="share_signature">Deel tekst + handtekening</string>
+  <string name="sig_copied">Handtekening gekopieerd naar Klembord</string>
+  <string name="signed_message_subject">Bitcoin ondertekend bericht</string>
+  <string name="signed_message_share">Deel Bitcoin ondertekend bericht</string>
+  <string name="signing_inprogress">Bezig met ondertekenen bericht&#8230;</string>
 </resources>

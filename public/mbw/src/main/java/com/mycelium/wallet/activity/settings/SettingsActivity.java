@@ -198,7 +198,7 @@ public class SettingsActivity extends PreferenceActivity {
       _ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
       _ltNotificationSound = (CheckBoxPreference) findPreference("ltNotificationSound");
-      _ltNotificationSound.setChecked(_ltManager.playSounfOnTradeNotification());
+      _ltNotificationSound.setChecked(_ltManager.getPlaySoundOnTradeNotification());
       _ltNotificationSound.setOnPreferenceClickListener(ltNotificationSoundClickListener);
 
       _ltMilesKilometers = (CheckBoxPreference) findPreference("ltMilesKilometers");

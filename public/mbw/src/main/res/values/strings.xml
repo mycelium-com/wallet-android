@@ -429,7 +429,7 @@
     <string name="lt_confirm_abort">Because both of you accepted the deal your ratings may get a penalty.\nDo you wish to abort this trade?"</string>
     <string name="lt_enter_location_tite">Enter Location</string>
     <string name="lt_location_hint">Enter city or address</string>
-    <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">WELCOME!\n\nMycelium Local Trader lets you trade cash for bitcoins by finding traders in your local area, without you having to trust an exchange provider with your money. All trades are done directly in person.\n\nUntil September 1st, 2014, Mycelium is offering a special promotional rate of just 0.2% fee per trade for trades using the Local Trader system.</string>
+    <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">WELCOME!\n\nMycelium Local Trader lets you trade cash for bitcoins by finding traders in your local area, without you having to trust an exchange provider with your money. All trades are done directly in person.\n\nUntil September 1st, 2014, the fee for trading through the Local Trader system will be 0.2%, which will be added to the total sale price.</string>
     <string name="lt_how_to_trade_menu">How to Trade</string>
     <string name="lt_going_to_website">Going to %1$s</string>
     <string name="lt_buy_sell_button">Buy / Sell Bitcoin</string>

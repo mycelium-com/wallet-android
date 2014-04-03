@@ -63,8 +63,8 @@
   <string name="your_balance">Váš zostatok:</string>
   <string name="bitcoin_address_title">Bitcoinová Adresa</string>
   <string name="balance">Zostatok</string>
-  <string name="no_server_connection">Bez Pripojenia k Serveru</string>
-  <string name="no_network_connection">Nedostupnosť siete</string>
+  <string name="no_server_connection">Nedostupnosť Serverov</string>
+  <string name="no_network_connection">Nedostupnosť internetu</string>
   <string name="invalid_bitcoin_uri">Neplatné Bitcoinové URI</string>
   <string name="no_private_key">Vaša peňaženka nemôže posielať prostriedky, kedže nemá žiadne Privátné Kľúče</string>
   <string name="unrecognized_format">Neznámy formát</string>

@@ -59,7 +59,6 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.SellOrderSearchFragment;
@@ -113,9 +112,10 @@ public class LtMainActivity extends ActionBarActivity {
 
       _actionBar = getSupportActionBar();
       _actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-      //to provide up navigation from actionbar, in case the modern main activity is not on the stack
-      //todo find solution
-//      _actionBar.setDisplayHomeAsUpEnabled(true);
+      // to provide up navigation from actionbar, in case the modern main
+      // activity is not on the stack
+      // todo find solution
+      // _actionBar.setDisplayHomeAsUpEnabled(true);
 
       _tabsAdapter = new TabsAdapter(this, _viewPager);
 
@@ -211,17 +211,18 @@ public class LtMainActivity extends ActionBarActivity {
       if (itemId == R.id.miHowTo) {
          openLocalTraderHelp();
       }
-      //todo find solution
-//      if (itemId == android.R.id.home) {
-//         // Respond to the action bar's home button, navigates to parent activity
-//         // TODO: as soon as this bug is resolved, NavUtils should be used.
-//         // http://code.google.com/p/android/issues/detail?id=58520
-//         // NavUtils.navigateUpFromSameTask(this);
-//         startActivity(new Intent(this, ModernMain.class));
-//         finish();
-//
-//         return true;
-//      }
+      // todo find solution
+      // if (itemId == android.R.id.home) {
+      // // Respond to the action bar's home button, navigates to parent
+      // activity
+      // // TODO: as soon as this bug is resolved, NavUtils should be used.
+      // // http://code.google.com/p/android/issues/detail?id=58520
+      // // NavUtils.navigateUpFromSameTask(this);
+      // startActivity(new Intent(this, ModernMain.class));
+      // finish();
+      //
+      // return true;
+      // }
       return super.onOptionsItemSelected(item);
    }
 
@@ -296,16 +297,18 @@ public class LtMainActivity extends ActionBarActivity {
       };
 
       @Override
-      public void onLtTraderActicityNotification() {
-         // Vibrate
-         _mbwManager.vibrate();
-         // Make a sound if applicable
-         if (_ltManager.playSounfOnTradeNotification()) {
-            if (_updateSound != null) {
-               _updateSound.play();
+      public void onLtTraderActicityNotification(long timestamp) {
+         if (_ltManager.getLastNotificationSoundTimestamp() < timestamp) {
+            _ltManager.setLastNotificationSoundTimestamp(timestamp);
+            // Vibrate
+            _mbwManager.vibrate();
+            // Make a sound if applicable
+            if (_ltManager.getPlaySoundOnTradeNotification()) {
+               if (_updateSound != null) {
+                  _updateSound.play();
+               }
             }
          }
-
          _ltManager.makeRequest(new GetTraderInfo());
       }
 

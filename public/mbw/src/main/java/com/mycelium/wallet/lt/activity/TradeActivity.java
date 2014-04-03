@@ -767,10 +767,12 @@ public class TradeActivity extends Activity {
          _tradeSession = tradeSession;
          // Mark session as viewed
          _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
+         // Tell other listeners that we have taken care of audibly notifying up till this timestamp
+         _ltManager.setLastNotificationSoundTimestamp(tradeSession.lastChange);
          if (tradeSession.confidence != null && tradeSession.confidence > 0) {
             // While displaying confidence we do not play a notification sound
          } else {
-            if (_dingOnUpdates && _updateSound != null && _ltManager.playSounfOnTradeNotification()) {
+            if (_dingOnUpdates && _updateSound != null && _ltManager.getPlaySoundOnTradeNotification()) {
                _updateSound.play();
             }
             _dingOnUpdates = true;

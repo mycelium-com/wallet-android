@@ -128,7 +128,7 @@
   <string name="address_book_empty">Votre carnet d\'adresses est vide</string>
   <string name="delete_address_confirmation">Êtes-vous sûr de vouloir supprimer cette adresse de votre carnet?</string>
   <string name="add_to_addressbook">Ajouter au carnet d\'adresses</string>
-  <string name="edit">Modifier</string>
+  <string name="edit">Renommer</string>
   <string name="delete">Supprimer</string>
   <string name="payment_request">Paiement requis</string>
   <string name="show_to_sender">Présenter à l\'acheteur</string>
@@ -227,7 +227,7 @@
   <string name="share_payment_request">Demande de paiement partagé</string>
   <string name="share_bitcoin_address">Partager l\'adresse Bitcoin</string>
   <string name="optional_amount">Montant facultatif</string>
-  <string name="show_qr_code_menu">Montrer le Code QR</string>
+  <string name="show_qr_code_menu">Afficher Code QR</string>
   <string name="tab_keys">Clés</string>
   <string name="tab_balance">Solde</string>
   <string name="tab_transactions">Transactions</string>

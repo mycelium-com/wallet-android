@@ -70,6 +70,7 @@ public class LocalTraderManager {
    private TradeSessionChangeMonitor _tradeSessionChangeMonitor;
    private boolean _notificationsEnabled;
    private TraderInfo _cachedTraderInfo;
+   private long _lastNotificationSoundTimestamp;
 
    public LocalTraderManager(Context context, RecordManager recordManager, TradeSessionDb db, LtApi api,
          MbwManager mbwManager) {
@@ -379,14 +380,14 @@ public class LocalTraderManager {
       }
    }
 
-   private void notifyTraderActivity() {
+   private void notifyTraderActivity(final long timestamp) {
       synchronized (_subscribers) {
          for (final LocalTraderEventSubscriber s : _subscribers) {
             s.getHandler().post(new Runnable() {
 
                @Override
                public void run() {
-                  s.onLtTraderActicityNotification();
+                  s.onLtTraderActicityNotification(timestamp);
                }
             });
          }
@@ -517,8 +518,7 @@ public class LocalTraderManager {
       return null;
    }
 
-   public ChatMessageEncryptionKey generateChatMessageEncryptionKey(PublicKey foreignPublicKey,
-         UUID tradeSessionId) {
+   public ChatMessageEncryptionKey generateChatMessageEncryptionKey(PublicKey foreignPublicKey, UUID tradeSessionId) {
       return ChatMessageEncryptionKey.fromEcdh(foreignPublicKey, getLocalTraderPrivateKey(), tradeSessionId);
    }
 
@@ -565,7 +565,7 @@ public class LocalTraderManager {
       editor.commit();
       Log.i(TAG, "Updated trader notification timestamp to: " + timestamp);
       if (needsTraderSynchronization()) {
-         notifyTraderActivity();
+         notifyTraderActivity(_lastTraderNotification);
       }
       return true;
    }
@@ -609,8 +609,18 @@ public class LocalTraderManager {
       editor.commit();
    }
 
-   public boolean playSounfOnTradeNotification() {
+   public boolean getPlaySoundOnTradeNotification() {
       return _playSoundOnTradeNotification;
+   }
+
+   public void setLastNotificationSoundTimestamp(long timestamp) {
+      if (timestamp > _lastNotificationSoundTimestamp) {
+         _lastNotificationSoundTimestamp = timestamp;
+      }
+   }
+
+   public long getLastNotificationSoundTimestamp() {
+      return _lastNotificationSoundTimestamp;
    }
 
    public void setUseMiles(boolean enabled) {

@@ -87,7 +87,7 @@ public abstract class LocalTraderEventSubscriber {
     * Called when it has been discovered that the trader has changed. This
     * indicates that new data is available when getting TraderInfo
     */
-   public void onLtTraderActicityNotification() {
+   public void onLtTraderActicityNotification(long timestamp) {
    }
 
    /**

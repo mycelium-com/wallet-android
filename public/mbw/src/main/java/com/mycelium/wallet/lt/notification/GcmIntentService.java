@@ -87,11 +87,11 @@ public class GcmIntentService extends IntentService {
       // Let local trader know what the latest trader change timestamp is
       if (ltManager.setLastTraderNotification(lastChange) && ltManager.areNotificationsEnabled()) {
          // We got GC notification that was news to us, make a notification
-         showNotification(type);
+         showNotification(type, lastChange);
       }
    }
 
-   private void showNotification(String type) {
+   private void showNotification(String type, long lastChange) {
       Intent intent;
       if (LtApi.TRADE_FINAL_NOTIFICATION_TYPE.equals(type)) {
          intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.TRADE_HISTORY);
@@ -107,15 +107,17 @@ public class GcmIntentService extends IntentService {
 
       // Add ticker
       builder.setTicker(message);
+      
+      // Tell other listeners that we have taken care of audibly notifying up till this timestamp
+      LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
+      ltManager.setLastNotificationSoundTimestamp(lastChange);
 
       // Vibrate
       long[] pattern = { 500, 500 };
       builder.setVibrate(pattern);
 
-      LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
-
       // Make a sound
-      if (ltManager.playSounfOnTradeNotification()) {
+      if (ltManager.getPlaySoundOnTradeNotification()) {
          Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
          if (alarmSound != null) {
             builder.setSound(alarmSound);

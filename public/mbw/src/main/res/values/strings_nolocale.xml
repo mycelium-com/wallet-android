@@ -35,7 +35,8 @@
         <item>ru</item>
         <item>sk</item>
         <item>zh</item>
-    </string-array>
+        <item>zh-TW</item>
+        </string-array>
 
     <string-array name="languages_desc">
         <item>Dansk</item>
@@ -52,5 +53,6 @@
         <item>Русский</item>
         <item>Slovensky</item>
         <item>简体字</item>
-    </string-array>
+        <item>繁体中文</item>
+        </string-array>
 </resources>
