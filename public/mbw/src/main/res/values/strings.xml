@@ -223,7 +223,7 @@
     <string name="encrypted_pdf_backup_stretching">Preparing encryption key&#8230;</string>
     <string name="encrypted_pdf_backup_encrypting">Encrypting private keys&#8230;</string>
     <string name="encrypted_pdf_backup_creating">Creating PDF document&#8230;</string>
-    <string name="encrypted_pdf_backup_document_ready">PDF document created</string>
+    <string name="encrypted_pdf_backup_document_ready">PDF document created. Hint: app "Send to SD card" allows saving to file here</string>
     <string name="encrypted_pdf_backup_sharing">Sharing PDF document&#8230;</string>
     <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
     <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\r\n\r\nFollow these simple steps to secure your funds:\r\n1. Print the PDF document.\r\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\r\n3. Verify that you can import the private keys to your Mycelium Wallet.\r\n4. Store the printout in a safe place.</string>
