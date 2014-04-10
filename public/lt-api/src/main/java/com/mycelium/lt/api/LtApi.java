@@ -39,7 +39,7 @@ public interface LtApi {
    /**
     * The current version of the Local Trader API
     */
-   public static final int VERSION = 7;
+   public static final int VERSION = 8;
 
    public final static int ERROR_CODE_SUCCESS = 0;
    public final static int ERROR_CODE_NO_SERVER_CONNECTION = 1;

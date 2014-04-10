@@ -8,6 +8,8 @@
     <color name="black">#000</color>
     <color name="darkblue">#2f6699</color>
     <color name="brightblue">#449def</color>
+    <color name="darkred">#99662f</color>
+    <color name="brightred">#ef9d44</color>
     <color name="brightgreen">#44ef9d</color>
     
     <color name="mycelium_midblue">#3e9bd3</color>
@@ -27,6 +29,7 @@
     <color name="transparent">#00000000</color>
     <color name="transparentgrey">#88888888</color>
     <color name="buttoncolor">#ff1c3d5c</color>
+    <color name="buttonredcolor">#ffff1c1c</color>
     
     <drawable name="semi_black">#80000000</drawable>
 

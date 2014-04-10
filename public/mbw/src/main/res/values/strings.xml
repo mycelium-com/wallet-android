@@ -286,6 +286,8 @@
     <string name="decrypt_button">Decrypt</string>
     <string name="pref_change_language">Change Language</string>
     <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Keys tab</string>
+    <string name="alert_button">Alert</string>
+    <string name="heartbleed_alert">ALERT\n\nYour device runs Android version 4.1.1 and has a critical bug known as Heartbleed.\n\nThis bug allows an attacker to read the memory of any apps on your device that make HTTPS connections.\n\n You should take immediate action!\n\n1. Move your funds to new addresses where the private key has never been on an Android 4.1.1 device.\n\n2. Upgrade your device to another version than 4.1.1 or use another device.</string>
     <!--  LT start -->
     <string name="lt_buy_button">Buy</string>
     <string name="lt_edit_button">Edit</string>
@@ -392,7 +394,7 @@
     <string name="lt_thats_you">(that\'s you)</string>
     <string name="lt_detach_trader_account">Detach Trader Account</string>
     <string name="lt_detaching_title">Detaching Account</string>
-    <string name="lt_detaching_question">This will detach yout Local Trader account from Mycelium and delete locally cached trade data. The next time you use Local Trader you can attach the same address to continue using the same trader identity.\n\nDo you wish to detach from Local Trader?</string>
+    <string name="lt_detaching_question">This will detach your Local Trader account from Mycelium and delete locally cached trade data. The next time you use Local Trader you can attach the same address to continue using the same trader identity.\n\nDo you wish to detach from Local Trader?</string>
     <string name="lt_solve_captcha_title">Are You a Human?</string>
     <string name="lt_solve_captcha_desc">Please solve this captcha.\nThis is to prevent spam.</string>
     <string name="lt_captcha_wrong">Wrong solution, please try again.</string>
@@ -435,7 +437,6 @@
     <string name="lt_buy_sell_button">Buy / Sell Bitcoin</string>
     <string name="lt_invalid_chat_message">Invalid chat message sent by %1$s</string>
     <string name="lt_accept_terms_title">Terms and Conditions</string>
-    <string name="lt_terms_desc">Use Mycelium Local Trader at your own risk!</string>
     <string name="lt_accept_button">Accept</string>
     <string name="lt_decline_button">Decline</string>
     

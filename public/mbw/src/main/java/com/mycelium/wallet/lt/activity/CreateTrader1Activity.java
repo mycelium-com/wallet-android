@@ -40,10 +40,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 
 public class CreateTrader1Activity extends Activity {
+
+   private static final String TERMS_AND_CONDITIONS = "Mycelium Local Trader is a tool that allows buyers and sellers to trade bitcoin for cash."
+         + " Trading requires buyers and sellers to meet physically as part of the exchange.\n\n"
+         + "Mycelium only acts as a means of communication between two parties, and is not in any way "
+         + "responsible for any actions taken by the trading parties before, during, or after physical meetings.\n\n"
+         + "The Mycelium software guides the trading parties, but they themselves are responsible for exchanging the "
+         + "correct amount of cash and bitcoins and the validity thereof.\n\n"
+         + "Mycelium charges a small 0.2% fee to both sides of any trade. This fee is subject to change in the future.";
 
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
@@ -52,6 +61,7 @@ public class CreateTrader1Activity extends Activity {
 
    private Button _btAccept;
    private Button _btDecline;
+   private TextView _tvDescription;
 
    /** Called when the activity is first created. */
    @Override
@@ -59,9 +69,11 @@ public class CreateTrader1Activity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.lt_create_trader_1_activity);
 
+      _tvDescription = (TextView) findViewById(R.id.tvDescription);
       _btAccept = (Button) findViewById(R.id.btAccept);
       _btDecline = (Button) findViewById(R.id.btDecline);
 
+      _tvDescription.setText(TERMS_AND_CONDITIONS);
       _btAccept.setOnClickListener(new OnClickListener() {
 
          @Override

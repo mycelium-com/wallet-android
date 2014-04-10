@@ -40,6 +40,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -49,6 +50,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.Subscribe;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -60,7 +62,6 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.RecordSetChanged;
 import com.mycelium.wallet.event.SelectedRecordChanged;
-import com.squareup.otto.Subscribe;
 
 public class NoticeFragment extends Fragment {
 
@@ -102,12 +103,12 @@ public class NoticeFragment extends Fragment {
    public void onResume() {
       _mbwManager.getEventBus().register(this);
       _notice = determineNotice();
-      _root.findViewById(R.id.btHelp).setOnClickListener(noticeClickListener);
-      _root.findViewById(R.id.btWarning).setOnClickListener(noticeClickListener);
+      _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
+      _root.findViewById(R.id.btBackupMissing).setOnClickListener(noticeClickListener);
       updateUi();
       super.onResume();
    }
-   
+
    @Override
    public void onPause() {
       _mbwManager.getEventBus().unregister(this);
@@ -129,22 +130,38 @@ public class NoticeFragment extends Fragment {
             break;
          }
       }
+   };
+   private OnClickListener warningClickListener = new OnClickListener() {
 
-      private void showVerificationWarning() {
-         if (!isAdded()) {
+      @Override
+      public void onClick(View v) {
+         if (!shouldWarnAboutHeartbleedBug()) {
             return;
          }
-         VerifyBackupDialog dialog = new VerifyBackupDialog(getActivity());
-         dialog.show();
-      }
-
-      private void openMyceliumHelp() {
-         Intent intent = new Intent(Intent.ACTION_VIEW);
-         intent.setData(Uri.parse(Constants.MYCELIUM_WALLET_HELP_URL));
-         startActivity(intent);
-         Toast.makeText(getActivity(), R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
+         Utils.showSimpleMessageDialog(getActivity(), R.string.heartbleed_alert);
       }
    };
+
+   private void showVerificationWarning() {
+      if (!isAdded()) {
+         return;
+      }
+      VerifyBackupDialog dialog = new VerifyBackupDialog(getActivity());
+      dialog.show();
+   }
+
+   private boolean shouldWarnAboutHeartbleedBug() {
+      System.out.println(Build.VERSION.RELEASE);
+      // The Heartbleed bug is only present in Android version 4.1.1
+      return Build.VERSION.RELEASE.equals("4.1.1");
+   }
+
+   private void openMyceliumHelp() {
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setData(Uri.parse(Constants.MYCELIUM_WALLET_HELP_URL));
+      startActivity(intent);
+      Toast.makeText(getActivity(), R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
+   }
 
    private Notice determineNotice() {
       List<Record> records = _recordManager.getAllRecords();
@@ -195,14 +212,17 @@ public class NoticeFragment extends Fragment {
       }
       switch (_notice) {
       case VERIFICATION_MISSING:
-         _root.findViewById(R.id.btWarning).setVisibility(View.VISIBLE);
-         _root.findViewById(R.id.btHelp).setVisibility(View.GONE);
+         _root.findViewById(R.id.btBackupMissing).setVisibility(View.VISIBLE);
          break;
       default:
-         _root.findViewById(R.id.btWarning).setVisibility(View.GONE);
-         // XXX disabled the help button for now
-         _root.findViewById(R.id.btHelp).setVisibility(View.GONE);
+         _root.findViewById(R.id.btBackupMissing).setVisibility(View.GONE);
          break;
+      }
+
+      if (shouldWarnAboutHeartbleedBug()) {
+         _root.findViewById(R.id.btWarning).setVisibility(View.VISIBLE);
+      } else {
+         _root.findViewById(R.id.btWarning).setVisibility(View.GONE);
       }
 
    }
@@ -224,7 +244,7 @@ public class NoticeFragment extends Fragment {
       _notice = determineNotice();
       updateUi();
    }
-   
+
    @Subscribe
    public void addressBookChanged(AddressBookChanged event) {
       _notice = determineNotice();

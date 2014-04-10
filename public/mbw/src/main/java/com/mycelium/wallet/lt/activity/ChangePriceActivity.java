@@ -164,8 +164,8 @@ public class ChangePriceActivity extends Activity {
       if (priceFormula == null || premium == null) {
          return;
       } else {
-         BtcSellPriceParameters params = new BtcSellPriceParameters(_tradeSession.currency, _tradeSession.fiatTraded,
-               priceFormula.id, premium);
+         BtcSellPriceParameters params = new BtcSellPriceParameters(_tradeSession.ownerId, _tradeSession.peerId,
+               _tradeSession.currency, _tradeSession.fiatTraded, priceFormula.id, premium);
          AssessBtcSellPrice request = new AssessBtcSellPrice(params);
          _ltManager.makeRequest(request);
          _spPriceFormula.setEnabled(false);
