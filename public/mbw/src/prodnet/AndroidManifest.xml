@@ -4,7 +4,24 @@
     android:versionCode="00"
     android:versionName="overwrittenByGradle" >
 
+    <!--  Note that the permission below depends on the package and must be changed for each build target -->
+    <permission android:name="com.mycelium.testnetwallet.permission.C2D_MESSAGE"
+                android:protectionLevel="signature" />
+    <uses-permission android:name="com.mycelium.wallet.permission.C2D_MESSAGE" />
+
     <application>
+
+        <!--  Receiver for Google Cloud Messaging -->
+        <receiver
+            android:name="com.mycelium.wallet.lt.notification.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <!--  Note that the below must match the package name -->
+                <category android:name="com.mycelium.wallet" />
+            </intent-filter>
+        </receiver>
+
         <!--file provider to enable secure intent sharing for encrypted backups-->
         <provider
             android:name="android.support.v4.content.FileProvider"

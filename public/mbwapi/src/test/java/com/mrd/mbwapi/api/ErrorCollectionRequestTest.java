@@ -45,7 +45,11 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 
-public class ErrorCollectionRequestTest {
+public class ErrorCollectionRequestTest extends Node3Test {
+
+
+
+
    @Test
    public void testToByteWriter() throws Exception {
       String longString = String.valueOf(new char[2000]);
@@ -63,18 +67,15 @@ public class ErrorCollectionRequestTest {
 //      InputStream inputStream = new URL("https://node3.mycelium.com/mwstestnet/api/1/request/status").openStream();
 //      System.out.println(new Byte);
 
-      MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpsEndpoint(
-            "https://node3.mycelium.com/mwstestnet", "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F");
 
-//      MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpsEndpoint(
+//      MyceliumWalletApiImpl.HttpsEndpoint endpoint = new MyceliumWalletApiImpl.HttpsEndpoint(
 //            "https://mws1.mycelium.com/mws", "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3");
 
-      MyceliumWalletApiImpl api = new MyceliumWalletApiImpl(new MyceliumWalletApiImpl.HttpEndpoint[]{httpsTestnetEndpoint},
-            NetworkParameters.productionNetwork);
+
       api.getRate(CurrencyCode.USD);
 
 
-      api.collectError(new RuntimeException("fresh test from junit to node1"),"-1",ErrorMetaData.DUMMY);
+      api.collectError(new RuntimeException("fresh test from junit to node1"), "-1", ErrorMetaData.DUMMY);
 
    }
 
@@ -85,12 +86,16 @@ public class ErrorCollectionRequestTest {
 //      InputStream inputStream = new URL("https://node3.mycelium.com/mwstestnet/api/1/request/status").openStream();
 //      System.out.println(new Byte);
 
+/*
       MyceliumWalletApiImpl.HttpEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpEndpoint(
             "http://192.168.178.53:8086");
+*/
 
+/*
       MyceliumWalletApiImpl api = new MyceliumWalletApiImpl(new MyceliumWalletApiImpl.HttpEndpoint[]{httpsTestnetEndpoint},
             NetworkParameters.testNetwork);
       api.getRate(CurrencyCode.USD);
+*/
 
 
       api.collectError(new RuntimeException("test from junit"),"-1",ErrorMetaData.DUMMY);

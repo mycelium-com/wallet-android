@@ -116,14 +116,6 @@ public class LtApiClient implements LtApi {
       }
    }
 
-   private LtResponse<Void> sendRequest(LtRequest request) {
-      HttpURLConnection connection = getConnectionAndSendRequest(request);
-      if (connection == null) {
-         return new LtResponse<Void>(ERROR_CODE_NO_SERVER_CONNECTION, null);
-      }
-      return new LtResponse<Void>(ERROR_CODE_SUCCESS, null);
-   }
-
    private <T> LtResponse<T> sendRequest(LtRequest request, TypeReference<LtResponse<T>> typeReference) {
       try {
          HttpURLConnection connection = getConnectionAndSendRequest(request);
@@ -229,7 +221,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.CREATE_TRADER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.setPostObject(_objectMapper, params);
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -290,7 +283,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.ACTIVATE_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -298,7 +292,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.DEACTIVATE_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -306,7 +301,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.DELETE_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -370,7 +366,8 @@ public class LtApiClient implements LtApi {
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.TRADE_SESSION_ID, tradeSessionId.toString());
       r.addQueryParameter(Param.TIMESTAMP, Long.toString(tradeSessionTimestamp));
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -378,7 +375,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.ABORT_TRADE);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.TRADE_SESSION_ID, tradeSessionId.toString());
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -386,7 +384,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.SEND_CHAT_MESSAGE);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.setPostObject(_objectMapper, params);
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override
@@ -431,7 +430,8 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.REQUEST_MARKET_RATE_REFRESH);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.TRADE_SESSION_ID, tradeSessionId.toString());
-      return sendRequest(r);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
    }
 
    @Override

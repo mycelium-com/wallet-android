@@ -9,7 +9,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
         android:layout_marginTop="5dp"
         android:text="@string/lt_accept_terms_title"
         android:textSize="24sp" />
@@ -17,9 +16,11 @@
     <ScrollView
         android:id="@+id/llRoot"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_gravity="top"
-        android:layout_marginTop="15dp" >
+        android:layout_weight="1"
+        android:fadeScrollbars="false"
+        android:requiresFadingEdge="vertical" >
 
         <TextView
             android:id="@+id/tvDescription"
@@ -29,6 +30,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:gravity="center_horizontal"
+            android:paddingTop="10dp"
             android:textSize="16sp" />
     </ScrollView>
 
@@ -36,7 +38,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="5dp"
         android:orientation="horizontal" >
 
         <Button

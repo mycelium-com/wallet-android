@@ -32,65 +32,25 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.lt.activity;
+package com.mrd.mbwapi.api;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import java.util.Locale;
 
-import com.mycelium.wallet.R;
+import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class CreateTrader1Activity extends Activity {
+public class UpdateCheckTest extends Node3Test{
 
-   public static void callMe(Activity currentActivity, int requestCode) {
-      Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
-      currentActivity.startActivityForResult(intent, requestCode);
+   @Test
+   @Ignore
+   public void testUpdateCheck() throws ApiException {
+      //      WalletVersionResponse response = api.getVersionInfo(new WalletVersionRequest("1.2.0rc1", Locale.GERMAN));
+      String versionResponse = api.getVersionInfo(new WalletVersionRequest("1.0.0", Locale.GERMAN)).versionNumber;
+      assertEquals("1.1.10",versionResponse);
+      versionResponse = api.getVersionInfo(new WalletVersionRequest("1.2.0", Locale.GERMAN)).versionNumber;
+      assertEquals("1.2.0",versionResponse);
+      versionResponse = api.getVersionInfo(new WalletVersionRequest("1.2.0rc1", Locale.GERMAN)).versionNumber;
+      assertEquals("1.2.0rc1",versionResponse);
    }
-
-   private Button _btAccept;
-   private Button _btDecline;
-   private TextView _tvDescription;
-
-   /** Called when the activity is first created. */
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.lt_create_trader_1_activity);
-
-      _tvDescription = (TextView) findViewById(R.id.tvDescription);
-      _btAccept = (Button) findViewById(R.id.btAccept);
-      _btDecline = (Button) findViewById(R.id.btDecline);
-
-      _tvDescription.setText(
-            getString(R.string.lt_tos_1)
-                  + "\n\n"
-                  + getString(R.string.lt_tos_2) +
-                  "\n\n"
-                  + getString(R.string.lt_tos_3) +
-                  "\n\n"
-                  + getString(R.string.lt_tos_4)
-      );
-      _btAccept.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            CreateTrader2Activity.callMe(CreateTrader1Activity.this);
-            finish();
-         }
-      });
-
-      _btDecline.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View arg0) {
-            finish();
-         }
-      });
-
-   }
-
 }
