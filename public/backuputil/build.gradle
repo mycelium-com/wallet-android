@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'fatjar'
+apply plugin: "application"
+
+def mainClass = 'com.mrd.bitlib.BackupUtil'
+
+mainClassName = mainClass
+
+
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
+    }
+}
+
+
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+
+
+dependencies {
+    compile project(':public:bitlib')
+    compile guavaArtifact
+    testCompile 'junit:junit:'+junitVersion
+}
+
+fatJar {
+    manifest {
+
+        attributes(
+                "Main-Class": mainClass,
+                "Implementation-Version": version ?: 'dev'
+        )
+    }
+}

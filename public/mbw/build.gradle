@@ -26,7 +26,6 @@ dependencies {
 //    compile 'com.google.android.gms:play-services:4.2.42'
 }
 
-
 def commonDebugKeystore = file("../../keystore_debug")
 
 android {
@@ -80,6 +79,12 @@ android {
     }
 
     productFlavors {
+
+        bitsofgold {
+            packageName 'il.co.bitsofgold.wallet'
+            versionName = defaultConfig.versionName + '-BOG'
+            signingConfig signingConfigs.release
+        }
 
         prodnet {
             packageName 'com.mycelium.wallet'
