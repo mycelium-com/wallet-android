@@ -16,7 +16,7 @@ buildscript {
 }
 
 dependencies {
-    instrumentTestCompile 'junit:junit:' + junitVersion
+    androidTestCompile 'junit:junit:' + junitVersion
     compile project(':public:zxing-android')
     compile project(':public:mbwapi')
     compile project(':public:lt-api')
@@ -38,14 +38,14 @@ android {
 
 
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 102
-        versionName '1.2.0rc2'
+        versionCode 103
+        versionName '1.2.0'
     }
 
     signingConfigs {
@@ -102,7 +102,7 @@ android {
 
 
     sourceSets {
-        instrumentTest {
+        androidTest {
             java.srcDirs = ['instrumentTest/java']
         }
     }

@@ -17,16 +17,20 @@ dependencies {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 10
+        targetSdkVersion 19
     }
 
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
         targetCompatibility = 'VERSION_1_6'
+    }
+//    we are just embedding the zxing lib here, we are not maintaining it.
+    lintOptions {
+        ignoreWarnings true
     }
 
 }

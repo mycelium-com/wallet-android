@@ -20,11 +20,14 @@ on the build system you need
 
 Then you need to use the Android SDK manager to install the following components:
 
- * Android SDK version 19 with *ANDROID_HOME* variable pointing to the directory
+ * ANDROID_HOME environment variable pointing to the directory where the sdk is installed
+ * Android SDK Tools 22.6.2
  * SDK Platform Tools 19.0.1
- * Android SDK build Tools 19.0.1
- * Android 4.4.2 (API 19)
- * appcompat v7 rev. 19.0.1 (Android Support Library + Android Support Repository)
+ * Android SDK build Tools 19.0.3
+ * Android 4.4.2 (API 19) (at least SDK Platform Rev. 3)
+ * appcompat v7 rev. 19.1 (Android Support Library + Android Support Repository)
+
+The project layout is designed to be used with a recent version of Android Studio (currently 0.5.4)
 
 On the console write
 
