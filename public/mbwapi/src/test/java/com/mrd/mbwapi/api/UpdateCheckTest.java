@@ -47,7 +47,9 @@ public class UpdateCheckTest extends Node3Test{
    public void testUpdateCheck() throws ApiException {
       //      WalletVersionResponse response = api.getVersionInfo(new WalletVersionRequest("1.2.0rc1", Locale.GERMAN));
       String versionResponse = api.getVersionInfo(new WalletVersionRequest("1.0.0", Locale.GERMAN)).versionNumber;
-      assertEquals("1.1.10",versionResponse);
+      assertEquals("1.2.0",versionResponse);
+      versionResponse = api.getVersionInfo(new WalletVersionRequest("1.0.0-TESTNET", Locale.GERMAN)).versionNumber;
+      assertEquals("1.2.0-TESTNET",versionResponse);
       versionResponse = api.getVersionInfo(new WalletVersionRequest("1.2.0", Locale.GERMAN)).versionNumber;
       assertEquals("1.2.0",versionResponse);
       versionResponse = api.getVersionInfo(new WalletVersionRequest("1.2.0rc1", Locale.GERMAN)).versionNumber;

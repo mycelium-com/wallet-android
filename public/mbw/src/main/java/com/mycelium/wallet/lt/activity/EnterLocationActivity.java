@@ -59,6 +59,8 @@ import com.mycelium.wallet.lt.AddressDescription;
 public class EnterLocationActivity extends Activity {
 
    private String language;
+   private MbwManager mbwManager;
+   private GeoCoderErrorCallback errorCallback;
 
    public static void callMeForResult(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, EnterLocationActivity.class);
@@ -70,7 +72,9 @@ public class EnterLocationActivity extends Activity {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      language = MbwManager.getInstance(this).getLanguage();
+      mbwManager = MbwManager.getInstance(this);
+      language = mbwManager.getLanguage();
+      errorCallback = new GeoCoderErrorCallback(mbwManager);
       setContentView(R.layout.lt_enter_location_activity);
 
       _atvLocation = (AutoCompleteTextView) findViewById(R.id.atvLocation);
@@ -124,7 +128,7 @@ public class EnterLocationActivity extends Activity {
    }
 
    private List<Geocode> autocompleteInternal(String input) {
-      JsonCoder geocoder = new JsonCoder(language);
+      JsonCoder geocoder = new JsonCoder(language, errorCallback);
       return geocoder.query(input, 5).results;
    }
 

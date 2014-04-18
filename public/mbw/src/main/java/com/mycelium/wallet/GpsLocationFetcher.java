@@ -6,6 +6,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
 
+import com.mycelium.lt.ErrorCallback;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.location.Geocode;
 import com.mycelium.lt.location.GeocodeResponse;
@@ -15,6 +16,12 @@ import com.mycelium.wallet.lt.AddressDescription;
 import java.util.List;
 
 public class GpsLocationFetcher {
+
+   final ErrorCallback errorCallback;
+
+   public GpsLocationFetcher(ErrorCallback errorCallback) {
+      this.errorCallback = errorCallback;
+   }
 
    public static abstract class Callback {
 
@@ -39,7 +46,7 @@ public class GpsLocationFetcher {
 
    }
 
-   public static void getNetworkLocation(final Callback callback) {
+   public void getNetworkLocation(final Callback callback) {
       Thread t = new Thread(new Runnable() {
 
          @Override
@@ -60,7 +67,7 @@ public class GpsLocationFetcher {
       t.start();
    }
 
-   private static GpsLocation getNetworkLocation(Context context) {
+   private GpsLocation getNetworkLocation(Context context) {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
@@ -70,7 +77,7 @@ public class GpsLocationFetcher {
          return null;
       final List<Geocode> list;
       String language = MbwManager.getInstance(context).getLanguage();
-      JsonCoder jsonCoder = new JsonCoder(language);
+      JsonCoder jsonCoder = new JsonCoder(language, errorCallback);
       GeocodeResponse response = jsonCoder.getFromLocation(lastKnownLocation.getLatitude(),
             lastKnownLocation.getLongitude());
       list = response.results;

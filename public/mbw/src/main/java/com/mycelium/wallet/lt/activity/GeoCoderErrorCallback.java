@@ -32,16 +32,20 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.lt.location;
+package com.mycelium.wallet.lt.activity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.mycelium.lt.ErrorCallback;
+import com.mycelium.wallet.MbwManager;
 
-public class GeocodeResponse {
-   public String status;
-   public String errorMessage;
-   public List<Geocode> results = new ArrayList<Geocode>();
+public class GeoCoderErrorCallback implements ErrorCallback {
+   private MbwManager _mbwManager;
 
+   GeoCoderErrorCallback(MbwManager mbwManager) {
+      _mbwManager = mbwManager;
+   }
+
+   @Override
+   public void collectError(Exception e, String url, String data) {
+      _mbwManager.reportIgnoredException(new RuntimeException("error fetching url:"+url+"\n query data:"+data,e));
+   }
 }
-
-

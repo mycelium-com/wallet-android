@@ -37,6 +37,8 @@ package com.mycelium.lt.location;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.mycelium.lt.ErrorCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,9 +49,11 @@ import java.net.URLEncoder;
 public class JsonCoder {
 
    final String language;
+   final ErrorCallback errorCallback;
 
-   public JsonCoder(String language) {
+   public JsonCoder(String language, ErrorCallback errorCallback) {
       this.language = language;
+      this.errorCallback = errorCallback;
    }
 
    public GeocodeResponse query(String address, int maxresults) {
@@ -66,7 +70,12 @@ public class JsonCoder {
       } catch (IOException e) {
          throw new RuntimeException("querying url " + url, e);
       }
-      GeocodeResponse res = response2Graph(inputData);
+      GeocodeResponse res = null;
+      try {
+         res = response2Graph(inputData);
+      } catch (RemoteGeocodeException e) {
+         errorCallback.collectError(e, url, address);
+      }
       if (maxresults == -1) {
          return res;
       } else {
@@ -90,11 +99,18 @@ public class JsonCoder {
       } catch (IOException e) {
          throw new RuntimeException("querying url " + url, e);
       }
-      return response2Graph(inputData);
+      try {
+         return response2Graph(inputData);
+      } catch (RemoteGeocodeException e) {
+         errorCallback.collectError(e, url, latitude + "," + longitude);
+         GeocodeResponse dummy = new GeocodeResponse();
+         dummy.results = ImmutableList.of();
+         return dummy;
+      }
    }
 
 
-   public GeocodeResponse response2Graph(InputStream apply) {
+   public GeocodeResponse response2Graph(InputStream apply) throws RemoteGeocodeException {
       //      new URL(url)
       ObjectMapper mapper = new ObjectMapper(); // just need one
       mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
@@ -108,14 +124,22 @@ public class JsonCoder {
       }
       if (!isValidStatus(graph.status)) {
          //something is wrong, throw an error.
-         throw new RuntimeException("an error occurred while querying: " + graph.status);
+         throw new RemoteGeocodeException("an error occurred while querying", graph.status, graph.errorMessage);
       }
       return graph;
    }
+
 
    private boolean isValidStatus(String status) {
       return "OK".equals(status) || "ZERO_RESULTS".equals(status);
    }
 
 
+   public class RemoteGeocodeException extends Exception {
+      private static final long serialVersionUID = 4646210150078841846L;
+
+      public RemoteGeocodeException(String message, String status, String errorMessage) {
+         super(message + " status: " + status + " errorMessage: " + errorMessage);
+      }
+   }
 }

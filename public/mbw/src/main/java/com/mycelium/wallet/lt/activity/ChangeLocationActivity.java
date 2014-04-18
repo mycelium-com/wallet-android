@@ -121,7 +121,7 @@ public class ChangeLocationActivity extends Activity {
 
    protected void onSaveInstanceState(Bundle outState) {
       outState.putSerializable("location", _chosenAddress);
-   };
+   }
 
    OnClickListener crossHairClickListener = new OnClickListener() {
 
@@ -129,7 +129,7 @@ public class ChangeLocationActivity extends Activity {
       public void onClick(View arg0) {
          _chosenAddress = null;
          updateUi();
-         GpsLocationFetcher.getNetworkLocation(_gpsLocationCallback);
+         new GpsLocationFetcher(new GeoCoderErrorCallback(_mbwManager)).getNetworkLocation(_gpsLocationCallback);
       }
    };
 

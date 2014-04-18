@@ -206,7 +206,7 @@ public class PinDialog extends Dialog {
    /**
     * Trick to make the last digit update before the dialog is disabled
     */
-   final Handler delayhandler = new Handler() {
+  final Handler delayhandler = new Handler() {
       public void handleMessage(Message msg) {
          _onPinValid.pinEntered(PinDialog.this, _enteredPin);
          enableButtons(true);
