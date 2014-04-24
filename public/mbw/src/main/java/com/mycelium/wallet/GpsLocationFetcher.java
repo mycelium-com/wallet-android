@@ -6,22 +6,17 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
 
-import com.mycelium.lt.ErrorCallback;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.location.Geocode;
 import com.mycelium.lt.location.GeocodeResponse;
 import com.mycelium.lt.location.JsonCoder;
+import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.lt.AddressDescription;
 
 import java.util.List;
 
 public class GpsLocationFetcher {
 
-   final ErrorCallback errorCallback;
-
-   public GpsLocationFetcher(ErrorCallback errorCallback) {
-      this.errorCallback = errorCallback;
-   }
 
    public static abstract class Callback {
 
@@ -44,6 +39,8 @@ public class GpsLocationFetcher {
        */
       protected abstract void onGpsLocationObtained(GpsLocation location);
 
+      protected abstract void onGpsError(RemoteGeocodeException error);
+
    }
 
    public void getNetworkLocation(final Callback callback) {
@@ -51,23 +48,37 @@ public class GpsLocationFetcher {
 
          @Override
          public void run() {
-            final GpsLocation location = getNetworkLocation(callback._context);
-            callback._handler.post(new Runnable() {
+            final GpsLocation location;
+            try {
+               location = getNetworkLocation(callback._context);
+               callback._handler.post(new Runnable() {
 
-               @Override
-               public void run() {
-                  if (!callback._cancelled) {
-                     callback.onGpsLocationObtained(location);
+                  @Override
+                  public void run() {
+                     if (!callback._cancelled) {
+                        callback.onGpsLocationObtained(location);
+                     }
                   }
-               }
-            });
+               });
+            } catch (final RemoteGeocodeException e) {
+               callback._handler.post(new Runnable() {
+
+                  @Override
+                  public void run() {
+                     if (!callback._cancelled) {
+                        callback.onGpsError(e);
+                     }
+                  }
+               });
+            }
+
          }
       });
       t.setDaemon(true);
       t.start();
    }
 
-   private GpsLocation getNetworkLocation(Context context) {
+   private GpsLocation getNetworkLocation(Context context) throws RemoteGeocodeException {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
@@ -77,7 +88,7 @@ public class GpsLocationFetcher {
          return null;
       final List<Geocode> list;
       String language = MbwManager.getInstance(context).getLanguage();
-      JsonCoder jsonCoder = new JsonCoder(language, errorCallback);
+      JsonCoder jsonCoder = new JsonCoder(language);
       GeocodeResponse response = jsonCoder.getFromLocation(lastKnownLocation.getLatitude(),
             lastKnownLocation.getLongitude());
       list = response.results;

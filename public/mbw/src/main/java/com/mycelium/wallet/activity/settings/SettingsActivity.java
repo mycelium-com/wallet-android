@@ -394,8 +394,8 @@ public class SettingsActivity extends PreferenceActivity {
 
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
-         Intent intent = new Intent(SettingsActivity.this, SetLocalCurrencyActivity.class);
-         SettingsActivity.this.startActivityForResult(intent, GET_CURRENCY_RESULT_CODE);
+         String currency = _mbwManager.getFiatCurrency();
+         SetLocalCurrencyActivity.callMeForResult(SettingsActivity.this, currency, GET_CURRENCY_RESULT_CODE);
          return true;
       }
    };

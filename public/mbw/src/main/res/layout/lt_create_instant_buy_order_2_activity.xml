@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <!-- Title -->
+
+        <TextView
+            style="@style/MyceliumText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/lt_reveiving_address_title"
+            android:textSize="24sp" />
+
+        <!-- Description -->
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="center_horizontal"
+            android:paddingTop="10dp"
+            android:text="@string/lt_reveiving_address_description"
+            android:textSize="16sp" />
+
+        <!-- Receiver Label -->
+
+        <TextView
+            android:id="@+id/tvAddressLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/green"
+            android:textSize="20sp"
+            android:visibility="gone" />
+
+        <!-- Receiver Address -->
+
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:typeface="monospace" />
+
+        <!-- Warning Message -->
+
+        <TextView
+            android:id="@+id/tvWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="4dp"
+            android:gravity="center"
+            android:text="@string/read_only_warning"
+            android:textColor="@color/red"
+            android:textSize="20sp" />
+
+        <!-- Start Trading Button -->
+
+        <Button
+            android:id="@+id/btStartTrading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/lt_start_trading_button"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+</ScrollView>

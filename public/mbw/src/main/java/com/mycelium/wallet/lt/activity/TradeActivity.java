@@ -83,22 +83,17 @@ import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.ChatMessageEncryptionKey.InvalidChatMessage;
 import com.mycelium.lt.api.model.ActionState;
 import com.mycelium.lt.api.model.ChatEntry;
-import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.params.TradeChangeParameters;
-import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
-import com.mycelium.wallet.lt.activity.TraderInfoAdapter.InfoItem;
 import com.mycelium.wallet.lt.api.AbortTrade;
 import com.mycelium.wallet.lt.api.AcceptTrade;
 import com.mycelium.wallet.lt.api.ChangeTradeSessionPrice;
-import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
@@ -132,15 +127,10 @@ public class TradeActivity extends Activity {
    private ProgressBar _pbConfidence;
    private TextView _tvConfidence;
    private ListView _lvChat;
-   private ListView _lvInfo;
-   private View _chatPanel;
-   private View _infoPanel;
    private ChatAdapter _chatAdapter;
    private Ringtone _updateSound;
    private boolean _dingOnUpdates;
    private boolean _didShowInsufficientFunds;
-   private TraderInfoAdapter _tradeInfoAdapter;
-   private PublicTraderInfo _peerInfo;
    public ChatMessageEncryptionKey _key;
 
    @Override
@@ -164,8 +154,6 @@ public class TradeActivity extends Activity {
       _flConfidence = (View) findViewById(R.id.flConfidence);
       _pbConfidence = (ProgressBar) findViewById(R.id.pbConfidence);
       _tvConfidence = (TextView) findViewById(R.id.tvConfidence);
-      _chatPanel = findViewById(R.id.chatPanel);
-      _infoPanel = findViewById(R.id.infoPanel);
 
       _btRefresh.setOnClickListener(refreshClickListener);
       _btChangePrice.setOnClickListener(changePriceClickListener);
@@ -174,9 +162,6 @@ public class TradeActivity extends Activity {
       _btAccept.setOnClickListener(acceptClickListener);
       _btAbort.setOnClickListener(abortorStopClickListener);
       _btCashReceived.setOnClickListener(cashReceivedClickListener);
-      findViewById(R.id.bottomPanel).setOnClickListener(flipChatClickListener);
-      _chatPanel.setOnClickListener(flipChatClickListener);
-      _infoPanel.setOnClickListener(flipChatClickListener);
       _updateSound = RingtoneManager
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 
@@ -195,21 +180,15 @@ public class TradeActivity extends Activity {
       _lvChat = (ListView) findViewById(R.id.lvChat);
       _lvChat.setAdapter(_chatAdapter);
       _lvChat.setOnItemClickListener(chatItemClickListener);
-
-      _lvInfo = (ListView) findViewById(R.id.lvInfo);
-      _lvInfo.setOnItemClickListener(infoItemClickListener);
    }
 
    @Override
    protected void onResume() {
-      _tradeInfoAdapter = new TraderInfoAdapter(this, new ArrayList<TraderInfoAdapter.InfoItem>());
-      _lvInfo.setAdapter(_tradeInfoAdapter);
       _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
       if (_tradeSession == null) {
          _myListener = new MyListener(_tradeSessionId, 0);
       } else {
-         requestPeerInfo(_tradeSession);
          _myListener = new MyListener(_tradeSessionId, _tradeSession.lastChange);
       }
       _ltManager.startMonitoringTradeSession(_myListener);
@@ -382,14 +361,6 @@ public class TradeActivity extends Activity {
       _ltManager.makeRequest(new SendEncryptedChatMessage(_tradeSession.id, msg, getChatMessageEncryptionKey()));
    }
 
-   OnClickListener flipChatClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         flipChatAndInfoPanels();
-      }
-   };
-
    OnItemClickListener chatItemClickListener = new OnItemClickListener() {
 
       @Override
@@ -409,7 +380,6 @@ public class TradeActivity extends Activity {
                }
             }
          }
-         flipChatAndInfoPanels();
       }
 
       private Uri getUriFromAnyText(String text) {
@@ -444,24 +414,6 @@ public class TradeActivity extends Activity {
          return null;
       }
    };
-
-   OnItemClickListener infoItemClickListener = new OnItemClickListener() {
-
-      @Override
-      public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-         flipChatAndInfoPanels();
-      }
-   };
-
-   private void flipChatAndInfoPanels() {
-      if (_chatPanel.getVisibility() == View.VISIBLE) {
-         _chatPanel.setVisibility(View.INVISIBLE);
-         _infoPanel.setVisibility(View.VISIBLE);
-      } else {
-         _chatPanel.setVisibility(View.VISIBLE);
-         _infoPanel.setVisibility(View.INVISIBLE);
-      }
-   }
 
    private void updateUi() {
       if (_tradeSession == null) {
@@ -534,60 +486,7 @@ public class TradeActivity extends Activity {
       _chatAdapter.notifyDataSetChanged();
       scrollChatToBottom();
 
-      // Info
-      updateInfo();
-
       enableButtons(tradeSession);
-   }
-
-   private void updateInfo() {
-      Preconditions.checkArgument(_tradeSession != null);
-      TraderInfoAdapter a = _tradeInfoAdapter;
-
-      a.clear();
-
-      // Receiving address if we are the buyer
-      if (_tradeSession.isBuyer) {
-         _tradeInfoAdapter.add(new InfoItem(getString(R.string.lt_your_receiving_address_label),
-               _tradeSession.buyerAddress.toMultiLineString()));
-      }
-
-      // Trader name
-      String name = _tradeSession.isOwner ? _tradeSession.peerName : _tradeSession.ownerName;
-      a.add(new InfoItem(getString(R.string.lt_you_are_trading_with_label), name));
-
-      // Location
-      if (_tradeSession.location != null) {
-         a.add(new InfoItem(getString(R.string.lt_location_label), _tradeSession.location.name));
-      }
-
-      if (_peerInfo == null) {
-         // We don't have the peer info yet
-         return;
-      }
-
-      PublicTraderInfo i = _peerInfo;
-      // Rating
-      float rating = LtAndroidUtils.calculate5StarRating(i.successfulSales, i.abortedSales, i.successfulBuys,
-            i.abortedBuys, i.traderAgeMs);
-      a.add(new InfoItem(getString(R.string.lt_rating_label), rating));
-      // Median trade time
-      if (i.tradeMedianMs != null) {
-         String hourString = LtAndroidUtils.getApproximateTimeInHours(this, i.tradeMedianMs);
-         a.add(new InfoItem(getString(R.string.lt_expected_trade_time_label), hourString));
-      }
-      // Account Age
-      a.add(new InfoItem(getString(R.string.lt_trader_age_label), getResources().getString(R.string.lt_time_in_days,
-            i.traderAgeMs / Constants.MS_PR_DAY)));
-      // Successful Sales
-      a.add(new InfoItem(getString(R.string.lt_successful_sells_label), Integer.toString(i.successfulSales)));
-      // Aborted Sales
-      a.add(new InfoItem(getString(R.string.lt_aborted_sells_label), Integer.toString(i.abortedSales)));
-      // Successful Buys
-      a.add(new InfoItem(getString(R.string.lt_successful_buys_label), Integer.toString(i.successfulBuys)));
-      // Aborted Buys
-      a.add(new InfoItem(getString(R.string.lt_aborted_buys_label), Integer.toString(i.abortedBuys)));
-
    }
 
    private void enableButtons(TradeSession tradeSession) {
@@ -761,13 +660,11 @@ public class TradeActivity extends Activity {
 
       @Override
       public void onTradeSessionChanged(TradeSession tradeSession) {
-         if (_tradeSession == null) {
-            requestPeerInfo(tradeSession);
-         }
          _tradeSession = tradeSession;
          // Mark session as viewed
          _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
-         // Tell other listeners that we have taken care of audibly notifying up till this timestamp
+         // Tell other listeners that we have taken care of audibly notifying up
+         // till this timestamp
          _ltManager.setLastNotificationSoundTimestamp(tradeSession.lastChange);
          if (tradeSession.confidence != null && tradeSession.confidence > 0) {
             // While displaying confidence we do not play a notification sound
@@ -780,14 +677,6 @@ public class TradeActivity extends Activity {
          updateUi();
       }
 
-   }
-
-   private void requestPeerInfo(TradeSession tradeSession) {
-      if (tradeSession.isOwner) {
-         _ltManager.makeRequest(new GetPublicTraderInfo(tradeSession.peerId));
-      } else {
-         _ltManager.makeRequest(new GetPublicTraderInfo(tradeSession.ownerId));
-      }
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
@@ -821,12 +710,6 @@ public class TradeActivity extends Activity {
          // Synchronize wallet with backend. If we do not do this we risk
          // sending out a double spend if we make two trades after another
          _mbwManager.getSyncManager().triggerUpdate();
-      };
-
-      @Override
-      public void onLtPublicTraderInfoFetched(PublicTraderInfo info, GetPublicTraderInfo request) {
-         _peerInfo = info;
-         updateUi();
       };
 
    };

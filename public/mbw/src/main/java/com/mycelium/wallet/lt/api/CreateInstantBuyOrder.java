@@ -24,6 +24,10 @@ public class CreateInstantBuyOrder extends Request {
       _address = address;
    }
 
+   public Address getAddress(){
+      return _address;
+   }
+   
    @Override
    public void execute(LocalManagerApiContext context, LtApi api, UUID sessionId,
          Collection<LocalTraderEventSubscriber> subscribers) {

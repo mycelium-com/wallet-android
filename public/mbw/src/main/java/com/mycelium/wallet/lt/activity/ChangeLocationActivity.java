@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mycelium.lt.api.model.GpsLocation;
+import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.GpsLocationFetcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -74,7 +75,9 @@ public class ChangeLocationActivity extends Activity {
    private GpsLocationFetcher.Callback _gpsLocationCallback;
    private boolean _persist;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -107,6 +110,9 @@ public class ChangeLocationActivity extends Activity {
 
          @Override
          protected void onGpsLocationObtained(GpsLocation location) {
+            TextView tvError = (TextView) findViewById(R.id.tvError);
+            tvError.setVisibility(View.VISIBLE);
+
             if (location != null) {
                _chosenAddress = location;
                updateUi();
@@ -114,6 +120,14 @@ public class ChangeLocationActivity extends Activity {
                Toast.makeText(ChangeLocationActivity.this, R.string.lt_localization_not_available, Toast.LENGTH_LONG)
                      .show();
             }
+         }
+
+         @Override
+         protected void onGpsError(RemoteGeocodeException error) {
+            TextView tvError = (TextView) findViewById(R.id.tvError);
+            tvError.setVisibility(View.VISIBLE);
+            tvError.setText(String.format(getString(R.string.geocode_error), error.status));
+            MbwManager.getInstance(ChangeLocationActivity.this).reportIgnoredException(error);
          }
       };
 
@@ -129,7 +143,7 @@ public class ChangeLocationActivity extends Activity {
       public void onClick(View arg0) {
          _chosenAddress = null;
          updateUi();
-         new GpsLocationFetcher(new GeoCoderErrorCallback(_mbwManager)).getNetworkLocation(_gpsLocationCallback);
+         new GpsLocationFetcher().getNetworkLocation(_gpsLocationCallback);
       }
    };
 

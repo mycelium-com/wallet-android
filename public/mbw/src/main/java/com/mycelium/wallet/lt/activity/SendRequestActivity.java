@@ -180,14 +180,23 @@ public class SendRequestActivity extends Activity {
          finish();
       }
 
+      @Override
       public void onLtSellOrderEdited(EditSellOrder request) {
          Toast.makeText(SendRequestActivity.this, R.string.lt_sell_order_edited, Toast.LENGTH_LONG).show();
          finish();
       };
 
+      @Override
       public void onLtSellOrderRetrieved(com.mycelium.lt.api.model.SellOrder sellOrder,
             com.mycelium.wallet.lt.api.GetSellOrder request) {
          CreateOrEditSellOrderActivity.callMe(SendRequestActivity.this, sellOrder);
+         finish();
+      };
+
+      @Override
+      public void onLtPublicTraderInfoFetched(com.mycelium.lt.api.model.PublicTraderInfo info,
+            com.mycelium.wallet.lt.api.GetPublicTraderInfo request) {
+         ViewTraderInfoActivity.callMe(SendRequestActivity.this, info);
          finish();
       };
 

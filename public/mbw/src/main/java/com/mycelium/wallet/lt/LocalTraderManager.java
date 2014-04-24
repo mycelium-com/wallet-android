@@ -191,6 +191,9 @@ public class LocalTraderManager {
 
       @Override
       public void run() {
+
+         String currentSessionLanguage = null;
+
          while (true) {
 
             // Grab a request or wait
@@ -206,10 +209,15 @@ public class LocalTraderManager {
                request = _requests.remove(0);
             }
 
-            // If the request requires a session and we don't got one, get one
-            if (request.requiresSession() && _session == null) {
-               if (!renewSession()) {
-                  continue;
+            // If the request requires a session and we don't got one or if the
+            // language was changed, get a session
+            if (request.requiresSession()) {
+               if (_session == null || !_mbwManager.getLanguage().equals(currentSessionLanguage)) {
+                  if (renewSession()) {
+                     currentSessionLanguage = _mbwManager.getLanguage();
+                  } else {
+                     continue;
+                  }
                }
             }
 

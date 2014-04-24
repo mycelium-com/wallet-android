@@ -214,74 +214,52 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/bottomPanel"
+        <!-- Chat View -->
+
+        <LinearLayout
+            android:id="@+id/chatPanel"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
 
-            <LinearLayout
-                android:id="@+id/infoPanel"
+            <ListView
+                android:id="@+id/lvChat"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:background="@drawable/btn_transparent_slim_stroke"
-                android:orientation="vertical"
-                android:visibility="invisible" >
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:fadeScrollbars="false"
+                android:listSelector="@android:color/transparent" />
 
-                <ListView
-                    android:id="@+id/lvInfo"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:drawSelectorOnTop="false"
-                    android:listSelector="@android:color/transparent" />
-            </LinearLayout>
-
-            <!-- Chat View -->
+            <!-- Enter Chat message -->
 
             <LinearLayout
-                android:id="@+id/chatPanel"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical" >
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
 
-                <ListView
-                    android:id="@+id/lvChat"
-                    android:layout_width="fill_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/btn_transparent_slim_stroke"
-                    android:divider="@null"
-                    android:dividerHeight="0dp"
-                    android:fadeScrollbars="false"
-                    android:listSelector="@android:color/transparent" />
-
-                <!-- Enter Chat message -->
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
+                <EditText
+                    android:id="@+id/etMessage"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:hint="@string/lt_chat_message_hint"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:textSize="16sp" />
 
-                    <EditText
-                        android:id="@+id/etMessage"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:hint="@string/lt_chat_message_hint"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:textSize="16sp" />
-
-                    <ImageButton
-                        android:id="@+id/btSendMessage"
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
-                        android:layout_gravity="center"
-                        android:background="@color/transparent"
-                        android:contentDescription="@string/an_icon"
-                        android:src="@drawable/send" />
-                </LinearLayout>
+                <ImageButton
+                    android:id="@+id/btSendMessage"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    android:background="@color/transparent"
+                    android:contentDescription="@string/an_icon"
+                    android:src="@drawable/send" />
             </LinearLayout>
-        </FrameLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </FrameLayout>

@@ -1,49 +1,46 @@
 package com.mycelium.lt.location;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.common.base.Preconditions;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.io.InputStream;
 
-import com.mycelium.lt.ErrorCallback;
+import static org.junit.Assert.assertEquals;
 
 public class JsonCoderTest {
 
-   private ErrorCallback errorCallback = null; //only used for error collection
 
    @Test
    @Ignore
-   public void testRemoteCoding() throws IOException {
-      GeocodeResponse response = new JsonCoder("en", errorCallback).query("Ungargasse 6 1030 Wien", -1);
+   public void testRemoteCoding() throws IOException, RemoteGeocodeException {
+      GeocodeResponse response = new JsonCoder("en").query("Ungargasse 6 1030 Wien", -1);
       assertEquals("Ungargasse 6, 1030 Vienna, Austria", response.results.get(0).formattedAddress);
    }
 
    @Test
    @Ignore
-   public void testRemoteCodingGerman() throws IOException {
-      GeocodeResponse response = new JsonCoder("de", errorCallback).query("Ungargasse 6 1030 Wien", -1);
+   public void testRemoteCodingGerman() throws IOException, RemoteGeocodeException {
+      GeocodeResponse response = new JsonCoder("de").query("Ungargasse 6 1030 Wien", -1);
       assertEquals("Ungargasse 6, 1030 Wien, Österreich", response.results.get(0).formattedAddress);
    }
 
    @Test
-   public void testCoding() throws IOException, JsonCoder.RemoteGeocodeException {
+   public void testCoding() throws IOException, RemoteGeocodeException, RemoteGeocodeException {
       final InputStream stream = Preconditions.checkNotNull(getClass().getResourceAsStream("/ungargasse.json"));
-      GeocodeResponse response = new JsonCoder("en", errorCallback).response2Graph(stream);
+      GeocodeResponse response = new JsonCoder("en").response2Graph(stream);
       assertEquals("Ungargasse 6, 1030 Vienna, Austria", response.results.get(0).formattedAddress);
    }
 
    @Test
-   public void testPostcode() throws IOException, JsonCoder.RemoteGeocodeException {
+   public void testPostcode() throws IOException, RemoteGeocodeException {
 
 //      String path = "public/lt-errorCallback/src/test/resources/exampleWithPostcode.json";
 //      final InputStream stream = Preconditions.checkNotNull(new FileInputStream(path));
       final InputStream stream = Preconditions.checkNotNull(getClass().getResourceAsStream("/exampleWithPostcode.json"));
       @SuppressWarnings("unused")
-      GeocodeResponse response = new JsonCoder("en", errorCallback).response2Graph(stream);
+      GeocodeResponse response = new JsonCoder("en").response2Graph(stream);
    }
 }

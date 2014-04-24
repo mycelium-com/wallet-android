@@ -396,7 +396,7 @@
                                     android:background="@color/darkgrey" />
                             </TableRow>
 
-                            <!-- Commission Row -->
+                            <!-- Commission display, remove for now
 
                             <TableRow
                                 android:layout_width="wrap_content"
@@ -429,7 +429,7 @@
                                     android:textSize="16sp" />
                             </TableRow>
 
-                            <!-- Commission description Row -->
+                            
 
                             <TableRow
                                 android:layout_width="wrap_content"
@@ -444,6 +444,8 @@
                                     android:layout_span="3"
                                     android:textSize="12sp" />
                             </TableRow>
+                            
+                            -->
                         </TableLayout>
                     </LinearLayout>
                 </HorizontalScrollView>

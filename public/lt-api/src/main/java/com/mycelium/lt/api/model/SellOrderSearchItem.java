@@ -28,11 +28,15 @@ public class SellOrderSearchItem implements Serializable {
    @JsonProperty
    public final String currency;
    @JsonProperty
+   public final String alternateCurrency;
+   @JsonProperty
    public final int minimumFiat;
    @JsonProperty
    public final int maximumFiat;
    @JsonProperty
    public final double oneBtcInFiat;
+   @JsonProperty
+   public final double oneBtcInAlternateCurrency;
    @JsonProperty
    public final GpsLocation location;
    @JsonProperty
@@ -46,10 +50,11 @@ public class SellOrderSearchItem implements Serializable {
          @JsonProperty("publicKey") PublicKey publicKey, @JsonProperty("description") String description,
          @JsonProperty("successfulSales") int successfulSales, @JsonProperty("abortedSales") int abortedSales,
          @JsonProperty("successfulBuys") int successfulBuys, @JsonProperty("abortedBuys") int abortedBuys,
-         @JsonProperty("currency") String currency, @JsonProperty("minimumFiat") int minimumFiat,
-         @JsonProperty("maximumFiat") int maximumFiat, @JsonProperty("oneBtcInFiat") double oneBtcInFiat,
-         @JsonProperty("location") GpsLocation location, @JsonProperty("distanceInMeters") int distanceInMeters,
-         @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
+         @JsonProperty("currency") String currency, @JsonProperty("alternateCurrency") String alternateCurrency,
+         @JsonProperty("minimumFiat") int minimumFiat, @JsonProperty("maximumFiat") int maximumFiat,
+         @JsonProperty("oneBtcInFiat") double oneBtcInFiat,@JsonProperty("oneBtcInAlternateCurrency") double oneBtcInAlternateCurrency, @JsonProperty("location") GpsLocation location,
+         @JsonProperty("distanceInMeters") int distanceInMeters, @JsonProperty("traderAgeMs") long traderAgeMs,
+         @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
       this.id = id;
       this.nickname = nickname;
       this.publicKey = publicKey;
@@ -59,9 +64,11 @@ public class SellOrderSearchItem implements Serializable {
       this.successfulBuys = successfulBuys;
       this.abortedBuys = abortedBuys;
       this.currency = currency;
+      this.alternateCurrency = alternateCurrency;
       this.minimumFiat = minimumFiat;
       this.maximumFiat = maximumFiat;
       this.oneBtcInFiat = oneBtcInFiat;
+      this.oneBtcInAlternateCurrency = oneBtcInAlternateCurrency;
       this.location = location;
       this.distanceInMeters = distanceInMeters;
       this.traderAgeMs = traderAgeMs;

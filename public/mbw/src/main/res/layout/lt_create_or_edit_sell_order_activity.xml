@@ -127,6 +127,33 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" />
 
+                <!-- Fiat Currency -->
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="15dp"
+                    android:gravity="center"
+                    android:text="@string/lt_create_sell_order_choose_currency"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btCurrency"
+                    style="@style/MyceliumSlimButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:paddingLeft="13dp"
+                    android:paddingRight="13dp"
+                    android:paddingTop="7dp"
+                    android:paddingBottom="7dp"
+                    android:textSize="22sp"
+                    android:typeface="monospace" />
+
                 <!-- Minimum Amount -->
 
                 <TextView

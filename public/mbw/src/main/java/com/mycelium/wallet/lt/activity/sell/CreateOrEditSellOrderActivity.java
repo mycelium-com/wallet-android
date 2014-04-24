@@ -62,6 +62,7 @@ import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.settings.SetLocalCurrencyActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidConstants;
@@ -78,9 +79,10 @@ import com.mycelium.wallet.lt.api.Request;
 
 public class CreateOrEditSellOrderActivity extends Activity {
 
-   protected static final int CHANGE_LOCATION_REQUEST_CODE = 0;
-   protected static final int ENTER_MAX_AMOUNT_REQUEST_CODE = 1;
-   protected static final int ENTER_MIN_AMOUNT_REQUEST_CODE = 2;
+   private static final int CHANGE_LOCATION_REQUEST_CODE = 0;
+   private static final int ENTER_MAX_AMOUNT_REQUEST_CODE = 1;
+   private static final int ENTER_MIN_AMOUNT_REQUEST_CODE = 2;
+   private static final int GET_CURRENCY_RESULT_CODE = 3;
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, CreateOrEditSellOrderActivity.class);
@@ -99,6 +101,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
    private Spinner _spPremium;
    private Button _btCreate;
    private Button _btChange;
+   private Button _btCurrency;
    private Button _btEdit;
    private TextView _tvDescription;
    private TextView _tvMinAmount;
@@ -125,6 +128,8 @@ public class CreateOrEditSellOrderActivity extends Activity {
       _spPremium = (Spinner) findViewById(R.id.spPremium);
       _btChange = (Button) findViewById(R.id.btChange);
       _btChange.setOnClickListener(changeClickListener);
+      _btCurrency = (Button) findViewById(R.id.btCurrency);
+      _btCurrency.setOnClickListener(currencyClickListener);
       _btEdit = (Button) findViewById(R.id.btEdit);
       _btEdit.setOnClickListener(editClickListener);
       _btCreate = (Button) findViewById(R.id.btCreate);
@@ -155,6 +160,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
          _minAmount = savedInstanceState.getInt("minAmount", -1);
          _maxAmount = savedInstanceState.getInt("maxAmount", -1);
          description = savedInstanceState.getString("description");
+         _currency = savedInstanceState.getString("currency");
       }
 
       LtAndroidUtils.populatePremiumSpinner(this, _spPremium, premium);
@@ -166,10 +172,6 @@ public class CreateOrEditSellOrderActivity extends Activity {
       }
 
       _spPriceFormula.setOnItemSelectedListener(spinnerItemSelected);
-
-      // Set amount hints
-      _tvMinAmount.setHint(String.format("%s %s", Integer.toString(10), _currency));
-      _tvMaxAmount.setHint(String.format("%s %s", Integer.toString(1000), _currency));
 
       // Set title
       ((TextView) findViewById(R.id.tvTitle)).setText(isEdit() ? R.string.lt_edit_sell_order_title
@@ -205,6 +207,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
          outState.putSerializable("priceformulas", _priceFormulas);
       }
       outState.putDouble("premium", getSelectedPremium());
+      outState.putString("currency", getCurrency());
       outState.putInt("minAmount", getMinAmount());
       outState.putInt("maxAmount", getMaxAmount());
       outState.putString("description", getDescription());
@@ -244,6 +247,10 @@ public class CreateOrEditSellOrderActivity extends Activity {
          return 0;
       }
       return p.premium;
+   }
+
+   private String getCurrency() {
+      return _currency;
    }
 
    private int getMinAmount() {
@@ -286,6 +293,15 @@ public class CreateOrEditSellOrderActivity extends Activity {
       }
    };
 
+   private OnClickListener currencyClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         SetLocalCurrencyActivity.callMeForResult(CreateOrEditSellOrderActivity.this, _currency,
+               GET_CURRENCY_RESULT_CODE);
+      }
+   };
+
    private OnClickListener editClickListener = new OnClickListener() {
 
       @Override
@@ -323,6 +339,11 @@ public class CreateOrEditSellOrderActivity extends Activity {
    }
 
    private void updateUi() {
+      
+      // Set amount hints
+      _tvMinAmount.setHint(String.format("%s %s", Integer.toString(10), _currency));
+      _tvMaxAmount.setHint(String.format("%s %s", Integer.toString(1000), _currency));
+
       if (_priceFormulas == null) {
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.svForm).setVisibility(View.GONE);
@@ -336,6 +357,8 @@ public class CreateOrEditSellOrderActivity extends Activity {
             _tvMaxAmount.setText(String.format("%s %s", Integer.toString(_maxAmount), _currency));
          }
          ((TextView) findViewById(R.id.tvLocation)).setText(_location.name);
+         ((Button) findViewById(R.id.btCurrency)).setText(getCurrency());
+
       }
    }
 
@@ -406,6 +429,8 @@ public class CreateOrEditSellOrderActivity extends Activity {
       } else if (requestCode == ENTER_MIN_AMOUNT_REQUEST_CODE && resultCode == RESULT_OK) {
          _minAmount = (Integer) intent.getSerializableExtra("amount");
          enableUi();
+      } else if (requestCode == GET_CURRENCY_RESULT_CODE && resultCode == RESULT_OK) {
+         _currency = Preconditions.checkNotNull(intent.getStringExtra(SetLocalCurrencyActivity.CURRENCY_RESULT_NAME));
       } else {
          // We didn't like what we got, bail
       }

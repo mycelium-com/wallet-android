@@ -43,8 +43,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 104
-        versionName '1.2.1'
+        versionCode 106
+        versionName '1.2.2'
     }
 
     signingConfigs {
@@ -131,6 +131,7 @@ if (project.hasProperty('prodKeyStore') &&
     android.signingConfigs.release.keyPassword = prodKeyAliasPassword
 } else {
     android.productFlavors.prodnet.signingConfig = null
+    android.productFlavors.bitsofgold.signingConfig = null
 }
 
 if (project.hasProperty('testKeyStore') &&

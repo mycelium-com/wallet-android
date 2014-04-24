@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -48,19 +46,23 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.TextView;
 
+import com.google.common.collect.ImmutableList;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.location.Geocode;
 import com.mycelium.lt.location.JsonCoder;
+import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.AddressDescription;
+
+import java.util.List;
 
 public class EnterLocationActivity extends Activity {
 
    private String language;
    private MbwManager mbwManager;
-   private GeoCoderErrorCallback errorCallback;
 
    public static void callMeForResult(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, EnterLocationActivity.class);
@@ -74,7 +76,6 @@ public class EnterLocationActivity extends Activity {
       super.onCreate(savedInstanceState);
       mbwManager = MbwManager.getInstance(this);
       language = mbwManager.getLanguage();
-      errorCallback = new GeoCoderErrorCallback(mbwManager);
       setContentView(R.layout.lt_enter_location_activity);
 
       _atvLocation = (AutoCompleteTextView) findViewById(R.id.atvLocation);
@@ -92,7 +93,8 @@ public class EnterLocationActivity extends Activity {
 
    protected void onSaveInstanceState(Bundle outState) {
       outState.putSerializable("location", _atvLocation.getEditableText().toString());
-   };
+   }
+
 
    @Override
    protected void onResume() {
@@ -128,8 +130,29 @@ public class EnterLocationActivity extends Activity {
    }
 
    private List<Geocode> autocompleteInternal(String input) {
-      JsonCoder geocoder = new JsonCoder(language, errorCallback);
-      return geocoder.query(input, 5).results;
+      JsonCoder geocoder = new JsonCoder(language);
+      try {
+         List<Geocode> ret = geocoder.query(input, 5).results;
+         runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+               TextView tvError = (TextView) findViewById(R.id.tvError);
+               tvError.setVisibility(View.GONE);
+            }
+         });
+         return ret;
+      } catch (final RemoteGeocodeException ex) {
+         runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+               TextView tvError = (TextView) findViewById(R.id.tvError);
+               tvError.setVisibility(View.VISIBLE);
+               tvError.setText(String.format(getString(R.string.geocode_error), ex.status));
+            }
+         });
+         MbwManager.getInstance(this).reportIgnoredException(ex);
+         return ImmutableList.of();
+      }
    }
 
    public class PlacesAutoCompleteAdapter extends ArrayAdapter<AddressDescription> implements Filterable {

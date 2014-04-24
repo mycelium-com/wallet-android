@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -266,11 +265,13 @@ public class ChangePriceActivity extends Activity {
          ((TextView) findViewById(R.id.foreignCurrentGet)).setText(foreignBtcAmountString);
       }
 
-      // Commission
+      /*
+       * Removing commission until we figure out how we want to display it
+       * 
       long commission = _tradeSession.satoshisFromSeller - _tradeSession.satoshisForBuyer;
       String commissionString = _mbwManager.getBtcValueString(commission);
       ((TextView) findViewById(R.id.currentCommission)).setText(commissionString);
-
+      */
    }
 
    private void populateLabels() {
@@ -300,8 +301,12 @@ public class ChangePriceActivity extends Activity {
          ((TextView) findViewById(R.id.myNewPrice)).setText("");
          ((TextView) findViewById(R.id.myNewPay)).setText("");
          ((TextView) findViewById(R.id.myNewGet)).setText("");
+         /*
+          * Removing commission until we figure out how we want to display it
+          * 
          ((TextView) findViewById(R.id.newCommission)).setText("");
          ((TextView) findViewById(R.id.commissionDescription)).setText("");
+         */
          _btChange.setEnabled(false);
          return;
       }
@@ -354,6 +359,9 @@ public class ChangePriceActivity extends Activity {
          ((TextView) findViewById(R.id.foreignNewGet)).setText(foreignBtcAmountString);
       }
 
+      /*
+       * Removing commission until we figure out how we want to display it
+       * 
       // Commission
       long commission = _newBtcSellPrice.satoshisFromSeller - _newBtcSellPrice.satoshisForBuyer;
       String commissionString = _mbwManager.getBtcValueString(commission);
@@ -366,8 +374,10 @@ public class ChangePriceActivity extends Activity {
             _tradeSession.isBuyer ? R.string.lt_buy_commission_description : R.string.lt_sell_commission_description,
             commissionPercent.toString());
       ((TextView) findViewById(R.id.commissionDescription)).setText(commissionDesc);
+      */
    }
 
+   /*
    private static double calculateCommissionPercent(long satoshisFromSeller, long satoshisForBuyer) {
       double satoshiCommission = (double) (satoshisFromSeller - satoshisForBuyer);
       double satoshisSent = (double) satoshisFromSeller;
@@ -378,7 +388,8 @@ public class ChangePriceActivity extends Activity {
    private static double roundDoubleHalfUp(double value, int decimals) {
       return BigDecimal.valueOf(value).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
    }
-
+  */
+   
    private String getBtcPriceString(int fiatTraded, long satoshis, String currency) {
       double oneBtcPrice = (double) fiatTraded * Constants.ONE_BTC_IN_SATOSHIS / (double) satoshis;
       String price = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, oneBtcPrice);

@@ -34,18 +34,39 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import com.mycelium.lt.ErrorCallback;
-import com.mycelium.wallet.MbwManager;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
-public class GeoCoderErrorCallback implements ErrorCallback {
-   private MbwManager _mbwManager;
+import com.mycelium.lt.api.model.PublicTraderInfo;
+import com.mycelium.wallet.R;
 
-   GeoCoderErrorCallback(MbwManager mbwManager) {
-      _mbwManager = mbwManager;
+public class ViewTraderInfoActivity extends FragmentActivity {
+
+   private PublicTraderInfo _traderInfo;
+
+   public static void callMe(Activity currentActivity, PublicTraderInfo traderInfo) {
+      Intent intent = new Intent(currentActivity, ViewTraderInfoActivity.class);
+      intent.putExtra("traderInfo", traderInfo);
+      currentActivity.startActivity(intent);
+   }
+
+   /** Called when the activity is first created. */
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.lt_view_trader_info_activity);
+      _traderInfo = (PublicTraderInfo) getIntent().getSerializableExtra("traderInfo");
    }
 
    @Override
-   public void collectError(Exception e, String url, String data) {
-      _mbwManager.reportIgnoredException(new RuntimeException("error fetching url:"+url+"\n query data:"+data,e));
-   }
+   protected void onResume() {
+      FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+      ft.replace(R.id.flTraderInfo, TraderInfoFragment.createInstance(_traderInfo));
+      ft.commit();
+      super.onResume();
+   };
+
 }

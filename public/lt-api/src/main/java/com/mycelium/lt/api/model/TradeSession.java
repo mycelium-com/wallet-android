@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 
@@ -128,8 +129,21 @@ public class TradeSession implements Serializable {
       this.isWaitingForPeerAccept = isWaitingForPeerAccept;
       this.isOpen = isOpen;
       this.location = location;
-      Preconditions.checkState(satoshisFromSeller >= satoshisForBuyer);
-      Preconditions.checkState(satoshisForBuyer > 0);
+      sanityCheck();
+   }
+
+   private void sanityCheck() {
+      // The buyer cannot ever receive zero satoshis or even below the minimum
+      // output value
+      Preconditions.checkState(satoshisForBuyer >= TransactionUtils.MINIMUM_OUTPUT_VALUE);
+      // Determine the Local Trader commission
+      long commission = satoshisFromSeller - satoshisForBuyer;
+      // The commission is either zero, or larger or equal than the minimum
+      // output value
+      Preconditions.checkState(commission == 0 || commission >= TransactionUtils.MINIMUM_OUTPUT_VALUE);
+      // The commission cannot ever be more than 5% of the amount sent
+      long commissionHardLimit = satoshisFromSeller * 5 / 100;
+      Preconditions.checkState(commission <= commissionHardLimit);
    }
 
    @Override

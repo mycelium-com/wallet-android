@@ -39,48 +39,43 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
-import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.activity.TraderInfoAdapter.InfoItem;
-import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wallet.lt.api.Request;
 
 public class TraderInfoFragment extends Fragment {
 
-   protected static final int CREATE_TRADER_RESULT_CODE = 0;
+   private PublicTraderInfo _traderInfo;
    private MbwManager _mbwManager;
-   private LocalTraderManager _ltManager;
    private TraderInfoAdapter _adapter;
+
+   public static TraderInfoFragment createInstance(PublicTraderInfo traderInfo) {
+      TraderInfoFragment tif = new TraderInfoFragment();
+      Bundle args = new Bundle();
+      args.putSerializable("traderInfo", traderInfo);
+      tif.setArguments(args);
+      return tif;
+   }
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_trader_info_fragment, container, false));
-
-      ret.findViewById(R.id.btCreate).setOnClickListener(createClickListener);
-      return ret;
+      View view = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_trader_info_fragment, container, false));
+      _traderInfo = (PublicTraderInfo) getArguments().getSerializable("traderInfo"); // may
+                                                                                     // be
+                                                                                     // null
+      return view;
    }
-
-   OnClickListener createClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-         CreateTrader1Activity.callMe(getActivity(), CREATE_TRADER_RESULT_CODE);
-      }
-   };
 
    private View findViewById(int id) {
       return getView().findViewById(id);
@@ -89,13 +84,7 @@ public class TraderInfoFragment extends Fragment {
    @Override
    public void onAttach(Activity activity) {
       _mbwManager = MbwManager.getInstance(getActivity().getApplication());
-      _ltManager = _mbwManager.getLocalTraderManager();
       super.onAttach(activity);
-   }
-
-   @Override
-   public void onDetach() {
-      super.onDetach();
    }
 
    @Override
@@ -104,13 +93,11 @@ public class TraderInfoFragment extends Fragment {
       ListView list = (ListView) findViewById(R.id.lvTraderInfo);
       list.setAdapter(_adapter);
       updateUi();
-      _ltManager.subscribe(ltSubscriber);
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _ltManager.unsubscribe(ltSubscriber);
       super.onPause();
    }
 
@@ -123,77 +110,78 @@ public class TraderInfoFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      TraderInfo info = _ltManager.getCachedTraderInfo();
-      if (!_ltManager.hasLocalTraderAccount()) {
-         findViewById(R.id.svNoAccount).setVisibility(View.VISIBLE);
-         findViewById(R.id.lvTraderInfo).setVisibility(View.GONE);
-         findViewById(R.id.pbWait).setVisibility(View.GONE);
-      } else if (info == null) {
-         findViewById(R.id.svNoAccount).setVisibility(View.GONE);
-         findViewById(R.id.lvTraderInfo).setVisibility(View.GONE);
-         findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
-      } else {
-         findViewById(R.id.svNoAccount).setVisibility(View.GONE);
-         findViewById(R.id.lvTraderInfo).setVisibility(View.VISIBLE);
-         findViewById(R.id.pbWait).setVisibility(View.GONE);
-         populateTraderInfo(info);
-      }
+      PublicTraderInfo info = _traderInfo;
+      populateTraderInfo(info);
    }
 
-   private void populateTraderInfo(TraderInfo i) {
+   private void populateTraderInfo(PublicTraderInfo pti) {
+      TraderInfo ti = null;
+
       _adapter.clear();
-      _adapter.add(new InfoItem(getString(R.string.lt_trader_name_label), i.nickname));
-      _adapter.add(new InfoItem(getString(R.string.lt_trader_address_label), i.address.toMultiLineString()));
+      if (pti == null) {
+         return;
+      }
+
+      if (pti instanceof TraderInfo) {
+         // We also have the non public info about this trader
+         ti = (TraderInfo) pti;
+      }
+
+      // Show trader name
+      _adapter.add(new InfoItem(getString(R.string.lt_trader_name_label), pti.nickname));
+
+      // Show trader address
+      _adapter.add(new InfoItem(getString(R.string.lt_trader_address_label), pti.address.toMultiLineString()));
+
+      // Show trader age
       _adapter.add(new InfoItem(getString(R.string.lt_trader_age_label), getResources().getString(
-            R.string.lt_time_in_days, i.traderAgeMs / Constants.MS_PR_DAY)));
-      _adapter.add(new InfoItem(getString(R.string.lt_successful_sells_label), Integer.toString(i.successfulSales)));
-      _adapter.add(new InfoItem(getString(R.string.lt_aborted_sells_label), Integer.toString(i.abortedSales)));
-      _adapter
-            .add(new InfoItem(getString(R.string.lt_total_sold_label), _mbwManager.getBtcValueString(i.totalBtcSold)));
-      _adapter.add(new InfoItem(getString(R.string.lt_successful_buys_label), Integer.toString(i.successfulBuys)));
-      _adapter.add(new InfoItem(getString(R.string.lt_aborted_buys_label), Integer.toString(i.abortedBuys)));
-      _adapter.add(new InfoItem(getString(R.string.lt_total_bought_label), _mbwManager
-            .getBtcValueString(i.totalBtcBought)));
+            R.string.lt_time_in_days, pti.traderAgeMs / Constants.MS_PR_DAY)));
+
+      // Successful Sells
+      _adapter.add(new InfoItem(getString(R.string.lt_successful_sells_label), Integer.toString(pti.successfulSales)));
+
+      // Aborted Sells
+      _adapter.add(new InfoItem(getString(R.string.lt_aborted_sells_label), Integer.toString(pti.abortedSales)));
+
+      // Sold Volume
+      if (ti != null) {
+         _adapter.add(new InfoItem(getString(R.string.lt_total_sold_label), _mbwManager
+               .getBtcValueString(ti.totalBtcSold)));
+      }
+
+      // Successful Buys
+      _adapter.add(new InfoItem(getString(R.string.lt_successful_buys_label), Integer.toString(pti.successfulBuys)));
+
+      // Aborted Buys
+      _adapter.add(new InfoItem(getString(R.string.lt_aborted_buys_label), Integer.toString(pti.abortedBuys)));
+
+      // Bought Volume
+      if (ti != null) {
+         _adapter.add(new InfoItem(getString(R.string.lt_total_bought_label), _mbwManager
+               .getBtcValueString(ti.totalBtcBought)));
+      }
 
       // Rating
-      float rating = LtAndroidUtils.calculate5StarRating(i.successfulSales, i.abortedSales, i.successfulBuys,
-            i.abortedBuys, i.traderAgeMs);
+      float rating = LtAndroidUtils.calculate5StarRating(pti.successfulSales, pti.abortedSales, pti.successfulBuys,
+            pti.abortedBuys, pti.traderAgeMs);
       _adapter.add(new InfoItem(getString(R.string.lt_rating_label), rating));
 
       // Median trade time
-      if (i.tradeMedianMs != null) {
-         String hourString = LtAndroidUtils.getApproximateTimeInHours(getActivity(), i.tradeMedianMs);
+      if (pti.tradeMedianMs != null) {
+         String hourString = LtAndroidUtils.getApproximateTimeInHours(getActivity(), pti.tradeMedianMs);
          _adapter.add(new InfoItem(getString(R.string.lt_expected_trade_time_label), hourString));
       }
 
-      // Commission
-      _adapter.add(new InfoItem(getString(R.string.lt_local_trader_commission_label), roundDoubleHalfUp(
-            i.localTraderPremium, 2).toString()
-            + "%"));
-
+      // Local Trader Commission
+      if (ti != null) {
+         _adapter.add(new InfoItem(getString(R.string.lt_local_trader_commission_label), roundDoubleHalfUp(
+               ti.localTraderPremium, 2).toString()
+               + "%"));
+      }
    }
 
    private static Double roundDoubleHalfUp(double value, int decimals) {
       return BigDecimal.valueOf(value).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
    }
-
-   private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
-      @Override
-      public void onLtError(int errorCode) {
-      }
-
-      public void onLtSendingRequest(Request request) {
-         if (request instanceof GetTraderInfo) {
-            // Show spinner
-            findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
-         }
-      }
-
-      @Override
-      public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
-         updateUi();
-      }
-   };
 
 }

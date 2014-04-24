@@ -134,7 +134,9 @@
         <activity android:name="com.mycelium.wallet.lt.activity.EnterLocationActivity" android:windowSoftInputMode="stateVisible"/>
         <activity android:name="com.mycelium.wallet.lt.activity.ChangePriceActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.EnterFiatAmountActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateInstantBuyOrderActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.ViewTraderInfoActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateInstantBuyOrder1Activity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateInstantBuyOrder2Activity" />
         <activity android:name="com.mycelium.wallet.lt.activity.sell.CreateOrEditSellOrderActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.SendRequestActivity" />
         <activity android:name="com.mycelium.wallet.activity.UpdateNotificationActivity" />

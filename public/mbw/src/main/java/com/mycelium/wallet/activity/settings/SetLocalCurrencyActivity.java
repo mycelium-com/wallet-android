@@ -52,10 +52,15 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.mrd.mbwapi.api.CurrencyCode;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
 public class SetLocalCurrencyActivity extends Activity {
+
+   public static void callMeForResult(Activity currentActivity, String currency, int requestCode) {
+      Intent intent = new Intent(currentActivity, SetLocalCurrencyActivity.class);
+      intent.putExtra("currency", currency);
+      currentActivity.startActivityForResult(intent, requestCode);
+   }
 
    public static final String CURRENCY_RESULT_NAME = "currency";
    private Map<String, String> _currencySelectionToCurrencyMap;
@@ -66,13 +71,13 @@ public class SetLocalCurrencyActivity extends Activity {
       setContentView(R.layout.settings_local_currency_activity);
 
       ((AutoCompleteTextView) findViewById(R.id.tvCurrency)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-      MbwManager mbwManager = MbwManager.getInstance(this.getApplication());
-      String enteredString = mbwManager.getFiatCurrency();
+      String enteredString = getIntent().getStringExtra("currency");
       // Load saved state
       if (savedInstanceState != null) {
          enteredString = savedInstanceState.getString("entered");
       }
-
+      enteredString = enteredString == null ? "" : enteredString;
+      
       // Build data structures for holding currencies
       _currencySelectionToCurrencyMap = new HashMap<String, String>();
       CurrencyCode[] codes = CurrencyCode.sortedArray();

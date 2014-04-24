@@ -37,8 +37,6 @@ package com.mycelium.lt.location;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.mycelium.lt.ErrorCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,14 +47,12 @@ import java.net.URLEncoder;
 public class JsonCoder {
 
    final String language;
-   final ErrorCallback errorCallback;
 
-   public JsonCoder(String language, ErrorCallback errorCallback) {
+   public JsonCoder(String language) {
       this.language = language;
-      this.errorCallback = errorCallback;
    }
 
-   public GeocodeResponse query(String address, int maxresults) {
+   public GeocodeResponse query(String address, int maxresults) throws RemoteGeocodeException {
       final InputStream inputData;
       final String encodedAddress;
       try {
@@ -74,8 +70,9 @@ public class JsonCoder {
       try {
          res = response2Graph(inputData);
       } catch (RemoteGeocodeException e) {
-         errorCallback.collectError(e, url, address);
+         throw new RemoteGeocodeException(url, e.status);
       }
+
       if (maxresults == -1) {
          return res;
       } else {
@@ -91,7 +88,7 @@ public class JsonCoder {
       return res2;
    }
 
-   public GeocodeResponse getFromLocation(double latitude, double longitude) {
+   public GeocodeResponse getFromLocation(double latitude, double longitude) throws RemoteGeocodeException {
       final InputStream inputData;
       String url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&sensor=true&language=" + language;
       try {
@@ -99,19 +96,18 @@ public class JsonCoder {
       } catch (IOException e) {
          throw new RuntimeException("querying url " + url, e);
       }
-      try {
-         return response2Graph(inputData);
-      } catch (RemoteGeocodeException e) {
+      return response2Graph(inputData);
+/*
          errorCallback.collectError(e, url, latitude + "," + longitude);
          GeocodeResponse dummy = new GeocodeResponse();
          dummy.results = ImmutableList.of();
          return dummy;
-      }
+*/
+
    }
 
 
    public GeocodeResponse response2Graph(InputStream apply) throws RemoteGeocodeException {
-      //      new URL(url)
       ObjectMapper mapper = new ObjectMapper(); // just need one
       mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
       // Got a Java class that data maps to nicely? If so:
@@ -129,17 +125,9 @@ public class JsonCoder {
       return graph;
    }
 
-
    private boolean isValidStatus(String status) {
       return "OK".equals(status) || "ZERO_RESULTS".equals(status);
    }
 
 
-   public class RemoteGeocodeException extends Exception {
-      private static final long serialVersionUID = 4646210150078841846L;
-
-      public RemoteGeocodeException(String message, String status, String errorMessage) {
-         super(message + " status: " + status + " errorMessage: " + errorMessage);
-      }
-   }
 }

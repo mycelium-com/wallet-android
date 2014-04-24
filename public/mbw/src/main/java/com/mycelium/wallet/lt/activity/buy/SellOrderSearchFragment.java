@@ -64,6 +64,7 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
+import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
 import com.mycelium.wallet.lt.api.GetSellOrder;
 import com.mycelium.wallet.lt.api.SellOrderSearch;
 
@@ -219,18 +220,25 @@ public class SellOrderSearchFragment extends Fragment {
          TextView tvPrice = (TextView) card.findViewById(R.id.tvPrice);
          tvPrice.setText(price);
          setPriceColor(tvPrice, orderItem);
-         
+
+         // Alternate Price
+         if (!orderItem.alternateCurrency.equals(orderItem.currency)) {
+            String alternate = String.format(_locale, "(1 BTC ~ %s %s)", orderItem.oneBtcInAlternateCurrency,
+                  orderItem.alternateCurrency);
+            ((TextView) card.findViewById(R.id.tvAlternatePrice)).setText(alternate);
+         }
+
          // Distance
          TextView tvDistance = (TextView) card.findViewById(R.id.tvDistance);
          tvDistance.setText(getDistanceString(orderItem));
          setDistanceColor(tvDistance, orderItem);
-         
+
          // Limits
          String limits = String.format(_locale, "%d - %d %s", orderItem.minimumFiat, orderItem.maximumFiat,
                orderItem.currency);
          ((TextView) card.findViewById(R.id.tvLimits)).setText(limits);
          String trader = String.format(_locale, "%s", orderItem.nickname);
-         
+
          // Trader Name
          final TextView tvTraderName = (TextView) card.findViewById(R.id.tvTrader);
          tvTraderName.setText(trader);
@@ -247,7 +255,7 @@ public class SellOrderSearchFragment extends Fragment {
          TextView tvTraderAge = (TextView) card.findViewById(R.id.tvTraderAge);
          tvTraderAge.setText(traderAge);
          setTraderAgeColor(tvTraderAge, traderAgeDays);
-         
+
          // Rating
          RatingBar ratingBar = (RatingBar) card.findViewById(R.id.seller_rating);
          float rating = LtAndroidUtils.calculate5StarRating(orderItem.successfulSales, orderItem.abortedSales,
@@ -285,7 +293,11 @@ public class SellOrderSearchFragment extends Fragment {
                tvDescription.setText(orderItem.description);
             }
 
-            // Button
+            // Info button
+            Button btInfo = (Button) card.findViewById(R.id.btInfo);
+            btInfo.setOnClickListener(infoClickListener);
+
+            // Buy/Edit button
             Button btBuy = (Button) card.findViewById(R.id.btBuy);
             if (orderItem.nickname.equals(_ltManager.getNickname())) {
                // This is ourselves, show edit button
@@ -336,11 +348,20 @@ public class SellOrderSearchFragment extends Fragment {
       }
    }
 
+   OnClickListener infoClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+         GetPublicTraderInfo request = new GetPublicTraderInfo(_selected.publicKey.toAddress(_mbwManager.getNetwork()));
+         SendRequestActivity.callMe(getActivity(), request, getString(R.string.lt_getting_trader_info_title));
+      }
+   };
+
    OnClickListener buyClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-         CreateInstantBuyOrderActivity.callMe(getActivity(), _selected);
+         CreateInstantBuyOrder1Activity.callMe(getActivity(), _selected);
       }
    };
 
@@ -348,8 +369,18 @@ public class SellOrderSearchFragment extends Fragment {
 
       @Override
       public void onClick(View v) {
-         SendRequestActivity.callMe(getActivity(), new GetSellOrder(_selected.id),
-               getString(R.string.lt_edit_sell_order_title));
+         _mbwManager.runPinProtectedFunction(getActivity(), pinProtectedEditEntry);
+      }
+   };
+
+   final Runnable pinProtectedEditEntry = new Runnable() {
+
+      @Override
+      public void run() {
+         if (_selected != null) {
+            SendRequestActivity.callMe(getActivity(), new GetSellOrder(_selected.id),
+                  getString(R.string.lt_edit_sell_order_title));
+         }
       }
    };
 

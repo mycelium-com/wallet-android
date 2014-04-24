@@ -144,7 +144,7 @@ public class LtMainActivity extends ActionBarActivity {
       _myTraderInfoTab = _actionBar.newTab();
       _myTraderInfoTab.setText(getResources().getString(R.string.lt_my_trader_info_tab));
       _myTraderInfoTab.setTag(_tabsAdapter.getCount());
-      _tabsAdapter.addTab(_myTraderInfoTab, TraderInfoFragment.class, null);
+      _tabsAdapter.addTab(_myTraderInfoTab, MyInfoFragment.class, null);
 
       // Load the tab to select from intent
       _tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra("tabToSelect", TAB_TYPE.DEFAULT.ordinal())];
