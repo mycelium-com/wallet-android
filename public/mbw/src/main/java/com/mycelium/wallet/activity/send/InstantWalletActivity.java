@@ -124,16 +124,9 @@ public class InstantWalletActivity extends Activity {
          if (resultCode == RESULT_OK) {
             Record record = Preconditions.checkNotNull((Record) intent
                   .getSerializableExtra(ScanActivity.RESULT_RECORD_KEY));
-            if (record.hasPrivateKey()) {
-               Wallet wallet = new Wallet(record);
-               SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress, true);
-               finish();
-            } else {
-               Utils.showSimpleMessageDialog(
-                     this,
-                     getResources().getString(R.string.scanned_address_need_private_key,
-                           record.address.toMultiLineString()));
-            }
+            Wallet wallet = new Wallet(record);
+            SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress, true);
+            finish();
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }

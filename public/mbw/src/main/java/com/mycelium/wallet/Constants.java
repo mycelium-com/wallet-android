@@ -90,9 +90,13 @@ public class Constants {
    public static final String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
    public static final String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
    public static final String LOCAL_TRADER_HELP_URL = "http://www.mycelium.com/lt/help.html";
+   public static final String LOCAL_TRADER_MAP_URL = "http://www.mycelium.com/lt/m";
 
    public static final String IGNORE_NEW_API = "NewApi";
 
    public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
+
+   public static final String PRODNET_DONATION_ADDRESS = "13YxhmcAyr9W1frumWr3trXLAj2hSHWBmo";
+   public static final String TESTNET_DONATION_ADDRESS = "mtjVQkh6kZbixqwLPMinWievE5jWSHdovP";
 
 }

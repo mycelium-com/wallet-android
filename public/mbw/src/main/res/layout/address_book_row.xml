@@ -11,11 +11,12 @@
 
     <TextView
         android:id="@+id/address_book_name"
-
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_weight="100"
-        android:textSize="20sp"/>
+        android:gravity="center"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/address_book_address"

@@ -191,6 +191,7 @@
                 style="@style/MyceliumButton"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="@string/lt_accept_offer_button"
                 android:textSize="16sp" />
@@ -200,6 +201,7 @@
                 style="@style/MyceliumButton"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="@string/lt_cash_received_button"
                 android:textSize="16sp" />
@@ -209,6 +211,7 @@
                 style="@style/MyceliumButton"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="@string/lt_abort_trade_button"
                 android:textSize="16sp" />

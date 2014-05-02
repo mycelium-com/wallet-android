@@ -25,6 +25,7 @@ public class ChatEntry implements Serializable {
    public static final int EVENT_SUBTYPE_TIMEOUT = 11;
    public static final int EVENT_SUBTYPE_OWNER_STOPPED = 12;
    public static final int EVENT_SUBTYPE_PEER_STOPPED = 13;
+   public static final int EVENT_SUBTYPE_TRADE_LOCATION = 14;
 
    @JsonProperty
    public long time;

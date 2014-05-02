@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center_vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <TextView
+        style="@style/MyceliumText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="@string/lt_refresh_market_rate_title"
+        android:textSize="24sp" />
+
+    <ScrollView
+        android:id="@+id/svForm"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="top|center_horizontal"
+        android:fadeScrollbars="false"
+        android:visibility="visible" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:fadeScrollbars="false"
+                android:fillViewport="true"
+                android:requiresFadingEdge="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:orientation="vertical" >
+
+                    <!-- added empty view to avoid bogus warning -->
+
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <TableLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/btn_black" >
+
+                        <!-- Current Price / New Price  Row -->
+
+                        <TableRow
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" >
+
+                            <TextView
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_column="1"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:text="@string/lt_new_price_column"
+                                android:textSize="20sp" />
+
+                            <TextView
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_column="2"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:text="@string/lt_current_price_column"
+                                android:textSize="20sp" />
+                        </TableRow>
+
+                        <!-- Splitter -->
+
+                        <TableRow
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" >
+
+                            <View
+                                android:layout_width="fill_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginBottom="5dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_marginRight="5dp"
+                                android:layout_marginTop="5dp"
+                                android:layout_span="3"
+                                android:background="@color/darkgrey" />
+                        </TableRow>
+
+                        <!-- Your price Row -->
+
+                        <TableRow
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" >
+
+                            <TextView
+                                android:id="@+id/yourPriceLabel"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="left"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/myNewPrice"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/myCurrentPrice"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="16sp" />
+                        </TableRow>
+
+                        <!-- You pay Row -->
+
+                        <TableRow
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" >
+
+                            <TextView
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="left"
+                                android:text="@string/lt_you_pay_label"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/myNewPay"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/myCurrentPay"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="16sp" />
+                        </TableRow>
+
+                        <!-- You get Row -->
+
+                        <TableRow
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" >
+
+                            <TextView
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="left"
+                                android:text="@string/lt_you_get_label"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/myNewGet"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/myCurrentGet"
+                                style="@style/MyceliumText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="16sp" />
+                        </TableRow>
+                    </TableLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:text="@string/lt_refresh_market_rate_description"
+                android:textSize="16sp" />
+
+            <!-- Refresh Button -->
+
+            <Button
+                android:id="@+id/btRefresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/lt_refresh_market_rate_button"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

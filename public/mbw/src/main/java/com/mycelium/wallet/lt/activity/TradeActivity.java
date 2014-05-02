@@ -101,6 +101,7 @@ import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
 public class TradeActivity extends Activity {
 
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
+   protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
 
    public static void callMe(Activity currentActivity, UUID tradeSessionId) {
       Intent intent = new Intent(currentActivity, TradeActivity.class);
@@ -166,9 +167,15 @@ public class TradeActivity extends Activity {
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 
       _tradeSessionId = (UUID) getIntent().getSerializableExtra("tradeSessionId");
+      // See if we have it in our local cache of active trade sessions
       _tradeSession = _ltManager.getLocalTradeSession(_tradeSessionId); // May
                                                                         // be
                                                                         // null
+
+      // We may have a more recent copy if the activity is re-created.
+      if (savedInstanceState != null) {
+         _tradeSession = (TradeSession) savedInstanceState.getSerializable("tradeSession");
+      }
 
       if (_tradeSession != null) {
          // Mark session as viewed
@@ -205,6 +212,12 @@ public class TradeActivity extends Activity {
       super.onPause();
    }
 
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      outState.putSerializable("tradeSession", _tradeSession);
+      super.onSaveInstanceState(outState);
+   }
+
    private ChatMessageEncryptionKey getChatMessageEncryptionKey() {
       Preconditions.checkState(_tradeSession != null);
       if (_key == null) {
@@ -219,9 +232,7 @@ public class TradeActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         disableButtons();
-         _dingOnUpdates = false;
-         _ltManager.makeRequest(new RequestMarketRateRefresh(_tradeSession.id));
+         RefreshPriceActivity.callMeForResult(TradeActivity.this, _tradeSession, REFRESH_PRICE_REQUEST_CODE);
       }
    };
 
@@ -682,10 +693,17 @@ public class TradeActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == CHANGE_PRICE_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-
+            disableButtons();
+            _dingOnUpdates = false;
             TradeChangeParameters params = (TradeChangeParameters) intent
                   .getSerializableExtra(ChangePriceActivity.RESULT_STRING);
             _ltManager.makeRequest(new ChangeTradeSessionPrice(params));
+         }
+      } else if (requestCode == REFRESH_PRICE_REQUEST_CODE) {
+         if (resultCode == RESULT_OK) {
+            disableButtons();
+            _dingOnUpdates = false;
+            _ltManager.makeRequest(new RequestMarketRateRefresh(_tradeSession.id));
          }
       }
    }

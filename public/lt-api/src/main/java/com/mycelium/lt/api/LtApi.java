@@ -103,6 +103,8 @@ public interface LtApi {
 
    public LtResponse<List<SellOrderSearchItem>> sellOrderSearch(UUID sessionId, SearchParameters params);
 
+   public LtResponse<List<SellOrderSearchItem>> getActiveSellOrders();
+
    public LtResponse<UUID> createInstantBuyOrder(UUID sessionId, InstantBuyOrderParameters params);
 
    public LtResponse<LinkedList<TradeSession>> getActiveTradeSessions(UUID sessionId);

@@ -3,6 +3,7 @@ package com.mycelium.lt.api;
 public class LtConst {
 
    public static final String TRADE = "/trade";
+   public static final String INFO = "/info";
 
    public static class Param {
       public static final String API_VERSION = "v";
@@ -69,6 +70,7 @@ public class LtConst {
       public static final String GET_LAST_TRADE_SESSION_CHANGE = "getLastTradeSessionChange";
       public static final String ASSESS_BTC_PRICE = "assessBtcPrice";
       public static final String CHANGE_TRADE_SESSION_PRICE = "changeTradeSessionPrice";
+      public static final String GET_ACTIVE_SELL_ORDERS = "getActiveSellOrders";
    }
 
 }

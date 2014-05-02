@@ -270,6 +270,8 @@
   <string name="decrypt_button">Giải mã</string>
   <string name="pref_change_language">Thay đổi Ngôn ngữ</string>
   <string name="addressbook_cannot_add_private_key">Bạn không thể thêm một khóa riêng vào sổ địa chỉ.\n\nBạn chỉ có thể nhập khẩu private key trong tab Chìa Khóa</string>
+  <string name="alert_button">Cảnh báo</string>
+  <string name="heartbleed_alert">CẢNH BÁO\n\nThiết bị của bạn chạy Android Phiên bản 4.1.1 và có một lỗi nghiêm trọng được biết đến là Trái tim rỉ máu.\n\nLỗi này cho phép kẻ tấn công đọc bộ nhớ của bất kỳ ứng dụng trên điện thoại mà sử dụng kết nối HTTPS.\n\nBạn cần có hành động ngay lập tức! \n\n1. Di chuyển khoản tiền của bạn đến địa chỉ mới nơi khóa riêng chưa bao giờ chạy trên Android 4.1.1.\n\n2. Nâng cấp thiết bị của bạn lên các phiên bản mới hơn 4.1.1 hoặc sử dụng một thiết bị khác.</string>
   <string name="lt_buy_button">Mua</string>
   <string name="lt_edit_button">Sửa</string>
   <string name="lt_trade_button">Giao dịch</string>
@@ -296,6 +298,7 @@
   <string name="lt_create_order_choose_location">Chọn vị trí nơi bạn muốn bán bitcoin:</string>
   <string name="lt_create_order_choose_base_price">Chọn giá cơ sở:</string>
   <string name="lt_create_sell_order_choose_premium">Chọn lượng tiền bạn muốn cho thêm vào giá cơ sở:</string>
+  <string name="lt_create_sell_order_choose_currency">Chọn loại tiền tệ bạn chấp nhận:</string>
   <string name="lt_create_order_choose_minimum">Chọn số tiền tối thiểu để giao dịch:</string>
   <string name="lt_create_order_choose_maximum">Chọn số tiền tối đa để giao dịch:</string>
   <string name="lt_create_order_description">Tùy chọn mô tả đơn hàng của bạn:</string>
@@ -420,6 +423,11 @@
   <string name="lt_accept_terms_title">Điều khoản và điều kiện</string>
   <string name="lt_accept_button">Đồng ý</string>
   <string name="lt_decline_button">Từ chối</string>
+  <string name="lt_next_button">Tiếp theo</string>
+  <string name="lt_reveiving_address_title">Địa chỉ nhận</string>
+  <string name="lt_reveiving_address_description">Tiền sẽ được chuyển vào địa chỉ sau nếu giao dịch thành công:</string>
+  <string name="lt_info_button">Thông tin</string>
+  <string name="lt_getting_trader_info_title">Nhận thông tin về người giao dịch</string>
   <string name="archiving_key_title">Lưu trữ Khoá</string>
   <string name="new_version_exists">Đã có phiên bản mới</string>
   <string name="check_update">Kiểm tra Cập Nhật</string>

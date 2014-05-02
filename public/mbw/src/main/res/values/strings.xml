@@ -444,10 +444,16 @@
     <string name="lt_reveiving_address_title">Receiving Address</string>
     <string name="lt_reveiving_address_description">On a successful trade your funds will go to the following address:</string>
     <string name="lt_info_button">Info</string>
+    <string name="lt_map_button">Map</string>
     <string name="lt_getting_trader_info_title">Getting Trader Info</string>
+    <string name="lt_refresh_market_rate_title">Refreshing Market Rate</string>
+    <string name="lt_refresh_market_rate_description">The new price depends on the price formula set by the seller and the current market rates.\n\nIf you refresh the price you both have to accept the deal.</string>
+    <string name="lt_opening_map">Opening map</string>
     
 <!--  LT end -->
 
+    <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
+    <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <string name="archiving_key_title">Archiving Key</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -467,5 +473,7 @@
     <string name="signed_message_share">Share Bitcoin signed message</string>
     <string name="signing_inprogress">Signing Message…</string>
     <string name="geocode_error">Error from geocoder: %s \n please try again later.</string>
-
+    <string name="donate_button">Donate</string>
+    <string name="donate_description">Mycelium is a great wallet and you can use it for free.\n\nPlease help our development effort by giving a donation.\n\nAny amount counts!</string>
+    
 </resources>

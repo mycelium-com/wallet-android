@@ -19,6 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="5dp"
+            android:gravity="center_horizontal"
             android:text="@string/lt_reveiving_address_title"
             android:textSize="24sp" />
 

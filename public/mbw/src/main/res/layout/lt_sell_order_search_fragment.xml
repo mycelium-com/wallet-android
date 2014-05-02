@@ -38,8 +38,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:gravity="center"
                 android:maxWidth="200dp"
                 android:textSize="16sp" />
@@ -49,7 +49,7 @@
                 style="@style/MyceliumButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="15dp"
                 android:text="@string/lt_change_button" />
         </LinearLayout>
     </LinearLayout>

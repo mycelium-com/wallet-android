@@ -153,7 +153,7 @@ public class ChangePriceActivity extends Activity {
       if (_priceFormulas != null) {
          outState.putSerializable("priceformulas", _priceFormulas);
       }
-      outState.putDouble("premoum", getSelectedPremium());
+      outState.putDouble("premium", getSelectedPremium());
       super.onSaveInstanceState(outState);
    }
 

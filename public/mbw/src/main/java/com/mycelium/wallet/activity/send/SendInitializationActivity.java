@@ -235,8 +235,12 @@ public class SendInitializationActivity extends Activity {
 
       // We are done call next activity
       _done = true;
-      SendMainActivity.callMe(this, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress,
-            _isColdStorage);
+      if (_isColdStorage) {
+         ColdStorageSummaryActivity.callMe(this, _wallet, _spendable, _oneBtcInFiat);
+      } else {
+         SendMainActivity.callMe(this, _wallet, _spendable, _oneBtcInFiat, _amountToSend, _receivingAddress,
+               _isColdStorage);
+      }
       finish();
    }
 }

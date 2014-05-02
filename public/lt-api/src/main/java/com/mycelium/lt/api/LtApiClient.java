@@ -315,6 +315,13 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<List<SellOrderSearchItem>> getActiveSellOrders(){
+      LtRequest r = new LtRequest(Function.GET_ACTIVE_SELL_ORDERS);
+      return sendRequest(r, new TypeReference<LtResponse<List<SellOrderSearchItem>>>() {
+      });
+   }
+   
+   @Override
    public LtResponse<UUID> createInstantBuyOrder(UUID sessionId, InstantBuyOrderParameters params) {
       LtRequest r = new LtRequest(Function.CREATE_INSTANT_BUY_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());

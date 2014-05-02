@@ -47,18 +47,24 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
-
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.WalletVersionResponse;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.VersionManager;
+import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 
 public class AboutActivity extends Activity {
@@ -79,7 +85,8 @@ public class AboutActivity extends Activity {
       findViewById(R.id.bt_check_update).setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
-            final ProgressDialog progress = ProgressDialog.show(AboutActivity.this, getString(R.string.update_check), getString(R.string.please_wait), true);
+            final ProgressDialog progress = ProgressDialog.show(AboutActivity.this, getString(R.string.update_check),
+                  getString(R.string.please_wait), true);
             versionManager.forceCheckForUpdate(new AbstractCallbackHandler<WalletVersionResponse>() {
                @Override
                public void handleCallback(WalletVersionResponse response, ApiError exception) {
@@ -95,25 +102,42 @@ public class AboutActivity extends Activity {
          }
       });
 
+      findViewById(R.id.btDonate).setOnClickListener(donateClickListener);
+
       setLinkTo((TextView) findViewById(R.id.tvSourceUrl), R.string.source_url);
       setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
       setMailTo((TextView) findViewById(R.id.tvContactEmail), R.string.contact_email);
    }
 
+   OnClickListener donateClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+         Utils.showSimpleMessageDialog(AboutActivity.this, R.string.donate_description, new Runnable() {
+            
+            @Override
+            public void run() {
+               MbwManager mbwManager = MbwManager.getInstance(AboutActivity.this);
+               NetworkParameters network = mbwManager.getNetwork();
+               Address address = network.isProdnet() ? Address.fromString(Constants.PRODNET_DONATION_ADDRESS) :Address.fromString(Constants.TESTNET_DONATION_ADDRESS);
+               Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
+               SendInitializationActivity.callMe(AboutActivity.this, wallet, null, address, false);
+            }
+         });
+      }
+   };
+
    private void showVersionInfo(VersionManager versionManager, WalletVersionResponse response) {
       if (versionManager.isSameVersion(response.versionNumber)) {
-         new AlertDialog.Builder(this)
-               .setMessage(getString(R.string.version_uptodate, response.versionNumber))
+         new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, response.versionNumber))
                .setTitle(getString(R.string.update_check))
                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                      dialog.dismiss();
                   }
-               })
-               .create()
-               .show();
+               }).create().show();
       } else {
          versionManager.showVersionDialog(response, this);
       }
@@ -146,20 +170,18 @@ public class AboutActivity extends Activity {
       public void onClick(View v) {
          final String message;
          try {
-            message = CharStreams.toString(
-                  CharStreams.newReaderSupplier(new InputSupplier<InputStream>() {
-                     @Override
-                     public InputStream getInput() throws IOException {
+            message = CharStreams.toString(CharStreams.newReaderSupplier(new InputSupplier<InputStream>() {
+               @Override
+               public InputStream getInput() throws IOException {
 
-                        return getResources().openRawResource(resourceId);
-                     }
-                  }, Charsets.UTF_8));
+                  return getResources().openRawResource(resourceId);
+               }
+            }, Charsets.UTF_8));
          } catch (IOException e) {
             throw new RuntimeException(e);
          }
          AlertDialog.Builder builder = new AlertDialog.Builder(AboutActivity.this);
-         builder.setMessage(message)
-               .setCancelable(true)
+         builder.setMessage(message).setCancelable(true)
                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface dialog, int id) {
                      dialog.cancel();

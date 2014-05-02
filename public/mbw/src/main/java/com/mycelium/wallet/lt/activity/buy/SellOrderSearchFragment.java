@@ -40,6 +40,8 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -53,10 +55,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.api.model.SellOrderSearchItem;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -294,6 +298,14 @@ public class SellOrderSearchFragment extends Fragment {
             }
 
             // Info button
+            Button btMap = (Button) card.findViewById(R.id.btMap);
+            if (orderItem.location.latitude == 0D && orderItem.location.longitude == 0D) {
+               btMap.setVisibility(View.GONE);
+            } else {
+               btMap.setOnClickListener(mapClickListener);
+            }
+
+            // Info button
             Button btInfo = (Button) card.findViewById(R.id.btInfo);
             btInfo.setOnClickListener(infoClickListener);
 
@@ -347,6 +359,20 @@ public class SellOrderSearchFragment extends Fragment {
 
       }
    }
+
+   OnClickListener mapClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+         Intent intent = new Intent(Intent.ACTION_VIEW);
+         String url = Constants.LOCAL_TRADER_MAP_URL + "?lat=" + _selected.location.latitude + "&lng="
+               + _selected.location.longitude + "&z=12";
+         intent.setData(Uri.parse(url));
+         startActivity(intent);
+         Toast.makeText(getActivity(), R.string.lt_opening_map, Toast.LENGTH_LONG).show();
+      }
+   };
 
    OnClickListener infoClickListener = new OnClickListener() {
 

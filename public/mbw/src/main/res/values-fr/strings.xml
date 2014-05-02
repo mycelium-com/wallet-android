@@ -12,7 +12,7 @@
   <string name="random">Aléatoire</string>
   <string name="close">Fermer</string>
   <string name="sending">Envoi de %1$s</string>
-  <string name="receiving">Reçu %1$s</string>
+  <string name="receiving">Entrant %1$s</string>
   <string name="imported_bitcoin_address">Adresse Bitcoin importée.</string>
   <string name="imported_private_key">Clé privé importée.</string>
   <string name="key_already_present">La clé privée était déjà présente</string>
@@ -128,7 +128,7 @@
   <string name="address_book_empty">Votre carnet d\'adresses est vide</string>
   <string name="delete_address_confirmation">Êtes-vous sûr de vouloir supprimer cette adresse de votre carnet?</string>
   <string name="add_to_addressbook">Ajouter au carnet d\'adresses</string>
-  <string name="edit">Renommer</string>
+  <string name="edit">Modifier</string>
   <string name="delete">Supprimer</string>
   <string name="payment_request">Paiement requis</string>
   <string name="show_to_sender">Présenter à l\'acheteur</string>
@@ -234,7 +234,7 @@
   <string name="tab_addresses">Carnet d\'Adresses</string>
   <string name="active_key_limit_reached">Vous avez atteint la limite maximale de 10 adresses actives.\n\nVous pouvez avoir autant d\'adresse archivée que vous désirez et ensuite les activer.\n\nPour ajouter une adresse, veuillez archiver une de vos adresses existantes.</string>
   <string name="key_management_disabled_desc">Cette page donne accès aux fonctions avancées de gestion de clé Bitcoin.\n\nPour les experts en Bitcoin, activer le Mode Avancé dans le menu Paramètres.</string>
-  <string name="scan_qr_code">Numériser code QR</string>
+  <string name="scan_qr_code">Numériser QR</string>
   <string name="background_image">Image de fond</string>
   <string name="going_to_mycelium_com_help">Aller à www.mycelium.com</string>
   <string name="ask_set_label">Cette adresse n\'a pas été renommée.\n\n%1$s\n\nIl est recommandé de renommer toutes vos adresses.\n\nVoulez-vous la renommer maintenant?</string>
@@ -269,6 +269,8 @@
   <string name="decrypt_button">Déchiffrer</string>
   <string name="pref_change_language">Changer la langue</string>
   <string name="addressbook_cannot_add_private_key">Vous ne pouvez pas ajouter une clé privée au carnet d\'adresses.\n\nVous pouvez l\'importer à partir de l\'onglet clés seulement</string>
+  <string name="alert_button">Alerte</string>
+  <string name="heartbleed_alert">ALERTE\n\nVotre appareil fonctionne sur Android version 4.1.1 et a un virus connue sous le nom  de Heartbleed.\n\nCe virus permet à un attaquant de lire la mémoire de tous les applications sur votre appareil connectant HTTPS.\n\nVous devriez prendre des mesures immédiates!\n\n1. Déplacer vos fonds vers des nouvelles adresses où la clé privée n\'a jamais été sur un Android 4.1.1.\n\n2. Mettre à jour votre appareil à une autre version que 4.1.1 ou utilisez un autre appareil.</string>
   <string name="lt_buy_button">Acheter</string>
   <string name="lt_edit_button">Modifier</string>
   <string name="lt_localization_not_available">Cette fonctionnalité requiert à votre appareil de révéler votre location. Il semble que votre appareil n\'y arrive pas. Activer les services de localisation dans vos paramètres réglages.</string>
@@ -283,10 +285,10 @@
   <string name="lt_no_sell_orders">Cette page affiche vos ordre de ventes.\n\nOrdre de vente vide.\n\nTaper le bouton + pour créer un ordre.</string>
   <string name="lt_no_recent_trades">Cette page affiche vos échanges actifs\n\nLes échanges complétées se trouve sous l\'onglet Historique.</string>
   <string name="lt_pick_offer_title">Choisir une offre pour démarrer une échange</string>
-  <string name="lt_buy_bitcoin_tab">Acheter Bitcoin</string>
+  <string name="lt_buy_bitcoin_tab">Acheter</string>
   <string name="lt_active_trades_tab">Actifs</string>
   <string name="lt_trade_history_tab">Historiques</string>
-  <string name="lt_my_sell_orders_tab">Mes ordres</string>
+  <string name="lt_my_sell_orders_tab">Mes termes</string>
   <string name="lt_my_trader_info_tab">Mes infos</string>
   <string name="lt_sell_orders_add">Ajouter un ordre</string>
   <string name="lt_create_sell_order_title">Créer un ordre</string>
@@ -294,6 +296,7 @@
   <string name="lt_create_order_choose_location">Choisissez l\'emplacement où vous souhaitez vendre des bitcoins :</string>
   <string name="lt_create_order_choose_base_price">Choisissez la bourse :</string>
   <string name="lt_create_sell_order_choose_premium">Choisissez la prime que vous souhaitez ajouter :</string>
+  <string name="lt_create_sell_order_choose_currency">Choisissez la devise que vous acceptez:</string>
   <string name="lt_create_order_choose_minimum">Montant minimum à échanger :</string>
   <string name="lt_create_order_choose_maximum">Montant maximum à échanger :</string>
   <string name="lt_create_order_description">Détail facultative de votre ordre de vente :</string>
@@ -348,8 +351,8 @@
   <string name="lt_status_text">%1$s</string>
   <string name="lt_accept_offer_button">Accepter l\'offre</string>
   <string name="lt_cash_received_button">Montant encaissé</string>
-  <string name="lt_stop_trade_button">Échange annulé</string>
-  <string name="lt_abort_trade_button">Échange terminé</string>
+  <string name="lt_stop_trade_button">Annuler l\'echange</string>
+  <string name="lt_abort_trade_button">Terminer l\'échange</string>
   <string name="lt_btc_price">%1$s %2$s/BTC</string>
   <string name="lt_chat_message_hint">Tapez un message ici</string>
   <string name="lt_cannot_affort_trade">Votre portefeuille n\'a pas suffisamment de fonds.\nPour compléter cette offre, vous devez ajouter plus de fonds à votre portefeuille.</string>
@@ -391,12 +394,12 @@
   <string name="lt_successful_sells_label">Ventes réussis</string>
   <string name="lt_aborted_sells_label">Ventes annulées</string>
   <string name="lt_total_sold_label">Total vendu</string>
-  <string name="lt_successful_buys_label">Achat réussie</string>
-  <string name="lt_aborted_buys_label">Achat annulé</string>
+  <string name="lt_successful_buys_label">Achats réussis</string>
+  <string name="lt_aborted_buys_label">Achats annulés</string>
   <string name="lt_total_bought_label">Total acheté</string>
   <string name="lt_local_trader_commission_label">Commission d\'échangeur</string>
   <string name="lt_your_receiving_address_label">Adresse de réception</string>
-  <string name="lt_start_trading_button">Commencer à échanger</string>
+  <string name="lt_start_trading_button">Lancer un échange</string>
   <string name="lt_enter_amount_to_trade_title">Inscrivez le montant à échanger</string>
   <string name="lt_enter_amount_title">Entrez le montant</string>
   <string name="lt_order_active">Actif jusqu\'au %1$s</string>
@@ -413,11 +416,16 @@
   <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Bienvenue!\n\nMycelium Échangeur Local vous permet d\'échanger vos espèces en bitcoins avec des gens de votre région, sans le besoin d\'un fournisseur d\'échange. Toutes les transactions se font en personne.\n\nJusqu\'au 1er septembre 2014, les frais d\'échange avec Échangeur Local sera de 0,2 %, qui sera ajouté au prix de vente.</string>
   <string name="lt_how_to_trade_menu">Comment échanger</string>
   <string name="lt_going_to_website">Enroute vers %1$s</string>
-  <string name="lt_buy_sell_button">Achat / Vente BTC</string>
+  <string name="lt_buy_sell_button">Achat / Vente  BTC</string>
   <string name="lt_invalid_chat_message">Message invalide envoyé par %1$s</string>
   <string name="lt_accept_terms_title">Conditions d\'utilisation</string>
   <string name="lt_accept_button">Accepter</string>
   <string name="lt_decline_button">Refuser</string>
+  <string name="lt_next_button">Suivant</string>
+  <string name="lt_reveiving_address_title">Adresse de réception</string>
+  <string name="lt_reveiving_address_description">En échange réussie vos fonds iront à l\'adresse suivante:</string>
+  <string name="lt_info_button">Info</string>
+  <string name="lt_getting_trader_info_title">Récupération d\'info de l\'échangeur</string>
   <string name="archiving_key_title">Clés archivées</string>
   <string name="new_version_exists">Une mise à jour est disponible</string>
   <string name="check_update">Recherche de mises à jour</string>

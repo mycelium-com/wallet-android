@@ -106,6 +106,7 @@
             -->
         </activity>
         <activity android:name="com.mycelium.wallet.activity.send.SendInitializationActivity" />
+        <activity android:name="com.mycelium.wallet.activity.send.ColdStorageSummaryActivity" />
         <activity android:name="com.mycelium.wallet.activity.send.SendMainActivity" />
         <activity android:name="com.mycelium.wallet.activity.send.ManualAddressEntry" />
         <activity android:name="com.mycelium.wallet.activity.receive.GetReceivingAmountActivity" />
@@ -133,6 +134,7 @@
         <activity android:name="com.mycelium.wallet.lt.activity.ChangeLocationActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.EnterLocationActivity" android:windowSoftInputMode="stateVisible"/>
         <activity android:name="com.mycelium.wallet.lt.activity.ChangePriceActivity" />
+        <activity android:name="com.mycelium.wallet.lt.activity.RefreshPriceActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.EnterFiatAmountActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.ViewTraderInfoActivity" />
         <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateInstantBuyOrder1Activity" />

@@ -199,6 +199,24 @@
                 <!-- Info Button -->
 
                 <Button
+                    android:id="@+id/btMap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/btn_blue_slim"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="@string/lt_map_button"
+                    android:textSize="18sp" />
+
+                <View
+                    android:layout_width="15dp"
+                    android:layout_height="1dp" />
+
+                <Button
                     android:id="@+id/btInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -213,7 +231,7 @@
                     android:textSize="18sp" />
 
                 <View
-                    android:layout_width="20dp"
+                    android:layout_width="15dp"
                     android:layout_height="1dp" />
 
                 <!-- Buy/Edit Button -->
