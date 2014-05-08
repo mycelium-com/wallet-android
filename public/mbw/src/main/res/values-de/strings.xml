@@ -10,6 +10,14 @@
   <string name="scan">Scannen</string>
   <string name="clipboard">Zwischenablage</string>
   <string name="random">Zufällig</string>
+  <string name="import_from_android_wallet_backup_desc">Private Schlüssel aus einem Backup der App \"Bitcoin Wallet\" von Andreas Schildbach importieren.</string>
+  <string name="android_wallet_backup">Bitcoin Wallet Backup</string>
+  <string name="pick_android_wallet_backup">Bitte eine Backup Datei auswählen</string>
+  <string name="enter_android_wallet_backup_password_title">Passwort des Backups</string>
+  <string name="enter_android_wallet_backup_password_message">Bitte das Passwort eingeben, das in der App \"Bitcoin Wallet\" beim Erstellen des Backups benutzt wurde.</string>
+  <string name="pick_android_wallet_address_for_import">Welche Adresse soll importiert werden?</string>
+  <string name="import_android_wallet_backup_io_error">Fehler beim Lesen der Bitcoin Wallet Backup Datei.</string>
+  <string name="import_android_wallet_backup_decryption_error">Backup Datei konnte nicht entschlüsselt werden. Ist das eingegebene Passwort korrekt?</string>
   <string name="close">Schließen</string>
   <string name="sending">Sende %1$s</string>
   <string name="receiving">Empfange %1$s</string>
