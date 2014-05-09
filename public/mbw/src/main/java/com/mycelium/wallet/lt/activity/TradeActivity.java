@@ -106,7 +106,8 @@ public class TradeActivity extends Activity {
 
    public static void callMe(Activity currentActivity, TradeSession tradeSession) {
       if (tradeSession.isOpen && tradeSession.isBuyer && tradeSession.buyerAddress == null) {
-         // We are the buyer, and the receiving address has not yet been set. Do this now. It will call us again later
+         // We are the buyer, and the receiving address has not yet been set. Do
+         // this now. It will call us again later
          SetTradeAddress.callMe(currentActivity, tradeSession);
       } else {
          Intent intent = new Intent(currentActivity, TradeActivity.class);
@@ -260,8 +261,8 @@ public class TradeActivity extends Activity {
    private void confirmCashReceived() {
       AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
       confirmDialog.setTitle(R.string.lt_confirm_title);
-      String msg = getString(R.string.lt_confirm_cash_received, _tradeSession.fiatTraded, _tradeSession.currency,
-            _tradeSession.peerName);
+      String name = _tradeSession.isOwner ? _tradeSession.peerName : _tradeSession.ownerName;
+      String msg = getString(R.string.lt_confirm_cash_received, _tradeSession.fiatTraded, _tradeSession.currency, name);
       confirmDialog.setMessage(msg);
       confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
