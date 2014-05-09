@@ -10,6 +10,14 @@
     <string name="random_desc">Create a new random private key.</string>
     <string name="scan">Scan</string>
     <string name="clipboard">Clipboard</string>
+    <string name="import_from_android_wallet_backup_desc">Import Bitcoin private key from a backup created by the \"Bitcoin Wallet\" app from Andreas Schildbach.</string>
+    <string name="android_wallet_backup">Bitcoin Wallet Backup</string>
+    <string name="pick_android_wallet_backup">Pick a backup file</string>
+    <string name="enter_android_wallet_backup_password_title">Backup password</string>
+    <string name="enter_android_wallet_backup_password_message">Enter the password that was used when creating the backup in the \"Bitcoin Wallet\" app.</string>
+    <string name="pick_android_wallet_address_for_import">Pick an address for import</string>
+    <string name="import_android_wallet_backup_io_error">Could not read the Bitcoin Wallet backup file.</string>
+    <string name="import_android_wallet_backup_decryption_error">Could not decrypt the Bitcoin Wallet backup file. Is the password correct?</string>
     <string name="random">Random</string>
     <string name="close">Close</string>
     <string name="btc_value_string">%1$s %2$s</string>
