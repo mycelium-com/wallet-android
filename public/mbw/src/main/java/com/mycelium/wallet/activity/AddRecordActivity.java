@@ -46,6 +46,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.EncryptionUtils;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
@@ -217,7 +218,7 @@ public class AddRecordActivity extends Activity {
          public void onClick(DialogInterface dialog, int whichButton) {
             try {
                String password = input.getText().toString();
-               String decryptedText = Utils.decryptOpenSslAes256Cbc(Utils.getFileContent(backupFile), password);
+               String decryptedText = EncryptionUtils.decryptOpenSslAes256Cbc(Utils.getFileContent(backupFile), password);
                chooseKeyForImportDialog(parseRecordsFromBackupText(decryptedText));
             } catch (GeneralSecurityException se) {
                _toaster.toast(R.string.import_android_wallet_backup_decryption_error, false);
@@ -256,6 +257,8 @@ public class AddRecordActivity extends Activity {
     * @return list of found records
     */
    private List<Record> parseRecordsFromBackupText(String plainBackupText) {
+      //todo try to implement this with Splitter.on(\"n") and String.indexOf(' ') to avoid regex
+      //todo this could use a unit test with sample data
       StringTokenizer lines = new StringTokenizer(plainBackupText, "\n", false);
       List<Record> foundRecords = new ArrayList<Record>();
       // single line with key looks like:
