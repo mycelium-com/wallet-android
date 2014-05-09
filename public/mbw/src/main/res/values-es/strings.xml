@@ -252,7 +252,6 @@
   <string name="mycelium_license"> Mycelium licencia</string>
   <string name="zxing_license">ZXing licencia</string>
   <string name="pdfwriter_license">Licencia de Android PDF Writer</string>
-  <string name="scanned_address_need_private_key">Ha escaneado esta dirección de Bitcoins:\n\n%1$s\n\nDebe escanear una clave privada.\n\nEn los monederos de papel lo privado suele estar localizado junto a la dirección de Bitcoins.</string>
   <string name="source_repo_label">Depósito de fuentes</string>
   <string name="version_label">Versión</string>
   <string name="authors_label">Desarrollado por</string>

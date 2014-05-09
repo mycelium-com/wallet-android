@@ -74,13 +74,13 @@
         <!-- Start Trading Button -->
 
         <Button
-            android:id="@+id/btStartTrading"
+            android:id="@+id/btOk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/lt_start_trading_button"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="@string/ok"
             android:textSize="20sp" />
     </LinearLayout>
 

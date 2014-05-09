@@ -66,6 +66,7 @@ public class SolveCaptchaActivity extends Activity implements NumberEntryListene
 
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, SolveCaptchaActivity.class);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 

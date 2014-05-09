@@ -37,8 +37,8 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.lt.api.CreateInstantBuyOrder;
-import com.mycelium.wallet.lt.api.CreateSellOrder;
+import com.mycelium.wallet.lt.api.CreateTrade;
+import com.mycelium.wallet.lt.api.CreateAd;
 import com.mycelium.wallet.lt.api.Request;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 
@@ -643,9 +643,9 @@ public class LocalTraderManager {
    }
 
    public boolean isCaptchaRequired(Request request) {
-      if (request instanceof CreateSellOrder) {
+      if (request instanceof CreateAd) {
          return _session == null ? true : _session.captcha.contains(LtSession.CaptchaCommands.CREATE_SELL_ORDER);
-      } else if (request instanceof CreateInstantBuyOrder) {
+      } else if (request instanceof CreateTrade) {
          return _session == null ? true : _session.captcha.contains(LtSession.CaptchaCommands.CREATE_INSTANT_BUY_ORDER);
       }
       return false;

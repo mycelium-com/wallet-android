@@ -250,7 +250,6 @@
   <string name="mycelium_license">Mycelium 라이센스</string>
   <string name="zxing_license">ZXing 라이센스</string>
   <string name="pdfwriter_license">Android PDF Writer 라이센스</string>
-  <string name="scanned_address_need_private_key">고객께서는 이 비트코인 주소를 스캔 하셨습니다:\n\n%1$s\n\n고객께서는 개인 키를 스캔하셔야 합니다.\n\n종이 비트코인지갑에 있는 개인 키는 비트코인 주소 옆에 위치해 있습니다. </string>
   <string name="source_repo_label">소스 저장소</string>
   <string name="version_label">버전</string>
   <string name="authors_label">에 의해 개발된</string>

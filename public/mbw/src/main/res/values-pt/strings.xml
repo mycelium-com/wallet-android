@@ -250,7 +250,6 @@
   <string name="mycelium_license">Licença Mycelium</string>
   <string name="zxing_license">Licença ZXing</string>
   <string name="pdfwriter_license">Licença Android PDF Writer</string>
-  <string name="scanned_address_need_private_key">Você digitalizou este endereço Bitcoin:\n\n%1$s\n\nVocê precisa digitalizar uma chave privada.\n\nNas carteiras de papel, a chave privada encontra-se muitas vezes junto do endereço Bitcoin.</string>
   <string name="source_repo_label">Repositório do código fonte</string>
   <string name="version_label">Versão</string>
   <string name="authors_label">Desenvolvido por</string>

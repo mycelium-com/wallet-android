@@ -32,7 +32,7 @@ import com.mycelium.wallet.Wallet.SpendableOutputs;
 
 public class TradeActivityUtil {
 
-   public static boolean canAffordTrade(TradeSession tradeSession, MbwManager mbwManager) {
+   public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
       // Create default wallet
       Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
 
@@ -42,10 +42,15 @@ public class TradeActivityUtil {
       // Extract private key ring
       PrivateKeyRing keyRing = wallet.getPrivateKeyRing();
 
-      return createUnsignedTransaction(tradeSession, mbwManager, spendable, keyRing, mbwManager.getNetwork()) != null;
+      Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
+
+      return createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer, nullAddress, nullAddress,
+            mbwManager, spendable, keyRing, mbwManager.getNetwork()) != null;
    }
 
-   public static Transaction createSignedTransaction(TradeSession tradeSession, MbwManager mbwManager) {
+   public static Transaction createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
+      Preconditions.checkNotNull(ts.buyerAddress);
+
       // Create default wallet
       Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
 
@@ -56,8 +61,8 @@ public class TradeActivityUtil {
       PrivateKeyRing keyRing = wallet.getPrivateKeyRing();
 
       // Create unsigned transaction
-      UnsignedTransaction unsigned = createUnsignedTransaction(tradeSession, mbwManager, spendable, keyRing,
-            mbwManager.getNetwork());
+      UnsignedTransaction unsigned = createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
+            ts.buyerAddress, ts.feeAddress, mbwManager, spendable, keyRing, mbwManager.getNetwork());
 
       if (unsigned == null) {
          return null;
@@ -72,14 +77,12 @@ public class TradeActivityUtil {
       return tx;
    }
 
-   private static UnsignedTransaction createUnsignedTransaction(TradeSession tradeSession, MbwManager mbwManager,
-         SpendableOutputs spendable, PrivateKeyRing keyRing, NetworkParameters network) {
-      Preconditions.checkArgument(tradeSession.satoshisForBuyer > TransactionUtils.MINIMUM_OUTPUT_VALUE);
-      Preconditions.checkArgument(tradeSession.satoshisFromSeller >= tradeSession.satoshisForBuyer);
-      long localTraderFee = tradeSession.satoshisFromSeller - tradeSession.satoshisForBuyer;
-
-      Address receiverAddress = tradeSession.buyerAddress;
-      Address localTraderFeeAddress = tradeSession.feeAddress;
+   private static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
+         Address buyerAddress, Address feeAddress, MbwManager mbwManager, SpendableOutputs spendable,
+         PrivateKeyRing keyRing, NetworkParameters network) {
+      Preconditions.checkArgument(satoshisForBuyer > TransactionUtils.MINIMUM_OUTPUT_VALUE);
+      Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
+      long localTraderFee = satoshisFromSeller - satoshisForBuyer;
 
       // Construct list of spendable outputs
       List<UnspentTransactionOutput> outputs = new LinkedList<UnspentTransactionOutput>();
@@ -91,10 +94,10 @@ public class TradeActivityUtil {
 
       // Add the outputs
       try {
-         stb.addOutput(receiverAddress, tradeSession.satoshisForBuyer);
+         stb.addOutput(buyerAddress, satoshisForBuyer);
 
          if (localTraderFee >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
-            stb.addOutput(localTraderFeeAddress, localTraderFee);
+            stb.addOutput(feeAddress, localTraderFee);
          }
       } catch (OutputTooSmallException e) {
          // This should not happen as we have checked it above in a precondition
@@ -108,7 +111,6 @@ public class TradeActivityUtil {
       } catch (InsufficientFundsException e) {
          return null;
       }
-
    }
 
    public static void populatePriceDetails(Context context, View root, boolean isBuyer, boolean isSelf,

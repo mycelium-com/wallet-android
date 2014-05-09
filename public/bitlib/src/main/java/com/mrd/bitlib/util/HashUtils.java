@@ -71,7 +71,6 @@ public class HashUtils {
       digest = getSha256Digest();
       digest.update(data, offset, length);
       return new Sha256Hash(digest.digest(digest.digest()));
-
    }
 
    public static Sha512Hash sha512(byte[] data) {
@@ -79,6 +78,13 @@ public class HashUtils {
       digest = getSha512Digest();
       digest.update(data, 0, data.length);
       return Sha512Hash.of(digest.digest());
+   }
+
+   public static Sha256Hash sha256(byte[] data, int offset, int length) {
+      MessageDigest digest;
+      digest = getSha256Digest();
+      digest.update(data, offset, length);
+      return new Sha256Hash(digest.digest());
    }
 
    public static Sha512Hash sha512(byte[] data1, byte[] data2) {

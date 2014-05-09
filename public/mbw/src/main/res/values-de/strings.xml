@@ -255,7 +255,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="mycelium_license">Mycelium Lizenz</string>
   <string name="zxing_license">ZXing Lizenz</string>
   <string name="pdfwriter_license">Android PDF Writer Lizenz</string>
-  <string name="scanned_address_need_private_key">Sie haben diese Bitcoin-Adresse gescannt:\n\n%1$s\n\nSie müssen einen privaten Schlüssel scannen.\n\nIn den Auf Paper-Wallets findet man den privaten Schlüssel oft neben der Bitcoin-Adresse.</string>
   <string name="source_repo_label">Quellcode-Repository</string>
   <string name="version_label">Version</string>
   <string name="authors_label">Entwickelt von</string>
@@ -285,18 +284,11 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_error_account_name_taken">Dieser Name ist schon vergeben. Bitte wählen Sie einen anderen Namen</string>
   <string name="lt_error_cannot_trade_with_self">Sie können nicht mit sich selber handeln</string>
   <string name="lt_create_button">Erstellen</string>
-  <string name="lt_no_sell_orders">Diese Seite zeigt Ihre Bitcoin-Verkaufsanzeigen..\n\nDie Liste ist derzeit leer.\n\nKlicken Sie den + Button ume eine Verkaufsanzeige zu erstellen.</string>
   <string name="lt_no_recent_trades">Diese Seite zeigt Ihre aktiven Trades.\n\nAbgeschlossene Trades finden Sie in der Trade History.</string>
-  <string name="lt_pick_offer_title">Wählen Sie ein Angebot aus, um mit dem Handeln zu beginnen</string>
   <string name="lt_buy_bitcoin_tab">Bitcoins kaufen</string>
   <string name="lt_active_trades_tab">Aktive Trades</string>
   <string name="lt_trade_history_tab">Trade History</string>
-  <string name="lt_my_sell_orders_tab">Meine Verkaufsanzeigen</string>
   <string name="lt_my_trader_info_tab">Meine Info</string>
-  <string name="lt_sell_orders_add">Verkaufsanzeige hinzufügen</string>
-  <string name="lt_create_sell_order_title">Verkaufsanzeige erstellen</string>
-  <string name="lt_edit_sell_order_title">Verkaufsanzeige bearbeiten</string>
-  <string name="lt_create_order_choose_location">Wählen Sie den Standort, an dem Sie Bitcoins verkaufen möchten:</string>
   <string name="lt_create_order_choose_base_price">Wählen Sie den Grundpreis:</string>
   <string name="lt_create_sell_order_choose_premium">Wählen Sie das Aufgeld, das Sie dem Grundpreis aufschlagen möchten:</string>
   <string name="lt_create_sell_order_choose_currency">Wählen Sie die Fiat-Währung, die Sie akzeptieren:</string>
@@ -305,8 +297,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_create_order_description">Optionale Beschreibung Ihres Auftrags:</string>
   <string name="lt_create_order_description_too_long">Die Beschreibung ist zu lang</string>
   <string name="lt_create_order_description_hint">Kaufen Sie Bitcoins bei mir, weil&#8230;</string>
-  <string name="lt_sell_order_created">Verkaufsanzeige erstellt</string>
-  <string name="lt_sell_order_edited">Verkaufsanzeige bearbeitet</string>
   <string name="lt_pref_category">Local Trader</string>
   <string name="lt_disable_preference">Local Trader deaktivieren</string>
   <string name="lt_disable_preference_summary">Local Trader Funktionalität deaktivieren</string>
@@ -336,7 +326,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_searching">Suche läuft</string>
   <string name="lt_place_instant_buy_order_title">Handelsanzeige erstellen</string>
   <string name="lt_enter_fiat_amount_to_trade">Handelsbetrag eingeben.</string>
-  <string name="lt_refresh_market_rate_button">Kurs aktualisieren</string>
+  <string name="lt_refresh_market_rate_button">Marktpreis aktualisieren</string>
   <string name="lt_change_price_button">Preis ändern</string>
   <string name="lt_change_button">Ändern</string>
   <string name="lt_done_button">Erledigt</string>
@@ -358,7 +348,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_abort_trade_button">Handel abbrechen</string>
   <string name="lt_btc_price">%1$s %2$s/BTC</string>
   <string name="lt_chat_message_hint">Geben Sie hier eine Nachricht ein</string>
-  <string name="lt_cannot_affort_trade">Ihre Wallet hat nicht genügend Mittel.\n\nUm diesen Deal abzuschließen, müssen Sie mehr Mittel in die Wallet hinzufügen.</string>
+  <string name="lt_cannot_affort_trade">Ihre Wallet hat nicht genügend Mittel.\n\nUm dieses Geschäft abzuschließen, müssen Sie mehr Mittel hinzufügen.</string>
   <string name="lt_confirm_delete_sell_order_title">Verkaufsanzeige löschen?</string>
   <string name="lt_confirm_delete_sell_order_message">Möchten Sie diese Verkaufsorder löschen?</string>
   <string name="lt_transaction_confidence">Transaktionszuverlässigkeit %1$s%%</string>
@@ -413,7 +403,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_confirm_title">Bestätigen</string>
   <string name="lt_confirm_cash_received">Haben Sie %1$s %2$s erhalten und sind Sie bereit die Bitcoins zu %3$s senden?</string>
   <string name="lt_confirm_stop">Möchten Sie diesen Handel abbrechen?\"</string>
-  <string name="lt_confirm_abort">Sie haben beide diesen Deal akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
+  <string name="lt_confirm_abort">Sie haben beide dieses Geschäft akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_enter_location_tite">Standort eingeben</string>
   <string name="lt_location_hint">Stadt oder Adresse eingeben</string>
   <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Hallo!\n\nMit Mycelium Local Trader können Sie direkt bei Händlern in Ihrer Umgebung Cash gegen Bitcoins tauschen. Der Umweg über eine Handelsplattform entfällt. Alle Geschäfte werden direkt und persönlich abgewickelt.\n\nBis zum 1. September 2014 beträgt die Provision auf alle Geschäfte, die über Mycelium Local Trader abgewickelt werden 0.2%.Die Provision wird auf den Gesamtverkaufspreis aufgeschlagen.</string>
@@ -428,7 +418,13 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_reveiving_address_title">Empfangsadresse</string>
   <string name="lt_reveiving_address_description">Bei einem erfolgreichen Handel geht Ihr Geld an folgende Adresse:</string>
   <string name="lt_info_button">Info</string>
+  <string name="lt_map_button">Karte</string>
   <string name="lt_getting_trader_info_title">Händlerinfo erhalten</string>
+  <string name="lt_refresh_market_rate_title">Marktpreis aktualisieren</string>
+  <string name="lt_refresh_market_rate_description">Der neue Preis richtet sich nach dem Preisschema des Verkäufers und dem aktuellen Markpreis..\n\nAktualisieren Sie den Preis, müssen Sie beide das Geschäft akzeptieren.</string>
+  <string name="lt_opening_map">Karte öffnen</string>
+  <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
+  <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
   <string name="archiving_key_title">Schlüssel wird archiviert</string>
   <string name="new_version_exists">Ein Update ist verfügbar</string>
   <string name="check_update">Nach Updates suchen</string>
@@ -447,4 +443,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="signed_message_subject">Bitcoin signierte Nachricht</string>
   <string name="signed_message_share">Teile Bitcoin signierte Nachricht</string>
   <string name="signing_inprogress">Signiere Nachricht&#8230;</string>
+  <string name="geocode_error">Geocoderfehlermeldung:%s \nBitte versuchen Sie es später noch einmal.</string>
+  <string name="donate_button">Spenden</string>
+  <string name="donate_description">Mycelium Bitcoin Wallet ist eine großartige Wallet und kann kostenlos verwendet werden.\n\nWir freuen uns, wenn Sie uns mit Ihrer Spende dabei unterstützen, die Wallet noch besser zu machen.\n\nJeder Betrag zählt!</string>
 </resources>

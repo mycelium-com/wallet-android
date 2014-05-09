@@ -253,7 +253,6 @@
   <string name="mycelium_license">Mycelium Licens</string>
   <string name="zxing_license">ZXing Licens</string>
   <string name="pdfwriter_license">Android PDF Writer Licens</string>
-  <string name="scanned_address_need_private_key">Du har scannet denne Bitcoin address:\n\n%1$s\n\nDet er nødvendigt at skanne en privat nøgle.\n\nPå papir tegnebøger er den private nøgle ofte placeret ved siden af Bitcoin adressen.</string>
   <string name="source_repo_label">Kilde Repository</string>
   <string name="version_label">Version</string>
   <string name="authors_label">Udviklet af</string>

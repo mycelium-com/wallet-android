@@ -19,6 +19,7 @@ public class LtConst {
       public static final String PRICE_FORMULA_ID = "priceFormulaId";
       public static final String PREMIUM = "premium";
       public static final String DESCRIPTION = "description";
+      @Deprecated
       public static final String SELL_ORDER_ID = "sellOrderId";
       public static final String FIAT_OFFERED = "fiatOffered";
       public static final String BITCOIN_ADDRESS = "bitcoinAddress";
@@ -34,25 +35,35 @@ public class LtConst {
       public static final String LIMIT = "limit";
       public static final String OFFSET = "offset";
       public static final String TOKEN = "token";
+      public static final String AD_ID = "adId";
    }
    public static class Function {
 
       public static final String CREATE_TRADER = "createTrader";
       public static final String CREATE_SESSION = "createSession";
       public static final String TRADER_LOGIN = "traderLogin";
+      @Deprecated
       public static final String LIST_SELL_ORDERS = "listSellOrders";
       public static final String GET_SUPPORTED_PRICE_FORMULAS = "getSupportedPriceFormulas";
+      @Deprecated
       public static final String CREATE_SELL_ORDER = "createSellOrder";
+      @Deprecated
       public static final String GET_SELL_ORDER = "getSellOrder";
+      @Deprecated
       public static final String EDIT_SELL_ORDER = "editSellOrder";
+      @Deprecated
       public static final String ACTIVATE_SELL_ORDER = "activateSellOrder";
+      @Deprecated
       public static final String DEACTIVATE_SELL_ORDER = "deactivateSellOrder";
+      @Deprecated
       public static final String DELETE_SELL_ORDER = "deleteSellOrder";
+      @Deprecated
       public static final String CREATE_INSTANT_BUY_ORDER = "createInstantBuyOrder";
       public static final String GET_ACTIVE_TRADE_SESSIONS = "getActiveTradeSessions";
       public static final String GET_FINAL_TRADE_SESSIONS = "getFinalTradeSessions";
       public static final String GET_TRADE_SESSIONS = "getTradeSessions";
       public static final String GET_TRADE_SESSION = "getTradeSession";
+      @Deprecated
       public static final String SELL_ORDER_SEARCH = "sellOrderSearch";
       public static final String ACCEPT_TRADE = "acceptTrade";
       public static final String ABORT_TRADE = "abortTrade";
@@ -70,7 +81,17 @@ public class LtConst {
       public static final String GET_LAST_TRADE_SESSION_CHANGE = "getLastTradeSessionChange";
       public static final String ASSESS_BTC_PRICE = "assessBtcPrice";
       public static final String CHANGE_TRADE_SESSION_PRICE = "changeTradeSessionPrice";
-      public static final String GET_ACTIVE_SELL_ORDERS = "getActiveSellOrders";
+      public static final String AD_SEARCH = "adSearch";
+      public static final String LIST_ADS = "listAds";
+      public static final String CREATE_AD = "createAd";
+      public static final String EDIT_AD = "editAd";
+      public static final String ACTIVATE_AD = "activateAd";
+      public static final String DEACTIVATE_AD = "deactivateAd";
+      public static final String GET_AD = "getAd";
+      public static final String DELETE_AD = "deleteAd";
+      public static final String GET_ACTIVE_ADS = "getActiveAds";
+      public static final String CREATE_TRADE = "createTrade";
+      public static final String SET_TRADE_RECEIVING_ADDRESS = "setTradeReceivingAddress";
    }
 
 }

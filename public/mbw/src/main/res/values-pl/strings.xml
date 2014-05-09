@@ -252,7 +252,6 @@
   <string name="mycelium_license">Licencja Mycelium</string>
   <string name="zxing_license">Licencja ZXing</string>
   <string name="pdfwriter_license">Licencja Android PDF Writer</string>
-  <string name="scanned_address_need_private_key">Zeskanowałeś adres BTC:\n\n%1$s\n\n Musisz zeskanować klucz prywatny.\n\n Na papierowych portfelach klucz prywatny często znajduje się obok adresu BTC.</string>
   <string name="source_repo_label">Repozytorium zrodel</string>
   <string name="version_label">Wersja</string>
   <string name="authors_label">Rozwinięte przez</string>
@@ -281,18 +280,11 @@
   <string name="lt_error_account_name_taken">Wybrana nazwa jest już zajęta. Proszę wybrać inną nazwę</string>
   <string name="lt_error_cannot_trade_with_self">Nie możesz handlować ze sobą </string>
   <string name="lt_create_button">Stwórz</string>
-  <string name="lt_no_sell_orders">Ta strona zawiera listę zamówień sprzedaży .\n\n Lista jest pusta.\n\n Naciśnij +, aby utworzyć listę.</string>
   <string name="lt_no_recent_trades">Ta strona pokazuje twoje aktywne transakcje.\n\n Zakończone transakcje znajdują się w zakładce Historia Handlu.</string>
-  <string name="lt_pick_offer_title">Wybierz ofertę, aby rozpocząć handel</string>
   <string name="lt_buy_bitcoin_tab">Kup Bitcoin</string>
   <string name="lt_active_trades_tab">Aktywne transakcje</string>
   <string name="lt_trade_history_tab">Historia transacji</string>
-  <string name="lt_my_sell_orders_tab">Moje zamówienia sprzedaży</string>
   <string name="lt_my_trader_info_tab">Moje Info</string>
-  <string name="lt_sell_orders_add">Dodawanie zamówienia sprzedaży</string>
-  <string name="lt_create_sell_order_title">Tworzenie zlecenia sprzedaży</string>
-  <string name="lt_edit_sell_order_title">Edycja zamówienia sprzedaży</string>
-  <string name="lt_create_order_choose_location">Wybierz lokalizację, gdzie chcesz sprzedać bitcoin:</string>
   <string name="lt_create_order_choose_base_price">Wybierz cenę bazową: </string>
   <string name="lt_create_sell_order_choose_premium">Wybierz marżę, którą chcesz dodać do ceny bazowej:</string>
   <string name="lt_create_sell_order_choose_currency">Wybierz walutę fiat którą akceptujesz:</string>
@@ -301,8 +293,6 @@
   <string name="lt_create_order_description">Dodatkowy opis zamówienia:</string>
   <string name="lt_create_order_description_too_long">Opis jest zbyt długi</string>
   <string name="lt_create_order_description_hint">Kup ode mnie, bo...</string>
-  <string name="lt_sell_order_created">Zamówienie sprzedaży utworzone</string>
-  <string name="lt_sell_order_edited">Zamówienie sprzedaży wyedytowane</string>
   <string name="lt_pref_category">Lokalny handlowiec</string>
   <string name="lt_disable_preference">Wyłączyć lokalnego handlowcę</string>
   <string name="lt_disable_preference_summary">Funkcja Local Trader wyłączona</string>

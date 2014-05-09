@@ -3,11 +3,15 @@ package com.mycelium.lt.api.params;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mycelium.lt.api.model.AdType;
 import com.mycelium.lt.api.model.GpsLocation;
-@Deprecated
-public class TradeParameters implements Serializable {
+
+//todo rename TadeParameters / TraderParameters confusing
+public class AdParameters implements Serializable {
    private static final long serialVersionUID = 1L;
 
+   @JsonProperty
+   public AdType type;
    @JsonProperty
    public GpsLocation location;
    @JsonProperty
@@ -23,10 +27,11 @@ public class TradeParameters implements Serializable {
    @JsonProperty
    public String description;
 
-   public TradeParameters(@JsonProperty("location") GpsLocation location, @JsonProperty("currency") String currency,
-         @JsonProperty("minimumFiat") int minimumFiat, @JsonProperty("maximumFiat") int maximumFiat,
-         @JsonProperty("priceFormulaId") String priceFormulaId, @JsonProperty("premium") double premium,
-         @JsonProperty("description") String description) {
+   public AdParameters(@JsonProperty("type") AdType type, @JsonProperty("location") GpsLocation location,
+         @JsonProperty("currency") String currency, @JsonProperty("minimumFiat") int minimumFiat,
+         @JsonProperty("maximumFiat") int maximumFiat, @JsonProperty("priceFormulaId") String priceFormulaId,
+         @JsonProperty("premium") double premium, @JsonProperty("description") String description) {
+      this.type = type;
       this.location = location;
       this.currency = currency;
       this.minimumFiat = minimumFiat;
@@ -37,7 +42,7 @@ public class TradeParameters implements Serializable {
    }
 
    @SuppressWarnings("unused")
-   private TradeParameters() {
+   private AdParameters() {
       // For Jackson
    }
 

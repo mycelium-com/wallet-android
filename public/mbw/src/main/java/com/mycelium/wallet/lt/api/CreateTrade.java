@@ -5,18 +5,20 @@ import java.util.UUID;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.model.SellOrder;
+import com.mycelium.lt.api.params.CreateTradeParameters;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
-public class GetSellOrder extends Request {
+public class CreateTrade extends Request {
    private static final long serialVersionUID = 1L;
 
-   private UUID _sellOrderId;
+   private UUID _adId;
+   private int _fiatOffered;
 
-   public GetSellOrder(UUID sellOrderId) {
+   public CreateTrade(UUID adId, int fiatOffered) {
       super(true, true);
-      _sellOrderId = sellOrderId;
+      _adId = adId;
+      _fiatOffered = fiatOffered;
    }
 
    @Override
@@ -24,8 +26,10 @@ public class GetSellOrder extends Request {
          Collection<LocalTraderEventSubscriber> subscribers) {
 
       try {
+
          // Call function
-         final SellOrder result = api.getSellOrder(sessionId, _sellOrderId).getResult();
+         CreateTradeParameters params = new CreateTradeParameters(_adId, _fiatOffered);
+         final UUID tradeSessionId = api.createTrade(sessionId, params).getResult();
 
          // Notify
          synchronized (subscribers) {
@@ -34,16 +38,16 @@ public class GetSellOrder extends Request {
 
                   @Override
                   public void run() {
-                     s.onLtSellOrderRetrieved(result, GetSellOrder.this);
+                     s.onLtTradeCreated(tradeSessionId, CreateTrade.this);
                   }
                });
             }
          }
-
       } catch (LtApiException e) {
          // Handle errors
          context.handleErrors(this, e.errorCode);
       }
 
    }
+
 }

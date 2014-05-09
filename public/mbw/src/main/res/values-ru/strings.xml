@@ -252,7 +252,6 @@
   <string name="mycelium_license"> Лицензия Mycelium</string>
   <string name="zxing_license">Лицензия ZXing</string>
   <string name="pdfwriter_license">Лицензия Android PDF Writer</string>
-  <string name="scanned_address_need_private_key">Вы отсканировали этот  биткойн адрес:\n\n%1$s\n\nВам необходимо отсканировать приватный ключ.\n\n На  бумажных кошельках приватный  ключ  почти всегда  расположен рядом с биткойн адресом.</string>
   <string name="source_repo_label">Репозиторий</string>
   <string name="version_label">Версия</string>
   <string name="authors_label">Разработано</string>
@@ -280,18 +279,11 @@
   <string name="lt_error_account_name_taken">Выбранное имя уже занято. Пожалуйста, выберите другое имя</string>
   <string name="lt_error_cannot_trade_with_self">Нельзя торговать с самим собой</string>
   <string name="lt_create_button">Создать</string>
-  <string name="lt_no_sell_orders">Эта страница показывает ваши ордера  на продажу  биткойнов.\n\nСписок в  данный момент пустой.\n\n Нажмите  кнопку +, чтобы создать новый  ордер.</string>
   <string name="lt_no_recent_trades">Эта страница показывает ваши активные заявки.\n\nЗавершенные заявки  перемещаются в раздел История Сделок.</string>
-  <string name="lt_pick_offer_title">Выберете  предложение для  начала торговли</string>
   <string name="lt_buy_bitcoin_tab">Купить Bitcoin</string>
   <string name="lt_active_trades_tab">Активные Сделки</string>
   <string name="lt_trade_history_tab">История Сделок</string>
-  <string name="lt_my_sell_orders_tab">Мои Заявки на  Продажу</string>
   <string name="lt_my_trader_info_tab">Информация  обо мне</string>
-  <string name="lt_sell_orders_add">Добавить ордер на продажу</string>
-  <string name="lt_create_sell_order_title">Создание ордера на продажу</string>
-  <string name="lt_edit_sell_order_title">Редактирование ордера на продажу</string>
-  <string name="lt_create_order_choose_location">Выберите место, где вы хотите продать биткойны:</string>
   <string name="lt_create_order_choose_base_price">Выберите базовую цену:</string>
   <string name="lt_create_sell_order_choose_premium">Выберите  наценку или скидку к  базовой цене:</string>
   <string name="lt_create_order_choose_minimum">Выберите минимальную сумму для сделки:</string>
@@ -299,8 +291,6 @@
   <string name="lt_create_order_description">Опциональное описание вашего ордера:</string>
   <string name="lt_create_order_description_too_long">Описание слишком длинное</string>
   <string name="lt_create_order_description_hint">Купите у меня, потому что...</string>
-  <string name="lt_sell_order_created">Ордер на продажу  создан</string>
-  <string name="lt_sell_order_edited">Ордер на продажу отредактирован</string>
   <string name="lt_pref_category">Local Trader</string>
   <string name="lt_disable_preference">Отключить Local Trader</string>
   <string name="lt_disable_preference_summary">Отключить функционал Local Trader</string>

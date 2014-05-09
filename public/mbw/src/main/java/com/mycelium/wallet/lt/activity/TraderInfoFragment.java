@@ -162,8 +162,7 @@ public class TraderInfoFragment extends Fragment {
       }
 
       // Rating
-      float rating = LtAndroidUtils.calculate5StarRating(pti.successfulSales, pti.abortedSales, pti.successfulBuys,
-            pti.abortedBuys, pti.traderAgeMs);
+      float rating = LtAndroidUtils.calculate5StarRating(pti);
       _adapter.add(new InfoItem(getString(R.string.lt_rating_label), rating));
 
       // Median trade time

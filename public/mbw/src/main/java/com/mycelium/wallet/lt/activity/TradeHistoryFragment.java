@@ -132,7 +132,7 @@ public class TradeHistoryFragment extends Fragment {
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
          _selectedTradeSession = (TradeSession) view.getTag();
-         TradeActivity.callMe(TradeHistoryFragment.this.getActivity(), ((TradeSession) view.getTag()).id);
+         TradeActivity.callMe(TradeHistoryFragment.this.getActivity(), ((TradeSession) view.getTag()));
       }
    };
 

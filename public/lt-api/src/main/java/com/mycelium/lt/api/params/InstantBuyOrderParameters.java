@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.Address;
 
+@Deprecated
 public class InstantBuyOrderParameters {
    @JsonProperty
    public UUID sellOrderId;

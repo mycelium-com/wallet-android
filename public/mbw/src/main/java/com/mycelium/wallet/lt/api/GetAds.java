@@ -5,17 +5,15 @@ import java.util.UUID;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
+import com.mycelium.lt.api.model.Ad;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
-public class DeleteSellOrder extends Request {
+public class GetAds extends Request {
    private static final long serialVersionUID = 1L;
 
-   private UUID _sellOrderId;
-
-   public DeleteSellOrder(UUID sellOrderId) {
+   public GetAds() {
       super(true, true);
-      _sellOrderId = sellOrderId;
    }
 
    @Override
@@ -24,7 +22,7 @@ public class DeleteSellOrder extends Request {
 
       try {
          // Call function
-         api.deleteSellOrder(sessionId, _sellOrderId).getResult();
+         final Collection<Ad> ads = api.listAds(sessionId).getResult();
 
          // Notify
          synchronized (subscribers) {
@@ -33,7 +31,7 @@ public class DeleteSellOrder extends Request {
 
                   @Override
                   public void run() {
-                     s.onLtSellOrderDeleted(_sellOrderId, DeleteSellOrder.this);
+                     s.onLtAdsFetched(ads, GetAds.this);
                   }
                });
             }

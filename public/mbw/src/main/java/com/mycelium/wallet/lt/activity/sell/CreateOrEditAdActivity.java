@@ -35,6 +35,7 @@
 package com.mycelium.wallet.lt.activity.sell;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -46,8 +47,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -55,9 +60,10 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.LtApi;
+import com.mycelium.lt.api.model.Ad;
+import com.mycelium.lt.api.model.AdType;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.api.model.PriceFormula;
-import com.mycelium.lt.api.model.SellOrder;
 import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -72,12 +78,12 @@ import com.mycelium.wallet.lt.LtAndroidUtils.PriceFormulaChoice;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
 import com.mycelium.wallet.lt.activity.EnterFiatAmountActivity;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
-import com.mycelium.wallet.lt.api.CreateSellOrder;
-import com.mycelium.wallet.lt.api.EditSellOrder;
+import com.mycelium.wallet.lt.api.CreateAd;
+import com.mycelium.wallet.lt.api.EditAd;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
 import com.mycelium.wallet.lt.api.Request;
 
-public class CreateOrEditSellOrderActivity extends Activity {
+public class CreateOrEditAdActivity extends Activity {
 
    private static final int CHANGE_LOCATION_REQUEST_CODE = 0;
    private static final int ENTER_MAX_AMOUNT_REQUEST_CODE = 1;
@@ -85,13 +91,13 @@ public class CreateOrEditSellOrderActivity extends Activity {
    private static final int GET_CURRENCY_RESULT_CODE = 3;
 
    public static void callMe(Activity currentActivity) {
-      Intent intent = new Intent(currentActivity, CreateOrEditSellOrderActivity.class);
+      Intent intent = new Intent(currentActivity, CreateOrEditAdActivity.class);
       currentActivity.startActivity(intent);
    }
 
-   public static void callMe(Activity currentActivity, SellOrder sellOrder) {
-      Intent intent = new Intent(currentActivity, CreateOrEditSellOrderActivity.class);
-      intent.putExtra("sellOrder", sellOrder);
+   public static void callMe(Activity currentActivity, Ad ad) {
+      Intent intent = new Intent(currentActivity, CreateOrEditAdActivity.class);
+      intent.putExtra("ad", ad);
       currentActivity.startActivity(intent);
    }
 
@@ -99,6 +105,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
    private LocalTraderManager _ltManager;
    private Spinner _spPriceFormula;
    private Spinner _spPremium;
+   private Spinner _spAdType;
    private Button _btCreate;
    private Button _btChange;
    private Button _btCurrency;
@@ -107,11 +114,13 @@ public class CreateOrEditSellOrderActivity extends Activity {
    private TextView _tvMinAmount;
    private TextView _tvMaxAmount;
    private ArrayList<PriceFormula> _priceFormulas;
-   private SellOrder _sellOrder;
+   private Ad _ad;
    private GpsLocation _location;
    private String _currency;
    private int _minAmount;
    private int _maxAmount;
+   private boolean isFirstAdTypeSelect; // hack because the select is fired
+                                        // automatically on startup
 
    /** Called when the activity is first created. */
    @SuppressWarnings("unchecked")
@@ -120,10 +129,11 @@ public class CreateOrEditSellOrderActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.lt_create_or_edit_sell_order_activity);
+      setContentView(R.layout.lt_create_or_edit_ad_activity);
       _mbwManager = MbwManager.getInstance(this);
       _ltManager = _mbwManager.getLocalTraderManager();
 
+      _spAdType = (Spinner) findViewById(R.id.spAdType);
       _spPriceFormula = (Spinner) findViewById(R.id.spPriceFormula);
       _spPremium = (Spinner) findViewById(R.id.spPremium);
       _btChange = (Button) findViewById(R.id.btChange);
@@ -140,18 +150,19 @@ public class CreateOrEditSellOrderActivity extends Activity {
       findViewById(R.id.btEditMax).setOnClickListener(editMaxAmountClickListener);
       _tvDescription = (TextView) findViewById(R.id.tvDescription);
 
-      _sellOrder = (SellOrder) getIntent().getSerializableExtra("sellOrder");
+      _ad = (Ad) getIntent().getSerializableExtra("ad");
 
-      // Populate premium
-      double premium = isEdit() ? _sellOrder.premium : LtAndroidConstants.DEFAULT_PREMIUM;
-      _minAmount = isEdit() ? _sellOrder.minimumFiat : -1;
-      _maxAmount = isEdit() ? _sellOrder.maximumFiat : -1;
-      String description = isEdit() ? _sellOrder.description : null;
-      PriceFormula priceFormula = isEdit() ? _sellOrder.priceFormula : null;
-      _location = isEdit() ? _sellOrder.location : _ltManager.getUserLocation();
-      _currency = isEdit() ? _sellOrder.currency : _mbwManager.getFiatCurrency();
+      AdType adType = isEdit() ? _ad.type : AdType.SELL_BTC;
+      double premium = isEdit() ? _ad.premium : LtAndroidConstants.DEFAULT_PREMIUM;
+      _minAmount = isEdit() ? _ad.minimumFiat : -1;
+      _maxAmount = isEdit() ? _ad.maximumFiat : -1;
+      String description = isEdit() ? _ad.description : null;
+      PriceFormula priceFormula = isEdit() ? _ad.priceFormula : null;
+      _location = isEdit() ? _ad.location : _ltManager.getUserLocation();
+      _currency = isEdit() ? _ad.currency : _mbwManager.getFiatCurrency();
       // Load saved state
       if (savedInstanceState != null) {
+         adType = AdType.values()[savedInstanceState.getInt("adType")];
          _priceFormulas = (ArrayList<PriceFormula>) savedInstanceState.getSerializable("priceformulas");
          if (_priceFormulas != null) {
             priceFormula = (PriceFormula) savedInstanceState.getSerializable("priceFormula");
@@ -163,25 +174,75 @@ public class CreateOrEditSellOrderActivity extends Activity {
          _currency = savedInstanceState.getString("currency");
       }
 
+      // Populate premium
       LtAndroidUtils.populatePremiumSpinner(this, _spPremium, premium);
+
+      // Populate description
       if (description != null) {
          _tvDescription.setText(description);
       }
+
+      // Populate price formulas
       if (_priceFormulas != null) {
          LtAndroidUtils.populatePriceFormulaSpinner(this, _spPriceFormula, _priceFormulas, priceFormula);
       }
 
+      // Populate Ad Type
+      List<String> adTypes = new ArrayList<String>();
+      adTypes.add(getString(R.string.lt_ad_type_sell_btc_label));
+      adTypes.add(getString(R.string.lt_ad_type_buy_btc_label));
+      ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, adTypes);
+      dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      _spAdType.setAdapter(dataAdapter);
+      _spAdType.setSelection(adType == AdType.SELL_BTC ? 0 : 1);
+      _spAdType.setOnItemSelectedListener(adTypeChanged);
+      isFirstAdTypeSelect = true;
       _spPriceFormula.setOnItemSelectedListener(spinnerItemSelected);
 
       // Set title
-      ((TextView) findViewById(R.id.tvTitle)).setText(isEdit() ? R.string.lt_edit_sell_order_title
-            : R.string.lt_create_sell_order_title);
+      ((TextView) findViewById(R.id.tvTitle)).setText(isEdit() ? R.string.lt_edit_ad_title
+            : R.string.lt_create_ad_title);
       _btCreate.setText(isEdit() ? R.string.lt_done_button : R.string.lt_create_button);
       enableUi();
    }
 
+   OnItemSelectedListener adTypeChanged = new OnItemSelectedListener() {
+
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+         // Avoid the first time it gets triggered (always happens on create)
+         if (isFirstAdTypeSelect) {
+            isFirstAdTypeSelect = false;
+            return;
+         }
+
+         // Negate the premium automatically
+         LtAndroidUtils.populatePremiumSpinner(CreateOrEditAdActivity.this, _spPremium, -getSelectedPremium());
+
+         final Animation animation = new AlphaAnimation(1, 0); // Change alpha
+                                                               // from fully
+                                                               // visible to
+                                                               // invisible
+         animation.setDuration(500); // duration - half a second
+         animation.setInterpolator(new LinearInterpolator()); // do not alter
+                                                              // animation rate
+         animation.setRepeatCount(1); // Repeat animation
+                                                       // infinitely
+         animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the
+                                                     // end so the button will
+                                                     // fade back in
+         _spPremium.startAnimation(animation);
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+         // Ignore
+      }
+   };
+
    private boolean isEdit() {
-      return _sellOrder != null;
+      return _ad != null;
    }
 
    @Override
@@ -202,6 +263,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
+      outState.putInt("adType", getSelectedAdType().ordinal());
       outState.putSerializable("priceFormula", getSelectedPriceFormula());
       if (_priceFormulas != null) {
          outState.putSerializable("priceformulas", _priceFormulas);
@@ -231,6 +293,10 @@ public class CreateOrEditSellOrderActivity extends Activity {
          return false;
       }
       return true;
+   }
+
+   private AdType getSelectedAdType() {
+      return _spAdType.getSelectedItemPosition() == 0 ? AdType.SELL_BTC : AdType.BUY_BTC;
    }
 
    private PriceFormula getSelectedPriceFormula() {
@@ -269,8 +335,8 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         EnterFiatAmountActivity.callMe(CreateOrEditSellOrderActivity.this, _currency, _minAmount == -1 ? null
-               : _minAmount, ENTER_MIN_AMOUNT_REQUEST_CODE);
+         EnterFiatAmountActivity.callMe(CreateOrEditAdActivity.this, _currency, _minAmount == -1 ? null : _minAmount,
+               ENTER_MIN_AMOUNT_REQUEST_CODE);
       }
    };
 
@@ -278,8 +344,8 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         EnterFiatAmountActivity.callMe(CreateOrEditSellOrderActivity.this, _currency, _maxAmount == -1 ? null
-               : _maxAmount, ENTER_MAX_AMOUNT_REQUEST_CODE);
+         EnterFiatAmountActivity.callMe(CreateOrEditAdActivity.this, _currency, _maxAmount == -1 ? null : _maxAmount,
+               ENTER_MAX_AMOUNT_REQUEST_CODE);
       }
    };
 
@@ -288,7 +354,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          // Change the current location
-         ChangeLocationActivity.callMeForResult(CreateOrEditSellOrderActivity.this, _location, !isEdit(),
+         ChangeLocationActivity.callMeForResult(CreateOrEditAdActivity.this, _location, !isEdit(),
                CHANGE_LOCATION_REQUEST_CODE);
       }
    };
@@ -297,8 +363,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         SetLocalCurrencyActivity.callMeForResult(CreateOrEditSellOrderActivity.this, _currency,
-               GET_CURRENCY_RESULT_CODE);
+         SetLocalCurrencyActivity.callMeForResult(CreateOrEditAdActivity.this, _currency, GET_CURRENCY_RESULT_CODE);
       }
    };
 
@@ -318,17 +383,17 @@ public class CreateOrEditSellOrderActivity extends Activity {
          Request request;
          String title;
          if (isEdit()) {
-            request = new EditSellOrder(_sellOrder.id, _location, _currency, getMinAmount(), getMaxAmount(),
+            request = new EditAd(_ad.id, getSelectedAdType(), _location, _currency, getMinAmount(), getMaxAmount(),
                   priceFormulaId, getSelectedPremium(), getDescription());
 
-            title = getResources().getString(R.string.lt_edit_sell_order_title);
+            title = getResources().getString(R.string.lt_edit_ad_title);
          } else {
-            request = new CreateSellOrder(_location, _currency, getMinAmount(), getMaxAmount(), priceFormulaId,
-                  getSelectedPremium(), getDescription());
-            title = getResources().getString(R.string.lt_create_sell_order_title);
+            request = new CreateAd(getSelectedAdType(), _location, _currency, getMinAmount(), getMaxAmount(),
+                  priceFormulaId, getSelectedPremium(), getDescription());
+            title = getResources().getString(R.string.lt_create_ad_title);
 
          }
-         SendRequestActivity.callMe(CreateOrEditSellOrderActivity.this, request, title);
+         SendRequestActivity.callMe(CreateOrEditAdActivity.this, request, title);
          finish();
       }
    };
@@ -339,7 +404,7 @@ public class CreateOrEditSellOrderActivity extends Activity {
    }
 
    private void updateUi() {
-      
+
       // Set amount hints
       _tvMinAmount.setHint(String.format("%s %s", Integer.toString(10), _currency));
       _tvMaxAmount.setHint(String.format("%s %s", Integer.toString(1000), _currency));
@@ -399,12 +464,12 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
                @Override
                public boolean validateTextOnChange(String newText, String oldText) {
-                  return newText.length() < LtApi.MAXIMUM_SELL_ORDER_DESCRIPTION_LENGTH;
+                  return newText.length() < LtApi.MAXIMUM_AD_DESCRIPTION_LENGTH;
                }
 
                @Override
                public boolean validateTextOnOk(String newText, String oldText) {
-                  return newText.length() < LtApi.MAXIMUM_SELL_ORDER_DESCRIPTION_LENGTH;
+                  return newText.length() < LtApi.MAXIMUM_AD_DESCRIPTION_LENGTH;
                }
 
                @Override
@@ -440,13 +505,13 @@ public class CreateOrEditSellOrderActivity extends Activity {
 
       @Override
       public void onLtError(int errorCode) {
-         Toast.makeText(CreateOrEditSellOrderActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+         Toast.makeText(CreateOrEditAdActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
          finish();
       }
 
       @Override
       public boolean onNoLtConnection() {
-         Utils.toastConnectionError(CreateOrEditSellOrderActivity.this);
+         Utils.toastConnectionError(CreateOrEditAdActivity.this);
          finish();
          return true;
       };
@@ -454,8 +519,8 @@ public class CreateOrEditSellOrderActivity extends Activity {
       @Override
       public void onLtPriceFormulasFetched(java.util.List<PriceFormula> priceFormulas, GetPriceFormulas request) {
          _priceFormulas = new ArrayList<PriceFormula>(priceFormulas);
-         LtAndroidUtils.populatePriceFormulaSpinner(CreateOrEditSellOrderActivity.this, _spPriceFormula, priceFormulas,
-               isEdit() ? _sellOrder.priceFormula : null);
+         LtAndroidUtils.populatePriceFormulaSpinner(CreateOrEditAdActivity.this, _spPriceFormula, priceFormulas,
+               isEdit() ? _ad.priceFormula : null);
          enableUi();
          updateUi();
       };

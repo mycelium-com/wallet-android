@@ -58,8 +58,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.lt.api.model.AdSearchItem;
+import com.mycelium.lt.api.model.AdType;
 import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.api.model.SellOrderSearchItem;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -68,33 +69,40 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
+import com.mycelium.wallet.lt.api.AdSearch;
+import com.mycelium.wallet.lt.api.GetAd;
 import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
-import com.mycelium.wallet.lt.api.GetSellOrder;
-import com.mycelium.wallet.lt.api.SellOrderSearch;
 
-public class SellOrderSearchFragment extends Fragment {
+public class AdSearchFragment extends Fragment {
+
+   public static Bundle createArgs(boolean buy) {
+      Bundle args = new Bundle();
+      args.putBoolean("buy", buy);
+      return args;
+   }
 
    public static final int MAX_SEARCH_RESULTS = 30;
-   private static final String SELL_ORDERS = "sellOrders";
+   private static final String ADS = "ads";
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private ActionMode currentActionMode;
-   private List<SellOrderSearchItem> _sellOrders;
-   private SellOrderAdapter _recordsAdapter;
-   private SellOrderSearchItem _selected; // todo rework this so that the
-                                          // listview does not get redrawn
+   private List<AdSearchItem> _ads;
+   private AdAdapter _recordsAdapter;
+   private AdSearchItem _selected; // todo rework this so that the listview does
+                                   // not get redrawn
 
    @SuppressWarnings("unchecked")
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View view = Preconditions
-            .checkNotNull(inflater.inflate(R.layout.lt_sell_order_search_fragment, container, false));
+      View view = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_ad_search_fragment, container, false));
       setHasOptionsMenu(true);
       if (savedInstanceState != null) {
          // May be null
-         _sellOrders = (List<SellOrderSearchItem>) savedInstanceState.getSerializable(SELL_ORDERS);
+         _ads = (List<AdSearchItem>) savedInstanceState.getSerializable(ADS);
       }
       ((Button) view.findViewById(R.id.btChange)).setOnClickListener(changeLocationClickListener);
+      ((TextView) view.findViewById(R.id.tvTitle))
+            .setText(isBuy() ? R.string.lt_buying_near : R.string.lt_selling_near);
       return view;
    }
 
@@ -103,7 +111,7 @@ public class SellOrderSearchFragment extends Fragment {
       @Override
       public void onClick(View arg0) {
          // Change the current location
-         ChangeLocationActivity.callMe(SellOrderSearchFragment.this.getActivity());
+         ChangeLocationActivity.callMe(AdSearchFragment.this.getActivity());
       }
    };
 
@@ -142,11 +150,16 @@ public class SellOrderSearchFragment extends Fragment {
       }
    }
 
+   private boolean isBuy() {
+      return getArguments().getBoolean("buy");
+   }
+
    @Override
    public void onResume() {
       _ltManager.subscribe(ltSubscriber);
       GpsLocation location = _ltManager.getUserLocation();
-      _ltManager.makeRequest(new SellOrderSearch(location, SellOrderSearchFragment.MAX_SEARCH_RESULTS));
+      _ltManager.makeRequest(new AdSearch(location, AdSearchFragment.MAX_SEARCH_RESULTS, isBuy() ? AdType.SELL_BTC
+            : AdType.BUY_BTC));
       updateUi(true);
       super.onResume();
    }
@@ -159,7 +172,7 @@ public class SellOrderSearchFragment extends Fragment {
 
    @Override
    public void onSaveInstanceState(Bundle outState) {
-      outState.putSerializable(SELL_ORDERS, (Serializable) _sellOrders);
+      outState.putSerializable(ADS, (Serializable) _ads);
    }
 
    private void updateUi(boolean updating) {
@@ -172,7 +185,7 @@ public class SellOrderSearchFragment extends Fragment {
 
       ((TextView) findViewById(R.id.tvLocation)).setText(_ltManager.getUserLocation().name);
 
-      if (_sellOrders == null) {
+      if (_ads == null) {
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.tvSearching).setVisibility(View.VISIBLE);
          findViewById(R.id.lvRecords).setVisibility(View.GONE);
@@ -180,19 +193,19 @@ public class SellOrderSearchFragment extends Fragment {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvSearching).setVisibility(View.GONE);
          findViewById(R.id.lvRecords).setVisibility(View.VISIBLE);
-         _recordsAdapter = new SellOrderAdapter(getActivity(), _sellOrders, _ltManager.useMiles());
+         _recordsAdapter = new AdAdapter(getActivity(), _ads, _ltManager.useMiles());
          ListView listView = (ListView) findViewById(R.id.lvRecords);
          listView.setAdapter(_recordsAdapter);
       }
    }
 
-   private class SellOrderAdapter extends ArrayAdapter<SellOrderSearchItem> {
+   private class AdAdapter extends ArrayAdapter<AdSearchItem> {
 
       private class Tag {
-         private SellOrderSearchItem item;
+         private AdSearchItem item;
          private int position;
 
-         public Tag(SellOrderSearchItem item, int position) {
+         public Tag(AdSearchItem item, int position) {
             this.item = item;
             this.position = position;
          }
@@ -204,8 +217,8 @@ public class SellOrderSearchFragment extends Fragment {
       private Context _context;
       private boolean _useMiles;
 
-      public SellOrderAdapter(Context context, List<SellOrderSearchItem> objects, boolean useMiles) {
-         super(context, R.layout.lt_sell_order_card, objects);
+      public AdAdapter(Context context, List<AdSearchItem> objects, boolean useMiles) {
+         super(context, R.layout.lt_ad_card, objects);
          _locale = new Locale("en", "US");
          _context = context;
          _useMiles = useMiles;
@@ -214,47 +227,46 @@ public class SellOrderSearchFragment extends Fragment {
       @Override
       public View getView(final int position, View convertView, ViewGroup parent) {
 
-         final SellOrderSearchItem orderItem = getItem(position);
-         final boolean isSelected = orderItem == _selected;
+         final AdSearchItem item = getItem(position);
+         final boolean isSelected = item == _selected;
          LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         final View card = Preconditions.checkNotNull(vi.inflate(R.layout.lt_sell_order_card, null));
+         final View card = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_card, null));
 
          // Price
-         String price = String.format(_locale, "%s %s", orderItem.oneBtcInFiat, orderItem.currency);
+         String price = String.format(_locale, "%s %s", item.oneBtcInFiat, item.currency);
          TextView tvPrice = (TextView) card.findViewById(R.id.tvPrice);
          tvPrice.setText(price);
-         setPriceColor(tvPrice, orderItem);
+         setPriceColor(tvPrice, item);
 
          // Alternate Price
-         if (!orderItem.alternateCurrency.equals(orderItem.currency)) {
-            String alternate = String.format(_locale, "(1 BTC ~ %s %s)", orderItem.oneBtcInAlternateCurrency,
-                  orderItem.alternateCurrency);
+         if (!item.alternateCurrency.equals(item.currency)) {
+            String alternate = String.format(_locale, "(1 BTC ~ %s %s)", item.oneBtcInAlternateCurrency,
+                  item.alternateCurrency);
             ((TextView) card.findViewById(R.id.tvAlternatePrice)).setText(alternate);
          }
 
          // Distance
          TextView tvDistance = (TextView) card.findViewById(R.id.tvDistance);
-         tvDistance.setText(getDistanceString(orderItem));
-         setDistanceColor(tvDistance, orderItem);
+         tvDistance.setText(getDistanceString(item));
+         setDistanceColor(tvDistance, item);
 
          // Limits
-         String limits = String.format(_locale, "%d - %d %s", orderItem.minimumFiat, orderItem.maximumFiat,
-               orderItem.currency);
+         String limits = String.format(_locale, "%d - %d %s", item.minimumFiat, item.maximumFiat, item.currency);
          ((TextView) card.findViewById(R.id.tvLimits)).setText(limits);
-         String trader = String.format(_locale, "%s", orderItem.nickname);
+         String trader = String.format(_locale, "%s", item.traderInfo.nickname);
 
          // Trader Name
          final TextView tvTraderName = (TextView) card.findViewById(R.id.tvTrader);
          tvTraderName.setText(trader);
-         if (orderItem.nickname.equals(_ltManager.getNickname())) {
-            // it is our order, so lets show a different background
+         if (item.traderInfo.nickname.equals(_ltManager.getNickname())) {
+            // it is our ad, so lets show a different background
             setBackgroundResource(card.findViewById(R.id.thingWithBackground),
                   R.drawable.background_sell_order_card_own);
             tvTraderName.append("\n" + _context.getString(R.string.lt_thats_you));
          }
 
          // Trader Age
-         int traderAgeDays = (int) (orderItem.traderAgeMs / MS_PER_DAY);
+         int traderAgeDays = (int) (item.traderInfo.traderAgeMs / MS_PER_DAY);
          String traderAge = getTraderAgeString(traderAgeDays);
          TextView tvTraderAge = (TextView) card.findViewById(R.id.tvTraderAge);
          tvTraderAge.setText(traderAge);
@@ -262,8 +274,7 @@ public class SellOrderSearchFragment extends Fragment {
 
          // Rating
          RatingBar ratingBar = (RatingBar) card.findViewById(R.id.seller_rating);
-         float rating = LtAndroidUtils.calculate5StarRating(orderItem.successfulSales, orderItem.abortedSales,
-               orderItem.successfulBuys, orderItem.abortedBuys, orderItem.traderAgeMs);
+         float rating = LtAndroidUtils.calculate5StarRating(item.traderInfo);
          ratingBar.setRating(rating);
 
          // Selected item displays more stuff
@@ -271,35 +282,35 @@ public class SellOrderSearchFragment extends Fragment {
             card.findViewById(R.id.lvSelectedInfo).setVisibility(View.VISIBLE);
 
             // Expected Trade Time
-            if (orderItem.tradeMedianMs == null) {
+            if (item.traderInfo.tradeMedianMs == null) {
                card.findViewById(R.id.tvExpectedTimeLabel).setVisibility(View.GONE);
                card.findViewById(R.id.tvExpectedTime).setVisibility(View.GONE);
             } else {
                card.findViewById(R.id.tvExpectedTimeLabel).setVisibility(View.VISIBLE);
                TextView tvExpectedTime = (TextView) card.findViewById(R.id.tvExpectedTime);
                tvExpectedTime.setVisibility(View.VISIBLE);
-               String hourString = LtAndroidUtils.getApproximateTimeInHours(_context, orderItem.tradeMedianMs);
+               String hourString = LtAndroidUtils.getApproximateTimeInHours(_context, item.traderInfo.tradeMedianMs);
                tvExpectedTime.setText(hourString);
             }
             // Location
             TextView tvLocation = (TextView) card.findViewById(R.id.tvLocation);
-            tvLocation.setText(orderItem.location.name);
+            tvLocation.setText(item.location.name);
 
             // Description
             TextView tvDescriptionLabel = (TextView) card.findViewById(R.id.tvDescriptionLabel);
             TextView tvDescription = (TextView) card.findViewById(R.id.tvDescription);
-            if (orderItem.description.trim().length() == 0) {
+            if (item.description.trim().length() == 0) {
                tvDescription.setVisibility(View.GONE);
                tvDescriptionLabel.setVisibility(View.GONE);
             } else {
                tvDescription.setVisibility(View.VISIBLE);
                tvDescriptionLabel.setVisibility(View.VISIBLE);
-               tvDescription.setText(orderItem.description);
+               tvDescription.setText(item.description);
             }
 
             // Info button
             Button btMap = (Button) card.findViewById(R.id.btMap);
-            if (orderItem.location.latitude == 0D && orderItem.location.longitude == 0D) {
+            if (item.location.latitude == 0D && item.location.longitude == 0D) {
                btMap.setVisibility(View.GONE);
             } else {
                btMap.setOnClickListener(mapClickListener);
@@ -310,15 +321,19 @@ public class SellOrderSearchFragment extends Fragment {
             btInfo.setOnClickListener(infoClickListener);
 
             // Buy/Edit button
-            Button btBuy = (Button) card.findViewById(R.id.btBuy);
-            if (orderItem.nickname.equals(_ltManager.getNickname())) {
+            Button btBuySell = (Button) card.findViewById(R.id.btBuySell);
+            if (item.traderInfo.nickname.equals(_ltManager.getNickname())) {
                // This is ourselves, show edit button
-               btBuy.setText(R.string.lt_edit_button);
-               btBuy.setOnClickListener(editClickListener);
+               btBuySell.setText(R.string.lt_edit_button);
+               btBuySell.setOnClickListener(editClickListener);
             } else {
-               // Show buy button
-               btBuy.setText(R.string.lt_buy_button);
-               btBuy.setOnClickListener(buyClickListener);
+               // Show buy or sell button
+               if (isBuy()) {
+                  btBuySell.setText(R.string.lt_buy_button);
+               } else {
+                  btBuySell.setText(R.string.lt_sell_button);
+               }
+               btBuySell.setOnClickListener(buyOrSellClickListener);
             }
 
          } else {
@@ -326,7 +341,7 @@ public class SellOrderSearchFragment extends Fragment {
          }
 
          card.setOnClickListener(itemClickListener);
-         card.setTag(new Tag(orderItem, position));
+         card.setTag(new Tag(item, position));
          return card;
       }
 
@@ -346,7 +361,7 @@ public class SellOrderSearchFragment extends Fragment {
          return getResources().getString(R.string.lt_time_in_days, days);
       }
 
-      private String getDistanceString(SellOrderSearchItem item) {
+      private String getDistanceString(AdSearchItem item) {
          if (isOmnipresent(item)) {
             // This trader is not limited by distance, and can trade anywhere in
             // the world
@@ -378,16 +393,17 @@ public class SellOrderSearchFragment extends Fragment {
 
       @Override
       public void onClick(View v) {
-         GetPublicTraderInfo request = new GetPublicTraderInfo(_selected.publicKey.toAddress(_mbwManager.getNetwork()));
+         GetPublicTraderInfo request = new GetPublicTraderInfo(_selected.traderInfo.publicKey.toAddress(_mbwManager
+               .getNetwork()));
          SendRequestActivity.callMe(getActivity(), request, getString(R.string.lt_getting_trader_info_title));
       }
    };
 
-   OnClickListener buyClickListener = new OnClickListener() {
+   OnClickListener buyOrSellClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-         CreateInstantBuyOrder1Activity.callMe(getActivity(), _selected);
+         CreateTradeActivity.callMe(getActivity(), _selected);
       }
    };
 
@@ -404,8 +420,8 @@ public class SellOrderSearchFragment extends Fragment {
       @Override
       public void run() {
          if (_selected != null) {
-            SendRequestActivity.callMe(getActivity(), new GetSellOrder(_selected.id),
-                  getString(R.string.lt_edit_sell_order_title));
+            SendRequestActivity.callMe(getActivity(), new GetAd(_selected.id),
+                  getString(R.string.lt_edit_ad_title));
          }
       }
    };
@@ -419,7 +435,7 @@ public class SellOrderSearchFragment extends Fragment {
       theView.setPadding(left, top, right, bottom);
    }
 
-   private boolean isOmnipresent(SellOrderSearchItem item) {
+   private boolean isOmnipresent(AdSearchItem item) {
       return item.location.latitude == 0 && item.location.longitude == 0;
    }
 
@@ -437,18 +453,18 @@ public class SellOrderSearchFragment extends Fragment {
       textView.setTextColor(getResources().getColor(col));
    }
 
-   private void setPriceColor(TextView textView, SellOrderSearchItem orderItem) {
+   private void setPriceColor(TextView textView, AdSearchItem item) {
       // For now the price color is always green
       setCol(textView, R.color.status_green);
       return;
    }
 
-   private void setDistanceColor(TextView textView, SellOrderSearchItem orderItem) {
-      if (isOmnipresent(orderItem)) {
+   private void setDistanceColor(TextView textView, AdSearchItem item) {
+      if (isOmnipresent(item)) {
          setCol(textView, R.color.status_green);
-      } else if (orderItem.distanceInMeters > 100000) {
+      } else if (item.distanceInMeters > 100000) {
          setCol(textView, R.color.status_red);
-      } else if (orderItem.distanceInMeters > 10000) {
+      } else if (item.distanceInMeters > 10000) {
          setCol(textView, R.color.status_yellow);
       } else {
          setCol(textView, R.color.status_green);
@@ -463,10 +479,20 @@ public class SellOrderSearchFragment extends Fragment {
       };
 
       @Override
-      public void onLtSellOrderSearch(java.util.List<SellOrderSearchItem> result, SellOrderSearch request) {
-         // Success
+      public void onLtAdSearch(java.util.List<AdSearchItem> result, AdSearch request) {
+         if (isBuy()) {
+            if (request.type != AdType.SELL_BTC) {
+               // We are a fragment for buying, so we only want to list sell ads
+               return;
+            }
+         } else {
+            if (request.type != AdType.BUY_BTC) {
+               // We are a fragment for selling, so we only want to list buy ads
+               return;
+            }
+         }
          if (isAdded()) {
-            _sellOrders = result;
+            _ads = result;
             updateUi(false);
          }
       }

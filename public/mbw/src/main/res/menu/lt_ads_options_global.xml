@@ -3,9 +3,9 @@
     xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/miAddSellOrder"
+        android:id="@+id/miAddAd"
         android:icon="@drawable/holo_dark_ic_action_new"
-        android:title="@string/lt_sell_orders_add"
+        android:title="@string/lt_create_ad"
         yourapp:showAsAction="ifRoom|withText"/>
 
 </menu>

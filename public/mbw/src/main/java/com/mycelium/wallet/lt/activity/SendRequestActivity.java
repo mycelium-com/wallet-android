@@ -40,6 +40,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,10 +51,11 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.lt.activity.sell.CreateOrEditSellOrderActivity;
-import com.mycelium.wallet.lt.api.CreateInstantBuyOrder;
-import com.mycelium.wallet.lt.api.CreateSellOrder;
-import com.mycelium.wallet.lt.api.EditSellOrder;
+import com.mycelium.wallet.lt.activity.sell.CreateOrEditAdActivity;
+import com.mycelium.wallet.lt.api.CreateAd;
+import com.mycelium.wallet.lt.api.CreateTrade;
+import com.mycelium.wallet.lt.api.EditAd;
+import com.mycelium.wallet.lt.api.GetTradeSession;
 import com.mycelium.wallet.lt.api.Request;
 
 public class SendRequestActivity extends Activity {
@@ -65,11 +67,13 @@ public class SendRequestActivity extends Activity {
    private Request _request;
    private boolean _requestSent;
    private boolean _isCaptchaSolved;
+   private Handler _delayedProgressHandler;
 
    public static void callMe(Activity currentActivity, Request request, String title) {
       Intent intent = new Intent(currentActivity, SendRequestActivity.class);
       intent.putExtra("request", request);
       intent.putExtra("title", title);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivity(intent);
    }
 
@@ -88,6 +92,15 @@ public class SendRequestActivity extends Activity {
          _requestSent = savedInstanceState.getBoolean("relquestSent");
          _isCaptchaSolved = savedInstanceState.getBoolean("isCaptchaSolved");
       }
+      findViewById(R.id.pbWait).setVisibility(View.INVISIBLE);
+      _delayedProgressHandler = new Handler();
+      _delayedProgressHandler.postDelayed(new Runnable() {
+
+         @Override
+         public void run() {
+            findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
+         }
+      }, 500);
    }
 
    @Override
@@ -130,14 +143,14 @@ public class SendRequestActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == CREATE_TRADER_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            // great, we will try and create the instant buy order on resume
+            // great, we will try and create the trade on resume
          } else {
             // Creation failed, bail out
             finish();
          }
       } else if (requestCode == SOLVE_CAPTCHA_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            // great, we will try and create the instant buy order on resume
+            // great, we will try and create the trade on resume
             _isCaptchaSolved = true;
          } else {
             // User aborted captcha, bail out
@@ -169,27 +182,39 @@ public class SendRequestActivity extends Activity {
       };
 
       @Override
-      public void onLtInstantBuyOrderCreated(UUID id, CreateInstantBuyOrder request) {
-         TradeActivity.callMe(SendRequestActivity.this, id);
+      public void onLtTradeCreated(UUID id, CreateTrade request) {
+         SendRequestActivity.callMe(SendRequestActivity.this, new GetTradeSession(id), "");
          finish();
       };
 
       @Override
-      public void onLtSellOrderCreated(UUID sellOrderId, CreateSellOrder request) {
-         Toast.makeText(SendRequestActivity.this, R.string.lt_sell_order_created, Toast.LENGTH_LONG).show();
+      public void onLtTradeSessionFetched(com.mycelium.lt.api.model.TradeSession tradeSession,
+            com.mycelium.wallet.lt.api.GetTradeSession request) {
+         TradeActivity.callMe(SendRequestActivity.this, tradeSession);
+         finish();
+      };
+
+      @Override
+      public void onLtTradeReceivingAddressSet(com.mycelium.wallet.lt.api.SetTradeReceivingAddress request) {
+         SendRequestActivity.callMe(SendRequestActivity.this, new GetTradeSession(request.tradeSessionId), "");
+         finish();
+      };
+
+      @Override
+      public void onLtAdCreated(UUID sellOrderId, CreateAd request) {
+         Toast.makeText(SendRequestActivity.this, R.string.lt_ad_created, Toast.LENGTH_LONG).show();
          finish();
       }
 
       @Override
-      public void onLtSellOrderEdited(EditSellOrder request) {
-         Toast.makeText(SendRequestActivity.this, R.string.lt_sell_order_edited, Toast.LENGTH_LONG).show();
+      public void onLtAdEdited(EditAd request) {
+         Toast.makeText(SendRequestActivity.this, R.string.lt_ad_edited, Toast.LENGTH_LONG).show();
          finish();
       };
 
       @Override
-      public void onLtSellOrderRetrieved(com.mycelium.lt.api.model.SellOrder sellOrder,
-            com.mycelium.wallet.lt.api.GetSellOrder request) {
-         CreateOrEditSellOrderActivity.callMe(SendRequestActivity.this, sellOrder);
+      public void onLtAdRetrieved(com.mycelium.lt.api.model.Ad ad, com.mycelium.wallet.lt.api.GetAd request) {
+         CreateOrEditAdActivity.callMe(SendRequestActivity.this, ad);
          finish();
       };
 

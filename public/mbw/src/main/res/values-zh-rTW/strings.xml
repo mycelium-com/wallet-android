@@ -253,7 +253,6 @@
   <string name="mycelium_license">Mycelium 許可證</string>
   <string name="zxing_license">ZXing 許可證</string>
   <string name="pdfwriter_license">Android PDF 作家許可證</string>
-  <string name="scanned_address_need_private_key">您已掃描此比特幣地址\n\n%1$s\n\n您必須掃描密鑰</string>
   <string name="source_repo_label">源資源庫</string>
   <string name="version_label">版本</string>
   <string name="authors_label">由開發</string>

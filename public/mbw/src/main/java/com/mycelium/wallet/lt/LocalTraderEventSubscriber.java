@@ -6,39 +6,40 @@ import java.util.UUID;
 
 import android.os.Handler;
 
+import com.mycelium.lt.api.model.Ad;
+import com.mycelium.lt.api.model.AdSearchItem;
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.lt.api.model.PriceFormula;
 import com.mycelium.lt.api.model.PublicTraderInfo;
-import com.mycelium.lt.api.model.SellOrder;
-import com.mycelium.lt.api.model.SellOrderSearchItem;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.lt.api.AbortTrade;
 import com.mycelium.wallet.lt.api.AcceptTrade;
-import com.mycelium.wallet.lt.api.ActivateSellOrder;
+import com.mycelium.wallet.lt.api.ActivateAd;
+import com.mycelium.wallet.lt.api.AdSearch;
 import com.mycelium.wallet.lt.api.AssessBtcSellPrice;
 import com.mycelium.wallet.lt.api.ChangeTradeSessionPrice;
-import com.mycelium.wallet.lt.api.CreateInstantBuyOrder;
-import com.mycelium.wallet.lt.api.CreateSellOrder;
+import com.mycelium.wallet.lt.api.CreateAd;
+import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.CreateTrader;
-import com.mycelium.wallet.lt.api.DeactivateSellOrder;
-import com.mycelium.wallet.lt.api.DeleteSellOrder;
-import com.mycelium.wallet.lt.api.EditSellOrder;
+import com.mycelium.wallet.lt.api.DeactivateAd;
+import com.mycelium.wallet.lt.api.DeleteAd;
+import com.mycelium.wallet.lt.api.EditAd;
+import com.mycelium.wallet.lt.api.GetAd;
+import com.mycelium.wallet.lt.api.GetAds;
 import com.mycelium.wallet.lt.api.GetCaptcha;
 import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
 import com.mycelium.wallet.lt.api.GetOpenTradeSessions;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
 import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
-import com.mycelium.wallet.lt.api.GetSellOrder;
-import com.mycelium.wallet.lt.api.GetSellOrders;
 import com.mycelium.wallet.lt.api.GetTradeSession;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.Request;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
-import com.mycelium.wallet.lt.api.SellOrderSearch;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
+import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
 import com.mycelium.wallet.lt.api.SolveCaptcha;
 import com.mycelium.wallet.lt.api.TryLogin;
 
@@ -130,9 +131,9 @@ public abstract class LocalTraderEventSubscriber {
    }
 
    /**
-    * Called when the sell orders have been fetched
+    * Called when the ads have been fetched
     */
-   public void onLtSellOrdersFetched(Collection<SellOrder> sellOrders, GetSellOrders request) {
+   public void onLtAdsFetched(Collection<Ad> ads, GetAds request) {
       onLtGenericSuccess(request);
    }
 
@@ -144,9 +145,9 @@ public abstract class LocalTraderEventSubscriber {
    }
 
    /**
-    * Called when a sell order has been created
+    * Called when an ad has been created
     */
-   public void onLtSellOrderCreated(UUID sellOrderId, CreateSellOrder request) {
+   public void onLtAdCreated(UUID adId, CreateAd request) {
       onLtGenericSuccess(request);
    }
 
@@ -154,11 +155,11 @@ public abstract class LocalTraderEventSubscriber {
       onLtGenericSuccess(request);
    }
 
-   public void onLtSellOrderSearch(List<SellOrderSearchItem> result, SellOrderSearch request) {
+   public void onLtAdSearch(List<AdSearchItem> result, AdSearch request) {
       onLtGenericSuccess(request);
    }
 
-   public void onLtInstantBuyOrderCreated(UUID result, CreateInstantBuyOrder request) {
+   public void onLtTradeCreated(UUID result, CreateTrade request) {
       onLtGenericSuccess(request);
    }
 
@@ -182,7 +183,7 @@ public abstract class LocalTraderEventSubscriber {
       onLtGenericSuccess(request);
    }
 
-   public void onLtSellOrderDeleted(UUID sellOrderId, DeleteSellOrder request) {
+   public void onLtAdDeleted(UUID adId, DeleteAd request) {
       onLtGenericSuccess(request);
    }
 
@@ -210,23 +211,27 @@ public abstract class LocalTraderEventSubscriber {
       onLtGenericSuccess(request);
    }
 
-   public void onLtSellOrderActivated(UUID _sellOrderId, ActivateSellOrder request) {
+   public void onLtAdActivated(UUID adId, ActivateAd request) {
       onLtGenericSuccess(request);
    }
 
-   public void onLtSellOrderDeactivated(UUID _sellOrderId, DeactivateSellOrder request) {
+   public void onLtAdDeactivated(UUID adId, DeactivateAd request) {
       onLtGenericSuccess(request);
    }
 
-   public void onLtSellOrderEdited(EditSellOrder request) {
+   public void onLtAdEdited(EditAd request) {
       onLtGenericSuccess(request);
    }
 
-   public void onLtSellOrderRetrieved(SellOrder sellOrder, GetSellOrder request) {
+   public void onLtAdRetrieved(Ad ad, GetAd request) {
       onLtGenericSuccess(request);
    }
 
    public void onLtPublicTraderInfoFetched(PublicTraderInfo info, GetPublicTraderInfo request) {
+      onLtGenericSuccess(request);
+   }
+
+   public void onLtTradeReceivingAddressSet(SetTradeReceivingAddress request) {
       onLtGenericSuccess(request);
    }
 

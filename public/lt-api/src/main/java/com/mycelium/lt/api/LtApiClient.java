@@ -19,6 +19,8 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.SslUtils;
 import com.mycelium.lt.api.LtConst.Function;
 import com.mycelium.lt.api.LtConst.Param;
+import com.mycelium.lt.api.model.Ad;
+import com.mycelium.lt.api.model.AdSearchItem;
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.lt.api.model.LtSession;
@@ -28,16 +30,20 @@ import com.mycelium.lt.api.model.SellOrder;
 import com.mycelium.lt.api.model.SellOrderSearchItem;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
+import com.mycelium.lt.api.params.CreateTradeParameters;
 import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
 import com.mycelium.lt.api.params.InstantBuyOrderParameters;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.lt.api.params.ReleaseBtcParameters;
 import com.mycelium.lt.api.params.SearchParameters;
+import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.lt.api.params.TradeParameters;
 import com.mycelium.lt.api.params.TraderParameters;
 
+@SuppressWarnings("deprecation")
 public class LtApiClient implements LtApi {
 
    public static final int TIMEOUT_MS = 60000 * 2;
@@ -243,6 +249,14 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Collection<Ad>> listAds(UUID sessionId) {
+      LtRequest r = new LtRequest(Function.LIST_ADS);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Collection<Ad>>>() {
+      });
+   }
+
+   @Override
    public LtResponse<List<PriceFormula>> getSupportedPriceFormulas(UUID sessionId) {
       LtRequest r = new LtRequest(Function.GET_SUPPORTED_PRICE_FORMULAS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -260,6 +274,15 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<UUID> createAd(UUID sessionId, AdParameters params) {
+      LtRequest r = new LtRequest(Function.CREATE_AD);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
+      });
+   }
+
+   @Override
    public LtResponse<SellOrder> getSellOrder(UUID sessionId, UUID sellOrderId) {
       LtRequest r = new LtRequest(Function.GET_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -269,10 +292,29 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Ad> getAd(UUID sessionId, UUID adId) {
+      LtRequest r = new LtRequest(Function.GET_AD);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.AD_ID, adId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Ad>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> editSellOrder(UUID sessionId, UUID sellOrderId, TradeParameters params) {
       LtRequest r = new LtRequest(Function.EDIT_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> editAd(UUID sessionId, UUID adId, AdParameters params) {
+      LtRequest r = new LtRequest(Function.EDIT_AD);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.AD_ID, adId.toString());
       r.setPostObject(_objectMapper, params);
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
@@ -288,10 +330,28 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> activateAd(UUID sessionId, UUID adId) {
+      LtRequest r = new LtRequest(Function.ACTIVATE_AD);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.AD_ID, adId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> deactivateSellOrder(UUID sessionId, UUID sellOrderId) {
       LtRequest r = new LtRequest(Function.DEACTIVATE_SELL_ORDER);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> deactivateAd(UUID sessionId, UUID adId) {
+      LtRequest r = new LtRequest(Function.DEACTIVATE_AD);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.AD_ID, adId.toString());
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
    }
@@ -306,6 +366,15 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> deleteAd(UUID sessionId, UUID adId) {
+      LtRequest r = new LtRequest(Function.DELETE_AD);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.AD_ID, adId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<List<SellOrderSearchItem>> sellOrderSearch(UUID sessionId, SearchParameters params) {
       LtRequest r = new LtRequest(Function.SELL_ORDER_SEARCH);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -315,15 +384,33 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<List<SellOrderSearchItem>> getActiveSellOrders(){
-      LtRequest r = new LtRequest(Function.GET_ACTIVE_SELL_ORDERS);
-      return sendRequest(r, new TypeReference<LtResponse<List<SellOrderSearchItem>>>() {
+   public LtResponse<List<AdSearchItem>> adSearch(UUID sessionId, SearchParameters params) {
+      LtRequest r = new LtRequest(Function.AD_SEARCH);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<List<AdSearchItem>>>() {
       });
    }
-   
+
+   @Override
+   public LtResponse<List<AdSearchItem>> getActiveAds() {
+      LtRequest r = new LtRequest(Function.GET_ACTIVE_ADS);
+      return sendRequest(r, new TypeReference<LtResponse<List<AdSearchItem>>>() {
+      });
+   }
+
    @Override
    public LtResponse<UUID> createInstantBuyOrder(UUID sessionId, InstantBuyOrderParameters params) {
       LtRequest r = new LtRequest(Function.CREATE_INSTANT_BUY_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<UUID> createTrade(UUID sessionId, CreateTradeParameters params) {
+      LtRequest r = new LtRequest(Function.CREATE_TRADE);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.setPostObject(_objectMapper, params);
       return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
@@ -364,6 +451,15 @@ public class LtApiClient implements LtApi {
       r.addQueryParameter("sessionId", sessionId.toString()).addQueryParameter(Param.TRADE_SESSION_ID,
             tradeSessionId.toString());
       return sendRequest(r, new TypeReference<LtResponse<TradeSession>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> setTradeReceivingAddress(UUID sessionId, SetTradeReceivingAddressParameters params) {
+      LtRequest r = new LtRequest(Function.SET_TRADE_RECEIVING_ADDRESS);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
    }
 

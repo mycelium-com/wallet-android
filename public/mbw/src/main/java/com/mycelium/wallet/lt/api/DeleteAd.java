@@ -1,27 +1,21 @@
 package com.mycelium.wallet.lt.api;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.api.model.SellOrderSearchItem;
-import com.mycelium.lt.api.params.SearchParameters;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
-public class SellOrderSearch extends Request {
+public class DeleteAd extends Request {
    private static final long serialVersionUID = 1L;
 
-   public final GpsLocation location;
-   public final int limit;
+   private UUID _adId;
 
-   public SellOrderSearch(GpsLocation location, int limit) {
-      super(true, false);
-      this.location = location;
-      this.limit = limit;
+   public DeleteAd(UUID adId) {
+      super(true, true);
+      _adId = adId;
    }
 
    @Override
@@ -29,19 +23,17 @@ public class SellOrderSearch extends Request {
          Collection<LocalTraderEventSubscriber> subscribers) {
 
       try {
-
          // Call function
-         SearchParameters params = new SearchParameters(location, limit);
-         final List<SellOrderSearchItem> list = api.sellOrderSearch(sessionId, params).getResult();
+         api.deleteAd(sessionId, _adId).getResult();
 
-         // Notify Success
+         // Notify
          synchronized (subscribers) {
             for (final LocalTraderEventSubscriber s : subscribers) {
                s.getHandler().post(new Runnable() {
 
                   @Override
                   public void run() {
-                     s.onLtSellOrderSearch(list, SellOrderSearch.this);
+                     s.onLtAdDeleted(_adId, DeleteAd.this);
                   }
                });
             }
@@ -53,5 +45,4 @@ public class SellOrderSearch extends Request {
       }
 
    }
-
 }

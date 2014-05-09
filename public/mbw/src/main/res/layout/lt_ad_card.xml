@@ -237,7 +237,7 @@
                 <!-- Buy/Edit Button -->
 
                 <Button
-                    android:id="@+id/btBuy"
+                    android:id="@+id/btBuySell"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -247,7 +247,6 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:paddingTop="5dp"
-                    android:text="@string/lt_buy_button"
                     android:textSize="18sp" />
             </LinearLayout>
         </LinearLayout>

@@ -91,6 +91,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
+import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.AbortTrade;
 import com.mycelium.wallet.lt.api.AcceptTrade;
 import com.mycelium.wallet.lt.api.ChangeTradeSessionPrice;
@@ -103,15 +104,20 @@ public class TradeActivity extends Activity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
    protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
 
-   public static void callMe(Activity currentActivity, UUID tradeSessionId) {
-      Intent intent = new Intent(currentActivity, TradeActivity.class);
-      intent.putExtra("tradeSessionId", tradeSessionId);
-      currentActivity.startActivity(intent);
+   public static void callMe(Activity currentActivity, TradeSession tradeSession) {
+      if (tradeSession.isOpen && tradeSession.isBuyer && tradeSession.buyerAddress == null) {
+         // We are the buyer, and the receiving address has not yet been set. Do this now. It will call us again later
+         SetTradeAddress.callMe(currentActivity, tradeSession);
+      } else {
+         Intent intent = new Intent(currentActivity, TradeActivity.class);
+         intent.putExtra("tradeSession", tradeSession);
+         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+         currentActivity.startActivity(intent);
+      }
    }
 
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private UUID _tradeSessionId;
    private TradeSession _tradeSession;
    // private MyTradeSessionUpdateListener _tradeSessionListener;
    private MyListener _myListener;
@@ -166,21 +172,14 @@ public class TradeActivity extends Activity {
       _updateSound = RingtoneManager
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 
-      _tradeSessionId = (UUID) getIntent().getSerializableExtra("tradeSessionId");
-      // See if we have it in our local cache of active trade sessions
-      _tradeSession = _ltManager.getLocalTradeSession(_tradeSessionId); // May
-                                                                        // be
-                                                                        // null
+      _tradeSession = (TradeSession) getIntent().getSerializableExtra("tradeSession");
 
       // We may have a more recent copy if the activity is re-created.
       if (savedInstanceState != null) {
          _tradeSession = (TradeSession) savedInstanceState.getSerializable("tradeSession");
       }
 
-      if (_tradeSession != null) {
-         // Mark session as viewed
-         _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
-      }
+      _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
 
       _chatAdapter = new ChatAdapter(this, new ArrayList<ChatEntry>());
 
@@ -193,11 +192,7 @@ public class TradeActivity extends Activity {
    protected void onResume() {
       _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
-      if (_tradeSession == null) {
-         _myListener = new MyListener(_tradeSessionId, 0);
-      } else {
-         _myListener = new MyListener(_tradeSessionId, _tradeSession.lastChange);
-      }
+      _myListener = new MyListener(_tradeSession.id, _tradeSession.lastChange);
       _ltManager.startMonitoringTradeSession(_myListener);
       updateUi();
       super.onResume();
@@ -296,7 +291,7 @@ public class TradeActivity extends Activity {
             }
             disableButtons();
             _dingOnUpdates = false;
-            _ltManager.makeRequest(new ReleaseBtc(_tradeSessionId, HexUtils.toHex(tx.toBytes())));
+            _ltManager.makeRequest(new ReleaseBtc(_tradeSession.id, HexUtils.toHex(tx.toBytes())));
          }
 
       });

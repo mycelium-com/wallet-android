@@ -50,6 +50,7 @@ public class ViewTraderInfoActivity extends FragmentActivity {
    public static void callMe(Activity currentActivity, PublicTraderInfo traderInfo) {
       Intent intent = new Intent(currentActivity, ViewTraderInfoActivity.class);
       intent.putExtra("traderInfo", traderInfo);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivity(intent);
    }
 

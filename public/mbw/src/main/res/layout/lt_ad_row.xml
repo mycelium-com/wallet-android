@@ -33,6 +33,14 @@
         android:textSize="20sp" />
 
     <TextView
+        android:id="@+id/tvDescription4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="20sp" />
+
+    <TextView
         android:id="@+id/tvActive"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

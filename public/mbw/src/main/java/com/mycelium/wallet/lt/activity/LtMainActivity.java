@@ -61,8 +61,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.lt.activity.buy.SellOrderSearchFragment;
-import com.mycelium.wallet.lt.activity.sell.SellOrdersFragment;
+import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
+import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 
 public class LtMainActivity extends ActionBarActivity {
@@ -89,10 +89,11 @@ public class LtMainActivity extends ActionBarActivity {
    private TabsAdapter _tabsAdapter;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   ActionBar.Tab _myNearestTradesTab;
+   ActionBar.Tab _myBuyBitcoinTab;
+   ActionBar.Tab _mySellBitcoinTab;
    ActionBar.Tab _myActiveTradesTab;
    ActionBar.Tab _myTradeHistoryTab;
-   ActionBar.Tab _mySellOrdersTab;
+   ActionBar.Tab _myAdsTab;
    ActionBar.Tab _myTraderInfoTab;
    ActionBar _actionBar;
    private TAB_TYPE _tabToSelect;
@@ -119,10 +120,15 @@ public class LtMainActivity extends ActionBarActivity {
 
       _tabsAdapter = new TabsAdapter(this, _viewPager);
 
-      // Add Sell Orders tab
-      _myNearestTradesTab = _actionBar.newTab();
-      _myNearestTradesTab.setText(getResources().getString(R.string.lt_buy_bitcoin_tab));
-      _tabsAdapter.addTab(_myNearestTradesTab, SellOrderSearchFragment.class, null);
+      // Add Buy Bitcoin tab
+      _myBuyBitcoinTab = _actionBar.newTab();
+      _myBuyBitcoinTab.setText(getResources().getString(R.string.lt_buy_bitcoin_tab));
+      _tabsAdapter.addTab(_myBuyBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(true));
+
+      // Add Sell Bitcoin tab
+      _mySellBitcoinTab = _actionBar.newTab();
+      _mySellBitcoinTab.setText(getResources().getString(R.string.lt_sell_bitcoin_tab));
+      _tabsAdapter.addTab(_mySellBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(false));
 
       // Add Active Trades tab
       _myActiveTradesTab = _actionBar.newTab();
@@ -134,11 +140,11 @@ public class LtMainActivity extends ActionBarActivity {
       _myTradeHistoryTab.setText(getResources().getString(R.string.lt_trade_history_tab));
       _tabsAdapter.addTab(_myTradeHistoryTab, TradeHistoryFragment.class, null);
 
-      // Add Sell Orders tab
-      _mySellOrdersTab = _actionBar.newTab();
-      _mySellOrdersTab.setText(getResources().getString(R.string.lt_my_sell_orders_tab));
-      _mySellOrdersTab.setTag(_tabsAdapter.getCount());
-      _tabsAdapter.addTab(_mySellOrdersTab, SellOrdersFragment.class, null);
+      // Add Ads tab
+      _myAdsTab = _actionBar.newTab();
+      _myAdsTab.setText(getResources().getString(R.string.lt_my_ads_tab));
+      _myAdsTab.setTag(_tabsAdapter.getCount());
+      _tabsAdapter.addTab(_myAdsTab, AdsFragment.class, null);
 
       // Add Trader Info tab
       _myTraderInfoTab = _actionBar.newTab();
@@ -162,7 +168,7 @@ public class LtMainActivity extends ActionBarActivity {
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();
-      inflater.inflate(R.menu.lt_sell_orders_options_global, menu);
+      inflater.inflate(R.menu.lt_ads_options_global, menu);
       inflater.inflate(R.menu.lt_activity_options_menu, menu);
       return true;
    }
@@ -171,9 +177,9 @@ public class LtMainActivity extends ActionBarActivity {
    public boolean onPrepareOptionsMenu(Menu menu) {
       final int tabIdx = _viewPager.getCurrentItem();
 
-      // Add Sell Order menu
-      final boolean isSellOrders = tabIdx == ((TabsAdapter.TabInfo) _mySellOrdersTab.getTag()).index;
-      Preconditions.checkNotNull(menu.findItem(R.id.miAddSellOrder)).setVisible(isSellOrders);
+      // Add Ad menu
+      final boolean isAdsTab = tabIdx == ((TabsAdapter.TabInfo) _myAdsTab.getTag()).index;
+      Preconditions.checkNotNull(menu.findItem(R.id.miAddAd)).setVisible(isAdsTab);
 
       return super.onPrepareOptionsMenu(menu);
    }
@@ -270,7 +276,7 @@ public class LtMainActivity extends ActionBarActivity {
       case TRADE_HISTORY:
          return _myTradeHistoryTab;
       default:
-         return _myNearestTradesTab;
+         return _myBuyBitcoinTab;
       }
    }
 

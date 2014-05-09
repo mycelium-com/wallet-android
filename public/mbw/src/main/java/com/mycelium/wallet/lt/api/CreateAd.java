@@ -5,14 +5,16 @@ import java.util.UUID;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
+import com.mycelium.lt.api.model.AdType;
 import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.api.params.TradeParameters;
+import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
-public class CreateSellOrder extends Request {
+public class CreateAd extends Request {
    private static final long serialVersionUID = 1L;
 
+   public final AdType type;
    public final GpsLocation location;
    public final String currency;
    public final int minimumFiat;
@@ -21,9 +23,10 @@ public class CreateSellOrder extends Request {
    public final double premium;
    public final String description;
 
-   public CreateSellOrder(GpsLocation location, String currency, int minimumFiat, int maximumFiat,
-         String priceFormulaId, double premium, String description) {
+   public CreateAd(AdType type, GpsLocation location, String currency, int minimumFiat, int maximumFiat, String priceFormulaId,
+         double premium, String description) {
       super(true, true);
+      this.type = type;
       this.location = location;
       this.currency = currency;
       this.minimumFiat = minimumFiat;
@@ -40,9 +43,9 @@ public class CreateSellOrder extends Request {
       try {
 
          // Call function
-         TradeParameters params = new TradeParameters(location, currency, minimumFiat, maximumFiat, priceFormulaId,
-               premium, description);
-         final UUID sellOrderId = api.createSellOrder(sessionId, params).getResult();
+         AdParameters params = new AdParameters(type, location, currency, minimumFiat, maximumFiat, priceFormulaId, premium,
+               description);
+         final UUID adId = api.createAd(sessionId, params).getResult();
 
          // Notify
          synchronized (subscribers) {
@@ -51,7 +54,7 @@ public class CreateSellOrder extends Request {
 
                   @Override
                   public void run() {
-                     s.onLtSellOrderCreated(sellOrderId, CreateSellOrder.this);
+                     s.onLtAdCreated(adId, CreateAd.this);
                   }
                });
             }

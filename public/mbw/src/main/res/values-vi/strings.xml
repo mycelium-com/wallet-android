@@ -253,7 +253,6 @@
   <string name="mycelium_license">Giấy phép Mycelium</string>
   <string name="zxing_license">Giấy phép ZXing</string>
   <string name="pdfwriter_license">Giấy phép xuất bản PDF trên Android</string>
-  <string name="scanned_address_need_private_key">Bạn đã quét địa chỉ Bitcoin này:\n\n%1$s\n\nBạn cần phải quét khoá riêng tư.\n\nTrên ví giấy, khoá riêng tư thường nằm cạnh địa chỉ Bitcoin.</string>
   <string name="source_repo_label">Kho nguồn</string>
   <string name="version_label">Phiên bản</string>
   <string name="authors_label">Phát triển bởi</string>
@@ -284,18 +283,11 @@
   <string name="lt_error_account_name_taken">Tên mà bạn chọn đã được dùng. Hãy chọn tên khác</string>
   <string name="lt_error_cannot_trade_with_self">Bạn không thể giao dịch với chính mình</string>
   <string name="lt_create_button">Tạo</string>
-  <string name="lt_no_sell_orders">Trang này hiển thị các lệnh bán Bitcoin của bạn.\n\nDanh sách này đang trống.\n\nẤn vào nút + để tạo một lệnh mới.</string>
   <string name="lt_no_recent_trades">Trang này hiển thị hoạt động giao dịch của bạn.\n\nGiao dịch thành công nằm trong mục Lịch sử Giao dịch.</string>
-  <string name="lt_pick_offer_title">Chọn một đề nghị để bắt đầu giao dịch</string>
   <string name="lt_buy_bitcoin_tab">Mua Bitcoin</string>
   <string name="lt_active_trades_tab">Giao dịch đang hoạt động</string>
   <string name="lt_trade_history_tab">Lịch sử giao dịch</string>
-  <string name="lt_my_sell_orders_tab">Lệnh bán</string>
   <string name="lt_my_trader_info_tab">Thông tin của tôi</string>
-  <string name="lt_sell_orders_add">Thêm lệnh bán</string>
-  <string name="lt_create_sell_order_title">Tạo lệnh bán</string>
-  <string name="lt_edit_sell_order_title">Sửa lệnh bán</string>
-  <string name="lt_create_order_choose_location">Chọn vị trí nơi bạn muốn bán bitcoin:</string>
   <string name="lt_create_order_choose_base_price">Chọn giá cơ sở:</string>
   <string name="lt_create_sell_order_choose_premium">Chọn lượng tiền bạn muốn cho thêm vào giá cơ sở:</string>
   <string name="lt_create_sell_order_choose_currency">Chọn loại tiền tệ bạn chấp nhận:</string>
@@ -304,8 +296,6 @@
   <string name="lt_create_order_description">Tùy chọn mô tả đơn hàng của bạn:</string>
   <string name="lt_create_order_description_too_long">Mô tả dài quá</string>
   <string name="lt_create_order_description_hint">Mua từ tôi bởi vì&#8230;</string>
-  <string name="lt_sell_order_created">Đã tạo lệnh bán</string>
-  <string name="lt_sell_order_edited">Đã sửa lệnh bán</string>
   <string name="lt_pref_category">Thương nhân địa phương</string>
   <string name="lt_disable_preference">Vô hiệu hóa thương nhân địa phương</string>
   <string name="lt_disable_preference_summary">Vô hiệu hóa chức năng nhà thương nhân địa phương</string>
@@ -427,7 +417,13 @@
   <string name="lt_reveiving_address_title">Địa chỉ nhận</string>
   <string name="lt_reveiving_address_description">Tiền sẽ được chuyển vào địa chỉ sau nếu giao dịch thành công:</string>
   <string name="lt_info_button">Thông tin</string>
+  <string name="lt_map_button">Bản đồ</string>
   <string name="lt_getting_trader_info_title">Nhận thông tin về người giao dịch</string>
+  <string name="lt_refresh_market_rate_title">Cập nhật tỷ giá thị trường</string>
+  <string name="lt_refresh_market_rate_description">Tỉ giá mới phụ thuộc vào công thức tính tỉ giá của người bán và tỉ giá thị trường hiện tại.\n\nNếu bạn cập nhật tỉ giá thì cả 2 bên đều phải chấp nhận thoả thuận này.</string>
+  <string name="lt_opening_map">Đang mở bản đồ</string>
+  <string name="cs_private_key_description">Bạn đang sử dụng một private key với địa chỉ Bitcoin:</string>
+  <string name="cs_address_description">Bạn đã quét một địa chỉ Bitcoin. Bạn có thể xem số dư nhưng không chi tiêu được từ nó.</string>
   <string name="archiving_key_title">Lưu trữ Khoá</string>
   <string name="new_version_exists">Đã có phiên bản mới</string>
   <string name="check_update">Kiểm tra Cập Nhật</string>
@@ -444,4 +440,7 @@
   <string name="signed_message_subject">Thông điệp Bitcoin đã ký</string>
   <string name="signed_message_share">Chia sẻ thông điệp Bitcoin đã ký</string>
   <string name="signing_inprogress">Đang ký thông điệp&#8230;</string>
+  <string name="geocode_error">Lỗi từ geocoder: %s \n xin vui lòng thử lại sau.</string>
+  <string name="donate_button">Ủng hộ</string>
+  <string name="donate_description">Mycelium là một chiếc ví tuyệt vời và bạn có thể sử dụng nó miễn phí.\n\nXin hãy giúp đỡ nỗ lực phát triển của chúng tôi bằng cách ủng hộ một số tiền nhỏ.\n\nBao nhiêu cũng được!</string>
 </resources>

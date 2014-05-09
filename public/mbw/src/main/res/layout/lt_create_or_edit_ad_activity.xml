@@ -45,6 +45,29 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical" >
 
+                <!-- Buy or Sell -->
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="15dp"
+                    android:gravity="center"
+                    android:text="@string/lt_create_order_choose_buy_or_sell"
+                    android:textSize="16sp" />
+
+                <Spinner
+                    android:id="@+id/spAdType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp" />
+                
+                <!-- Location -->
+                
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -55,8 +78,6 @@
                     android:gravity="center"
                     android:text="@string/lt_create_order_choose_location"
                     android:textSize="16sp" />
-
-                <!-- Location -->
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -147,10 +168,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="8dp"
+                    android:paddingBottom="7dp"
                     android:paddingLeft="13dp"
                     android:paddingRight="13dp"
                     android:paddingTop="7dp"
-                    android:paddingBottom="7dp"
                     android:textSize="22sp"
                     android:typeface="monospace" />
 

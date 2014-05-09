@@ -252,7 +252,6 @@
   <string name="mycelium_license">Licenca za Mycelium</string>
   <string name="zxing_license">Licenca za ZXing</string>
   <string name="pdfwriter_license">Licenca za Android PDF Writer</string>
-  <string name="scanned_address_need_private_key">Prečitali ste tale bitcoin naslov:\n\n%1$s\n\nPrečitati bi morali zasebni ključ.\n\nNa papirnih denarnicah se zasebni ključ običajno nahaja poleg bitcoin naslova.</string>
   <string name="source_repo_label">Odložišče kode</string>
   <string name="version_label">Verzija</string>
   <string name="authors_label">Avtorji</string>
@@ -282,18 +281,11 @@
   <string name="lt_error_account_name_taken">Ime, ki ste ga izbrali, je že zasedeno. Prosimo, izberite drugo ime.</string>
   <string name="lt_error_cannot_trade_with_self">Sami s seboj ne morete trgovati.</string>
   <string name="lt_create_button">Ustvari</string>
-  <string name="lt_no_sell_orders">Ta stran prikazuje vaša naročila za prodajo bitcoinov.\n\nSeznam je trenutno prazen.\n\nNaročilo vnesete s pritiskom na gumb [+].</string>
   <string name="lt_no_recent_trades">Na tej strani so prikazani vaši posli v teku.\n\nSeznam zaključenih poslov najdete v zavihku Zgodovina trgovanja.</string>
-  <string name="lt_pick_offer_title">Izberite ponudbo za začetek trgovanja</string>
   <string name="lt_buy_bitcoin_tab">Kupi novce</string>
   <string name="lt_active_trades_tab">Posli v teku</string>
   <string name="lt_trade_history_tab">Zgodovina trgovanja</string>
-  <string name="lt_my_sell_orders_tab">Moja prodajna naročila</string>
   <string name="lt_my_trader_info_tab">O meni</string>
-  <string name="lt_sell_orders_add">Dodaj prodajno naročilo</string>
-  <string name="lt_create_sell_order_title">Ustvarjam prodajno naročilo</string>
-  <string name="lt_edit_sell_order_title">Urejanje prodajnega naročila</string>
-  <string name="lt_create_order_choose_location">Izberite kraj, kjer želite prodajati bitcoine:</string>
   <string name="lt_create_order_choose_base_price">Izberite osnovno ceno:</string>
   <string name="lt_create_sell_order_choose_premium">Izberite svojo premijo, ki jo želite dodati osnovni ceni:</string>
   <string name="lt_create_sell_order_choose_currency">Izberite valuto, ki jo sprejemate:</string>
@@ -302,8 +294,6 @@
   <string name="lt_create_order_description">Opis naročila (neobvezno):</string>
   <string name="lt_create_order_description_too_long">Opis je predolg</string>
   <string name="lt_create_order_description_hint">Kupite od mene, ker&#8230;</string>
-  <string name="lt_sell_order_created">Prodajno naročilo ustvarjeno</string>
-  <string name="lt_sell_order_edited">Prodajno naročilo spremenjeno</string>
   <string name="lt_pref_category">Krajevno trgovanje</string>
   <string name="lt_disable_preference">Onemogoči krajevno trgovanje</string>
   <string name="lt_disable_preference_summary">Onemogoči krajevno trgovanje</string>
@@ -425,7 +415,13 @@
   <string name="lt_reveiving_address_title">Prejemni naslov</string>
   <string name="lt_reveiving_address_description">Ob uspešnem zaključku posla bodo vaši novci poslani na naslednji naslov:</string>
   <string name="lt_info_button">Informacije</string>
+  <string name="lt_map_button">Zemljevid</string>
   <string name="lt_getting_trader_info_title">Pridobivam informacije o trgovcu</string>
+  <string name="lt_refresh_market_rate_title">Osveževanje borznega tečaja</string>
+  <string name="lt_refresh_market_rate_description">Nova cena se izračuna, kot je nastavil prodajalec, iz trenutnega borznega tečaja.\n\nČe osvežite tečaj, se bo cena spremenila in oba jo bosta morala izrecno potrditi.</string>
+  <string name="lt_opening_map">Odpiram zemljevid</string>
+  <string name="cs_private_key_description">Uporabljate zasebni ključ tega bitcoin naslova:</string>
+  <string name="cs_address_description">Prečitali ste bitcoin naslov. Lahko si ogledate stanje na njem, ne morete pa porabljati teh sredstev.</string>
   <string name="archiving_key_title">Arhiviram ključ</string>
   <string name="new_version_exists">Na voljo je nova verzija</string>
   <string name="check_update">Preveri posodobitve</string>
@@ -442,4 +438,7 @@
   <string name="signed_message_subject">Podpisano sporočilo</string>
   <string name="signed_message_share">Deli podpisano sporočilo</string>
   <string name="signing_inprogress">Podpisujem sporočilo&#8230;</string>
+  <string name="geocode_error">Napaka pri pridobivanju lokacijskih podatkov: %s \nProsimo, poskusite spet kasneje.</string>
+  <string name="donate_button">Daruj</string>
+  <string name="donate_description">Mycelium je odlična denarnica, ki jo lahko uporabljate brezplačno.\n\nProsimo, podprite nas pri njenem razvoju z donacijo.\n\nVsak znesek, še tako majhen, šteje!</string>
 </resources>

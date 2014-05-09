@@ -3,40 +3,28 @@ package com.mycelium.wallet.lt.api;
 import java.util.Collection;
 import java.util.UUID;
 
-import com.mrd.bitlib.model.Address;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.params.InstantBuyOrderParameters;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 
-public class CreateInstantBuyOrder extends Request {
+public class DeactivateAd extends Request {
    private static final long serialVersionUID = 1L;
 
-   private UUID _sellOrderId;
-   private int _fiatOffered;
-   private Address _address;
+   private UUID _adId;
 
-   public CreateInstantBuyOrder(UUID sellOrderId, int fiatOffered, Address address) {
+   public DeactivateAd(UUID adId) {
       super(true, true);
-      _sellOrderId = sellOrderId;
-      _fiatOffered = fiatOffered;
-      _address = address;
+      _adId = adId;
    }
 
-   public Address getAddress(){
-      return _address;
-   }
-   
    @Override
    public void execute(LocalManagerApiContext context, LtApi api, UUID sessionId,
          Collection<LocalTraderEventSubscriber> subscribers) {
 
       try {
-
          // Call function
-         InstantBuyOrderParameters params = new InstantBuyOrderParameters(_sellOrderId, _fiatOffered, _address);
-         final UUID tradeSessionId = api.createInstantBuyOrder(sessionId, params).getResult();
+         api.deactivateAd(sessionId, _adId).getResult();
 
          // Notify
          synchronized (subscribers) {
@@ -45,16 +33,16 @@ public class CreateInstantBuyOrder extends Request {
 
                   @Override
                   public void run() {
-                     s.onLtInstantBuyOrderCreated(tradeSessionId, CreateInstantBuyOrder.this);
+                     s.onLtAdDeactivated(_adId, DeactivateAd.this);
                   }
                });
             }
          }
+
       } catch (LtApiException e) {
          // Handle errors
          context.handleErrors(this, e.errorCode);
       }
 
    }
-
 }

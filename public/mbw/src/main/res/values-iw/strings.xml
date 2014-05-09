@@ -252,7 +252,6 @@
   <string name="mycelium_license">רשיון Mycelium</string>
   <string name="zxing_license">רשיון ZXing</string>
   <string name="pdfwriter_license">רשיון Android PDF Writer</string>
-  <string name="scanned_address_need_private_key">סרקת כתובת ביטקוין זו:\n\n%1$s\n\nעליך לסרוק מפתח פרטי.\n\nבארנקי נייר המפתח הפרטי נמצא לרוב ליד כתובת הביטקוין.</string>
   <string name="source_repo_label">מאגר קוד מקור</string>
   <string name="version_label">גירסה</string>
   <string name="authors_label">פותח ע\"י</string>

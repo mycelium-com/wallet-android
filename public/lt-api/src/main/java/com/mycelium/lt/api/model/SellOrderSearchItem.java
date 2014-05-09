@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.crypto.PublicKey;
 
+@Deprecated
 public class SellOrderSearchItem implements Serializable {
    private static final long serialVersionUID = 1L;
 

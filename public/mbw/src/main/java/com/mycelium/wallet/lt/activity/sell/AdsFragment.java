@@ -65,30 +65,31 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.lt.api.model.SellOrder;
+import com.mycelium.lt.api.model.Ad;
+import com.mycelium.lt.api.model.AdType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.lt.api.ActivateSellOrder;
-import com.mycelium.wallet.lt.api.DeactivateSellOrder;
-import com.mycelium.wallet.lt.api.DeleteSellOrder;
-import com.mycelium.wallet.lt.api.GetSellOrders;
+import com.mycelium.wallet.lt.api.ActivateAd;
+import com.mycelium.wallet.lt.api.DeactivateAd;
+import com.mycelium.wallet.lt.api.DeleteAd;
+import com.mycelium.wallet.lt.api.GetAds;
 
-public class SellOrdersFragment extends Fragment {
+public class AdsFragment extends Fragment {
 
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private ActionMode _currentActionMode;
-   private List<SellOrder> _sellOrders;
-   private SellOrder _selectedSellOrder;
+   private List<Ad> _ads;
+   private Ad _selectedAd;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_sell_orders_fragment, container, false));
+      View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_ads_fragment, container, false));
       setHasOptionsMenu(true);
-      ListView ordersList = (ListView) ret.findViewById(R.id.lvSellOrders);
-      ordersList.setOnItemClickListener(itemListClickListener);
+      ListView adList = (ListView) ret.findViewById(R.id.lvAds);
+      adList.setOnItemClickListener(itemListClickListener);
       return ret;
    }
 
@@ -113,9 +114,9 @@ public class SellOrdersFragment extends Fragment {
       _ltManager.subscribe(ltSubscriber);
       if (_ltManager.hasLocalTraderAccount()) {
          updateUi();
-         _ltManager.makeRequest(new GetSellOrders());
+         _ltManager.makeRequest(new GetAds());
       } else {
-         _sellOrders = new LinkedList<SellOrder>();
+         _ads = new LinkedList<Ad>();
          updateUi();
       }
       super.onResume();
@@ -134,24 +135,30 @@ public class SellOrdersFragment extends Fragment {
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      if (item.getItemId() == R.id.miAddSellOrder) {
-         CreateOrEditSellOrderActivity.callMe(this.getActivity());
+      if (item.getItemId() == R.id.miAddAd) {
+         CreateOrEditAdActivity.callMe(this.getActivity());
       }
       return super.onOptionsItemSelected(item);
    }
 
-   private void setSellOrders(Collection<SellOrder> sellOrders) {
-      _sellOrders = new LinkedList<SellOrder>(sellOrders);
-      Collections.sort(_sellOrders, new Comparator<SellOrder>() {
+   private void setAds(Collection<Ad> ads) {
+      _ads = new LinkedList<Ad>(ads);
+      Collections.sort(_ads, new Comparator<Ad>() {
 
          @Override
-         public int compare(SellOrder lhs, SellOrder rhs) {
-            // First compare by price formula
+         public int compare(Ad lhs, Ad rhs) {
+            // First sort on ad type
+            if (lhs.type.ordinal() < rhs.type.ordinal()) {
+               return -1;
+            } else if (lhs.type.ordinal() > rhs.type.ordinal()) {
+               return 1;
+            }
+            // Then compare by price formula
             int c = lhs.priceFormula.id.compareTo(rhs.priceFormula.id);
             if (c != 0) {
                return c;
             }
-            // Second sort on premium
+            // Then sort on premium
             if (lhs.premium < rhs.premium) {
                return -1;
             } else if (lhs.premium > rhs.premium) {
@@ -168,20 +175,20 @@ public class SellOrdersFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      if (_sellOrders == null) {
+      if (_ads == null) {
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
-         findViewById(R.id.lvSellOrders).setVisibility(View.GONE);
-      } else if (_sellOrders.size() == 0) {
+         findViewById(R.id.lvAds).setVisibility(View.GONE);
+      } else if (_ads.size() == 0) {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
-         findViewById(R.id.lvSellOrders).setVisibility(View.GONE);
+         findViewById(R.id.lvAds).setVisibility(View.GONE);
       } else {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
-         findViewById(R.id.lvSellOrders).setVisibility(View.VISIBLE);
-         ListView list = (ListView) findViewById(R.id.lvSellOrders);
-         list.setAdapter(new SellOrderAdapter(getActivity(), _sellOrders));
+         findViewById(R.id.lvAds).setVisibility(View.VISIBLE);
+         ListView list = (ListView) findViewById(R.id.lvAds);
+         list.setAdapter(new AdsAdapter(getActivity(), _ads));
       }
    }
 
@@ -203,12 +210,12 @@ public class SellOrdersFragment extends Fragment {
 
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         _selectedSellOrder = (SellOrder) view.getTag();
+         _selectedAd = (Ad) view.getTag();
          ActionBarActivity parent = (ActionBarActivity) getActivity();
          _currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-               actionMode.getMenuInflater().inflate(R.menu.lt_sell_orders_context_menu, menu);
+               actionMode.getMenuInflater().inflate(R.menu.lt_ads_context_menu, menu);
                return true;
             }
 
@@ -217,8 +224,8 @@ public class SellOrdersFragment extends Fragment {
             public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
                _currentActionMode = actionMode;
                view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
-               menu.findItem(R.id.miDeactivate).setVisible(_selectedSellOrder.isActive);
-               menu.findItem(R.id.miActivate).setVisible(!_selectedSellOrder.isActive);
+               menu.findItem(R.id.miDeactivate).setVisible(_selectedAd.isActive);
+               menu.findItem(R.id.miActivate).setVisible(!_selectedAd.isActive);
                return true;
             }
 
@@ -232,11 +239,11 @@ public class SellOrdersFragment extends Fragment {
                   _mbwManager.runPinProtectedFunction(getActivity(), pinProtectedEditEntry);
                   return true;
                } else if (item == R.id.miActivate) {
-                  _ltManager.makeRequest(new ActivateSellOrder(_selectedSellOrder.id));
+                  _ltManager.makeRequest(new ActivateAd(_selectedAd.id));
                   finishActionMode();
                   return true;
                } else if (item == R.id.miDeactivate) {
-                  _ltManager.makeRequest(new DeactivateSellOrder(_selectedSellOrder.id));
+                  _ltManager.makeRequest(new DeactivateAd(_selectedAd.id));
                   finishActionMode();
                   return true;
                }
@@ -262,8 +269,8 @@ public class SellOrdersFragment extends Fragment {
    };
 
    private void doEditEntry() {
-      if (_selectedSellOrder != null) {
-         CreateOrEditSellOrderActivity.callMe(getActivity(), _selectedSellOrder);
+      if (_selectedAd != null) {
+         CreateOrEditAdActivity.callMe(getActivity(), _selectedAd);
       }
       finishActionMode();
    }
@@ -302,19 +309,19 @@ public class SellOrdersFragment extends Fragment {
    };
 
    private void doDeleteEntry() {
-      if (_selectedSellOrder == null) {
+      if (_selectedAd == null) {
          return;
       }
-      _ltManager.makeRequest(new DeleteSellOrder(_selectedSellOrder.id));
+      _ltManager.makeRequest(new DeleteAd(_selectedAd.id));
    }
 
-   private class SellOrderAdapter extends ArrayAdapter<SellOrder> {
+   private class AdsAdapter extends ArrayAdapter<Ad> {
       private Locale _locale;
       private Context _context;
       private DateFormat _dateFormat;
 
-      public SellOrderAdapter(Context context, List<SellOrder> objects) {
-         super(context, R.layout.lt_sell_order_row, objects);
+      public AdsAdapter(Context context, List<Ad> objects) {
+         super(context, R.layout.lt_ad_row, objects);
          _locale = new Locale("en", "US");
 
          _dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
@@ -327,19 +334,21 @@ public class SellOrdersFragment extends Fragment {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_sell_order_row, null));
+            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_row, null));
          }
-         SellOrder o = getItem(position);
-         char sign = o.premium > 0 ? '+' : '-';
+         Ad o = getItem(position);
+         char sign = o.premium >= 0 ? '+' : '-';
          double d = Math.abs(o.premium);
          String premium = d == (int) d ? String.format(_locale, "%d", (int) d) : String.format(_locale, "%s", d);
-         String description1 = o.location.name;
-         String description2 = String.format(_locale, "%s %c%s%%", o.priceFormula.name, sign, premium);
-         String description3 = String.format(_locale, "%d %s - %s %s", o.minimumFiat, o.currency, o.maximumFiat,
+         String description1 = getString(o.type == AdType.SELL_BTC ? R.string.lt_selling_near : R.string.lt_buying_near);
+         String description2 = o.location.name;
+         String description3 = String.format(_locale, "%s %c%s%%", o.priceFormula.name, sign, premium);
+         String description4 = String.format(_locale, "%d %s - %s %s", o.minimumFiat, o.currency, o.maximumFiat,
                o.currency);
          ((TextView) v.findViewById(R.id.tvDescription1)).setText(description1);
          ((TextView) v.findViewById(R.id.tvDescription2)).setText(description2);
          ((TextView) v.findViewById(R.id.tvDescription3)).setText(description3);
+         ((TextView) v.findViewById(R.id.tvDescription4)).setText(description4);
          TextView tvActive = (TextView) v.findViewById(R.id.tvActive);
          if (o.isActive) {
             tvActive.setTextColor(getActivity().getResources().getColor(R.color.green));
@@ -357,23 +366,23 @@ public class SellOrdersFragment extends Fragment {
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
 
       @Override
-      public void onLtSellOrdersFetched(java.util.Collection<SellOrder> sellOrders, GetSellOrders request) {
-         setSellOrders(sellOrders);
+      public void onLtAdsFetched(java.util.Collection<Ad> ads, GetAds request) {
+         setAds(ads);
       };
 
       @Override
-      public void onLtSellOrderDeleted(UUID sellOrderId, DeleteSellOrder request) {
-         _ltManager.makeRequest(new GetSellOrders());
+      public void onLtAdDeleted(UUID adId, DeleteAd request) {
+         _ltManager.makeRequest(new GetAds());
       }
 
       @Override
-      public void onLtSellOrderActivated(UUID _sellOrderId, ActivateSellOrder request) {
-         _ltManager.makeRequest(new GetSellOrders());
+      public void onLtAdActivated(UUID adId, ActivateAd request) {
+         _ltManager.makeRequest(new GetAds());
       };
 
       @Override
-      public void onLtSellOrderDeactivated(UUID _sellOrderId, DeactivateSellOrder request) {
-         _ltManager.makeRequest(new GetSellOrders());
+      public void onLtAdDeactivated(UUID adId, DeactivateAd request) {
+         _ltManager.makeRequest(new GetAds());
       };
 
       @Override

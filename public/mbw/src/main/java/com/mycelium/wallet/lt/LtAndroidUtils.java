@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.mycelium.lt.api.model.PriceFormula;
+import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
 
@@ -140,13 +141,12 @@ public class LtAndroidUtils {
       }
    }
 
-   public static float calculate5StarRating(int successfulSales, int abortedSales, int successfulBuys, int abortedBuys,
-         long traderAgeMs) {
-      float traderAgeDays = ((float) traderAgeMs) / 1000 / 60 / 60 / 24;
+   public static float calculate5StarRating(PublicTraderInfo info) {
+      float traderAgeDays = ((float) info.traderAgeMs) / 1000 / 60 / 60 / 24;
 
-      int successful = successfulSales + successfulBuys;
+      int successful = info.successfulSales + info.successfulBuys;
 
-      int aborted = abortedSales + abortedBuys;
+      int aborted = info.abortedSales + info.abortedBuys;
 
       float ageComponent = getAgeRatingComponent(traderAgeDays);
       float successComponent = getVolumeRatingComponent(successful + aborted)
@@ -212,10 +212,11 @@ public class LtAndroidUtils {
    public static String getApproximateTimeInHours(Context context, long timeInMs) {
       if (timeInMs < Constants.MS_PR_HOUR) {
          return context.getString(R.string.lt_time_less_than_one_hour);
-      } else if (timeInMs + timeInMs / 2 < Constants.MS_PR_HOUR * 2) {
+      }
+      Long hours = Math.round((double )timeInMs / Constants.MS_PR_HOUR);
+      if (hours.equals(1L)) {
          return context.getString(R.string.lt_time_about_one_hour);
       } else {
-         Long hours = (timeInMs + timeInMs / 2) / Constants.MS_PR_HOUR;
          return context.getString(R.string.lt_time_about_x_hours, hours);
       }
    }

@@ -5,12 +5,13 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Deprecated
-public class SellOrder implements Serializable {
+public class Ad implements Serializable {
    private static final long serialVersionUID = 1L;
-   
+
    @JsonProperty
    public final UUID id;
+   @JsonProperty
+   public final AdType type;
    @JsonProperty
    public GpsLocation location;
    @JsonProperty
@@ -30,12 +31,14 @@ public class SellOrder implements Serializable {
    @JsonProperty
    public long deactivationTime;
 
-   public SellOrder(@JsonProperty("id") UUID id, @JsonProperty("location") GpsLocation location,
-         @JsonProperty("currency") String currency, @JsonProperty("minimumFiat") int minimumFiat,
-         @JsonProperty("maximumFiat") int maximumFiat, @JsonProperty("priceFormula") PriceFormula priceFormula,
-         @JsonProperty("premium") double premium, @JsonProperty("description") String description,
-         @JsonProperty("isActive") boolean isActive, @JsonProperty("deactivationTime") long deactivationTime) {
+   public Ad(@JsonProperty("id") UUID id, @JsonProperty("type") AdType type,
+         @JsonProperty("location") GpsLocation location, @JsonProperty("currency") String currency,
+         @JsonProperty("minimumFiat") int minimumFiat, @JsonProperty("maximumFiat") int maximumFiat,
+         @JsonProperty("priceFormula") PriceFormula priceFormula, @JsonProperty("premium") double premium,
+         @JsonProperty("description") String description, @JsonProperty("isActive") boolean isActive,
+         @JsonProperty("deactivationTime") long deactivationTime) {
       this.id = id;
+      this.type = type;
       this.location = location;
       this.currency = currency;
       this.minimumFiat = minimumFiat;

@@ -266,7 +266,6 @@
     <string name="mycelium_license">Mycelium License</string>
     <string name="zxing_license">ZXing License</string>
     <string name="pdfwriter_license">Android PDF Writer License</string>
-    <string name="scanned_address_need_private_key">You have scanned this Bitcoin address:\n\n%1$s\n\nYou need to scan a private key.\n\nOn paper wallets the private key is often located next to the Bitcoin address.</string>
     <string name="source_url">https://github.com/mycelium-com/wallet</string>
     <string name="source_repo_label">Source Repository</string>
     <string name="version_label">Version</string>
@@ -290,6 +289,7 @@
     <string name="heartbleed_alert">ALERT\n\nYour device runs Android version 4.1.1 and has a critical bug known as Heartbleed.\n\nThis bug allows an attacker to read the memory of any apps on your device that make HTTPS connections.\n\n You should take immediate action!\n\n1. Move your funds to new addresses where the private key has never been on an Android 4.1.1 device.\n\n2. Upgrade your device to another version than 4.1.1 or use another device.</string>
     <!--  LT start -->
     <string name="lt_buy_button">Buy</string>
+    <string name="lt_sell_button">Sell</string>
     <string name="lt_edit_button">Edit</string>
     <string name="lt_trade_button">Trade</string>
     <string name="lt_localization_not_available">This feature requires your device to be able to tell its current location. It seems that your device cannot do that. Try enabling location services in your device settings.</string>
@@ -301,18 +301,19 @@
     <string name="lt_error_account_name_taken">The name you chose is already taken. Please choose another name</string>
     <string name="lt_error_cannot_trade_with_self">You cannot trade with yourself</string>
     <string name="lt_create_button">Create</string>
-    <string name="lt_no_sell_orders">This page shows your bitcoin sell orders.\n\nThe list is currently empty.\n\nClick the + button to create one.</string>
+    <string name="lt_no_ads">This page shows your trade ads.\n\nThe list is currently empty.\n\nClick the + button to create one.</string>
     <string name="lt_no_recent_trades">This page shows your active trades.\n\nCompleted trades move to the Trade History tab.</string>
-    <string name="lt_pick_offer_title">Pick an offer to start trading</string>
     <string name="lt_buy_bitcoin_tab">Buy Bitcoin</string>
+    <string name="lt_sell_bitcoin_tab">Sell Bitcoin</string>
     <string name="lt_active_trades_tab">Active Trades</string>
     <string name="lt_trade_history_tab">Trade History</string>
-    <string name="lt_my_sell_orders_tab">My Sell Orders</string>
+    <string name="lt_my_ads_tab">My Ads</string>
     <string name="lt_my_trader_info_tab">My Info</string>
-    <string name="lt_sell_orders_add">Add Sell Order</string>
-    <string name="lt_create_sell_order_title">Creating Sell Order</string>
-    <string name="lt_edit_sell_order_title">Editing Sell Order</string>
-    <string name="lt_create_order_choose_location">Choose the location where you wish to sell bitcoins:</string>
+    <string name="lt_create_ad">Create Ad</string>
+    <string name="lt_create_ad_title">Creating Advertisement</string>
+    <string name="lt_edit_ad_title">Editing Advertisement</string>
+    <string name="lt_create_order_choose_buy_or_sell">Do you wish to buy or sell bitcoin:</string>
+    <string name="lt_create_order_choose_location">Choose the location where you wish to trade:</string>
     <string name="lt_create_order_choose_base_price">Choose the base price:</string>
     <string name="lt_create_sell_order_choose_premium">Choose the premium you wish to add on top of the base price:</string>
     <string name="lt_create_sell_order_choose_currency">Choose the fiat currency you accept:</string>
@@ -321,8 +322,10 @@
     <string name="lt_create_order_description">Optional description of your order:</string>
     <string name="lt_create_order_description_too_long">The description is too long</string>
     <string name="lt_create_order_description_hint">Buy from me because&#8230;</string>
-    <string name="lt_sell_order_created">Sell order created</string>
-    <string name="lt_sell_order_edited">Sell order edited</string>
+    <string name="lt_ad_type_sell_btc_label">Sell Bitcoin</string>
+    <string name="lt_ad_type_buy_btc_label">Buy Bitcoin</string>
+    <string name="lt_ad_created">Ad created</string>
+    <string name="lt_ad_edited">Ad edited</string>
     <string name="lt_pref_category">Local Trader</string>
     <string name="lt_disable_preference">Disable Local Trader</string>
     <string name="lt_disable_preference_summary">Disable Local Trader functionality</string>
@@ -391,6 +394,7 @@
     <string name="lt_changing_location_desc">Enter your location or use the cross hair to get an approximation</string>
     <string name="lt_experimental">(experimental)</string>
     <string name="lt_buying_near">Buying Bitcoins Near</string>
+    <string name="lt_selling_near">Selling Bitcoins Near</string>
     <string name="lt_trader_key">(Local Trader account key)</string>
     <string name="lt_thats_you">(that\'s you)</string>
     <string name="lt_detach_trader_account">Detach Trader Account</string>
