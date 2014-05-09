@@ -96,6 +96,20 @@ public class AddRecordActivity extends Activity {
 
       });
 
+      findViewById(R.id.btRandom).setOnClickListener(new View.OnClickListener() {
+
+         @Override
+         public void onClick(View v) {
+            Intent intent = new Intent(activity, CreateKeyActivity.class);
+            startActivityForResult(intent, CREATE_RESULT_CODE);
+         }
+      });
+   }
+
+   @Override
+   public void onResume() {
+      super.onResume();
+
       findViewById(R.id.btClipboard).setEnabled(Record.isRecord(Utils.getClipboardString(this), _network));
       findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
@@ -103,21 +117,20 @@ public class AddRecordActivity extends Activity {
          public void onClick(View v) {
             Record record = Record.fromString(Utils.getClipboardString(AddRecordActivity.this), _network);
             if (record == null) {
-               Toast.makeText(activity, R.string.unrecognized_format, Toast.LENGTH_LONG).show();
+               Toast.makeText(AddRecordActivity.this, R.string.unrecognized_format, Toast.LENGTH_LONG).show();
                return;
             }
             // If the record has a private key delete the contents of the
             // clipboard
-            if (record != null && record.hasPrivateKey()) {
-               Utils.clearClipboardString(activity);
+            if (record.hasPrivateKey()) {
+               Utils.clearClipboardString(AddRecordActivity.this);
             }
             finishOk(record, BackupState.VERIFIED);
          }
-
       });
 
       if (Utils.findAndroidWalletBackupFiles(_network).size() > 0) {
-         findViewById(R.id.llAndroidWalletBackup).setVisibility(View.VISIBLE);
+         findViewById(R.id.btAndroidWalletBackup).setEnabled(true);
          findViewById(R.id.btAndroidWalletBackup).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -127,24 +140,9 @@ public class AddRecordActivity extends Activity {
 
          });
       } else {
-         findViewById(R.id.llAndroidWalletBackup).setVisibility(View.GONE);
+         findViewById(R.id.btAndroidWalletBackup).setEnabled(false);
       }
 
-       findViewById(R.id.btRandom).setOnClickListener(new View.OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            Intent intent = new Intent(activity, CreateKeyActivity.class);
-            startActivityForResult(intent, CREATE_RESULT_CODE);
-
-         }
-
-      });
-   }
-
-   @Override
-   public void onResume() {
-      super.onResume();
    }
 
    @Override
