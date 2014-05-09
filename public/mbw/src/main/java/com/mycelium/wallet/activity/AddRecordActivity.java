@@ -35,20 +35,34 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.EncryptionUtils;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Record.BackupState;
 import com.mycelium.wallet.Record.Source;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AddRecordActivity extends Activity {
 
@@ -60,6 +74,7 @@ public class AddRecordActivity extends Activity {
    public static final String RESULT_KEY = "record";
    private static final int SCAN_RESULT_CODE = 0;
    private static final int CREATE_RESULT_CODE = 1;
+   private Toaster _toaster;
 
    private NetworkParameters _network;
 
@@ -70,6 +85,7 @@ public class AddRecordActivity extends Activity {
       setContentView(R.layout.add_record_activity);
       final Activity activity = AddRecordActivity.this;
       _network = MbwManager.getInstance(this).getNetwork();
+      _toaster= new Toaster(this);
 
       findViewById(R.id.btScan).setOnClickListener(new View.OnClickListener() {
 
@@ -100,7 +116,21 @@ public class AddRecordActivity extends Activity {
 
       });
 
-      findViewById(R.id.btRandom).setOnClickListener(new View.OnClickListener() {
+      if (Utils.findAndroidWalletBackupFiles(_network).size() > 0) {
+         findViewById(R.id.llAndroidWalletBackup).setVisibility(View.VISIBLE);
+         findViewById(R.id.btAndroidWalletBackup).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+               importAndroidWalletDialog(Utils.findAndroidWalletBackupFiles(_network));
+            }
+
+         });
+      } else {
+         findViewById(R.id.llAndroidWalletBackup).setVisibility(View.GONE);
+      }
+
+       findViewById(R.id.btRandom).setOnClickListener(new View.OnClickListener() {
 
          @Override
          public void onClick(View v) {
@@ -149,6 +179,102 @@ public class AddRecordActivity extends Activity {
       result.putExtra("record", record);
       setResult(RESULT_OK, result);
       finish();
+   }
+
+   /**
+    * Show alert dialog with list of found "Bitcoin Wallet" backup files to import from.
+    * Starts import for chosen file.
+    * @param backupList list of possible Android Wallet backup files
+    */
+   private void importAndroidWalletDialog(final List<File> backupList) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      CharSequence[] names = new CharSequence[backupList.size()];
+      int pos = 0;
+      for (File f : backupList) {
+         names[pos] = f.getName();
+         pos++;
+      }
+      builder.setTitle(R.string.pick_android_wallet_backup);
+      builder.setItems(names, new DialogInterface.OnClickListener() {
+         public void onClick(DialogInterface dialog, int which) {
+            androidWalletPasswordDialog(backupList.get(which));
+         }
+      });
+      builder.create().show();
+   }
+
+   /**
+    * Shows alert dialog with EditText field for entering decryption password
+    * of Android wallet backup.
+    * @param backupFile chosen backup file to decrypt
+    */
+   private void androidWalletPasswordDialog(final File backupFile) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      builder.setTitle(R.string.enter_android_wallet_backup_password_title);
+      builder.setMessage(R.string.enter_android_wallet_backup_password_message);
+      final EditText input = new EditText(this);
+      builder.setView(input);
+      builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+         public void onClick(DialogInterface dialog, int whichButton) {
+            try {
+               String password = input.getText().toString();
+               String decryptedText = EncryptionUtils.decryptOpenSslAes256Cbc(Utils.getFileContent(backupFile), password);
+               chooseKeyForImportDialog(parseRecordsFromBackupText(decryptedText));
+            } catch (GeneralSecurityException se) {
+               _toaster.toast(R.string.import_android_wallet_backup_decryption_error, false);
+            } catch (IOException io) {
+               _toaster.toast(R.string.import_android_wallet_backup_io_error, false);
+            }
+         }
+      });
+      builder.show();
+   }
+
+   /**
+    * Shows a list with found Bitcoin addresses in the "Bitcoin Wallet" backup file,
+    * returns the one the user chooses to the calling activity
+    * @param recordList list of found Records in backup file
+    */
+   private void chooseKeyForImportDialog(final List<Record> recordList) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      CharSequence[] keys = new CharSequence[recordList.size()];
+      int pos = 0;
+      for (Record rec : recordList) {
+         keys[pos] = rec.address.toString();
+         pos++;
+      }
+      builder.setTitle(R.string.pick_android_wallet_address_for_import).setItems(keys, new DialogInterface.OnClickListener() {
+         public void onClick(DialogInterface dialog, int which) {
+            finishOk(recordList.get(which), BackupState.UNKNOWN);
+         }
+      });
+      builder.create().show();
+   }
+
+   /**
+    * Parse possible Base58 private keys from text (as used in "Bitcoin Wallet" backup files)
+    * @param plainBackupText
+    * @return list of found records
+    */
+   private List<Record> parseRecordsFromBackupText(String plainBackupText) {
+      //todo try to implement this with Splitter.on(\"n") and String.indexOf(' ') to avoid regex
+      //todo this could use a unit test with sample data
+      StringTokenizer lines = new StringTokenizer(plainBackupText, "\n", false);
+      List<Record> foundRecords = new ArrayList<Record>();
+      // single line with key looks like:
+      // KzCxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 2014-02-11T08:55:35Z
+      Pattern p = Pattern.compile("^([A-Za-z0-9]{30,60}) \\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ$");
+      while (lines.hasMoreTokens()) {
+         String currLine = lines.nextToken();
+         Matcher m = p.matcher(currLine);
+         if(m.matches()) {
+            Record importRec = Record.recordFromBase58Key(m.group(1), _network);
+            if (importRec!=null) {
+               foundRecords.add(importRec);
+            }
+         }
+      }
+      return foundRecords;
    }
 
 }

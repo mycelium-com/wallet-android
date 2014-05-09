@@ -50,6 +50,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Environment;
 import android.text.ClipboardManager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -88,10 +89,20 @@ import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -804,6 +815,60 @@ public class Utils {
          return;
       }
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+   }
+
+   /**
+    * Search for possible backup files created by Schildbach's "Bitcoin Wallet" app
+    * (matching by filename).
+    *
+    * @return list of possible files or empty list if none found
+    */
+   public static ArrayList<File> findAndroidWalletBackupFiles(final NetworkParameters network) {
+      final File[] foundFiles;
+      final String filenamePattern;
+      if (network.isTestnet()) {
+         filenamePattern = "bitcoin-wallet-keys-testnet-\\d\\d\\d\\d-\\d\\d-\\d\\d";
+      } else {
+         filenamePattern = "bitcoin-wallet-keys-\\d\\d\\d\\d-\\d\\d-\\d\\d";
+      }
+      File backupDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+      if (backupDir.exists() && backupDir.isDirectory()) {
+         foundFiles = backupDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+               return filename.matches(filenamePattern);
+            }
+         });
+         if (foundFiles.length > 1) {
+            Arrays.sort(foundFiles, new Comparator<File>() {
+               public int compare(File lhs, File rhs) {
+                  return rhs.getName().compareTo(lhs.getName());
+               }
+            });
+         }
+         return new ArrayList<File>(Arrays.asList(foundFiles));
+      }
+      return new ArrayList<File>();
+   }
+
+   /**
+    * Returns filecontent as string
+    *
+    * @param textfile a UTF-8 encoded textfile
+    * @return content of textfile as string
+    * @throws java.io.IOException
+    */
+   public static String getFileContent(File textfile) throws IOException {
+      final StringBuilder filecontent = new StringBuilder();
+      final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(textfile), Charset.forName("UTF-8")));
+      while(true) {
+         final String currLine = reader.readLine();
+         if (currLine == null) {
+            break;
+         }
+         filecontent.append(currLine);
+      }
+      return filecontent.toString();
    }
 
 }
