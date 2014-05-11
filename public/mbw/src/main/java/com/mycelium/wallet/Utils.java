@@ -887,30 +887,13 @@ public class Utils {
    public static List<Record> getPrivKeysFromBitcoinJProtobufBackup(InputStream inStream, NetworkParameters network) throws IOException {
       List<Record> returnList = new ArrayList<Record>();
       Protos.Wallet wallet = Protos.Wallet.parseFrom(inStream);
-
       for (Protos.Key k : wallet.getKeyList()) {
          byte[] pubKeyBytes = k.getPublicKey().toByteArray();
          byte[] privKeyBytes = k.getPrivateKey().toByteArray();
-
-         // How does bitcoinj differentiate between compressed and uncompressed keys?
-         // This may not be the best method at all, but we simply try to create first compressed
-         // and then uncompressed keys and check if the resulting public key matches.
-         // Is there a better way to do this?
-
-         // first try compressed key
-         InMemoryPrivateKey compressedKey = new InMemoryPrivateKey(privKeyBytes, true);
-         if (Arrays.equals(compressedKey.getPublicKey().getPublicKeyBytes(), pubKeyBytes)) {
-            returnList.add(Record.fromString(compressedKey.getBase58EncodedPrivateKey(network), network));
-            continue;
-         }
-
-         // if the pubkic key did not match then try uncompressed key
-         InMemoryPrivateKey uncompressedKey = new InMemoryPrivateKey(privKeyBytes, false);
-         if (Arrays.equals(uncompressedKey.getPublicKey().getPublicKeyBytes(), pubKeyBytes)) {
-            returnList.add(Record.fromString(uncompressedKey.getBase58EncodedPrivateKey(network), network));
-         }
+         boolean keyIsCompressed = (pubKeyBytes.length == 33);
+         InMemoryPrivateKey inMemoryKey = new InMemoryPrivateKey(privKeyBytes, keyIsCompressed);
+         returnList.add(Record.fromString(inMemoryKey.getBase58EncodedPrivateKey(network), network));
       }
-
       return returnList;
    }
 
