@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.NFC" />
 
     <!--  Permissions required for Google Cloud Messaging -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
@@ -69,6 +70,7 @@
             <!-- bitcoin uri scheme -->
             <intent-filter android:label="@string/send_bitcoins" >
                 <action android:name="android.intent.action.VIEW" />
+				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />

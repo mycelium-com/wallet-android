@@ -185,7 +185,7 @@ public class StartupActivity extends Activity {
       final Uri intentUri = intent.getData();
       final String scheme = intentUri != null ? intentUri.getScheme() : null;
 
-      if (Intent.ACTION_VIEW.equals(action) && intentUri != null && "bitcoin".equals(scheme)) {
+      if ((Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) && intentUri != null && "bitcoin".equals(scheme)) {
          // We have been launched by a Bitcoin URI
 
          BitcoinUri b = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
