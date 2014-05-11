@@ -81,6 +81,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
@@ -89,11 +90,14 @@ import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 
+import org.bitcoinj.wallet.Protos;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -827,22 +831,22 @@ public class Utils {
       final File[] foundFiles;
       final String filenamePattern;
       if (network.isTestnet()) {
-         filenamePattern = "bitcoin-wallet-keys-testnet-\\d\\d\\d\\d-\\d\\d-\\d\\d";
+         filenamePattern = "bitcoin-wallet-(keys|backup)-testnet-\\d\\d\\d\\d-\\d\\d-\\d\\d";
       } else {
-         filenamePattern = "bitcoin-wallet-keys-\\d\\d\\d\\d-\\d\\d-\\d\\d";
+         filenamePattern = "bitcoin-wallet-(keys|backup)-\\d\\d\\d\\d-\\d\\d-\\d\\d";
       }
       File backupDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
       if (backupDir.exists() && backupDir.isDirectory()) {
          foundFiles = backupDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
-               return filename.matches(filenamePattern);
+            return (filename.matches(filenamePattern));
             }
          });
          if (foundFiles.length > 1) {
             Arrays.sort(foundFiles, new Comparator<File>() {
                public int compare(File lhs, File rhs) {
-                  return rhs.getName().compareTo(lhs.getName());
+               return rhs.getName().compareTo(lhs.getName());
                }
             });
          }
@@ -870,5 +874,45 @@ public class Utils {
       }
       return filecontent.toString();
    }
+
+   /**
+    * Reads private keys from a protocol buffer encoded input stream as it is used by the bitcoinj
+    * library. Ignores the rest of the content, just tries to read unencrypted private keys
+    * (assumes that keys are unencrypted).
+    *
+    * @param inStream
+    * @return list of byte-arrays containing 32-byte long raw private keys
+    * @throws IOException
+    */
+   public static List<Record> getPrivKeysFromBitcoinJProtobufBackup(InputStream inStream, NetworkParameters network) throws IOException {
+      List<Record> returnList = new ArrayList<Record>();
+      Protos.Wallet wallet = Protos.Wallet.parseFrom(inStream);
+
+      for (Protos.Key k : wallet.getKeyList()) {
+         byte[] pubKeyBytes = k.getPublicKey().toByteArray();
+         byte[] privKeyBytes = k.getPrivateKey().toByteArray();
+
+         // How does bitcoinj differentiate between compressed and uncompressed keys?
+         // This may not be the best method at all, but we simply try to create first compressed
+         // and then uncompressed keys and check if the resulting public key matches.
+         // Is there a better way to do this?
+
+         // first try compressed key
+         InMemoryPrivateKey compressedKey = new InMemoryPrivateKey(privKeyBytes, true);
+         if (Arrays.equals(compressedKey.getPublicKey().getPublicKeyBytes(), pubKeyBytes)) {
+            returnList.add(Record.fromString(compressedKey.getBase58EncodedPrivateKey(network), network));
+            continue;
+         }
+
+         // if the pubkic key did not match then try uncompressed key
+         InMemoryPrivateKey uncompressedKey = new InMemoryPrivateKey(privKeyBytes, false);
+         if (Arrays.equals(uncompressedKey.getPublicKey().getPublicKeyBytes(), pubKeyBytes)) {
+            returnList.add(Record.fromString(uncompressedKey.getBase58EncodedPrivateKey(network), network));
+         }
+      }
+
+      return returnList;
+   }
+
 
 }
