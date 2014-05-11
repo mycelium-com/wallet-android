@@ -126,7 +126,8 @@ public class InstantWalletActivity extends Activity {
                   .getSerializableExtra(ScanActivity.RESULT_RECORD_KEY));
             Wallet wallet = new Wallet(record);
             SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress, true);
-            finish();
+            // We don't call finish() here, so that this activity stays on the back stack.
+            // So the user can click back and scan the next cold storage.
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }
