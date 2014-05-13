@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
@@ -185,7 +186,7 @@ public class StartupActivity extends Activity {
       final Uri intentUri = intent.getData();
       final String scheme = intentUri != null ? intentUri.getScheme() : null;
 
-      if (Intent.ACTION_VIEW.equals(action) && intentUri != null && "bitcoin".equals(scheme)) {
+      if ((Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) && intentUri != null && "bitcoin".equals(scheme)) {
          // We have been launched by a Bitcoin URI
 
          BitcoinUri b = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
