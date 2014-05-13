@@ -55,6 +55,7 @@ import com.mycelium.wallet.Record.Source;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -216,8 +217,24 @@ public class AddRecordActivity extends Activity {
          public void onClick(DialogInterface dialog, int whichButton) {
             try {
                String password = input.getText().toString();
-               String decryptedText = EncryptionUtils.decryptOpenSslAes256Cbc(Utils.getFileContent(backupFile), password);
-               chooseKeyForImportDialog(parseRecordsFromBackupText(decryptedText));
+               String fileContent = Utils.getFileContent(backupFile);
+
+               // Differentiate old/new backup type by filename:
+               //   - old backup format (plain text) as used by Schildbach Wallet until version 3.46:
+               //      bitcoin-wallet-keys-yyyy-mm-dd
+               //   - new backup format (protocol buffers) as used by Schildbach Wallet from version 3.47+:
+               //      bitcoin-wallet-backup-yyyy-mm-dd
+
+               if (backupFile.getName().startsWith("bitcoin-wallet-backup")) {
+                  // new protobuf based backup
+                  byte[] decryptedBytes = EncryptionUtils.decryptOpenSslAes256CbcBytes(Utils.getFileContent(backupFile), password);
+                  List<Record> privateKeys = Utils.getPrivKeysFromBitcoinJProtobufBackup(new ByteArrayInputStream(decryptedBytes), _network);
+                  chooseKeyForImportDialog(privateKeys);
+               } else {
+                  // old plaintext backup
+                  String decryptedText = EncryptionUtils.decryptOpenSslAes256Cbc(Utils.getFileContent(backupFile), password);
+                  chooseKeyForImportDialog(parseRecordsFromBackupText(decryptedText));
+               }
             } catch (GeneralSecurityException se) {
                _toaster.toast(R.string.import_android_wallet_backup_decryption_error, false);
             } catch (IOException io) {
