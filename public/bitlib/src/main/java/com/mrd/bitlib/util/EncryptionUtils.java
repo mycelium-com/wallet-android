@@ -29,16 +29,15 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionUtils {
    /**
-    * Decrypt text which was encrypted with password-based AES-256-CBC as it's done by OpenSSL.
+    * Decrypt bytes which were encrypted with password-based AES-256-CBC as it's done by OpenSSL
+    * using the commandline:  "openssl enc -e -aes-256-cbc -a -in filenname.txt"
     *
     * @param encryptedMessageBase64 encrypted ciphertext
     * @param password password used for encryption
-    * @return decrypted message text
+    * @return decrypted message bytes
     * @throws java.security.GeneralSecurityException
     */
-   public static String decryptOpenSslAes256Cbc(String encryptedMessageBase64, String password) throws GeneralSecurityException, UnsupportedEncodingException {
-      final String charsetNameUtf8 = "UTF-8";
-
+   public static byte[] decryptOpenSslAes256CbcBytes(String encryptedMessageBase64, String password) throws GeneralSecurityException, UnsupportedEncodingException {
       // Offset from beginning of ciphertext where actual salt begins is always 8 bytes (when
       // using OpenSSL), as OpenSSL always places the magic string "Salted__" at the beginning
       // of the ciphertext to indicate that salt was used.
@@ -69,21 +68,36 @@ public class EncryptionUtils {
       byte[][] keyAndIV = openSslEVP_BytesToKey(256 / Byte.SIZE, aesCBC.getBlockSize(), md5, salt, password.getBytes("UTF-8"), 1);
       aesCBC.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyAndIV[0], "AES"), new IvParameterSpec(keyAndIV[1]));
 
-      return new String(aesCBC.doFinal(ciphertext), charsetNameUtf8);
+      return aesCBC.doFinal(ciphertext);
    }
 
    /**
-    * Java implementation of OpenSSLs "EVP_BytesToKey()".<br/>
-    * <br/>
-    * This method is used to derive the IV and key for AES-256-CBC decryption from a given password
-    * the same way as it's done by OpenSSL when using the commandline:
-    *     "openssl enc -e -aes-256-cbc -a -in filenname.txt"
-    * <br/><br/>
-    * Thanks to Ola Bini for releasing sourcecode for this method on his blog.
-    * This implementation is based on the sourcecode obtained from
-    * http://olabini.com/blog/tag/evp_bytestokey/ (last accessed at May 08, 2014)
-    * where it was released into public domain ("note, I release this into the public domain").
+    * Decrypt text which was encrypted with password-based AES-256-CBC as it's done by OpenSSL
+    * using the commandline:  "openssl enc -e -aes-256-cbc -a -in filenname.txt"
+    *
+    * @param encryptedMessageBase64
+    * @param password
+    * @return decrypted message string
+    * @throws GeneralSecurityException
+    * @throws UnsupportedEncodingException
     */
+   public static String decryptOpenSslAes256Cbc(String encryptedMessageBase64, String password) throws GeneralSecurityException, UnsupportedEncodingException {
+      return new String(decryptOpenSslAes256CbcBytes(encryptedMessageBase64, password), "UTF-8");
+   }
+
+
+      /**
+       * Java implementation of OpenSSLs "EVP_BytesToKey()".<br/>
+       * <br/>
+       * This method is used to derive the IV and key for AES-256-CBC decryption from a given password
+       * the same way as it's done by OpenSSL when using the commandline:
+       *     "openssl enc -e -aes-256-cbc -a -in filenname.txt"
+       * <br/><br/>
+       * Thanks to Ola Bini for releasing sourcecode for this method on his blog.
+       * This implementation is based on the sourcecode obtained from
+       * http://olabini.com/blog/tag/evp_bytestokey/ (last accessed at May 08, 2014)
+       * where it was released into public domain ("note, I release this into the public domain").
+       */
    private static byte[][] openSslEVP_BytesToKey(int key_len, int iv_len, MessageDigest md, byte[] salt, byte[] data, int iterations) {
       byte[][] keyAndIv = new byte[2][];
       byte[] key = new byte[key_len];
