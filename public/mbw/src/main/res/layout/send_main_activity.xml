@@ -14,16 +14,24 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:background="@drawable/background_send_activity_boxes"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:id="@+id/tvRecipientTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/recipient_title"
-                android:textSize="24sp" />
+                android:textSize="28sp"
+                android:layout_marginBottom="12dp"
+                android:textColor="#888888"
+                android:layout_gravity="center|top"
+                />
 
             <FrameLayout
                 android:layout_width="fill_parent"
@@ -118,7 +126,8 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/green"
                         android:textSize="20sp"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        android:layout_marginBottom="5dp"/>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -138,7 +147,8 @@
                             android:textColor="@color/white"
                             android:textColorHint="@color/darkgrey"
                             android:textSize="20sp"
-                            android:typeface="monospace" />
+                            android:typeface="monospace"
+                            android:background="@drawable/background_send_activity_amount_and_address"/>
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -154,7 +164,8 @@
             android:gravity="center"
             android:text="@string/read_only_warning"
             android:textColor="@color/red"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:paddingBottom="12dp"/>
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -162,7 +173,10 @@
             android:layout_marginBottom="5dp"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:background="@drawable/background_send_activity_boxes"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp">
 
             <!-- Amount Title -->
 
@@ -171,19 +185,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/amount_title"
-                android:textSize="24sp" />
+                android:textSize="28sp"
+                android:layout_marginBottom="12dp"
+                android:textColor="#888888"/>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="horizontal" >
 
                 <LinearLayout
+                    android:id="@+id/llAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="vertical" >
+                    android:layout_centerHorizontal="true"
+                    android:orientation="vertical"
+                    android:layout_alignParentLeft="true">
 
                     <!-- Amount -->
 
@@ -191,11 +209,13 @@
                         android:id="@+id/tvAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center|left"
                         android:hint="@string/amount_hint_denomination"
                         android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="20sp" />
+                        android:textColorHint="#444444"
+                        android:textSize="25sp"
+                        android:background="@drawable/background_send_activity_amount_and_address"
+                        android:layout_marginBottom="4dp"/>
 
                     <!-- Fiat Amount -->
 
@@ -203,7 +223,7 @@
                         android:id="@+id/tvAmountFiat"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center|left"
                         android:layout_marginBottom="10dp"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -220,58 +240,69 @@
                     style="@style/MyceliumSlimButton"
                     android:layout_width="75dp"
                     android:layout_height="45dp"
-                    android:layout_gravity="center"
+                    android:layout_toRightOf="@+id/llAmount"
+                    android:layout_alignTop="@+id/llAmount"
                     android:contentDescription="@string/an_icon"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/keyboard_icon" />
-            </LinearLayout>
+                    android:src="@drawable/keyboard_icon"
+                    android:layout_alignParentRight="false"/>
 
-            <!-- Amount Error -->
-
-            <TextView
-                android:id="@+id/tvError"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/red"
-                android:textSize="20sp"
-                android:visibility="gone" />
-
-            <!-- Fee -->
-
-            <LinearLayout
-                android:id="@+id/llFee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <!-- Fee Title -->
+                <!-- Amount Error -->
 
                 <TextView
-                    android:id="@+id/tvFeeLabel"
+                    android:id="@+id/tvError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/miner_fee_title"
-                    android:textSize="24sp" />
-
-                <!-- Fee Amount -->
-
-                <TextView
-                    android:id="@+id/tvFee"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
-
-                <!-- Fiat Fee -->
-
-                <TextView
-                    android:id="@+id/tvFeeFiat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/llAmount"
+                    android:layout_alignLeft="@+id/llAmount"
                     android:layout_gravity="center"
-                    android:textSize="13sp" />
-            </LinearLayout>
+                    android:textColor="@color/red"
+                    android:textSize="20sp"
+                    android:visibility="gone"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Fee -->
+
+                <LinearLayout
+                    android:id="@+id/llFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_below="@+id/tvError"
+                    android:layout_alignLeft="@+id/tvError" >
+
+                    <!-- Fee Title -->
+
+                    <TextView
+                        android:id="@+id/tvFeeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/miner_fee_title"
+                        android:textSize="20sp"
+                        android:layout_gravity="left" />
+
+                    <!-- Fee Amount -->
+
+                    <TextView
+                        android:id="@+id/tvFee"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textSize="17sp"
+                        android:layout_gravity="left"/>
+
+                    <!-- Fiat Fee -->
+
+                    <TextView
+                        android:id="@+id/tvFeeFiat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|left"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </RelativeLayout>
+
         </LinearLayout>
 
         <!-- Send -->
