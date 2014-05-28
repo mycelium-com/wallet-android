@@ -85,7 +85,7 @@ public class InstantWalletActivity extends Activity {
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
 
       final Record record = getRecordFromClipboard();
-      if (record == null || !record.hasPrivateKey()) {
+      if (record == null) {
          findViewById(R.id.btClipboard).setEnabled(false);
       } else {
          findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
