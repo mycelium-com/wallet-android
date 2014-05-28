@@ -19,20 +19,26 @@ public class TraderInfo extends PublicTraderInfo implements Serializable {
    @JsonProperty
    public final LinkedList<TradeSession> activeTradeSesions;
 
-   public TraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") Address address, @JsonProperty("publicKey") PublicKey publicKey,
-         @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("lastChange") long lastChange,
+   @JsonProperty
+   public final String notificationEmail;
+
+   public TraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") Address address,
+         @JsonProperty("publicKey") PublicKey publicKey, @JsonProperty("traderAgeMs") long traderAgeMs,
+         @JsonProperty("idleTime") long idleTime, @JsonProperty("lastChange") long lastChange,
          @JsonProperty("localTraderPremium") double localTraderPremium,
          @JsonProperty("successfulSales") int successfulSales, @JsonProperty("successfulBuys") int successfulBuys,
          @JsonProperty("abortedSales") int abortedSales, @JsonProperty("abortedBuys") int abortedBuys,
          @JsonProperty("totalBtcBought") long totalBtcBought, @JsonProperty("totalBtcSold") long totalBtcSold,
          @JsonProperty("tradeMedianMs") Long tradeMedianMs,
-         @JsonProperty("activeTradeSesions") LinkedList<TradeSession> activeTradeSesions) {
-      super(nickname, address, publicKey, traderAgeMs, lastChange, successfulSales, successfulBuys, abortedSales, abortedBuys,
-            tradeMedianMs);
+         @JsonProperty("activeTradeSesions") LinkedList<TradeSession> activeTradeSesions,
+         @JsonProperty("notificatonEmail") String notificationEmail) {
+      super(nickname, address, publicKey, traderAgeMs, idleTime, lastChange, successfulSales, successfulBuys,
+            abortedSales, abortedBuys, tradeMedianMs);
       this.localTraderPremium = localTraderPremium;
       this.totalBtcBought = totalBtcBought;
       this.totalBtcSold = totalBtcSold;
       this.activeTradeSesions = activeTradeSesions;
+      this.notificationEmail = notificationEmail;
    }
 
 }

@@ -33,7 +33,7 @@ public class LtResponse<T> {
       return r;
    }
 
-   public LtResponse() {
+   protected LtResponse() {
       // For Jackson
    }
 }

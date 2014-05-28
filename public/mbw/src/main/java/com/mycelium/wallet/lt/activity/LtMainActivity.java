@@ -68,7 +68,7 @@ import com.mycelium.wallet.lt.api.GetTraderInfo;
 public class LtMainActivity extends ActionBarActivity {
 
    public enum TAB_TYPE {
-      DEFAULT, ACTIVE_TRADES, TRADE_HISTORY
+      DEFAULT, ACTIVE_TRADES, TRADE_HISTORY, MY_ADS
    };
 
    public static void callMe(Context context, TAB_TYPE tabToSelect) {
@@ -275,6 +275,8 @@ public class LtMainActivity extends ActionBarActivity {
          return _myActiveTradesTab;
       case TRADE_HISTORY:
          return _myTradeHistoryTab;
+      case MY_ADS:
+         return _myAdsTab;
       default:
          return _myBuyBitcoinTab;
       }

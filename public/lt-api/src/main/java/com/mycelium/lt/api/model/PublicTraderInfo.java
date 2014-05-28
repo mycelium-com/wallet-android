@@ -18,6 +18,8 @@ public class PublicTraderInfo implements Serializable {
    @JsonProperty
    public final long traderAgeMs;
    @JsonProperty
+   public final long idleTime;
+   @JsonProperty
    public final long lastChange;
    @JsonProperty
    public final int successfulSales;
@@ -31,7 +33,7 @@ public class PublicTraderInfo implements Serializable {
    public final Long tradeMedianMs;
 
    public PublicTraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") Address address, @JsonProperty("publicKey") PublicKey publicKey,
-         @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("lastChange") long lastChange,
+         @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("idleTime") long idleTime, @JsonProperty("lastChange") long lastChange,
          @JsonProperty("successfulSales") int successfulSales, @JsonProperty("successfulBuys") int successfulBuys,
          @JsonProperty("abortedSales") int abortedSales, @JsonProperty("abortedBuys") int abortedBuys,
          @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
@@ -39,6 +41,7 @@ public class PublicTraderInfo implements Serializable {
       this.address = address;
       this.publicKey = publicKey;
       this.traderAgeMs = traderAgeMs;
+      this.idleTime = idleTime;
       this.lastChange = lastChange;
       this.successfulSales = successfulSales;
       this.successfulBuys = successfulBuys;

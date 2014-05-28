@@ -15,6 +15,7 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 dependencies {
+    compile 'com.google.protobuf:protobuf-java:2.5.0@jar'
     testCompile 'junit:junit:' + junitVersion
     compile guavaArtifact
 }

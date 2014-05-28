@@ -21,6 +21,7 @@ import java.math.BigInteger;
 
 import com.google.common.base.Preconditions;
 import com.lambdaworks.crypto.Base64;
+
 import com.mrd.bitlib.crypto.ec.Curve;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
@@ -54,11 +55,11 @@ public class SignedMessage implements Serializable {
       final byte[] signatureEncoded = Base64.decode(signatureBase64);
       final Signature sig = decodeSignature(signatureEncoded);
       final RecoveryInfo info = recoverFromSignature(message, signatureEncoded, sig);
-      validateAddresMatches(address, info.publicKey);
+      validateAddressMatches(address, info.publicKey);
       return new SignedMessage(sig, info.publicKey, info.recId);
    }
 
-   public static void validateAddresMatches(Address address, PublicKey key) throws WrongSignatureException {
+   public static void validateAddressMatches(Address address, PublicKey key) throws WrongSignatureException {
       Address recoveredAddress = key.toAddress(address.getNetwork());
       if (!address.equals(recoveredAddress)) {
          throw new WrongSignatureException(String.format("given Address did not match \nexpected %s\n but got %s",
@@ -133,7 +134,7 @@ public class SignedMessage implements Serializable {
          throw new RuntimeException("Could not construct a recoverable key. This should never happen.");
       int headerByte = recId + 27 + (getPublicKey().isCompressed() ? 4 : 0);
       byte[] sigData = new byte[65]; // 1 header + 32 bytes for R + 32 bytes for
-                                     // S
+      // S
       sigData[0] = (byte) headerByte;
       System.arraycopy(EcTools.integerToBytes(signature.r, 32), 0, sigData, 1, 32);
       System.arraycopy(EcTools.integerToBytes(signature.s, 32), 0, sigData, 33, 32);
@@ -173,15 +174,11 @@ public class SignedMessage implements Serializable {
     * loop from 0 to 3, and if the output is null OR a key that is not the one
     * you expect, you try again with the next recId.
     * </p>
-    * 
-    * @param recId
-    *           Which possible key to recover.
-    * @param sig
-    *           the R and S components of the signature, wrapped.
-    * @param message
-    *           Hash of the data that was signed.
-    * @param compressed
-    *           Whether or not the original pubkey was compressed.
+    *
+    * @param recId      Which possible key to recover.
+    * @param sig        the R and S components of the signature, wrapped.
+    * @param message    Hash of the data that was signed.
+    * @param compressed Whether or not the original pubkey was compressed.
     * @return PublicKey or null if recovery was not possible
     */
    public static PublicKey recoverFromSignature(int recId, Signature sig, Sha256Hash message, boolean compressed) {
@@ -211,7 +208,7 @@ public class SignedMessage implements Serializable {
 
       Curve curve = Parameters.curve;
       BigInteger prime = curve.getQ(); // Bouncy Castle is not consistent about
-                                       // the letter it uses for the prime.
+      // the letter it uses for the prime.
       if (x.compareTo(prime) >= 0) {
          // Cannot have point co-ordinates larger than this as everything takes
          // place modulo Q.

@@ -4,6 +4,7 @@ public class LtConst {
 
    public static final String TRADE = "/trade";
    public static final String INFO = "/info";
+   public static final String MAIL = "/mail";
 
    public static class Param {
       public static final String API_VERSION = "v";
@@ -36,7 +37,9 @@ public class LtConst {
       public static final String OFFSET = "offset";
       public static final String TOKEN = "token";
       public static final String AD_ID = "adId";
+      public static final String EMAIL = "email";
    }
+
    public static class Function {
 
       public static final String CREATE_TRADER = "createTrader";
@@ -92,6 +95,8 @@ public class LtConst {
       public static final String GET_ACTIVE_ADS = "getActiveAds";
       public static final String CREATE_TRADE = "createTrade";
       public static final String SET_TRADE_RECEIVING_ADDRESS = "setTradeReceivingAddress";
+      public static final String SET_NOTIFICATION_EMAIL = "setNotificationEmail";
+      public static final String CONFIRM_MAIL = "confirmMail";
    }
 
 }

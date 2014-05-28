@@ -42,6 +42,16 @@
             android:textSize="18sp" />
 
         <TextView
+            android:id="@+id/tvReceivingFiat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="0dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/semidarkgreen"
+            android:textSize="16sp" />
+        
+        <TextView
             android:id="@+id/tvSending"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,7 +60,17 @@
             android:gravity="center_horizontal"
             android:textColor="@color/semidarkgreen"
             android:textSize="18sp" />
-    </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSendingFiat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="0dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/semidarkgreen"
+            android:textSize="16sp" />
+        </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"

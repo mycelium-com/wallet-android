@@ -213,11 +213,45 @@ public class LtAndroidUtils {
       if (timeInMs < Constants.MS_PR_HOUR) {
          return context.getString(R.string.lt_time_less_than_one_hour);
       }
-      Long hours = Math.round((double )timeInMs / Constants.MS_PR_HOUR);
+      Long hours = Math.round((double) timeInMs / Constants.MS_PR_HOUR);
       if (hours.equals(1L)) {
          return context.getString(R.string.lt_time_about_one_hour);
       } else {
          return context.getString(R.string.lt_time_about_x_hours, hours);
       }
+   }
+
+   public static String getTimeSpanString(Context context, long ms) {
+      // Less than one minute
+      if (ms < Constants.MS_PR_MINUTE) {
+         return context.getString(R.string.lt_time_less_than_one_minute);
+      }
+      // Less than one hour
+      if (ms < Constants.MS_PR_HOUR) {
+         long minutes = ms / Constants.MS_PR_MINUTE;
+         if (minutes == 1) {
+            return context.getString(R.string.lt_time_one_minute);
+         } else {
+            return context.getString(R.string.lt_time_in_minutes, minutes);
+         }
+      }
+      // Less than one day
+      if (ms < Constants.MS_PR_DAY) {
+         long hours = ms / Constants.MS_PR_HOUR;
+         if (hours == 1) {
+            return context.getString(R.string.lt_time_one_hour);
+         } else {
+            return context.getString(R.string.lt_time_in_hours, hours);
+         }
+      }
+
+      // One day or more
+      long days = ms / Constants.MS_PR_DAY;
+      if (days == 1) {
+         return context.getString(R.string.lt_time_one_day);
+      } else {
+         return context.getString(R.string.lt_time_in_days, days);
+      }
+
    }
 }

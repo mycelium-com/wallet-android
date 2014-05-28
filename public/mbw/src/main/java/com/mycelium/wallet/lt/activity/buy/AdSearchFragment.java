@@ -101,8 +101,6 @@ public class AdSearchFragment extends Fragment {
          _ads = (List<AdSearchItem>) savedInstanceState.getSerializable(ADS);
       }
       ((Button) view.findViewById(R.id.btChange)).setOnClickListener(changeLocationClickListener);
-      ((TextView) view.findViewById(R.id.tvTitle))
-            .setText(isBuy() ? R.string.lt_buying_near : R.string.lt_selling_near);
       return view;
    }
 
@@ -180,9 +178,6 @@ public class AdSearchFragment extends Fragment {
          return;
       }
 
-      // show / hide location
-      findViewById(R.id.llLocation).setVisibility(View.VISIBLE);
-
       ((TextView) findViewById(R.id.tvLocation)).setText(_ltManager.getUserLocation().name);
 
       if (_ads == null) {
@@ -212,7 +207,6 @@ public class AdSearchFragment extends Fragment {
       }
 
       private static final int METERS_PR_MILE = 1609;
-      private static final long MS_PER_DAY = 1000 * 60 * 60 * 24;
       private Locale _locale;
       private Context _context;
       private boolean _useMiles;
@@ -265,12 +259,11 @@ public class AdSearchFragment extends Fragment {
             tvTraderName.append("\n" + _context.getString(R.string.lt_thats_you));
          }
 
-         // Trader Age
-         int traderAgeDays = (int) (item.traderInfo.traderAgeMs / MS_PER_DAY);
-         String traderAge = getTraderAgeString(traderAgeDays);
-         TextView tvTraderAge = (TextView) card.findViewById(R.id.tvTraderAge);
-         tvTraderAge.setText(traderAge);
-         setTraderAgeColor(tvTraderAge, traderAgeDays);
+         // Trader Activity
+         String lastActivity = LtAndroidUtils.getTimeSpanString(_context, item.traderInfo.idleTime);
+         TextView tvLastActivity = (TextView) card.findViewById(R.id.tvLastActivity);
+         tvLastActivity.setText(lastActivity);
+         setTraderActivityColor(tvLastActivity, item.traderInfo.idleTime);
 
          // Rating
          RatingBar ratingBar = (RatingBar) card.findViewById(R.id.seller_rating);
@@ -357,10 +350,6 @@ public class AdSearchFragment extends Fragment {
          }
       };
 
-      private String getTraderAgeString(int days) {
-         return getResources().getString(R.string.lt_time_in_days, days);
-      }
-
       private String getDistanceString(AdSearchItem item) {
          if (isOmnipresent(item)) {
             // This trader is not limited by distance, and can trade anywhere in
@@ -420,8 +409,7 @@ public class AdSearchFragment extends Fragment {
       @Override
       public void run() {
          if (_selected != null) {
-            SendRequestActivity.callMe(getActivity(), new GetAd(_selected.id),
-                  getString(R.string.lt_edit_ad_title));
+            SendRequestActivity.callMe(getActivity(), new GetAd(_selected.id), getString(R.string.lt_edit_ad_title));
          }
       }
    };
@@ -439,6 +427,17 @@ public class AdSearchFragment extends Fragment {
       return item.location.latitude == 0 && item.location.longitude == 0;
    }
 
+   private void setTraderActivityColor(TextView textView, long idleTime) {
+      if (idleTime < Constants.MS_PR_DAY * 2) {
+         setCol(textView, R.color.status_green);
+      } else if (idleTime < Constants.MS_PR_DAY * 8) {
+         setCol(textView, R.color.status_yellow);
+      } else {
+         setCol(textView, R.color.status_red);
+      }
+   }
+
+   @SuppressWarnings("unused")
    private void setTraderAgeColor(TextView textView, int traderAgeDays) {
       if (traderAgeDays < 2) {
          setCol(textView, R.color.status_red);

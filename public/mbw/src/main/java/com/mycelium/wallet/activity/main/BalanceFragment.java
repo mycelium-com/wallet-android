@@ -209,6 +209,9 @@ public class BalanceFragment extends Fragment {
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.unspent
             + balance.pendingChange));
 
+      // Set balance fiat value
+      setFiatValue(R.id.tvFiat, balance.unspent + balance.pendingChange, false);
+
       // Show/Hide Receiving
       // todo de-duplicate code
       if (balance.pendingReceiving > 0) {
@@ -220,6 +223,7 @@ public class BalanceFragment extends Fragment {
       } else {
          _root.findViewById(R.id.tvReceiving).setVisibility(View.GONE);
       }
+      setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
 
       // Show/Hide Sending
       // todo de-duplicate code
@@ -232,17 +236,20 @@ public class BalanceFragment extends Fragment {
       } else {
          _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
       }
+      setFiatValue(R.id.tvSendingFiat, balance.pendingSending, true);
 
-      // Set Fiat value
-      if (_exchangeRate == null || _exchangeRate.price == null) {
-         _root.findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
+   }
+
+   private void setFiatValue(int textViewResourceId, long satoshis, boolean hideOnZeroBalance) {
+      TextView tv = (TextView) _root.findViewById(textViewResourceId);
+      if (_exchangeRate == null || _exchangeRate.price == null || (hideOnZeroBalance && satoshis == 0)) {
+         tv.setVisibility(View.GONE);
       } else {
-         TextView tvFiat = (TextView) _root.findViewById(R.id.tvFiat);
-         tvFiat.setVisibility(View.VISIBLE);
+         tv.setVisibility(View.VISIBLE);
 
-         String converted = Utils.getFiatValueAsString(balance.unspent + balance.pendingChange, _exchangeRate.price);
+         String converted = Utils.getFiatValueAsString(satoshis, _exchangeRate.price);
          String currency = _mbwManager.getFiatCurrency();
-         tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+         tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
       }
 
    }

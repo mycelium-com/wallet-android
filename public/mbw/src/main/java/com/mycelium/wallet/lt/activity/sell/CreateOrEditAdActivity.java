@@ -62,8 +62,11 @@ import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.Ad;
 import com.mycelium.lt.api.model.AdType;
+import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.api.model.PriceFormula;
+import com.mycelium.lt.api.params.BtcSellPriceParameters;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -78,6 +81,7 @@ import com.mycelium.wallet.lt.LtAndroidUtils.PriceFormulaChoice;
 import com.mycelium.wallet.lt.activity.ChangeLocationActivity;
 import com.mycelium.wallet.lt.activity.EnterFiatAmountActivity;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
+import com.mycelium.wallet.lt.api.AssessBtcSellPrice;
 import com.mycelium.wallet.lt.api.CreateAd;
 import com.mycelium.wallet.lt.api.EditAd;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
@@ -121,6 +125,8 @@ public class CreateOrEditAdActivity extends Activity {
    private int _maxAmount;
    private boolean isFirstAdTypeSelect; // hack because the select is fired
                                         // automatically on startup
+   private BtcSellPrice _btcPrice;
+   private boolean _isFetchingPrice;
 
    /** Called when the activity is first created. */
    @SuppressWarnings("unchecked")
@@ -197,7 +203,9 @@ public class CreateOrEditAdActivity extends Activity {
       _spAdType.setSelection(adType == AdType.SELL_BTC ? 0 : 1);
       _spAdType.setOnItemSelectedListener(adTypeChanged);
       isFirstAdTypeSelect = true;
-      _spPriceFormula.setOnItemSelectedListener(spinnerItemSelected);
+      _spPriceFormula.setOnItemSelectedListener(priceFormulaSelected);
+
+      _spPremium.setOnItemSelectedListener(premiumSelected);
 
       // Set title
       ((TextView) findViewById(R.id.tvTitle)).setText(isEdit() ? R.string.lt_edit_ad_title
@@ -220,19 +228,8 @@ public class CreateOrEditAdActivity extends Activity {
          // Negate the premium automatically
          LtAndroidUtils.populatePremiumSpinner(CreateOrEditAdActivity.this, _spPremium, -getSelectedPremium());
 
-         final Animation animation = new AlphaAnimation(1, 0); // Change alpha
-                                                               // from fully
-                                                               // visible to
-                                                               // invisible
-         animation.setDuration(500); // duration - half a second
-         animation.setInterpolator(new LinearInterpolator()); // do not alter
-                                                              // animation rate
-         animation.setRepeatCount(1); // Repeat animation
-                                                       // infinitely
-         animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the
-                                                     // end so the button will
-                                                     // fade back in
-         _spPremium.startAnimation(animation);
+         // Fade in/out
+         fadeView(_spPremium);
       }
 
       @Override
@@ -245,12 +242,26 @@ public class CreateOrEditAdActivity extends Activity {
       return _ad != null;
    }
 
+   private void fadeView(View view) {
+      // Change alpha from fully visible to invisible
+      final Animation animation = new AlphaAnimation(1, 0);
+      animation.setDuration(500); // duration - half a second
+      animation.setInterpolator(new LinearInterpolator()); // do not alter
+      // animation rate
+      animation.setRepeatCount(1); // Repeat animation
+      // Reverse animation at the end so the button will fade back in
+      animation.setRepeatMode(Animation.REVERSE);
+      view.startAnimation(animation);
+   }
+
    @Override
    protected void onResume() {
       _ltManager.subscribe(ltSubscriber);
       updateUi();
       if (_priceFormulas == null) {
          _ltManager.makeRequest(new GetPriceFormulas());
+      } else {
+         fetchNewPrice();
       }
       super.onResume();
    }
@@ -421,10 +432,42 @@ public class CreateOrEditAdActivity extends Activity {
          if (_maxAmount != -1) {
             _tvMaxAmount.setText(String.format("%s %s", Integer.toString(_maxAmount), _currency));
          }
+
+         // Set the approximate BTC price
+         if (_btcPrice == null) {
+            ((TextView) findViewById(R.id.tvFiatPrice)).setText(R.string.question_mark);
+         } else {
+            String price = getBtcPriceString(_btcPrice.fiatTraded, _btcPrice.satoshisForBuyer, _btcPrice.currency);
+            ((TextView) findViewById(R.id.tvFiatPrice)).setText(price);
+         }
          ((TextView) findViewById(R.id.tvLocation)).setText(_location.name);
          ((Button) findViewById(R.id.btCurrency)).setText(getCurrency());
 
       }
+   }
+
+   private String getBtcPriceString(int fiatTraded, long satoshis, String currency) {
+      double oneBtcPrice = (double) fiatTraded * Constants.ONE_BTC_IN_SATOSHIS / (double) satoshis;
+      String price = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, oneBtcPrice);
+      return this.getResources().getString(R.string.btc_value_string, price, currency);
+   }
+
+   private void fetchNewPrice() {
+      _btcPrice = null;
+      PriceFormula priceFormula = getSelectedPriceFormula();
+      Double premium = getSelectedPremium();
+      if (priceFormula == null || premium == null) {
+         return;
+      }
+      if (_isFetchingPrice) {
+         return;
+      }
+      _isFetchingPrice = true;
+      BtcSellPriceParameters params = new BtcSellPriceParameters(_ltManager.getLocalTraderAddress(), null,
+            getCurrency(), 1000000, priceFormula.id, premium);
+      AssessBtcSellPrice request = new AssessBtcSellPrice(params);
+      _ltManager.makeRequest(request);
+
    }
 
    TextWatcher textWatcher = new TextWatcher() {
@@ -443,15 +486,30 @@ public class CreateOrEditAdActivity extends Activity {
       }
    };
 
-   OnItemSelectedListener spinnerItemSelected = new OnItemSelectedListener() {
+   OnItemSelectedListener premiumSelected = new OnItemSelectedListener() {
 
       @Override
       public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+         fetchNewPrice();
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> arg0) {
+         fetchNewPrice();
+      }
+   };
+
+   OnItemSelectedListener priceFormulaSelected = new OnItemSelectedListener() {
+
+      @Override
+      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+         fetchNewPrice();
          enableUi();
       }
 
       @Override
       public void onNothingSelected(AdapterView<?> arg0) {
+         fetchNewPrice();
          enableUi();
       }
    };
@@ -522,6 +580,14 @@ public class CreateOrEditAdActivity extends Activity {
          LtAndroidUtils.populatePriceFormulaSpinner(CreateOrEditAdActivity.this, _spPriceFormula, priceFormulas,
                isEdit() ? _ad.priceFormula : null);
          enableUi();
+         fetchNewPrice();
+         updateUi();
+      };
+
+      @Override
+      public void onLtBtcSellPriceAssesed(BtcSellPrice btcSellPrice, AssessBtcSellPrice request) {
+         _btcPrice = btcSellPrice;
+         _isFetchingPrice = false;
          updateUi();
       };
 

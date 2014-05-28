@@ -133,6 +133,9 @@ public class TraderInfoFragment extends Fragment {
       // Show trader address
       _adapter.add(new InfoItem(getString(R.string.lt_trader_address_label), pti.address.toMultiLineString()));
 
+      // Show trader last activity
+      _adapter.add(new InfoItem(getString(R.string.lt_trader_last_activity), LtAndroidUtils.getTimeSpanString(this.getActivity(), pti.idleTime)));
+      
       // Show trader age
       _adapter.add(new InfoItem(getString(R.string.lt_trader_age_label), getResources().getString(
             R.string.lt_time_in_days, pti.traderAgeMs / Constants.MS_PR_DAY)));

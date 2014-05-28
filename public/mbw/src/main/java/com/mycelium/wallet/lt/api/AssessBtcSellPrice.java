@@ -16,7 +16,7 @@ public class AssessBtcSellPrice extends Request {
    public final BtcSellPriceParameters params;
 
    public AssessBtcSellPrice(BtcSellPriceParameters params) {
-      super(true, true);
+      super(true, false);
       this.params = params;
    }
 

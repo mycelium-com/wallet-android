@@ -40,6 +40,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -47,6 +48,8 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -55,8 +58,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
+import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
@@ -64,7 +69,10 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.api.GetTraderInfo;
+import com.mycelium.wallet.lt.api.SetNotificationMail;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -82,6 +90,7 @@ public class SettingsActivity extends PreferenceActivity {
    private static final int GET_CURRENCY_RESULT_CODE = 0;
 
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
+   private static final boolean EMAIL_ENABLED = false;
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -101,6 +110,8 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
    private ImmutableMap<String, String> _languageLookup;
+   private LocalTraderEventSubscriber ltListener;
+   private EditTextPreference ltNotificationEmail;
 
    @SuppressWarnings("deprecation")
    @Override
@@ -197,6 +208,7 @@ public class SettingsActivity extends PreferenceActivity {
       _ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
       _ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
+
       _ltNotificationSound = (CheckBoxPreference) findPreference("ltNotificationSound");
       _ltNotificationSound.setChecked(_ltManager.getPlaySoundOnTradeNotification());
       _ltNotificationSound.setOnPreferenceClickListener(ltNotificationSoundClickListener);
@@ -236,6 +248,68 @@ public class SettingsActivity extends PreferenceActivity {
 
       applyExpertMode();
       applyLocalTraderEnablement();
+   }
+
+   @Override
+   protected void onResume() {
+      ltListener = new LocalTraderEventSubscriber(new Handler()) {
+         @Override
+         public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
+            ltNotificationEmail.setSummary(info.notificationEmail);
+         }
+
+         @Override
+         public void onLtError(int errorCode) {
+            //
+         }
+      };
+      _ltManager.subscribe(ltListener);
+
+      if (EMAIL_ENABLED) {
+         setupEmailNotificationSetting();
+      } else {
+         PreferenceCategory ltprefs = (PreferenceCategory) findPreference("localtraderPrefs");
+         ltprefs.removePreference(findPreference("ltNotificationEmail"));
+      }
+
+      super.onResume();
+   }
+
+   private void setupEmailNotificationSetting() {
+      ltNotificationEmail = (EditTextPreference) findPreference("ltNotificationEmail");
+
+      if (!_ltManager.hasLocalTraderAccount()) {
+         ltNotificationEmail.setEnabled(false);
+         return;
+      }
+
+
+      ltNotificationEmail.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+         @Override
+         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            _ltManager.makeRequest(new SetNotificationMail(newValue.toString()));
+            ltNotificationEmail.setSummary(newValue.toString());
+            return true;
+         }
+      });
+
+      final TraderInfo cachedTraderInfo = _ltManager.getCachedTraderInfo();
+      if (cachedTraderInfo == null) {
+         new Thread() {
+            @Override
+            public void run() {
+               _ltManager.makeRequest(new GetTraderInfo());
+            }
+         }.start();
+      } else {
+         ltNotificationEmail.setSummary(cachedTraderInfo.notificationEmail);
+      }
+
+   }
+   @Override
+   protected void onPause() {
+      _ltManager.unsubscribe(ltListener);
+      super.onPause();
    }
 
    private String getLanguageSettingTitle() {

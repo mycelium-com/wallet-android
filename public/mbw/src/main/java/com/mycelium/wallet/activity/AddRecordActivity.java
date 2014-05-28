@@ -217,7 +217,6 @@ public class AddRecordActivity extends Activity {
          public void onClick(DialogInterface dialog, int whichButton) {
             try {
                String password = input.getText().toString();
-               String fileContent = Utils.getFileContent(backupFile);
 
                // Differentiate old/new backup type by filename:
                //   - old backup format (plain text) as used by Schildbach Wallet until version 3.46:

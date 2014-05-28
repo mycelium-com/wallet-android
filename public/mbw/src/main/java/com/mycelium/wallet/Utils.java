@@ -822,9 +822,9 @@ public class Utils {
    }
 
    /**
-    * Search for possible backup files created by Schildbach's "Bitcoin Wallet" app
-    * (matching by filename).
-    *
+    * Search for possible backup files created by Schildbach's "Bitcoin Wallet"
+    * app (matching by filename).
+    * 
     * @return list of possible files or empty list if none found
     */
    public static ArrayList<File> findAndroidWalletBackupFiles(final NetworkParameters network) {
@@ -856,21 +856,27 @@ public class Utils {
    }
 
    /**
-    * Returns filecontent as string
-    *
-    * @param textfile a UTF-8 encoded textfile
-    * @return content of textfile as string
+    * Returns the contents of a file as a string
+    * 
+    * @param textFile
+    *           an UTF-8 encoded text file
+    * @return content of a text file as string
     * @throws java.io.IOException
     */
-   public static String getFileContent(File textfile) throws IOException {
+   public static String getFileContent(File textFile) throws IOException {
       final StringBuilder filecontent = new StringBuilder();
-      final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(textfile), Charset.forName("UTF-8")));
-      while(true) {
-         final String currLine = reader.readLine();
-         if (currLine == null) {
-            break;
+      final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(textFile),
+            Charset.forName("UTF-8")));
+      try {
+         while (true) {
+            final String currLine = reader.readLine();
+            if (currLine == null) {
+               break;
+            }
+            filecontent.append(currLine);
          }
-         filecontent.append(currLine);
+      } finally {
+         reader.close();
       }
       return filecontent.toString();
    }

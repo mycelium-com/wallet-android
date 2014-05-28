@@ -529,6 +529,15 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> setTraderNotificationEmail(UUID sessionId, String email) {
+      LtRequest r = new LtRequest(Function.SET_NOTIFICATION_EMAIL);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.EMAIL, email);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> requestMarketRateRefresh(UUID sessionId, UUID tradeSessionId) {
       LtRequest r = new LtRequest(Function.REQUEST_MARKET_RATE_REFRESH);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());

@@ -14,34 +14,7 @@ import com.mycelium.lt.api.model.PriceFormula;
 import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.lt.api.AbortTrade;
-import com.mycelium.wallet.lt.api.AcceptTrade;
-import com.mycelium.wallet.lt.api.ActivateAd;
-import com.mycelium.wallet.lt.api.AdSearch;
-import com.mycelium.wallet.lt.api.AssessBtcSellPrice;
-import com.mycelium.wallet.lt.api.ChangeTradeSessionPrice;
-import com.mycelium.wallet.lt.api.CreateAd;
-import com.mycelium.wallet.lt.api.CreateTrade;
-import com.mycelium.wallet.lt.api.CreateTrader;
-import com.mycelium.wallet.lt.api.DeactivateAd;
-import com.mycelium.wallet.lt.api.DeleteAd;
-import com.mycelium.wallet.lt.api.EditAd;
-import com.mycelium.wallet.lt.api.GetAd;
-import com.mycelium.wallet.lt.api.GetAds;
-import com.mycelium.wallet.lt.api.GetCaptcha;
-import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
-import com.mycelium.wallet.lt.api.GetOpenTradeSessions;
-import com.mycelium.wallet.lt.api.GetPriceFormulas;
-import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
-import com.mycelium.wallet.lt.api.GetTradeSession;
-import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wallet.lt.api.ReleaseBtc;
-import com.mycelium.wallet.lt.api.Request;
-import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
-import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
-import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
-import com.mycelium.wallet.lt.api.SolveCaptcha;
-import com.mycelium.wallet.lt.api.TryLogin;
+import com.mycelium.wallet.lt.api.*;
 
 public abstract class LocalTraderEventSubscriber {
 
@@ -235,4 +208,7 @@ public abstract class LocalTraderEventSubscriber {
       onLtGenericSuccess(request);
    }
 
+   public void onNotificationEmailSet(SetNotificationMail request) {
+      onLtGenericSuccess(request);
+   }
 }

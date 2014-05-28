@@ -10,49 +10,33 @@
     <!-- Location -->
 
     <LinearLayout
-        android:id="@+id/llLocation"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center"
         android:background="@color/darkdarkgrey"
         android:gravity="center"
-        android:orientation="vertical" >
+        android:orientation="horizontal" >
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
             android:gravity="center"
-            android:text="@string/lt_buying_near"
+            android:maxWidth="200dp"
             android:textSize="16sp" />
 
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:id="@+id/btChange"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:gravity="center"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:gravity="center"
-                android:maxWidth="200dp"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btChange"
-                style="@style/MyceliumButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:text="@string/lt_change_button" />
-        </LinearLayout>
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/lt_change_button" />
     </LinearLayout>
 
     <FrameLayout

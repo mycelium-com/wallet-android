@@ -324,6 +324,7 @@
     <string name="lt_create_order_choose_location">Choose the location where you wish to trade:</string>
     <string name="lt_create_order_choose_base_price">Choose the base price:</string>
     <string name="lt_create_sell_order_choose_premium">Choose the premium you wish to add on top of the base price:</string>
+    <string name="lt_create_order_fiat_price">Approximate price for one bitcoin:</string>
     <string name="lt_create_sell_order_choose_currency">Choose the fiat currency you accept:</string>
     <string name="lt_create_order_choose_minimum">Choose the minimum amount to trade:</string>
     <string name="lt_create_order_choose_maximum">Choose the maximum amount to trade:</string>
@@ -352,6 +353,12 @@
     <string name="lt_distance_not_applicable">Omnipresent</string>
     <string name="lt_limits_label">Limits</string>
     <string name="lt_trader_label">Trader</string>
+    <string name="lt_time_less_than_one_minute">Just now</string>
+    <string name="lt_time_one_minute">1 minute</string>
+    <string name="lt_time_in_minutes">%1$s minutes</string>
+    <string name="lt_time_one_hour">1 hour</string>
+    <string name="lt_time_in_hours">%1$s hours</string>
+    <string name="lt_time_one_day">1 day</string>
     <string name="lt_time_in_days">%1$s days</string>
     <string name="lt_rating_label">Rating</string>
     <string name="lt_expected_trade_time_label">Expected Trade Time</string>
@@ -415,6 +422,7 @@
     <string name="lt_google_play_services_not_available">Your device cannot integrate with Google Play Services, and may not get automatic notifications when trade updates occur.</string>
     <string name="lt_mycelium_local_trader_title">Mycelium Local Trader</string>
     <string name="lt_new_trading_activity_message">New trading activity</string>
+    <string name="lt_ad_deactivating_message">One of your Local Trader ads will soon deactivate.</string>
     <string name="lt_buying_details">You are buying %1$s</string>
     <string name="lt_selling_details">You are selling %1$s</string>
     <string name="lt_no_trader_account_desc">There is no Local Trader account associated with this wallet.\n\nA trader account is linked directly to one of your bitcoin addresses, no passwords, no hassle.\n\nCreate one now?</string>
@@ -422,6 +430,7 @@
     <string name="lt_trader_name_label">Trader Name</string>
     <string name="lt_trader_address_label">Account Tied to Address</string>
     <string name="lt_trader_age_label">Trader Account Age</string>
+    <string name="lt_trader_last_activity">Last Activity</string>
     <string name="lt_successful_sells_label">Successful Sells</string>
     <string name="lt_aborted_sells_label">Aborted Sells</string>
     <string name="lt_total_sold_label">Total Sold</string>
@@ -487,5 +496,6 @@
     <string name="geocode_error">Error from geocoder: %s \n please try again later.</string>
     <string name="donate_button">Donate</string>
     <string name="donate_description">Mycelium is a great wallet and you can use it for free.\n\nPlease help our development effort by giving a donation.\n\nAny amount counts!</string>
-    
+    <string name="lt_use_email_for_notifications">Use email for notifications</string>
+
 </resources>

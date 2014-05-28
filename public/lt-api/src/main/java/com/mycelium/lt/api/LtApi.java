@@ -69,10 +69,12 @@ public interface LtApi {
    public final static int ERROR_CODE_PRICE_FORMULA_NOT_AVAILABLE = 19;
 
    public static final String TRADE_ACTIVITY_NOTIFICATION_KEY = "tradeActivity";
+   public static final String AD_ACTIVITY_NOTIFICATION_KEY = "adActivity";
 
    public static final String TRADE_CREATED_NOTIFICATION_TYPE = "trade_created";
    public static final String TRADE_CHANGED_NOTIFICATION_TYPE = "trade_changed";
    public static final String TRADE_FINAL_NOTIFICATION_TYPE = "trade_final";
+   public static final String AD_TIME_OUT_NOTIFICATION_TYPE = "ad_time_out";
 
    public LtResponse<LtSession> createSession(int apiVersion, String locale, String bitcoinDenomination);
 
@@ -182,4 +184,6 @@ public interface LtApi {
    public LtResponse<Long> waitForTraderChange(Address traderId, UUID token, long traderTimestamp);
 
    public LtResponse<Void> stopWaitingForTraderChange(UUID token);
+
+   public LtResponse<Void> setTraderNotificationEmail(UUID sessionId, String email);
 }

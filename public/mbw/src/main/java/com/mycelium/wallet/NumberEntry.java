@@ -45,7 +45,7 @@ public class NumberEntry {
 
    private static final int DEL = -1;
    private static final int DOT = -2;
-   private static final int MAX_DIGITS_BEFORE_DOT = 7;
+   private static final int MAX_DIGITS_BEFORE_DOT = 9;
 
    public interface NumberEntryListener {
       public void onEntryChanged(String entry);

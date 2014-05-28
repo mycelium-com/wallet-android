@@ -65,9 +65,9 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" />
-                
+
                 <!-- Location -->
-                
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -106,6 +106,33 @@
                         android:text="@string/lt_change_button" />
                 </LinearLayout>
 
+                <!-- Fiat Currency -->
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="15dp"
+                    android:gravity="center"
+                    android:text="@string/lt_create_sell_order_choose_currency"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btCurrency"
+                    style="@style/MyceliumSlimButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="13dp"
+                    android:paddingRight="13dp"
+                    android:paddingTop="7dp"
+                    android:textSize="22sp"
+                    android:typeface="monospace" />
+                
                 <!-- Base Price -->
 
                 <TextView
@@ -148,7 +175,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" />
 
-                <!-- Fiat Currency -->
+                <!-- Fiat Price -->
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -158,22 +185,17 @@
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
-                    android:text="@string/lt_create_sell_order_choose_currency"
+                    android:text="@string/lt_create_order_fiat_price"
                     android:textSize="16sp" />
 
-                <Button
-                    android:id="@+id/btCurrency"
-                    style="@style/MyceliumSlimButton"
+                <TextView
+                    android:id="@+id/tvFiatPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="13dp"
-                    android:paddingRight="13dp"
-                    android:paddingTop="7dp"
-                    android:textSize="22sp"
-                    android:typeface="monospace" />
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center"
+                    android:textSize="20sp" />
 
                 <!-- Minimum Amount -->
 
