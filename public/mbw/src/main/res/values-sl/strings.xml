@@ -198,7 +198,7 @@
   <string name="confirm_delete_pk_without_balance_with_label">Tega dejanja ni mogoče razveljaviti!\n\nOznaka zasebnega ključa:\n%1$s\n\nNaslov zasebnega ključa:\n%2$s\n\nGa želite izbrisati?</string>
   <string name="verify_private_key_backup">Preveri rezervno kopijo</string>
   <string name="verify_backup_dialog_title">Preveri rezervno kopijo zasebnih ključev</string>
-  <string name="verify_backup_desc">Ustrezna rezervna kopija je temelj varnega ravnanja z novci.\n\nRezervno kopijo morate preveriti, da vidite, če deluje, s čimer lahko preprečite, da bi izgubili novce, če izgubite napravo, na kateri teče denarnica.</string>
+  <string name="verify_backup_desc">Pravilna rezervna kopija je temelj varnega ravnanja z novci.\n\nRezervno kopijo morate preveriti, da vidite, če deluje. S preverjanjem lahko preprečite, da bi izgubili novce, če izgubite napravo, na kateri teče denarnica.</string>
   <string name="verify_backup_scan_desc">Rezervno kopijo zasebnega ključa preverite tako, da prečitate QR-kodo.\nPodpiramo več oblik rezervnih kopij, med drugim šifrirano papirno kopijo denarnice Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Preveri rezervno kopijo zasebnega ključa; zasebni ključ vzemi z odložišča.</string>
   <string name="verify_backup_num_keys">Število ključev, ki nikoli niso bili preverjeni: %1$s.</string>
@@ -208,13 +208,13 @@
   <string name="verify_backup_ignored">Rezervna kopija prezrta za ta zasebni ključ.</string>
   <string name="backup_not_verified">Brez preverjene rezervne kopije</string>
   <string name="verify_backup_title">Rezervna kopija, preverba</string>
-  <string name="verify_backup_message_text_1">Ustrezna rezervna kopija je temelj varnega ravnanja z novci.\nImate enega ali več bitcoin naslovov, katerih rezervna kopija še ni bila preverjena.\n\nProsimo, izdelajte rezervno kopijo.</string>
+  <string name="verify_backup_message_text_1">Pravilna rezervna kopija je temelj varnega ravnanja z novci.\nImate enega ali več bitcoin naslovov, katerih rezervna kopija še ni bila preverjena.\n\nProsimo, izdelajte rezervno kopijo.</string>
   <string name="verify_backup_message_text_2">Potem preverite rezervno kopijo s spodnjim gumbom.</string>
   <string name="verify_backup_message_non_expert">Kaže, da še niste ustvarili rezervne kopije svojega zasebnega ključa.\n\nProsimo, storite to z gumbom Rezervno kopiranje.\n\nPotem še preverite rezervno kopijo.</string>
   <string name="verify_backup_message_expert">Kaže, da imate vsaj en zasebni ključ brez rezervne kopije.\n\nProsimo, ustvarite rezervno kopijo s pomočjo gumba Rezervno kopiranje.\n\nPotem rezervno kopijo še preverite.</string>
   <string name="encrypted_pdf_backup_title">Šifrirana rezervna kopija kot PDF</string>
   <string name="encrypted_pdf_backup_description">Ustvarili boste šifrirano rezervno kopijo svojih zasebnih ključev v obliki PDF-dokumenta.\nPošiljanje tega dokumenta po elektronski pošti ali prek aplikacij za deljenje datotek, kot je Dropbox, je varno, ker so ključi šifrirani.</string>
-  <string name="encrypted_pdf_backup_password_description_1">Ta rezervna kopija je šifrirana s tem naključnim geslom s kontrolnim znakom.</string>
+  <string name="encrypted_pdf_backup_password_description_1">Ta rezervna kopija je šifrirana s tem naključnim geslom s kontrolnim znakom:</string>
   <string name="encrypted_pdf_backup_password_description_2">To je edina priložnost, ko lahko vidite geslo te rezervne kopije.\nČe ustvarite novo rezervno kopijo, bo za novo kopijo uporabljeno novo geslo.\nTo geslo si zapišite in pazite nanj!</string>
   <string name="encrypted_pdf_backup_stretching">Pripravljam šifrirni ključ&#8230;</string>
   <string name="encrypted_pdf_backup_encrypting">Šifriram zasebne ključe&#8230;</string>

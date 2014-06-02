@@ -44,6 +44,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
@@ -56,6 +57,8 @@ public class SetTradeAddress extends Activity {
 
    public static void callMe(Activity currentActivity, TradeSession tradeSession) {
       Intent intent = new Intent(currentActivity, SetTradeAddress.class);
+      Preconditions.checkNotNull(tradeSession);
+      Preconditions.checkNotNull(tradeSession.id);
       intent.putExtra("tradeSession", tradeSession);
       intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivity(intent);
@@ -79,6 +82,8 @@ public class SetTradeAddress extends Activity {
 
       // Get intent parameters
       _tradeSession = (TradeSession) getIntent().getSerializableExtra("tradeSession");
+      Preconditions.checkNotNull(_tradeSession);
+      Preconditions.checkNotNull(_tradeSession.id);
 
       _address = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode()).getReceivingAddress();
       // Set label if applicable
@@ -126,6 +131,8 @@ public class SetTradeAddress extends Activity {
    @Override
    protected void onResume() {
       if(!hasMoreThanOneReceivingAddress()){
+         Preconditions.checkNotNull(_tradeSession);
+         Preconditions.checkNotNull(_tradeSession.id);
          SetTradeReceivingAddress request = new SetTradeReceivingAddress(_tradeSession.id, _address);
          SendRequestActivity.callMe(SetTradeAddress.this, request, "");
          finish();

@@ -269,7 +269,9 @@ public class SettingsActivity extends PreferenceActivity {
          setupEmailNotificationSetting();
       } else {
          PreferenceCategory ltprefs = (PreferenceCategory) findPreference("localtraderPrefs");
-         ltprefs.removePreference(findPreference("ltNotificationEmail"));
+         if (ltprefs != null) {
+            ltprefs.removePreference(findPreference("ltNotificationEmail"));
+         }
       }
 
       super.onResume();
