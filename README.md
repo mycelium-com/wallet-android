@@ -21,13 +21,19 @@ on the build system you need
 Then you need to use the Android SDK manager to install the following components:
 
  * ANDROID_HOME environment variable pointing to the directory where the sdk is installed
- * Android SDK Tools 22.6.2
- * SDK Platform Tools 19.0.1
- * Android SDK build Tools 19.0.3
+ * Android SDK Tools 22.6.4
+ * SDK Platform Tools 19.0.2
+ * Android SDK build Tools 19.1.0
  * Android 4.4.2 (API 19) (at least SDK Platform Rev. 3)
- * appcompat v7 rev. 19.1 (Android Support Library + Android Support Repository)
+ * Android Extras:
+    * Android Support Repository rev 5
+    * Android Support Library rev 19.1
+    * Google Play services for Froyo rev 12
+    * Google Play services rev 17
+    * Google Repository rev 8
 
-The project layout is designed to be used with a recent version of Android Studio (currently 0.5.4)
+
+The project layout is designed to be used with a recent version of Android Studio (currently 0.6.0)
 
 On the console write
 
