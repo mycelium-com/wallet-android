@@ -34,23 +34,15 @@
 
 package com.mycelium.wallet.activity.settings;
 
-import java.util.Locale;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
+import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.widget.Toast;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
@@ -60,17 +52,13 @@ import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.ExchangeRateManager;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.PinDialog;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
+
+import java.util.Locale;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -85,10 +73,90 @@ import com.mycelium.wallet.lt.api.SetNotificationMail;
  */
 public class SettingsActivity extends PreferenceActivity {
 
-   private static final int GET_CURRENCY_RESULT_CODE = 0;
-
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
-   private static final boolean EMAIL_ENABLED = false;
+   public static final Function<String, String> AUTOPAY_EXTRACT = new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+         return extractAmount(input);
+      }
+   };
+   private static final int GET_CURRENCY_RESULT_CODE = 0;
+   private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         String currency = _mbwManager.getFiatCurrency();
+         SetLocalCurrencyActivity.callMeForResult(SettingsActivity.this, currency, GET_CURRENCY_RESULT_CODE);
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener setPinClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
+            @Override
+            public void run() {
+               setPin();
+            }
+         });
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener clearPinClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
+            @Override
+            public void run() {
+               _mbwManager.setPin("");
+               updateClearPin();
+               Toast.makeText(SettingsActivity.this, R.string.pin_cleared, Toast.LENGTH_LONG).show();
+            }
+         });
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener expertModeClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.setExpertMode(p.isChecked());
+         applyExpertMode();
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener continuousAutoFocusClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.setContinousFocus(p.isChecked());
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener ltDisableLocalTraderClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _ltManager.setLocalTraderDisabled(p.isChecked());
+         applyLocalTraderEnablement();
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener ltNotificationSoundClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _ltManager.setPlaySoundOnTradeNotification(p.isChecked());
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener ltMilesKilometersClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _ltManager.setUseMiles(p.isChecked());
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener aggregatedViewClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         WalletMode mode = p.isChecked() ? WalletMode.Aggregated : WalletMode.Segregated;
+         _mbwManager.setWalletMode(mode);
+         return true;
+      }
+   };
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -101,15 +169,31 @@ public class SettingsActivity extends PreferenceActivity {
    private LocalTraderManager _ltManager;
    private Dialog _dialog;
    private EditTextPreference _proxy;
-   public static final Function<String, String> AUTOPAY_EXTRACT = new Function<String, String>() {
-      @Override
-      public String apply(String input) {
-         return extractAmount(input);
-      }
-   };
    private ImmutableMap<String, String> _languageLookup;
    private LocalTraderEventSubscriber ltListener;
    private EditTextPreference ltNotificationEmail;
+
+   @VisibleForTesting
+   static boolean isNumber(String text) {
+      try {
+         Double.parseDouble(text);
+      } catch (NumberFormatException ignore) {
+         return false;
+      }
+      return true;
+   }
+
+   @VisibleForTesting
+   static String extractAmount(CharSequence s) {
+      String amt = AMOUNT.retainFrom(s).replace(",", ".");
+      int commaIdx = amt.indexOf(".");
+      if (commaIdx > -1) {
+         String cents = amt.substring(commaIdx + 1, Math.min(amt.length(), commaIdx + 3));
+         String euros = amt.substring(0, commaIdx);
+         return euros + "." + cents;
+      }
+      return amt;
+   }
 
    @SuppressWarnings("deprecation")
    @Override
@@ -123,8 +207,8 @@ public class SettingsActivity extends PreferenceActivity {
       _bitcoinDenomination.setTitle(bitcoinDenominationTitle());
       _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
       _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
-      CharSequence[] denominations = new CharSequence[] { Denomination.BTC.toString(), Denomination.mBTC.toString(),
-            Denomination.uBTC.toString() };
+      CharSequence[] denominations = new CharSequence[]{Denomination.BTC.toString(), Denomination.mBTC.toString(),
+            Denomination.uBTC.toString()};
       _bitcoinDenomination.setEntries(denominations);
       _bitcoinDenomination.setEntryValues(denominations);
       _bitcoinDenomination.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -144,7 +228,7 @@ public class SettingsActivity extends PreferenceActivity {
       // Exchange Source
       _exchangeSource = (ListPreference) findPreference("exchange_source");
       ExchangeRateManager exchangeManager = _mbwManager.getExchamgeRateManager();
-      CharSequence[] exchangeNames = exchangeManager.getExchangeRateNames().toArray(new String[] {});
+      CharSequence[] exchangeNames = exchangeManager.getExchangeRateNames().toArray(new String[]{});
       _exchangeSource.setEntries(exchangeNames);
       if (exchangeNames.length == 0) {
          _exchangeSource.setEnabled(false);
@@ -263,17 +347,7 @@ public class SettingsActivity extends PreferenceActivity {
       };
       _ltManager.subscribe(ltListener);
 
-      if (EMAIL_ENABLED) {
-         setupEmailNotificationSetting();
-      } else {
-         @SuppressWarnings("deprecation")
-         PreferenceCategory ltprefs = (PreferenceCategory) findPreference("localtraderPrefs");
-         @SuppressWarnings("deprecation")
-         Preference ltNotificationEmail1 = findPreference("ltNotificationEmail");
-         if (ltprefs != null && ltNotificationEmail1 != null) {
-            ltprefs.removePreference(ltNotificationEmail1);
-         }
-      }
+      setupEmailNotificationSetting();
 
       super.onResume();
    }
@@ -310,6 +384,7 @@ public class SettingsActivity extends PreferenceActivity {
       }
 
    }
+
    @Override
    protected void onPause() {
       _ltManager.unsubscribe(ltListener);
@@ -352,7 +427,7 @@ public class SettingsActivity extends PreferenceActivity {
       _ltNotificationSound.setEnabled(!ltDisabled);
       _ltMilesKilometers.setEnabled(!ltDisabled);
    }
-   
+
    private String getSocksProxyTitle() {
       String host = System.getProperty(MbwManager.PROXY_HOST);
       String port = System.getProperty(MbwManager.PROXY_PORT);
@@ -361,28 +436,6 @@ public class SettingsActivity extends PreferenceActivity {
       } else {
          return getResources().getString(R.string.pref_socks_proxy_enabled);
       }
-   }
-
-   @VisibleForTesting
-   static boolean isNumber(String text) {
-      try {
-         Double.parseDouble(text);
-      } catch (NumberFormatException ignore) {
-         return false;
-      }
-      return true;
-   }
-
-   @VisibleForTesting
-   static String extractAmount(CharSequence s) {
-      String amt = AMOUNT.retainFrom(s).replace(",", ".");
-      int commaIdx = amt.indexOf(".");
-      if (commaIdx > -1) {
-         String cents = amt.substring(commaIdx + 1, Math.min(amt.length(), commaIdx + 3));
-         String euros = amt.substring(0, commaIdx);
-         return euros + "." + cents;
-      }
-      return amt;
    }
 
    private String localCurrencyTitle() {
@@ -418,18 +471,6 @@ public class SettingsActivity extends PreferenceActivity {
       super.onDestroy();
    }
 
-   private final OnPreferenceClickListener setPinClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
-            @Override
-            public void run() {
-               setPin();
-            }
-         });
-         return true;
-      }
-   };
-
    private void setPin() {
       final Context context = SettingsActivity.this;
       _dialog = new PinDialog(context, false, new PinDialog.OnPinEntered() {
@@ -455,79 +496,6 @@ public class SettingsActivity extends PreferenceActivity {
       _dialog.setTitle(R.string.pin_enter_new_pin);
       _dialog.show();
    }
-
-   private final OnPreferenceClickListener clearPinClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
-            @Override
-            public void run() {
-               _mbwManager.setPin("");
-               updateClearPin();
-               Toast.makeText(SettingsActivity.this, R.string.pin_cleared, Toast.LENGTH_LONG).show();
-            }
-         });
-         return true;
-      }
-   };
-
-   private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         String currency = _mbwManager.getFiatCurrency();
-         SetLocalCurrencyActivity.callMeForResult(SettingsActivity.this, currency, GET_CURRENCY_RESULT_CODE);
-         return true;
-      }
-   };
-
-   private final OnPreferenceClickListener expertModeClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.setExpertMode(p.isChecked());
-         applyExpertMode();
-         return true;
-      }
-   };
-
-   private final OnPreferenceClickListener continuousAutoFocusClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.setContinousFocus(p.isChecked());
-         return true;
-      }
-   };
-
-   private final OnPreferenceClickListener ltDisableLocalTraderClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _ltManager.setLocalTraderDisabled(p.isChecked());
-         applyLocalTraderEnablement();
-         return true;
-      }
-   };
-
-   private final OnPreferenceClickListener ltNotificationSoundClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _ltManager.setPlaySoundOnTradeNotification(p.isChecked());
-         return true;
-      }
-   };
-   
-   private final OnPreferenceClickListener ltMilesKilometersClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _ltManager.setUseMiles(p.isChecked());
-         return true;
-      }
-   };
-
-   private final OnPreferenceClickListener aggregatedViewClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         WalletMode mode = p.isChecked() ? WalletMode.Aggregated : WalletMode.Segregated;
-         _mbwManager.setWalletMode(mode);
-         return true;
-      }
-   };
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == GET_CURRENCY_RESULT_CODE && resultCode == RESULT_OK) {

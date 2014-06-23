@@ -34,9 +34,8 @@
 
 package com.mycelium.wallet;
 
-import java.util.Locale;
-
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -45,7 +44,6 @@ import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -63,6 +61,8 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.persistence.TxOutDb;
 import com.squareup.otto.Bus;
+
+import java.util.Locale;
 
 public class MbwManager {
 
@@ -99,6 +99,7 @@ public class MbwManager {
    private boolean _keyManagementLocked;
    private int _mainViewFragmentIndex;
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
+   private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
    private MbwEnvironment _environment;
    private final ExploreHelper exploreHelper;
    private HttpErrorCollector _httpErrorCollector;
@@ -165,6 +166,15 @@ public class MbwManager {
       _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
       _syncManager = new SyncManager(_eventBus, this, _recordManager, _blockChainAddressTracker, _versionManager);
       _exchangeRateManager = new ExchangeRateManager(_applicationContext, _environment.getMwsApi(), this);
+
+
+      // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
+      ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
+      int memoryClass = am.getMemoryClass();
+
+      _deviceScryptParameters = memoryClass > 20
+              ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
+              : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
    }
 
    /**
@@ -421,8 +431,10 @@ public class MbwManager {
    }
 
    public void reportIgnoredException(Throwable e) {
-      RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n", e);
-      _httpErrorCollector.reportErrorToServer(msg);
+      if (_httpErrorCollector != null) {
+         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n", e);
+         _httpErrorCollector.reportErrorToServer(msg);
+      }
    }
 
    public String getLanguage() {
@@ -438,5 +450,9 @@ public class MbwManager {
 
    public VersionManager getVersionManager() {
       return _versionManager;
+   }
+
+   public MrdExport.V1.ScryptParameters getDeviceScryptParameters() {
+      return _deviceScryptParameters;
    }
 }

@@ -34,14 +34,6 @@
 
 package com.mycelium.wallet.activity.export;
 
-import static android.text.format.DateFormat.getDateFormat;
-
-import java.io.File;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -62,21 +54,24 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
-
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
-import com.mycelium.wallet.AndroidRandomSource;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.UserFacingException;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.service.CreateMrdBackupTask;
 import com.mycelium.wallet.service.ServiceTask;
 import com.mycelium.wallet.service.ServiceTaskStatusEx;
 import com.mycelium.wallet.service.ServiceTaskStatusEx.State;
 import com.mycelium.wallet.service.TaskExecutionServiceController;
 import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionServiceCallback;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import static android.text.format.DateFormat.getDateFormat;
 
 public class BackupToPdfActivity extends Activity implements TaskExecutionServiceCallback {
 
@@ -308,7 +303,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
    private void startTask() {
       findViewById(R.id.btSharePdf).setEnabled(false);
-      KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource());
+      KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource(), _mbwManager.getDeviceScryptParameters());
       CreateMrdBackupTask task = new CreateMrdBackupTask(kdfParameters, this.getApplicationContext(),
             _mbwManager.getRecordManager(), _mbwManager.getAddressBookManager(), _mbwManager.getNetwork(),
             getFullExportFilePath());

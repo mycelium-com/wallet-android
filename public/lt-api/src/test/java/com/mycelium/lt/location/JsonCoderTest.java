@@ -1,7 +1,6 @@
 package com.mycelium.lt.location;
 
 import com.google.common.base.Preconditions;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class JsonCoderTest {
    @Test
    public void testPostcode() throws IOException, RemoteGeocodeException {
 
-//      String path = "public/lt-errorCallback/src/test/resources/exampleWithPostcode.json";
+//      String path = "public/lt-api/src/test/resources/exampleWithPostcode.json";
 //      final InputStream stream = Preconditions.checkNotNull(new FileInputStream(path));
       final InputStream stream = Preconditions.checkNotNull(getClass().getResourceAsStream("/exampleWithPostcode.json"));
       @SuppressWarnings("unused")

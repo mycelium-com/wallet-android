@@ -33,12 +33,7 @@ import java.util.Arrays;
  * this is not the same base58 as used by Flickr, which you may see reference to
  * around the internet.
  * </p>
- * 
- * <p>
- * You may instead wish to work with {@link VersionedChecksummedBytes}, which
- * adds support for testing the prefix and suffix bytes commonly found in
- * addresses.
- * </p>
+ *
  * 
  * <p>
  * Satoshi says: why base-58 instead of standard base-64 encoding?
@@ -121,6 +116,11 @@ public class Base58 {
    }
    
    public static byte[] decode(String input) {
+      // Get rid of any UTF-8 BOM marker. Those should not be present, but might have slipped in nonetheless,
+      // since Java does not automatically discard them when reading a stream. Only remove it, if at the beginning
+      // of the string. Otherwise, something is probably seriously wrong.
+     if (input.charAt(0) == '\uFEFF') input = input.substring(1);
+
       if (input.length() == 0) {
          return new byte[0];
       }

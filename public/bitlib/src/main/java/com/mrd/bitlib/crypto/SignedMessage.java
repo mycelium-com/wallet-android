@@ -16,12 +16,8 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.io.Serializable;
-import java.math.BigInteger;
-
 import com.google.common.base.Preconditions;
 import com.lambdaworks.crypto.Base64;
-
 import com.mrd.bitlib.crypto.ec.Curve;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
@@ -30,6 +26,9 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
+import java.math.BigInteger;
 
 public class SignedMessage implements Serializable {
    private static final long serialVersionUID = 1188125594280603453L;
@@ -53,6 +52,10 @@ public class SignedMessage implements Serializable {
    public static SignedMessage validate(Address address, String message, String signatureBase64)
          throws WrongSignatureException {
       final byte[] signatureEncoded = Base64.decode(signatureBase64);
+      if (signatureEncoded == null) {
+         // Invalid or truncated base64
+         throw new WrongSignatureException(String.format("given signature is not valid base64 %s", signatureBase64));
+      }
       final Signature sig = decodeSignature(signatureEncoded);
       final RecoveryInfo info = recoverFromSignature(message, signatureEncoded, sig);
       validateAddressMatches(address, info.publicKey);
@@ -64,16 +67,6 @@ public class SignedMessage implements Serializable {
       if (!address.equals(recoveredAddress)) {
          throw new WrongSignatureException(String.format("given Address did not match \nexpected %s\n but got %s",
                address, recoveredAddress));
-      }
-   }
-
-   public static class RecoveryInfo {
-      PublicKey publicKey;
-      int recId;
-
-      private RecoveryInfo(PublicKey publicKey, int recId) {
-         this.publicKey = publicKey;
-         this.recId = recId;
       }
    }
 
@@ -119,34 +112,6 @@ public class SignedMessage implements Serializable {
 
    public static SignedMessage from(Signature signature, PublicKey publicKey, int recId) {
       return new SignedMessage(signature, publicKey, recId);
-   }
-
-   /*
-    * public static SignedMessage from(byte[] signature, PublicKey publicKey) {
-    * ByteReader reader = new ByteReader(signature); Signature sig =
-    * Signatures.decodeSignatureParameters(reader);
-    * Preconditions.checkState(reader.available() == 0); return new
-    * SignedMessage(sig, publicKey, recId); }
-    */
-
-   public byte[] bitcoinEncodingOfSignature() {
-      if (recId == -1)
-         throw new RuntimeException("Could not construct a recoverable key. This should never happen.");
-      int headerByte = recId + 27 + (getPublicKey().isCompressed() ? 4 : 0);
-      byte[] sigData = new byte[65]; // 1 header + 32 bytes for R + 32 bytes for
-      // S
-      sigData[0] = (byte) headerByte;
-      System.arraycopy(EcTools.integerToBytes(signature.r, 32), 0, sigData, 1, 32);
-      System.arraycopy(EcTools.integerToBytes(signature.s, 32), 0, sigData, 33, 32);
-      return sigData;
-   }
-
-   public PublicKey getPublicKey() {
-      return publicKey;
-   }
-
-   public String getBase64Signature() {
-      return Base64.encodeToString(bitcoinEncodingOfSignature(), false);
    }
 
    /**
@@ -253,6 +218,44 @@ public class SignedMessage implements Serializable {
          q = new Point(curve, q.getX(), q.getY(), true);
       }
       return new PublicKey(q.getEncoded());
+   }
+
+   /*
+    * public static SignedMessage from(byte[] signature, PublicKey publicKey) {
+    * ByteReader reader = new ByteReader(signature); Signature sig =
+    * Signatures.decodeSignatureParameters(reader);
+    * Preconditions.checkState(reader.available() == 0); return new
+    * SignedMessage(sig, publicKey, recId); }
+    */
+
+   public byte[] bitcoinEncodingOfSignature() {
+      if (recId == -1)
+         throw new RuntimeException("Could not construct a recoverable key. This should never happen.");
+      int headerByte = recId + 27 + (getPublicKey().isCompressed() ? 4 : 0);
+      byte[] sigData = new byte[65]; // 1 header + 32 bytes for R + 32 bytes for
+      // S
+      sigData[0] = (byte) headerByte;
+      System.arraycopy(EcTools.integerToBytes(signature.r, 32), 0, sigData, 1, 32);
+      System.arraycopy(EcTools.integerToBytes(signature.s, 32), 0, sigData, 33, 32);
+      return sigData;
+   }
+
+   public PublicKey getPublicKey() {
+      return publicKey;
+   }
+
+   public String getBase64Signature() {
+      return Base64.encodeToString(bitcoinEncodingOfSignature(), false);
+   }
+
+   public static class RecoveryInfo {
+      PublicKey publicKey;
+      int recId;
+
+      private RecoveryInfo(PublicKey publicKey, int recId) {
+         this.publicKey = publicKey;
+         this.recId = recId;
+      }
    }
 
 }

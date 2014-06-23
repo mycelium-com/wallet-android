@@ -34,22 +34,15 @@
 
 package com.mrd.bitlib.crypto;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-
+import com.mrd.bitlib.crypto.MrdExport.DecodingException;
+import com.mrd.bitlib.crypto.MrdExport.V1.*;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.BitUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.mrd.bitlib.crypto.MrdExport.DecodingException;
-import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
-import com.mrd.bitlib.crypto.MrdExport.V1.Header;
-import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
-import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
-import com.mrd.bitlib.crypto.MrdExport.V1.WrongNetworkException;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.BitUtils;
+import static org.junit.Assert.*;
 
 public class MrdExportTest {
 
@@ -61,6 +54,7 @@ public class MrdExportTest {
    private static final String TEST_KEY_UNCOMPRESSED_ENCRYPTED = "xEncEHICAQIDBE8g0E8FRx5ImDZIWif-RleADZYxzKQYkQJJGpuch7QQaS1f8g";
    private static final String TEST_KEY_BASE58_COMPRESSED = "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7";
    private static final String TEST_KEY_COMPRESSED_ENCRYPTED = "xEncEXICAQIDBNVyfG5593-TQkkbWyV-HsF2QZFXev3ouiBuMEELJZrM6mKwjw";
+   private static final String TEST_KEY_COMPRESSED_ENCRYPTED_LOW_MEM = "xEncEXECAQIDBLKBQ43H4PAUUEUHbYaz5VacKGvT4KK9ClaUWR3HcsXS6mKwjw";
 
 
    @Test
@@ -80,13 +74,11 @@ public class MrdExportTest {
    @Test
    public void testDifferentSalt() throws InterruptedException {
       // Use salt 1
-      KdfParameters kdfParameters1 = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters1 = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p1 = EncryptionParameters.generate(kdfParameters1);
 
       // Use salt 2
-      KdfParameters kdfParameters2 = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_2, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters2 = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_2, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p2 = EncryptionParameters.generate(kdfParameters2);
       assertFalse(BitUtils.areEqual(p1.aesKey, p2.aesKey));
 
@@ -95,20 +87,30 @@ public class MrdExportTest {
    @Test
    @Ignore
    public void testSpeed() throws InterruptedException {
+      _testSpeed(MrdExport.V1.ScryptParameters.DEFAULT_PARAMS, 1000);
+   }
+
+   @Test
+   @Ignore
+   public void testSpeed_lowMem() throws InterruptedException {
+      _testSpeed(MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS, 1000);
+   }
+
+   private void _testSpeed(MrdExport.V1.ScryptParameters scryptParam, int tries) throws InterruptedException {
       long start = System.currentTimeMillis();
-      int tries = 1000;
       for (int i = 0; i < tries; i++) {
-         KdfParameters params = new KdfParameters("123" + i, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N, MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+         KdfParameters params = new KdfParameters("123" + i, TEST_SALT_1, scryptParam);
          EncryptionParameters.generate(params);
       }
 
-      double duration = (System.currentTimeMillis() - start)/1000.0;
+      double duration = (System.currentTimeMillis() - start) / tries;
       System.out.println("duration:" + duration+" s");
       double speed = (double) tries / duration;
-      double secondperTry = 1/speed;
+      double secondperTry = 1 / speed;
 
       System.out.println("secondperTry "+ secondperTry+" / s ");
    }
+
 
    /**
     * Verify that a different password gives a different AES key
@@ -116,24 +118,35 @@ public class MrdExportTest {
    @Test
    public void testDifferentPasswords() throws InterruptedException {
       // Use password 1
-      KdfParameters kdfParameters1 = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters1 = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p1 = EncryptionParameters.generate(kdfParameters1);
 
       // Use password 2
-      KdfParameters kdfParameters2 = new KdfParameters(TEST_PASSWORD_2, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters2 = new KdfParameters(TEST_PASSWORD_2, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p2 = EncryptionParameters.generate(kdfParameters2);
       assertFalse(BitUtils.areEqual(p1.aesKey, p2.aesKey));
 
    }
 
    @Test
+   public void lowMemoryScryptParams() throws DecodingException, InterruptedException {
+      KdfParameters kdfParameters_default = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
+      EncryptionParameters p_default = EncryptionParameters.generate(kdfParameters_default);
+
+      KdfParameters kdfParameters_low = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS);
+      EncryptionParameters p_low = EncryptionParameters.generate(kdfParameters_low);
+
+      assertFalse(BitUtils.areEqual(p_default.aesKey, p_low.aesKey));
+
+      String encrypted = MrdExport.V1.encrypt(p_low, TEST_KEY_BASE58_COMPRESSED, NetworkParameters.productionNetwork);
+      assertEquals(encrypted, TEST_KEY_COMPRESSED_ENCRYPTED_LOW_MEM);
+   }
+
+   @Test
    public void encryptWithoutCompression() throws WrongNetworkException, InvalidChecksumException, DecodingException,
          InterruptedException {
       String base58Key = TEST_KEY_BASE58_UNCOMPRESSED;
-      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p = EncryptionParameters.generate(kdfParameters);
       String encrypted = MrdExport.V1.encrypt(p, base58Key, NetworkParameters.productionNetwork);
       assertEquals(encrypted, TEST_KEY_UNCOMPRESSED_ENCRYPTED);
@@ -147,8 +160,7 @@ public class MrdExportTest {
    public void encryptWithCompression() throws WrongNetworkException, InvalidChecksumException, DecodingException,
          InterruptedException {
       String base58Key = TEST_KEY_BASE58_COMPRESSED;
-      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p = EncryptionParameters.generate(kdfParameters);
       String encrypted = MrdExport.V1.encrypt(p, base58Key, NetworkParameters.productionNetwork);
       assertEquals(encrypted, TEST_KEY_COMPRESSED_ENCRYPTED);
@@ -160,8 +172,7 @@ public class MrdExportTest {
 
    @Test
    public void wrongAesKeyInParameters() throws DecodingException, InterruptedException {
-      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p = EncryptionParameters.generate(kdfParameters);
       // Flip one bit in the AES key
       p.aesKey[0] = (byte) (p.aesKey[0] ^ 0x01);
@@ -175,8 +186,7 @@ public class MrdExportTest {
 
    @Test
    public void wrongNetworkInParameters() throws DecodingException, InterruptedException {
-      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.DEFAULT_SCRYPT_N,
-            MrdExport.V1.DEFAULT_SCRYPT_R, MrdExport.V1.DEFAULT_SCRYPT_P);
+      KdfParameters kdfParameters = new KdfParameters(TEST_PASSWORD_1, TEST_SALT_1, MrdExport.V1.ScryptParameters.DEFAULT_PARAMS);
       EncryptionParameters p = EncryptionParameters.generate(kdfParameters);
       try {
          MrdExport.V1.decrypt(p, TEST_KEY_UNCOMPRESSED_ENCRYPTED, NetworkParameters.testNetwork);
@@ -184,8 +194,9 @@ public class MrdExportTest {
       } catch (WrongNetworkException e) {
          // expected
       }
-
    }
+
+
 
    @Test
    public void generatePasswordTest() {

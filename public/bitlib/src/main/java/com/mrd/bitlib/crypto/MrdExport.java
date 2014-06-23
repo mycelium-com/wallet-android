@@ -16,12 +16,7 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
-
 import Rijndael.Rijndael;
-
 import com.google.common.io.BaseEncoding;
 import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptProgress;
@@ -29,6 +24,10 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 
 public class MrdExport {
 
@@ -71,10 +70,6 @@ public class MrdExport {
    public static class V1 {
       public static final String PASSWORD_CHARACTER_ENCODING = "US-ASCII";
       public static final int V1_PASSPHRASE_LENGTH = 15;
-
-      public static final int DEFAULT_SCRYPT_N = 14;
-      public static final int DEFAULT_SCRYPT_R = 8;
-      public static final int DEFAULT_SCRYPT_P = 1;
 
       private static final int V1_SALT_LENGTH = 4;
       private static final int V1_HEADER_LENGTH = MAGIC_COOKIE.length + 3 + V1_SALT_LENGTH;
@@ -140,38 +135,60 @@ public class MrdExport {
          }
       }
 
-      public static class KdfParameters implements Serializable {
+      public static class ScryptParameters implements Serializable {
+         public static final ScryptParameters DEFAULT_PARAMS = new ScryptParameters(14, 8, 1);
+         public static final ScryptParameters LOW_MEM_PARAMS = new ScryptParameters(14, 4, 1);
+
+
+         public final int n;
+         public final int r;
+         public final int p;
+
+         public ScryptParameters(int n, int r, int p) {
+            this.n = n;
+            this.r = r;
+            this.p = p;
+         }
+
+         public ScryptParameters(ScryptParameters scryptParameters) {
+            this.n = scryptParameters.n;
+            this.r = scryptParameters.r;
+            this.p = scryptParameters.p;
+         }
+
+         public ScryptParameters(Header header) {
+            this.n = header.n;
+            this.r = header.r;
+            this.p = header.p;
+         }
+      }
+
+      public static class KdfParameters extends ScryptParameters  {
          private static final long serialVersionUID = 1L;
 
          public String passphrase;
          public byte[] salt;
-         public int n;
-         public int r;
-         public int p;
 
          private SCryptProgress _scryptProgressTracker;
 
-         public static KdfParameters createNewFromPassphrase(String passphrase, RandomSource rnd) {
+         public static KdfParameters createNewFromPassphrase(String passphrase, RandomSource rnd, ScryptParameters useScryptParameters) {
             byte[] salt = new byte[V1_SALT_LENGTH];
             rnd.nextBytes(salt);
-            return new KdfParameters(passphrase, salt, MrdExport.V1.DEFAULT_SCRYPT_N, MrdExport.V1.DEFAULT_SCRYPT_R,
-                  MrdExport.V1.DEFAULT_SCRYPT_P);
+            return new KdfParameters(passphrase, salt, useScryptParameters);
          }
 
          public static KdfParameters fromPassphraseAndHeader(String passphrase, Header header) {
-            return new KdfParameters(passphrase, header.salt, header.n, header.r, header.p);
+            return new KdfParameters(passphrase, header.salt, new ScryptParameters(header));
          }
 
-         protected KdfParameters(String passphrase, byte[] salt, int n, int r, int p) {
+         protected KdfParameters(String passphrase, byte[] salt, ScryptParameters scryptParameters) {
+            super(scryptParameters);
             if (n >= 32) {
                throw new RuntimeException(
                      "Parameter n can never be larger than 31. Note that n = 14 means scrypt with N = 16384");
             }
             this.passphrase = passphrase;
             this.salt = salt;
-            this.n = n;
-            this.r = r;
-            this.p = p;
             _scryptProgressTracker = new SCryptProgress(1 << n, r, p);
          }
 
