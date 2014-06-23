@@ -91,6 +91,10 @@ public class MbwProdEnvironment extends MbwEnvironment {
       }
    });
    
+   public MbwProdEnvironment(String brand){
+      super(brand);
+   }
+   
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;

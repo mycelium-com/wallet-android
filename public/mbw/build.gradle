@@ -43,24 +43,22 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 116
-        versionName '1.2.12'
+        versionCode 117
+        versionName '1.2.13'
     }
 
     signingConfigs {
         release {
             keyAlias = ''
         }
-
         testnetplay {
             keyAlias = ''
         }
-
         commonDebug {
             storeFile commonDebugKeystore
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
     }
 
@@ -69,7 +67,6 @@ android {
 //            debuggable true
             runProguard true
             proguardFile 'mbw.pro'
-
             applicationVariants.all { variant ->
                 def file = variant.outputFile
                 def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
@@ -79,27 +76,22 @@ android {
     }
 
     productFlavors {
-
         bitsofgold {
-            packageName 'il.co.bitsofgold.wallet'
+            applicationId 'il.co.bitsofgold.wallet'
             versionName = defaultConfig.versionName + '-BOG'
             signingConfig signingConfigs.release
         }
-
         prodnet {
-            packageName 'com.mycelium.wallet'
+            applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }
-
         dev {
-            packageName 'com.mycelium.devwallet'
+            applicationId 'com.mycelium.devwallet'
             signingConfig signingConfigs.debug
         }
-
-
         testnet {
-            packageName 'com.mycelium.testnetwallet'
+            applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.testnetplay
         }

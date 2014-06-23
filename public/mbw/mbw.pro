@@ -34,7 +34,7 @@
 #The -optimizations option disables some arithmetic simplifications that Dalvik 1.0 and 1.5 can't handle. Note that the Dalvik VM also can't handle aggressive overloading (of static fields).
 #To understand or change this check http://proguard.sourceforge.net/index.html#/manual/optimizations.html
 #added !code/allocation/variable to resolve build issue
--optimizations !field/removal/writeonly,!field/marking/private,!class/merging/*,!code/allocation/variable
+-optimizations !field/removal/writeonly,!field/marking/private,!class/merging/*,!code/allocation/variable, !class/unboxing/enum
 
 #To repackage classes on a single package
 #-repackageclasses ''

@@ -86,6 +86,10 @@ public class MbwTestEnvironment extends MbwEnvironment {
       }
    });
 
+   public MbwTestEnvironment(String brand){
+      super(brand);
+   }
+   
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;

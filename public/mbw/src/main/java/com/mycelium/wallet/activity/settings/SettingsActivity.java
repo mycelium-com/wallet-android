@@ -49,7 +49,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -58,7 +57,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
@@ -268,7 +266,9 @@ public class SettingsActivity extends PreferenceActivity {
       if (EMAIL_ENABLED) {
          setupEmailNotificationSetting();
       } else {
+         @SuppressWarnings("deprecation")
          PreferenceCategory ltprefs = (PreferenceCategory) findPreference("localtraderPrefs");
+         @SuppressWarnings("deprecation")
          Preference ltNotificationEmail1 = findPreference("ltNotificationEmail");
          if (ltprefs != null && ltNotificationEmail1 != null) {
             ltprefs.removePreference(ltNotificationEmail1);
@@ -278,6 +278,7 @@ public class SettingsActivity extends PreferenceActivity {
       super.onResume();
    }
 
+   @SuppressWarnings("deprecation")
    private void setupEmailNotificationSetting() {
       ltNotificationEmail = (EditTextPreference) findPreference("ltNotificationEmail");
 

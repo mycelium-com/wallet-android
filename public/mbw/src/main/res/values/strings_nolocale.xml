@@ -23,6 +23,8 @@
     <string name="lt_tos_3">The Mycelium software guides the trading parties, but they themselves are responsible for exchanging the correct amount of cash and bitcoins and their validity thereof.</string>
     <string name="lt_tos_4" tools:ignore="StringFormatInvalid">Mycelium charges a small 0.2% fee to both sides of any trade. This fee is subject to change in the future.</string>
 
+    <string name="vn_banner_description">Mua và bán Bitcoin với VNĐ</string>
+    
     <string-array name="languages">
         <item>da</item>
         <item>de</item>

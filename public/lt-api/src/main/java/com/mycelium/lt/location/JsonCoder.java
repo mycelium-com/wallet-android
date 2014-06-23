@@ -34,15 +34,17 @@
 
 package com.mycelium.lt.location;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.google.common.base.Preconditions;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import javax.net.ssl.SSLException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.google.common.base.Preconditions;
 
 public class JsonCoder {
 
@@ -53,30 +55,51 @@ public class JsonCoder {
    }
 
    public GeocodeResponse query(String address, int maxresults) throws RemoteGeocodeException {
-      final InputStream inputData;
+
       final String encodedAddress;
       try {
          encodedAddress = URLEncoder.encode(address, "UTF-8");
       } catch (UnsupportedEncodingException e) {
          throw new RuntimeException(e);
       }
-      String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + encodedAddress + "&sensor=true&language=" + language;
-      try {
-         inputData = new URL(url).openStream();
-      } catch (IOException e) {
-         throw new RuntimeException("querying url " + url, e);
-      }
+
+      String transportAgnosticUrl = "maps.googleapis.com/maps/api/geocode/json?address=" + encodedAddress
+            + "&sensor=true&language=" + language;
+
+      InputStream inputData = openStream(transportAgnosticUrl);
+
       GeocodeResponse res = null;
       try {
          res = response2Graph(inputData);
       } catch (RemoteGeocodeException e) {
-         throw new RemoteGeocodeException(url, e.status);
+         throw new RemoteGeocodeException(transportAgnosticUrl, e.status);
       }
 
       if (maxresults == -1) {
          return res;
       } else {
          return sizeLimited(res, maxresults);
+      }
+   }
+
+   private InputStream openStream(String transportAgnosticUrl) {
+      // Do the query using HTTPS
+      String url = "https://" + transportAgnosticUrl;
+      try {
+         return new URL(url).openStream();
+      } catch (SSLException e) {
+         // Fall through and try with HTTP
+      } catch (IOException e) {
+         throw new RuntimeException("querying url " + url, e);
+      }
+
+      // Some older devices do not recognize the certificate of
+      // maps.googleapis.com, do the query using HTTP
+      url = "http://" + transportAgnosticUrl;
+      try {
+         return new URL(url).openStream();
+      } catch (IOException e2) {
+         throw new RuntimeException("querying url " + url, e2);
       }
    }
 
@@ -89,23 +112,11 @@ public class JsonCoder {
    }
 
    public GeocodeResponse getFromLocation(double latitude, double longitude) throws RemoteGeocodeException {
-      final InputStream inputData;
-      String url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&sensor=true&language=" + language;
-      try {
-         inputData = new URL(url).openStream();
-      } catch (IOException e) {
-         throw new RuntimeException("querying url " + url, e);
-      }
+      String transportAgnosticUrl = "maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude
+            + "&sensor=true&language=" + language;
+      InputStream inputData = openStream(transportAgnosticUrl);
       return response2Graph(inputData);
-/*
-         errorCallback.collectError(e, url, latitude + "," + longitude);
-         GeocodeResponse dummy = new GeocodeResponse();
-         dummy.results = ImmutableList.of();
-         return dummy;
-*/
-
    }
-
 
    public GeocodeResponse response2Graph(InputStream apply) throws RemoteGeocodeException {
       ObjectMapper mapper = new ObjectMapper(); // just need one
@@ -115,11 +126,12 @@ public class JsonCoder {
       final GeocodeResponse graph;
       try {
          graph = Preconditions.checkNotNull(mapper.readValue(apply, GeocodeResponse.class));
+         apply.close();
       } catch (IOException e) {
          throw new RuntimeException("error parsing response from ", e);
       }
       if (!isValidStatus(graph.status)) {
-         //something is wrong, throw an error.
+         // something is wrong, throw an error.
          throw new RemoteGeocodeException("an error occurred while querying", graph.status, graph.errorMessage);
       }
       return graph;
@@ -128,6 +140,5 @@ public class JsonCoder {
    private boolean isValidStatus(String status) {
       return "OK".equals(status) || "ZERO_RESULTS".equals(status);
    }
-
 
 }

@@ -189,7 +189,7 @@ public class MrdExportTest {
 
    @Test
    public void generatePasswordTest() {
-      StaticSimpleRandomSource randomSource = new StaticSimpleRandomSource();
+      TestNonRandomSource randomSource = new TestNonRandomSource();
       String passphrase = MrdExport.V1.generatePassword(randomSource);
       assertEquals(passphrase, "tkqilmbmbgzbsuk");
    }

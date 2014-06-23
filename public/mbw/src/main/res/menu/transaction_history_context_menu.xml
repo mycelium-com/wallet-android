@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:yourapp="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/miShowDetails"
-        android:showAsAction="ifRoom|withText"
+        yourapp:showAsAction="ifRoom|withText"
         android:title="@string/show_details"/>
     <item
         android:id="@+id/miAddToAddressBook"
-        android:showAsAction="ifRoom|withText"
+        yourapp:showAsAction="ifRoom|withText"
         android:title="@string/add_to_addressbook"/>
 
 </menu>

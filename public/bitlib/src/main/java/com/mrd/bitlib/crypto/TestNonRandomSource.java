@@ -6,10 +6,10 @@ package com.mrd.bitlib.crypto;
  * matters.
  */
 
-public class StaticSimpleRandomSource implements RandomSource {
+public class TestNonRandomSource implements RandomSource {
    private long _state;
 
-   public StaticSimpleRandomSource() {
+   public TestNonRandomSource() {
       _state = 104723;
    }
 

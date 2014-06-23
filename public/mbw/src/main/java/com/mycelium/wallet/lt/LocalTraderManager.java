@@ -61,18 +61,18 @@ import com.mycelium.lt.ApiUtils;
 import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.CreateAd;
+import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.Request;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 
@@ -95,7 +95,7 @@ public class LocalTraderManager {
    private Address _localTraderAddress;
    private long _lastTraderSynchronization;
    private long _lastTraderNotification;
-   private GpsLocation _currentLocation;
+   private GpsLocationEx _currentLocation;
    private String _nickname;
    private boolean _isLocalTraderDisabled;
    private boolean _playSoundOnTradeNotification;
@@ -134,11 +134,12 @@ public class LocalTraderManager {
       // (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.longitude,
       // Constants.LOCAL_TRADER_DEFAULT_LOCATION.name);
 
-      _currentLocation = new GpsLocation(preferences.getFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING,
+      _currentLocation = new GpsLocationEx(preferences.getFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING,
             (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.latitude), preferences.getFloat(
             Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.longitude),
             preferences.getString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING,
-                  Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
+                  Constants.LOCAL_TRADER_DEFAULT_LOCATION.name), preferences.getString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING,
+                        Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
 
       _isLocalTraderDisabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, false);
       _playSoundOnTradeNotification = preferences.getBoolean(
@@ -620,16 +621,17 @@ public class LocalTraderManager {
       return _lastTraderSynchronization < _lastTraderNotification;
    }
 
-   public void setLocation(GpsLocation location) {
+   public void setLocation(GpsLocationEx location) {
       SharedPreferences.Editor editor = getEditor();
       _currentLocation = location;
       editor.putFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING, (float) location.latitude);
       editor.putFloat(Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) location.longitude);
       editor.putString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, location.name);
+      editor.putString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, location.countryCode);
       editor.commit();
    }
 
-   public GpsLocation getUserLocation() {
+   public GpsLocationEx getUserLocation() {
       return _currentLocation;
    }
 

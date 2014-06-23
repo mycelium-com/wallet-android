@@ -35,6 +35,8 @@
 package com.mycelium.wallet.lt.activity.buy;
 
 import java.io.Serializable;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,6 +48,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -64,6 +67,8 @@ import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.lt.BannerFactory;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidUtils;
@@ -188,7 +193,8 @@ public class AdSearchFragment extends Fragment {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvSearching).setVisibility(View.GONE);
          findViewById(R.id.lvRecords).setVisibility(View.VISIBLE);
-         _recordsAdapter = new AdAdapter(getActivity(), _ads, _ltManager.useMiles());
+         View banner = BannerFactory.createBanner(getActivity(), _ltManager.getUserLocation().countryCode);
+         _recordsAdapter = new AdAdapter(getActivity(), banner, _ads, _ltManager.useMiles());
          ListView listView = (ListView) findViewById(R.id.lvRecords);
          listView.setAdapter(_recordsAdapter);
       }
@@ -210,16 +216,34 @@ public class AdSearchFragment extends Fragment {
       private Locale _locale;
       private Context _context;
       private boolean _useMiles;
+      private View _banner;
 
-      public AdAdapter(Context context, List<AdSearchItem> objects, boolean useMiles) {
+      public AdAdapter(Context context, View banner, List<AdSearchItem> objects, boolean useMiles) {
          super(context, R.layout.lt_ad_card, objects);
          _locale = new Locale("en", "US");
          _context = context;
          _useMiles = useMiles;
+         _banner = banner;
       }
 
       @Override
       public View getView(final int position, View convertView, ViewGroup parent) {
+         if (_banner == null) {
+            // No banner, proceed as normal
+            return getAdView(position, convertView, parent);
+         }
+         // we have a banner
+         if (position == 0) {
+            // At position 0, return banner
+            _banner.setOnClickListener(bannerClickListener);
+            return _banner;
+
+         }
+         // At position > 0, return ad at position -1
+         return getAdView(position - 1, convertView, parent);
+      }
+
+      public View getAdView(final int position, View convertView, ViewGroup parent) {
 
          final AdSearchItem item = getItem(position);
          final boolean isSelected = item == _selected;
@@ -227,7 +251,7 @@ public class AdSearchFragment extends Fragment {
          final View card = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_card, null));
 
          // Price
-         String price = String.format(_locale, "%s %s", item.oneBtcInFiat, item.currency);
+         String price = String.format(_locale, "%s %s", Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, item.oneBtcInFiat), item.currency);
          TextView tvPrice = (TextView) card.findViewById(R.id.tvPrice);
          tvPrice.setText(price);
          setPriceColor(tvPrice, item);
@@ -334,7 +358,7 @@ public class AdSearchFragment extends Fragment {
          }
 
          card.setOnClickListener(itemClickListener);
-         card.setTag(new Tag(item, position));
+         card.setTag(new Tag(item, position + (_banner == null ? 0 : 1)));
          return card;
       }
 
@@ -343,10 +367,35 @@ public class AdSearchFragment extends Fragment {
          @Override
          public void onClick(View v) {
             Tag tag = (Tag) v.getTag();
-            _selected = tag.item;
-            ListView listView = (ListView) findViewById(R.id.lvRecords);
+            if (_selected != tag.item) {
+               _selected = tag.item;
+               ListView listView = (ListView) findViewById(R.id.lvRecords);
+               listView.smoothScrollToPosition(tag.position);
+            } else {
+               _selected = null;
+            }
             _recordsAdapter.notifyDataSetChanged();
-            listView.smoothScrollToPosition(tag.position);
+         }
+      };
+
+      private OnClickListener bannerClickListener = new OnClickListener() {
+
+         @Override
+         public void onClick(View v) {
+            URL url = (URL) v.getTag();
+            _selected = null;
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            try {
+               intent.setData(Uri.parse(url.toURI().toString()));
+            } catch (URISyntaxException e) {
+               // Never happens
+               Log.e(this.getClass().getSimpleName(), "URISyntaxException: " + url.toString());
+               return;
+            }
+            startActivity(intent);
+            Toast.makeText(getActivity(), url.getHost(), Toast.LENGTH_LONG).show();
+
          }
       };
 

@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Geocode {
+
+   private static final String COUNTRY = "country";
+
    public Collection<String> types = new ArrayList<String>();
    public String formattedAddress;
    public Collection<AddressComponent> addressComponents = new ArrayList<AddressComponent>();
@@ -52,4 +55,28 @@ public class Geocode {
    public double getLongitude() {
       return geometry.location.lng;
    }
+
+   /**
+    * Determine the country code. If no country code was found the empty string
+    * is returned.
+    */
+   public String getCountryCode() {
+      if (addressComponents == null) {
+         return "";
+      }
+      for (AddressComponent comp : addressComponents) {
+         if (comp.types == null) {
+            continue;
+         }
+         for (String type : comp.types) {
+            if (COUNTRY.equals(type)) {
+               if (comp.shortName != null && comp.shortName.length() > 0) {
+                  return comp.shortName;
+               }
+            }
+         }
+      }
+      return "";
+   }
+
 }

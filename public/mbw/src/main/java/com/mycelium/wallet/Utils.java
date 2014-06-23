@@ -471,7 +471,7 @@ public class Utils {
    }
 
    /**
-    * Chop a string into an array of string no longer then the specified chop
+    * Chop a string into an array of strings no longer then the specified chop
     * length
     */
    public static String[] stringChopper(String string, int chopLength) {

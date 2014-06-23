@@ -34,7 +34,7 @@
 
 package com.mycelium.wallet;
 
-import com.mycelium.lt.api.model.GpsLocation;
+import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 
 public class Constants {
 
@@ -74,6 +74,10 @@ public class Constants {
 
    public static final String TAG = "MyceliumWallet";
 
+   // Brands
+   public static final String BRAND_MYCELIUM = "mycelium";
+   public static final String BRAND_BITS_OF_GOLD = "bog";
+   
    // Local Trader constants
    public static final String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
    public static final String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";
@@ -81,10 +85,11 @@ public class Constants {
    public static final String LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING = "lastTraderSync";
    public static final String LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING = "lastTraderNotification";
    public static final String LOCAL_TRADER_LOCATION_NAME_SETTING = "locationName";
+   public static final String LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING = "locationCountryCode";
    public static final String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
    public static final String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
-   public static final GpsLocation LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocation(48.2162845, 16.2484715,
-         "Penzing, Vienna");
+   public static final GpsLocationEx LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocationEx(48.2162845, 16.2484715,
+         "Penzing, Vienna", "AT");
    public static final String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
    public static final String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
    public static final String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";

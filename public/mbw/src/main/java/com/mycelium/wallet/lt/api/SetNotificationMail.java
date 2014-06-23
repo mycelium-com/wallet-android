@@ -37,10 +37,8 @@ package com.mycelium.wallet.lt.api;
 import java.util.Collection;
 import java.util.UUID;
 
-import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 

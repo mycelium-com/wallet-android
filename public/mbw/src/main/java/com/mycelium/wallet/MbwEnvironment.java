@@ -42,17 +42,31 @@ import com.mycelium.lt.api.LtApi;
 
 public abstract class MbwEnvironment {
 
+   private String _brand;
+
    public static MbwEnvironment determineEnvironment(Context applicationContext) {
       // Set up environment
       String network = applicationContext.getResources().getString(R.string.network);
-      //todo proper IoC needed. it is not nice to refer to subclasses
+      String brand = applicationContext.getResources().getString(R.string.brand);
+      if(brand.equals("undefined")){
+         throw new RuntimeException("No brand has been specified");
+      }
+      // todo proper IoC needed. it is not nice to refer to subclasses
       if (network.equals("prodnet")) {
-         return new MbwProdEnvironment();
+         return new MbwProdEnvironment(brand);
       } else if (network.equals("testnet")) {
-         return new MbwTestEnvironment();
+         return new MbwTestEnvironment(brand);
       } else {
          throw new RuntimeException("No network has been specified");
       }
+   }
+
+   public MbwEnvironment(String brand) {
+      _brand = brand;
+   }
+
+   public String getBrand() {
+      return _brand;
    }
 
    public abstract NetworkParameters getNetwork();
@@ -60,5 +74,5 @@ public abstract class MbwEnvironment {
    public abstract MyceliumWalletApi getMwsApi();
 
    public abstract LtApi getLocalTraderApi();
-   
+
 }

@@ -66,7 +66,7 @@ public class StandardBitcoinSigning {
       String message = "abc";
       byte[] msg = Signatures.formatMessageForSigning(message);
       Assert.assertArrayEquals(abcMessage, msg);
-      SignedMessage signed2 = privKey.signMessage(message, new StaticSimpleRandomSource());
+      SignedMessage signed2 = privKey.signMessage(message, new TestNonRandomSource());
       assertEquals(privKey.getPublicKey(), signed2.getPublicKey());
       String sigStr  = signed2.getBase64Signature();
       System.out.println(sigStr);

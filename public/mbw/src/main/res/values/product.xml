@@ -3,5 +3,6 @@
         xmlns:tools="http://schemas.android.com/tools"
         tools:ignore="MissingTranslation">
     <string name="network">undefined</string>
+    <string name="brand">undefined</string>
     <bool name="email_on_errors">false</bool>
 </resources>

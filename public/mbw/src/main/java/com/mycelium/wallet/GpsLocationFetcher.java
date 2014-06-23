@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet;
 
+import java.util.List;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -47,10 +49,26 @@ import com.mycelium.lt.location.JsonCoder;
 import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.lt.AddressDescription;
 
-import java.util.List;
-
 public class GpsLocationFetcher {
 
+   public static class GpsLocationEx extends GpsLocation {
+      private static final long serialVersionUID = 1L;
+
+      public String countryCode;
+
+      public GpsLocationEx(double latitude, double longitude, String name, String countryCode) {
+         super(latitude, longitude, name);
+         this.countryCode = countryCode;
+      }
+
+      public static GpsLocationEx fromGpsLocation(GpsLocation location) {
+         if (location == null) {
+            return null;
+         }
+         return new GpsLocationEx(location.latitude, location.longitude, location.name, "");
+      }
+
+   }
 
    public static abstract class Callback {
 
@@ -71,7 +89,7 @@ public class GpsLocationFetcher {
        * Called when the the GPS location has been obtained. The location is
        * null if no location could be found
        */
-      protected abstract void onGpsLocationObtained(GpsLocation location);
+      protected abstract void onGpsLocationObtained(GpsLocationEx location);
 
       protected abstract void onGpsError(RemoteGeocodeException error);
 
@@ -82,7 +100,7 @@ public class GpsLocationFetcher {
 
          @Override
          public void run() {
-            final GpsLocation location;
+            final GpsLocationEx location;
             try {
                location = getNetworkLocation(callback._context);
                callback._handler.post(new Runnable() {
@@ -112,7 +130,7 @@ public class GpsLocationFetcher {
       t.start();
    }
 
-   private GpsLocation getNetworkLocation(Context context) throws RemoteGeocodeException {
+   private GpsLocationEx getNetworkLocation(Context context) throws RemoteGeocodeException {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
@@ -130,8 +148,10 @@ public class GpsLocationFetcher {
          return null;
       }
 
-      return new GpsLocation(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), new AddressDescription(
-            list.get(0)).toString());
+      Geocode geocode = list.get(0);
+
+      return new GpsLocationEx(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(),
+            new AddressDescription(geocode).toString(), geocode.getCountryCode());
    }
 
    private static boolean canObtainGpsPosition(Context context) {

@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet.lt.activity;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -49,15 +51,13 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.google.common.collect.ImmutableList;
-import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.location.Geocode;
 import com.mycelium.lt.location.JsonCoder;
 import com.mycelium.lt.location.RemoteGeocodeException;
+import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.AddressDescription;
-
-import java.util.List;
 
 public class EnterLocationActivity extends Activity {
 
@@ -125,8 +125,9 @@ public class EnterLocationActivity extends Activity {
       }
    };
 
-   private GpsLocation address2Location(AddressDescription addr) {
-      return new GpsLocation(addr.location.getLatitude(), addr.location.getLongitude(), addr.toString());
+   private GpsLocationEx address2Location(AddressDescription addr) {
+      return new GpsLocationEx(addr.location.getLatitude(), addr.location.getLongitude(), addr.toString(),
+            addr.location.getCountryCode());
    }
 
    private List<Geocode> autocompleteInternal(String input) {

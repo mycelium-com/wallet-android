@@ -117,7 +117,7 @@ public class MbwManager {
          // Disable HTTP keep-alive on systems predating Gingerbread
          System.setProperty("http.keepAlive", "false");
       }
-      
+
       _eventBus = new Bus();
 
       // Preferences
@@ -406,6 +406,14 @@ public class MbwManager {
     */
    public NetworkParameters getNetwork() {
       return _environment.getNetwork();
+   }
+
+   /**
+    * Get the brand of the wallet. This allows us to behave differently
+    * depending on the brand of the wallet.
+    */
+   public String getBrand() {
+      return _environment.getBrand();
    }
 
    public ExploreHelper getExploreHelper() {
