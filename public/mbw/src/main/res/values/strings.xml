@@ -498,4 +498,24 @@
     <string name="donate_description">Mycelium is a great wallet and you can use it for free.\n\nPlease help our development effort by giving a donation.\n\nAny amount counts!</string>
     <string name="lt_use_email_for_notifications">Use email for notifications</string>
 
+    <!-- BitID -->
+    <string name="title_activity_bit_idauthentication">BitID Authentication</string>
+    <string name="bitid_authentication">Authenticate using BitID</string>
+    <string name="sign_bitid">Sign In</string>
+    <string name="bitid_question">The website \n\n%1$s\n\n wants you to authenticate using your Bitcoin Address. Do you want to sign the request?</string>
+    <string name="bitid_unsecure_warning">Warning: This website will receive the callback via http. For sensible data, https should be used.</string>
+    <string name="bitid_processing">The signature is being sent.</string>
+    <string name="bitid_success">Successfully logged in to website %1$s!</string>
+    <string name="bitid_error">Authentication failed!\nAn error occurred while contacting the server. We are sorry!</string>
+    <string name="bitid_expired">Authentication failed, the nonce has expired.\nPlease refresh the website and scan again.</string>
+    <string name="bitid_errorheader">Authentication failed with error:\n</string>
+    <string name="bitid_timeout">The connection timed out, please try again later.</string>
+    <string name="bitid_noconnection">Server could not be reached, please check your data connection.</string>
+    <string name="bitid_loggedin">You have been logged in to the site.</string>
+    <string name="bitid_aborted">You have aborted the login process.</string>
+    <string name="bitid_sslproblem">SSL Problem</string>
+    <string name="bitid_sslquestion">The following SSL problem occurred, do you want to proceed?</string>
+    <string name="invalid_bitid_uri">Invalid BitID URI</string>
+    <!-- BitID end -->
+
 </resources>

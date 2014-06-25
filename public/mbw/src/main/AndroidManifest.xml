@@ -56,28 +56,6 @@
         <!--android:value="@integer/google_play_services_version" />-->
 
         <activity
-            android:name="com.mycelium.wallet.activity.StartupActivity"
-            android:label="@string/app_short_name"
-            android:theme="@style/MyceliumLauncher" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- bitcoin uri scheme -->
-            <intent-filter android:label="@string/send_bitcoins" >
-                <action android:name="android.intent.action.VIEW" />
-				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="bitcoin" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="com.mycelium.wallet.activity.modern.ModernMain"
             android:theme="@style/MyceliumActionBar" />
         <activity android:name="com.mycelium.wallet.activity.AboutActivity" />

@@ -116,14 +116,15 @@ public class Base58 {
    }
    
    public static byte[] decode(String input) {
-      // Get rid of any UTF-8 BOM marker. Those should not be present, but might have slipped in nonetheless,
-      // since Java does not automatically discard them when reading a stream. Only remove it, if at the beginning
-      // of the string. Otherwise, something is probably seriously wrong.
-     if (input.charAt(0) == '\uFEFF') input = input.substring(1);
 
       if (input.length() == 0) {
          return new byte[0];
       }
+      // Get rid of any UTF-8 BOM marker. Those should not be present, but might have slipped in nonetheless,
+      // since Java does not automatically discard them when reading a stream. Only remove it, if at the beginning
+      // of the string. Otherwise, something is probably seriously wrong.
+      if (input.charAt(0) == '\uFEFF') input = input.substring(1);
+
       byte[] input58 = new byte[input.length()];
       // Transform the String to a base58 byte sequence
       for (int i = 0; i < input.length(); ++i) {
