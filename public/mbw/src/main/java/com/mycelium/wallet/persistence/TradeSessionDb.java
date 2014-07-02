@@ -34,16 +34,6 @@
 
 package com.mycelium.wallet.persistence;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -53,6 +43,16 @@ import android.util.Log;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TradeSession;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 public class TradeSessionDb {
 
@@ -64,7 +64,7 @@ public class TradeSessionDb {
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "tradesession.db";
-      private static final int MINOR_DATABASE_VERSION = 1;
+      private static final int MINOR_DATABASE_VERSION = 2;
       // Automatically increase the database version when the LT API version
       // increases. Also allow for minor database versions which is useful during development.
       private static final int DATABASE_VERSION = LtApi.VERSION << 8 + MINOR_DATABASE_VERSION;
@@ -130,16 +130,13 @@ public class TradeSessionDb {
    public TradeSession get(UUID id) {
       Cursor cursor = null;
       try {
-         cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, "id = \"" + id.toString() + "\"", null,
+         cursor = _database.query(TABLE_ACTIVE, new String[]{"session"}, "id = \"" + id.toString() + "\"", null,
                null, null, null);
          if (!cursor.moveToFirst()) {
             return null;
          }
          byte[] value = cursor.getBlob(0);
          return sessionFromBlob(value);
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in get", e);
-         return null;
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -151,36 +148,21 @@ public class TradeSessionDb {
     * Count the number of buy trade sessions
     */
    public int countTradeSessions() {
-      try {
-         return (int) _countTradeSessions.simpleQueryForLong();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in get", e);
-         return 0;
-      }
+      return (int) _countTradeSessions.simpleQueryForLong();
    }
 
    /**
     * Count the number of buy trade sessions
     */
    public int countBuyTradeSessions() {
-      try {
-         return (int) _countBuyTradeSessions.simpleQueryForLong();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in get", e);
-         return 0;
-      }
+      return (int) _countBuyTradeSessions.simpleQueryForLong();
    }
 
    /**
     * Count the number of sell trade sessions
     */
    public int countSellTradeSessions() {
-      try {
-         return (int) _countSellTradeSessions.simpleQueryForLong();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in get", e);
-         return 0;
-      }
+      return (int) _countSellTradeSessions.simpleQueryForLong();
    }
 
    /**
@@ -190,7 +172,7 @@ public class TradeSessionDb {
       Cursor cursor = null;
       try {
          List<TradeSession> entries = new LinkedList<TradeSession>();
-         cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, null, null, null, null, null);
+         cursor = _database.query(TABLE_ACTIVE, new String[]{"session"}, null, null, null, null, null);
          while (cursor.moveToNext()) {
             TradeSession session = sessionFromBlob(cursor.getBlob(0));
             if (session == null) {
@@ -201,9 +183,6 @@ public class TradeSessionDb {
             entries.add(session);
          }
          return entries;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in getAll", e);
-         return null;
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -218,7 +197,7 @@ public class TradeSessionDb {
       Cursor cursor = null;
       try {
          List<TradeSession> entries = new LinkedList<TradeSession>();
-         cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, "isBuy=?", new String[] { "1" }, null,
+         cursor = _database.query(TABLE_ACTIVE, new String[]{"session"}, "isBuy=?", new String[]{"1"}, null,
                null, null);
          while (cursor.moveToNext()) {
             TradeSession session = sessionFromBlob(cursor.getBlob(0));
@@ -230,9 +209,6 @@ public class TradeSessionDb {
             entries.add(session);
          }
          return entries;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in getAll", e);
-         return null;
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -244,7 +220,7 @@ public class TradeSessionDb {
       Cursor cursor = null;
       try {
          List<TradeSession> entries = new LinkedList<TradeSession>();
-         cursor = _database.query(TABLE_ACTIVE, new String[] { "session" }, "isBuy=?", new String[] { "0" }, null,
+         cursor = _database.query(TABLE_ACTIVE, new String[]{"session"}, "isBuy=?", new String[]{"0"}, null,
                null, null);
          while (cursor.moveToNext()) {
             TradeSession session = sessionFromBlob(cursor.getBlob(0));
@@ -256,9 +232,6 @@ public class TradeSessionDb {
             entries.add(session);
          }
          return entries;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in getAll", e);
-         return null;
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -270,29 +243,19 @@ public class TradeSessionDb {
     * Insert a trade session, and set the viewed time to zero.
     */
    public synchronized void insert(TradeSession session) {
-      try {
-         _insert.bindString(1, session.id.toString());
-         _insert.bindLong(2, session.isBuyer ? 1 : 0);
-         _insert.bindBlob(3, sessionToBlob(session));
-         _insert.executeInsert();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in insert", e);
-         throw new RuntimeException(e);
-      }
+      _insert.bindString(1, session.id.toString());
+      _insert.bindLong(2, session.isBuyer ? 1 : 0);
+      _insert.bindBlob(3, sessionToBlob(session));
+      _insert.executeInsert();
    }
 
    /**
     * Mark this session as viewed at its current lastChange timestamp
     */
    public synchronized void markViewed(TradeSession session) {
-      try {
-         _setViewTime.bindString(1, session.id.toString());
-         _setViewTime.bindLong(2, session.lastChange);
-         _setViewTime.execute();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in markViewed", e);
-         throw new RuntimeException(e);
-      }
+      _setViewTime.bindString(1, session.id.toString());
+      _setViewTime.bindLong(2, session.lastChange);
+      _setViewTime.execute();
    }
 
    /**
@@ -301,15 +264,12 @@ public class TradeSessionDb {
    public long getViewTimeById(UUID id) {
       Cursor cursor = null;
       try {
-         cursor = _database.query(TABLE_VIEWTIME, new String[] { "viewtime" }, "id = \"" + id.toString() + "\"", null,
+         cursor = _database.query(TABLE_VIEWTIME, new String[]{"viewtime"}, "id = \"" + id.toString() + "\"", null,
                null, null, null);
          if (!cursor.moveToFirst()) {
             return -1;
          }
-         long value = cursor.getLong(0);
-         return value;
-      } catch (Exception e) {
-         return -1;
+         return cursor.getLong(0);
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -322,20 +282,13 @@ public class TradeSessionDb {
     * changing its viewed status.
     */
    public synchronized void update(TradeSession session) {
-      try {
-         _updateSession.bindBlob(1, sessionToBlob(session));
-         _updateSession.bindString(2, session.id.toString());
-         _updateSession.execute();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in update", e);
-         throw new RuntimeException(e);
-      }
+      _updateSession.bindBlob(1, sessionToBlob(session));
+      _updateSession.bindString(2, session.id.toString());
+      _updateSession.execute();
    }
 
    /**
     * Delete a session from the database
-    * 
-    * @param id
     */
    public synchronized void delete(UUID id) {
       try {
@@ -349,8 +302,6 @@ public class TradeSessionDb {
 
    /**
     * Delete all sessions from the database
-    * 
-    * @param id
     */
    public synchronized void deleteAll() {
       try {
@@ -361,28 +312,36 @@ public class TradeSessionDb {
       }
    }
 
-   private static byte[] sessionToBlob(TradeSession session) throws IOException {
-      ByteArrayOutputStream bout = new ByteArrayOutputStream(1024);
-      ObjectOutputStream out = new ObjectOutputStream(bout);
-      out.writeObject(session);
-      out.close();
-      byte[] result = bout.toByteArray();
-      bout.close();
-      return result;
+   private static byte[] sessionToBlob(TradeSession session) {
+      try {
+         ByteArrayOutputStream bout = new ByteArrayOutputStream(1024);
+         ObjectOutputStream out = new ObjectOutputStream(bout);
+         out.writeObject(session);
+         out.close();
+         byte[] result = bout.toByteArray();
+         bout.close();
+         return result;
+      } catch (IOException e) {
+         throw new RuntimeException(e);
+      }
    }
 
-   private static TradeSession sessionFromBlob(byte[] blob) throws IOException {
-      ByteArrayInputStream bin = new ByteArrayInputStream(blob);
-      ObjectInputStream in = new ObjectInputStream(bin);
-      TradeSession session;
+   private static TradeSession sessionFromBlob(byte[] blob) {
       try {
-         session = (TradeSession) in.readObject();
-      } catch (ClassNotFoundException e) {
-         return null;
+         ByteArrayInputStream bin = new ByteArrayInputStream(blob);
+         ObjectInputStream in = new ObjectInputStream(bin);
+         TradeSession session;
+         try {
+            session = (TradeSession) in.readObject();
+         } catch (ClassNotFoundException e) {
+            return null;
+         }
+         in.close();
+         bin.close();
+         return session;
+      } catch (IOException e) {
+         throw new RuntimeException(e);
       }
-      in.close();
-      bin.close();
-      return session;
    }
 
 }
