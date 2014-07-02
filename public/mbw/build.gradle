@@ -29,6 +29,7 @@ dependencies {
 def commonDebugKeystore = file("../../keystore_debug")
 
 android {
+    useOldManifestMerger true
 
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
@@ -43,8 +44,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 119
-        versionName '1.2.15'
+        versionCode 121
+        versionName '1.2.16'
     }
 
     signingConfigs {
@@ -111,6 +112,7 @@ if (commonDebugKeystore.exists()) {
     android.productFlavors.dev.signingConfig = android.signingConfigs.commonDebug
     logger.info("keytore_debug detected")
 }
+
 
 
 if (project.hasProperty('prodKeyStore') &&

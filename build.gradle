@@ -8,7 +8,7 @@ task wrapper(type: Wrapper) {
 
 ext {
     guavaArtifact = 'com.google.guava:guava-jdk5:14.0.1'
-    androidBuildArtifact = 'com.android.tools.build:gradle:0.11.+'
+    androidBuildArtifact = 'com.android.tools.build:gradle:0.12.0'
     androidSdkBuildVersion = "19.1.0"
     slf4jVersion = '1.7.2'
     junitVersion ='4.8.1'
