@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 
 import android.net.Uri;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
@@ -60,13 +61,13 @@ public class BitcoinUri implements Serializable {
       this.label = label == null ? null : label.trim();
    }
 
-   public static BitcoinUri parse(String uri, NetworkParameters network) {
+   public static Optional<BitcoinUri> parse(String uri, NetworkParameters network) {
       try {
          Uri u = Uri.parse(uri);
          String scheme = u.getScheme();
          if (!scheme.equalsIgnoreCase("bitcoin")) {
             // not a bitcoin URI
-            return null;
+            return Optional.absent();
          }
          String schemeSpecific = u.getSchemeSpecificPart();
          if (schemeSpecific.startsWith("//")) {
@@ -75,17 +76,17 @@ public class BitcoinUri implements Serializable {
          }
          u = Uri.parse("bitcoin://" + schemeSpecific);
          if (u == null) {
-            return null;
+            return Optional.absent();
          }
 
          // Address
          String addressString = u.getHost();
          if (addressString == null || addressString.length() < 1) {
-            return null;
+            return Optional.absent();
          }
          Address address = Address.fromString(addressString.trim(), network);
          if (address == null) {
-            return null;
+            return Optional.absent();
          }
 
          // Amount
@@ -97,11 +98,11 @@ public class BitcoinUri implements Serializable {
 
          // Label
          String label = u.getQueryParameter("label");
-         return new BitcoinUri(address, amount, label);
+         return Optional.of(new BitcoinUri(address, amount, label));
 
       } catch (Exception e) {
          //todo insert uncaught error handler
-         return null;
+         return Optional.absent();
       }
    }
 

@@ -272,13 +272,14 @@
     <string name="getting_location">obtaining location…</string>
     <string name="about">About</string>
     <string name="mycelium_license">Mycelium License</string>
+    <string name="special_thanks">Special Thanks</string>
     <string name="zxing_license">ZXing License</string>
     <string name="pdfwriter_license">Android PDF Writer License</string>
     <string name="source_url">https://github.com/mycelium-com/wallet</string>
     <string name="source_repo_label">Source Repository</string>
     <string name="version_label">Version</string>
     <string name="authors_label">Developed by</string>
-    <string name="authors">Jan Møller\nAndreas Petersson\nMegion Research &amp; Development GmbH</string>
+    <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\n\nMegion Research &amp; Development GmbH</string>
     <string name="homepage_label">Homepage</string>
     <string name="homepage_url">http://mycelium.com</string>
     <string name="contact_email_label">Feedback</string>
@@ -340,6 +341,7 @@
     <string name="lt_disable_preference_summary">Disable Local Trader functionality</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
+    <string name="lt_use_email_for_notifications">Use email for notifications</string>
     <string name="lt_miles_kilometers_preference">Use Miles for Distances</string>
     <string name="lt_miles_kilometers_preference_summary">Use miles instead of kilometers for distances</string>
     <string name="lt_detached">Local Trader account detached</string>
@@ -429,6 +431,7 @@
     <string name="lt_you_are_trading_with_label">You are trading with</string>
     <string name="lt_trader_name_label">Trader Name</string>
     <string name="lt_trader_address_label">Account Tied to Address</string>
+    <string name="lt_trader_email_address_label">Email Address</string>
     <string name="lt_trader_age_label">Trader Account Age</string>
     <string name="lt_trader_last_activity">Last Activity</string>
     <string name="lt_successful_sells_label">Successful Sells</string>
@@ -470,8 +473,11 @@
     <string name="lt_refresh_market_rate_title">Refreshing Market Rate</string>
     <string name="lt_refresh_market_rate_description">The new price depends on the price formula set by the seller and the current market rates.\n\nIf you refresh the price you both have to accept the deal.</string>
     <string name="lt_opening_map">Opening map</string>
-    
-<!--  LT end -->
+    <string name="lt_info_error">This information could not be obtained from the server.</string>
+    <string name="lt_enter_your_email_address">Enter your email address</string>
+    <string name="lt_check_your_mail">Check your email and click the verification link</string>
+
+    <!--  LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
@@ -496,16 +502,18 @@
     <string name="geocode_error">Error from geocoder: %s \n please try again later.</string>
     <string name="donate_button">Donate</string>
     <string name="donate_description">Mycelium is a great wallet and you can use it for free.\n\nPlease help our development effort by giving a donation.\n\nAny amount counts!</string>
-    <string name="lt_use_email_for_notifications">Use email for notifications</string>
+    <string name="fetching_info">Fetching info from server</string>
+    <string name="email_notification_setting_explanation">Set your email address to receive notifications from Local Trader</string>
+
 
     <!-- BitID -->
     <string name="title_activity_bit_idauthentication">BitID Authentication</string>
     <string name="bitid_authentication">Authenticate using BitID</string>
     <string name="sign_bitid">Sign In</string>
-    <string name="bitid_question">The website \n\n%1$s\n\n wants you to authenticate using your Bitcoin Address. Do you want to sign the request?</string>
-    <string name="bitid_unsecure_warning">Warning: This website will receive the callback via http. For sensible data, https should be used.</string>
+    <string name="bitid_question">%1$s\n\n wants you to authenticate using the bitid protocol. Do you want to sign the request?</string>
+    <string name="bitid_unsecure_warning">Warning: This website will receive the callback via http. For sensitive data, https should be used.</string>
     <string name="bitid_processing">The signature is being sent.</string>
-    <string name="bitid_success">Successfully logged in to website %1$s!</string>
+    <string name="bitid_success">Successfully logged in at %1$s!</string>
     <string name="bitid_error">Authentication failed!\nAn error occurred while contacting the server. We are sorry!</string>
     <string name="bitid_expired">Authentication failed, the nonce has expired.\nPlease refresh the website and scan again.</string>
     <string name="bitid_errorheader">Authentication failed with error:\n</string>
@@ -516,6 +524,7 @@
     <string name="bitid_sslproblem">SSL Problem</string>
     <string name="bitid_sslquestion">The following SSL problem occurred, do you want to proceed?</string>
     <string name="invalid_bitid_uri">Invalid BitID URI</string>
+
     <!-- BitID end -->
 
 </resources>

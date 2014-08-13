@@ -37,6 +37,7 @@ package com.mycelium.wallet;
 import java.util.Collection;
 import java.util.Set;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 
@@ -56,9 +57,9 @@ public class WalletTest {
       final int height = 100;              ;
      final int value = 100000;
       final UnspentTransactionOutput output = new UnspentTransactionOutput(dummyOut, height, value, new ScriptOutputStandard(addr1.getTypeSpecificBytes()));
-      Record record = Record.recordFromBitcoinAddressString("mfx7u4LpuqG5CA5NFZBG3U1UTmftKXHzzk");
+      Optional<Record> record = Record.recordFromBitcoinAddressString("mfx7u4LpuqG5CA5NFZBG3U1UTmftKXHzzk");
 
-      Wallet wallet = new Wallet(record);
+      Wallet wallet = new Wallet(record.get());
 
       Wallet.SpendableOutputs localSpendableOutputs = wallet.getLocalSpendableOutputs(new BlockChainAddressTracker(null, null, null) {
          @Override

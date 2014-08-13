@@ -91,8 +91,8 @@ public class MbwProdEnvironment extends MbwEnvironment {
       }
    });
    
-   public MbwProdEnvironment(String brand){
-      super(brand);
+   public MbwProdEnvironment(String brand, boolean bitidEnabled){
+      super(brand, bitidEnabled);
    }
    
    @Override

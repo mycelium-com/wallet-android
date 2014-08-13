@@ -86,8 +86,8 @@ public class MbwTestEnvironment extends MbwEnvironment {
       }
    });
 
-   public MbwTestEnvironment(String brand){
-      super(brand);
+   public MbwTestEnvironment(String brand, boolean bitidEnabled){
+      super(brand, bitidEnabled);
    }
    
    @Override

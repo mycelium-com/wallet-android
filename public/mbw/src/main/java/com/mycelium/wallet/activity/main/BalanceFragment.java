@@ -47,6 +47,7 @@ import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.BalanceInfo;
+import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -54,6 +55,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
@@ -68,7 +71,6 @@ public class BalanceFragment extends Fragment {
    private MbwManager _mbwManager;
    private RecordManager _recordManager;
    private View _root;
-   // private BalanceInfo _balance;
    private ExchangeRate _exchangeRate;
    private Toaster _toaster;
 
@@ -107,15 +109,15 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getExchamgeRateManager().subscribe(excahngeSubscriber);
-      _exchangeRate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+      _mbwManager.getExchangeRateManager().subscribe(exchangeSubscriber);
+      _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
       if (_exchangeRate == null || _exchangeRate.price == null) {
-         _mbwManager.getExchamgeRateManager().requestRefresh();
+         _mbwManager.getExchangeRateManager().requestRefresh();
       }
       _mbwManager.getEventBus().register(this);
       _root.findViewById(R.id.btSend).setOnClickListener(sendClickListener);
       _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
-      // _root.findViewById(R.id.btTrade).setOnClickListener(tradeClickListener);
+      _root.findViewById(R.id.btScan).setOnClickListener(scanClickListener);
       updateUi();
       super.onResume();
    }
@@ -125,7 +127,7 @@ public class BalanceFragment extends Fragment {
       @Override
       public void onClick(View arg0) {
          SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false,
-               _exchangeRate == null ? null : (_exchangeRate.price == null ? null : _exchangeRate.price));
+               _exchangeRate == null ? null : _exchangeRate.price);
       }
    };
 
@@ -137,13 +139,21 @@ public class BalanceFragment extends Fragment {
       }
    };
 
+   OnClickListener scanClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, ScanRequest.genericScanRequest());
+      }
+   };
+
    private Wallet getWallet() {
       return _recordManager.getWallet(_mbwManager.getWalletMode());
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
+      _mbwManager.getExchangeRateManager().unsubscribe(exchangeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -189,18 +199,6 @@ public class BalanceFragment extends Fragment {
          String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRate.price);
          tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _exchangeRate.name));
       }
-
-      // // Hide/Show Local Trader trade button
-      // LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
-      // if (ltManager.isLocalTraderDisabled()) {
-      // _root.findViewById(R.id.llLocalTrader).setVisibility(View.GONE);
-      // } else {
-      // _root.findViewById(R.id.llLocalTrader).setVisibility(View.VISIBLE);
-      // // Local Trader update dot
-      // _root.findViewById(R.id.ivDot).setVisibility(
-      // ltManager.hasLocalTraderAccount() &&
-      // ltManager.needsTraderSynchronization() ? View.VISIBLE : View.GONE);
-      // }
    }
 
    private void updateUiKnownBalance(Wallet wallet, BalanceInfo balance) {
@@ -269,7 +267,7 @@ public class BalanceFragment extends Fragment {
       _root.findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
    }
 
-   private ExchangeRateManager.EventSubscriber excahngeSubscriber = new ExchangeRateManager.EventSubscriber(
+   private ExchangeRateManager.EventSubscriber exchangeSubscriber = new ExchangeRateManager.EventSubscriber(
          new Handler()) {
 
       @Override
@@ -280,7 +278,7 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void refreshingEcahngeRatesSuccedded() {
-         _exchangeRate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
          updateUi();
       }
    };

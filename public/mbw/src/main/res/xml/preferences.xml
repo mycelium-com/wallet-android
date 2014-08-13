@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:key="myceliumPreferences">
 
     <ListPreference
         android:key="user_language"
@@ -65,16 +65,16 @@
             android:summary="@string/lt_miles_kilometers_preference_summary"
             android:title="@string/lt_miles_kilometers_preference" />
 
-        <EditTextPreference
-                android:inputType="text"
-                android:key="ltNotificationEmail"
-                android:layout="@layout/preference_layout"
-                android:title="@string/lt_use_email_for_notifications"
-                />
+        <Preference
+            android:key="ltNotificationEmail2"
+            android:layout="@layout/preference_layout"
+            android:title="@string/lt_use_email_for_notifications"
+            android:summary="@string/email_notification_setting_explanation"
+            />
     </PreferenceCategory>
 
     
-    <!-- Advanced Settiings -->
+    <!-- Advanced Settings -->
 
     <PreferenceCategory
         android:key="advancedSettings"

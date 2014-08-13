@@ -197,6 +197,10 @@ public final class CameraManager {
       }
    }
 
+   public synchronized void toggleTorch() {
+      setTorch(!configManager.getTorchState(camera));
+   }
+
    /**
     * A single preview frame will be returned to the handler supplied. The data
     * will arrive as byte[] in the message.obj field, with width and height

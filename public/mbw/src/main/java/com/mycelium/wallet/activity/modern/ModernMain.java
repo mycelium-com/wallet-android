@@ -50,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.wallet.activity.ScanActivity;
 import com.squareup.otto.Subscribe;
 
 import com.mycelium.wallet.Constants;
@@ -67,6 +68,7 @@ import com.mycelium.wallet.event.WalletVersionEvent;
 
 public class ModernMain extends ActionBarActivity {
 
+   public static final int GENERIC_SCAN_REQUEST = 4;
    private static final int REQUEST_SETTING_CHANGED = 5;
    private MbwManager _mbwManager;
 
@@ -244,6 +246,10 @@ public class ModernMain extends ActionBarActivity {
          Intent running = getIntent();
          finish();
          startActivity(running);
+      } else if (requestCode == GENERIC_SCAN_REQUEST) {
+         //report to user in case of error
+         //if no scan handlers match successfully, this is the last resort to display an error msg
+         ScanActivity.toastScanError(resultCode, data, this);
       } else {
          super.onActivityResult(requestCode, resultCode, data);
       }

@@ -42,12 +42,13 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
+import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -84,17 +85,16 @@ public class InstantWalletActivity extends Activity {
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
 
-      final Record record = getRecordFromClipboard();
-      if (record == null || !record.hasPrivateKey()) {
+      final Optional<Record> record = getRecordFromClipboard();
+      if (!record.isPresent() || !record.get().hasPrivateKey()) {
          findViewById(R.id.btClipboard).setEnabled(false);
       } else {
          findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-               Wallet wallet = new Wallet(record);
-               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet, _amountToSend, _receivingAddress,
-                     true);
+               Wallet wallet = new Wallet(record.get());
+               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet, _amountToSend, _receivingAddress, true);
                InstantWalletActivity.this.finish();
             }
          });
@@ -104,16 +104,16 @@ public class InstantWalletActivity extends Activity {
 
          @Override
          public void onClick(View arg0) {
-            ScanActivity.callMe(InstantWalletActivity.this, SCAN_RESULT_CODE);
+            ScanActivity.callMe(InstantWalletActivity.this, SCAN_RESULT_CODE, ScanRequest.spendFromColdStorage());
          }
       });
 
    }
 
-   private Record getRecordFromClipboard() {
+   private Optional<Record> getRecordFromClipboard() {
       String content = Utils.getClipboardString(InstantWalletActivity.this);
       if (content.length() == 0) {
-         return null;
+         return Optional.absent();
       }
       NetworkParameters network = MbwManager.getInstance(this).getNetwork();
       return Record.fromString(content.toString(), network);
@@ -122,10 +122,6 @@ public class InstantWalletActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            Record record = Preconditions.checkNotNull((Record) intent
-                  .getSerializableExtra(ScanActivity.RESULT_RECORD_KEY));
-            Wallet wallet = new Wallet(record);
-            SendInitializationActivity.callMe(this, wallet, _amountToSend, _receivingAddress, true);
             // We don't call finish() here, so that this activity stays on the back stack.
             // So the user can click back and scan the next cold storage.
          } else {

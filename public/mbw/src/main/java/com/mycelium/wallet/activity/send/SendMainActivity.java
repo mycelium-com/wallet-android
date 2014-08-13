@@ -39,6 +39,7 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +49,7 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
@@ -62,6 +64,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
+import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.Wallet.SpendableOutputs;
@@ -111,6 +114,21 @@ public class SendMainActivity extends Activity {
       intent.putExtra("isColdStorage", isColdStorage);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
+   }
+
+   public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat, BitcoinUri uri, boolean isColdStorage) {
+      callMe(currentActivity, wallet, spendable, oneBtcInFiat, uri.amount, uri.address, isColdStorage);
+   }
+
+   public static void callMe(Fragment currentFragment, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+      Intent intent = new Intent(currentFragment.getActivity(), SendMainActivity.class);
+      intent.putExtra("wallet", wallet);
+      intent.putExtra("spendable", spendable);
+      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
+      intent.putExtra("amountToSend", amountToSend);
+      intent.putExtra("receivingAddress", receivingAddress);
+      intent.putExtra("isColdStorage", isColdStorage);
+      currentFragment.startActivity(intent);
    }
 
    @SuppressLint("ShowToast")
@@ -180,7 +198,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE);
+         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, ScanRequest.sendCoins());
       }
    };
 
@@ -470,22 +488,7 @@ public class SendMainActivity extends Activity {
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
-         if (resultCode == RESULT_OK) {
-
-            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
-            BitcoinUri uri = (BitcoinUri) intent.getSerializableExtra(ScanActivity.RESULT_URI_KEY);
-            if (uri != null) {
-               _receivingAddress = uri.address;
-               if (uri.amount != null && _amountToSend == null) {
-                  // Only set amount from URI if no amount was entered already
-                  _amountToSend = uri.amount;
-               }
-            } else {
-
-               Preconditions.checkNotNull(record);
-               _receivingAddress = record.address;
-            }
-         } else {
+         if (resultCode != RESULT_OK) {
             if (intent != null) {
                String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
                if (error != null) {
@@ -531,10 +534,10 @@ public class SendMainActivity extends Activity {
          }
          return new BitcoinUri(address,null,null);
       } else {
-         BitcoinUri b = BitcoinUri.parse(string, _mbwManager.getNetwork());
-         if (b != null) {
+         Optional<BitcoinUri> b = BitcoinUri.parse(string, _mbwManager.getNetwork());
+         if (b.isPresent()) {
             // On URI format
-            return b;
+            return b.get();
          }
       }
       return null;

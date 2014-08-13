@@ -88,6 +88,16 @@
             android:text="@string/send"
             android:textSize="20sp" />
 
+        <ImageView
+            android:id="@+id/btScan"
+            style="@style/MyceliumButton"
+            android:layout_width="@dimen/abc_action_bar_default_height"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignTop="@id/btSend"
+            android:layout_alignBottom="@id/btSend"
+            android:src="@drawable/photo"/>
+
         <Button
             android:id="@+id/btReceive"
             style="@style/MyceliumButton"

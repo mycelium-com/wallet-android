@@ -45,11 +45,13 @@ import android.os.Handler;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.BitIDSignRequest;
+import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
+import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
@@ -199,16 +201,15 @@ public class StartupActivity extends Activity {
 
    private void handleBitIdUri(Uri intentUri) {
       //We have been launched by a bitid authentication request
-      BitIDSignRequest bitid = BitIDSignRequest.parse(intentUri);
-      if (null == bitid) {
+      Optional<BitIDSignRequest> bitid = BitIDSignRequest.parse(intentUri);
+      if (!bitid.isPresent()) {
          //Invalid bitid URI
          Toast.makeText(this, R.string.invalid_bitid_uri, Toast.LENGTH_LONG).show();
          finish();
          return;
       }
-
       Intent bitIdIntent = new Intent(this, BitIDAuthenticationActivity.class);
-      bitIdIntent.putExtra("request", bitid);
+      bitIdIntent.putExtra("request", bitid.get());
       startActivity(bitIdIntent);
 
       finish();
@@ -217,21 +218,16 @@ public class StartupActivity extends Activity {
    private void handleBitcoinUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-      BitcoinUri b = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (b == null) {
+      Optional<BitcoinUri> b = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
+      if (!b.isPresent()) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
          return;
       }
 
-      Address receivingAddress = b.address;
-      if (receivingAddress == null) {
-         Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
-         finish();
-         return;
-      }
-      Long amountToSend = b.amount;
+      Address receivingAddress = Preconditions.checkNotNull(b.get().address);
+      Long amountToSend = b.get().amount;
 
       RecordManager recordManager = mbwManager.getRecordManager();
       if (mbwManager.getWalletMode() == WalletMode.Segregated) {

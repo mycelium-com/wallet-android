@@ -255,7 +255,7 @@ public class MbwManager {
       return _recordManager;
    }
 
-   public ExchangeRateManager getExchamgeRateManager() {
+   public ExchangeRateManager getExchangeRateManager() {
       return _exchangeRateManager;
    }
 
@@ -425,6 +425,8 @@ public class MbwManager {
    public String getBrand() {
       return _environment.getBrand();
    }
+
+   public boolean isBitidEnabled() { return _environment.isBitidEnabled(); }
 
    public ExploreHelper getExploreHelper() {
       return exploreHelper;

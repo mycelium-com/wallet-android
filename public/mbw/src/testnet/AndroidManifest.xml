@@ -65,7 +65,7 @@
         </activity>
 
         <activity
-            android:name="com.mycelium.wallet.activity.BitIDAuthenticationActivity"
+            android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
             android:label="@string/title_activity_bit_idauthentication">
         </activity>
     </application>

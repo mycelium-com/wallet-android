@@ -34,15 +34,22 @@
 
 package com.mycelium.wallet.activity.settings;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.text.InputType;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
@@ -52,7 +59,14 @@ import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -170,8 +184,6 @@ public class SettingsActivity extends PreferenceActivity {
    private Dialog _dialog;
    private EditTextPreference _proxy;
    private ImmutableMap<String, String> _languageLookup;
-   private LocalTraderEventSubscriber ltListener;
-   private EditTextPreference ltNotificationEmail;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -227,7 +239,7 @@ public class SettingsActivity extends PreferenceActivity {
 
       // Exchange Source
       _exchangeSource = (ListPreference) findPreference("exchange_source");
-      ExchangeRateManager exchangeManager = _mbwManager.getExchamgeRateManager();
+      ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
       CharSequence[] exchangeNames = exchangeManager.getExchangeRateNames().toArray(new String[]{});
       _exchangeSource.setEntries(exchangeNames);
       if (exchangeNames.length == 0) {
@@ -247,7 +259,7 @@ public class SettingsActivity extends PreferenceActivity {
 
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            _mbwManager.getExchamgeRateManager().setCurrentRateName(newValue.toString());
+            _mbwManager.getExchangeRateManager().setCurrentRateName(newValue.toString());
             _exchangeSource.setTitle(exchangeSourceTitle());
             return true;
          }
@@ -334,60 +346,47 @@ public class SettingsActivity extends PreferenceActivity {
 
    @Override
    protected void onResume() {
-      ltListener = new LocalTraderEventSubscriber(new Handler()) {
-         @Override
-         public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
-            ltNotificationEmail.setSummary(info.notificationEmail);
-         }
-
-         @Override
-         public void onLtError(int errorCode) {
-            //
-         }
-      };
-      _ltManager.subscribe(ltListener);
-
-      setupEmailNotificationSetting();
-
+      setupLocalTraderSettings();
       super.onResume();
+   }
+
+   private ProgressDialog pleaseWait;
+
+
+   @SuppressWarnings("deprecation")
+   private void setupLocalTraderSettings() {
+      if (!_ltManager.hasLocalTraderAccount()) {
+         PreferenceScreen myceliumPreferences = (PreferenceScreen) findPreference("myceliumPreferences");
+         PreferenceCategory localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
+         myceliumPreferences.removePreference(localTraderPrefs);
+         return;
+      }
+      setupEmailNotificationSetting();
    }
 
    @SuppressWarnings("deprecation")
    private void setupEmailNotificationSetting() {
-      ltNotificationEmail = (EditTextPreference) findPreference("ltNotificationEmail");
-
-      if (!_ltManager.hasLocalTraderAccount()) {
-         ltNotificationEmail.setEnabled(false);
-         return;
-      }
-
-
-      ltNotificationEmail.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+      Preference ltNotificationEmail = findPreference("ltNotificationEmail2");
+      ltNotificationEmail.setOnPreferenceClickListener(new OnPreferenceClickListener() {
          @Override
-         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            _ltManager.makeRequest(new SetNotificationMail(newValue.toString()));
-            ltNotificationEmail.setSummary(newValue.toString());
+         public boolean onPreferenceClick(final Preference preference) {
+            LocalTraderEventSubscriber listener = new SubscribeToServerResponse();
+            _ltManager.subscribe(listener);
+            new Thread() {
+               @Override
+               public void run() {
+                  _ltManager.makeRequest(new GetTraderInfo());
+               }
+            }.start();
+            pleaseWait = ProgressDialog.show(SettingsActivity.this, getString(R.string.fetching_info),
+                  getString(R.string.please_wait), true);
             return true;
          }
       });
-
-      final TraderInfo cachedTraderInfo = _ltManager.getCachedTraderInfo();
-      if (cachedTraderInfo == null) {
-         new Thread() {
-            @Override
-            public void run() {
-               _ltManager.makeRequest(new GetTraderInfo());
-            }
-         }.start();
-      } else {
-         ltNotificationEmail.setSummary(cachedTraderInfo.notificationEmail);
-      }
-
    }
 
    @Override
    protected void onPause() {
-      _ltManager.unsubscribe(ltListener);
       super.onPause();
    }
 
@@ -444,7 +443,7 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private String exchangeSourceTitle() {
-      String name = _mbwManager.getExchamgeRateManager().getCurrentRateName();
+      String name = _mbwManager.getExchangeRateManager().getCurrentRateName();
       if (name == null) {
          name = "";
       }
@@ -506,4 +505,61 @@ public class SettingsActivity extends PreferenceActivity {
       }
    }
 
+   private class SubscribeToServerResponse extends LocalTraderEventSubscriber {
+
+      private Button okButton;
+      private EditText emailEdit;
+
+      public SubscribeToServerResponse() {
+         super(new Handler());
+      }
+
+      private boolean checkValidMail(CharSequence value) {
+         return value.length() == 0 || //allow empty email, this removes email notifications
+               android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
+      }
+
+      @Override
+      public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
+         pleaseWait.dismiss();
+         AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
+         b.setTitle(getString(R.string.lt_enter_your_email_address));
+         b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+               String email = emailEdit.getText().toString();
+               _ltManager.makeRequest(new SetNotificationMail(email));
+               final Context context = SettingsActivity.this;
+               Utils.showSimpleMessageDialog(context, getString(R.string.lt_check_your_mail));
+            }
+         });
+         b.setNegativeButton(R.string.cancel, null);
+
+         emailEdit = new EditText(SettingsActivity.this) {
+            @Override
+            protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+
+               super.onTextChanged(text, start, lengthBefore, lengthAfter);
+               if (okButton != null) { //setText is also set before the alert is finished constructing
+                  okButton.setEnabled(checkValidMail(text));
+               }
+            }
+         };
+         emailEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
+         emailEdit.setText(info.notificationEmail);
+         b.setView(emailEdit);
+         AlertDialog dialog = b.show();
+         okButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+         _ltManager.unsubscribe(this);
+      }
+
+      @Override
+      public void onLtError(int errorCode) {
+         pleaseWait.dismiss();
+         new Toaster(SettingsActivity.this).toast("Unable to retrieve Trader Info from the server", false);
+         _ltManager.unsubscribe(this);
+
+      }
+   }
 }

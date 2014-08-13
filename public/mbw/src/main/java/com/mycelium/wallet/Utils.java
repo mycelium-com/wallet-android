@@ -73,6 +73,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.zxing.BarcodeFormat;
@@ -188,10 +189,10 @@ public class Utils {
          }
          return new BitcoinScanResult(address, null);
       } else {
-         BitcoinUri b = BitcoinUri.parse(contents, network);
-         if (b != null) {
+         Optional<BitcoinUri> b = BitcoinUri.parse(contents, network);
+         if (b.isPresent()) {
             // On URI format
-            return new BitcoinScanResult(b.address, b.amount);
+            return new BitcoinScanResult(b.get().address, b.get().amount);
          }
       }
 
@@ -539,22 +540,22 @@ public class Utils {
       }
    }
 
-   public static Address addressFromString(String someString, NetworkParameters network) {
+   public static Optional<Address> addressFromString(String someString, NetworkParameters network) {
       if (someString == null) {
-         return null;
+         return Optional.absent();
       }
       someString = someString.trim();
       if (someString.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Address.fromString(someString, network);
+         return Optional.fromNullable(Address.fromString(someString, network));
       } else {
-         BitcoinUri b = BitcoinUri.parse(someString, network);
-         if (b != null) {
+         Optional<BitcoinUri> b = BitcoinUri.parse(someString, network);
+         if (b.isPresent()) {
             // On URI format
-            return b.address;
+            return Optional.of(b.get().address);
          }
       }
-      return null;
+      return Optional.absent();
    }
 
    /**
@@ -898,7 +899,7 @@ public class Utils {
          byte[] privKeyBytes = k.getPrivateKey().toByteArray();
          boolean keyIsCompressed = (pubKeyBytes.length == 33);
          InMemoryPrivateKey inMemoryKey = new InMemoryPrivateKey(privKeyBytes, keyIsCompressed);
-         returnList.add(Record.fromString(inMemoryKey.getBase58EncodedPrivateKey(network), network));
+         returnList.add(Record.fromString(inMemoryKey.getBase58EncodedPrivateKey(network), network).get());
       }
       return returnList;
    }

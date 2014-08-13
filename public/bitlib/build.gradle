@@ -19,3 +19,4 @@ dependencies {
     testCompile 'junit:junit:' + junitVersion
     compile guavaArtifact
 }
+

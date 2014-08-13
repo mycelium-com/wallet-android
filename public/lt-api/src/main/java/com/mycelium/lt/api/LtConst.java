@@ -96,7 +96,9 @@ public class LtConst {
       public static final String CREATE_TRADE = "createTrade";
       public static final String SET_TRADE_RECEIVING_ADDRESS = "setTradeReceivingAddress";
       public static final String SET_NOTIFICATION_EMAIL = "setNotificationEmail";
-      public static final String CONFIRM_MAIL = "confirmMail";
+      public static final String MAIL_LINK_CONFIRM_MAIL = "confirmMail";
+      public static final String MAIL_LINK_UNSUBSCRIBE_MAIL = "unsubscribeMail";
+      public static final String MAIL_LINK_AD_RENEWAL = "renewAd";
    }
 
 }

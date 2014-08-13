@@ -59,6 +59,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -68,6 +69,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
+import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
@@ -280,11 +282,11 @@ public class AddressBookFragment extends Fragment {
          return;
       }
       NetworkParameters network = MbwManager.getInstance(getActivity()).getNetwork();
-      Record record = Record.fromString(mSelectedAddress, network);
-      if (record == null) {
+      Optional<Record> record = Record.fromString(mSelectedAddress, network);
+      if (!record.isPresent()) {
          return;
       }
-      ReceiveCoinsActivity.callMe(getActivity(), record);
+      ReceiveCoinsActivity.callMe(getActivity(), record.get());
       finishActionMode();
    }
 
@@ -349,20 +351,22 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE);
+               ScanRequest request = ScanRequest.getAddressBookScanRequest();
+               ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
 
          });
 
-         Address address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-         findViewById(R.id.btClipboard).setEnabled(address != null);
+         Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
+         findViewById(R.id.btClipboard).setEnabled(address.isPresent());
          findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-               String addressString = Utils.getClipboardString(activity);
-               addFromString(addressString);
+               Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
+               Preconditions.checkState(address.isPresent());
+               addFromAddress(address.get());
                AddDialog.this.dismiss();
             }
          });
@@ -380,39 +384,33 @@ public class AddressBookFragment extends Fragment {
 
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCAN_RESULT_CODE) {
-         if (resultCode == Activity.RESULT_OK) {
-            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
-            Preconditions.checkNotNull(record);
-            if(record.hasPrivateKey()){
-               Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
-               return;
-            }
-            addFromRecord(record);
-         } else {
-            if (intent != null) {
-               String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
-               if (error != null) {
-                  Toast.makeText(this.getActivity(), error, Toast.LENGTH_LONG).show();
-               }
-            }
-         }
+      if (requestCode != SCAN_RESULT_CODE) {
+         return; //todo ? throw java.lang.IllegalStateException
       }
-   }
-
-   private void addFromString(String addressString) {
-      Record record = Record.fromString(addressString, _mbwManager.getNetwork());
-      if (record == null) {
-         new Toaster(getActivity()).toast(R.string.unrecognized_format, false);
+      if (resultCode != Activity.RESULT_OK) {
+         if (intent == null) {
+            return; // user pressed back
+         }
+         String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+         if (error != null) {
+            Toast.makeText(this.getActivity(), error, Toast.LENGTH_LONG).show();
+         }
          return;
       }
-      addFromRecord(record);
+      ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
+      if (type == ScanActivity.ResultType.RECORD) {
+         Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
+         return;
+      }
+      Preconditions.checkState(type == ScanActivity.ResultType.ADDRESS);
+      Address address = ScanActivity.getAddress(intent);
+      addFromAddress(address);
    }
 
-   private void addFromRecord(Record record) {
-      if (_recordManager.getRecord(record.address) == null) {
+   private void addFromAddress(Address address) {
+      if (_recordManager.getRecord(address) == null) {
          // Only add addresses we are not already tracking
-         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, record.address.toString(), "",
+         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address.toString(), "",
                addressLabelChanged);
       } else {
          Utils.showSimpleMessageDialog(getActivity(), R.string.address_already_exists);

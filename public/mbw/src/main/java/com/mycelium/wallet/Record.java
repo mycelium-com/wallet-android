@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -436,96 +437,100 @@ public class Record implements Serializable, Comparable<Record> {
    }
 
    public static boolean isRecord(String string, NetworkParameters network) {
-      return fromString(string, network) != null;
+      return fromString(string, network).isPresent();
    }
 
-   public static Record fromString(String string, NetworkParameters network) {
+   public static Optional<Record> fromString(String string, NetworkParameters network) {
 
       if (string == null) {
-         return null;
+         return Optional.absent();
       }
       string = string.trim();
 
-      Record record;
+      Optional<Record> record;
 
       // Do we have a Bitcoin address
       record = recordFromBitcoinAddressString(string, network);
-      if (record != null) {
+      if (record.isPresent()) {
          return record;
       }
 
       // Do we have a Base58 private key
       record = recordFromBase58Key(string, network);
-      if (record != null) {
+      if (record.isPresent()) {
          return record;
       }
 
       // Do we have a mini private key
       record = recordFromBase58KeyMiniFormat(string, network);
-      if (record != null) {
+      if (record.isPresent()) {
          return record;
       }
 
       // Do we have a Bitcoin Spinner backup key
       record = recordFromBitcoinSpinnerBackup(string, network);
-      if (record != null) {
+      if (record.isPresent()) {
          return record;
       }
 
-      return null;
+      return Optional.absent();
    }
 
-   public static Record recordFromBitcoinAddressString(String addressString, NetworkParameters network) {
+   public static Optional<Record> recordFromBitcoinAddressString(String addressString, NetworkParameters network) {
       // Is it an address?
-      Address address = Utils.addressFromString(addressString, network);
-      if (address != null) {
+      Optional<Address> address = Utils.addressFromString(addressString, network);
+      if (address.isPresent()) {
          // We have an address
-         return new Record(address);
+         return Optional.of(new Record(address.get()));
       }
-      return null;
+      return Optional.absent();
    }
 
-   public static Record recordFromBase58Key(String base58String, NetworkParameters network) {
+   public static Record recordFromAddress(Address address) {
+      return new Record(address);
+   }
+
+   public static Optional<Record> recordFromBase58Key(String base58String, NetworkParameters network) {
       // Is it a private key?
       try {
          InMemoryPrivateKey key = new InMemoryPrivateKey(base58String, network);
-         return new Record(key, Source.IMPORTED_SPIA_PRIVATE_KEY, network);
+         return Optional.of(new Record(key, Source.IMPORTED_SPIA_PRIVATE_KEY, network));
       } catch (IllegalArgumentException e) {
-         return null;
+         return Optional.absent();
       }
    }
 
-   public static Record recordFromBase58KeyMiniFormat(String base58String, NetworkParameters network) {
+   public static Optional<Record> recordFromBase58KeyMiniFormat(String base58String, NetworkParameters network) {
       // Is it a mini private key on the format proposed by Casascius?
       if (base58String == null || base58String.length() < 2 || !base58String.startsWith("S")) {
-         return null;
+         return Optional.absent();
       }
       // Check that the string has a valid checksum
       String withQuestionMark = base58String + "?";
       byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes()).firstFourBytes();
       if (checkHash[0] != 0x00) {
-         return null;
+         return Optional.absent();
       }
       // Now get the Sha256 hash and use it as the private key
       Sha256Hash privateKeyBytes = HashUtils.sha256(base58String.getBytes());
       try {
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, false);
-         return new Record(key, Source.IMPORTED_MINI_PRIVATE_KEY, network);
+         return Optional.of(new Record(key, Source.IMPORTED_MINI_PRIVATE_KEY, network));
       } catch (IllegalArgumentException e) {
-         return null;
+         return Optional.absent();
          //todo insert uncaught error handler
       }
    }
 
-   public static Record recordFromBitcoinSpinnerBackup(String bitcoinSpinnerBackupString, NetworkParameters network) {
+   public static Optional<Record> recordFromBitcoinSpinnerBackup(String bitcoinSpinnerBackupString, NetworkParameters network) {
       try {
          SpinnerPrivateUri spinnerKey = SpinnerPrivateUri.fromSpinnerUri(bitcoinSpinnerBackupString);
          if (!spinnerKey.network.equals(network)) {
-            return null;
+            return Optional.absent();
          }
-         return new Record(spinnerKey.key, Source.IMPORTED_BITCOIN_SPINNER_PRIVATE_KEY, network);
+         return Optional.of(new Record(spinnerKey.key, Source.IMPORTED_BITCOIN_SPINNER_PRIVATE_KEY, network));
       } catch (IllegalArgumentException e) {
-         return null;
+         return Optional.absent();
       }
    }
 

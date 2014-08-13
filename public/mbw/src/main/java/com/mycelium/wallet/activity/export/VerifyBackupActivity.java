@@ -42,11 +42,12 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Optional;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.RecordManager;
+import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 
@@ -75,7 +76,7 @@ public class VerifyBackupActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE);
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, ScanRequest.returnPrivateKey());
          }
 
       });
@@ -95,8 +96,8 @@ public class VerifyBackupActivity extends Activity {
 
    private boolean hasPrivateKeyOnClipboard() {
       String clipboardString = Utils.getClipboardString(this);
-      Record record = Record.fromString(clipboardString, _mbwManager.getNetwork());
-      return record != null && record.hasPrivateKey();
+      Optional<Record> record = Record.fromString(clipboardString, _mbwManager.getNetwork());
+      return record.isPresent() && record.get().hasPrivateKey();
    }
 
    @Override
@@ -136,9 +137,9 @@ public class VerifyBackupActivity extends Activity {
    }
 
    private void verifyClipboardPrivateKey(String keyString) {
-      Record record = Record.fromString(keyString, _mbwManager.getNetwork());
-      if (record != null) {
-         verify(record);
+      Optional<Record> record = Record.fromString(keyString, _mbwManager.getNetwork());
+      if (record.isPresent()) {
+         verify(record.get());
          return;
       }
 
@@ -174,8 +175,7 @@ public class VerifyBackupActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
-            Preconditions.checkNotNull(record);
+            Record record = ScanActivity.getRecord(intent);
             verify(record);
          } else {
             String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);

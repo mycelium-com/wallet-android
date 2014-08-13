@@ -1,6 +1,10 @@
-package com.mycelium.wallet;
+package com.mycelium.wallet.bitid;
 
 import android.net.Uri;
+
+import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.SignedMessage;
+import com.mrd.bitlib.model.Address;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,15 +31,15 @@ public class BitIDSignRequest implements Serializable {
       }
    }
 
-   public static BitIDSignRequest parse(Uri uri) {
+   public static Optional<BitIDSignRequest> parse(Uri uri) {
       String scheme = uri.getScheme();
       if (!scheme.equalsIgnoreCase("bitid")) {
          // not a bitid
-         return null;
+         return Optional.absent();
       }
       String host = uri.getHost();
-      if (null == host || host.length() < 1) return null;
-      return new BitIDSignRequest(uri);
+      if (null == host || host.length() < 1) return Optional.absent();
+      return Optional.of(new BitIDSignRequest(uri));
    }
 
    public String getHost() {
@@ -70,15 +74,15 @@ public class BitIDSignRequest implements Serializable {
       }
    }
 
-   public String getJsonString(String address, String signature) {
+   public JSONObject getCallbackJson(Address address, SignedMessage signature) {
       JSONObject obj = new JSONObject();
       try {
          obj.put("uri", getFullUri());
-         obj.put("address", address);
-         obj.put("signature", signature);
+         obj.put("address", address.toString());
+         obj.put("signature", signature.getBase64Signature());
       } catch (JSONException e) {
          throw new RuntimeException(e);
       }
-      return obj.toString();
+      return obj;
    }
 }

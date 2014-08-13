@@ -43,25 +43,28 @@ import com.mycelium.lt.api.LtApi;
 public abstract class MbwEnvironment {
 
    private String _brand;
+   private boolean _bitidEnabled;
 
    public static MbwEnvironment determineEnvironment(Context applicationContext) {
       // Set up environment
       String network = applicationContext.getResources().getString(R.string.network);
       String brand = applicationContext.getResources().getString(R.string.brand);
+      boolean bitidEnabled = applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
       if(brand.equals("undefined")){
          throw new RuntimeException("No brand has been specified");
       }
       // todo proper IoC needed. it is not nice to refer to subclasses
       if (network.equals("prodnet")) {
-         return new MbwProdEnvironment(brand);
+         return new MbwProdEnvironment(brand, bitidEnabled);
       } else if (network.equals("testnet")) {
-         return new MbwTestEnvironment(brand);
+         return new MbwTestEnvironment(brand, bitidEnabled);
       } else {
          throw new RuntimeException("No network has been specified");
       }
    }
 
-   public MbwEnvironment(String brand) {
+   public MbwEnvironment(String brand, boolean bitidEnabled) {
+      _bitidEnabled = bitidEnabled;
       _brand = brand;
    }
 
@@ -75,4 +78,7 @@ public abstract class MbwEnvironment {
 
    public abstract LtApi getLocalTraderApi();
 
+   public boolean isBitidEnabled() {
+      return _bitidEnabled;
+   }
 }

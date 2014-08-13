@@ -45,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.EncryptionUtils;
 import com.mycelium.wallet.MbwManager;
@@ -52,6 +53,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Record.BackupState;
 import com.mycelium.wallet.Record.Source;
+import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 
@@ -92,7 +94,7 @@ public class AddRecordActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(activity, SCAN_RESULT_CODE);
+            ScanActivity.callMe(activity, SCAN_RESULT_CODE, ScanRequest.returnKeyOrAddress());
          }
 
       });
@@ -116,17 +118,17 @@ public class AddRecordActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            Record record = Record.fromString(Utils.getClipboardString(AddRecordActivity.this), _network);
-            if (record == null) {
+            Optional<Record> record = Record.fromString(Utils.getClipboardString(AddRecordActivity.this), _network);
+            if (!record.isPresent()) {
                Toast.makeText(AddRecordActivity.this, R.string.unrecognized_format, Toast.LENGTH_LONG).show();
                return;
             }
             // If the record has a private key delete the contents of the
             // clipboard
-            if (record.hasPrivateKey()) {
+            if (record.get().hasPrivateKey()) {
                Utils.clearClipboardString(AddRecordActivity.this);
             }
-            finishOk(record, BackupState.VERIFIED);
+            finishOk(record.get(), BackupState.VERIFIED);
          }
       });
 
@@ -155,18 +157,18 @@ public class AddRecordActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == Activity.RESULT_OK) {
-            Record record = (Record) intent.getSerializableExtra(ScanActivity.RESULT_RECORD_KEY);
+            Record record = ScanActivity.getRecord(intent);
             finishOk(record, BackupState.VERIFIED);
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }
       } else if (requestCode == CREATE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra("base58key");
-         Record record = Record.recordFromBase58Key(base58Key, _network);
+         Optional<Record> record = Record.recordFromBase58Key(base58Key, _network);
          // Since the record is extracted from SIPA format the source defaults
          // to SIPA, set it to CREATED
-         record.source = Source.CREATED_PRIVATE_KEY;
-         finishOk(record, BackupState.UNKNOWN);
+         record.get().source = Source.CREATED_PRIVATE_KEY;
+         finishOk(record.get(), BackupState.UNKNOWN);
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
@@ -282,9 +284,9 @@ public class AddRecordActivity extends Activity {
          String currLine = lines.nextToken();
          Matcher m = p.matcher(currLine);
          if(m.matches()) {
-            Record importRec = Record.recordFromBase58Key(m.group(1), _network);
-            if (importRec!=null) {
-               foundRecords.add(importRec);
+            Optional<Record> importRec = Record.recordFromBase58Key(m.group(1), _network);
+            if (importRec.isPresent()) {
+               foundRecords.add(importRec.get());
             }
          }
       }

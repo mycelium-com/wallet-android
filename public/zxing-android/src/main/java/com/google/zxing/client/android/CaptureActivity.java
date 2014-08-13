@@ -37,7 +37,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
@@ -63,7 +62,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    private CaptureActivityHandler handler;
    private Result savedResultToShow;
    private ViewfinderView viewfinderView;
-   private TextView statusView;
    private View resultView;
    private boolean hasSurface;
    private Collection<BarcodeFormat> decodeFormats;
@@ -124,13 +122,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       // wrong size and partially
       // off screen.
       cameraManager = new CameraManager(getApplication());
-
       viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
       viewfinderView.setCameraManager(cameraManager);
-
       resultView = findViewById(R.id.result_view);
-      statusView = (TextView) findViewById(R.id.status_view);
-
       handler = null;
 
       resetStatusView();
@@ -173,14 +167,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                cameraManager.setManualFramingRect(width, height);
             }
          }
-
-         String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
-         if (customPromptMessage != null) {
-            statusView.setText(customPromptMessage);
-         }
-
          characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
-
       }
    }
 
@@ -227,6 +214,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          return true;
       }
       return super.onKeyDown(keyCode, event);
+   }
+
+   public void toggleFlash(View view) {
+      cameraManager.toggleTorch();
+   }
+
+   public void toggleFocus(View view) {
+      onPause();
+      enableContinuousFocus = !enableContinuousFocus;
+      onResume();
    }
 
    private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
@@ -427,8 +424,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
    private void resetStatusView() {
       resultView.setVisibility(View.GONE);
-      statusView.setText(R.string.msg_default_status);
-      statusView.setVisibility(View.INVISIBLE); // Jan: We never want to show it
       viewfinderView.setVisibility(View.VISIBLE);
    }
 

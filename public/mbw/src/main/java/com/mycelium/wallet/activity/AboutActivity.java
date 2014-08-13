@@ -81,6 +81,7 @@ public class AboutActivity extends Activity {
       findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
       findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));
+      findViewById(R.id.bt_special_thanks).setOnClickListener(new ShowLicenseListener(R.raw.special_thanks));
 
       findViewById(R.id.bt_check_update).setOnClickListener(new View.OnClickListener() {
          @Override

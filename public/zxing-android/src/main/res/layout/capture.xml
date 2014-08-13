@@ -207,13 +207,32 @@
 
   </LinearLayout>
 
-  <TextView android:id="@+id/status_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:gravity="center_horizontal"
-            android:background="@color/transparent"
-            android:text="@string/msg_default_status"
-            android:textColor="@color/status_text"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="@dimen/standard_padding">
+
+        <ImageView android:layout_width="50dip"
+                android:layout_height="56dip"
+                android:src="@drawable/light"
+                android:onClick="toggleFlash"
+                android:background="@android:color/white"
+                android:padding="@dimen/standard_padding"/>
+
+        <View android:layout_height="5px"
+              android:layout_width="wrap_content" />
+
+        <ImageView android:layout_width="50dip"
+                android:layout_height="56dip"
+                android:src="@drawable/infinite"
+                android:onClick="toggleFocus"
+                android:background="@android:color/white"
+                android:padding="@dimen/standard_padding"/>
+
+    </LinearLayout>
+
 
 </FrameLayout>

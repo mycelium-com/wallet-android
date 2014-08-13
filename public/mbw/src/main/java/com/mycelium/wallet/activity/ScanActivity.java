@@ -41,7 +41,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Surface;
-
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
@@ -50,10 +50,10 @@ import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.mbwapi.api.ExchangeRate;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.DecryptPrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -65,47 +65,54 @@ import com.mycelium.wallet.activity.modern.Toaster;
  */
 public class ScanActivity extends Activity {
 
-   public static void callMe(Activity currentActivity, int requestCode) {
+   public static void callMe(Activity currentActivity,int requestCode, ScanRequest scanRequest) {
       Intent intent = new Intent(currentActivity, ScanActivity.class);
+      intent.putExtra("request", scanRequest);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   public static void callMe(Fragment fragment, int requestCode) {
-      Intent intent = new Intent(fragment.getActivity(), ScanActivity.class);
-      fragment.startActivityForResult(intent, requestCode);
+   public static void callMe(Fragment currentFragment,int requestCode, ScanRequest scanRequest) {
+      Intent intent = new Intent(currentFragment.getActivity(), ScanActivity.class);
+      intent.putExtra("request", scanRequest);
+      currentFragment.startActivityForResult(intent, requestCode);
    }
    
-   private static final String RESULT_PAYLOAD = "payload";
+   public static final String RESULT_PAYLOAD = "payload";
    public static final String RESULT_ERROR = "error";
-
    public static final String RESULT_RECORD_KEY = "record";
    public static final String RESULT_URI_KEY = "uri";
-   private static final int SCANNER_RESULT_CODE = 0;
-   private static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
-   private static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 2;
+   public static final String RESULT_ADDRESS_KEY = "address";
+   public static final String RESULT_TYPE_KEY = "type";
+
+   public enum ResultType {ADDRESS, RECORD, URI}
+
+   public static final int SCANNER_RESULT_CODE = 0;
+   public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
+   public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 2;
 
    private MbwManager _mbwManager;
    private boolean _hasLaunchedScanner;
    private int _preferredOrientation;
+   private ScanRequest scanRequest = null;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       _mbwManager = MbwManager.getInstance(this);
-
+      Intent intent = getIntent();
+      scanRequest = Preconditions.checkNotNull((ScanRequest) intent.getSerializableExtra("request"));
       // Did we already launch the scanner?
       if (savedInstanceState != null) {
          _hasLaunchedScanner = savedInstanceState.getBoolean("hasLaunchedScanner", false);
       }
-
       // Make sure that we make the screen rotate right after scanning
       if (_hasLaunchedScanner) {
          // the scanner has been launched earlier. This means that we have
-         // stored our previous orientation and that we want to try and restore
-         // it
+         // stored our previous orientation and that we want to try and restore it
          Preconditions.checkNotNull(savedInstanceState);
          _preferredOrientation = savedInstanceState.getInt("lastOrientation", -1);
          if (getScreenOrientation() != _preferredOrientation) {
+            //noinspection ResourceType
             setRequestedOrientation(_preferredOrientation);
          }
       } else {
@@ -113,7 +120,6 @@ public class ScanActivity extends Activity {
          // so we can restore it after scanning
          _preferredOrientation = getScreenOrientation();
       }
-
    }
 
    @Override
@@ -128,20 +134,7 @@ public class ScanActivity extends Activity {
    private void startScanner() {
       Intent intent = new Intent(this, CaptureActivity.class);
       intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, _mbwManager.getContinuousFocus());
       this.startActivityForResult(intent, SCANNER_RESULT_CODE);
-   }
-
-   public static void startScannerIntent(Activity activity, int requestCode, boolean enableContinuousFocus) {
-      Intent intent = buildScannerIntent(activity, enableContinuousFocus);
-      activity.startActivityForResult(intent, requestCode);
-   }
-
-   private static Intent buildScannerIntent(Activity activity, boolean enableContinuousFocus) {
-      Intent intent = new Intent(activity, CaptureActivity.class);
-      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus);
-      return intent;
    }
 
    @Override
@@ -180,8 +173,7 @@ public class ScanActivity extends Activity {
             break;
          }
       }
-      // if the device's natural orientation is landscape or if the device
-      // is square:
+      // if the device's natural orientation is landscape or if the device is square:
       else {
          switch (rotation) {
          case Surface.ROTATION_0:
@@ -206,55 +198,57 @@ public class ScanActivity extends Activity {
    }
 
    @Override
-   public void onDestroy() {
-      super.onDestroy();
-   }
-
-   @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCANNER_RESULT_CODE && resultCode == Activity.RESULT_CANCELED) {
+      if (Activity.RESULT_CANCELED == resultCode) {
          finishError(R.string.cancelled, "");
          return;
       }
-      if (requestCode == SCANNER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-         handleScannerIntentResult(intent);
-      } else if (requestCode == IMPORT_ENCRYPTED_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_OK) {
-         handleDecryptedMrdPrivateKey(intent);
-      } else if (requestCode == IMPORT_ENCRYPTED_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_CANCELED) {
-         finishError(R.string.cancelled, "");
-      } else if (requestCode == IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_OK) {
-         handleDecryptedBip38PrivateKey(intent);
-      } else if (requestCode == IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE && resultCode == Activity.RESULT_CANCELED) {
-         finishError(R.string.cancelled, "");
+      String content;
+      if (IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE == requestCode) {
+         content = intent.getStringExtra("base58Key");
+      } else if (IMPORT_ENCRYPTED_PRIVATE_KEY_CODE == requestCode) {
+         content = handleDecryptedMrdPrivateKey(intent);
       } else {
-         super.onActivityResult(requestCode, resultCode, intent);
+         Preconditions.checkState(SCANNER_RESULT_CODE == requestCode);
+         if (!isQRCode(intent)) {
+            finishError(R.string.unrecognized_format, "");
+            return;
+         }
+         content = intent.getStringExtra("SCAN_RESULT").trim();
+         //TODO: if we do not want to handle data, do not decrypt it first
+         //(check for scanrequest action none on priv key, seed?
+         if (isMrdEncryptedPrivateKey(content)) {
+            Optional<String> key = handleMrdEncryptedPrivateKey(content);
+            if (key.isPresent()) {
+               content = key.get();
+            } else {
+               // the handleMRdEncrypted method has started the decryption, which will trigger another onActivity
+               return;
+            }
+         } else if (Bip38.isBip38PrivateKey(content)) {
+            DecryptBip38PrivateKeyActivity.callMe(this, content, ScanActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
+            //we do not finish cause after decryption another onActivityResult will be called
+            return;
+         }
+      }
+
+      boolean wasHandled = false;
+      for (ScanRequest.Action action : scanRequest.getAllActions()) {
+         if (action.handle(this, content)) {
+            wasHandled = true;
+            break;
+         }
+      }
+      if (!wasHandled) {
+         finishError(R.string.unrecognized_format, content);
       }
    }
 
-   private void handleScannerIntentResult(final Intent intent) {
-      if (!"QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
-         finishError(R.string.unrecognized_format, "");
-         return;
+   private boolean isQRCode(Intent intent) {
+      if ("QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
+         return true;
       }
-      String contents = intent.getStringExtra("SCAN_RESULT").trim();
-      Record record = Record.fromString(contents, _mbwManager.getNetwork());
-
-      if (record != null) {
-         // The scan result might actually be a bitcoin URI, so try to create
-         // one and pass the result along
-         BitcoinUri uri = BitcoinUri.parse(contents, _mbwManager.getNetwork());
-         finishOk(record, uri);
-         return;
-      }
-      // Not an address or private key, maybe encrypted private key
-      if (isMrdEncryptedPrivateKey(contents)) {
-         handleMrdEncryptedPrivateKey(contents);
-      } else if (Bip38.isBip38PrivateKey(contents)) {
-         handleBip38EncryptedPrivateKey(contents);
-      } else {
-         finishError(R.string.unrecognized_format, contents);
-      }
-
+      return false;
    }
 
    private boolean isMrdEncryptedPrivateKey(String string) {
@@ -267,63 +261,37 @@ public class ScanActivity extends Activity {
       return version == MrdExport.V1_VERSION;
    }
 
-   private void handleMrdEncryptedPrivateKey(String encryptedPrivateKey) {
-      // Check the version
-      int version = 0;
-      try {
-         version = MrdExport.decodeVersion(encryptedPrivateKey);
-      } catch (DecodingException e) {
-         // Ignore, we fail gracefully in the version check below
-      }
-      if (version != MrdExport.V1_VERSION) {
-         finishError(R.string.unrecognized_format_version, encryptedPrivateKey);
-         return;
-      }
-
+   private Optional<String> handleMrdEncryptedPrivateKey(String encryptedPrivateKey) {
       EncryptionParameters encryptionParameters = _mbwManager.getCachedEncryptionParameters();
       // Try and decrypt with cached parameters if we have them
       if (encryptionParameters != null) {
          try {
             String key = MrdExport.V1.decrypt(encryptionParameters, encryptedPrivateKey, _mbwManager.getNetwork());
-            Record record = Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
-            finishOk(record, new BitcoinUri(record.address, null, null));
-            return;
+            Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
+            return Optional.of(key);
          } catch (InvalidChecksumException e) {
             // We cannot reuse the cached password, fall through and decrypt
             // with an entered password
          } catch (DecodingException e) {
             finishError(R.string.unrecognized_format, encryptedPrivateKey);
-            return;
+            return Optional.absent();
          }
       }
-
       // Start activity to ask the user to enter a password and decrypt the key
       DecryptPrivateKeyActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_PRIVATE_KEY_CODE);
+      return Optional.absent();
    }
 
-   private void handleBip38EncryptedPrivateKey(String encryptedPrivateKey) {
-      // Start activity to ask the user to enter a password and decrypt the key
-      DecryptBip38PrivateKeyActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
-   }
-
-   private void handleDecryptedMrdPrivateKey(Intent intent) {
+   private String handleDecryptedMrdPrivateKey(Intent intent) {
       String key = intent.getStringExtra("base58Key");
       // Cache the encryption parameters for next import
       EncryptionParameters encryptionParameters = (MrdExport.V1.EncryptionParameters) intent
             .getSerializableExtra("encryptionParameters");
       _mbwManager.setCachedEncryptionParameters(encryptionParameters);
-      // Add the key
-      Record record = Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
-      finishOk(record, new BitcoinUri(record.address, null, null));
+      return key;
    }
 
-   private void handleDecryptedBip38PrivateKey(Intent intent) {
-      String key = intent.getStringExtra("base58Key");
-      Record record = Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
-      finishOk(record, new BitcoinUri(record.address, null, null));
-   }
-
-   private void finishError(int resId, String payload) {
+   public void finishError(int resId, String payload) {
       Intent result = new Intent();
       result.putExtra(RESULT_ERROR, getResources().getString(resId));
       result.putExtra(RESULT_PAYLOAD, payload);
@@ -331,11 +299,32 @@ public class ScanActivity extends Activity {
       finish();
    }
 
-   private void finishOk(Record record, BitcoinUri bitcoinUri) {
+   public void finishOk(BitcoinUri bitcoinUri) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_URI_KEY, bitcoinUri);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.URI);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(Record record) {
       Intent result = new Intent();
       result.putExtra(RESULT_RECORD_KEY, record);
-      result.putExtra(RESULT_URI_KEY, bitcoinUri);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.RECORD);
       setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(Address address) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_ADDRESS_KEY, address);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk() {
+      setResult(RESULT_OK);
       finish();
    }
 
@@ -351,4 +340,45 @@ public class ScanActivity extends Activity {
       }
    }
 
+   public static Record getRecord(Intent intent) {
+      ScanActivity.checkType(intent, ResultType.RECORD);
+      Record record = (Record) intent.getSerializableExtra(RESULT_RECORD_KEY);
+      Preconditions.checkNotNull(record);
+      return record;
+   }
+
+   public static Address getAddress(Intent intent) {
+      ScanActivity.checkType(intent, ResultType.ADDRESS);
+      Address address = (Address) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
+      Preconditions.checkNotNull(address);
+      return address;
+   }
+
+   public static void checkType(Intent intent, ResultType type) {
+      Preconditions.checkState(type == intent.getSerializableExtra(RESULT_TYPE_KEY));
+   }
+
+   public RecordManager getRecordManager() {
+      return _mbwManager.getRecordManager();
+   }
+
+   public Wallet getWallet() {
+      return getRecordManager().getWallet(_mbwManager.getWalletMode());
+   }
+
+   public ExchangeRate getExchangeRate() {
+      return _mbwManager.getExchangeRateManager().getExchangeRate();
+   }
+
+   public Double getPrice() {
+      return (getExchangeRate() == null ? null : getExchangeRate().price);
+   }
+
+   public NetworkParameters getNetwork() {
+      return _mbwManager.getNetwork();
+   }
+
+   public BlockChainAddressTracker getBlockChainAddressTracker() {
+      return _mbwManager.getBlockChainAddressTracker();
+   }
 }

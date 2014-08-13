@@ -38,6 +38,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.Window;
 
@@ -134,7 +135,7 @@ public class SendInitializationActivity extends Activity {
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
-      _mbwManager.getExchamgeRateManager().subscribe(excahngeSubscriber);
+      _mbwManager.getExchangeRateManager().subscribe(excahngeSubscriber);
       _synchnozingHandler = new Handler();
       _synchnozingHandler.postDelayed(showSynchronizing, 2000);
       _slowNetworkHandler = new Handler();
@@ -151,7 +152,7 @@ public class SendInitializationActivity extends Activity {
       if (_slowNetworkHandler != null) {
          _slowNetworkHandler.removeCallbacks(showSlowNetwork);
       }
-      _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
+      _mbwManager.getExchangeRateManager().unsubscribe(excahngeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -201,7 +202,7 @@ public class SendInitializationActivity extends Activity {
 
       @Override
       public void refreshingEcahngeRatesSuccedded() {
-         ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
          if (rate != null) {
             _oneBtcInFiat = rate.price; // price may still be null, in that case
                                         // we continue without
@@ -223,10 +224,10 @@ public class SendInitializationActivity extends Activity {
       }
 
       if (_oneBtcInFiat == null && !_ignoreExchangeRates) {
-         ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
          if (rate == null) {
             // We need a refresh
-            _mbwManager.getExchamgeRateManager().requestRefresh();
+            _mbwManager.getExchangeRateManager().requestRefresh();
             return;
          }
          _oneBtcInFiat = rate.price; // price may still be null, in that case we

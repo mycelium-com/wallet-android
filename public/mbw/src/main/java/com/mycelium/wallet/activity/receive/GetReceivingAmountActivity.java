@@ -132,10 +132,10 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
    @Override
    protected void onResume() {
-      _mbwManager.getExchamgeRateManager().subscribe(excahngeSubscriber);
-      ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+      _mbwManager.getExchangeRateManager().subscribe(excahngeSubscriber);
+      ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
       if (rate == null) {
-         _mbwManager.getExchamgeRateManager().requestRefresh();
+         _mbwManager.getExchangeRateManager().requestRefresh();
       } else {
          _oneBtcInFiat = rate.price;
       }
@@ -145,7 +145,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
    @Override
    protected void onPause() {
-      _mbwManager.getExchamgeRateManager().unsubscribe(excahngeSubscriber);
+      _mbwManager.getExchangeRateManager().unsubscribe(excahngeSubscriber);
       super.onPause();
    }
 
@@ -280,7 +280,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
       @Override
       public void refreshingEcahngeRatesSuccedded() {
-         ExchangeRate rate = _mbwManager.getExchamgeRateManager().getExchangeRate();
+         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
          if (rate != null) {
             _oneBtcInFiat = rate.price; // price may still be null, in that case
                                         // we continue without

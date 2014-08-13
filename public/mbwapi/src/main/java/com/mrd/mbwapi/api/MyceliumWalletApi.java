@@ -49,10 +49,16 @@ public interface MyceliumWalletApi {
    public static final int ERROR_CODE_INVALID_SERVER_RESPONSE = 5;
    public static final int ERROR_CODE_INVALID_REQUEST = 6;
 
+   public static final int VERY_LONG_TIMEOUT_MS = 60000 * 10;
+   public static final int LONG_TIMEOUT_MS = 60000;
+   public static final int MEDIUM_TIMEOUT_MS = 20000;
+   public static final int SHORT_TIMEOUT_MS = 4000;
+
    /**
     * The maximal number of addresses allowed per request.
     */
    public static final int MAXIMUM_ADDRESSES_PER_REQUEST = 10;
+   String API_PREFIX = "/api/1/request/";
 
    /**
     * Get the network used by this API instance.

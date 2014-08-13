@@ -45,6 +45,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
 public class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> {
@@ -79,21 +80,20 @@ public class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> 
    public View getView(int position, View convertView, ViewGroup parent) {
       View v = convertView;
       InfoItem o = getItem(position);
+      LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       if (o.value != null) {
          // Set String value
-         LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
          v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_row, null));
          ((TextView) v.findViewById(R.id.tvValue)).setText(o.value);
       } else if (o.rating != null) {
          // Set Rating
-         LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
          v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_rating_row, null));
          RatingBar ratingBar = (RatingBar) v.findViewById(R.id.rating);
          ratingBar.setRating(o.rating);
       } else {
-         throw new RuntimeException();
+         RuntimeException e = new RuntimeException("traderInfo with key " + o.label + " was kinda null");
+         MbwManager.getInstance(_context).reportIgnoredException(e);
       }
-
       // Set label
       ((TextView) v.findViewById(R.id.tvLabel)).setText(o.label);
       return v;

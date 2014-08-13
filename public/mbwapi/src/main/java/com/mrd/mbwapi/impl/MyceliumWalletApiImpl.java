@@ -76,11 +76,6 @@ import com.mrd.mbwapi.api.WalletVersionResponse;
 
 public class MyceliumWalletApiImpl implements MyceliumWalletApi {
 
-   private static final int VERY_LONG_TIMEOUT_MS = 60000 * 10;
-   private static final int LONG_TIMEOUT_MS = 60000;
-   private static final int MEDIUM_TIMEOUT_MS = 20000;
-   private static final int SHORT_TIMEOUT_MS = 4000;
-
    @Override
    public ExchangeSummary[] getRate(CurrencyCode currencyCode) throws ApiException {
       return queryExchangeSummary(new QueryExchangeSummaryRequest(currencyCode.getShortString())).exchangeSummaries;
@@ -103,7 +98,6 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
       }
    }
 
-   private static final String API_PREFIX = "/api/1/request/";
    private HttpEndpoint[] _serverEndpoints;
    private int _currentServerUrlIndex;
    private NetworkParameters _network;
