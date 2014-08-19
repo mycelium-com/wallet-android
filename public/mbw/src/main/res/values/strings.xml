@@ -291,6 +291,7 @@
     <string name="import_decrypt_bip38_description">You are about to decrypt a BIP38 password protected private key.</string>
     <string name="import_decrypt_bip38_enter_password">Enter the BIP38 encryption password.</string>
     <string name="import_decrypt_bip38_invalid_password">The password entered is not correct.</string>
+    <string name="import_decrypt_bip38_display_password">Display password</string>
     <string name="decrypt_button">Decrypt</string>
     <string name="pref_change_language">Change Language</string>
     <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Keys tab</string>
@@ -524,6 +525,7 @@
     <string name="bitid_sslproblem">SSL Problem</string>
     <string name="bitid_sslquestion">The following SSL problem occurred, do you want to proceed?</string>
     <string name="invalid_bitid_uri">Invalid BitID URI</string>
+
 
     <!-- BitID end -->
 

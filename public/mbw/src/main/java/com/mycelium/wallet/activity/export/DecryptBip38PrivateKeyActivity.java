@@ -40,14 +40,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.crypto.Bip38.Bip38PrivateKey;
@@ -65,6 +63,7 @@ import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionS
 public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExecutionServiceCallback {
 
    private EditText passwordEdit;
+   private CheckBox checkboxShowPassword;
 
    public static void callMe(Activity currentActivity, String encryptedPrivateKey, int requestCode) {
       Intent intent = new Intent(currentActivity, DecryptBip38PrivateKeyActivity.class);
@@ -82,7 +81,6 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
    private ServiceTaskStatusEx _taskStatus;
    private ProgressUpdater _progressUpdater;
    private String _encryptedPrivateKey;
-   private Bip38PrivateKey _bip38PrivateKey;
    private MbwManager _mbwManager;
 
    /**
@@ -99,7 +97,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
       _encryptedPrivateKey = getIntent().getStringExtra("encryptedPrivateKey");
 
       // Decode the BIP38 key
-      _bip38PrivateKey = Bip38.parseBip38PrivateKey(_encryptedPrivateKey);
+      Bip38PrivateKey _bip38PrivateKey = Bip38.parseBip38PrivateKey(_encryptedPrivateKey);
       if (_bip38PrivateKey == null) {
          Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
          finish();
@@ -121,6 +119,9 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
       passwordEdit = (EditText) findViewById(R.id.password);
       passwordEdit.addTextChangedListener(passwordWatcher);
 
+      checkboxShowPassword = (CheckBox) findViewById(R.id.showPassword);
+      checkboxShowPassword.setOnCheckedChangeListener(showPasswordCheckboxChanged);
+
       if (savedInstanceState != null) {
          String password = savedInstanceState.getString("password");
          if (password != null) {
@@ -129,6 +130,25 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
       }
       
    }
+
+   private void setPasswordHideShow(boolean show){
+      if (show){
+         // Show password in plaintext
+         passwordEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+      }else{
+         // Hide password
+         passwordEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+      }
+      // Set cursor to last position
+      passwordEdit.setSelection(passwordEdit.getText().length());
+   }
+
+   CompoundButton.OnCheckedChangeListener showPasswordCheckboxChanged = new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+         setPasswordHideShow( checkboxShowPassword.isChecked() );
+      }
+   };
 
    TextWatcher passwordWatcher = new TextWatcher() {
 
@@ -213,7 +233,10 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
 
    private void startKeyStretching() {
       findViewById(R.id.btDecrypt).setEnabled(false);
+      checkboxShowPassword.setChecked(false);
       passwordEdit.setEnabled(false);
+      checkboxShowPassword.setEnabled(false);
+
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_stretching);
       ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
       String password = ((EditText) findViewById(R.id.password)).getText().toString();
@@ -250,6 +273,9 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText("");
             Utils.showSimpleMessageDialog(this, R.string.import_decrypt_bip38_invalid_password);
+            passwordEdit.setEnabled(true);
+            checkboxShowPassword.setEnabled(true);
+
          } else {
             // Success, return result
             Intent result = new Intent();

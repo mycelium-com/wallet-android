@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <!-- Title -->
 
@@ -34,43 +34,50 @@
 
         <!-- Status -->
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/password"
-            android:inputType="textVisiblePassword"
-            android:singleLine="true"
-            android:gravity="center"/>
-
         <TextView
             android:id="@+id/tvStatus"
             style="@style/GenericText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/import_decrypt_bip38_enter_password"
             android:textSize="16sp"
-            android:singleLine="false"/>
+            android:singleLine="false" android:paddingTop="@dimen/standard_padding"/>
 
         <TextView
-            android:id="@+id/tvProgress"
-            style="@style/GenericText"
+                android:id="@+id/tvProgress"
+                style="@style/GenericText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="18sp" android:visibility="visible"/>
+
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textSize="18sp" />
+            android:id="@+id/password"
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:gravity="center"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/import_decrypt_bip38_display_password"
+            android:id="@+id/showPassword"
+            android:layout_gravity="center_horizontal"/>
+
+
         
         <Button
             android:id="@+id/btDecrypt"
-            android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_blue"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="@string/decrypt_button"
-            android:textSize="20sp" />
+            android:textSize="20sp" android:layout_width="wrap_content"/>
         
     </LinearLayout>
 

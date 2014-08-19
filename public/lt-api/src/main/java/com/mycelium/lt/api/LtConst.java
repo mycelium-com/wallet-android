@@ -99,6 +99,7 @@ public class LtConst {
       public static final String MAIL_LINK_CONFIRM_MAIL = "confirmMail";
       public static final String MAIL_LINK_UNSUBSCRIBE_MAIL = "unsubscribeMail";
       public static final String MAIL_LINK_AD_RENEWAL = "renewAd";
+      public static final String LT_API_HEALTHCHECK = "apiHealthCheck";
    }
 
 }

@@ -198,7 +198,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, ScanRequest.sendCoins());
+         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, ScanRequest.returnKeyOrAddress());
       }
    };
 
@@ -495,7 +495,10 @@ public class SendMainActivity extends Activity {
                   Toast.makeText(this, error, Toast.LENGTH_LONG).show();
                }
             }
-         }
+         } else {
+         Record record = ScanActivity.getRecord(intent);
+         _receivingAddress = record.address;
+      }
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
          String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_NAME));
