@@ -54,9 +54,13 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * Two redundant Mycelium wallet service servers for prodnet
     */
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1 = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://mws1.mycelium.com/mws", myceliumThumbprint);
+           "https://mws1.mycelium.com/mws", myceliumThumbprint);
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://mws2.mycelium.com/mws", myceliumThumbprint);
+           "https://mws2.mycelium.com/mws", myceliumThumbprint);
+   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
+           "https://188.40.12.226/mws", myceliumThumbprint);
+   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
+           "https://88.198.17.7/mws", myceliumThumbprint);
 
    /**
     * The set of endpoints we use for prodnet. The wallet chooses a random
@@ -64,7 +68,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * way we achieve client side load-balancing and fail-over.
     */
    private static final MyceliumWalletApiImpl.HttpEndpoint[] prodnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] {
-         httpsProdnetEndpoint1, httpsProdnetEndpoint2 };
+         httpsProdnetEndpoint1, httpsProdnetEndpoint2, httpsProdnetEndpoint1Alt, httpsProdnetEndpoint2Alt };
    private static final MyceliumWalletApiImpl prodnetApi = new MyceliumWalletApiImpl(prodnetServerEndpoints,
          NetworkParameters.productionNetwork);
 

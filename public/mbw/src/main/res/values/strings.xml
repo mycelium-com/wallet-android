@@ -505,6 +505,7 @@
     <string name="donate_description">Mycelium is a great wallet and you can use it for free.\n\nPlease help our development effort by giving a donation.\n\nAny amount counts!</string>
     <string name="fetching_info">Fetching info from server</string>
     <string name="email_notification_setting_explanation">Set your email address to receive notifications from Local Trader</string>
+    <string name="amount_changed">Send amount was updated from QR code</string>
 
 
     <!-- BitID -->

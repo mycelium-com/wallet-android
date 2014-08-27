@@ -99,12 +99,12 @@ public class SendMainActivity extends Activity {
    private AsyncTask _task;
 
    public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat,
-         boolean isColdStorage) {
+                             boolean isColdStorage) {
       callMe(currentActivity, wallet, spendable, oneBtcInFiat, null, null, isColdStorage);
    }
 
    public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat,
-         Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+                             Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
       intent.putExtra("wallet", wallet);
       intent.putExtra("spendable", spendable);
@@ -496,9 +496,17 @@ public class SendMainActivity extends Activity {
                }
             }
          } else {
-         Record record = ScanActivity.getRecord(intent);
-         _receivingAddress = record.address;
-      }
+            Record record = ScanActivity.getRecord(intent);
+            _receivingAddress = record.address;
+            Optional<Long> amount = ScanActivity.getAmount(intent);
+            if (amount.isPresent()) {
+               //we set the amount to the one contained in the qr code, even if another one was enter previously
+               if (_amountToSend != null && _amountToSend > 0) {
+                  Toast.makeText(this, R.string.amount_changed, Toast.LENGTH_LONG).show();
+               }
+               _amountToSend = amount.get();
+            }
+         }
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
          String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_NAME));

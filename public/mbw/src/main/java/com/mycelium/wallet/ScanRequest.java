@@ -216,7 +216,8 @@ public class ScanRequest implements Serializable {
                //started with bitcoin: but could not be parsed, was handled
             } else {
                Record record = Record.recordFromAddress(uri.get().address);
-               scanActivity.finishOk(record);
+               Long amount = uri.get().amount;
+               scanActivity.finishOk(record, amount);
             }
             return true;
          }

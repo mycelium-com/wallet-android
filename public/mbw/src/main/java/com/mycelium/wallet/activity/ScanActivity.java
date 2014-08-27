@@ -83,6 +83,7 @@ public class ScanActivity extends Activity {
    public static final String RESULT_URI_KEY = "uri";
    public static final String RESULT_ADDRESS_KEY = "address";
    public static final String RESULT_TYPE_KEY = "type";
+   public static final String RESULT_AMOUNT_KEY = "amount";
 
    public enum ResultType {ADDRESS, RECORD, URI}
 
@@ -315,6 +316,17 @@ public class ScanActivity extends Activity {
       finish();
    }
 
+   public void finishOk(Record record, Long amount) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_RECORD_KEY, record);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.RECORD);
+      if (amount != null && amount > 0) {
+         result.putExtra(RESULT_AMOUNT_KEY, amount);
+      }
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
    public void finishOk(Address address) {
       Intent result = new Intent();
       result.putExtra(RESULT_ADDRESS_KEY, address);
@@ -345,6 +357,10 @@ public class ScanActivity extends Activity {
       Record record = (Record) intent.getSerializableExtra(RESULT_RECORD_KEY);
       Preconditions.checkNotNull(record);
       return record;
+   }
+
+   public static Optional<Long> getAmount(Intent intent) {
+      return Optional.fromNullable((Long) intent.getSerializableExtra(RESULT_AMOUNT_KEY));
    }
 
    public static Address getAddress(Intent intent) {
