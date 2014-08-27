@@ -30,6 +30,8 @@ def commonDebugKeystore = file("../../keystore_debug")
 
 android {
 
+    useOldManifestMerger true
+
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
         targetCompatibility = 'VERSION_1_6'
@@ -37,14 +39,14 @@ android {
 
 
     compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+    buildToolsVersion "19.1.0"
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 116
-        versionName '1.2.12'
+        versionCode 126
+        versionName '1.2.20'
     }
 
     signingConfigs {
@@ -81,25 +83,25 @@ android {
     productFlavors {
 
         bitsofgold {
-            packageName 'il.co.bitsofgold.wallet'
+            applicationId 'il.co.bitsofgold.wallet'
             versionName = defaultConfig.versionName + '-BOG'
             signingConfig signingConfigs.release
         }
 
         prodnet {
-            packageName 'com.mycelium.wallet'
+            applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }
 
         dev {
-            packageName 'com.mycelium.devwallet'
+            applicationId 'com.mycelium.devwallet'
             signingConfig signingConfigs.debug
         }
 
 
         testnet {
-            packageName 'com.mycelium.testnetwallet'
+            applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.testnetplay
         }
