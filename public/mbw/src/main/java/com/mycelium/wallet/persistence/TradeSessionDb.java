@@ -44,11 +44,7 @@ import android.util.Log;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TradeSession;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -334,6 +330,8 @@ public class TradeSessionDb {
          try {
             session = (TradeSession) in.readObject();
          } catch (ClassNotFoundException e) {
+            return null;
+         } catch (InvalidClassException invalid) {
             return null;
          }
          in.close();

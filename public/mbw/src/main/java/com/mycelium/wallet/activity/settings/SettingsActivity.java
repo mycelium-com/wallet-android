@@ -137,7 +137,7 @@ public class SettingsActivity extends PreferenceActivity {
    private final OnPreferenceClickListener continuousAutoFocusClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.setContinousFocus(p.isChecked());
+         _mbwManager.setContinuousFocus(p.isChecked());
          return true;
       }
    };
@@ -316,7 +316,7 @@ public class SettingsActivity extends PreferenceActivity {
       expertMode.setChecked(_mbwManager.getExpertMode());
       expertMode.setOnPreferenceClickListener(expertModeClickListener);
 
-      // Show Swipe Animation
+      // Use continuous autofocus while scanning for QR-Codes
       CheckBoxPreference continuousFocus = (CheckBoxPreference) findPreference("continuousFocus");
       continuousFocus.setChecked(_mbwManager.getContinuousFocus());
       continuousFocus.setOnPreferenceClickListener(continuousAutoFocusClickListener);

@@ -215,17 +215,19 @@
         android:orientation="vertical"
         android:padding="@dimen/standard_padding">
 
-        <ImageView android:layout_width="50dip"
+        <ImageView android:id="@+id/button_toggle_flash"
+                android:layout_width="50dip"
                 android:layout_height="56dip"
                 android:src="@drawable/light"
-                android:onClick="toggleFlash"
+                android:onClick="toggleTorch"
                 android:background="@android:color/white"
                 android:padding="@dimen/standard_padding"/>
 
         <View android:layout_height="5px"
               android:layout_width="wrap_content" />
 
-        <ImageView android:layout_width="50dip"
+        <ImageView android:id="@+id/button_toggle_focus"
+                android:layout_width="50dip"
                 android:layout_height="56dip"
                 android:src="@drawable/infinite"
                 android:onClick="toggleFocus"

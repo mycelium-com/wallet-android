@@ -135,6 +135,7 @@ public class ScanActivity extends Activity {
    private void startScanner() {
       Intent intent = new Intent(this, CaptureActivity.class);
       intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, MbwManager.getInstance(this).getContinuousFocus());
       this.startActivityForResult(intent, SCANNER_RESULT_CODE);
    }
 
@@ -204,6 +205,13 @@ public class ScanActivity extends Activity {
          finishError(R.string.cancelled, "");
          return;
       }
+
+      // If the last autofocus setting got saved in an extra-field, change the app settings accordingly
+      int autoFocus = intent.getIntExtra("ENABLE_CONTINUOUS_FOCUS", -1);
+      if (autoFocus != -1){
+         MbwManager.getInstance(this).setContinuousFocus(autoFocus == 1);
+      }
+
       String content;
       if (IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE == requestCode) {
          content = intent.getStringExtra("base58Key");

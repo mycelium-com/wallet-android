@@ -84,7 +84,12 @@ public final class Intents {
     public static final String WIDTH = "SCAN_WIDTH";
     public static final String HEIGHT = "SCAN_HEIGHT";
 
-    public static final String ENABLE_CONTINUOUS_FOCUS = "ENABLE_CONTINUOUS_FOCUS";
+     /**
+      * Key for the extra-field which states if the Camera should put into continous autofocus or not.
+      * Also returns the last state which the user had set.
+      * on (=1) or off(=0)
+      */
+     public static final String ENABLE_CONTINUOUS_FOCUS = "ENABLE_CONTINUOUS_FOCUS";
     
     /**
      * Desired duration in milliseconds for which to pause after a successful scan before
@@ -154,6 +159,7 @@ public final class Intents {
      * Setting this to false will not save scanned codes in the history. Specified as a {@code boolean}.
      */
     public static final String SAVE_HISTORY = "SAVE_HISTORY";
+
 
     private Scan() {
     }

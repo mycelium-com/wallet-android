@@ -355,8 +355,8 @@ public class MbwManager {
       return _enableContinuousFocus;
    }
 
-   public void setContinousFocus(boolean disableContinousFocus) {
-      _enableContinuousFocus = disableContinousFocus;
+   public void setContinuousFocus(boolean enableContinuousFocus) {
+      _enableContinuousFocus = enableContinuousFocus;
       getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).commit();
    }
 

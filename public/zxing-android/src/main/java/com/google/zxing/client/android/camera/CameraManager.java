@@ -197,8 +197,10 @@ public final class CameraManager {
       }
    }
 
-   public synchronized void toggleTorch() {
-      setTorch(!configManager.getTorchState(camera));
+   public synchronized boolean toggleTorch() {
+      boolean newState =!configManager.getTorchState(camera);
+      setTorch(newState);
+      return newState;
    }
 
    /**

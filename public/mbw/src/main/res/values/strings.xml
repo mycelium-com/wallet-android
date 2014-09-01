@@ -529,5 +529,9 @@
 
 
     <!-- BitID end -->
+    <string name="unable_to_get_clipboard">Unable to get the current clipboard content</string>
+    <string name="unable_to_clear_clipboard">Unable to clear the clipboard</string>
+    <string name="unable_to_set_clipboard">Unable to set the clipboard string</string>
+
 
 </resources>

@@ -23,9 +23,8 @@ import java.util.Map;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.*;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,6 +37,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import android.widget.ImageView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
@@ -104,6 +104,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       } else {
          enableContinuousFocus = true;
       }
+
+
+      showTorchState(false);
+      showFocusState(enableContinuousFocus);
 
       PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
@@ -207,22 +211,41 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          return true;
          // Use volume up/down to turn on light
       case KeyEvent.KEYCODE_VOLUME_DOWN:
-         cameraManager.setTorch(false);
+         setTorch(false);
          return true;
       case KeyEvent.KEYCODE_VOLUME_UP:
-         cameraManager.setTorch(true);
+         setTorch(true);
          return true;
       }
       return super.onKeyDown(keyCode, event);
    }
 
-   public void toggleFlash(View view) {
-      cameraManager.toggleTorch();
+   private void setTorch(boolean setOn) {
+      cameraManager.setTorch(setOn);
+      showTorchState(setOn);
+   }
+
+
+   public void toggleTorch(View view) {
+      boolean state = cameraManager.toggleTorch();
+      showTorchState(state);
+   }
+
+   private void showTorchState(boolean state) {
+      ImageView buttonFlash = (ImageView) findViewById(R.id.button_toggle_flash);
+      // if we change our MinApi level to 16, change this to setImageAlpha
+      buttonFlash.setAlpha(state ? 255 : 128);
+   }
+
+   private void showFocusState(boolean state) {
+      ImageView buttonFocus = (ImageView) findViewById(R.id.button_toggle_focus);
+      buttonFocus.setAlpha(state ? 255 : 128);
    }
 
    public void toggleFocus(View view) {
       onPause();
       enableContinuousFocus = !enableContinuousFocus;
+      showFocusState(enableContinuousFocus);
       onResume();
    }
 
@@ -342,6 +365,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
       intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
       intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
+      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus ? 1 : 0 );
       byte[] rawBytes = rawResult.getRawBytes();
       if (rawBytes != null && rawBytes.length > 0) {
          intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
