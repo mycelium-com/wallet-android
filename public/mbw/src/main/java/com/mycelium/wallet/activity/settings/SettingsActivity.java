@@ -49,7 +49,6 @@ import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
@@ -59,13 +58,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.ExchangeRateManager;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.PinDialog;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.WalletMode;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -358,7 +351,9 @@ public class SettingsActivity extends PreferenceActivity {
       if (!_ltManager.hasLocalTraderAccount()) {
          PreferenceScreen myceliumPreferences = (PreferenceScreen) findPreference("myceliumPreferences");
          PreferenceCategory localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
-         myceliumPreferences.removePreference(localTraderPrefs);
+         if (localTraderPrefs != null) {
+            myceliumPreferences.removePreference(localTraderPrefs);
+         }
          return;
       }
       setupEmailNotificationSetting();
