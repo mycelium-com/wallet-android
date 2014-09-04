@@ -165,7 +165,6 @@ public class EnterTextDialog {
          }
       });
       et.setText(currentText == null ? "" : currentText);
-      et.selectAll();
       InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
       imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
       dialog.show();

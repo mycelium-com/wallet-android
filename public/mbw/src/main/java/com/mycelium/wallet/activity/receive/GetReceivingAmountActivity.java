@@ -279,7 +279,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       }
 
       @Override
-      public void refreshingEcahngeRatesSuccedded() {
+      public void refreshingExchangeRatesSucceeded() {
          ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
          if (rate != null) {
             _oneBtcInFiat = rate.price; // price may still be null, in that case

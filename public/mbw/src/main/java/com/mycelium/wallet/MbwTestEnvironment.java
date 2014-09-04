@@ -42,6 +42,9 @@ import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.lt.api.LtApiClient.Logger;
+import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.wapi.api.WapiLogger;
 
 public class MbwTestEnvironment extends MbwEnvironment {
 
@@ -49,23 +52,28 @@ public class MbwTestEnvironment extends MbwEnvironment {
 
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpsEndpoint(
          "https://node3.mycelium.com/mwstestnet", myceliumThumbprint);
+   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpointAlt = new MyceliumWalletApiImpl.HttpsEndpoint(
+         "https://144.76.165.115/mwstestnet", myceliumThumbprint);
 
-//   private static final MyceliumWalletApiImpl.HttpEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpEndpoint(
-//         "http://192.168.1.139:8086");
+
+
+   // private static final MyceliumWalletApiImpl.HttpEndpoint
+   // httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpEndpoint(
+   // "http://192.168.1.139:8086");
 
    /**
     * The set of endpoints we use for testnet. The wallet chooses a random
     * endpoint and if it does not respond it round-robins through the list. This
     * way we achieve client side load-balancing and fail-over.
     */
-   private static final MyceliumWalletApiImpl.HttpEndpoint[] testnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] { httpsTestnetEndpoint };
+   private static final MyceliumWalletApiImpl.HttpEndpoint[] testnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] { httpsTestnetEndpoint , httpsTestnetEndpointAlt};
    private static final MyceliumWalletApiImpl testnetApi = new MyceliumWalletApiImpl(testnetServerEndpoints,
          NetworkParameters.testNetwork);
 
    /**
     * Local Trader API for testnet
     */
-//   private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpEndpoint(
+   // private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint =
 //         "http://212.186.198.83:8089/trade/");
 
    private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
@@ -86,10 +94,10 @@ public class MbwTestEnvironment extends MbwEnvironment {
       }
    });
 
-   public MbwTestEnvironment(String brand, boolean bitidEnabled){
-      super(brand, bitidEnabled);
+   public MbwTestEnvironment(String brand){
+      super(brand);
    }
-   
+
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
@@ -103,5 +111,36 @@ public class MbwTestEnvironment extends MbwEnvironment {
    @Override
    public LtApi getLocalTraderApi() {
       return testnetLocalTraderApi;
+   }
+
+   /**
+    * Wapi
+    */
+   private static final WapiClient.HttpEndpoint testnetWapiEndpoint = new WapiClient.HttpsEndpoint(
+         "https://node3.mycelium.com/wapitestnet", myceliumThumbprint);
+   private static final WapiClient.HttpEndpoint testnetWapiEndpointAlt = new WapiClient.HttpsEndpoint(
+         "https://144.76.165.115/wapitestnet", myceliumThumbprint);
+   private static final WapiClient.HttpEndpoint[] testnetWapiEndpoints = new WapiClient.HttpEndpoint[]{testnetWapiEndpoint, testnetWapiEndpointAlt};
+   private static final WapiClient textnetWapiClient = new WapiClient(testnetWapiEndpoints, new WapiLogger() {
+
+      @Override
+      public void logError(String message) {
+         Log.e("Wapi", message);
+      }
+
+      @Override
+      public void logError(String message, Exception e) {
+         Log.e("Wapi", message, e);
+      }
+
+      @Override
+      public void logInfo(String message) {
+         Log.i("Wapi", message);
+      }
+   });
+
+   @Override
+   public Wapi getWapi() {
+      return textnetWapiClient;
    }
 }

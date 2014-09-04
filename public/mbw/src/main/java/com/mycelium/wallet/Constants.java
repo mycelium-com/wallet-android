@@ -59,11 +59,8 @@ public class Constants {
    public static final String PROXY_SETTING = "proxy";
    public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
    public static final String DEFAULT_CURRENCY = "USD";
-   public static final String WALLET_MODE_SETTING = "WalletMode";
-   public static final WalletMode DEFAULT_WALLET_MODE = WalletMode.Segregated;
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
    public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
-   public static final String EXPERT_MODE_SETTING = "ExpertMode";
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
    public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
@@ -81,6 +78,8 @@ public class Constants {
    // Local Trader constants
    public static final String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
    public static final String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";
+   public static final String LOCAL_TRADER_KEY_SETTING = "traderPrivateKey";
+   public static final String LOCAL_TRADER_ACCOUNT_ID_SETTING = "traderAccountId";
    public static final String LOCAL_TRADER_NICKNAME_SETTING = "nickname";
    public static final String LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING = "lastTraderSync";
    public static final String LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING = "lastTraderNotification";

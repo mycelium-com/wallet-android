@@ -34,22 +34,12 @@
 
 package com.mycelium.wallet.lt;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -69,12 +59,13 @@ import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.lt.api.CreateAd;
 import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.Request;
 import com.mycelium.wallet.persistence.TradeSessionDb;
+
+import java.io.IOException;
+import java.util.*;
 
 public class LocalTraderManager {
 
@@ -83,7 +74,6 @@ public class LocalTraderManager {
    private static final String TAG = "LocalTraderManager";
 
    final private Context _context;
-   final private RecordManager _recordManager;
    final private TradeSessionDb _db;
    final private LtApi _api;
    final private MbwManager _mbwManager;
@@ -105,12 +95,13 @@ public class LocalTraderManager {
    private boolean _notificationsEnabled;
    private TraderInfo _cachedTraderInfo;
    private long _lastNotificationSoundTimestamp;
+   private String _localTraderPrivateKeyString;
+   private UUID _localTraderAccountId;
+   private InMemoryPrivateKey _localTraderPrivateKey;
 
-   public LocalTraderManager(Context context, RecordManager recordManager, TradeSessionDb db, LtApi api,
-         MbwManager mbwManager) {
+   public LocalTraderManager(Context context, TradeSessionDb db, LtApi api, MbwManager mbwManager) {
       _notificationsEnabled = true;
       _context = context;
-      _recordManager = recordManager;
       _db = db;
       _api = api;
       _mbwManager = mbwManager;
@@ -121,29 +112,32 @@ public class LocalTraderManager {
       SharedPreferences preferences = _context.getSharedPreferences(Constants.LOCAL_TRADER_SETTINGS_NAME,
             Activity.MODE_PRIVATE);
 
+      // Nick name
       _nickname = preferences.getString(Constants.LOCAL_TRADER_NICKNAME_SETTING, null);
+
+      // Address
       String addressString = preferences.getString(Constants.LOCAL_TRADER_ADDRESS_SETTING, null);
       if (addressString != null) {
          _localTraderAddress = Address.fromString(addressString, _mbwManager.getNetwork());
          // May be null
       }
+      // Private key, may be null even if we have an address. This happens in the upgrade scenario where it is set later
+      _localTraderPrivateKeyString = preferences.getString(Constants.LOCAL_TRADER_KEY_SETTING, null);
+      // Account ID, may be null even if we have an address. This happens in the upgrade scenario where it is set later
+      String localTraderAccountIdString = preferences.getString(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING, null); // May be null
+      if (localTraderAccountIdString != null) {
+         _localTraderAccountId = UUID.fromString(localTraderAccountIdString);
+      }
 
       // Load location from preferences or use default
-      // _currentLocation = new
-      // GpsLocation(Constants.LOCAL_TRADER_DEFAULT_LOCATION.latitude,
-      // (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.longitude,
-      // Constants.LOCAL_TRADER_DEFAULT_LOCATION.name);
-
-      _currentLocation = new GpsLocationEx(preferences.getFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING,
-            (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.latitude), preferences.getFloat(
-            Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.longitude),
-            preferences.getString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING,
-                  Constants.LOCAL_TRADER_DEFAULT_LOCATION.name), preferences.getString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING,
-                        Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
+      _currentLocation = new GpsLocationEx(
+            preferences.getFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING, (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.latitude),
+            preferences.getFloat(Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) Constants.LOCAL_TRADER_DEFAULT_LOCATION.longitude),
+            preferences.getString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, Constants.LOCAL_TRADER_DEFAULT_LOCATION.name),
+            preferences.getString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
 
       _isLocalTraderDisabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, false);
-      _playSoundOnTradeNotification = preferences.getBoolean(
-            Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
+      _playSoundOnTradeNotification = preferences.getBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
       _useMiles = preferences.getBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, false);
       _lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
       _lastTraderNotification = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, 0);
@@ -210,6 +204,10 @@ public class LocalTraderManager {
 
    public boolean areNotificationsEnabled() {
       return _notificationsEnabled;
+   }
+
+   public UUID getLocalTraderAccountId() {
+      return _localTraderAccountId;
    }
 
    public interface LocalManagerApiContext {
@@ -328,34 +326,34 @@ public class LocalTraderManager {
 
       public void handleErrors(Request request, int errorCode) {
          switch (errorCode) {
-         case LtApi.ERROR_CODE_INVALID_SESSION:
-            if (renewSession()) {
-               if (login()) {
-                  synchronized (_requests) {
-                     _requests.add(request);
-                     _requests.notify();
+            case LtApi.ERROR_CODE_INVALID_SESSION:
+               if (renewSession()) {
+                  if (login()) {
+                     synchronized (_requests) {
+                        _requests.add(request);
+                        _requests.notify();
+                     }
                   }
                }
-            }
-            break;
-         case LtApi.ERROR_CODE_NO_SERVER_CONNECTION:
-            notifyNoConnection(errorCode);
-            break;
-         case LtApi.ERROR_CODE_INCOMPATIBLE_API_VERSION:
-            notifyIncompatibleApiVersion(errorCode);
-            break;
-         case LtApi.ERROR_CODE_TRADER_DOES_NOT_EXIST:
-            _isLoggedIn = false;
-            _session = null;
-            // Disconnect trader account
-            unsetLocalTraderAccount();
-            notifyNoTraderAccount(errorCode);
-            break;
-         default:
-            _isLoggedIn = false;
-            _session = null;
-            notifyError(errorCode);
-            break;
+               break;
+            case LtApi.ERROR_CODE_NO_SERVER_CONNECTION:
+               notifyNoConnection(errorCode);
+               break;
+            case LtApi.ERROR_CODE_INCOMPATIBLE_API_VERSION:
+               notifyIncompatibleApiVersion(errorCode);
+               break;
+            case LtApi.ERROR_CODE_TRADER_DOES_NOT_EXIST:
+               _isLoggedIn = false;
+               _session = null;
+               // Disconnect trader account
+               unsetLocalTraderAccount();
+               notifyNoTraderAccount(errorCode);
+               break;
+            default:
+               _isLoggedIn = false;
+               _session = null;
+               notifyError(errorCode);
+               break;
          }
       }
 
@@ -551,14 +549,13 @@ public class LocalTraderManager {
    }
 
    private InMemoryPrivateKey getLocalTraderPrivateKey() {
-      Record record = _recordManager.getRecord(_localTraderAddress);
-      if (record != null && record.hasPrivateKey()) {
-         return record.key;
+      if (_localTraderPrivateKeyString == null) {
+         return null;
       }
-      if (_localTraderAddress != null) {
-         unsetLocalTraderAccount();
+      if (_localTraderPrivateKey == null) {
+         _localTraderPrivateKey = new InMemoryPrivateKey(_localTraderPrivateKeyString, _mbwManager.getNetwork());
       }
-      return null;
+      return _localTraderPrivateKey;
    }
 
    public ChatMessageEncryptionKey generateChatMessageEncryptionKey(PublicKey foreignPublicKey, UUID tradeSessionId) {
@@ -568,8 +565,13 @@ public class LocalTraderManager {
    public void unsetLocalTraderAccount() {
       _session = null;
       _localTraderAddress = null;
+      _localTraderAccountId = null;
+      _localTraderPrivateKey = null;
+      _localTraderPrivateKeyString = null;
       _nickname = null;
       SharedPreferences.Editor editor = getEditor();
+      editor.remove(Constants.LOCAL_TRADER_KEY_SETTING);
+      editor.remove(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING);
       editor.remove(Constants.LOCAL_TRADER_ADDRESS_SETTING);
       editor.remove(Constants.LOCAL_TRADER_NICKNAME_SETTING);
       setLastTraderSynchronization(0);
@@ -577,11 +579,16 @@ public class LocalTraderManager {
       editor.commit();
    }
 
-   public void setLocalTraderData(Address address, String nickname) {
+   public void setLocalTraderData(UUID accountId, InMemoryPrivateKey privateKey, Address address, String nickname) {
       _session = null;
       _localTraderAddress = Preconditions.checkNotNull(address);
+      _localTraderAccountId = Preconditions.checkNotNull(accountId);
+      _localTraderPrivateKey = Preconditions.checkNotNull(privateKey);
+      _localTraderPrivateKeyString = privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork());
       _nickname = Preconditions.checkNotNull(nickname);
       SharedPreferences.Editor editor = getEditor();
+      editor.putString(Constants.LOCAL_TRADER_KEY_SETTING, _localTraderPrivateKeyString);
+      editor.putString(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING, accountId.toString());
       editor.putString(Constants.LOCAL_TRADER_ADDRESS_SETTING, address.toString());
       editor.putString(Constants.LOCAL_TRADER_NICKNAME_SETTING, nickname);
       editor.commit();
@@ -730,11 +737,8 @@ public class LocalTraderManager {
    /**
     * Stores the registration ID and app versionCode in the application's
     * {@code SharedPreferences}.
-    * 
-    * @param context
-    *           application's context.
-    * @param regId
-    *           registration ID
+    *
+    * @param regId registration ID
     */
    private synchronized void storeGcmRegistrationId(String regId) {
       final SharedPreferences prefs = getGcmPreferences();

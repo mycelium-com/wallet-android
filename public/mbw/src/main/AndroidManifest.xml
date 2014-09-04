@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mycelium.wallet">
+    package="com.mycelium.wallet" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!--  Permissions required for Google Cloud Messaging -->
+    <!-- Permissions required for Google Cloud Messaging -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
 
     <!-- this can now even be skipped since we don't use sdcard anymore -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -33,48 +32,47 @@
         android:required="false" />
 
     <application
-        android:name="com.mycelium.wallet.WalletApplication"
+        android:name=".WalletApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/MyceliumModern" >
 
-        <!--  Service for Google Cloud Messaging -->
-        <service android:name="com.mycelium.wallet.lt.notification.GcmIntentService" />
-
+        <!-- Service for Google Cloud Messaging -->
+        <service android:name=".lt.notification.GcmIntentService" />
         <service
-            android:name="com.mycelium.wallet.service.TaskExecutionService"
+            android:name=".service.TaskExecutionService"
             android:enabled="true"
             android:exported="false"
             android:process=":Task" />
 
-        <!--hack - hardcode to be able to support froyo-->
+        <!-- hack - hardcode to be able to support froyo -->
         <meta-data
-                android:name="com.google.android.gms.version"
-                android:value="3265000" />
+            android:name="com.google.android.gms.version"
+            android:value="3265000" />
 
-        <!--android:value="@integer/google_play_services_version" />-->
+        <!-- android:value="@integer/google_play_services_version" /> -->
 
         <activity
-            android:name="com.mycelium.wallet.activity.modern.ModernMain"
+            android:name=".activity.modern.ModernMain"
             android:theme="@style/MyceliumActionBar" />
-        <activity android:name="com.mycelium.wallet.activity.AboutActivity" />
-        <activity android:name="com.mycelium.wallet.activity.modern.GetFromAddressBookActivity" />
-        <activity android:name="com.mycelium.wallet.activity.AddRecordActivity" />
-        <activity android:name="com.mycelium.wallet.activity.ScanActivity" />
-        <activity android:name="com.mycelium.wallet.activity.CreateKeyActivity" />
-        <activity android:name="com.mycelium.wallet.activity.TransactionDetailsActivity" />
-        <activity android:name="com.mycelium.wallet.activity.settings.SettingsActivity" />
-        <activity android:name="com.mycelium.wallet.activity.settings.SetLocalCurrencyActivity" />
-        <activity android:name="com.mycelium.wallet.activity.export.ExportAsQrCodeActivity" />
-        <activity android:name="com.mycelium.wallet.activity.export.BackupToPdfActivity" />
-        <activity android:name="com.mycelium.wallet.activity.export.DecryptPrivateKeyActivity" />
-        <activity android:name="com.mycelium.wallet.activity.export.VerifyBackupActivity" />
-        <activity android:name="com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.BroadcastTransactionActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.GetSpendingRecordActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.GetSendingAmountActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.InstantWalletActivity" >
+        <activity android:name=".activity.AboutActivity" />
+        <activity android:name=".activity.modern.GetFromAddressBookActivity" />
+        <activity android:name=".activity.AddAccountActivity" />
+        <activity android:name=".activity.AddAdvancedAccountActivity" />
+        <activity android:name=".activity.ScanActivity" />
+        <activity android:name=".activity.TransactionDetailsActivity" />
+        <activity android:name=".activity.settings.SettingsActivity" />
+        <activity android:name=".activity.settings.SetLocalCurrencyActivity" />
+        <activity android:name=".activity.export.ExportAsQrCodeActivity" />
+        <activity android:name=".activity.export.BackupToPdfActivity" />
+        <activity android:name=".activity.export.MrdDecryptDataActivity" />
+        <activity android:name=".activity.export.VerifyBackupActivity" />
+        <activity android:name=".activity.export.DecryptBip38PrivateKeyActivity" />
+        <activity android:name=".activity.send.GetSpendingRecordActivity" />
+        <activity android:name=".activity.send.GetSendingAmountActivity" />
+        <activity android:name=".activity.modern.UnspentOutputsActivity" />
+        <activity android:name=".activity.send.InstantWalletActivity" >
 
             <!--
              <intent-filter>
@@ -84,12 +82,12 @@
              </intent-filter>
             -->
         </activity>
-        <activity android:name="com.mycelium.wallet.activity.send.SendInitializationActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.ColdStorageSummaryActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.SendMainActivity" />
-        <activity android:name="com.mycelium.wallet.activity.send.ManualAddressEntry" />
-        <activity android:name="com.mycelium.wallet.activity.receive.GetReceivingAmountActivity" />
-        <activity android:name="com.mycelium.wallet.activity.receive.ReceiveCoinsActivity" />
+        <activity android:name=".activity.send.SendInitializationActivity" />
+        <activity android:name=".activity.send.ColdStorageSummaryActivity" />
+        <activity android:name=".activity.send.SendMainActivity" />
+        <activity android:name=".activity.send.ManualAddressEntry" />
+        <activity android:name=".activity.receive.GetReceivingAmountActivity" />
+        <activity android:name=".activity.receive.ReceiveCoinsActivity" />
         <activity
             android:name="com.google.zxing.client.android.CaptureActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -97,24 +95,30 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
-        <activity android:name="com.mycelium.wallet.lt.activity.LtMainActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader1Activity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader2Activity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.CreateTrader3Activity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.SolveCaptchaActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.TradeActivity" android:windowSoftInputMode="stateHidden|adjustPan"/>
-        <activity android:name="com.mycelium.wallet.lt.activity.ChangeLocationActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.EnterLocationActivity" android:windowSoftInputMode="stateVisible"/>
-        <activity android:name="com.mycelium.wallet.lt.activity.ChangePriceActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.RefreshPriceActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.EnterFiatAmountActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.ViewTraderInfoActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.buy.CreateTradeActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.buy.SetTradeAddress" />
-        <activity android:name="com.mycelium.wallet.lt.activity.sell.CreateOrEditAdActivity" />
-        <activity android:name="com.mycelium.wallet.lt.activity.SendRequestActivity" />
-        <activity android:name="com.mycelium.wallet.activity.UpdateNotificationActivity" />
-        <activity android:name="com.mycelium.wallet.activity.MessageSigningActivity" />
+        <activity android:name=".lt.activity.LtMainActivity" />
+        <activity android:name=".lt.activity.CreateTrader1Activity" />
+        <activity android:name=".lt.activity.CreateTrader2Activity" />
+        <activity android:name=".lt.activity.CreateTrader3Activity" />
+        <activity android:name=".lt.activity.SolveCaptchaActivity" />
+        <activity
+            android:name=".lt.activity.TradeActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <activity android:name=".lt.activity.ChangeLocationActivity" />
+        <activity
+            android:name=".lt.activity.EnterLocationActivity"
+            android:windowSoftInputMode="stateVisible" />
+        <activity android:name=".lt.activity.ChangePriceActivity" />
+        <activity android:name=".lt.activity.RefreshPriceActivity" />
+        <activity android:name=".lt.activity.EnterFiatAmountActivity" />
+        <activity android:name=".lt.activity.ViewTraderInfoActivity" />
+        <activity android:name=".lt.activity.buy.CreateTradeActivity" />
+        <activity android:name=".lt.activity.buy.SetTradeAddress" />
+        <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
+        <activity android:name=".lt.activity.SendRequestActivity" />
+        <activity android:name=".activity.UpdateNotificationActivity" />
+        <activity android:name=".activity.MessageSigningActivity" />
+        <activity android:name=".activity.ImportSeedActivity" />
+        <activity android:name=".activity.EnterWordListActivity" />
     </application>
 
 </manifest>

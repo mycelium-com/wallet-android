@@ -41,17 +41,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
-
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class SetTradeAddress extends Activity {
 
@@ -84,11 +82,11 @@ public class SetTradeAddress extends Activity {
       _tradeSession = (TradeSession) getIntent().getSerializableExtra("tradeSession");
       Preconditions.checkNotNull(_tradeSession);
       Preconditions.checkNotNull(_tradeSession.id);
-
-      _address = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode()).getReceivingAddress();
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      _address = account.getReceivingAddress();
       // Set label if applicable
       TextView addressLabel = (TextView) findViewById(R.id.tvAddressLabel);
-      String label = _mbwManager.getAddressBookManager().getNameByAddress(_address.toString());
+      String label = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
       if (label == null || label.length() == 0) {
          // Hide label
          addressLabel.setVisibility(View.GONE);
@@ -102,9 +100,8 @@ public class SetTradeAddress extends Activity {
       ((TextView) findViewById(R.id.tvAddress)).setText(_address.toMultiLineString());
 
       // Show / hide warning
-      Record record = _mbwManager.getRecordManager().getRecord(_address);
       TextView tvWarning = (TextView) findViewById(R.id.tvWarning);
-      if (record != null && record.hasPrivateKey()) {
+      if (account.canSpend()) {
          // We send to an address where we have the private key
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       } else {
@@ -115,7 +112,7 @@ public class SetTradeAddress extends Activity {
          tvWarning.setTextColor(getResources().getColor(R.color.red));
       }
 
-      ((Button) findViewById(R.id.btOk)).setOnClickListener(startTradingClickListener);
+      findViewById(R.id.btOk).setOnClickListener(startTradingClickListener);
    }
 
    OnClickListener startTradingClickListener = new OnClickListener() {
@@ -130,22 +127,16 @@ public class SetTradeAddress extends Activity {
 
    @Override
    protected void onResume() {
-      if(!hasMoreThanOneReceivingAddress()){
-         Preconditions.checkNotNull(_tradeSession);
-         Preconditions.checkNotNull(_tradeSession.id);
-         SetTradeReceivingAddress request = new SetTradeReceivingAddress(_tradeSession.id, _address);
-         SendRequestActivity.callMe(SetTradeAddress.this, request, "");
-         finish();
-      }
+      Preconditions.checkNotNull(_tradeSession);
+      Preconditions.checkNotNull(_tradeSession.id);
+      SetTradeReceivingAddress request = new SetTradeReceivingAddress(_tradeSession.id, _address);
+      SendRequestActivity.callMe(SetTradeAddress.this, request, "");
+      finish();
       super.onResume();
    }
 
    @Override
    protected void onPause() {
       super.onPause();
-   }
-
-   private boolean hasMoreThanOneReceivingAddress() {
-      return _mbwManager.getRecordManager().numRecords() > 1;
    }
 }

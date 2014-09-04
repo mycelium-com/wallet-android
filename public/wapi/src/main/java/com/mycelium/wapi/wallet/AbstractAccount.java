@@ -1,0 +1,950 @@
+package com.mycelium.wapi.wallet;
+
+import com.google.common.base.Preconditions;
+import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
+import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.TransactionUtils;
+import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Transaction.TransactionParsingException;
+import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
+import com.mycelium.wapi.api.request.CheckTransactionsRequest;
+import com.mycelium.wapi.api.request.GetTransactionsRequest;
+import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
+import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
+import com.mycelium.wapi.api.response.CheckTransactionsResponse;
+import com.mycelium.wapi.api.response.GetTransactionsResponse;
+import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
+import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.WalletManager.Event;
+
+import java.util.*;
+
+public abstract class AbstractAccount implements WalletAccount {
+   public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
+   private static final int COINBASE_MIN_CONFIRMATIONS = 120;
+
+   public interface EventHandler {
+      void onEvent(UUID accountId, Event event);
+   }
+
+   protected NetworkParameters _network;
+   protected Wapi _wapi;
+   protected WapiLogger _logger;
+   private AccountBacking _backing;
+   protected Balance _cachedBalance;
+   private EventHandler _eventHandler;
+
+   protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
+      _network = network;
+      _logger = wapi.getLogger();
+      _wapi = wapi;
+      _backing = backing;
+   }
+
+   /**
+    * set the event handler for this account
+    *
+    * @param eventHandler the event handler for this account
+    */
+   void setEventHandler(EventHandler eventHandler) {
+      _eventHandler = eventHandler;
+   }
+
+   protected void postEvent(Event event) {
+      if (_eventHandler != null) {
+         _eventHandler.onEvent(this.getId(), event);
+      }
+   }
+
+   /**
+    * Synchronize this account
+    * <p/>
+    * This method should only be called from the wallet manager
+    *
+    * @param synchronizeTransactionHistory should the transaction be synchronized?
+    * @return false if synchronization failed due to failed blockchain
+    * connection
+    */
+   public abstract boolean synchronize(boolean synchronizeTransactionHistory);
+
+   /**
+    * Determine whether a transaction was sent from one of our own addresses.
+    * <p/>
+    * This is a costly operation as we first have to lookup the transaction and
+    * then it's funding outputs
+    *
+    * @param txid the ID of the transaction to investigate
+    * @return true if one of the funding outputs were sent from one of our own
+    * addresses
+    */
+   protected boolean isFromMe(Sha256Hash txid) {
+      Transaction t = TransactionEx.toTransaction(_backing.getTransaction(txid));
+      if (t == null) {
+         return false;
+      }
+      return isFromMe(t);
+   }
+
+   /**
+    * Determine whether a transaction was sent from one of our own addresses.
+    * <p/>
+    * This is a costly operation as we have to lookup funding outputs of the
+    * transaction
+    *
+    * @param t the transaction to investigate
+    * @return true iff one of the funding outputs were sent from one of our own
+    * addresses
+    */
+   protected boolean isFromMe(Transaction t) {
+      for (TransactionInput input : t.inputs) {
+         TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
+         if (funding == null || funding.isCoinBase) {
+            continue;
+         }
+         ScriptOutput fundingScript = ScriptOutput.fromScriptBytes(funding.script);
+         Address fundingAddress = fundingScript.getAddress(_network);
+         if (isMine(fundingAddress)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * Determine whether a transaction output was sent from one of our own
+    * addresses
+    *
+    * @param output the output to investigate
+    * @return true iff the putput was sent from one of our own addresses
+    */
+   protected boolean isMine(TransactionOutputEx output) {
+      ScriptOutput script = ScriptOutput.fromScriptBytes(output.script);
+      return isMine(script);
+   }
+
+   /**
+    * Determine whether an output script was created by one of our own addresses
+    *
+    * @param script the script to investigate
+    * @return true iff the script was created by one of our own addresses
+    */
+   protected boolean isMine(ScriptOutput script) {
+      Address address = script.getAddress(_network);
+      return isMine(address);
+   }
+
+   /**
+    * Determine whether an address is one of our own addresses
+    *
+    * @param address the address to check
+    * @return true iff this address is one of our own
+    */
+   protected abstract boolean isMine(Address address);
+
+   @Override
+   public abstract UUID getId();
+
+   protected static UUID addressToUUID(Address address) {
+      return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 1), BitUtils.uint64ToLong(
+            address.getAllAddressBytes(), 9));
+   }
+
+   protected boolean synchronizeUnspentOutputs(Collection<Address> addresses) {
+      // Get the current unspent outputs as dictated by the block chain
+      QueryUnspentOutputsResponse UnspentOutputResponse;
+      try {
+         UnspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
+               .getResult();
+      } catch (WapiException e) {
+         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+         postEvent(Event.SERVER_CONNECTION_ERROR);
+         return false;
+      }
+      Collection<TransactionOutputEx> remoteUnspent = UnspentOutputResponse.unspent;
+      // Store the current block height
+      setBlockChainHeight(UnspentOutputResponse.height);
+      // Make a map for fast lookup
+      Map<OutPoint, TransactionOutputEx> remoteMap = toMap(remoteUnspent);
+
+      // Get the current unspent outputs as it is believed to be locally
+      Collection<TransactionOutputEx> localUnspent = _backing.getAllUnspentOutputs();
+      // Make a map for fast lookup
+      Map<OutPoint, TransactionOutputEx> localMap = toMap(localUnspent);
+
+      // Find remotely removed unspent outputs
+      for (TransactionOutputEx l : localUnspent) {
+         TransactionOutputEx r = remoteMap.get(l.outPoint);
+         if (r == null) {
+            // An output has gone. Maybe it was spent in another wallet, or
+            // never confirmed due to missing fees, double spend, or mutated.
+            // Either way, we delete it locally
+            _backing.deleteUnspentOutput(l.outPoint);
+         }
+      }
+
+      // Find remotely added unspent outputs
+      Set<Sha256Hash> transactionsToAddOrUpdate = new HashSet<Sha256Hash>();
+      List<TransactionOutputEx> unspentOutputsToAddOrUpdate = new LinkedList<TransactionOutputEx>();
+      for (TransactionOutputEx r : remoteUnspent) {
+         TransactionOutputEx l = localMap.get(r.outPoint);
+         if (l == null || l.height != r.height) {
+            // New remote output or new height (Maybe it confirmed or we
+            // might even have had a reorg). Either way we just update it
+            unspentOutputsToAddOrUpdate.add(r);
+            transactionsToAddOrUpdate.add(r.outPoint.hash);
+            // Note: We are not adding the unspent output to the DB just yet. We
+            // first want to verify the full set of funding transactions of the
+            // transaction that this unspent output belongs to
+         }
+      }
+
+      // Fetch updated or added transactions
+      if (transactionsToAddOrUpdate.size() > 0) {
+         GetTransactionsResponse response;
+         try {
+            response = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, transactionsToAddOrUpdate))
+                  .getResult();
+         } catch (WapiException e) {
+            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+            postEvent(Event.SERVER_CONNECTION_ERROR);
+            return false;
+         }
+         Set<Sha256Hash> addedTransactions = new HashSet<Sha256Hash>();
+         for (TransactionEx t : response.transactions) {
+            try {
+               if (handleNewExternalTransaction(t)) {
+                  addedTransactions.add(t.txid);
+               }
+            } catch (WapiException e) {
+               _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+               postEvent(Event.SERVER_CONNECTION_ERROR);
+               return false;
+            }
+         }
+         // Finally update out list of unspent outputs with added or updated
+         // outputs
+         for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
+            if (!addedTransactions.contains(output.outPoint.hash)) {
+               continue;
+            }
+            _backing.putUnspentOutput(output);
+         }
+      }
+
+      return true;
+   }
+
+   protected static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
+      Map<OutPoint, TransactionOutputEx> map = new HashMap<OutPoint, TransactionOutputEx>();
+      for (TransactionOutputEx t : list) {
+         map.put(t.outPoint, t);
+      }
+      return map;
+   }
+
+   protected boolean handleNewExternalTransaction(TransactionEx tex) throws WapiException {
+      Transaction t;
+      try {
+         t = Transaction.fromByteReader(new ByteReader(tex.binary));
+      } catch (TransactionParsingException e) {
+         // We hit a transaction that we cannot parse. Log but otherwise ignore
+         _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
+         return false;
+      }
+
+      // Grab and handle parent transactions
+      if (!fetchStoreAndValidateParentOutputs(t)) {
+         // We failed to find or verify the parent outputs
+         return false;
+      }
+
+      // Store transaction locally
+      _backing.putTransaction(tex);
+      onNewTransaction(tex, t);
+      return true;
+   }
+
+   private boolean fetchStoreAndValidateParentOutputs(Transaction t) throws WapiException {
+      Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<Sha256Hash, TransactionEx>();
+      Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<OutPoint, TransactionOutputEx>();
+
+      // Find list of parent outputs to fetch
+      Collection<Sha256Hash> toFetch = new HashSet<Sha256Hash>();
+      for (TransactionInput in : t.inputs) {
+         if (in.outPoint.equals(OutPoint.COINBASE_OUTPOINT)) {
+            // Coinbase input, so no parent
+            continue;
+         }
+         TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(in.outPoint);
+         if (parentOutput != null) {
+            // We already have the parent output, no need to fetch the entire
+            // parent transaction
+            parentOutputs.put(parentOutput.outPoint, parentOutput);
+            continue;
+         }
+         TransactionEx parentTransaction = _backing.getTransaction(in.outPoint.hash);
+         if (parentTransaction != null) {
+            // We had the parent transaction in our own transactions, no need to
+            // fetch it remotely
+            parentTransactions.put(parentTransaction.txid, parentTransaction);
+         } else {
+            // Need to fetch it
+            toFetch.add(in.outPoint.hash);
+         }
+      }
+
+      // Fetch missing parent transactions
+      if (toFetch.size() > 0) {
+         GetTransactionsResponse result = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch))
+               .getResult();
+         for (TransactionEx tx : result.transactions) {
+            // Verify transaction hash. This is important as we don't want to
+            // have a transaction output associated with an outpoint that
+            // doesn't match.
+            // This is the end users protection against a rogue server that lies
+            // about the value of an output and makes you pay a large fee.
+            Sha256Hash hash = HashUtils.doubleSha256(tx.binary).reverse();
+            if (hash.equals(tx.txid)) {
+               parentTransactions.put(tx.txid, tx);
+            } else {
+               _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
+                     + " Calculated: " + hash);
+               return false;
+            }
+         }
+      }
+
+      // We should now have all parent transactions or parent outputs. There is
+      // a slight probability that one of them was not found due to double
+      // spends and/or malleability and network latency etc.
+
+      // Now figure out which parent outputs we need to persist
+      List<TransactionOutputEx> toPersist = new LinkedList<TransactionOutputEx>();
+      for (TransactionInput in : t.inputs) {
+         if (in.outPoint.equals(OutPoint.COINBASE_OUTPOINT)) {
+            // coinbase input, so no parent
+            continue;
+         }
+         TransactionOutputEx parentOutput = parentOutputs.get(in.outPoint);
+         if (parentOutput != null) {
+            // We had it all along
+            continue;
+         }
+         TransactionEx parentTex = parentTransactions.get(in.outPoint.hash);
+         if (parentTex != null) {
+            // Parent output not found, maybe we already have it
+            parentOutput = TransactionEx.getTransactionOutput(parentTex, in.outPoint.index);
+            toPersist.add(parentOutput);
+            continue;
+         }
+         _logger.logError("Parent transaction not found: " + in.outPoint.hash);
+         return false;
+      }
+
+      // Persist
+      for (TransactionOutputEx output : toPersist) {
+         _backing.putParentTransactionOutput(output);
+      }
+      return true;
+   }
+
+   protected Balance calculateLocalBalance() {
+
+      Collection<TransactionOutputEx> unspentOutputs = new HashSet<TransactionOutputEx>(_backing.getAllUnspentOutputs());
+      long confirmed = 0;
+      long pendingChange = 0;
+      long pendingSending = 0;
+      long pendingReceiving = 0;
+
+
+      //
+      // Determine the value we are receiving and create a set of outpoints for fast lookup
+      //
+      Set<OutPoint> unspentOutPoints = new HashSet<OutPoint>();
+      for (TransactionOutputEx output : unspentOutputs) {
+         if (output.height == -1) {
+            if (isFromMe(output.outPoint.hash)) {
+               pendingChange += output.value;
+            } else {
+               pendingReceiving += output.value;
+            }
+         } else {
+            confirmed += output.value;
+         }
+         unspentOutPoints.add(output.outPoint);
+      }
+
+      //
+      // Determine the value we are sending
+      //
+
+      // Get the current set of unconfirmed transactions
+      List<Transaction> unconfirmed = new ArrayList<Transaction>();
+      for (TransactionEx tex : _backing.getUnconfirmedTransactions()) {
+         try {
+            Transaction t = Transaction.fromByteReader(new ByteReader(tex.binary));
+            unconfirmed.add(t);
+         } catch (TransactionParsingException e) {
+            // never happens, we have parsed it before
+         }
+      }
+
+      for (Transaction t : unconfirmed) {
+         // For each input figure out if WE are sending it by fetching the
+         // parent transaction and looking at the address
+         for (TransactionInput input : t.inputs) {
+            // Find the parent transaction
+            if (input.outPoint.hash.equals(Sha256Hash.ZERO_HASH)) {
+               continue;
+            }
+            TransactionOutputEx parent = _backing.getParentTransactionOutput(input.outPoint);
+            if (parent == null) {
+               _logger.logError("Unable to find parent transaction output: " + input.outPoint);
+               continue;
+            }
+            TransactionOutput parentOutput = transform(parent);
+            Address fundingAddress = parentOutput.script.getAddress(_network);
+            if (isMine(fundingAddress)) {
+               // One of our addresses are sending coins
+               pendingSending += parentOutput.value;
+            }
+         }
+
+         // Now look at the outputs and if it contains change for us, then subtract that from the sending amount
+         // if it is already spent in another transaction
+         for (int i = 0; i < t.outputs.length; i++) {
+            TransactionOutput output = t.outputs[i];
+            Address destination = output.script.getAddress(_network);
+            if (isMine(destination)) {
+               // The funds are sent to us
+               OutPoint outPoint = new OutPoint(t.getHash(), i);
+               if (!unspentOutPoints.contains(outPoint)) {
+                  // This output has been spent, subtract it from the amount sent
+                  pendingSending -= output.value;
+               }
+            }
+         }
+
+      }
+
+      int blockHeight = getBlockChainHeight();
+      return new Balance(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
+            blockHeight, true);
+   }
+
+   private TransactionOutput transform(TransactionOutputEx parent) {
+      ScriptOutput script = ScriptOutput.fromScriptBytes(parent.script);
+      return new TransactionOutput(parent.value, script);
+   }
+
+   /**
+    * Broadcast outgoing transactions.
+    * <p/>
+    * This method should only be called from the wallet manager
+    *
+    * @return false if synchronization failed due to failed blockchain
+    * connection
+    */
+   public synchronized boolean broadcastOutgoingTransactions() {
+      checkNotArchived();
+      List<Sha256Hash> broadcastedIds = new LinkedList<Sha256Hash>();
+      List<byte[]> transactions = _backing.getOutgoingTransactions();
+      for (byte[] rawTransaction : transactions) {
+         try {
+            BroadcastTransactionResponse result = _wapi.broadcastTransaction(
+                  new BroadcastTransactionRequest(Wapi.VERSION, rawTransaction)).getResult();
+            TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
+            if (result.success) {
+               broadcastedIds.add(tex.txid);
+               postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
+            } else {
+               // This transaction was rejected must be double spend or
+               // malleability, delete it locally.
+               _backing.deleteTransaction(tex.txid);
+               _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
+               postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
+               // Unspent outputs will get synchronized automatically on next
+               // synchronization
+            }
+            _backing.removeOutgoingTransaction(tex.txid);
+
+         } catch (WapiException e) {
+            postEvent(Event.SERVER_CONNECTION_ERROR);
+            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+            // We failed to broadcast it now, leave it in the queue for later
+            return false;
+         }
+
+      }
+      if (!broadcastedIds.isEmpty()) {
+         onTransactionsBroadcasted(broadcastedIds);
+      }
+      return true;
+   }
+
+   protected void checkNotArchived() {
+      if (isArchived()) {
+         _logger.logError(USING_ARCHIVED_ACCOUNT);
+         throw new RuntimeException(USING_ARCHIVED_ACCOUNT);
+      }
+   }
+
+   @Override
+   public abstract boolean isArchived();
+
+   @Override
+   public abstract boolean isActive();
+
+   protected abstract void onNewTransaction(TransactionEx tex, Transaction t);
+
+   protected void onTransactionsBroadcasted(List<Sha256Hash> txids) {
+   }
+
+   @Override
+   public abstract boolean canSpend();
+
+   @Override
+   public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
+      // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+      // accounts. That should be ok as we write to the DB in a sane order.
+
+      List<TransactionSummary> history = new ArrayList<TransactionSummary>();
+      checkNotArchived();
+      int blockChainHeight = getBlockChainHeight();
+      List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
+      for (TransactionEx tex : list) {
+         TransactionSummary item = transform(tex, blockChainHeight);
+         if (item != null) {
+            history.add(item);
+         }
+      }
+      return history;
+
+   }
+
+   @Override
+   public abstract Address getReceivingAddress();
+
+   @Override
+   public abstract int getBlockChainHeight();
+
+   protected abstract void setBlockChainHeight(int blockHeight);
+
+   @Override
+   public synchronized Transaction signAndQueueTransaction(UnsignedTransaction unsigned, KeyCipher cipher,
+                                                           RandomSource randomSource) throws InvalidKeyCipher {
+      checkNotArchived();
+      if (!isValidEncryptionKey(cipher)) {
+         throw new InvalidKeyCipher();
+      }
+      // Make all signatures, this is the CPU intensive part
+      List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(unsigned.getSignatureInfo(),
+            new PrivateKeyRing(cipher), randomSource);
+
+      // Apply signatures and finalize transaction
+      Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
+
+      _backing.beginTransaction();
+      try {
+         // Store transaction in outgoing buffer, so we can broadcast it
+         // later
+         byte[] rawTransaction = transaction.toBytes();
+         _backing.putOutgoingTransaction(transaction.getHash(), rawTransaction);
+
+         // Remove inputs from unspent, marking them as spent
+         for (TransactionInput input : transaction.inputs) {
+            TransactionOutputEx parentOutput = _backing.getUnspentOutput(input.outPoint);
+            if (parentOutput != null) {
+               _backing.deleteUnspentOutput(input.outPoint);
+               _backing.putParentTransactionOutput(parentOutput);
+            }
+         }
+
+         // See if any of the outputs are for ourselves and store them as
+         // unspent
+         for (int i = 0; i < transaction.outputs.length; i++) {
+            TransactionOutput output = transaction.outputs[i];
+            if (isMine(output.script)) {
+               _backing.putUnspentOutput(new TransactionOutputEx(new OutPoint(transaction.getHash(), i), -1,
+                     output.value, output.script.getScriptBytes(), false));
+            }
+         }
+
+         // Store transaction locally, so we have it in out history and don't
+         // need to fetch it in a minute
+         _backing.putTransaction(TransactionEx.fromUnconfirmedTransaction(rawTransaction));
+         _backing.setTransactionSuccessful();
+      } finally {
+         _backing.endTransaction();
+      }
+
+      // Tell account that we have a new transaction
+      onNewTransaction(TransactionEx.fromUnconfirmedTransaction(transaction), transaction);
+
+      // Calculate local balance cache. It has changed because we have done
+      // some spending
+      updateLocalBalance();
+      persistContextIfNecessary();
+      return transaction;
+
+   }
+
+   protected abstract void persistContextIfNecessary();
+
+   @Override
+   public NetworkParameters getNetwork() {
+      return _network;
+   }
+
+   protected Collection<TransactionOutputEx> getSpendableOutputs() {
+      Collection<TransactionOutputEx> list = _backing.getAllUnspentOutputs();
+
+      // Prune confirmed outputs for coinbase outputs that are not old enough
+      // for spending. Also prune unconfirmed receiving coins except for change
+      int blockChainHeight = getBlockChainHeight();
+      Iterator<TransactionOutputEx> it = list.iterator();
+      while (it.hasNext()) {
+         TransactionOutputEx output = it.next();
+         if (output.isCoinBase) {
+            int confirmations = blockChainHeight - output.height;
+            if (confirmations < COINBASE_MIN_CONFIRMATIONS) {
+               it.remove();
+               continue;
+            }
+         }
+         if (output.height == -1 && !isFromMe(output.outPoint.hash)) {
+            // Prune receiving coins that is not change sent to ourselves
+            it.remove();
+         }
+      }
+
+      return list;
+   }
+
+   protected abstract Address getChangeAddress();
+
+   protected static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
+      List<UnspentTransactionOutput> outputs = new ArrayList<UnspentTransactionOutput>();
+      for (TransactionOutputEx s : source) {
+         ScriptOutput script = ScriptOutput.fromScriptBytes(s.script);
+         outputs.add(new UnspentTransactionOutput(s.outPoint, s.height, s.value, script));
+      }
+      return outputs;
+   }
+
+   @Override
+   public synchronized long calculateMaxSpendableAmount() {
+      checkNotArchived();
+      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs());
+      long satoshis = 0;
+      for (UnspentTransactionOutput output : spendableOutputs) {
+         satoshis += output.value;
+      }
+      // Iteratively figure out whether we can send everything by subtracting
+      // the miner fee for every iteration
+      while (true) {
+         satoshis -= TransactionUtils.DEFAULT_MINER_FEE;
+         if (satoshis <= 0) {
+            return 0;
+         }
+
+         // Create transaction builder
+         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+
+         // Try and add the output
+         try {
+            // Note, null address used here, we just use it for measuring the
+            // transaction size
+            stb.addOutput(Address.getNullAddress(_network), satoshis);
+         } catch (OutputTooSmallException e1) {
+            // The amount we try to send is lower than what the network allows
+            return 0;
+         }
+
+         // Try to create an unsigned transaction
+         try {
+            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network);
+            // We have enough to pay the fees, return the amount as the maximum
+            return satoshis;
+         } catch (InsufficientFundsException e) {
+            // We cannot send this amount, try again with a little higher fee
+            continue;
+         }
+      }
+   }
+
+   protected abstract InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher)
+         throws InvalidKeyCipher;
+
+   protected abstract PublicKey getPublicKeyForAddress(Address address);
+
+   @Override
+   public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers)
+         throws OutputTooSmallException, InsufficientFundsException {
+      checkNotArchived();
+
+      // Determine the list of spendable outputs
+      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+
+      // Create the unsigned transaction
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+      for (Receiver receiver : receivers) {
+         stb.addOutput(receiver.address, receiver.amount);
+      }
+      Address changeAddress = getChangeAddress();
+      UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
+            _network);
+      return unsigned;
+   }
+
+   @Override
+   public Balance getBalance() {
+      // public method that needs no synchronization
+      checkNotArchived();
+      // We make a copy of the reference for a reason. Otherwise the balance
+      // might change right when we make a copy
+      Balance b = _cachedBalance;
+      return new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
+            b.blockHeight, isSynchronizing());
+   }
+
+   /**
+    * Update the balance by summing up the unspent outputs in local persistence.
+    *
+    * @return true if the balance changed, false otherwise
+    */
+   protected boolean updateLocalBalance() {
+      Balance balance = calculateLocalBalance();
+      if (!balance.equals(_cachedBalance)) {
+         _cachedBalance = balance;
+         postEvent(Event.BALANCE_CHANGED);
+         return true;
+      }
+      return false;
+   }
+
+   protected TransactionSummary transform(TransactionEx tex, int blockChainHeight) {
+      Transaction tx;
+      try {
+         tx = Transaction.fromByteReader(new ByteReader(tex.binary));
+      } catch (TransactionParsingException e) {
+         // Should not happen as we have parsed the transaction earlier
+         _logger.logError("Unable to parse ");
+         return null;
+      }
+      return transform(tx, tex.time, tex.height, blockChainHeight);
+   }
+
+   protected TransactionSummary transform(Transaction tx, int time, int height, int blockChainHeight) {
+      int value = 0;
+      for (TransactionOutput output : tx.outputs) {
+         if (isMine(output.script)) {
+            value += output.value;
+         }
+      }
+
+      for (TransactionInput input : tx.inputs) {
+         // find parent output
+         TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
+         if (funding == null) {
+            _logger.logError("Unable to find parent output for: " + input.outPoint);
+            continue;
+         }
+         if (isMine(funding)) {
+            value -= funding.value;
+         }
+      }
+
+      int confirmations;
+      if (height == -1) {
+         confirmations = 0;
+      } else {
+         confirmations = Math.max(0, blockChainHeight - height + 1);
+      }
+
+      boolean isOutgoing = _backing.isOutgoingTransaction(tx.getHash());
+
+      return new TransactionSummary(tx.getHash(), value, time, height, confirmations, isOutgoing);
+   }
+
+   @Override
+   public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
+      // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+      // accounts. That should be ok as we write to the DB in a sane order.
+
+      // Get all unspent outputs for this account
+      Collection<TransactionOutputEx> outputs = _backing.getAllUnspentOutputs();
+
+      // Transform it to a list of summaries
+      List<TransactionOutputSummary> list = new ArrayList<TransactionOutputSummary>();
+      int blockChainHeight = getBlockChainHeight();
+      for (TransactionOutputEx output : outputs) {
+
+         ScriptOutput script = ScriptOutput.fromScriptBytes(output.script);
+         Address address;
+         if (script == null) {
+            address = Address.getNullAddress(_network);
+            // This never happens as we have parsed this script before
+         } else {
+            address = script.getAddress(_network);
+         }
+         int confirmations;
+         if (output.height == -1) {
+            confirmations = 0;
+         } else {
+            confirmations = Math.max(0, blockChainHeight - output.height + 1);
+         }
+
+         TransactionOutputSummary summary = new TransactionOutputSummary(output.outPoint, output.value, output.height, confirmations, address);
+         list.add(summary);
+      }
+      // Sort & return
+      Collections.sort(list);
+      return list;
+   }
+
+
+   protected boolean monitorYoungTransactions() {
+      Collection<TransactionEx> list = _backing.getYoungTransactions(5, getBlockChainHeight());
+      if (list.isEmpty()) {
+         return true;
+      }
+      List<Sha256Hash> txids = new ArrayList<Sha256Hash>(list.size());
+      for (TransactionEx tex : list) {
+         txids.add(tex.txid);
+      }
+      CheckTransactionsResponse result;
+      try {
+         result = _wapi.checkTransactions(new CheckTransactionsRequest(txids)).getResult();
+      } catch (WapiException e) {
+         postEvent(Event.SERVER_CONNECTION_ERROR);
+         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+         // We failed to check transactions
+         return false;
+      }
+      for (TransactionStatus t : result.transactions) {
+         if (!t.found) {
+            // We have a transaction locally that does not exist in the
+            // blockchain. Must be a residue due to double-spend or malleability
+            _backing.deleteTransaction(t.txid);
+            continue;
+         }
+         TransactionEx tex = _backing.getTransaction(t.txid);
+         Preconditions.checkNotNull(tex);
+         if (tex.height != t.height || tex.time != t.time) {
+            // The transaction got a new height or timestamp. There could be
+            // several reasons for that. It got a new timestamp from the server,
+            // it confirmed, or might also be a reorg.
+            TransactionEx newTex = new TransactionEx(tex.txid, t.height, t.time, tex.binary);
+            System.out.println("Replacing:\n" + tex.toString() + "\nWith:\n" + newTex.toString());
+            postEvent(Event.TRANSACTION_HISTORY_CHANGED);
+            _backing.deleteTransaction(tex.txid);
+            _backing.putTransaction(newTex);
+         }
+      }
+      return true;
+   }
+
+   protected abstract boolean isSynchronizing();
+
+   public class PublicKeyRing implements IPublicKeyRing {
+
+      @Override
+      public PublicKey findPublicKeyByAddress(Address address) {
+         PublicKey publicKey = getPublicKeyForAddress(address);
+         if (publicKey != null) {
+            return publicKey;
+         }
+         throw new RuntimeException("Unable to find public key for address " + address.toString());
+      }
+
+   }
+
+   public class PrivateKeyRing implements IPublicKeyRing, IPrivateKeyRing {
+
+      KeyCipher _cipher;
+
+      public PrivateKeyRing(KeyCipher cipher) {
+         _cipher = cipher;
+      }
+
+      @Override
+      public PublicKey findPublicKeyByAddress(Address address) {
+         PublicKey publicKey = getPublicKeyForAddress(address);
+         if (publicKey != null) {
+            return publicKey;
+         }
+         throw new RuntimeException("Unable to find public key for address " + address.toString());
+      }
+
+      @Override
+      public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
+         Address address = publicKey.toAddress(_network);
+         InMemoryPrivateKey privateKey;
+         try {
+            privateKey = getPrivateKeyForAddress(address, _cipher);
+         } catch (InvalidKeyCipher e) {
+            throw new RuntimeException("Unable to decrypt private key for address " + address.toString());
+         }
+         if (privateKey != null) {
+            return privateKey;
+         }
+         throw new RuntimeException("Unable to find private key for address " + address.toString());
+      }
+
+   }
+
+   @Override
+   public TransactionDetails getTransactionDetails(Sha256Hash txid) {
+      // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+      // accounts. That should be ok as we write to the DB in a sane order.
+
+      TransactionEx tex = _backing.getTransaction(txid);
+      Transaction tx = TransactionEx.toTransaction(tex);
+      if (tx == null) {
+         throw new RuntimeException();
+      }
+
+      // Populate the inputs
+      TransactionDetails.Item[] inputs = new TransactionDetails.Item[tx.inputs.length];
+      for (int i = 0; i < tx.inputs.length; i++) {
+         Sha256Hash parentHash = tx.inputs[i].outPoint.hash;
+         if (parentHash.equals(Sha256Hash.ZERO_HASH)) {
+            // Coinbase, skip
+            continue;
+         }
+         // Get the parent transaction
+         TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(tx.inputs[i].outPoint);
+         if (parentOutput == null) {
+            continue;
+         }
+         ScriptOutput parentScript = ScriptOutput.fromScriptBytes(parentOutput.script);
+         if (parentScript == null) {
+            continue;
+         }
+         Address parentAddress = parentScript.getAddress(_network);
+         inputs[i] = new TransactionDetails.Item(parentAddress, parentOutput.value);
+      }
+
+      // Populate the outputs
+      TransactionDetails.Item[] outputs = new TransactionDetails.Item[tx.outputs.length];
+      for (int i = 0; i < tx.outputs.length; i++) {
+         Address address = tx.outputs[i].script.getAddress(_network);
+         outputs[i] = new TransactionDetails.Item(address, tx.outputs[i].value);
+      }
+
+      return new TransactionDetails(txid, tex.height, tex.time, inputs, outputs);
+   }
+
+}

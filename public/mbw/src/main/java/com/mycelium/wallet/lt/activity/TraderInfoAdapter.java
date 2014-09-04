@@ -91,8 +91,7 @@ public class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> 
          RatingBar ratingBar = (RatingBar) v.findViewById(R.id.rating);
          ratingBar.setRating(o.rating);
       } else {
-         RuntimeException e = new RuntimeException("traderInfo with key " + o.label + " was kinda null");
-         MbwManager.getInstance(_context).reportIgnoredException(e);
+         throw new RuntimeException("Invalid TraderInfoItem: null value or rating");
       }
       // Set label
       ((TextView) v.findViewById(R.id.tvLabel)).setText(o.label);

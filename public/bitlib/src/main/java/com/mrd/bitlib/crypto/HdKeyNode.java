@@ -36,7 +36,7 @@ import com.mrd.bitlib.util.ByteWriter;
  */
 public class HdKeyNode {
 
-   public static class KeyGenerationException extends Exception {
+   public static class KeyGenerationException extends RuntimeException {
       private static final long serialVersionUID = 1L;
 
       public KeyGenerationException(String message) {
@@ -45,6 +45,7 @@ public class HdKeyNode {
    }
 
    private static final String BITCOIN_SEED = "Bitcoin seed";
+   private static final int CHAIN_CODE_SIZE = 32;
 
    private final InMemoryPrivateKey _privateKey;
    private final PublicKey _publicKey;
@@ -52,6 +53,62 @@ public class HdKeyNode {
    private final int _depth;
    private final int _parentFingerprint;
    private final int _index;
+
+   /**
+    * Convert to custom fast parsable byte format. XXX This is very much
+    * experimental
+    */
+   public void toCustomByteFormat(ByteWriter writer) {
+      if (isPrivateHdKeyNode()) {
+         writer.put((byte) 1);
+         Preconditions.checkArgument(_privateKey.getPrivateKeyBytes().length == 32);
+         writer.putBytes(_privateKey.getPrivateKeyBytes());
+      } else {
+         writer.put((byte) 0);
+      }
+      Preconditions.checkArgument(_publicKey.getPublicKeyBytes().length == 33);
+      writer.putBytes(_publicKey.getPublicKeyBytes());
+      writer.putBytes(_chainCode);
+      writer.putIntLE(_depth);
+      writer.putIntLE(_parentFingerprint);
+      writer.putIntLE(_index);
+   }
+
+   /**
+    * Convert to custom fast parsable byte format. XXX This is very much
+    * experimental
+    */
+   public byte[] toCustomByteFormat() {
+      ByteWriter writer = new ByteWriter(1024);
+      toCustomByteFormat(writer);
+      return writer.toBytes();
+   }
+
+   /**
+    * Create from custom fast parsable byte format. XXX This is very much
+    * experimental
+    */
+   public static HdKeyNode fromCustomByteformat(byte[] bytes) throws InsufficientBytesException {
+      return fromCustomByteformat(new ByteReader(bytes));
+   }
+
+   /**
+    * Create from custom fast parsable byte format. XXX This is very much
+    * experimental
+    */
+   public static HdKeyNode fromCustomByteformat(ByteReader reader) throws InsufficientBytesException {
+      boolean hasPrivateKey = reader.get() == 1;
+      if (hasPrivateKey) {
+         // Private key node
+         InMemoryPrivateKey privateKey = new InMemoryPrivateKey(reader.getBytes(32), reader.getBytes(33));
+         return new HdKeyNode(privateKey, reader.getBytes(CHAIN_CODE_SIZE), reader.getIntLE(), reader.getIntLE(),
+               reader.getIntLE());
+      } else {
+         // Public key node
+         return new HdKeyNode(new PublicKey(reader.getBytes(33)), reader.getBytes(CHAIN_CODE_SIZE), reader.getIntLE(),
+               reader.getIntLE(), reader.getIntLE());
+      }
+   }
 
    HdKeyNode(InMemoryPrivateKey privateKey, byte[] chainCode, int depth, int parentFingerprint, int index) {
       _privateKey = privateKey;
@@ -99,7 +156,7 @@ public class HdKeyNode {
       InMemoryPrivateKey privateKey = new InMemoryPrivateKey(IL, true);
 
       // Construct chain code
-      byte[] IR = BitUtils.copyOfRange(I, 32, 64);
+      byte[] IR = BitUtils.copyOfRange(I, 32, 32 + CHAIN_CODE_SIZE);
       return new HdKeyNode(privateKey, IR, 0, 0, 0);
    }
 
@@ -346,7 +403,7 @@ public class HdKeyNode {
          int depth = ((int) reader.get()) & 0xFF;
          int fingerprint = reader.getIntBE();
          int index = reader.getIntBE();
-         byte[] chainCode = reader.getBytes(32);
+         byte[] chainCode = reader.getBytes(CHAIN_CODE_SIZE);
          if (isPrivate) {
             if (reader.get() != (byte) 0x00) {
                throw new KeyGenerationException("Invalid private key");

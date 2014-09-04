@@ -34,12 +34,15 @@
 
 package com.mycelium.wallet.pdf;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ExportPdfParameters implements Serializable {
@@ -47,19 +50,28 @@ public class ExportPdfParameters implements Serializable {
 
    public final long time;
    public final String exportFormatString;
+   public final Optional<ExportDistiller.ExportEntry> masterSeed;
    private final List<ExportDistiller.ExportEntry> active;
    private final List<ExportDistiller.ExportEntry> archived;
+   private final List<ExportDistiller.ExportEntry> allEntries;
 
-   public ExportPdfParameters(long time, String exportFormatString, List<ExportDistiller.ExportEntry> active,
-                              List<ExportDistiller.ExportEntry> archived) {
+   public ExportPdfParameters(long time, String exportFormatString, Optional<ExportDistiller.ExportEntry> masterSeed,
+                              List<ExportDistiller.ExportEntry> active, List<ExportDistiller.ExportEntry> archived) {
       this.time = time;
       this.exportFormatString = exportFormatString;
+      this.masterSeed = masterSeed;
       this.active = active;
       this.archived = archived;
+      allEntries = new LinkedList<ExportDistiller.ExportEntry>();
+      if (masterSeed.isPresent()) {
+         allEntries.add(masterSeed.get());
+      }
+      allEntries.addAll(active);
+      allEntries.addAll(archived);
    }
 
-   public Iterable<ExportDistiller.ExportEntry> getAllEntries() {
-      return Iterables.concat(active, archived);
+   public List<ExportDistiller.ExportEntry> getAllEntries() {
+      return Collections.unmodifiableList(allEntries);
    }
 
    public int getNumActive() {
@@ -70,22 +82,12 @@ public class ExportPdfParameters implements Serializable {
       return archived.size();
    }
 
-   public List<ExportDistiller.ExportEntry> activeWithoutFirst() {
-      if (active.size() <= 1) return ImmutableList.of();
-      return active.subList(1, active.size());
+   public List<ExportDistiller.ExportEntry> getActive() {
+      return Collections.unmodifiableList(active);
    }
 
-   public List<ExportDistiller.ExportEntry> archiveWithoutFirst() {
-      if (active.isEmpty()) {
-         return archived.subList(1, archived.size());
-      } else {
-         return archived;
-      }
-   }
-
-   public ExportDistiller.ExportEntry firstEntry() {
-      if (active.isEmpty()) return archived.get(0);
-      return active.get(0);
+   public List<ExportDistiller.ExportEntry> getArchived() {
+      return Collections.unmodifiableList(archived);
    }
 
    public int entriesWithEncryptedKeys() {

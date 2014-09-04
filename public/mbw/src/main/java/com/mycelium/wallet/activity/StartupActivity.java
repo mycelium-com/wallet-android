@@ -56,13 +56,11 @@ import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.WalletMode;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class StartupActivity extends Activity {
 
@@ -229,14 +227,10 @@ public class StartupActivity extends Activity {
       Address receivingAddress = Preconditions.checkNotNull(b.get().address);
       Long amountToSend = b.get().amount;
 
-      RecordManager recordManager = mbwManager.getRecordManager();
-      if (mbwManager.getWalletMode() == WalletMode.Segregated) {
-         // If we are in segregated mode let the user choose which record to
-         // use
-         GetSpendingRecordActivity.callMeWithResult(this, amountToSend, receivingAddress, REQUEST_FROM_URI);
+      if (mbwManager.getWalletManager(false).getActiveAccounts().size() == 1) {
+         SendInitializationActivity.callMeWithResult(this, mbwManager.getSelectedAccount().getId(), amountToSend, receivingAddress, false, REQUEST_FROM_URI);
       } else {
-         Wallet wallet = recordManager.getWallet(mbwManager.getWalletMode());
-         SendInitializationActivity.callMeWithResult(this, wallet, amountToSend, receivingAddress, false, REQUEST_FROM_URI);
+         GetSpendingRecordActivity.callMeWithResult(this, amountToSend, receivingAddress, REQUEST_FROM_URI);
       }
       //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
    }
@@ -248,12 +242,14 @@ public class StartupActivity extends Activity {
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      //double-check result data, in case some downstream code messes up.
-      if (requestCode != REQUEST_FROM_URI){
+      // double-check result data, in case some downstream code messes up.
+      if (requestCode != REQUEST_FROM_URI) {
          setResult(RESULT_CANCELED);
-      }else if (resultCode == RESULT_OK) {
+      } else if (resultCode == RESULT_OK) {
          Bundle extras = Preconditions.checkNotNull(data.getExtras());
-         Preconditions.checkState(extras.keySet().size() == 1); //check no additional data
+         Preconditions.checkState(extras.keySet().size() == 1); // check no
+                                                                // additional
+                                                                // data
          Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
          setResult(RESULT_OK, data);
       } else {

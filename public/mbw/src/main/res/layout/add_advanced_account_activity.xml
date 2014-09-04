@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/add_single_account_title"
+            android:textSize="24sp" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="10dp" >
+        </View>
+
+
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" >
+        </View>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/scan_desc" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="5dp" >
+        </View>
+
+        <Button
+            android:id="@+id/btScan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:text="@string/scan" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" >
+        </View>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/clipboard_desc" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="5dp" >
+        </View>
+
+        <Button
+            android:id="@+id/btClipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:text="@string/clipboard" />
+
+
+        <!-- UI elements for importing keys from backup created by Schildbach "Bitcoin Wallet": -->
+        <LinearLayout
+            android:id="@+id/llAndroidWalletBackup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" >
+            </View>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/import_from_android_wallet_backup_desc" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="5dp" >
+            </View>
+
+            <Button
+                android:id="@+id/btAndroidWalletBackup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/android_wallet_backup" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="5dp" >
+            </View>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

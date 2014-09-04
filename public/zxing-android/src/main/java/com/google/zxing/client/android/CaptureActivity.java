@@ -24,7 +24,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.*;
-import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -90,6 +90,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
       Window window = getWindow();
       window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      if (android.os.Build.VERSION.SDK_INT != android.os.Build.VERSION_CODES.GINGERBREAD
+            && android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.GINGERBREAD_MR1) {
+         window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+      }
       setContentView(R.layout.capture);
 
       hasSurface = false;
@@ -98,19 +102,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       ambientLightManager = new AmbientLightManager(this);
 
       Intent intent = getIntent();
-
       if (intent != null) {
          enableContinuousFocus = intent.getBooleanExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, false);
       } else {
          enableContinuousFocus = true;
       }
 
-
       showTorchState(false);
       showFocusState(enableContinuousFocus);
 
       PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-
    }
 
    @SuppressWarnings("deprecation")

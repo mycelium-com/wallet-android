@@ -23,12 +23,6 @@
         android:summary="@string/pref_bitcoin_denomination_summary"
         android:title="@string/pref_bitcoin_denomination" />
 
-    <CheckBoxPreference
-        android:key="continuousFocus"
-        android:layout="@layout/preference_layout"
-        android:summary="@string/pref_continuous_focus_summary"
-        android:title="@string/pref_continuous_focus" />
-
     <!-- PIN Settings -->
 
     <PreferenceCategory android:title="@string/pref_category_pin" >
@@ -79,16 +73,6 @@
     <PreferenceCategory
         android:key="advancedSettings"
         android:title="@string/pref_advanced_settings" >
-        <CheckBoxPreference
-            android:key="expertMode"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_expert_mode_summary"
-            android:title="@string/pref_expert_mode" />
-        <CheckBoxPreference
-            android:key="aggregatedView"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_aggregated_view_summary"
-            android:title="@string/pref_aggregated_view" />
 
         <EditTextPreference
             android:inputType="text"
@@ -97,5 +81,11 @@
             android:summary="@string/pref_socks_proxy_summary"
             android:title="@string/pref_socks_proxy" />
     </PreferenceCategory>
+
+    <Preference
+            android:key="master_key_debug"
+            android:layout="@layout/preference_layout"
+            android:summary="Print out your master seed in plaintext. This obviously goes away"
+            android:title="Debug Master Seed" />
 
 </PreferenceScreen>

@@ -16,27 +16,23 @@
 
 package com.mrd.bitlib;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-
-import com.mrd.bitlib.crypto.BitcoinSigner;
-import com.mrd.bitlib.crypto.PrivateKeyRing;
-import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.crypto.PublicKeyRing;
-import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 public class StandardTransactionBuilder {
 
@@ -94,7 +90,7 @@ public class StandardTransactionBuilder {
       private NetworkParameters _network;
 
       private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-                                  PublicKeyRing keyRing, NetworkParameters network) {
+                                  IPublicKeyRing keyRing, NetworkParameters network) {
          _network = network;
          _outputs = outputs.toArray(new TransactionOutput[]{});
          _funding = funding.toArray(new UnspentTransactionOutput[]{});
@@ -210,12 +206,12 @@ public class StandardTransactionBuilder {
       if (value < TransactionUtils.MINIMUM_OUTPUT_VALUE) {
          throw new OutputTooSmallException(value);
       }
-      _outputs.add(createOutput(sendTo, value));
+      _outputs.add(createOutput(sendTo, value, _network));
    }
 
-   private TransactionOutput createOutput(Address sendTo, long value) {
+   private static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
       ScriptOutput script;
-      if (sendTo.isMultisig(_network)) {
+      if (sendTo.isMultisig(network)) {
          script = new ScriptOutputMultisig(sendTo.getTypeSpecificBytes());
       } else {
          script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
@@ -224,7 +220,7 @@ public class StandardTransactionBuilder {
       return output;
    }
 
-   public static List<byte[]> generateSignatures(SigningRequest[] requests, PrivateKeyRing keyRing,
+   public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing,
                                                  RandomSource randomSource) {
       List<byte[]> signatures = new LinkedList<byte[]>();
       for (SigningRequest request : requests) {
@@ -241,66 +237,33 @@ public class StandardTransactionBuilder {
    }
 
    /**
-    * Create an unsigned transaction without specifying a fee. The fee is
-    * automatically calculated to pass minimum relay and mining requirements.
-    *
-    * @param unspent       The list of unspent transaction outputs that can be used as
-    *                      funding
-    * @param changeAddress The address to send any change to. If null the change address
-    *                      will be set to the address of one of the spent outputs.
-    * @param keyRing       The public key ring matching the unspent outputs
-    * @param network       The network we are working on
-    * @return An unsigned transaction or null if not enough funds were available
-    * @throws InsufficientFundsException
-    */
-   public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> unspent, Address changeAddress,
-                                                        PublicKeyRing keyRing, NetworkParameters network) throws InsufficientFundsException {
-      long fee = TransactionUtils.DEFAULT_MINER_FEE;
-      while (true) {
-         UnsignedTransaction unsigned;
-         try {
-            unsigned = createUnsignedTransaction(unspent, changeAddress, fee, keyRing, network);
-         } catch (InsufficientFundsException e) {
-            // We did not even have enough funds to pay the minimum fee
-            throw e;
-         }
-         int txSize = estimateTransacrionSize(unsigned);
-         // fee is based on the size of the transaction, we have to pay for
-         // every 1000 bytes
-         long requiredFee = (1 + (txSize / 1000)) * TransactionUtils.DEFAULT_MINER_FEE;
-         if (fee >= requiredFee) {
-            return unsigned;
-         }
-         // collect coins anew with an increased fee
-         fee += TransactionUtils.DEFAULT_MINER_FEE;
-      }
-   }
-
-   /**
-    * Create an unsigned transaction with a specific miner fee. Note that
-    * specifying a miner fee that is too low may result in hanging transactions
-    * that never confirm.
+    * Create an unsigned transaction and automatically calculate the miner fee.
+    * <p/>
+    * If null is specified as the change address the 'richest' address that is part of the funding is selected as the
+    * change address. This way the change always goes to the address contributing most, and the change wil lbe less
+    * than the contribution.
     *
     * @param inventory     The list of unspent transaction outputs that can be used as
     *                      funding
-    * @param changeAddress The address to send any change to
-    * @param fee           The miner fee to pay. Specifying zero may result in hanging
-    *                      transactions.
+    * @param changeAddress The address to send any change to, can be null
     * @param keyRing       The public key ring matching the unspent outputs
     * @param network       The network we are working on
     * @return An unsigned transaction or null if not enough funds were available
     * @throws InsufficientFundsException
     */
-   public UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> inventory,
-                                                        Address changeAddress, long fee, PublicKeyRing keyRing, NetworkParameters network)
+   public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
+                                                        Address changeAddress, IPublicKeyRing keyRing,
+                                                        NetworkParameters network)
          throws InsufficientFundsException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
+
+      // Find the funding for this transaction
       List<UnspentTransactionOutput> funding = new LinkedList<UnspentTransactionOutput>();
+      long fee = TransactionUtils.DEFAULT_MINER_FEE;
       long outputSum = outputSum();
-      long toSend = fee + outputSum;
       long found = 0;
-      while (found < toSend) {
+      while (found < fee + outputSum) {
          UnspentTransactionOutput output = extractOldest(unspent);
          if (output == null) {
             // We do not have enough funds
@@ -308,7 +271,15 @@ public class StandardTransactionBuilder {
          }
          found += output.value;
          funding.add(output);
+         // When we estimate the fee we automatically add an extra output for an eventual change output.
+         // This slightly increases the change for paying a little extra, but adding change is the norm
+         fee = estimateFee(funding.size(), _outputs.size() + 1);
       }
+
+      // We have fund all the funds we need
+      long toSend = fee + outputSum;
+
+
       if (changeAddress == null) {
          // If no change address s specified, get the richest address from the
          // funding set
@@ -326,7 +297,11 @@ public class StandardTransactionBuilder {
          if (change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
             // But only if the change is larger than the minimum output accepted
             // by the network
-            outputs.add(createOutput(changeAddress, change));
+            TransactionOutput changeOutput = createOutput(changeAddress, change, _network);
+            // Select a random position for our change so it is harder to analyze our addresses in the block chain.
+            // It is OK to use the weak java Random class for this purpose.
+            int position = new Random().nextInt(outputs.size() + 1);
+            outputs.add(position, changeOutput);
          } else {
             // The change output would be smaller than what the network would
             // accept. In this case we leave it be as a small increased miner
@@ -430,29 +405,29 @@ public class StandardTransactionBuilder {
    }
 
    /**
-    * Estimate transaction size by clearing all input scripts and adding 140
-    * bytes for each input. (The type of scripts we generate are 138-140 bytes
-    * long). This allows us to give a good estimate of the final transaction
-    * size, and determine whether out fee size is large enough.
+    * Estimate the size of a transaction by taking the number of inputs and outputs into account. This allows us to
+    * give a good estimate of the final transaction size, and determine whether out fee size is large enough.
     *
-    * @param unsigned The unsigned transaction to estimate the size of
+    * @param inputs  the number of inputs of the transaction
+    * @param outputs the number of outputs of a transaction
     * @return The estimated transaction size
     */
-   private static int estimateTransacrionSize(UnsignedTransaction unsigned) {
-      // Create fake empty inputs
-      TransactionInput[] inputs = new TransactionInput[unsigned._funding.length];
-      for (int i = 0; i < inputs.length; i++) {
-         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, ScriptInput.EMPTY);
-      }
-
-      // Create fake transaction
-      Transaction t = new Transaction(1, inputs, unsigned._outputs, 0);
-      int txSize = t.toBytes().length;
-
-      // Add maximum size for each input
-      txSize += 140 * t.inputs.length;
-
-      return txSize;
+   private static int estimateTransactionSize(int inputs, int outputs) {
+      int estimate = 0;
+      estimate += 4; // Version info
+      estimate += CompactInt.toBytes(inputs).length; // num input encoding
+      estimate += (32 + 4 + 140 + 1 + 4) * inputs; // 140 is upper limit on input length
+      estimate += CompactInt.toBytes(outputs).length; // num output encoding
+      estimate += (8 + 25 + 1) * outputs; // 25 exact output length
+      estimate += 4; // nLockTime
+      return estimate;
    }
 
+   private static long estimateFee(int inputs, int outputs) {
+      int txSize = estimateTransactionSize(inputs, outputs);
+      // fee is based on the size of the transaction, we have to pay for
+      // every 1000 bytes
+      long requiredFee = (1 + (txSize / 1000)) * TransactionUtils.DEFAULT_MINER_FEE;
+      return requiredFee;
+   }
 }

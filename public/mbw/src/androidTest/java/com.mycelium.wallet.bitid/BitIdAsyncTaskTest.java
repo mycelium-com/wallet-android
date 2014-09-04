@@ -2,6 +2,7 @@ package com.mycelium.wallet.bitid;
 
 import android.net.Uri;
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.squareup.otto.Subscribe;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.Record;
@@ -18,7 +19,7 @@ import junit.framework.TestCase;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class BitIdAsyncTaskTest  extends TestCase {
+public class BitIdAsyncTaskTest extends TestCase {
    private CountDownLatch signal;
    private BitIDResponse response;
    private Bus bus;
@@ -33,10 +34,10 @@ public class BitIdAsyncTaskTest  extends TestCase {
    }
 
    public void testBitcoinblueExpiredNonce() throws Exception {
-      Record record = Record.recordFromBase58Key("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
-      record.address = Address.fromString("1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj");
+      InMemoryPrivateKey privateKey = new InMemoryPrivateKey("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
+      Address address = Address.fromString("1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj");
       BitIDSignRequest bitid = BitIDSignRequest.parse(Uri.parse("bitid://bitid.bitcoin.blue/callback?x=e7befd6d54c306ef&u=1")).get();
-      new BitIdAsyncTask(bitid, true, record, bus).execute();
+      new BitIdAsyncTask(bitid, true, privateKey, address, bus).execute();
 
       assertTrue(signal.await(20, TimeUnit.SECONDS));
       assertNotNull(response);
@@ -45,10 +46,10 @@ public class BitIdAsyncTaskTest  extends TestCase {
    }
 
    public void testBitcoinblueInvalidSignature() throws Exception {
-      Record record = Record.recordFromBase58Key("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
-      record.address = Address.fromString("17Dwg2Xx4RVaQgg8crbkvrT8WxNSQYuqLz"); //does not match the priv key
+      InMemoryPrivateKey privateKey = new InMemoryPrivateKey("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
+      Address address = Address.fromString("17Dwg2Xx4RVaQgg8crbkvrT8WxNSQYuqLz"); //does not match the priv key
       BitIDSignRequest bitid = BitIDSignRequest.parse(Uri.parse("bitid://bitid.bitcoin.blue/callback?x=e7befd6d54c306ef&u=1")).get();
-      new BitIdAsyncTask(bitid, true, record, bus).execute();
+      new BitIdAsyncTask(bitid, true, privateKey, address, bus).execute();
 
       assertTrue(signal.await(20, TimeUnit.SECONDS));
       assertNotNull(response);

@@ -4,12 +4,24 @@
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
     <string name="add_record_title">Add Address or Private Key</string>
+    <string name="add_account_title">Add New Account</string>
+    <string name="add_single_account_title">Add Single Address Account</string>
+    <string name="import_seed_title">Import Master Seed</string>
+    <string name="import_words_title">Enter Word List</string>
     <string name="add_record_desc">You are about to add a Bitcoin address or private key to your wallet.\n\n&#8226; If you add a Bitcoin address you will be able to monitor its balance, but not spend from it.\n\n&#8226; If you add a private key you will get a Bitcoin address that you can spend from.</string>
+    <string name="add_account_desc">Mycelium supports HD Accounts and Single Address Accounts. All HD Accounts are created based on the same Master Seed. The first time you create one, your Master Seed will get configured.</string>
+    <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
     <string name="scan_desc">Scan Bitcoin address or private key.</string>
+    <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
+    <string name="use_acc_first">You can only have one unused HD Account.</string>
     <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
+    <string name="wordlist_des">Create Master Seed from Word List</string>
     <string name="random_desc">Create a new random private key.</string>
+    <string name="add_hd_key_desc">Create a new HD account.</string>
     <string name="scan">Scan</string>
+    <string name="advanced">Avanced</string>
     <string name="clipboard">Clipboard</string>
+    <string name="enter_wordlist">Enter Word List</string>
     <string name="import_from_android_wallet_backup_desc">Import Private Key from the \"Bitcoin Wallet\" client by Andreas Schildbach.</string>
     <string name="android_wallet_backup">Bitcoin Wallet Backup</string>
     <string name="pick_android_wallet_backup">Pick a backup file</string>
@@ -19,6 +31,7 @@
     <string name="import_android_wallet_backup_io_error">Could not read the Bitcoin Wallet backup file.</string>
     <string name="import_android_wallet_backup_decryption_error">Could not decrypt the Bitcoin Wallet backup file. Is the password correct?</string>
     <string name="random">Random</string>
+    <string name="hd_account">Add HD Account</string>
     <string name="close">Close</string>
     <string name="btc_value_string">%1$s %2$s</string>
     <string name="sending">Sending %1$s</string>
@@ -33,7 +46,7 @@
     <string name="send">Send</string>
     <string name="receive">Receive</string>
     <string name="private_key_deleted">Private key deleted.</string>
-    <string name="bitcoin_address_deleted">Bitcoin address deleted</string>
+    <string name="account_deleted">Account deleted</string>
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
     <string name="shuffle">Shuffle</string>
     <string name="use">Use</string>
@@ -93,6 +106,7 @@
     <string name="cancel">Cancel</string>
     <string name="edit_address_label_title">Edit Address Label</string>
     <string name="enter_address_label_title">Enter Address Label</string>
+    <string name="enter_transaction_label_title">Enter Transaction Label</string>
     <string name="set_label">Set Label</string>
     <string name="edit_label">Edit Label</string>
     <string name="show_details">Show Details</string>
@@ -122,11 +136,7 @@
     <string name="pref_bitcoin_denomination">Bitcoin Denomination</string>
     <string name="pref_bitcoin_denomination_with_denomination">Denomination (%1$s)</string>
     <string name="pref_bitcoin_denomination_summary">Set preferred Bitcoin denomination. BTC, mBTC, or μBTC</string>
-    <string name="pref_expert_mode">Expert Mode</string>
-    <string name="pref_expert_mode_summary">Enabling expert mode opens up additional features including advanced key management and multiple wallets</string>
     <string name="pref_advanced_settings">Advanced Settings</string>
-    <string name="pref_continuous_focus">Continuous Autofocus</string>
-    <string name="pref_continuous_focus_summary">Continuously attempt to autofocus when scanning QR codes</string>
     <string name="pref_socks_proxy">Socks Proxy</string>
     <string name="pref_socks_proxy_enabled">Socks Proxy (Enabled)</string>
     <string name="pref_socks_proxy_not_enabled">Socks Proxy (Not enabled)</string>
@@ -146,11 +156,9 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="payment_request">Payment Request</string>
-    <string name="show_to_sender">Show to Sender</string>
     <string name="bitcoin_address_label">Bitcoin Address:</string>
     <string name="export_single_private_key_warning">You are about to export the private key that controls all the Bitcoins of the selected address.\n\nAnyone who gains access to this key can take possession of the Bitcoins it controls.\n\nDo you want to continue?</string>
-    <string name="backup_single_private_key_warning">You are about to back up the private key that controls all the Bitcoins of your Mycelium Bitcoin Wallet.\n\nAnyone who gains access to this key can take possession of your Bitcoins.\n\nDo you want to continue?</string>
-    <string name="backup_all_warning">You are about to back up the private keys that control all the Bitcoins of your Mycelium Bitcoin Wallet.\n\nAnyone who gains access to those keys can take possession of your Bitcoins.\n\nDo you want to continue?</string>
+    <string name="backup_all_warning">You are about to back up sensitive data that control all the Bitcoins of your Mycelium Bitcoin Wallet.\n\nAnyone who gains access to this data can take possession of your Bitcoins.\n\nDo you want to continue?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
@@ -169,7 +177,7 @@
     <string name="cold_storage_title">Cold Storage Spending</string>
     <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Several formats are supported.\n\nOnce the transaction has been sent every trace of the private key will be erased from memory.</string>
     <string name="go_back">Back</string>
-    <string name="keep_address">Keep as read-only by preserving the Bitcoin address</string>
+    <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active_name">Active</string>
@@ -178,9 +186,14 @@
     <string name="archive_name_empty">Archived (Empty)</string>
     <string name="activate_action">Activate</string>
     <string name="archive_action">Archive</string>
-    <string name="question_archive">Archived keys do not add to your balance, but you can always select them and monitor them as single keys in the balance view.\r\n\r\nArchived keys can be activated again.\r\n\r\nDo you want to archive this key?</string>
+    <string name="question_archive_account">Archived accounts are not monitored, you can not see the balance and receiving address and not work with the account at all.\r\n\r\nArchived accounts can be activated again.\r\n\r\nDo you want to archive this account?</string>
+    <string name="master_seed_configuration_title">Configuring Master Seed</string>
+    <string name="master_seed_configuration_description">Before adding your first HD account you need to configure a master seed.\nDo you want to create a new master seed or import a backup?</string>
+    <string name="master_seed_create_new_button">Create New</string>
+    <string name="master_seed_import_backup_button">Import Backup</string>
     <string name="archived">Archived</string>
     <string name="activated">Activated</string>
+    <string name="keep_one_active">You need to keep at least one active account.</string>
     <string name="please_wait">Please wait &#8230;</string>
     <string name="managing_archive_key">You are managing a single archived key.</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
@@ -188,21 +201,18 @@
     <string name="paste">Paste</string>
     <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there&#8230;</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
     <string name="key_management">Key Management</string>
-    <string name="redirecting_to_blockchain_info">Redirecting to blockchain.info</string>
+    <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>
     <string name="tap_to_refresh">Tap to refresh</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
-    <string name="my_addresses">My Addresses</string>
+    <string name="my_accounts">My Accounts</string>
     <string name="foreign_addresses">Other Addresses</string>
-    <string name="delete_private_key_title">Delete Private Key?</string>
-    <string name="delete_address_title">Delete Bitcoin Address?</string>
-    <string name="delete_private_key_message">Do you want to delete this private key?</string>
-    <string name="delete_address_message">Do you want to delete this address?</string>
+    <string name="delete_account_title">Delete Account?</string>
+    <string name="delete_account_message">Do you want to delete this account?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
     <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nPrivate key address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
     <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\nPrivate key label:\n%1$s\n\nPrivate key address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
@@ -210,22 +220,23 @@
     <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nPrivate key label:\n%1$s\n\nPrivate key address:\n%2$s\n\nDo you want to delete it?</string>
     <string name="verify_private_key_backup">Verify Backup</string>
     <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
-    <string name="verify_backup_desc">Proper private key backup is a cornerstone when managing your Bitcoin funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
-    <string name="verify_backup_scan_desc">Verify private key backup by scanning the private key QR code.\nSeveral formats are accepted, including the Mycelium encrypted paper backup.</string>
+    <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
+    <string name="verify_backup_scan_desc">Verify your backup by scanning the private key or master seed QR code.\nSeveral formats are accepted, including the Mycelium encrypted paper backup.</string>
     <string name="verify_backup_clipboard_desc">Verify private key backup by taking the private key from the clipboard.</string>
     <string name="verify_backup_num_keys">You have %1$s keys that have never been verified.</string>
     <string name="verify_backup_one_key">You have 1 key that has never been verified.</string>
+    <string name="verify_backup_master_seed">Your master seed has not been verified.</string>
     <string name="verify_backup_no_such_record">The private key does not match any of your Bitcoin addresses.</string>
     <string name="verify_backup_ok">Private key backup successfully verified for the following address:\n\n%1$s</string>
+    <string name="verify_seed_ok">Master seed backup successfully verified.</string>
+    <string name="wrong_seed">The scanned seed does not match your master seed.</string>
     <string name="verify_backup_ignored">Backup ignored for this private key.</string>
     <string name="backup_not_verified">Backup not verified</string>
     <string name="verify_backup_title">Backup and Verify</string>
-    <string name="verify_backup_message_text_1">Proper private key backup is a cornerstone when managing your Bitcoin funds.\nYou have one or more Bitcoin private keys where the backup has not been verified.\n\nPlease select the Backup option to back up your keys.</string>
+    <string name="verify_backup_message_text_1">Having a proper backup is a cornerstone when managing your Bitcoin funds.\nYou have one or more Bitcoin private keys or a master seed where the backup has not been verified.\n\nPlease select the Backup option to make a back up.</string>
     <string name="verify_backup_message_text_2">Then select the Verify Backup option and verify your backup.</string>
-    <string name="verify_backup_message_non_expert">It seems that you have not backed up your private key.\n\nPlease select the Backup option to back up your private key.\n\nThen click the Verify Backup option and verify your backup.</string>
-    <string name="verify_backup_message_expert">It seems that you have one or more Bitcoin private keys that have not been backed up.\n\nPlease select the Backup option to back up your keys.\n\nThen click the Verify Backup option and verify your backup.</string>
     <string name="encrypted_pdf_backup_title">Encrypted PDF Backup</string>
-    <string name="encrypted_pdf_backup_description">You are about to back up your encrypted private keys to a PDF document.\nThe PDF document can safely be shared using email or with file-sharing apps you have installed, such as Dropbox. This is because your keys are encrypted.</string>
+    <string name="encrypted_pdf_backup_description">You are about to back up your encrypted private keys and master seed to a PDF document.\nThe PDF document can safely be shared using email or with file-sharing apps you have installed, such as Dropbox. This is because your keys are encrypted.</string>
     <string name="encrypted_pdf_backup_password_description_1">This is the random password with checksum used for encrypting this backup.</string>
     <string name="encrypted_pdf_backup_password_description_2">This is your only opportunity for viewing the password for this backup.\nYour next backup will use a different password.\nWrite it down and keep it safe!</string>
     <string name="encrypted_pdf_backup_stretching">Preparing encryption key&#8230;</string>
@@ -249,12 +260,12 @@
     <string name="optional_amount">Optional Amount</string>
     <string name="show_qr_code_menu">Show QR Code</string>
     <string name="tab_keys">Keys</string>
+    <string name="tab_accounts">Accounts</string>
     <string name="tab_balance">Balance</string>
     <string name="tab_transactions">Transactions</string>
     <string name="tab_trade">Trade</string>
     <string name="tab_addresses">Address Book</string>
     <string name="active_key_limit_reached">The maximum number of active addresses is 10 and you have reached the limit.\n\nYou can have as many archived addresses as you like, and you can always activate an archived address.\n\nTo add another address please archive one of your existing addresses.</string>
-    <string name="key_management_disabled_desc">This page gives access to advanced Bitcoin key management features for experts in Bitcoin.\n\nYou can enable Expert Mode in Settings.</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="background_image">background image</string>
     <string name="going_to_mycelium_com_help">Going to www.mycelium.com</string>
@@ -304,7 +315,7 @@
     <string name="lt_trade_button">Trade</string>
     <string name="lt_localization_not_available">This feature requires your device to be able to tell its current location. It seems that your device cannot do that. Try enabling location services in your device settings.</string>
     <string name="lt_create_account_title">Creating Trader Account</string>
-    <string name="lt_create_account_address_desc">You are using Local Trader for the first time and need to enter a few details.\n\nChoose the Bitcoin address you wish to link to your trader account:</string>
+    <string name="lt_create_account_address_desc">You are using Local Trader for the first time and need to enter a few details.\n\nChoose the account you wish to use for your Local Trader identity:</string>
     <string name="lt_use_button">Use</string>
     <string name="lt_create_account_name_desc">Enter your trader nick name:</string>
     <string name="lt_create_account_name_hint">name</string>
@@ -395,7 +406,7 @@
     <string name="lt_abort_trade_button">Abort Trade</string>
     <string name="lt_btc_price">%1$s %2$s/BTC</string>
     <string name="lt_chat_message_hint">Type a message here</string>
-    <string name="lt_cannot_affort_trade">Your wallet does not have enough funds.\nTo complete this deal you have to add more funds to your wallet.</string>
+    <string name="lt_cannot_affort_trade">Your currently selected account does not have enough funds.\nTo complete this deal you have to add more funds to your account.</string>
     <string name="lt_confirm_delete_sell_order_title">Delete Sell Order?</string>
     <string name="lt_confirm_delete_sell_order_message">Do you want to delete this sell order?</string>
     <string name="lt_transaction_confidence">transaction confidence %1$s%%</string>
@@ -479,10 +490,12 @@
     <string name="lt_check_your_mail">Check your email and click the verification link</string>
 
     <!--  LT end -->
+    <!--  LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
-    <string name="archiving_key_title">Archiving Key</string>
+    <string name="contains_keys">Contains %1$s private keys.</string>
+    <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
     <string name="version_check_failed">Unable to receive Version information</string>
@@ -493,6 +506,7 @@
     <string name="mycelium_com">mycelium.com</string>
     <string name="google_play">Google Play</string>
     <string name="sign_message">Sign Message</string>
+    <string name="cant_sign_message">You cannot sign a message with an HD account</string>
     <string name="enter_message_hint">Please enter the message that you want to sign here</string>
     <string name="copy_signature">Copy Signature to Clipboard</string>
     <string name="share_signature">Share Text + Signature</string>
@@ -529,9 +543,35 @@
 
 
     <!-- BitID end -->
+
+    <string name="selected_archived_warning">You cannot work on archived accounts.</string>
+    <string name="selected_hd_info">You are now working on this HD Account.</string>
+    <string name="selected_single_info">You are now working on this single address.</string>
+    <string name="not_broadcasted">Not broadcasted</string>
+    <string name="hd_creation_started">Creating new HD Account…</string>
+    <string name="configure_seed_started">Configuring Master Seed…</string>
+    <string name="import_words_started">Calculating Master Seed…</string>
+    <string name="enter_next_word">enter word number %1$s of %2$s</string>
+    <string name="delete_last_word">Delete Last Word</string>
+    <string name="account">Account</string>
+    <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
+    <string name="show_outputs">Show Unspent Outputs</string>
+    <string name="unspent_outputs">Unspent Outputs</string>
+    <string name="no_unspent_uotputs_description">This page shows on which addresses the funds in the selected account are located. There are currently no funds to display.</string>
+    <string name="warning_words_import">Warning: Do not put your words into the clipboard, other apps could read them and obtain your money.</string>
+    <string name="contains_one_key">Contains one private key.</string>
+    <string name="verify_backup_ok_message">The backup was successfully verified.</string>
+    <string name="wordlist_import_invalid_checksum">The checksum of your wordlist is invalid, please make sure you entered all words correctly.</string>
+    <string name="checkbox_wordlist_password">I have a password</string>
+    <string name="words_12">12 words</string>
+    <string name="words_18">18 words</string>
+    <string name="words_24">24 words</string>
+    <string name="import_words_questions">Please select the length of the wordlist to import and indicate whether it is protected by a password.</string>
+    <string name="type_password_title">Enter Your Password</string>
+    <string name="clipboard_not_available">Clipboard Content Not Valid</string>
+    <string name="no_android_wallet_backup">No Export Found</string>
     <string name="unable_to_get_clipboard">Unable to get the current clipboard content</string>
     <string name="unable_to_clear_clipboard">Unable to clear the clipboard</string>
     <string name="unable_to_set_clipboard">Unable to set the clipboard string</string>
-
 
 </resources>

@@ -36,6 +36,7 @@ package com.mycelium.wallet.event;
 
 public class SyncStarted {
 
+   public static final String WALLET_MANAGER_SYNC_STARTED = "wallet_sync_started";
    public final String process;
 
    public SyncStarted(String process) {

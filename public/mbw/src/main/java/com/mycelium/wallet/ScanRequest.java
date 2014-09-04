@@ -2,18 +2,26 @@ package com.mycelium.wallet;
 
 import android.content.Intent;
 import android.net.Uri;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 public class ScanRequest implements Serializable {
    private static final long serialVersionUID = 0L;
@@ -51,6 +59,7 @@ public class ScanRequest implements Serializable {
       ScanRequest request = new ScanRequest();
       request.privateKeyAction = PrivateKeyAction.RETURN;
       request.addressAction = AddressAction.RETURN;
+      request.bitcoinUriAction = BitcoinUriAction.RETURN_ADDRESS;
       return request;
    }
 
@@ -64,13 +73,26 @@ public class ScanRequest implements Serializable {
       return request;
    }
 
+   public static ScanRequest importMasterSeed() {
+      ScanRequest request = new ScanRequest();
+      request.masterSeedAction = MasterSeedAction.IMPORT;
+      return request;
+   }
+
    private ScanRequest() {
+   }
+
+   public static ScanRequest verifySeedOrKey() {
+      ScanRequest request = new ScanRequest();
+      request.masterSeedAction = MasterSeedAction.VERIFY;
+      request.privateKeyAction = PrivateKeyAction.VERIFY;
+      return request;
    }
 
    public interface Action extends Serializable {
       /**
-      * @return true if it was handled
-      */
+       * @return true if it was handled
+       */
       boolean handle(ScanActivity scanActivity, String content);
 
       Action NONE = new Action() {
@@ -85,9 +107,13 @@ public class ScanRequest implements Serializable {
       IMPORT {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
-            Optional<Record> record = getPrivateKey(scanActivity, content);
-            if (!record.isPresent()) return false;
-            scanActivity.getRecordManager().addRecord(record.get());
+            Optional<InMemoryPrivateKey> key = getPrivateKey(scanActivity, content);
+            if (!key.isPresent()) return false;
+            try {
+               scanActivity.getWalletManager().createSingleAddressAccount(key.get(), AesKeyCipher.defaultKeyCipher());
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+               throw new RuntimeException(invalidKeyCipher);
+            }
             scanActivity.finishOk();
             return true;
          }
@@ -96,9 +122,10 @@ public class ScanRequest implements Serializable {
       COLD_SPENDING {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
-            Optional<Record> record = getPrivateKey(scanActivity, content);
-            if (!record.isPresent()) return false;
-            SendInitializationActivity.callMe(scanActivity, new Wallet(record.get()), null, null, true);
+            Optional<InMemoryPrivateKey> key = getPrivateKey(scanActivity, content);
+            if (!key.isPresent()) return false;
+            UUID account = MbwManager.getInstance(scanActivity).createOnTheFlyAccount(key.get());
+            SendInitializationActivity.callMe(scanActivity, account, null, null, true);
             scanActivity.finishOk();
             return true;
          }
@@ -107,18 +134,46 @@ public class ScanRequest implements Serializable {
       RETURN {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
-            Optional<Record> record = getPrivateKey(scanActivity, content);
-            if (!record.isPresent()) return false;
+            Optional<InMemoryPrivateKey> key = getPrivateKey(scanActivity, content);
+            if (!key.isPresent()) return false;
+            //todo hand over the key directly, change code at receivers
+            Optional<Record> record = Record.fromString(content, scanActivity.getNetwork());
+            if (!record.isPresent()) {
+               throw new IllegalStateException("could not create Record from private key");
+            }
             scanActivity.finishOk(record.get());
+            return true;
+         }
+      },
+
+      VERIFY {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            Optional<InMemoryPrivateKey> key = getPrivateKey(scanActivity, content);
+            if (!key.isPresent()) return false;
+
+            MbwManager mbwManager = MbwManager.getInstance(scanActivity);
+            // Calculate the account ID that this key would have
+            UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
+            // Check whether regular wallet contains the account
+            boolean success = mbwManager.getWalletManager(false).hasAccount(account);
+            if (success) {
+               mbwManager.getMetadataStorage().setBackupState(account, MetadataStorage.BackupState.VERIFIED);
+               scanActivity.finishOk();
+            } else {
+               scanActivity.finishError(R.string.verify_backup_no_such_record, "");
+            }
             return true;
          }
       };
 
-      static private Optional<Record> getPrivateKey(ScanActivity scanActivity, String content) {
-         Optional<Record> record = Record.recordFromBase58Key(content, scanActivity.getNetwork());
-         if (record.isPresent()) return record;
-         record = Record.recordFromBase58KeyMiniFormat(content, scanActivity.getNetwork());
-         if (record.isPresent()) return record;
+      static private Optional<InMemoryPrivateKey> getPrivateKey(ScanActivity scanActivity, String content) {
+         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(content, scanActivity.getNetwork());
+         if (key.isPresent()) return key;
+         key = InMemoryPrivateKey.fromBase58MiniFormat(content, scanActivity.getNetwork());
+         if (key.isPresent()) return key;
+
+         //no match
          return Optional.absent();
       }
    }
@@ -128,8 +183,10 @@ public class ScanRequest implements Serializable {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
             Optional<Address> address = getAddress(scanActivity, content);
-            if (!address.isPresent()) { return false; }
-            SendMainActivity.callMe(scanActivity, scanActivity.getWallet(), scanActivity.getWallet().getLocalSpendableOutputs(scanActivity.getBlockChainAddressTracker()), scanActivity.getPrice(), null, address.get(), false);
+            if (!address.isPresent()) {
+               return false;
+            }
+            SendMainActivity.callMe(scanActivity, MbwManager.getInstance(scanActivity).getSelectedAccount().getId(), scanActivity.getPrice(), null, address.get(), false);
             scanActivity.finishOk();
             return true;
          }
@@ -139,8 +196,11 @@ public class ScanRequest implements Serializable {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
             Optional<Address> address = getAddress(scanActivity, content);
-            if (!address.isPresent()) { return false; }
-            SendInitializationActivity.callMe(scanActivity, new Wallet(Record.recordFromAddress(address.get())), null, null, true);
+            if (!address.isPresent()) {
+               return false;
+            }
+            UUID account = MbwManager.getInstance(scanActivity).createOnTheFlyAccount(address.get());
+            SendInitializationActivity.callMe(scanActivity, account, null, null, true);
             scanActivity.finishOk();
             return true;
          }
@@ -150,7 +210,9 @@ public class ScanRequest implements Serializable {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
             Optional<Address> address = getAddress(scanActivity, content);
-            if (!address.isPresent()) { return false; }
+            if (!address.isPresent()) {
+               return false;
+            }
             scanActivity.finishOk(address.get());
             return true;
          }
@@ -160,7 +222,9 @@ public class ScanRequest implements Serializable {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
             Optional<Address> address = getAddress(scanActivity, content);
-            if (!address.isPresent()) { return false; }
+            if (!address.isPresent()) {
+               return false;
+            }
             scanActivity.finishOk(Record.recordFromAddress(address.get()));
             return true;
          }
@@ -175,36 +239,36 @@ public class ScanRequest implements Serializable {
    }
 
    public enum BitcoinUriAction implements Action {
-         SEND {
-            @Override
-            public boolean handle(ScanActivity scanActivity, String content) {
-               if (!content.toLowerCase().startsWith("bitcoin")) return false;
-               Optional<BitcoinUri> uri = getUri(scanActivity, content);
-               if (!uri.isPresent()) {
-                  scanActivity.finishError(R.string.unrecognized_format, content);
-                  //started with bitcoin: but could not be parsed, was handled
-               } else {
-                  SendMainActivity.callMe(scanActivity, scanActivity.getWallet(), scanActivity.getWallet().getLocalSpendableOutputs(scanActivity.getBlockChainAddressTracker()), scanActivity.getPrice(), uri.get(), false);
-                  scanActivity.finishOk();
-               }
-               return true;
+      SEND {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            Optional<BitcoinUri> uri = getUri(scanActivity, content);
+            if (!uri.isPresent()) {
+               scanActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+            } else {
+               SendMainActivity.callMe(scanActivity, MbwManager.getInstance(scanActivity).getSelectedAccount().getId(), scanActivity.getPrice(), uri.get(), false);
+               scanActivity.finishOk();
             }
-         },
+            return true;
+         }
+      },
 
-         RETURN {
-            @Override
-            public boolean handle(ScanActivity scanActivity, String content) {
-               if (!content.toLowerCase().startsWith("bitcoin")) return false;
-               Optional<BitcoinUri> uri = getUri(scanActivity, content);
-               if (!uri.isPresent()) {
-                  scanActivity.finishError(R.string.unrecognized_format, content);
-                  //started with bitcoin: but could not be parsed, was handled
-               } else {
-                  scanActivity.finishOk(uri.get());
-               }
-               return true;
+      RETURN {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            Optional<BitcoinUri> uri = getUri(scanActivity, content);
+            if (!uri.isPresent()) {
+               scanActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+            } else {
+               scanActivity.finishOk(uri.get());
             }
-         },
+            return true;
+         }
+      },
 
       RETURN_AS_RECORD {
          @Override
@@ -221,7 +285,9 @@ public class ScanRequest implements Serializable {
             }
             return true;
          }
-      }, CHECK_BALANCE {
+      },
+
+      CHECK_BALANCE {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
             if (!content.toLowerCase().startsWith("bitcoin")) return false;
@@ -230,26 +296,45 @@ public class ScanRequest implements Serializable {
                scanActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
             } else {
-               SendInitializationActivity.callMe(scanActivity, new Wallet(Record.recordFromAddress(uri.get().address)), null, null, true);
+               UUID account = MbwManager.getInstance(scanActivity).createOnTheFlyAccount(uri.get().address);
+               SendInitializationActivity.callMe(scanActivity, account, null, null, true);
                scanActivity.finishOk();
+            }
+            return true;
+         }
+      },
+      RETURN_ADDRESS {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            Optional<BitcoinUri> uri = getUri(scanActivity, content);
+            if (!uri.isPresent()) {
+               scanActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+            } else {
+               scanActivity.finishOk(uri.get().address);
             }
             return true;
          }
       };
 
-         private static Optional<BitcoinUri> getUri(ScanActivity scanActivity,String content) {
-            MbwManager manager = MbwManager.getInstance(scanActivity);
-            return BitcoinUri.parse(content, manager.getNetwork());
-         }
+      private static Optional<BitcoinUri> getUri(ScanActivity scanActivity, String content) {
+         MbwManager manager = MbwManager.getInstance(scanActivity);
+         return BitcoinUri.parse(content, manager.getNetwork());
       }
+   }
 
    public enum BitIdAction implements Action {
       LOGIN {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
             //if bitid is disabled, dont to anything
-            if (!MbwManager.getInstance(scanActivity).isBitidEnabled()) { return false; }
-            if (!content.toLowerCase().startsWith("bitid:")) { return false; }
+            if (!MbwManager.getInstance(scanActivity).isBitidEnabled()) {
+               return false;
+            }
+            if (!content.toLowerCase().startsWith("bitid:")) {
+               return false;
+            }
             Optional<BitIDSignRequest> request = BitIDSignRequest.parse(Uri.parse(content));
             if (!request.isPresent()) {
                scanActivity.finishError(R.string.unrecognized_format, content);
@@ -267,7 +352,9 @@ public class ScanRequest implements Serializable {
       OPEN_BROWSER {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
-            if (!content.toLowerCase().startsWith("http")) { return false; }
+            if (!content.toLowerCase().startsWith("http")) {
+               return false;
+            }
             Uri uri = (Uri.parse(content));
             if (null == uri) {
                scanActivity.finishError(R.string.unrecognized_format, content);
@@ -282,14 +369,69 @@ public class ScanRequest implements Serializable {
       }
    }
 
+   public enum MasterSeedAction implements Action {
+      VERIFY {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            WalletManager walletManager = MbwManager.getInstance(scanActivity).getWalletManager(false);
+            if (!walletManager.hasBip32MasterSeed()) {
+               return false;
+            }
+            if (content.length() % 2 != 0) {
+               return false;
+            }
+            Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(HexUtils.toBytes(content), false);
+            if (masterSeed.isPresent()) {
+               try {
+                  Bip39.MasterSeed ourSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                  if (masterSeed.get().equals(ourSeed)) {
+                     MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
+                     scanActivity.finishOk();
+                  } else {
+                     scanActivity.finishError(R.string.wrong_seed, "");
+                  }
+                  return true;
+               } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                  throw new RuntimeException(invalidKeyCipher);
+               }
+            }
+            return false;
+         }
+      },
+      IMPORT {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            if (content.length() % 2 != 0) {
+               return false;
+            }
+            Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(HexUtils.toBytes(content), false);
+            if (masterSeed.isPresent()) {
+               UUID acc;
+               try {
+                  WalletManager walletManager = MbwManager.getInstance(scanActivity).getWalletManager(false);
+                  walletManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
+                  acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+                  MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
+               } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                  throw new RuntimeException(invalidKeyCipher);
+               }
+               scanActivity.finishOk(acc);
+               return true;
+            }
+            return false;
+         }
+      }
+   }
+
    public Action privateKeyAction = Action.NONE;
    public Action bitcoinUriAction = Action.NONE;
    public Action addressAction = Action.NONE;
    public Action bitIdAction = Action.NONE;
    public Action websiteAction = Action.NONE;
+   public Action masterSeedAction = Action.NONE;
 
    public List<Action> getAllActions() {
-      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction);
+      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction);
    }
 
 }

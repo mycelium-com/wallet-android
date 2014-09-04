@@ -1,0 +1,90 @@
+package com.mycelium.wapi.wallet.single;
+
+import com.mrd.bitlib.model.Address;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+
+import java.util.UUID;
+
+/**
+ * The abstract context of an account
+ */
+public class SingleAddressAccountContext {
+   private UUID id;
+   private Address address;
+   private boolean isArchived;
+   private int blockHeight;
+   protected boolean isDirty;
+
+   public SingleAddressAccountContext(SingleAddressAccountContext context) {
+      this(context.getId(), context.getAddress(), context.isArchived(), context.getBlockHeight());
+   }
+
+   public SingleAddressAccountContext(UUID id, Address address, boolean isArchived, int blockHeight) {
+      this.id = id;
+      this.address = address;
+      this.isArchived = isArchived;
+      this.blockHeight = blockHeight;
+      isDirty = false;
+   }
+
+
+   public UUID getId() {
+      return id;
+   }
+
+   public Address getAddress() {
+      return address;
+   }
+
+   /**
+    * Is this account archived?
+    */
+   public boolean isArchived() {
+      return isArchived;
+   }
+
+   /**
+    * Mark this account as archived
+    */
+   public void setArchived(boolean isArchived) {
+      if (this.isArchived != isArchived) {
+         isDirty = true;
+         this.isArchived = isArchived;
+      }
+   }
+
+   /**
+    * Get the block chain height recorded for this context
+    */
+   public int getBlockHeight() {
+      return blockHeight;
+   }
+
+   /**
+    * Set the block chain height for this context
+    */
+   public void setBlockHeight(int blockHeight) {
+      if (this.blockHeight != blockHeight) {
+         isDirty = true;
+         this.blockHeight = blockHeight;
+      }
+   }
+
+   /**
+    * Persist this context if it is marked as dirty
+    */
+   public void persistIfNecessary(SingleAddressAccountBacking backing) {
+      if (isDirty) {
+         persist(backing);
+      }
+   }
+
+   /**
+    * Persist this context
+    */
+   public void persist(SingleAddressAccountBacking backing) {
+      backing.updateAccountContext(this);
+      isDirty = false;
+   }
+
+}

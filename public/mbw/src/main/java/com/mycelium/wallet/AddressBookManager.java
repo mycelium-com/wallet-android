@@ -38,33 +38,106 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import android.content.Context;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
-
+//todo refactor string -> address atleast
 public class AddressBookManager {
    private static final String ADDRESS_BOOK_FILE_NAME = "address-book.txt";
 
+   public boolean hasAccount(WalletAccount account) {
+      return hasEntry(new AccountKey(account.getId()));
+   }
+
+   public static abstract class AddressBookKey {
+   }
+
+   public static class AccountKey extends AddressBookKey {
+
+      public final UUID id;
+
+      public AccountKey(UUID id) {
+         this.id = Preconditions.checkNotNull(id);
+      }
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+
+         AccountKey that = (AccountKey) o;
+
+         if (!id.equals(that.id)) return false;
+
+         return true;
+      }
+
+      @Override
+      public int hashCode() {
+         return id.hashCode();
+      }
+
+      @Override
+      public String toString() {
+         return id.toString();
+      }
+   }
+   public static class AddressKey extends AddressBookKey {
+
+      public final Address address;
+
+      public AddressKey(Address address) {
+         this.address = Preconditions.checkNotNull(address);
+      }
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+
+         AddressKey that = (AddressKey) o;
+         if (!address.equals(that.address)) return false;
+         return true;
+      }
+
+      @Override
+      public int hashCode() {
+         return address.hashCode();
+      }
+
+      @Override
+      public String toString() {
+         return address.toString();
+      }
+   }
+
+
    public static class Entry implements Comparable<Entry> {
-      private String _address;
+      private AddressBookKey _address;
       private String _name;
 
-      public Entry(String address, String name) {
+      public Entry(AddressBookKey address, String name) {
          _address = address;
          _name = name == null ? "" : name;
       }
 
-      public String getAddress() {
+      public AddressBookKey getAddressBookKey() {
          return _address;
       }
 
@@ -96,16 +169,16 @@ public class AddressBookManager {
    private Context _applicationContext;
    private final Bus _eventBus;
    private List<Entry> _entries;
-   private Map<String, Entry> _addressMap;
+   private Map<AddressBookKey, Entry> _addressMap;
 
    public AddressBookManager(Context context, Bus eventBus) {
       _eventBus = eventBus;
       _applicationContext = context.getApplicationContext();
       List<Entry> entries = loadEntries(_applicationContext);
-      _entries = new ArrayList<Entry>(entries.size());
-      _addressMap = new HashMap<String, Entry>(entries.size());
+      _entries = Lists.newArrayList();
+      _addressMap = Maps.newHashMap();
       for (Entry entry : entries) {
-         insertOrUpdateEntryInt(entry.getAddress(), entry.getName());
+         insertOrUpdateEntryInt(entry.getAddressBookKey(), entry.getName());
       }
       Collections.sort(_entries);
    }
@@ -120,7 +193,7 @@ public class AddressBookManager {
    // empty, then the a new entry is created.
    // No attempt is made at making names unique
    // @formatter:on
-   public synchronized void insertUpdateOrDeleteEntry(String address, String name) {
+   public synchronized void insertUpdateOrDeleteEntry(AddressBookKey address, String name) {
       if (address == null || name == null) {
          return;
       }
@@ -134,11 +207,10 @@ public class AddressBookManager {
       save();
    }
 
-   public synchronized void deleteEntry(String address) {
+   public synchronized void deleteEntry(AddressBookKey address) {
       if (address == null) {
          return;
       }
-      address = address.trim();
       Entry entry = _addressMap.get(address);
       if (entry == null) {
          return;
@@ -148,17 +220,8 @@ public class AddressBookManager {
       save();
    }
 
-   private void insertOrUpdateEntryInt(String address, String name) {
-      if (address == null) {
-         return;
-      }
-      address = address.trim();
-      if (address.length() == 0) {
-         return;
-      }
-      if (name == null) {
-         return;
-      }
+   private void insertOrUpdateEntryInt(AddressBookKey address, String name) {
+      Preconditions.checkNotNull(address,name);
       name = name.trim();
       if (name.length() == 0) {
          // We don't want entries with blank names
@@ -177,32 +240,31 @@ public class AddressBookManager {
       _addressMap.put(address, entry);
    }
 
-   public String getAddressByName(String name) {
+   public AddressBookKey getKeyByName(String name) {
       if (name == null) {
          return null;
       }
       name = name.trim();
       for (Entry entry : _entries) {
          if (name.equalsIgnoreCase(entry.getName())) {
-            return entry.getAddress();
+            return entry.getAddressBookKey();
          }
       }
       return null;
    }
 
-   public boolean hasAddress(String address) {
-      if (address == null) {
+   public boolean hasEntry(AddressBookKey key) {
+      if (key == null) {
          return false;
       }
-      return _addressMap.containsKey(address);
+      return _addressMap.containsKey(key);
    }
 
-   public String getNameByAddress(String address) { // todo migrate to
-                                                    // com.mrd.bitlib.model.Address
-      if (address == null) {
+   public String getNameByKey(AddressBookKey key) {
+      if (key == null) {
          return null;
       }
-      Entry entry = _addressMap.get(address.trim());
+      Entry entry = _addressMap.get(key);
       if (entry == null) {
          return "";
       }
@@ -213,13 +275,9 @@ public class AddressBookManager {
       return Collections.unmodifiableList(_entries);
    }
 
-   public int numEntries() {
-      return _entries.size();
-   }
-
    private void save() {
       saveEntries(_entries, _applicationContext);
-      broadcasAddressBookChangedChanged();
+      broadcastAddressBookChanged();
    }
 
    private static void saveEntries(List<Entry> entries, Context applicationContext) {
@@ -227,13 +285,10 @@ public class AddressBookManager {
          FileOutputStream out = applicationContext.openFileOutput(ADDRESS_BOOK_FILE_NAME, Context.MODE_PRIVATE);
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
          for (Entry entry : entries) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(encode(entry.getAddress())).append(',').append(encode(entry._name));
-            sb.append('\n');
-            writer.write(sb.toString());
+            writer.write(encode(entry.getAddressBookKey().toString()) + ',' + encode(entry._name) + '\n');
          }
          writer.close();
-      } catch (Exception e) {
+      } catch (IOException e) {
          throw new RuntimeException(e);
       }
 
@@ -257,15 +312,23 @@ public class AddressBookManager {
                break;
             }
             List<String> list = stringToValueList(line);
-            String address = null;
+            String addressString = null;
             if (list.size() > 0) {
-               address = decode(list.get(0));
+               addressString = decode(list.get(0));
             }
             String name = null;
             if (list.size() > 1) {
                name = decode(list.get(1));
             }
-            entries.add(new Entry(address, name));
+            //TODO: this not so nice, but the Addressbook is going to be changed soon, hopefully
+            Address address = Address.fromString(addressString);
+            AddressBookKey key;
+            if (address != null) {
+               key = new AddressKey(address);
+            } else {
+               key = new AccountKey(UUID.fromString(addressString));
+            }
+            entries.add(new Entry(key, name));
          }
          stream.close();
          return entries;
@@ -305,7 +368,6 @@ public class AddressBookManager {
     * @param startIndex
     *           the start index where the search starts
     * @return the resulting comma index or the length of the string
-    * @throws PersistenceException
     */
    private static int nextSeparator(String s, int startIndex) {
       boolean slash = false;
@@ -399,7 +461,7 @@ public class AddressBookManager {
       return sb.toString();
    }
 
-   private void broadcasAddressBookChangedChanged() {
+   private void broadcastAddressBookChanged() {
       _eventBus.post(new AddressBookChanged());
    }
 

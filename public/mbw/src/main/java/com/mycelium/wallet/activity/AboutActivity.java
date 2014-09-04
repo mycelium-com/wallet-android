@@ -62,10 +62,10 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.VersionManager;
-import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class AboutActivity extends Activity {
    @Override
@@ -122,8 +122,8 @@ public class AboutActivity extends Activity {
                MbwManager mbwManager = MbwManager.getInstance(AboutActivity.this);
                NetworkParameters network = mbwManager.getNetwork();
                Address address = network.isProdnet() ? Address.fromString(Constants.PRODNET_DONATION_ADDRESS) :Address.fromString(Constants.TESTNET_DONATION_ADDRESS);
-               Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
-               SendInitializationActivity.callMe(AboutActivity.this, wallet, null, address, false);
+               WalletAccount account = mbwManager.getSelectedAccount();
+               SendInitializationActivity.callMe(AboutActivity.this, account.getId(), null, address, false);
             }
          });
       }

@@ -42,6 +42,9 @@ import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.lt.api.LtApiClient.Logger;
+import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.wapi.api.WapiLogger;
 
 public class MbwProdEnvironment extends MbwEnvironment {
    /**
@@ -54,13 +57,14 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * Two redundant Mycelium wallet service servers for prodnet
     */
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1 = new MyceliumWalletApiImpl.HttpsEndpoint(
-           "https://mws1.mycelium.com/mws", myceliumThumbprint);
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint(
-           "https://mws2.mycelium.com/mws", myceliumThumbprint);
+         "https://mws1.mycelium.com/mws", myceliumThumbprint);
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
-           "https://188.40.12.226/mws", myceliumThumbprint);
+         "https://188.40.12.226/mws", myceliumThumbprint);
+   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint(
+         "https://mws2.mycelium.com/mws", myceliumThumbprint);
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
-           "https://88.198.17.7/mws", myceliumThumbprint);
+         "https://88.198.17.7/mws", myceliumThumbprint);
+
 
    /**
     * The set of endpoints we use for prodnet. The wallet chooses a random
@@ -79,24 +83,22 @@ public class MbwProdEnvironment extends MbwEnvironment {
          "https://lt2.mycelium.com/ltprodnet/", myceliumThumbprint);
    private static final LtApiClient.HttpsEndpoint prodnetLocalTraderFailoverEndpoint = new LtApiClient.HttpsEndpoint(
          "https://lt1.mycelium.com/ltprodnet/", myceliumThumbprint);
-   
-   private static final LtApiClient prodnetLocalTraderApi = new LtApiClient(prodnetLocalTraderDefaultEndpoint, prodnetLocalTraderFailoverEndpoint, new Logger() {
 
-      @Override
-      public void logError(String message, Exception e) {
-         Log.e("", message, e);
+   private static final LtApiClient prodnetLocalTraderApi = new LtApiClient(prodnetLocalTraderDefaultEndpoint,
+         prodnetLocalTraderFailoverEndpoint, new Logger() {
 
-      }
-
-      @Override
-      public void logError(String message) {
-         Log.e("", message);
-
-      }
+            @Override
+            public void logError(String message, Exception e) {
+               Log.e("", message, e);
+            }
+       @Override
+       public void logError(String message) {
+           Log.e("", message);
+       }       
    });
    
-   public MbwProdEnvironment(String brand, boolean bitidEnabled){
-      super(brand, bitidEnabled);
+   public MbwProdEnvironment(String brand){
+      super(brand);
    }
    
    @Override
@@ -112,5 +114,39 @@ public class MbwProdEnvironment extends MbwEnvironment {
    @Override
    public LtApi getLocalTraderApi() {
       return prodnetLocalTraderApi;
+   }
+
+   /**
+    * Wapi
+    */
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint1 = new WapiClient.HttpsEndpoint(
+         "https://node3.mycelium.com/wapi", myceliumThumbprint);
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint1Alt = new WapiClient.HttpsEndpoint(
+         "https://144.76.165.115/wapi", myceliumThumbprint);
+
+
+   private static final WapiClient.HttpEndpoint[] prodnetWapiEndpoints = new WapiClient.HttpEndpoint[] {
+         prodnetWapiEndpoint1, prodnetWapiEndpoint1Alt};
+   private static final WapiClient prodnetWapiClient = new WapiClient(prodnetWapiEndpoints, new WapiLogger() {
+
+      @Override
+      public void logError(String message) {
+         Log.e("Wapi", message);
+      }
+
+      @Override
+      public void logError(String message, Exception e) {
+         Log.e("Wapi", message, e);
+      }
+
+      @Override
+      public void logInfo(String message) {
+         Log.i("Wapi", message);
+      }
+   });
+
+   @Override
+   public Wapi getWapi() {
+      return prodnetWapiClient;
    }
 }

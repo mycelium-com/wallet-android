@@ -64,7 +64,10 @@ import com.mycelium.wallet.service.ServiceTaskStatusEx;
 import com.mycelium.wallet.service.ServiceTaskStatusEx.State;
 import com.mycelium.wallet.service.TaskExecutionServiceController;
 import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionServiceCallback;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 
+//todo HD: export master seed without address/xpub extra data.
+//todo HD: later: be compatible with a common format
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
@@ -96,7 +99,9 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    private boolean _isPdfGenerated;
    private boolean _oomDetected;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -303,10 +308,11 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
    private void startTask() {
       findViewById(R.id.btSharePdf).setEnabled(false);
-      KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource(), _mbwManager.getDeviceScryptParameters());
+      KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource(),
+            _mbwManager.getDeviceScryptParameters());
       CreateMrdBackupTask task = new CreateMrdBackupTask(kdfParameters, this.getApplicationContext(),
-            _mbwManager.getRecordManager(), _mbwManager.getAddressBookManager(), _mbwManager.getNetwork(),
-            getFullExportFilePath());
+            _mbwManager.getWalletManager(false), AesKeyCipher.defaultKeyCipher(), _mbwManager.getMetadataStorage(),
+            _mbwManager.getNetwork(), getFullExportFilePath());
       _taskExecutionServiceController.bind(this, this);
       _taskExecutionServiceController.start(task);
    }

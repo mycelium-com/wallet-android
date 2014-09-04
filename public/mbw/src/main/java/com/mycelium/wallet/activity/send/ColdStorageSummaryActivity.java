@@ -45,26 +45,25 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.BalanceInfo;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.Wallet.SpendableOutputs;
+import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.wallet.WalletAccount;
+
+import java.util.UUID;
 
 public class ColdStorageSummaryActivity extends Activity {
 
    public static final int SCAN_RESULT_CODE = 0;
 
    private MbwManager _mbwManager;
-   private Wallet _wallet;
-   private SpendableOutputs _spendable;
+   private WalletAccount _account;
    private Double _oneBtcInFiat;
 
-   public static void callMe(Activity currentActivity, Wallet wallet, SpendableOutputs spendable, Double oneBtcInFiat) {
+   public static void callMe(Activity currentActivity, UUID account, Double oneBtcInFiat) {
       Intent intent = new Intent(currentActivity, ColdStorageSummaryActivity.class);
-      intent.putExtra("wallet", wallet);
-      intent.putExtra("spendable", spendable);
+      intent.putExtra("account", account);
       intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
@@ -80,40 +79,48 @@ public class ColdStorageSummaryActivity extends Activity {
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      _wallet = Preconditions.checkNotNull((Wallet) getIntent().getSerializableExtra("wallet"));
-      _spendable = Preconditions.checkNotNull((SpendableOutputs) getIntent().getSerializableExtra("spendable"));
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
+      if (_mbwManager.getWalletManager(true).getAccountIds().contains(accountId)) {
+         _account = _mbwManager.getWalletManager(true).getAccount(accountId);
+      } else {
+         //this can happen if we were in background for long time and then came back
+         //just go back and have the user scan again is probably okay as a workaround
+         finish();
+         return;
+      }
+
+
       // May be null
       _oneBtcInFiat = (Double) getIntent().getSerializableExtra("oneBtcInFiat");
 
-      BalanceInfo balance = _wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
+      Balance balance = _account.getBalance();
 
       // Description
-      if (_wallet.canSpend()) {
+      if (_account.canSpend()) {
          ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_private_key_description);
       } else {
          ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_address_description);
       }
 
       // Address
-      ((TextView) findViewById(R.id.tvAddress)).setText(_wallet.getReceivingAddress().toMultiLineString());
+      ((TextView) findViewById(R.id.tvAddress)).setText(_account.getReceivingAddress().toMultiLineString());
 
       // Balance
-      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.unspent
-            + balance.pendingChange));
+      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));
 
       // Fiat
       if (_oneBtcInFiat == null) {
          findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
       } else {
          TextView tvFiat = (TextView) findViewById(R.id.tvFiat);
-         String converted = Utils.getFiatValueAsString(balance.unspent + balance.pendingChange, _oneBtcInFiat);
+         String converted = Utils.getFiatValueAsString(balance.getSpendableBalance(), _oneBtcInFiat);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
       }
 
       // Show/Hide Receiving
-      if (balance.pendingReceiving > 0) {
-         String receivingString = _mbwManager.getBtcValueString(balance.pendingReceiving);
+      if (balance.getReceivingBalance() > 0) {
+         String receivingString = _mbwManager.getBtcValueString(balance.getReceivingBalance());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = (TextView) findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -123,8 +130,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.pendingSending > 0) {
-         String sendingString = _mbwManager.getBtcValueString(balance.pendingSending);
+      if (balance.getSendingBalance() > 0) {
+         String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -135,14 +142,14 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Send Button
       Button btSend = (Button) findViewById(R.id.btSend);
-      if (_wallet.canSpend()) {
-         if (balance.unspent + balance.pendingChange > 0) {
+      if (_account.canSpend()) {
+         if (balance.getSpendableBalance() > 0) {
             btSend.setEnabled(true);
             btSend.setOnClickListener(new OnClickListener() {
 
                @Override
                public void onClick(View arg0) {
-                  SendMainActivity.callMe(ColdStorageSummaryActivity.this, _wallet, _spendable, _oneBtcInFiat, true);
+                  SendMainActivity.callMe(ColdStorageSummaryActivity.this, _account.getId(), _oneBtcInFiat, true);
                   finish();
                }
             });
@@ -153,6 +160,13 @@ public class ColdStorageSummaryActivity extends Activity {
          btSend.setVisibility(View.GONE);
       }
 
+   }
+
+   @Override
+   public void onBackPressed() {
+      //delete temporary accounts keys so we do not keep scanned private keys in memory when user presses back
+      _mbwManager.forgetColdStorageWalletManager();
+      super.onBackPressed();
    }
 
 }

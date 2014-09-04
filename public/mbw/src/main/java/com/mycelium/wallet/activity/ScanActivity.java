@@ -46,17 +46,22 @@ import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
 import com.mrd.bitlib.crypto.Bip38;
+import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
-import com.mycelium.wallet.activity.export.DecryptPrivateKeyActivity;
+import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wapi.wallet.WalletManager;
+
+import java.util.UUID;
 
 /**
  * This activity immediately launches the scanner, and shows no content of its
@@ -65,18 +70,19 @@ import com.mycelium.wallet.activity.modern.Toaster;
  */
 public class ScanActivity extends Activity {
 
-   public static void callMe(Activity currentActivity,int requestCode, ScanRequest scanRequest) {
+
+   public static void callMe(Activity currentActivity, int requestCode, ScanRequest scanRequest) {
       Intent intent = new Intent(currentActivity, ScanActivity.class);
       intent.putExtra("request", scanRequest);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   public static void callMe(Fragment currentFragment,int requestCode, ScanRequest scanRequest) {
+   public static void callMe(Fragment currentFragment, int requestCode, ScanRequest scanRequest) {
       Intent intent = new Intent(currentFragment.getActivity(), ScanActivity.class);
       intent.putExtra("request", scanRequest);
       currentFragment.startActivityForResult(intent, requestCode);
    }
-   
+
    public static final String RESULT_PAYLOAD = "payload";
    public static final String RESULT_ERROR = "error";
    public static final String RESULT_RECORD_KEY = "record";
@@ -84,12 +90,14 @@ public class ScanActivity extends Activity {
    public static final String RESULT_ADDRESS_KEY = "address";
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_AMOUNT_KEY = "amount";
+   private static final String RESULT_ACCOUNT_KEY = "account";
 
-   public enum ResultType {ADDRESS, RECORD, URI}
+   public enum ResultType {ADDRESS, RECORD, ACCOUNT, URI}
 
    public static final int SCANNER_RESULT_CODE = 0;
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
-   public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 2;
+   public static final int IMPORT_ENCRYPTED_MASTER_SEED_CODE = 2;
+   public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 3;
 
    private MbwManager _mbwManager;
    private boolean _hasLaunchedScanner;
@@ -157,43 +165,43 @@ public class ScanActivity extends Activity {
       if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) && height > width
             || (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) && width > height) {
          switch (rotation) {
-         case Surface.ROTATION_0:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            break;
-         case Surface.ROTATION_90:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            break;
-         case Surface.ROTATION_180:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-            break;
-         case Surface.ROTATION_270:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-            break;
-         default:
-            // Unknown screen orientation. Defaulting to portrait.
-            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            break;
+            case Surface.ROTATION_0:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+               break;
+            case Surface.ROTATION_90:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+               break;
+            case Surface.ROTATION_180:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+               break;
+            case Surface.ROTATION_270:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+               break;
+            default:
+               // Unknown screen orientation. Defaulting to portrait.
+               orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+               break;
          }
       }
       // if the device's natural orientation is landscape or if the device is square:
       else {
          switch (rotation) {
-         case Surface.ROTATION_0:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            break;
-         case Surface.ROTATION_90:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            break;
-         case Surface.ROTATION_180:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-            break;
-         case Surface.ROTATION_270:
-            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-            break;
-         default:
-            // Unknown screen orientation. Defaulting to landscape.
-            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            break;
+            case Surface.ROTATION_0:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+               break;
+            case Surface.ROTATION_90:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+               break;
+            case Surface.ROTATION_180:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+               break;
+            case Surface.ROTATION_270:
+               orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+               break;
+            default:
+               // Unknown screen orientation. Defaulting to landscape.
+               orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+               break;
          }
       }
       return orientation;
@@ -208,7 +216,7 @@ public class ScanActivity extends Activity {
 
       // If the last autofocus setting got saved in an extra-field, change the app settings accordingly
       int autoFocus = intent.getIntExtra("ENABLE_CONTINUOUS_FOCUS", -1);
-      if (autoFocus != -1){
+      if (autoFocus != -1) {
          MbwManager.getInstance(this).setContinuousFocus(autoFocus == 1);
       }
 
@@ -217,6 +225,8 @@ public class ScanActivity extends Activity {
          content = intent.getStringExtra("base58Key");
       } else if (IMPORT_ENCRYPTED_PRIVATE_KEY_CODE == requestCode) {
          content = handleDecryptedMrdPrivateKey(intent);
+      } else if (IMPORT_ENCRYPTED_MASTER_SEED_CODE == requestCode) {
+         content = HexUtils.toHex(handleDecryptedMrdMasterSeed(intent).toBytes(false));
       } else {
          Preconditions.checkState(SCANNER_RESULT_CODE == requestCode);
          if (!isQRCode(intent)) {
@@ -230,6 +240,14 @@ public class ScanActivity extends Activity {
             Optional<String> key = handleMrdEncryptedPrivateKey(content);
             if (key.isPresent()) {
                content = key.get();
+            } else {
+               // the handleMRdEncrypted method has started the decryption, which will trigger another onActivity
+               return;
+            }
+         } else if (isMrdEncryptedMasterSeed(content)) {
+            Optional<Bip39.MasterSeed> masterSeed = handleMrdEncryptedMasterSeed(content);
+            if (masterSeed.isPresent()) {
+               content = HexUtils.toHex(masterSeed.get().toBytes(false));
             } else {
                // the handleMRdEncrypted method has started the decryption, which will trigger another onActivity
                return;
@@ -263,11 +281,12 @@ public class ScanActivity extends Activity {
    private boolean isMrdEncryptedPrivateKey(String string) {
       int version;
       try {
-         version = MrdExport.decodeVersion(string);
+         MrdExport.V1.Header header = MrdExport.V1.extractHeader(string);
+         return header.type == MrdExport.V1.Header.Type.UNCOMPRESSED ||
+               header.type == MrdExport.V1.Header.Type.COMPRESSED;
       } catch (DecodingException e) {
          return false;
       }
-      return version == MrdExport.V1_VERSION;
    }
 
    private Optional<String> handleMrdEncryptedPrivateKey(String encryptedPrivateKey) {
@@ -275,7 +294,7 @@ public class ScanActivity extends Activity {
       // Try and decrypt with cached parameters if we have them
       if (encryptionParameters != null) {
          try {
-            String key = MrdExport.V1.decrypt(encryptionParameters, encryptedPrivateKey, _mbwManager.getNetwork());
+            String key = MrdExport.V1.decryptPrivateKey(encryptionParameters, encryptedPrivateKey, _mbwManager.getNetwork());
             Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
             return Optional.of(key);
          } catch (InvalidChecksumException e) {
@@ -287,7 +306,7 @@ public class ScanActivity extends Activity {
          }
       }
       // Start activity to ask the user to enter a password and decrypt the key
-      DecryptPrivateKeyActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_PRIVATE_KEY_CODE);
+      MrdDecryptDataActivity.callMe(this, encryptedPrivateKey, IMPORT_ENCRYPTED_PRIVATE_KEY_CODE);
       return Optional.absent();
    }
 
@@ -298,6 +317,43 @@ public class ScanActivity extends Activity {
             .getSerializableExtra("encryptionParameters");
       _mbwManager.setCachedEncryptionParameters(encryptionParameters);
       return key;
+   }
+
+   private boolean isMrdEncryptedMasterSeed(String string) {
+      try {
+         MrdExport.V1.Header header = MrdExport.V1.extractHeader(string);
+         return header.type == MrdExport.V1.Header.Type.MASTER_SEED;
+      } catch (DecodingException e) {
+         return false;
+      }
+   }
+
+   private Optional<Bip39.MasterSeed> handleMrdEncryptedMasterSeed(String encryptedMasterSeed) {
+      EncryptionParameters encryptionParameters = _mbwManager.getCachedEncryptionParameters();
+      // Try and decrypt with cached parameters if we have them
+      if (encryptionParameters != null) {
+         try {
+            return Optional.of(MrdExport.V1.decryptMasterSeed(encryptionParameters, encryptedMasterSeed, _mbwManager.getNetwork()));
+         } catch (InvalidChecksumException e) {
+            // We cannot reuse the cached password, fall through and decrypt
+            // with an entered password
+         } catch (DecodingException e) {
+            finishError(R.string.unrecognized_format, encryptedMasterSeed);
+            return Optional.absent();
+         }
+      }
+      // Start activity to ask the user to enter a password and decrypt the master seed
+      MrdDecryptDataActivity.callMe(this, encryptedMasterSeed, IMPORT_ENCRYPTED_MASTER_SEED_CODE);
+      return Optional.absent();
+   }
+
+   private Bip39.MasterSeed handleDecryptedMrdMasterSeed(Intent intent) {
+      Bip39.MasterSeed masterSeed = (Bip39.MasterSeed) intent.getSerializableExtra("masterSeed");
+      // Cache the encryption parameters for next import
+      EncryptionParameters encryptionParameters = (MrdExport.V1.EncryptionParameters) intent
+            .getSerializableExtra("encryptionParameters");
+      _mbwManager.setCachedEncryptionParameters(encryptionParameters);
+      return masterSeed;
    }
 
    public void finishError(int resId, String payload) {
@@ -343,6 +399,14 @@ public class ScanActivity extends Activity {
       finish();
    }
 
+   public void finishOk(UUID account) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_ACCOUNT_KEY, account);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.ACCOUNT);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
    public void finishOk() {
       setResult(RESULT_OK);
       finish();
@@ -378,16 +442,15 @@ public class ScanActivity extends Activity {
       return address;
    }
 
+   public static UUID getAccount(Intent intent) {
+      ScanActivity.checkType(intent, ResultType.ACCOUNT);
+      UUID account = (UUID) intent.getSerializableExtra(RESULT_ACCOUNT_KEY);
+      Preconditions.checkNotNull(account);
+      return account;
+   }
+
    public static void checkType(Intent intent, ResultType type) {
       Preconditions.checkState(type == intent.getSerializableExtra(RESULT_TYPE_KEY));
-   }
-
-   public RecordManager getRecordManager() {
-      return _mbwManager.getRecordManager();
-   }
-
-   public Wallet getWallet() {
-      return getRecordManager().getWallet(_mbwManager.getWalletMode());
    }
 
    public ExchangeRate getExchangeRate() {
@@ -402,7 +465,7 @@ public class ScanActivity extends Activity {
       return _mbwManager.getNetwork();
    }
 
-   public BlockChainAddressTracker getBlockChainAddressTracker() {
-      return _mbwManager.getBlockChainAddressTracker();
+   public WalletManager getWalletManager() {
+      return _mbwManager.getWalletManager(false);
    }
 }

@@ -35,6 +35,8 @@
 package com.mycelium.wallet.lt.activity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -45,105 +47,71 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.TransactionUtils;
-import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.lt.api.model.PriceFormula;
 import com.mycelium.lt.api.model.TradeSession;
+import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.Wallet.SpendableOutputs;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
-      // Create default wallet
-      Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
-
-      // Get spendable outputs
-      SpendableOutputs spendable = wallet.getLocalSpendableOutputs(mbwManager.getBlockChainAddressTracker());
-
-      // Extract private key ring
-      PrivateKeyRing keyRing = wallet.getPrivateKeyRing();
-
+      WalletAccount account = mbwManager.getSelectedAccount();
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
-
-      return createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer, nullAddress, nullAddress,
-            mbwManager, spendable, keyRing, mbwManager.getNetwork()) != null;
+      WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
+      try {
+         account.createUnsignedTransaction(Arrays.asList(receiver));
+      } catch (OutputTooSmallException e) {
+         throw new RuntimeException(e);
+      } catch (InsufficientFundsException e) {
+         return false;
+      }
+      return true;
    }
 
    public static Transaction createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       Preconditions.checkNotNull(ts.buyerAddress);
-
-      // Create default wallet
-      Wallet wallet = mbwManager.getRecordManager().getWallet(mbwManager.getWalletMode());
-
-      // Get spendable outputs
-      SpendableOutputs spendable = wallet.getLocalSpendableOutputs(mbwManager.getBlockChainAddressTracker());
-
-      // Extract private key ring
-      PrivateKeyRing keyRing = wallet.getPrivateKeyRing();
+      WalletAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
       UnsignedTransaction unsigned = createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, mbwManager, spendable, keyRing, mbwManager.getNetwork());
-
-      if (unsigned == null) {
-         return null;
+            ts.buyerAddress, ts.feeAddress, acc);
+      Transaction tx;
+      try {
+         tx = acc.signAndQueueTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
       }
-
-      // Make signatures
-      List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(unsigned.getSignatureInfo(), keyRing,
-            mbwManager.getRecordManager().getRandomSource());
-
-      // Sign transaction
-      Transaction tx = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
       return tx;
    }
 
    private static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
-         Address buyerAddress, Address feeAddress, MbwManager mbwManager, SpendableOutputs spendable,
-         PrivateKeyRing keyRing, NetworkParameters network) {
+         Address buyerAddress, Address feeAddress, WalletAccount acc) {
       Preconditions.checkArgument(satoshisForBuyer > TransactionUtils.MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
-
-      // Construct list of spendable outputs
-      List<UnspentTransactionOutput> outputs = new LinkedList<UnspentTransactionOutput>();
-      outputs.addAll(spendable.unspent);
-      outputs.addAll(spendable.change);
-
-      // Create unsigned empty transaction
-      StandardTransactionBuilder stb = new StandardTransactionBuilder(network);
-
-      // Add the outputs
-      try {
-         stb.addOutput(buyerAddress, satoshisForBuyer);
-
-         if (localTraderFee >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
-            stb.addOutput(feeAddress, localTraderFee);
-         }
-      } catch (OutputTooSmallException e) {
-         // This should not happen as we have checked it above in a precondition
-         Log.e("TradeActivityUtil", "Unexpected OutputTooSmallException exception");
-         return null;
+      List<WalletAccount.Receiver> receiver = new ArrayList<WalletAccount.Receiver>();
+      receiver.add(new WalletAccount.Receiver(buyerAddress, satoshisForBuyer));
+      if (localTraderFee >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
+         receiver.add(new WalletAccount.Receiver(feeAddress, localTraderFee));
       }
-
-      // Create the unsigned transaction
       try {
-         return stb.createUnsignedTransaction(outputs, null, keyRing, network);
+         return acc.createUnsignedTransaction(receiver);
+      } catch (OutputTooSmallException e) {
+         throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
-         return null;
+         throw new RuntimeException(e);
       }
    }
 

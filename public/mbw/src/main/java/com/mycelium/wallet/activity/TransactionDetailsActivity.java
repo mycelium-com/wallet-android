@@ -51,32 +51,35 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Joiner;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.mbwapi.api.ApiException;
-import com.mrd.mbwapi.api.ApiObject;
-import com.mrd.mbwapi.api.TransactionSummary;
-import com.mrd.mbwapi.api.TransactionSummary.Item;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.model.TransactionDetails;
 
 public class TransactionDetailsActivity extends Activity {
 
    private static final String BLOCKCHAIN_INFO_TRANSACTION_LINK_TEMPLATE = "https://blockchain.info/tx/";
+   private static final String BLOCKR_TESTNET_INFO_TRANSACTION_LINK_TEMPLATE = "http://tbtc.blockr.io/tx/info/";
    private static final String BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE = "https://blockchain.info/address/";
+   private static final String BLOCKR_TESTNET_INFO_ADDRESS_LINK_TEMPLATE = "http://tbtc.blockr.io/address/info/";
    @SuppressWarnings("deprecation")
    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
    private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-   private TransactionSummary _tx;
+   private TransactionDetails _tx;
    private int _white_color;
    private UrlClickListener _urlClickListener;
    private MbwManager _mbwManager;
+   private String _addressInfoTemplate;
+   private String _transactionInfoTemplate;
 
    /**
     * Called when the activity is first created.
@@ -92,20 +95,17 @@ public class TransactionDetailsActivity extends Activity {
       setContentView(R.layout.transaction_details_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
-      // Get intent parameters
-      byte[] bytes = getIntent().getByteArrayExtra("transaction");
-      if (bytes != null) {
-         try {
-            _tx = ApiObject.deserialize(TransactionSummary.class, new ByteReader(bytes));
-         } catch (ApiException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
-         }
+      if (_mbwManager.getNetwork().equals(NetworkParameters.testNetwork)) {
+         _addressInfoTemplate = BLOCKR_TESTNET_INFO_ADDRESS_LINK_TEMPLATE;
+         _transactionInfoTemplate = BLOCKR_TESTNET_INFO_TRANSACTION_LINK_TEMPLATE;
       } else {
-         finish();
-         return;
+         _addressInfoTemplate = BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE;
+         _transactionInfoTemplate = BLOCKCHAIN_INFO_TRANSACTION_LINK_TEMPLATE;
       }
+
+      Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
+      _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
+
       updateUi();
    }
 
@@ -122,8 +122,10 @@ public class TransactionDetailsActivity extends Activity {
       String choppedHash = Joiner.on(" ").join(Utils.stringChopper(hash, 4));
       TextView tvHash = ((TextView) findViewById(R.id.tvHash));
       setLinkText(tvHash, choppedHash);
-      tvHash.setTag(BLOCKCHAIN_INFO_TRANSACTION_LINK_TEMPLATE + hash);
+      tvHash.setTag(_transactionInfoTemplate + hash);
       tvHash.setOnClickListener(_urlClickListener);
+      tvHash.setLongClickable(true);
+      tvHash.setOnLongClickListener(new CopyClickListener());
 
       // Set Confirmed
       String confirmed;
@@ -146,13 +148,13 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Inputs
       LinearLayout inputs = (LinearLayout) findViewById(R.id.llInputs);
-      for (Item item : _tx.inputs) {
+      for (TransactionDetails.Item item : _tx.inputs) {
          inputs.addView(getItemView(item));
       }
 
       // Set Outputs
       LinearLayout outputs = (LinearLayout) findViewById(R.id.llOutputs);
-      for (Item item : _tx.outputs) {
+      for (TransactionDetails.Item item : _tx.outputs) {
          outputs.addView(getItemView(item));
       }
 
@@ -162,21 +164,21 @@ public class TransactionDetailsActivity extends Activity {
 
    }
 
-   private long getFee(TransactionSummary tx) {
+   private long getFee(TransactionDetails tx) {
       long inputs = sum(tx.inputs);
       long outputs = sum(tx.outputs);
       return inputs - outputs;
    }
 
-   private long sum(Item[] items) {
+   private long sum(TransactionDetails.Item[] items) {
       long sum = 0;
-      for (Item item : items) {
+      for (TransactionDetails.Item item : items) {
          sum += item.value;
       }
       return sum;
    }
 
-   private View getItemView(Item item) {
+   private View getItemView(TransactionDetails.Item item) {
       // Create vertical linear layout
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);
@@ -195,7 +197,7 @@ public class TransactionDetailsActivity extends Activity {
 
       ll.setPadding(10, 10, 10, 10);
       ll.setOnClickListener(_urlClickListener);
-      ll.setTag(BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE + address);
+      ll.setTag(_addressInfoTemplate + address);
       return ll;
    }
 
@@ -221,17 +223,17 @@ public class TransactionDetailsActivity extends Activity {
       return tv;
    }
 
-   @SuppressWarnings("unused")
-   private class CopyClickListener implements OnClickListener {
+   private class CopyClickListener implements View.OnLongClickListener {
 
       @Override
-      public void onClick(View v) {
+      public boolean onLongClick(View v) {
          if (v.getTag() == null) {
-            return;
+            return false;
          }
          Context context = TransactionDetailsActivity.this;
          Utils.setClipboardString(v.getTag().toString(), TransactionDetailsActivity.this);
          Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+         return true;
       }
    }
 
@@ -246,9 +248,8 @@ public class TransactionDetailsActivity extends Activity {
          Intent intent = new Intent(Intent.ACTION_VIEW);
          intent.setData(Uri.parse(url));
          startActivity(intent);
-         Toast.makeText(TransactionDetailsActivity.this, R.string.redirecting_to_blockchain_info, Toast.LENGTH_SHORT)
+         Toast.makeText(TransactionDetailsActivity.this, R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT)
                .show();
-
       }
    }
 

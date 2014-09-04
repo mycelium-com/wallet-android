@@ -57,10 +57,13 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 
+import java.util.UUID;
+
 public class CreateTrader3Activity extends Activity {
 
-   public static void callMe(Activity currentActivity, InMemoryPrivateKey privateKey) {
+   public static void callMe(Activity currentActivity, UUID accountId, InMemoryPrivateKey privateKey) {
       Intent intent = new Intent(currentActivity, CreateTrader3Activity.class);
+      intent.putExtra("accountId", accountId);
       intent.putExtra("privateKey", privateKey);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
@@ -70,6 +73,7 @@ public class CreateTrader3Activity extends Activity {
    private LocalTraderManager _ltManager;
    private EditText _etName;
    private Button _btCreate;
+   private UUID _accountId;
    private InMemoryPrivateKey _privateKey;
 
    /** Called when the activity is first created. */
@@ -86,6 +90,7 @@ public class CreateTrader3Activity extends Activity {
       _btCreate.setOnClickListener(createClickListener);
 
       // Load intent parameters
+      _accountId = (UUID) Preconditions.checkNotNull(getIntent().getSerializableExtra("accountId"));
       _privateKey = (InMemoryPrivateKey) Preconditions.checkNotNull(getIntent().getSerializableExtra("privateKey"));
 
       // XXX load saved name
@@ -179,7 +184,7 @@ public class CreateTrader3Activity extends Activity {
          // Create Trader Success
          // Hide progress bar
          findViewById(R.id.pbWait).setVisibility(View.GONE);
-         _ltManager.setLocalTraderData(_privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), getNickName());
+         _ltManager.setLocalTraderData(_accountId, _privateKey, _privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), getNickName());
          setResult(RESULT_OK);
          finish();
       }

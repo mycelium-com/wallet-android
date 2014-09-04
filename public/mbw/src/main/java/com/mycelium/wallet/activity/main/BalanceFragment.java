@@ -43,33 +43,25 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.google.common.base.Preconditions;
 import com.mrd.mbwapi.api.ExchangeRate;
-import com.mycelium.wallet.BalanceInfo;
-import com.mycelium.wallet.ScanRequest;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.ExchangeRateManager;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.BlockchainError;
 import com.mycelium.wallet.event.BlockchainReady;
-import com.mycelium.wallet.event.RecordSetChanged;
-import com.mycelium.wallet.event.SelectedRecordChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 public class BalanceFragment extends Fragment {
 
    private MbwManager _mbwManager;
-   private RecordManager _recordManager;
    private View _root;
    private ExchangeRate _exchangeRate;
    private Toaster _toaster;
@@ -81,7 +73,7 @@ public class BalanceFragment extends Fragment {
       balanceArea.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            _mbwManager.getSyncManager().triggerUpdate();
+            _mbwManager.getWalletManager(false).startSynchronization();
          }
       });
       return _root;
@@ -97,7 +89,6 @@ public class BalanceFragment extends Fragment {
    @Override
    public void onAttach(Activity activity) {
       _mbwManager = MbwManager.getInstance(getActivity());
-      _recordManager = _mbwManager.getRecordManager();
       _toaster = new Toaster(activity);
       super.onAttach(activity);
    }
@@ -126,7 +117,7 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), getWallet(), false,
+         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false,
                _exchangeRate == null ? null : _exchangeRate.price);
       }
    };
@@ -135,7 +126,7 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-         ReceiveCoinsActivity.callMe(getActivity(), _recordManager.getSelectedRecord());
+         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getId());
       }
    };
 
@@ -146,10 +137,6 @@ public class BalanceFragment extends Fragment {
          ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, ScanRequest.genericScanRequest());
       }
    };
-
-   private Wallet getWallet() {
-      return _recordManager.getWallet(_mbwManager.getWalletMode());
-   }
 
    @Override
    public void onPause() {
@@ -162,10 +149,11 @@ public class BalanceFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      Wallet wallet = getWallet();
-      BalanceInfo balance = wallet.getLocalBalance(_mbwManager.getBlockChainAddressTracker());
 
-      if (wallet.canSpend()) {
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      Balance balance = Preconditions.checkNotNull(account.getBalance());
+
+      if (account.canSpend()) {
          // Show spend button
          _root.findViewById(R.id.btSend).setVisibility(View.VISIBLE);
       } else {
@@ -173,15 +161,7 @@ public class BalanceFragment extends Fragment {
          _root.findViewById(R.id.btSend).setVisibility(View.GONE);
       }
 
-      if (balance == null) {
-         return;
-      }
-
-      if (balance.isKnown()) {
-         updateUiKnownBalance(wallet, balance);
-      } else {
-         updateUiUnknownBalance();
-      }
+      updateUiKnownBalance(balance);
 
       // Set BTC rate
       if (_exchangeRate == null) {
@@ -201,19 +181,18 @@ public class BalanceFragment extends Fragment {
       }
    }
 
-   private void updateUiKnownBalance(Wallet wallet, BalanceInfo balance) {
+   private void updateUiKnownBalance(Balance balance) {
 
       // Set Balance
-      ((TextView) _root.findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.unspent
-            + balance.pendingChange));
+      ((TextView) _root.findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));
 
       // Set balance fiat value
-      setFiatValue(R.id.tvFiat, balance.unspent + balance.pendingChange, false);
+      setFiatValue(R.id.tvFiat, balance.getSpendableBalance(), false);
 
       // Show/Hide Receiving
       // todo de-duplicate code
-      if (balance.pendingReceiving > 0) {
-         String receivingString = _mbwManager.getBtcValueString(balance.pendingReceiving);
+      if (balance.getReceivingBalance() > 0) {
+         String receivingString = _mbwManager.getBtcValueString(balance.getReceivingBalance());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = (TextView) _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -221,12 +200,12 @@ public class BalanceFragment extends Fragment {
       } else {
          _root.findViewById(R.id.tvReceiving).setVisibility(View.GONE);
       }
-      setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
+      setFiatValue(R.id.tvReceivingFiat, balance.getReceivingBalance(), true);
 
       // Show/Hide Sending
       // todo de-duplicate code
-      if (balance.pendingSending > 0) {
-         String sendingString = _mbwManager.getBtcValueString(balance.pendingSending);
+      if (balance.getSendingBalance() > 0) {
+         String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -234,7 +213,7 @@ public class BalanceFragment extends Fragment {
       } else {
          _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
       }
-      setFiatValue(R.id.tvSendingFiat, balance.pendingSending, true);
+      setFiatValue(R.id.tvSendingFiat, balance.getSendingBalance(), true);
 
    }
 
@@ -252,21 +231,6 @@ public class BalanceFragment extends Fragment {
 
    }
 
-   private void updateUiUnknownBalance() {
-
-      // Show "Tap to Refresh" instead of balance
-      ((TextView) _root.findViewById(R.id.tvBalance)).setText(R.string.tap_to_refresh);
-
-      // Hide Receiving
-      _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
-
-      // Hide Sending
-      _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
-
-      // Set Fiat value
-      _root.findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
-   }
-
    private ExchangeRateManager.EventSubscriber exchangeSubscriber = new ExchangeRateManager.EventSubscriber(
          new Handler()) {
 
@@ -277,35 +241,33 @@ public class BalanceFragment extends Fragment {
       }
 
       @Override
-      public void refreshingEcahngeRatesSuccedded() {
+      public void refreshingExchangeRatesSucceeded() {
          _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
          updateUi();
       }
    };
 
+
+   /**
+    * The selected Account changed, update UI to reflect other Balance
+    */
+   @Subscribe
+   public void selectedAccountChanged(SelectedAccountChanged event) {
+      updateUi();
+   }
+
+   /**
+    * balance has changed, update UI
+    */
+   @Subscribe
+   public void balanceChanged(BalanceChanged event) {
+      updateUi();
+   }
+
+   //TODO: check which events below still occur, or which events have to be added for HD
+
    @Subscribe
    public void balanceChanged(BlockchainReady blockchainReady) {
-      updateUi();
-   }
-
-   @Subscribe
-   public void onBlockchainError(BlockchainError exception) {
-      _toaster.toastConnectionError();
-   }
-
-   /**
-    * Fires when record set changed
-    */
-   @Subscribe
-   public void recordSetChanged(RecordSetChanged event) {
-      updateUi();
-   }
-
-   /**
-    * Fires when the selected record changes
-    */
-   @Subscribe
-   public void selectedRecordChanged(SelectedRecordChanged event) {
       updateUi();
    }
 

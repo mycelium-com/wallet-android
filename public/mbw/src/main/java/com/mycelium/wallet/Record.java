@@ -50,6 +50,8 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.persistence.MetadataStorage.BackupState;
+
 
 /**
  * Current Serialized Format: <HEX encoded 21 byte address>| <Bitcoin address
@@ -60,38 +62,6 @@ public class Record implements Serializable, Comparable<Record> {
    private static final long serialVersionUID = 1L;
 
    private static final int CURRENT_VERSION = 2;
-
-   /**
-    * A record backup state tells us what we know about the backup state of the
-    * private key.
-    */
-   public enum BackupState {
-      UNKNOWN(0), VERIFIED(1), IGNORED(2);
-
-      private final int _index;
-
-      private BackupState(int index) {
-         _index = index;
-      }
-
-      public int toInt() {
-         return _index;
-      }
-
-      public static BackupState fromInt(int integer) {
-         switch (integer) {
-         case 0:
-            return BackupState.UNKNOWN;
-         case 1:
-            return BackupState.VERIFIED;
-         case 2:
-            return BackupState.IGNORED;
-         default:
-            return BackupState.UNKNOWN;
-         }
-      }
-
-   }
 
    /**
     * A record tag identifies which set a record belongs to, currently Active or
@@ -192,10 +162,6 @@ public class Record implements Serializable, Comparable<Record> {
       return new Record(key, address, timestamp, source, tag, backupState);
    }
 
-   public void forgetPrivateKey() {
-      key = null;
-   }
-
    public boolean hasPrivateKey() {
       return key != null;
    }
@@ -203,13 +169,6 @@ public class Record implements Serializable, Comparable<Record> {
    @Override
    public String toString() {
       return address.toString();
-   }
-
-   public boolean needsBackupVerification() {
-      if (hasPrivateKey() && backupState == BackupState.UNKNOWN) {
-         return true;
-      }
-      return false;
    }
 
    @Override
@@ -532,15 +491,6 @@ public class Record implements Serializable, Comparable<Record> {
       } catch (IllegalArgumentException e) {
          return Optional.absent();
       }
-   }
-
-   /**
-    * Add a record from a seed using the same mechanism as brainwallet.org
-    */
-   public static Record recordFromRandomSeed(String seed, boolean compressed, NetworkParameters network) {
-      Sha256Hash hash = HashUtils.sha256(seed.getBytes());
-      InMemoryPrivateKey key = new InMemoryPrivateKey(hash, compressed);
-      return new Record(key, Source.IMPORTED_SEED_PRIVATE_KEY, network);
    }
 
    public static Record createRandom(RandomSource randomSource, NetworkParameters network) {

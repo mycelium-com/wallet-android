@@ -110,4 +110,20 @@ public class BitcoinUri implements Serializable {
       return new BitcoinUri(address, null, null);
    }
 
+    public String toString() {
+        StringBuilder builder = new StringBuilder("bitcoin:");
+        builder.append(address.toString());
+        if (amount != null) {
+            builder.append("?amount=").append(amount.toString());
+            if (label != null) {
+                builder.append("&label=").append(label);
+            }
+            return  builder.toString();
+        }
+        if (label != null) {
+            builder.append("?label=").append(label);
+        }
+        return builder.toString();
+    }
+
 }

@@ -21,6 +21,15 @@
             android:contentDescription="@string/an_icon"
             android:src="@drawable/holo_dark_ic_action_accounts" >
         </ImageView>
+
+        <ImageView
+                android:id="@+id/ivMultipleKeys"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                android:contentDescription="@string/an_icon"
+                android:src="@drawable/multikeys_grey" >
+        </ImageView>
     </FrameLayout>
 
     <LinearLayout

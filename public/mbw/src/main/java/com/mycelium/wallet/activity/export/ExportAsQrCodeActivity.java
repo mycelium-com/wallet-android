@@ -43,11 +43,15 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class ExportAsQrCodeActivity extends Activity {
 
@@ -66,8 +70,18 @@ public class ExportAsQrCodeActivity extends Activity {
 
       // Get base58 encoded private key
       _mbwManager = MbwManager.getInstance(getApplication());
-      Record record = _mbwManager.getRecordManager().getSelectedRecord();
-      final String base58 = record.key.getBase58EncodedPrivateKey(_mbwManager.getNetwork());
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      if (!(account instanceof SingleAddressAccount)) {
+         return;
+      }
+
+      InMemoryPrivateKey privateKey;
+      try {
+         privateKey = ((SingleAddressAccount) account).getPrivateKey(AesKeyCipher.defaultKeyCipher());
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
+      }
+      final String base58 = privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork());
 
       // Set QR code
       QrImageView iv = (QrImageView) findViewById(R.id.ivQrCode);

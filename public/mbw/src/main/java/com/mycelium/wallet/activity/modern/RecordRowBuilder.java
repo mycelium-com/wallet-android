@@ -34,34 +34,36 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import java.util.Set;
-
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.AddressBookManager;
-import com.mycelium.wallet.BalanceInfo;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
 
 public class RecordRowBuilder {
 
-   public static View buildRecordView(Resources resources, MbwManager mbwManager, LayoutInflater inflater,
-         AddressBookManager addressBook, ViewGroup parent, Record record, boolean isSelected, boolean hasFocus,
-         Set<Address> selectedAddresses) {
+   private final MbwManager mbwManager;
+   private final Resources resources;
+   private final LayoutInflater inflater;
+
+   public RecordRowBuilder(MbwManager mbwManager, Resources resources, LayoutInflater inflater) {
+      this.mbwManager = mbwManager;
+      this.resources = resources;
+      this.inflater = inflater;
+   }
+
+   public View buildRecordView(ViewGroup parent, WalletAccount walletAccount, boolean isSelected, boolean hasFocus) {
       View rowView = inflater.inflate(R.layout.record_row, parent, false);
 
       // Make grey if not part of the balance
-
-      if (!selectedAddresses.contains(record.address)) {
+      if (!isSelected) {
          Utils.setAlpha(rowView, 0.5f);
       }
 
@@ -73,13 +75,18 @@ public class RecordRowBuilder {
       }
 
       // Show/hide key icon
-      if (!record.hasPrivateKey()) {
+      if (!walletAccount.canSpend()) {
          rowView.findViewById(R.id.ivKey).setVisibility(View.INVISIBLE);
+         rowView.findViewById(R.id.ivMultipleKeys).setVisibility(View.INVISIBLE);
+      } else if (walletAccount instanceof Bip44Account) {
+         rowView.findViewById(R.id.ivKey).setVisibility(View.INVISIBLE);
+         rowView.findViewById(R.id.ivMultipleKeys).setVisibility(View.VISIBLE);
+      } else {
+         rowView.findViewById(R.id.ivKey).setVisibility(View.VISIBLE);
+         rowView.findViewById(R.id.ivMultipleKeys).setVisibility(View.INVISIBLE);
       }
 
-      // Set Label
-      String address = record.address.toString();
-      String name = addressBook.getNameByAddress(address);
+      String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
       if (name.length() == 0) {
          ((TextView) rowView.findViewById(R.id.tvLabel)).setVisibility(View.GONE);
       } else {
@@ -91,62 +98,63 @@ public class RecordRowBuilder {
       }
 
       String displayAddress;
-      if (name.length() == 0) {
-         // Display address in it's full glory, chopping it into three
-         displayAddress = record.address.toMultiLineString();
+      if (walletAccount instanceof Bip44Account) {
+         if (walletAccount.isActive()) {
+            int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
+            if (numKeys > 1) {
+               displayAddress = resources.getString(R.string.contains_keys, numKeys);
+            } else {
+               displayAddress = resources.getString(R.string.contains_one_key);
+            }
+         } else {
+            displayAddress = ""; //dont show key count of archived accs
+         }
       } else {
-         // Display address in short form
-         displayAddress = getShortAddress(address);
+         if (name.length() == 0 && walletAccount.isActive()) {
+            // Display address in it's full glory, chopping it into three
+            displayAddress = walletAccount.getReceivingAddress().toMultiLineString();
+         } else {
+            // Display address in short form
+            displayAddress = getShortAddress(walletAccount.getReceivingAddress().toString());
+         }
       }
+
+
       TextView tvAddress = ((TextView) rowView.findViewById(R.id.tvAddress));
       tvAddress.setText(displayAddress);
       tvAddress.setTextColor(textColor);
 
       // Set tag
-      rowView.setTag(record);
-
-      // Show selected address with a different color
-      if (isSelected) {
-         // rowView.setBackgroundColor(resources.getColor(R.color.black));
-         // rowView.setBackgroundDrawable(resources.getDrawable(R.drawable.btn_blue_slim));
-      } else {
-         // rowView.setBackgroundDrawable(resources.getDrawable(R.drawable.btn_pitch_black_slim));
-      }
+      rowView.setTag(walletAccount);
 
       // Set balance
-      if (record.tag == Tag.ACTIVE) {
-         BalanceInfo balance = new Wallet(record).getLocalBalance(mbwManager.getBlockChainAddressTracker());
-         if (balance.isKnown()) {
-            rowView.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
-            String balanceString = mbwManager.getBtcValueString(balance.unspent + balance.pendingChange);
-            TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
-            tvBalance.setText(balanceString);
-            tvBalance.setTextColor(textColor);
-         } else {
-            // We don't show anything if we don't know the balance
-            rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
-         }
+      if (walletAccount.isActive()) {
+         Balance balance = walletAccount.getBalance();
+         rowView.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
+         String balanceString = mbwManager.getBtcValueString(balance.confirmed + balance.pendingChange);
+         TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
+         tvBalance.setText(balanceString);
+         tvBalance.setTextColor(textColor);
       } else {
-         // We don't show anything if we don't know the address is archived
+         // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
       }
 
-      // Show or hide backup verification warning
-      if (record.needsBackupVerification()) {
+      boolean needsBackupVerification = walletAccount.canSpend() && mbwManager.getMetadataStorage().getBackupState(walletAccount).equals(MetadataStorage.BackupState.UNKNOWN);
+      if (needsBackupVerification) {
          rowView.findViewById(R.id.tvNoBackupWarning).setVisibility(View.VISIBLE);
       } else {
          rowView.findViewById(R.id.tvNoBackupWarning).setVisibility(View.GONE);
       }
 
-      // Show/hide key icon
-      if (record.address.equals(mbwManager.getLocalTraderManager().getLocalTraderAddress())) {
+      // Show/hide trader account message
+      if (walletAccount.getId().equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
          rowView.findViewById(R.id.tvTraderKey).setVisibility(View.VISIBLE);
       } else {
          rowView.findViewById(R.id.tvTraderKey).setVisibility(View.GONE);
       }
 
       return rowView;
-
    }
 
    private static String getShortAddress(String addressString) {

@@ -60,7 +60,7 @@ public class TradeSessionDb {
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "tradesession.db";
-      private static final int MINOR_DATABASE_VERSION = 2;
+      private static final int MINOR_DATABASE_VERSION = 3;
       // Automatically increase the database version when the LT API version
       // increases. Also allow for minor database versions which is useful during development.
       private static final int DATABASE_VERSION = LtApi.VERSION << 8 + MINOR_DATABASE_VERSION;

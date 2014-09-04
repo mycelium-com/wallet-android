@@ -55,7 +55,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
+import com.mrd.bitlib.util.StringUtils;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
@@ -64,6 +66,8 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.util.Locale;
 
@@ -119,21 +123,7 @@ public class SettingsActivity extends PreferenceActivity {
          return true;
       }
    };
-   private final OnPreferenceClickListener expertModeClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.setExpertMode(p.isChecked());
-         applyExpertMode();
-         return true;
-      }
-   };
-   private final OnPreferenceClickListener continuousAutoFocusClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.setContinuousFocus(p.isChecked());
-         return true;
-      }
-   };
+
    private final OnPreferenceClickListener ltDisableLocalTraderClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
@@ -156,19 +146,29 @@ public class SettingsActivity extends PreferenceActivity {
          return true;
       }
    };
-   private final OnPreferenceClickListener aggregatedViewClickListener = new OnPreferenceClickListener() {
+
+   private final OnPreferenceClickListener debugMasterSeedClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         WalletMode mode = p.isChecked() ? WalletMode.Aggregated : WalletMode.Segregated;
-         _mbwManager.setWalletMode(mode);
-         return true;
+         if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+            return false;
+         }
+         try {
+            Bip39.MasterSeed masterSeed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
+            StringBuilder sb = new StringBuilder();
+            sb.append("Word List:\n").append('[').append(StringUtils.join(masterSeed.getBip39WordList(), " ")).append("]\n");
+            sb.append("Password: ").append(masterSeed.getBip39Password().length() == 0 ? "<nothing>" : masterSeed.getBip39Password());
+            Utils.showSimpleMessageDialog(SettingsActivity.this, sb.toString());
+            return true;
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            return false;
+         }
       }
    };
+
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
    private ListPreference _language;
-   private CheckBoxPreference _aggregatedView;
    private CheckBoxPreference _ltDisable;
    private CheckBoxPreference _ltNotificationSound;
    private CheckBoxPreference _ltMilesKilometers;
@@ -225,6 +225,8 @@ public class SettingsActivity extends PreferenceActivity {
             return true;
          }
       });
+
+      findPreference("master_key_debug").setOnPreferenceClickListener(debugMasterSeedClickListener);
 
       _localCurrency = findPreference("local_currency");
       _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
@@ -304,21 +306,6 @@ public class SettingsActivity extends PreferenceActivity {
       _ltMilesKilometers.setChecked(_ltManager.useMiles());
       _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
 
-      // Expert Mode
-      CheckBoxPreference expertMode = (CheckBoxPreference) findPreference("expertMode");
-      expertMode.setChecked(_mbwManager.getExpertMode());
-      expertMode.setOnPreferenceClickListener(expertModeClickListener);
-
-      // Use continuous autofocus while scanning for QR-Codes
-      CheckBoxPreference continuousFocus = (CheckBoxPreference) findPreference("continuousFocus");
-      continuousFocus.setChecked(_mbwManager.getContinuousFocus());
-      continuousFocus.setOnPreferenceClickListener(continuousAutoFocusClickListener);
-
-      // Aggregated View
-      _aggregatedView = (CheckBoxPreference) findPreference("aggregatedView");
-      _aggregatedView.setChecked(_mbwManager.getWalletMode() == WalletMode.Aggregated);
-      _aggregatedView.setOnPreferenceClickListener(aggregatedViewClickListener);
-
       // Socks Proxy
       _proxy = Preconditions.checkNotNull((EditTextPreference) findPreference("proxy"));
       _proxy.setTitle(getSocksProxyTitle());
@@ -333,7 +320,6 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
-      applyExpertMode();
       applyLocalTraderEnablement();
    }
 
@@ -408,12 +394,6 @@ public class SettingsActivity extends PreferenceActivity {
       Intent running = getIntent();
       finish();
       startActivity(running);
-   }
-
-   private void applyExpertMode() {
-      boolean expert = _mbwManager.getExpertMode();
-      _aggregatedView.setEnabled(expert);
-      _proxy.setEnabled(expert);
    }
 
    private void applyLocalTraderEnablement() {
@@ -518,14 +498,11 @@ public class SettingsActivity extends PreferenceActivity {
       public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
          AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
-         b.setTitle(getString(R.string.lt_enter_your_email_address));
          b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                String email = emailEdit.getText().toString();
                _ltManager.makeRequest(new SetNotificationMail(email));
-               final Context context = SettingsActivity.this;
-               Utils.showSimpleMessageDialog(context, getString(R.string.lt_check_your_mail));
             }
          });
          b.setNegativeButton(R.string.cancel, null);

@@ -39,7 +39,7 @@ import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
@@ -48,7 +48,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
@@ -56,18 +59,25 @@ import com.mycelium.wallet.activity.modern.ExploreHelper;
 import com.mycelium.wallet.api.AndroidApiCache;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.api.ApiCache;
-import com.mycelium.wallet.event.SelectedRecordChanged;
+import com.mycelium.wallet.event.EventTranslator;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.persistence.TxOutDb;
+import com.mycelium.wallet.wapi.SqliteWalletManagerBacking;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 
-import java.util.Locale;
+import java.util.*;
 
 public class MbwManager {
 
    public static final String PROXY_HOST = "socksProxyHost";
    public static final String PROXY_PORT = "socksProxyPort";
+   public static final String SELECTED_ACCOUNT = "selectedAccount";
    private static volatile MbwManager _instance = null;
 
    public static synchronized MbwManager getInstance(Context context) {
@@ -78,25 +88,23 @@ public class MbwManager {
    }
 
    private final Bus _eventBus;
-   private final SyncManager _syncManager;
    private NetworkConnectionWatcher _connectionWatcher;
    private Context _applicationContext;
    private int _displayWidth;
    private int _displayHeight;
    private ApiCache _cache;
    private AndroidAsyncApi _asyncApi;
-   private RecordManager _recordManager;
    private AddressBookManager _addressBookManager;
+   private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
    private BlockChainAddressTracker _blockChainAddressTracker;
    private final String _btcValueFormatString;
    private String _pin;
    private Denomination _bitcoinDenomination;
-   private WalletMode _walletMode;
    private String _fiatCurrency;
-   private boolean _expertMode;
    private boolean _enableContinuousFocus;
    private boolean _keyManagementLocked;
+   private boolean _isBitidEnabled;
    private int _mainViewFragmentIndex;
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
    private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
@@ -106,6 +114,9 @@ public class MbwManager {
    private String _language;
    private final VersionManager _versionManager;
    private final ExchangeRateManager _exchangeRateManager;
+   private final WalletManager _walletManager;
+   private WalletManager _tempWalletManager;
+   private final RandomSource _randomSource;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -120,6 +131,7 @@ public class MbwManager {
       }
 
       _eventBus = new Bus();
+      _randomSource = new AndroidRandomSource();
 
       // Preferences
       SharedPreferences preferences = getPreferences();
@@ -130,24 +142,21 @@ public class MbwManager {
       _cache = new AndroidApiCache(_applicationContext);
       TxOutDb txOutDb = new TxOutDb(_applicationContext);
       _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _cache, _eventBus);
-      _recordManager = new RecordManager(_applicationContext, _eventBus, _environment.getNetwork());
+
+      _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
       // Local Trader
       TradeSessionDb tradeSessionDb = new TradeSessionDb(_applicationContext);
-      _localTraderManager = new LocalTraderManager(_applicationContext, _recordManager, tradeSessionDb,
+      _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb,
             _environment.getLocalTraderApi(), this);
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
       _pin = preferences.getString(Constants.PIN_SETTING, "");
-      _walletMode = WalletMode.fromInteger(preferences.getInt(Constants.WALLET_MODE_SETTING,
-            Constants.DEFAULT_WALLET_MODE.asInteger()));
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
             Denomination.mBTC.toString()));
-      _expertMode = preferences.getBoolean(Constants.EXPERT_MODE_SETTING, getExpertModeDefault());
-      _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING,
-            getContinuousFocusDefault());
+      _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
       _mainViewFragmentIndex = preferences.getInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, 0);
 
@@ -161,10 +170,10 @@ public class MbwManager {
       _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, txOutDb, _applicationContext, _eventBus,
             _environment.getNetwork());
       _addressBookManager = new AddressBookManager(_applicationContext, _eventBus);
+      _storage = new MetadataStorage(_applicationContext);
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
-      _syncManager = new SyncManager(_eventBus, this, _recordManager, _blockChainAddressTracker, _versionManager);
       _exchangeRateManager = new ExchangeRateManager(_applicationContext, _environment.getMwsApi(), this);
 
 
@@ -173,28 +182,152 @@ public class MbwManager {
       int memoryClass = am.getMemoryClass();
 
       _deviceScryptParameters = memoryClass > 20
-              ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
-              : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
+            ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
+            : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
+
+      _walletManager = createWalletManager(_applicationContext, _environment);
+      _walletManager.addObserver(new EventTranslator(new Handler(), _eventBus));
+      migrateOldKeys();
+
+      // If we have no accounts create a new random one
+      if (_walletManager.getAccountIds().isEmpty()) {
+         InMemoryPrivateKey privateKey = new InMemoryPrivateKey(_randomSource, true);
+         try {
+            _walletManager.createSingleAddressAccount(privateKey, AesKeyCipher.defaultKeyCipher());
+         } catch (KeyCipher.InvalidKeyCipher e) {
+            throw new RuntimeException(e);
+         }
+         Toast.makeText(_applicationContext, R.string.created_new_random_key, Toast.LENGTH_LONG).show();
+      }
+      //for managing temp accounts created through scanning
+      _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
+      _tempWalletManager.addObserver(new EventTranslator(new Handler(), _eventBus));
+   }
+
+   private void migrateOldKeys() {
+      // We only migrate old keys if we don't have any accounts yet - otherwise, migration has already taken place
+      if (!_walletManager.getAccountIds().isEmpty()) return;
+
+      // Get the local trader address, may be null
+      Address localTraderAddress = _localTraderManager.getLocalTraderAddress();
+      if (localTraderAddress == null) {
+         _localTraderManager.unsetLocalTraderAccount();
+      }
+
+      // Migrate all existing records to accounts
+      List<Record> records = loadClassicRecords();
+      for (Record record : records) {
+
+         // Create an account from this record
+         UUID account;
+         if (record.hasPrivateKey()) {
+            try {
+               account = _walletManager.createSingleAddressAccount(record.key, AesKeyCipher.defaultKeyCipher());
+               _storage.setBackupState(account, record.backupState);
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+               throw new RuntimeException(invalidKeyCipher);
+            }
+         } else {
+            account = _walletManager.createSingleAddressAccount(record.address);
+         }
+
+         //check whether the record was archived
+         if (record.tag.equals(Record.Tag.ARCHIVE)) {
+            _walletManager.getAccount(account).archiveAccount();
+         }
+
+         // See if we need to migrate this account to local trader
+         if (record.address.equals(localTraderAddress)) {
+            if (record.hasPrivateKey()) {
+               _localTraderManager.setLocalTraderData(account, record.key, record.address, _localTraderManager.getNickname());
+            } else {
+               _localTraderManager.unsetLocalTraderAccount();
+            }
+         }
+      }
+
+      migrateAddressLabelsToAccountNames();
+   }
+
+   private List<Record> loadClassicRecords() {
+      SharedPreferences prefs = _applicationContext.getSharedPreferences("data", Context.MODE_PRIVATE);
+      List<Record> recordList = new LinkedList<Record>();
+
+      // Load records
+      String records = prefs.getString("records", "");
+      for (String one : records.split(",")) {
+         one = one.trim();
+         if (one.length() == 0) {
+            continue;
+         }
+         Record record = Record.fromSerializedString(one);
+         if (record != null) {
+            recordList.add(record);
+         }
+      }
+
+      // Sort all records
+      Collections.sort(recordList);
+      return recordList;
+   }
+
+   private void migrateAddressLabelsToAccountNames() {
+      for (UUID accountId : _walletManager.getAccountIds()) {
+         WalletAccount account = _walletManager.getAccount(accountId);
+         if (account instanceof SingleAddressAccount) {
+            AddressBookManager.AddressKey key = new AddressBookManager.AddressKey(((SingleAddressAccount) account).getAddress());
+            String name = _addressBookManager.getNameByKey(key);
+            if (name != null && !name.equals("")) {
+               _storage.storeAccountLabel(accountId, name);
+            }
+         }
+      }
    }
 
    /**
-    * This helper method allows us to set sane default for users who installed
-    * the wallet before we added expert mode
+    * Create a Wallet Manager instance
+    *
+    * @param context     the application context
+    * @param environment the Mycelium environment
+    * @return a new wallet manager instance
     */
-   private boolean getExpertModeDefault() {
-      // There is more than one record, so we default to expert mode
-      // Do not enable expert mode by default
-      return _recordManager.numRecords() > 1;
+   private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
+
+
+      // Create persisted account backing
+      WalletManagerBacking backing = new SqliteWalletManagerBacking(context);
+
+      // Create persisted secure storage instance
+      SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
+            new AndroidRandomSource());
+
+      // Create and return wallet manager
+      return new WalletManager(secureKeyValueStore, backing, environment.getNetwork(),
+            environment.getWapi());
    }
 
-   private boolean getContinuousFocusDefault() {
-      if (Build.MODEL.equals("Nexus 4")) {
-         // Disabled for Nexus 4
-         return false;
-      }
-      // We may need to disable it for other models as well. TBD.
-      return true;
+   /**
+    * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence
+    *
+    * @param context     the application context
+    * @param environment the Mycelium environment
+    * @return a new in memory backed wallet manager instance
+    */
+   private WalletManager createTempWalletManager(final Context context, MbwEnvironment environment) {
+
+      // Create in-memory account backing
+      WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+
+      // Create secure storage instance
+      SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
+
+      // Create and return wallet manager
+      WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(),
+            environment.getWapi());
+      walletManager.disableTransactionHistorySynchronization();
+      return walletManager;
    }
+
 
    public ApiCache getCache() {
       return _cache;
@@ -223,10 +356,6 @@ public class MbwManager {
       editor.commit();
    }
 
-   public WalletMode getWalletMode() {
-      return _walletMode;
-   }
-
    private SharedPreferences getPreferences() {
       return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
    }
@@ -235,24 +364,12 @@ public class MbwManager {
       return getPreferences().edit();
    }
 
-   public void setWalletMode(WalletMode mode) {
-      _walletMode = mode;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putInt(Constants.WALLET_MODE_SETTING, _walletMode.asInteger());
-      editor.commit();
-      _eventBus.post(new SelectedRecordChanged(_recordManager.getSelectedRecord()));
-   }
-
    public AndroidAsyncApi getAsyncApi() {
       return _asyncApi;
    }
 
    public LocalTraderManager getLocalTraderManager() {
       return _localTraderManager;
-   }
-
-   public RecordManager getRecordManager() {
-      return _recordManager;
    }
 
    public ExchangeRateManager getExchangeRateManager() {
@@ -333,15 +450,6 @@ public class MbwManager {
       return String.format(formatString, valueString, d.getUnicodeName());
    }
 
-   public boolean getExpertMode() {
-      return _expertMode;
-   }
-
-   public void setExpertMode(boolean expertMode) {
-      _expertMode = expertMode;
-      getEditor().putBoolean(Constants.EXPERT_MODE_SETTING, _expertMode).commit();
-   }
-
    public boolean isKeyManagementLocked() {
       return _keyManagementLocked;
    }
@@ -359,6 +467,7 @@ public class MbwManager {
       _enableContinuousFocus = enableContinuousFocus;
       getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).commit();
    }
+
 
    public void setProxy(String proxy) {
       getEditor().putString(Constants.PROXY_SETTING, proxy).commit();
@@ -407,10 +516,6 @@ public class MbwManager {
       return _eventBus;
    }
 
-   public SyncManager getSyncManager() {
-      return _syncManager;
-   }
-
    /**
     * Get the Bitcoin network parameters that the wallet operates on
     */
@@ -426,7 +531,9 @@ public class MbwManager {
       return _environment.getBrand();
    }
 
-   public boolean isBitidEnabled() { return _environment.isBitidEnabled(); }
+   public boolean isBitidEnabled() {
+      return _isBitidEnabled;
+   }
 
    public ExploreHelper getExploreHelper() {
       return exploreHelper;
@@ -457,4 +564,70 @@ public class MbwManager {
    public MrdExport.V1.ScryptParameters getDeviceScryptParameters() {
       return _deviceScryptParameters;
    }
+
+   public WalletManager getWalletManager(boolean isColdStorage) {
+      if (isColdStorage) {
+         return _tempWalletManager;
+      }
+      return _walletManager;
+   }
+
+   public UUID createOnTheFlyAccount(Address address) {
+      UUID accountId = _tempWalletManager.createSingleAddressAccount(address);
+      _tempWalletManager.startSynchronization();
+      return accountId;
+   }
+
+   public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {
+      UUID accountId;
+      try {
+         accountId = _tempWalletManager.createSingleAddressAccount(privateKey, AesKeyCipher.defaultKeyCipher());
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
+      }
+      _tempWalletManager.startSynchronization();
+      return accountId;
+   }
+
+   public void forgetColdStorageWalletManager() {
+      _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
+      _tempWalletManager.addObserver(new EventTranslator(new Handler(), _eventBus));
+   }
+
+   public WalletAccount getSelectedAccount() {
+      // Get the selected account ID
+      String uuidStr = getPreferences().getString(SELECTED_ACCOUNT, "");
+      UUID uuid = null;
+      if (uuidStr.length() != 0) {
+         try {
+            uuid = UUID.fromString(uuidStr);
+         } catch (IllegalArgumentException e) {
+            // default to null and select another account below
+         }
+      }
+      // If nothing is selected, pick the first one
+      if (uuid == null || !_walletManager.hasAccount(uuid)) {
+         uuid = _walletManager.getAccountIds().get(0);
+         setSelectedAccount(uuid);
+      }
+
+      return _walletManager.getAccount(uuid);
+   }
+
+   public void setSelectedAccount(UUID uuid) {
+      WalletAccount account = _walletManager.getAccount(uuid);
+      Preconditions.checkState(account.isActive());
+      getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
+      getEventBus().post(new SelectedAccountChanged(uuid));
+      getEventBus().post(new ReceivingAddressChanged(account.getReceivingAddress()));
+   }
+
+   public MetadataStorage getMetadataStorage() {
+      return _storage;
+   }
+
+   public RandomSource getRandomSource() {
+      return _randomSource;
+   }
+
 }

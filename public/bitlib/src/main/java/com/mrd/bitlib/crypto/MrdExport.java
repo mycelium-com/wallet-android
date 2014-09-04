@@ -17,11 +17,14 @@
 package com.mrd.bitlib.crypto;
 
 import Rijndael.Rijndael;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptProgress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -31,7 +34,7 @@ import java.security.GeneralSecurityException;
 
 public class MrdExport {
 
-   private static final byte[] MAGIC_COOKIE = new byte[] { (byte) 0xc4, (byte) 0x49, (byte) 0xdc };
+   private static final byte[] MAGIC_COOKIE = new byte[]{(byte) 0xc4, (byte) 0x49, (byte) 0xdc};
    public static final int V1_VERSION = 1;
 
    public static boolean isChecksumValid(String enteredText) {
@@ -74,7 +77,6 @@ public class MrdExport {
       private static final int V1_SALT_LENGTH = 4;
       private static final int V1_HEADER_LENGTH = MAGIC_COOKIE.length + 3 + V1_SALT_LENGTH;
       private static final int V1_CHECKSUM_LENGTH = 4;
-      private static final int V1_LENGTH = V1_HEADER_LENGTH + 32 + V1_CHECKSUM_LENGTH;
       private static final int V1_BLOCK_CIPHER_LENGTH = 16;
       public static final int V1_CIPHER_KEY_LENGTH = 32;
 
@@ -163,7 +165,7 @@ public class MrdExport {
          }
       }
 
-      public static class KdfParameters extends ScryptParameters  {
+      public static class KdfParameters extends ScryptParameters {
          private static final long serialVersionUID = 1L;
 
          public String passphrase;
@@ -218,9 +220,9 @@ public class MrdExport {
          // 21 - version bit 1
          // 20 - version bit 0
          // 19 - network bit
-         // 18 - reserved = 0
-         // 17 - reserved = 0
-         // 16 - compression bit
+         // 18 - type bit 2
+         // 17 - type bit 1
+         // 16 - type bit 0
          // 15 - n bit 4
          // 14 - n bit 3
          // 13 - n bit 2
@@ -238,18 +240,22 @@ public class MrdExport {
          // 1 - p bit 0
          // 0 - reserved = 0
 
+         public enum Type {UNCOMPRESSED, COMPRESSED, MASTER_SEED}
+
+         ;
+
          public int version;
          public NetworkParameters network;
-         public boolean compressed;
+         public Type type;
          public int n;
          public int r;
          public int p;
          public byte[] salt;
 
-         public Header(int version, NetworkParameters network, boolean compressed, int n, int r, int p, byte[] salt) {
+         public Header(int version, NetworkParameters network, Type type, int n, int r, int p, byte[] salt) {
             this.version = version;
             this.network = network;
-            this.compressed = compressed;
+            this.type = type;
             this.n = n;
             this.r = r;
             this.p = p;
@@ -273,8 +279,21 @@ public class MrdExport {
             // First header byte (bits 23-16)
             byte versionBits = ((byte) V1_VERSION) << 4; // bits 4, 5, 6, 7
             byte networkBits = (byte) (network.isProdnet() ? 0 : 8); // bit 3
-            byte compressedBits = (byte) (compressed ? 1 : 0); // bit 0
-            bytes[3] = (byte) (versionBits | networkBits | compressedBits);
+            byte typeBits; // bits 0,1,2
+            switch (type) {
+               case UNCOMPRESSED:
+                  typeBits = 0;
+                  break;
+               case COMPRESSED:
+                  typeBits = 1;
+                  break;
+               case MASTER_SEED:
+                  typeBits = 2;
+                  break;
+               default:
+                  throw new RuntimeException("Invalid type: " + type.toString());
+            }
+            bytes[3] = (byte) (versionBits | networkBits | typeBits);
 
             // Second header byte (bits 15-8)
             // Containing the 5 n bits and the three top bits of the the 5 r
@@ -315,13 +334,22 @@ public class MrdExport {
             NetworkParameters network = (bytes[3] & 0x08) == 0x08 ? NetworkParameters.testNetwork
                   : NetworkParameters.productionNetwork;
 
-            // Validate reserved (bits 1, 2 of byte 0)
-            if ((bytes[3] & 0x06) != 0) {
-               throw new DecodingException();
+            // Type
+            int typeBits = bytes[3] & 0x07;
+            Type type;
+            switch (typeBits) {
+               case 0:
+                  type = Type.UNCOMPRESSED;
+                  break;
+               case 1:
+                  type = Type.COMPRESSED;
+                  break;
+               case 2:
+                  type = Type.MASTER_SEED;
+                  break;
+               default:
+                  throw new DecodingException();
             }
-
-            // Get Compressed public key (bit 0)
-            boolean compressed = (bytes[3] & 0x01) == 0x01;
 
             // Get n
             int n = (bytes[4] >> 3) & 0x1F; // bits 3, 4, 5, 6, 7
@@ -341,7 +369,7 @@ public class MrdExport {
             // Get the salt, byte index 6, 7, 8, 9
             byte[] salt = new byte[V1_SALT_LENGTH];
             System.arraycopy(bytes, 6, salt, 0, V1_SALT_LENGTH);
-            return new Header(version, network, compressed, n, r, p, salt);
+            return new Header(version, network, type, n, r, p, salt);
          }
 
          @Override
@@ -353,7 +381,7 @@ public class MrdExport {
                return false;
             }
             Header o = (Header) obj;
-            return version == o.version && network.equals(o.network) && compressed == o.compressed && n == o.n
+            return version == o.version && network.equals(o.network) && type == o.type && n == o.n
                   && r == o.r && p == o.p;
          }
       }
@@ -361,9 +389,6 @@ public class MrdExport {
       public static Header extractHeader(String base64EncryptedPrivateKey) throws DecodingException {
          // Decode data
          byte[] data = base64UrlDecode(base64EncryptedPrivateKey);
-         if (data.length != V1_LENGTH) {
-            throw new DecodingException();
-         }
 
          // Decode and verify header
          return Header.fromBytes(data);
@@ -372,32 +397,23 @@ public class MrdExport {
       /**
        * Decrypt a private key for either testnet or prodnet using the version 1
        * format.
-       * 
-       * @param parameters
-       *           The decryption parameters to use
-       * @param base64EncryptedPrivateKey
-       *           the version 1 encrypted private key
-       * @param network
-       *           the Bitcoin network this key is meant for
+       *
+       * @param parameters                The decryption parameters to use
+       * @param base64EncryptedPrivateKey the version 1 encrypted private key
+       * @param network                   the Bitcoin network this key is meant for
        * @return The base58 encoded private key
-       * @throws DecodingException
-       *            if base64EncryptedPrivateKey does not follow the version 1
-       *            format
-       * @throws WrongNetworkException
-       *            if this key was not meant for the specified network
-       * @throws InvalidChecksumException
-       *            if the checksum of the output key does not match the
-       *            checksum. This happens when the password supplied is
-       *            incorrect.
+       * @throws DecodingException        if base64EncryptedPrivateKey does not follow the version 1
+       *                                  format, or if the type is not a compressed or uncompressed private key
+       * @throws WrongNetworkException    if this key was not meant for the specified network
+       * @throws InvalidChecksumException if the checksum of the output key does not match the
+       *                                  checksum. This happens when the password supplied is
+       *                                  incorrect.
        */
-      public static String decrypt(EncryptionParameters parameters, String base64EncryptedPrivateKey,
-            NetworkParameters network) throws DecodingException, WrongNetworkException, InvalidChecksumException {
+      public static String decryptPrivateKey(EncryptionParameters parameters, String base64EncryptedPrivateKey,
+                                             NetworkParameters network) throws DecodingException, WrongNetworkException, InvalidChecksumException {
 
          // Decode data
          byte[] data = base64UrlDecode(base64EncryptedPrivateKey);
-         if (data.length != V1_LENGTH) {
-            throw new DecodingException();
-         }
          int index = 0;
 
          // Decode and verify header
@@ -408,18 +424,122 @@ public class MrdExport {
             throw new WrongNetworkException();
          }
 
-         // Copy encrypted data to blocks
-         byte[] ciphertextBlock1 = new byte[16];
-         System.arraycopy(data, index, ciphertextBlock1, 0, 16);
-         index += 16;
-         byte[] ciphertextBlock2 = new byte[16];
-         System.arraycopy(data, index, ciphertextBlock2, 0, 16);
-         index += 16;
+         // Check that we are working with a private key, and not master seeds
+         if (header.type != Header.Type.UNCOMPRESSED && header.type != Header.Type.COMPRESSED) {
+            throw new DecodingException();
+         }
+
+         // Ciphertext
+         byte[] ciphertext = new byte[32];
+         System.arraycopy(data, index, ciphertext, 0, 32);
+         index += 32;
 
          // Checksum
          byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
-         System.arraycopy(data, index, checksum, 0, checksum.length);
-         index += checksum.length;
+         System.arraycopy(data, index, checksum, 0, V1_CHECKSUM_LENGTH);
+         index += V1_CHECKSUM_LENGTH;
+
+         // Decrypt
+         byte[] decrypted = decryptBytes(parameters, ciphertext, checksum);
+
+         // Create key
+         InMemoryPrivateKey key = new InMemoryPrivateKey(decrypted, header.type == Header.Type.COMPRESSED);
+
+         // Verify checksum
+         byte[] checksumVerify = calculatePrivateKeyChecksum(key, network);
+         if (!BitUtils.areEqual(checksum, checksumVerify)) {
+            throw new InvalidChecksumException();
+         }
+
+         // Return as base58 encoded private key
+         return key.getBase58EncodedPrivateKey(network);
+      }
+
+      /**
+       * Decrypt a master seed for either testnet or prodnet using the version 1
+       * format.
+       *
+       * @param parameters                The decryption parameters to use
+       * @param base64EncryptedMasterSeed the version 1 encrypted master seed
+       * @param network                   the Bitcoin network this key is meant for
+       * @return The base58 encoded private key
+       * @throws DecodingException        if base64EncryptedMasterSeed does not follow the version 1
+       *                                  format, or if the type is not a master seed
+       * @throws WrongNetworkException    if this master seed was not meant for the specified network
+       * @throws InvalidChecksumException if the checksum of the output master seed does not match the
+       *                                  checksum. This happens when the password supplied is
+       *                                  incorrect.
+       */
+      public static Bip39.MasterSeed decryptMasterSeed(EncryptionParameters parameters, String base64EncryptedMasterSeed,
+                                                       NetworkParameters network) throws DecodingException, WrongNetworkException, InvalidChecksumException {
+
+         // Decode data
+         byte[] data = base64UrlDecode(base64EncryptedMasterSeed);
+         int index = 0;
+
+         // Decode and verify header
+         Header header = Header.fromBytes(data);
+         index += V1_HEADER_LENGTH;
+
+         if (!network.equals(header.network)) {
+            throw new WrongNetworkException();
+         }
+
+         // Check that we are working with master seeds and not private keys
+
+         if (header.type != Header.Type.MASTER_SEED) {
+            throw new DecodingException();
+         }
+
+         //
+         // Figure out the length of the encrypted seed, must be a multiple of 16 bytes and longer than zero
+         int encryptedSeedLength = data.length - V1_HEADER_LENGTH - V1_CHECKSUM_LENGTH;
+         if (encryptedSeedLength <= 0 || encryptedSeedLength % Rijndael.BLOCK_SIZE != 0) {
+            throw new DecodingException();
+         }
+
+         // Ciphertext
+         byte[] ciphertext = new byte[encryptedSeedLength];
+         System.arraycopy(data, index, ciphertext, 0, encryptedSeedLength);
+         index += encryptedSeedLength;
+
+         // Checksum
+         byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
+         System.arraycopy(data, index, checksum, 0, V1_CHECKSUM_LENGTH);
+         index += V1_CHECKSUM_LENGTH;
+
+         // Decrypt
+         byte[] decrypted = decryptBytes(parameters, ciphertext, checksum);
+
+         // Create master seed
+         Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(decrypted, true);
+         if (!masterSeed.isPresent()) {
+            throw new DecodingException();
+         }
+
+         // Verify checksum
+         byte[] checksumVerify = calculateMasterSeedChecksum(masterSeed.get());
+         if (!BitUtils.areEqual(checksum, checksumVerify)) {
+            throw new InvalidChecksumException();
+         }
+
+         // Return master seed
+         return masterSeed.get();
+      }
+
+      /**
+       * Decrypt a the contained 32 bytes of the version 1 format.
+       *
+       * @param parameters The decryption parameters to use
+       * @param ciphertext the complete version 1 format decoded to bytes
+       * @param checksum   the checksum used for initializing the IV
+       * @return The decrypted bytes
+       */
+      private static byte[] decryptBytes(EncryptionParameters parameters, byte[] ciphertext, byte[] checksum) throws InvalidChecksumException {
+         // Ciphertext must be a multiple of 16 bytes
+         Preconditions.checkArgument(ciphertext.length % V1_BLOCK_CIPHER_LENGTH == 0);
+
+         byte[] decrypted = new byte[ciphertext.length];
 
          // Create AES initialization vector from checksum
          byte[] IV = new byte[V1_BLOCK_CIPHER_LENGTH];
@@ -430,103 +550,70 @@ public class MrdExport {
          Rijndael aes = new Rijndael();
          aes.makeKey(parameters.aesKey, V1_CIPHER_KEY_LENGTH * 8);
 
-         // Decrypt block 1
-         byte[] plaintextBlock1 = new byte[V1_BLOCK_CIPHER_LENGTH];
-         aes.decrypt(ciphertextBlock1, plaintextBlock1);
+         // Use IV as the first cbc block
+         byte[] cbcBlock = IV;
 
-         // Apply IV to plaintext block 1 (Cipher block chaining)
-         xorBytes(IV, plaintextBlock1);
+         int blocks = ciphertext.length / V1_BLOCK_CIPHER_LENGTH;
+         for (int i = 0; i < blocks; i++) {
 
-         // Decrypt block 2
-         byte[] plaintextBlock2 = new byte[V1_BLOCK_CIPHER_LENGTH];
-         aes.decrypt(ciphertextBlock2, plaintextBlock2);
+            // Get first ciphertext block
+            byte[] ciphertextBlock = new byte[V1_BLOCK_CIPHER_LENGTH];
+            System.arraycopy(ciphertext, i * V1_BLOCK_CIPHER_LENGTH, ciphertextBlock, 0, V1_BLOCK_CIPHER_LENGTH);
 
-         // Apply ciphertext block 1 on plaintext block 2 (Cipher block
-         // chaining)
-         xorBytes(ciphertextBlock1, plaintextBlock2);
+            // Decrypt block
+            byte[] plaintextBlock = new byte[V1_BLOCK_CIPHER_LENGTH];
+            aes.decrypt(ciphertextBlock, plaintextBlock);
 
-         // Concatenate plaintext blocks
-         byte[] privateKeyBytes = new byte[32];
-         System.arraycopy(plaintextBlock1, 0, privateKeyBytes, 0, 16);
-         System.arraycopy(plaintextBlock2, 0, privateKeyBytes, 16, 16);
+            // Xor cbc block
+            xorBytes(cbcBlock, plaintextBlock);
 
-         // Create key
-         InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, header.compressed);
+            // Copy to result
+            System.arraycopy(plaintextBlock, 0, decrypted, i * V1_BLOCK_CIPHER_LENGTH, V1_BLOCK_CIPHER_LENGTH);
 
-         // Verify checksum
-         byte[] checksumVerify = calculateChecksum(key, network);
-         if (!BitUtils.areEqual(checksum, checksumVerify)) {
-            throw new InvalidChecksumException();
+            // Use ciphertext block as next cbc block
+            cbcBlock = ciphertextBlock;
          }
 
-         // Return as base58 encoded private key
-         return key.getBase58EncodedPrivateKey(network);
+         // Return result
+         return decrypted;
       }
 
       /**
        * Encrypt a standard Bitcoin private key for either testnet or prodnet
        * using the version 1 format.
-       * 
-       * @param parameters
-       *           The encryption parameters to use
-       * @param base58EncodedPrivateKey
-       *           The base58 encoded private key in plain text
-       * @param network
-       *           the Bitcoin network used
+       *
+       * @param parameters              The encryption parameters to use
+       * @param base58EncodedPrivateKey The base58 encoded private key in plain text
+       * @param network                 the Bitcoin network used
        * @return The base64 encoded encrypted private key on version 1 format
        */
-      public static String encrypt(EncryptionParameters parameters, String base58EncodedPrivateKey,
-            NetworkParameters network) {
+      public static String encryptPrivateKey(EncryptionParameters parameters, String base58EncodedPrivateKey,
+                                             NetworkParameters network) {
          InMemoryPrivateKey key = new InMemoryPrivateKey(base58EncodedPrivateKey, network);
 
          // Encoded result
-         byte[] encoded = new byte[V1_LENGTH];
+         byte[] encoded = new byte[V1_HEADER_LENGTH + 32 + V1_CHECKSUM_LENGTH];
          int index = 0;
 
+         // Type
+         Header.Type type = key.getPublicKey().isCompressed() ? Header.Type.COMPRESSED : Header.Type.UNCOMPRESSED;
+
          // Encode header
-         Header h = new Header(V1_VERSION, network, key.getPublicKey().isCompressed(), parameters.n, parameters.r,
+         Header h = new Header(V1_VERSION, network, type, parameters.n, parameters.r,
                parameters.p, parameters.salt);
          System.arraycopy(h.toBytes(), 0, encoded, index, V1_HEADER_LENGTH);
          index += V1_HEADER_LENGTH;
 
          // Calculate checksum
-         byte[] checksum = calculateChecksum(key, network);
+         byte[] checksum = calculatePrivateKeyChecksum(key, network);
 
-         // Create AES initialization vector from checksum
-         byte[] IV = new byte[V1_BLOCK_CIPHER_LENGTH];
-         byte[] hash = HashUtils.sha256(parameters.salt, checksum).getBytes();
-         System.arraycopy(hash, 0, IV, 0, V1_BLOCK_CIPHER_LENGTH);
-
-         // Initialize AES key
-         Rijndael aes = new Rijndael();
-         aes.makeKey(parameters.aesKey, V1_CIPHER_KEY_LENGTH * 8);
-
-         // Get private key bytes and copy to blocks
-         byte[] complete = key.getPrivateKeyBytes();
-         byte[] plaintextBlock1 = new byte[16];
-         System.arraycopy(complete, 0, plaintextBlock1, 0, 16);
-         byte[] plaintextBlock2 = new byte[16];
-         System.arraycopy(complete, 16, plaintextBlock2, 0, 16);
-
-         // Apply IV to plaintext block 1 (Cipher block chaining)
-         xorBytes(IV, plaintextBlock1);
-
-         // Encrypt block 1
-         byte[] ciphertextBlock1 = new byte[16];
-         aes.encrypt(plaintextBlock1, ciphertextBlock1);
-
-         // Apply ciphertext block 1 on plaintext block 2 (Cipher block
-         // chaining)
-         xorBytes(ciphertextBlock1, plaintextBlock2);
-
-         // Encrypt block 2
-         byte[] ciphertextBlock2 = new byte[16];
-         aes.encrypt(plaintextBlock2, ciphertextBlock2);
+         // Encrypt
+         byte[] ciphertext = encryptBytes(parameters, key.getPrivateKeyBytes(), checksum);
 
          // Copy encrypted form to encoding
-         System.arraycopy(ciphertextBlock1, 0, encoded, index, 16);
+         System.arraycopy(ciphertext, 0, encoded, index, 16);
          index += 16;
-         System.arraycopy(ciphertextBlock2, 0, encoded, index, 16);
+         System.arraycopy(ciphertext, 16, encoded, index, 16);
          index += 16;
 
          // Add checksum
@@ -537,19 +624,128 @@ public class MrdExport {
          return result;
       }
 
+
+      /**
+       * Encrypt a BIP32 master seed for either testnet or prodnet
+       * using the version 1 format.
+       *
+       * @param parameters The encryption parameters to use
+       * @param masterSeed The BIP39 master seed
+       * @param network    the Bitcoin network used
+       * @return The base64 encoded encrypted private key on version 1 format
+       */
+      public static String encryptMasterSeed(EncryptionParameters parameters, Bip39.MasterSeed masterSeed,
+                                             NetworkParameters network) {
+         // Encoded result
+         int index = 0;
+
+         // Turn master seed into compressed binary form
+         byte[] compressedMasterSeed = masterSeed.toBytes(true);
+         byte[] paddedPlaintext = addZeroPadding(compressedMasterSeed);
+
+         // Type
+         Header.Type type = Header.Type.MASTER_SEED;
+
+         byte[] encoded = new byte[V1_HEADER_LENGTH + paddedPlaintext.length + V1_CHECKSUM_LENGTH];
+
+         // Encode header
+         Header h = new Header(V1_VERSION, network, type, parameters.n, parameters.r,
+               parameters.p, parameters.salt);
+         System.arraycopy(h.toBytes(), 0, encoded, index, V1_HEADER_LENGTH);
+         index += V1_HEADER_LENGTH;
+
+         // Calculate checksum
+         byte[] checksum = calculateMasterSeedChecksum(masterSeed);
+
+         // Encrypt
+         byte[] ciphertext = encryptBytes(parameters, paddedPlaintext, checksum);
+
+         // Copy encrypted form to encoding
+         System.arraycopy(ciphertext, 0, encoded, index, paddedPlaintext.length);
+         index += paddedPlaintext.length;
+
+         // Add checksum
+         System.arraycopy(checksum, 0, encoded, index, checksum.length);
+
+         // Base58 encode
+         String result = base64UrlEncode(encoded);
+         return result;
+      }
+
+      private static byte[] addZeroPadding(byte[] data) {
+         ByteWriter writer = new ByteWriter(data.length + Rijndael.BLOCK_SIZE);
+         writer.putBytes(data);
+         int excess = writer.length() % Rijndael.BLOCK_SIZE;
+         if (excess == 0) {
+            return writer.toBytes();
+         }
+         return BitUtils.copyOf(writer.toBytes(), writer.length() + Rijndael.BLOCK_SIZE - excess);
+      }
+
+
+      /**
+       * Encrypt a multiple of 16 bytes using CBC mode and basing the IV on the checksum from our version 1 format.
+       *
+       * @param parameters The encryption parameters to use
+       * @param plaintext  The plaintext data to encrypt
+       * @param checksum   the checksum used for initializing the IV
+       * @return the ciphertext
+       */
+      private static byte[] encryptBytes(EncryptionParameters parameters, byte[] plaintext, byte[] checksum) {
+         // Plaintext must be a multiple of 16 bytes
+         Preconditions.checkArgument(plaintext.length % 16 == 0);
+
+         // Buffer for encrypted result
+         byte[] encrypted = new byte[plaintext.length];
+
+         // Create AES initialization vector from checksum
+         byte[] IV = new byte[V1_BLOCK_CIPHER_LENGTH];
+         byte[] hash = HashUtils.sha256(parameters.salt, checksum).getBytes();
+         System.arraycopy(hash, 0, IV, 0, V1_BLOCK_CIPHER_LENGTH);
+
+         // Initialize AES key
+         Rijndael aes = new Rijndael();
+         aes.makeKey(parameters.aesKey, V1_CIPHER_KEY_LENGTH * 8);
+
+         // Use IV as the first cbc block
+         byte[] cbcBlock = IV;
+
+         int blocks = plaintext.length / 16;
+         for (int i = 0; i < blocks; i++) {
+
+            // Get plaintext block
+            byte[] plaintextBlock = new byte[16];
+            System.arraycopy(plaintext, i * 16, plaintextBlock, 0, 16);
+
+            // Xor cbc block
+            xorBytes(cbcBlock, plaintextBlock);
+
+            // Encrypt
+            byte[] ciphertextBlock = new byte[16];
+            aes.encrypt(plaintextBlock, ciphertextBlock);
+
+            // Copy to result
+            System.arraycopy(ciphertextBlock, 0, encrypted, i * 16, 16);
+
+            // Use ciphertext block as next cbc block
+            cbcBlock = ciphertextBlock;
+         }
+         return encrypted;
+      }
+
       /**
        * The alfabet used when generating passwords. It only contains characters
        * [a-z]. This lowers the entropy for each character but makes it easier
        * to enter on a mobile device.
        */
-      private static char[] ALPHABET = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+      private static char[] ALPHABET = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
       /**
        * Concatenate the alphabet as many whole times as possible while staying
        * below 256 characters. With 26 password characters this is 9 times and
        * produces a 234 character length array.
-       * 
+       *
        * @return
        */
       private static char[] getExtendedAlphabet() {
@@ -563,12 +759,11 @@ public class MrdExport {
 
       /**
        * Generate a random fixed-length password using characters [a-z]
-       * <p>
+       * <p/>
        * The password is 15 characters long, which with the the current alphabet
        * produces 70-bit passwords
-       * 
-       * @param randomSource
-       *           the random source to base the password on
+       *
+       * @param randomSource the random source to base the password on
        */
       public static String generatePassword(RandomSource randomSource) {
          char[] extendedAlphabet = getExtendedAlphabet();
@@ -612,7 +807,7 @@ public class MrdExport {
        * Calculate the checksum from sha256 hash of the bitcoin address of a
        * private key
        */
-      private static byte[] calculateChecksum(InMemoryPrivateKey key, NetworkParameters network) {
+      private static byte[] calculatePrivateKeyChecksum(InMemoryPrivateKey key, NetworkParameters network) {
          try {
             String address = key.getPublicKey().toAddress(network).toString();
             byte[] hash = HashUtils.sha256(address.getBytes("US-ASCII")).getBytes();
@@ -623,6 +818,16 @@ public class MrdExport {
             // Never happens
             throw new RuntimeException(e);
          }
+      }
+
+      /**
+       * Calculate the checksum from double sha256 hash of a master seed
+       */
+      private static byte[] calculateMasterSeedChecksum(Bip39.MasterSeed masterSeed) {
+         byte[] hash = HashUtils.doubleSha256(masterSeed.getBip32Seed()).getBytes();
+         byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
+         System.arraycopy(hash, 0, checksum, 0, V1_CHECKSUM_LENGTH);
+         return checksum;
       }
 
    }

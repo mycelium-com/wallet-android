@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,13 +63,10 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -76,6 +74,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 public class AddressBookFragment extends Fragment {
@@ -85,9 +84,8 @@ public class AddressBookFragment extends Fragment {
    public static final String OWN = "own";
    public static final String SELECT_ONLY = "selectOnly";
 
-   private String mSelectedAddress;
+   private AddressBookManager.AddressBookKey mSelectedAddress;
    private MbwManager _mbwManager;
-   private RecordManager _recordManager;
    private AddressBookManager _addressBook;
    private AlertDialog _qrCodeDialog;
    private Dialog _addDialog;
@@ -116,7 +114,6 @@ public class AddressBookFragment extends Fragment {
    @Override
    public void onAttach(Activity activity) {
       _mbwManager = MbwManager.getInstance(getActivity().getApplication());
-      _recordManager = _mbwManager.getRecordManager();
       _addressBook = _mbwManager.getAddressBookManager();
       super.onAttach(activity);
    }
@@ -162,13 +159,13 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiMine() {
-      List<Entry> toShow = new LinkedList<Entry>();
-      for (Record record : _recordManager.getAllRecords()) {
-         String name = _addressBook.getNameByAddress(record.address.toString());
+      List<Entry> toShow = new ArrayList<Entry>();
+      for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts())) {
+         String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          if (name == null) {
             name = "";
          }
-         toShow.add(new Entry(record.address.toString(), name));
+         toShow.add(new Entry(new AddressBookManager.AccountKey(account.getId()), name));
       }
       if (toShow.size() == 0) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
@@ -201,7 +198,8 @@ public class AddressBookFragment extends Fragment {
    }
 
    private boolean isForeign(Entry entry) {
-      return _recordManager.getRecord(entry.getAddress()) == null;
+      //if it has an Address as key, it is foreign, our own ones have UUID as key
+      return entry.getAddressBookKey() instanceof AddressBookManager.AddressKey;
    }
 
    @Override
@@ -222,7 +220,7 @@ public class AddressBookFragment extends Fragment {
 
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         mSelectedAddress = (String) view.getTag();
+         mSelectedAddress = (AddressBookManager.AddressBookKey) view.getTag();
          ActionBarActivity parent = (ActionBarActivity) getActivity();
          currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
             @Override
@@ -274,20 +272,20 @@ public class AddressBookFragment extends Fragment {
    };
 
    private void doEditEntry() {
-      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, mSelectedAddress, "", null);
+      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, mSelectedAddress.toString(), "", null);
    }
 
    private void doShowQrCode() {
       if (!isAdded()) {
          return;
       }
-      NetworkParameters network = MbwManager.getInstance(getActivity()).getNetwork();
-      Optional<Record> record = Record.fromString(mSelectedAddress, network);
-      if (!record.isPresent()) {
-         return;
+      for (WalletAccount account : _mbwManager.getWalletManager(false).getActiveAccounts()) {
+         if (account.getId().toString().equals(mSelectedAddress.toString())) {
+            ReceiveCoinsActivity.callMe(getActivity(),account.getId());
+            finishActionMode();
+            break;
+         }
       }
-      ReceiveCoinsActivity.callMe(getActivity(), record.get());
-      finishActionMode();
    }
 
    final Runnable pinProtectedDeleteEntry = new Runnable() {
@@ -334,8 +332,16 @@ public class AddressBookFragment extends Fragment {
          TextView tvAddress = (TextView) v.findViewById(R.id.address_book_address);
          Entry e = getItem(position);
          tvName.setText(e.getName());
-         tvAddress.setText(Address.fromString(e.getAddress()).toMultiLineString());
-         v.setTag(e.getAddress());
+         String text;
+         AddressBookManager.AddressBookKey key = e.getAddressBookKey();
+         if (key instanceof AddressBookManager.AccountKey) {
+            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(((AddressBookManager.AccountKey) key).id);
+            text = account.getReceivingAddress().toMultiLineString();
+         } else {
+            text = ((AddressBookManager.AddressKey)key).address.toMultiLineString();
+         }
+         tvAddress.setText(text);
+         v.setTag(key);
          return v;
       }
    }
@@ -408,20 +414,14 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void addFromAddress(Address address) {
-      if (_recordManager.getRecord(address) == null) {
-         // Only add addresses we are not already tracking
          EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address.toString(), "",
                addressLabelChanged);
-      } else {
-         Utils.showSimpleMessageDialog(getActivity(), R.string.address_already_exists);
-         finishActionMode();
-      }
    }
 
    private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
 
       @Override
-      public void OnAddressLabelChanged(String address, String label) {
+      public void OnAddressLabelChanged(AddressBookManager.AddressBookKey key, String label) {
          finishActionMode();
       }
    };
@@ -434,9 +434,16 @@ public class AddressBookFragment extends Fragment {
    private class SelectItemListener implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         String value = (String) view.getTag();
+         AddressBookManager.AddressBookKey key = (AddressBookManager.AddressBookKey) view.getTag();
+         String address;
+         if (key instanceof AddressBookManager.AccountKey) {
+            WalletAccount account =_mbwManager.getWalletManager(false).getAccount(((AddressBookManager.AccountKey) key ).id);
+            address = account.getReceivingAddress().toString();
+         } else {
+            address = ((AddressBookManager.AddressKey) key).address.toString();
+         }
          Intent result = new Intent();
-         result.putExtra(ADDRESS_RESULT_NAME, value);
+         result.putExtra(ADDRESS_RESULT_NAME, address);
          getActivity().setResult(Activity.RESULT_OK, result);
          getActivity().finish();
       }

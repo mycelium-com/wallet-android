@@ -50,8 +50,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.ScanRequest;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.ScanActivity;
+
+import java.util.UUID;
 
 public class InstantWalletActivity extends Activity {
 
@@ -93,8 +94,8 @@ public class InstantWalletActivity extends Activity {
 
             @Override
             public void onClick(View arg0) {
-               Wallet wallet = new Wallet(record.get());
-               SendInitializationActivity.callMe(InstantWalletActivity.this, wallet, _amountToSend, _receivingAddress, true);
+               UUID account = MbwManager.getInstance(InstantWalletActivity.this).createOnTheFlyAccount(record.get().key);
+               SendInitializationActivity.callMe(InstantWalletActivity.this, account, _amountToSend, _receivingAddress, true);
                InstantWalletActivity.this.finish();
             }
          });

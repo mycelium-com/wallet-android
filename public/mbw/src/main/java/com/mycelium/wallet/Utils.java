@@ -41,11 +41,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -58,21 +54,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.view.animation.*;
+import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -87,30 +72,20 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
-import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
-
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.bitcoinj.wallet.Protos;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("deprecation")
 public class Utils {
@@ -287,7 +262,7 @@ public class Utils {
    }
 
    public static AlertDialog showQrCode(final Context context, int titleMessageId, Bitmap qrCode, final String value,
-         int buttonLabelId, boolean pulse) {
+                                        int buttonLabelId, boolean pulse) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       View layout = inflater.inflate(R.layout.qr_code_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -424,14 +399,12 @@ public class Utils {
 
    /**
     * Show an optional message/
-    * <p>
+    * <p/>
     * The user can check a "never shot this again" check box and the message
     * will never get displayed again.
-    * 
-    * @param context
-    *           The context
-    * @param messageResourceId
-    *           The resource ID of the message to show
+    *
+    * @param context           The context
+    * @param messageResourceId The resource ID of the message to show
     */
    public static boolean showOptionalMessage(final Context context, int messageResourceId) {
       String message = context.getString(messageResourceId);
@@ -561,18 +534,16 @@ public class Utils {
 
    /**
     * Truncate and transform a decimal string to a maximum number of digits
-    * <p>
+    * <p/>
     * The string will be truncated and verified to be a valid decimal number
     * with one comma or dot separator. A comma separator will be converted to a
     * dot. The resulting string will have at most the number of decimals
     * specified
-    * 
-    * @param number
-    *           the number to truncate
-    * @param maxDecimalPlaces
-    *           the maximum number of decimal places
+    *
+    * @param number           the number to truncate
+    * @param maxDecimalPlaces the maximum number of decimal places
     * @return a truncated decimal string or null if the input string is not a
-    *         valid decimal string
+    * valid decimal string
     */
    public static String truncateAndConvertDecimalString(String number, int maxDecimalPlaces) {
       if (number == null) {
@@ -693,43 +664,6 @@ public class Utils {
    }
 
    private static void backup(final Activity parent) {
-
-      // Get a list of all records
-      RecordManager recordManager = MbwManager.getInstance(parent).getRecordManager();
-      List<Record> records = new LinkedList<Record>();
-      records.addAll(recordManager.getRecords(Tag.ACTIVE));
-      records.addAll(recordManager.getRecords(Tag.ARCHIVE));
-
-      if (records.size() == 1 && records.get(0).hasPrivateKey()) {
-         // If there is only one record, and it has a private key we let the
-         // user choose which backup method to use
-         backupSingleRecord(parent, records.get(0));
-      } else {
-         // Otherwise we automatically launch encrypted PDF backup
-         backupAllRecords(parent);
-      }
-   }
-
-   private static void backupSingleRecord(final Activity parent, final Record record) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-      builder.setMessage(R.string.backup_single_private_key_warning).setCancelable(true)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  if (record == null) {
-                     return;
-                  }
-                  BackupToPdfActivity.callMe(parent);
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-               }
-            });
-      AlertDialog alertDialog = builder.create();
-      alertDialog.show();
-   }
-
-   private static void backupAllRecords(final Activity parent) {
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
       builder.setMessage(R.string.backup_all_warning).setCancelable(true)
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -738,16 +672,16 @@ public class Utils {
                   BackupToPdfActivity.callMe(parent);
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-               }
-            });
+         public void onClick(DialogInterface dialog, int id) {
+         }
+      });
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
    }
 
    public static void exportSelectedPrivateKey(final Activity parent) {
-      final Record record = MbwManager.getInstance(parent).getRecordManager().getSelectedRecord();
-      if (record == null || !record.hasPrivateKey()) {
+      WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
+      if (!account.canSpend() || !(account instanceof SingleAddressAccount)) {
          return;
       }
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
@@ -759,9 +693,9 @@ public class Utils {
                   parent.startActivity(intent);
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-               }
-            });
+         public void onClick(DialogInterface dialog, int id) {
+         }
+      });
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
    }
@@ -826,7 +760,7 @@ public class Utils {
    /**
     * Search for possible backup files created by Schildbach's "Bitcoin Wallet"
     * app (matching by filename).
-    * 
+    *
     * @return list of possible files or empty list if none found
     */
    public static ArrayList<File> findAndroidWalletBackupFiles(final NetworkParameters network) {
@@ -842,13 +776,13 @@ public class Utils {
          foundFiles = backupDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
-            return (filename.matches(filenamePattern));
+               return (filename.matches(filenamePattern));
             }
          });
          if (foundFiles.length > 1) {
             Arrays.sort(foundFiles, new Comparator<File>() {
                public int compare(File lhs, File rhs) {
-               return rhs.getName().compareTo(lhs.getName());
+                  return rhs.getName().compareTo(lhs.getName());
                }
             });
          }
@@ -859,9 +793,8 @@ public class Utils {
 
    /**
     * Returns the contents of a file as a string
-    * 
-    * @param textFile
-    *           an UTF-8 encoded text file
+    *
+    * @param textFile an UTF-8 encoded text file
     * @return content of a text file as string
     * @throws java.io.IOException
     */
@@ -905,5 +838,33 @@ public class Utils {
       return returnList;
    }
 
+   public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts) {
+      Comparator<WalletAccount> comparator = new Comparator<WalletAccount>() {
+         @Override
+         public int compare(WalletAccount lhs, WalletAccount rhs) {
+            //HD Accounts always come first
+            if (lhs instanceof Bip44Account && rhs instanceof SingleAddressAccount) return -1;
+            if (lhs instanceof SingleAddressAccount && rhs instanceof Bip44Account) return 1;
+            //when both are hd, we take the account index
+            if (lhs instanceof Bip44Account) {
+               int lid = ((Bip44Account) lhs).getAccountIndex();
+               int rid = ((Bip44Account) rhs).getAccountIndex();
+               if (lid < rid) {
+                  return -1;
+               } else if (lid > rid) {
+                  return 1;
+               } else {
+                  return 0;
+               }
+            }
+            //when both are single, we take UUID
+            // //todo: change when we have something like creation date
+            return lhs.getId().compareTo(rhs.getId());
+         }
+      };
+      accounts = new ArrayList<WalletAccount>(accounts);
+      Collections.sort(accounts, comparator);
+      return accounts;
+   }
 
 }

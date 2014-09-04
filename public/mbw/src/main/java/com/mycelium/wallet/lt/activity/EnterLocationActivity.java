@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.lt.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -165,7 +166,7 @@ public class EnterLocationActivity extends Activity {
 
       @Override
       public int getCount() {
-         return resultList.size();
+         return resultList == null ? 0: resultList.size();
       }
 
       @Override
@@ -186,6 +187,8 @@ public class EnterLocationActivity extends Activity {
                   // Assign the data to the FilterResults
                   filterResults.values = resultList;
                   filterResults.count = resultList.size();
+               } else{
+                  resultList = new ArrayList<Geocode>();
                }
                return filterResults;
             }

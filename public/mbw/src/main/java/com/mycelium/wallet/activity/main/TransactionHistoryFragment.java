@@ -35,16 +35,11 @@
 package com.mycelium.wallet.activity.main;
 
 import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -58,41 +53,27 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.common.base.Joiner;
+import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
-import com.mrd.mbwapi.api.TransactionSummary;
-import com.mrd.mbwapi.util.TransactionSummaryUtils;
-import com.mrd.mbwapi.util.TransactionType;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.Wallet;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
-import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
-import com.mycelium.wallet.api.ApiCache;
-import com.mycelium.wallet.event.TransactionHistoryReady;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
 public class TransactionHistoryFragment extends Fragment {
 
    private MbwManager _mbwManager;
-   private RecordManager _recordManager;
+   private MetadataStorage _storage;
    private View _root;
-   private ApiCache _cache;
-   private AddressBookManager _addressBook;
    private ActionMode currentActionMode;
-   private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
-
-      @Override
-      public void OnAddressLabelChanged(String address, String label) {
-         updateTransactionHistory();
-      }
-   };
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -109,17 +90,16 @@ public class TransactionHistoryFragment extends Fragment {
    @Override
    public void onAttach(Activity activity) {
       _mbwManager = MbwManager.getInstance(activity);
-      _recordManager = _mbwManager.getRecordManager();
-      _addressBook = _mbwManager.getAddressBookManager();
-      _cache = _mbwManager.getCache();
+      _storage = _mbwManager.getMetadataStorage();
       super.onAttach(activity);
    }
 
    @Override
    public void onResume() {
       _mbwManager.getEventBus().register(this);
-      // Update from cache
-      updateTransactionHistory();
+      if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.READY) {
+         updateTransactionHistory();
+      }
       super.onResume();
    }
 
@@ -135,19 +115,23 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    @Subscribe
-   public void transactionsUpdated(TransactionHistoryReady transactionHistoryReady) {
-      updateTransactionHistory();
+   public void syncStopped(SyncStopped event) {
+      if (event.process.equals(SyncStopped.WALLET_MANAGER_SYNC_READY)) {
+         updateTransactionHistory();
+      }
    }
 
    private void doSetLabel(TransactionSummary selected) {
       if (selected == null) {
          return;
       }
+      //TODO do we want to allow to label addresses?
+      //todo will we keep the addressbook?
       // Set the label of the address
-      String address = getSingleForeignAddressForTransaction(selected);
-      if (address != null) {
-         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address, "", addressLabelChanged);
-      }
+//      String address = getSingleForeignAddressForTransaction(selected);
+//      if (address != null) {
+//         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address, "", addressLabelChanged);
+//      }
    }
 
    private void doShowDetails(TransactionSummary selected) {
@@ -156,24 +140,8 @@ public class TransactionHistoryFragment extends Fragment {
       }
       // Open transaction details
       Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
-      ByteWriter writer = new ByteWriter(1024 * 10);
-      selected.serialize(writer);
-      intent.putExtra("transaction", writer.toBytes());
+      intent.putExtra("transaction", selected.txid);
       startActivity(intent);
-   }
-
-   private String getSingleForeignAddressForTransaction(TransactionSummary tx) {
-      if (tx == null) {
-         return null;
-      }
-      Wallet wallet = getWallet();
-      Set<Address> addressSet = wallet.getAddressSet();
-      TransactionType type = TransactionSummaryUtils.getTransactionType(tx, addressSet);
-      return type.singleForeignAddress(tx, addressSet);
-   }
-
-   private Wallet getWallet() {
-      return _recordManager.getWallet(_mbwManager.getWalletMode());
    }
 
    @SuppressWarnings("unchecked")
@@ -181,8 +149,17 @@ public class TransactionHistoryFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      Set<Address> addressSet = getWallet().getAddressSet();
-      new AsyncTransactionHistoryUpdate().execute(addressSet);
+      WalletAccount acc = _mbwManager.getSelectedAccount();
+      List<TransactionSummary> history = acc.getTransactionHistory(0, 20);
+      if (history.isEmpty()) {
+         _root.findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
+         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
+      } else {
+         _root.findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
+         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
+         Wrapper wrapper = new Wrapper(getActivity(), history);
+         ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
+      }
    }
 
    @Override
@@ -199,57 +176,15 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-   private void fillInAddressBookNames(String[] addresses) {
-      for (int i = 0; i < addresses.length; i++) {
-         String name = _addressBook.getNameByAddress(addresses[i]);
-         if (name.length() != 0) {
-            addresses[i] = name;
-         }
-      }
-   }
-
-   private class AsyncTransactionHistoryUpdate extends AsyncTask<Set<Address>, Void, QueryTransactionSummaryResponse> {
-
-      @Override
-      protected QueryTransactionSummaryResponse doInBackground(Set<Address>... arg0) {
-         Set<Address> addressSet = getWallet().getAddressSet();
-         QueryTransactionSummaryResponse result = _cache.getTransactionSummaryList(addressSet);
-         if (result != null) {
-            Collections.sort(result.transactions);
-         }
-         return result;
-      }
-
-      @Override
-      protected void onPostExecute(QueryTransactionSummaryResponse result) {
-         if (!isAdded()) {
-            return;
-         }
-         if (result == null || result.transactions.size() == 0) {
-            _root.findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
-            _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
-         } else {
-            _root.findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
-            _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
-            TransactionHistoryAdapter _transactionHistoryAdapter = new TransactionHistoryAdapter(getActivity(), result);
-            ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(_transactionHistoryAdapter);
-         }
-         super.onPostExecute(result);
-      }
-   }
-
    private class TransactionHistoryAdapter extends ArrayAdapter<TransactionSummary> {
       private Context _context;
       private Date _midnight;
       private DateFormat _dayFormat;
       private DateFormat _hourFormat;
-      private Set<Address> _addressSet;
-      private int _chainHeight;
 
-      public TransactionHistoryAdapter(Context context, QueryTransactionSummaryResponse transactions) {
-         super(context, R.layout.transaction_row, transactions.transactions);
+      public TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
+         super(context, R.layout.transaction_row, transactions);
          _context = context;
-         _chainHeight = transactions.chainHeight;
          // Get the time at last midnight
          Calendar midnight = Calendar.getInstance();
          midnight.set(midnight.get(Calendar.YEAR), midnight.get(Calendar.MONTH), midnight.get(Calendar.DAY_OF_MONTH),
@@ -259,8 +194,6 @@ public class TransactionHistoryFragment extends Fragment {
          Locale locale = getResources().getConfiguration().locale;
          _dayFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
          _hourFormat = android.text.format.DateFormat.getTimeFormat(_context);
-         Wallet wallet = getWallet();
-         _addressSet = wallet.getAddressSet();
       }
 
       @Override
@@ -295,8 +228,8 @@ public class TransactionHistoryFragment extends Fragment {
                   @SuppressWarnings("deprecation")
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     String address = getSingleForeignAddressForTransaction(record);
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(address != null);
+                     //TODO do we want to allow add to addressbook?
+                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(false);
                      currentActionMode = actionMode;
                      view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
                      return true;
@@ -313,6 +246,9 @@ public class TransactionHistoryFragment extends Fragment {
                         doShowDetails(record);
                         finishActionMode();
                         return true;
+                     } else if (itemId == R.id.miSetLabel) {
+                        setTransactionLabel(record);
+                        finishActionMode();
                      }
                      return false;
                   }
@@ -327,14 +263,9 @@ public class TransactionHistoryFragment extends Fragment {
             }
          });
 
-         TransactionType type = TransactionSummaryUtils.getTransactionType(record, _addressSet);
-
-         // Determine Value
-         long value = TransactionSummaryUtils.calculateBalanceChange(record, _addressSet);
-
          // Determine Color
          int color;
-         if (value < 0) {
+         if (record.value < 0) {
             color = getResources().getColor(R.color.red);
          } else {
             color = getResources().getColor(R.color.green);
@@ -348,27 +279,80 @@ public class TransactionHistoryFragment extends Fragment {
 
          // Set value
          TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
-         tvAmount.setText(_mbwManager.getBtcValueString(value));
+         tvAmount.setText(_mbwManager.getBtcValueString(record.value));
          tvAmount.setTextColor(color);
 
-         // Determine list of addresses
-         final String[] addresses = type.relevantAddresses(record, _addressSet);
-
-         // Replace addresses with known names from the address book
-         fillInAddressBookNames(addresses);
-         TextView tvAddress = (TextView) rowView.findViewById(R.id.tvAddress);
-         tvAddress.setText(Joiner.on(" ").join(addresses));
+         TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
+         String label = _storage.getLabelByTransaction(record.txid);
+         if (label.length() == 0) {
+            tvLabel.setVisibility(View.GONE);
+         } else {
+            tvLabel.setText(label);
+            tvLabel.setVisibility(View.VISIBLE);
+         }
 
          // Set confirmations
-         int confirmations = record.calculateConfirmatons(_chainHeight);
+         int confirmations = record.confirmations;
          TextView tvConfirmations = (TextView) rowView.findViewById(R.id.tvConfirmations);
-         tvConfirmations.setText(_context.getResources().getString(R.string.confirmations, confirmations));
-
+         if (record.isOutgoing) {
+            tvConfirmations.setText(_context.getResources().getString(R.string.not_broadcasted));
+         } else {
+            tvConfirmations.setText(_context.getResources().getString(R.string.confirmations, confirmations));
+         }
          rowView.setTag(record);
-
          return rowView;
       }
-
    }
 
+   private void setTransactionLabel (TransactionSummary record) {
+      EnterAddressLabelUtil.enterTransactionLabel(getActivity(), record.txid, _storage, transactionLabelChanged);
+   }
+
+   private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {
+
+      @Override
+      public void OnTransactionLabelChanged(Sha256Hash txid, String label) {
+         updateTransactionHistory();
+      }
+   };
+
+   private class Wrapper extends EndlessAdapter {
+      private List<TransactionSummary> _toAdd;
+      private int lastOffset;
+      private int chunkSize;
+
+      private Wrapper(Context context, List<TransactionSummary> transactions) {
+         super(new TransactionHistoryAdapter(context, transactions));
+         _toAdd = new ArrayList<TransactionSummary>();
+         lastOffset = 0;
+         chunkSize = 20;
+      }
+
+      @Override
+      protected View getPendingView(ViewGroup parent) {
+         //this is an empty view, getting more transaction details is fast at the moment
+         return LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_history_fetching, null);
+      }
+
+      @Override
+      protected boolean cacheInBackground() {
+         WalletAccount acc = _mbwManager.getSelectedAccount();
+         synchronized (_toAdd) {
+            lastOffset += chunkSize;
+            _toAdd = acc.getTransactionHistory(lastOffset, chunkSize);
+         }
+         return _toAdd.size() == chunkSize;
+      }
+
+      @Override
+      protected void appendCachedData() {
+         synchronized (_toAdd) {
+            TransactionHistoryAdapter a = (TransactionHistoryAdapter) getWrappedAdapter();
+            for (TransactionSummary item : _toAdd) {
+               a.add(item);
+            }
+            _toAdd.clear();
+         }
+      }
+   }
 }

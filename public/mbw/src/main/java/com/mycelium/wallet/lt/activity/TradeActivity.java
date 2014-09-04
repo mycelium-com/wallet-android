@@ -290,6 +290,7 @@ public class TradeActivity extends Activity {
             }
             disableButtons();
             _dingOnUpdates = false;
+            //TODO This transaction has already been queued, what do we need it for? When do we wont to broadcast it?
             _ltManager.makeRequest(new ReleaseBtc(_tradeSession.id, HexUtils.toHex(tx.toBytes())));
          }
 
@@ -719,9 +720,7 @@ public class TradeActivity extends Activity {
 
       @Override
       public void onLtBtcReleased(Boolean success, ReleaseBtc request) {
-         // Synchronize wallet with backend. If we do not do this we risk
-         // sending out a double spend if we make two trades after another
-         _mbwManager.getSyncManager().triggerUpdate();
+
       };
 
    };

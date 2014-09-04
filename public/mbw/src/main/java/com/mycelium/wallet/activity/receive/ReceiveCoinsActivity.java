@@ -45,25 +45,29 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wapi.wallet.WalletAccount;
+
+import java.util.UUID;
+//todo HD for the future: keep receiving slots for 20 addresses. assign a name
 
 public class ReceiveCoinsActivity extends Activity {
 
    private static final int GET_AMOUNT_RESULT_CODE = 1;
 
    private MbwManager _mbwManager;
-   private Record receivingAddress;
+   private WalletAccount _account;
    private Long _amount;
 
-   public static void callMe(Activity currentActivity, Record record) {
+   public static void callMe(Activity currentActivity, UUID account) {
       Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
-      intent.putExtra("record", record);
+      intent.putExtra("account", account);
       currentActivity.startActivity(intent);
    }
 
@@ -80,7 +84,8 @@ public class ReceiveCoinsActivity extends Activity {
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      receivingAddress = Preconditions.checkNotNull((Record) getIntent().getSerializableExtra("record"));
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
+      _account = _mbwManager.getWalletManager(false).getAccount(accountId);
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -113,7 +118,6 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    private void updateUi() {
-      final String address = receivingAddress.address.toString();
       final String qrText = getPaymentUri();
 
       if (_amount == null) {
@@ -133,23 +137,17 @@ public class ReceiveCoinsActivity extends Activity {
       iv.setQrCode(qrText);
 
       // Show warning if the record has no private key
-      if (receivingAddress.hasPrivateKey()) {
+      if (_account.canSpend()) {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
       }
 
-      String[] addressStrings = Utils.stringChopper(address, 12);
+      String[] addressStrings = Utils.stringChopper(getBitcoinAddress(), 12);
       ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
       ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
       ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
 
-      // Only show "Show to Sender" splash to non experts
-      if (_mbwManager.getExpertMode()) {
-         findViewById(R.id.tvSplash).setVisibility(View.INVISIBLE);
-      } else {
-         Utils.fadeViewInOut(findViewById(R.id.tvSplash));
-      }
       updateAmount();
    }
 
@@ -164,34 +162,26 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    private String getPaymentUri() {
-      final StringBuilder uri = new StringBuilder("bitcoin:" + receivingAddress.address.toString());
+      final StringBuilder uri = new StringBuilder("bitcoin:");
+       uri.append(getBitcoinAddress());
       if (_amount != null) {
          uri.append("?amount=").append(CoinUtil.valueString(_amount, false));
       }
-      // XXX: For now we are not encoding the label. It makes the QR-code harder
-      // to scan and should also be URI encoded
-      // final String label =
-      // getAddressBookManager().getNameByAddress(receivingAddress.address.toString());
-      // if (label != null && label.length() > 0) {
-      // uri.append("&label=").append(label);
-      // }
       return uri.toString();
    }
 
    private String getBitcoinAddress() {
-      return receivingAddress.address.toString();
+      return _account.getReceivingAddress().toString();
    }
 
    public void shareRequest(View view) {
+       Intent s = new Intent(android.content.Intent.ACTION_SEND);
+       s.setType("text/plain");
       if (_amount == null) {
-         Intent s = new Intent(android.content.Intent.ACTION_SEND);
-         s.setType("text/plain");
          s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.bitcoin_address_title));
          s.putExtra(Intent.EXTRA_TEXT, getBitcoinAddress());
          startActivity(Intent.createChooser(s, getResources().getString(R.string.share_bitcoin_address)));
       } else {
-         Intent s = new Intent(android.content.Intent.ACTION_SEND);
-         s.setType("text/plain");
          s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.payment_request));
          s.putExtra(Intent.EXTRA_TEXT, getPaymentUri());
          startActivity(Intent.createChooser(s, getResources().getString(R.string.share_payment_request)));

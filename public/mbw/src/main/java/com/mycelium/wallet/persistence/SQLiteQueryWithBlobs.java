@@ -36,11 +36,18 @@ package com.mycelium.wallet.persistence;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+
+import com.google.common.base.Preconditions;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
 
@@ -92,4 +99,40 @@ public class SQLiteQueryWithBlobs {
    public Cursor raw(String sql, String table){
       return _db.rawQueryWithFactory(_cursorFactory, sql, null, table);
    }
+   
+   public static byte[] uuidToBytes(UUID id) {
+      byte[] b = new byte[16];
+      BitUtils.uint64ToByteArrayLE(id.getMostSignificantBits(), b, 0);
+      BitUtils.uint64ToByteArrayLE(id.getLeastSignificantBits(), b, 8);
+      return b;
+   }
+
+   public static UUID uuidFromBytes(byte[] b) {
+      Preconditions.checkArgument(b.length == 16);
+      return new UUID(BitUtils.uint64ToLong(b, 0), BitUtils.uint64ToLong(b, 8));
+   }
+
+   public static byte[] outPointToBytes(OutPoint outPoint) {
+      byte[] bytes = new byte[34];
+      System.arraycopy(outPoint.hash.getBytes(), 0, bytes, 0, Sha256Hash.HASH_LENGTH);
+      bytes[32] = (byte) (outPoint.index & 0xFF);
+      bytes[33] = (byte) ((outPoint.index >> 8) & 0xFF);
+      return bytes;
+   }
+
+   public static OutPoint outPointFromBytes(byte[] bytes) {
+      Preconditions.checkArgument(bytes != null && bytes.length == 34);
+      Sha256Hash hash = Sha256Hash.copyOf(bytes, 0);
+      int index = ((bytes[32] & 0xFF) << 0) | ((bytes[33] & 0xFF) << 8);
+      return new OutPoint(hash, index);
+   }
+   
+   public static void bindBlobWithNull(SQLiteStatement statement, int index, byte[] value){
+      if(value == null){
+         statement.bindNull(index);
+      }else{
+         statement.bindBlob(index, value);
+      }
+   }
+
 }

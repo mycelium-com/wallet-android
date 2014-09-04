@@ -61,7 +61,7 @@ public class BackupUtil {
          MrdExport.V1.Header header = MrdExport.V1.extractHeader(encryptedPrivateKey);
          MrdExport.V1.KdfParameters kdfParameters = MrdExport.V1.KdfParameters.fromPassphraseAndHeader(realpassword, header);
          MrdExport.V1.EncryptionParameters parameters = MrdExport.V1.EncryptionParameters.generate(kdfParameters);
-         String privateKey = MrdExport.V1.decrypt(parameters, encryptedPrivateKey, header.network);
+         String privateKey = MrdExport.V1.decryptPrivateKey(parameters, encryptedPrivateKey, header.network);
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKey, header.network);
          return "Private key (Wallet Import Format): " +key.getBase58EncodedPrivateKey(header.network) +
                "\n" +

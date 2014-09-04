@@ -7,10 +7,11 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
+import com.mrd.bitlib.model.Address;
 import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mycelium.wallet.AndroidRandomSource;
-import com.mycelium.wallet.Record;
 import com.squareup.otto.Bus;
 
 import java.io.BufferedWriter;
@@ -30,13 +31,15 @@ public class BitIdAsyncTask extends AsyncTask<Void, Integer, BitIDResponse> {
 
    private boolean enforceSslCorrectness;
    private BitIDSignRequest request;
-   private Record record;
+   private InMemoryPrivateKey privateKey;
+   private Address address;
    private Bus bus;
 
-   public BitIdAsyncTask(BitIDSignRequest request, boolean enforceSslCorrectness, Record record, Bus bus) {
+   public BitIdAsyncTask(BitIDSignRequest request, boolean enforceSslCorrectness, InMemoryPrivateKey privateKey, Address address, Bus bus) {
       this.enforceSslCorrectness = enforceSslCorrectness;
       this.request = request;
-      this.record = record;
+      this.privateKey = privateKey;
+      this.address = address;
       this.bus = bus;
    }
 
@@ -45,7 +48,7 @@ public class BitIdAsyncTask extends AsyncTask<Void, Integer, BitIDResponse> {
       final BitIDResponse response = new BitIDResponse();
       try {
 
-         SignedMessage signature = record.key.signMessage(request.getFullUri(), new AndroidRandomSource());
+         SignedMessage signature = privateKey.signMessage(request.getFullUri(), new AndroidRandomSource());
 
          final HttpURLConnection conn = (HttpURLConnection) new URL(request.getCallbackUri()).openConnection();
          //todo evaluate enforceSslCorrectness to disable verification stuff if false (and remove setting it to true)
@@ -58,7 +61,7 @@ public class BitIdAsyncTask extends AsyncTask<Void, Integer, BitIDResponse> {
          conn.setDoOutput(true);
          OutputStream os = conn.getOutputStream();
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-         writer.write(request.getCallbackJson(record.address, signature).toString());
+         writer.write(request.getCallbackJson(address, signature).toString());
          writer.flush();
          writer.close();
          os.close();

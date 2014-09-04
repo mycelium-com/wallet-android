@@ -48,20 +48,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
-import com.mycelium.wallet.Record.Tag;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.List;
-import java.util.Set;
 
 public class GetSpendingRecordActivity extends Activity {
 
    private Long _amountToSend;
    private Address _receivingAddress;
-   private RecordManager _recordManager;
-   private RecordsAdapter _recordsAdapter;
    private MbwManager _mbwManager;
-   private AddressBookManager _addressBook;
+   private AccountsAdapter _accountsAdapter;
 
    public static void callMeWithResult(Activity currentActivity, Long amountToSend, Address receivingAddress, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
@@ -77,8 +74,6 @@ public class GetSpendingRecordActivity extends Activity {
       setContentView(R.layout.get_spending_record_activity);
       ((ListView) findViewById(R.id.lvRecords)).setOnItemClickListener(new RecordClicked());
       _mbwManager = MbwManager.getInstance(this.getApplication());
-      _recordManager = _mbwManager.getRecordManager();
-      _addressBook = _mbwManager.getAddressBookManager();
 
       // Get intent parameters
       // May be null
@@ -92,12 +87,11 @@ public class GetSpendingRecordActivity extends Activity {
 
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
-         if (v.getTag() == null || !(v.getTag() instanceof Record)) {
+         if (v.getTag() == null || !(v.getTag() instanceof WalletAccount)) {
             return;
          }
-         Record record = (Record) v.getTag();
-         Wallet wallet = new Wallet(record);
-         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, wallet, _amountToSend, _receivingAddress,
+         WalletAccount account = (WalletAccount) v.getTag();
+         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _amountToSend, _receivingAddress,
                false);
          GetSpendingRecordActivity.this.finish();
       }
@@ -111,27 +105,25 @@ public class GetSpendingRecordActivity extends Activity {
 
    private void update() {
       ListView listView = (ListView) findViewById(R.id.lvRecords);
-      Set<Address> addressSet = _mbwManager.getRecordManager().getWallet(_mbwManager.getWalletMode()).getAddressSet();
-      _recordsAdapter = new RecordsAdapter(this, _recordManager.getRecordsWithPrivateKeys(Tag.ACTIVE), addressSet);
-      listView.setAdapter(_recordsAdapter);
+      _accountsAdapter = new AccountsAdapter(this,_mbwManager.getWalletManager(false).getActiveAccounts());
+      listView.setAdapter(_accountsAdapter);
    }
 
-   class RecordsAdapter extends ArrayAdapter<Record> {
+   class AccountsAdapter extends ArrayAdapter<WalletAccount> {
       private Context _context;
-      private final Set<Address> addressSet;
 
-      public RecordsAdapter(Context context, List<Record> records, Set<Address> addressSet) {
-         super(context, R.layout.record_row, records);
+      public AccountsAdapter(Context context, List<WalletAccount> accounts) {
+         super(context, R.layout.record_row, accounts);
          _context = context;
-         this.addressSet = addressSet;
       }
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
          LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         Record record = getItem(position);
-         return RecordRowBuilder.buildRecordView(getResources(), _mbwManager, inflater, _addressBook, parent, record,
-               false, false, addressSet);
+         WalletAccount account = getItem(position);
+         RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources(), inflater);
+         return recordRowBuilder.buildRecordView(parent, account,
+               false, false);
       }
    }
 

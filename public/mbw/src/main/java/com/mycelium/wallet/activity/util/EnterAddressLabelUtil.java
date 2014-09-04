@@ -36,20 +36,35 @@ package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
 
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.persistence.MetadataStorage;
+
+import java.util.UUID;
 
 public class EnterAddressLabelUtil {
 
    public interface AddressLabelChangedHandler {
-      public void OnAddressLabelChanged(String address, String label);
+      public void OnAddressLabelChanged(AddressBookManager.AddressBookKey key, String label);
+   }
+
+   public interface AccountLabelChangedHandler {
+      public void OnAccountLabelChanged(UUID account, String label);
+   }
+
+   public interface TransactionLabelChangedHandler {
+      public void OnTransactionLabelChanged(Sha256Hash txid, String label);
    }
 
    public static void enterAddressLabel(Context context, AddressBookManager addressBookManager, String address,
          String defaultName, AddressLabelChangedHandler changeHandler) {
       String hintText = context.getResources().getString(R.string.name);
-      String currentName = addressBookManager.getNameByAddress(address);
+      AddressBookManager.AddressKey key = new AddressBookManager.AddressKey(Address.fromString(address));
+      String currentName = addressBookManager.getNameByKey(key);
       int title_id;
       if (currentName.length() == 0) {
          title_id = R.string.enter_address_label_title;
@@ -60,20 +75,20 @@ public class EnterAddressLabelUtil {
       currentName = currentName.length() == 0 ? defaultName : currentName;
       String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
       EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(addressBookManager,
-            address, invalidOkToastMessage, changeHandler));
+            key, invalidOkToastMessage, changeHandler));
 
    }
 
    private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
 
       private AddressBookManager _addressBook;
-      private String _address;
+      private AddressBookManager.AddressBookKey _key;
       private String _invalidOkToastMessage;
       private AddressLabelChangedHandler _changeHandler;
 
-      public EnterAddressLabelHandler(AddressBookManager addressBook, String address, String invalidOkToastMessage,
+      public EnterAddressLabelHandler(AddressBookManager addressBook, AddressBookManager.AddressBookKey key, String invalidOkToastMessage,
             AddressLabelChangedHandler changeHandler) {
-         _address = address;
+         _key = key;
          _addressBook = addressBook;
          _invalidOkToastMessage = invalidOkToastMessage;
          _changeHandler = changeHandler;
@@ -89,8 +104,8 @@ public class EnterAddressLabelUtil {
          // Make sure that no address exists with that name, or that we are
          // updating the existing entry with the same name. It is OK for the
          // name to be empty, in which case it will get deleted
-         String existingAddress = _addressBook.getAddressByName(newText);
-         return existingAddress == null || existingAddress.equals(_address);
+         AddressBookManager.AddressBookKey existing = _addressBook.getKeyByName(newText);
+         return existing == null || existing.equals(_key);
 
       }
 
@@ -109,9 +124,111 @@ public class EnterAddressLabelUtil {
          // No address exists with that name, or we are updating the
          // existing entry with the same name. If the name is blank the
          // entry will get deleted
-         _addressBook.insertUpdateOrDeleteEntry(_address, newText);
+         _addressBook.insertUpdateOrDeleteEntry(_key, newText);
          if (_changeHandler != null) {
-            _changeHandler.OnAddressLabelChanged(_address, newText);
+            _changeHandler.OnAddressLabelChanged(_key, newText);
+         }
+      }
+   }
+
+   public static void enterAccountLabel(Context context, UUID account, String defaultName, MetadataStorage storage, AccountLabelChangedHandler changeHandler) {
+      String hintText = context.getResources().getString(R.string.name);
+      String currentName = storage.getLabelByAccount(account);
+      int title_id;
+      if (currentName.length() == 0) {
+         title_id = R.string.enter_address_label_title;
+         currentName = defaultName;
+      } else {
+         title_id = R.string.edit_address_label_title;
+      }
+      String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
+      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account,invalidOkToastMessage, storage, changeHandler);
+      EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
+
+   }
+
+   private static class EnterAccountLabelHandler extends EnterTextDialog.EnterTextHandler {
+
+      private UUID account;
+      private String invalidOkToastMessage;
+      private MetadataStorage storage;
+      private AccountLabelChangedHandler changeHandler;
+
+      public EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, AccountLabelChangedHandler changeHandler) {
+         this.account = account;
+         this.invalidOkToastMessage = invalidOkToastMessage;
+         this.storage = storage;
+         this.changeHandler = changeHandler;
+      }
+
+      @Override
+      public boolean validateTextOnChange(String newText, String oldText) {
+         return true;
+      }
+
+      @Override
+      public boolean validateTextOnOk(String newText, String oldText) {
+         Optional<UUID> existing = storage.getAccountByLabel(newText);
+         return !existing.isPresent() || existing.get().equals(account);
+      }
+
+      @Override
+      public boolean getVibrateOnInvalidOk(String newText, String oldText) {
+         return true;
+      }
+
+      @Override
+      public String getToastTextOnInvalidOk(String newText, String oldText) {
+         return invalidOkToastMessage;
+      }
+
+      @Override
+      public void onNameEntered(String newText, String oldText) {
+         storage.storeAccountLabel(account,newText);
+         if (changeHandler != null) {
+            changeHandler.OnAccountLabelChanged(account, newText);
+         }
+      }
+   }
+
+   public static void enterTransactionLabel(Context context, Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
+      String hintText = context.getResources().getString(R.string.enter_transaction_label_title);
+      String currentName = storage.getLabelByTransaction(txid);
+      int title_id;
+      title_id = R.string.enter_transaction_label_title;
+
+      EnterTransactionLabelHandler handler = new EnterTransactionLabelHandler(txid, storage, changeHandler);
+      EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
+
+   }
+
+   private static class EnterTransactionLabelHandler extends EnterTextDialog.EnterTextHandler {
+
+      private Sha256Hash txid;
+      private MetadataStorage storage;
+      private TransactionLabelChangedHandler changeHandler;
+
+      public EnterTransactionLabelHandler(Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
+         this.txid = txid;
+         this.storage = storage;
+         this.changeHandler = changeHandler;
+      }
+
+      @Override
+      public boolean validateTextOnChange(String newText, String oldText) {
+         return true;
+      }
+
+      @Override
+      public boolean validateTextOnOk(String newText, String oldText) {
+         return true;
+      }
+
+      @Override
+      public void onNameEntered(String newText, String oldText) {
+         storage.storeTransactionLabel(txid, newText);
+         if (changeHandler != null) {
+            changeHandler.OnTransactionLabelChanged(txid, newText);
          }
       }
    }

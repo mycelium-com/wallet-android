@@ -40,16 +40,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.common.base.Optional;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.RecordManager;
-import com.mycelium.wallet.ScanRequest;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+
+import java.util.UUID;
 
 public class VerifyBackupActivity extends Activity {
 
@@ -61,7 +61,6 @@ public class VerifyBackupActivity extends Activity {
    }
 
    private MbwManager _mbwManager;
-   private RecordManager _recordManager;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -70,13 +69,12 @@ public class VerifyBackupActivity extends Activity {
       setContentView(R.layout.verify_backup_activity);
 
       _mbwManager = MbwManager.getInstance(this.getApplication());
-      _recordManager = _mbwManager.getRecordManager();
 
       findViewById(R.id.btScan).setOnClickListener(new android.view.View.OnClickListener() {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, ScanRequest.returnPrivateKey());
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, ScanRequest.verifySeedOrKey());
          }
 
       });
@@ -114,22 +112,36 @@ public class VerifyBackupActivity extends Activity {
 
    private void updateUi() {
       TextView tvNumKeys = (TextView) findViewById(R.id.tvNumKeys);
+      String infotext = "";
+      if (_mbwManager.getWalletManager(false).hasBip32MasterSeed()
+            && _mbwManager.getMetadataStorage().getMasterSeedBackupState().equals(MetadataStorage.BackupState.UNKNOWN)) {
+         infotext = getString(R.string.verify_backup_master_seed) + "\n";
+      }
+
       int num = countKeysToVerify();
-      if (num == 0) {
+      if (num == 1) {
+         infotext = infotext + getString(R.string.verify_backup_one_key);
+      } else if (num > 0) {
+         infotext = infotext + getString(R.string.verify_backup_num_keys, num);
+      }
+
+      if (infotext.length() == 0) {
          tvNumKeys.setVisibility(View.GONE);
-      } else if (num == 1) {
-         tvNumKeys.setVisibility(View.VISIBLE);
-         tvNumKeys.setText(getResources().getString(R.string.verify_backup_one_key));
       } else {
          tvNumKeys.setVisibility(View.VISIBLE);
-         tvNumKeys.setText(getResources().getString(R.string.verify_backup_num_keys, num));
+         tvNumKeys.setText(infotext);
       }
    }
 
    private int countKeysToVerify() {
       int num = 0;
-      for (Record record : _recordManager.getAllRecords()) {
-         if (record.needsBackupVerification()) {
+      for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+         boolean needsBackup =
+               account instanceof SingleAddressAccount
+                     && account.canSpend()
+                     && _mbwManager.getMetadataStorage().getBackupState(account).equals(MetadataStorage.BackupState.UNKNOWN);
+         if (needsBackup) {
             num++;
          }
       }
@@ -143,19 +155,23 @@ public class VerifyBackupActivity extends Activity {
          return;
       }
 
-      Toast.makeText(VerifyBackupActivity.this, R.string.unrecognized_private_key_format, Toast.LENGTH_SHORT).show();
+      ShowDialogMessage(R.string.unrecognized_private_key_format, false);
    }
 
    private void verify(Record record) {
       if (!record.hasPrivateKey()) {
-         Toast.makeText(VerifyBackupActivity.this, R.string.unrecognized_private_key_format, Toast.LENGTH_SHORT).show();
+         ShowDialogMessage(R.string.unrecognized_private_key_format, false);
          return;
       }
+      // Figure out the account ID
+      UUID account = SingleAddressAccount.calculateId(record.address);
 
-      // Do verification
-      boolean success = _mbwManager.getRecordManager().verifyPrivateKeyBackup(record.key);
-      updateUi();
+      // Check whether regular wallet contains that account
+      boolean success = _mbwManager.getWalletManager(false).hasAccount(account);
+
       if (success) {
+         _mbwManager.getMetadataStorage().setBackupState(account, MetadataStorage.BackupState.VERIFIED);
+         updateUi();
          String message = getResources().getString(R.string.verify_backup_ok, record.address.toMultiLineString());
          ShowDialogMessage(message, false);
       } else {
@@ -175,15 +191,15 @@ public class VerifyBackupActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            Record record = ScanActivity.getRecord(intent);
-            verify(record);
+            String message = getResources().getString(R.string.verify_backup_ok_message);
+            ShowDialogMessage(message, false);
+            updateUi();
          } else {
             String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
             if (error != null) {
-               Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+               ShowDialogMessage(error, false);
             }
          }
       }
    }
-
 }

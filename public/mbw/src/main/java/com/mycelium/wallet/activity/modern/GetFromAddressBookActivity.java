@@ -64,7 +64,7 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
       Tab myAddressesTab = bar.newTab();
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_addresses)), AddressBookFragment.class, addressBookBundle(true));
+      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, addressBookBundle(true));
       Tab contactsTab = bar.newTab();
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
       bar.selectTab(myAddressesTab);

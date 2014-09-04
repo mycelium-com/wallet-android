@@ -269,8 +269,8 @@ public class TradeHistoryFragment extends Fragment {
             }
          }
 
-         boolean moreToFEtch = _fetched.size() == FETCH_LIMIT;
-         return moreToFEtch;
+         boolean moreToFetch = _fetched.size() == FETCH_LIMIT;
+         return moreToFetch;
       }
 
       @Override

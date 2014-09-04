@@ -34,9 +34,6 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,17 +44,28 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+
+import java.io.UnsupportedEncodingException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 public class CreateTrader2Activity extends Activity {
 
@@ -69,11 +77,13 @@ public class CreateTrader2Activity extends Activity {
 
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private List<InMemoryPrivateKey> _privateKeys;
+   private List<UUID> _accounts;
    private Spinner _spAddress;
    private Button _btUse;
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -101,21 +111,24 @@ public class CreateTrader2Activity extends Activity {
          }
       });
 
-      // Populate address chooser
+      // Populate account chooser, you can also choose archived accounts
       AddressBookManager addressBook = _mbwManager.getAddressBookManager();
-      _privateKeys = new LinkedList<InMemoryPrivateKey>();
+      _accounts = new LinkedList<UUID>();
       List<String> choices = new LinkedList<String>();
-      for (Record r : _mbwManager.getRecordManager().getAllRecords()) {
-         if (!r.hasPrivateKey()) {
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
+      for (UUID accountId : walletManager.getAccountIds()) {
+         WalletAccount account = walletManager.getAccount(accountId);
+         if (!account.canSpend()) {
             continue;
          }
-         String name = addressBook.getNameByAddress(r.address.toString());
-         if (name == null || name.length() == 0) {
-            name = getShortAddress(r.address.toString());
+         String name = _mbwManager.getMetadataStorage().getLabelByAccount(accountId);
+         if (name.length() == 0) {
+            name = createDefaultName(account);
          }
          choices.add(name);
-         _privateKeys.add(r.key);
+         _accounts.add(accountId);
       }
+
       ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, choices);
       dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       _spAddress.setAdapter(dataAdapter);
@@ -130,35 +143,46 @@ public class CreateTrader2Activity extends Activity {
       _btUse.setEnabled(_spAddress.getSelectedItemPosition() != Spinner.INVALID_POSITION);
    }
 
+   private String createDefaultName(WalletAccount account) {
+      if (account instanceof SingleAddressAccount) {
+         Address address = ((SingleAddressAccount) account).getAddress();
+         String addressString = address.toString();
+         StringBuilder sb = new StringBuilder();
+         sb.append(addressString.substring(0, 6));
+         sb.append("...");
+         sb.append(addressString.substring(addressString.length() - 6));
+         return sb.toString();
+      } else {
+         // We only get here if the user actively chose to have an empty account name
+         // We default to the string representation of the account it
+         return account.getId().toString();
+      }
+   }
+
    @Override
    protected void onSaveInstanceState(Bundle outState) {
       outState.putInt("selectedIndex", _spAddress.getSelectedItemPosition());
       super.onSaveInstanceState(outState);
    }
 
-   private static String getShortAddress(String addressString) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(addressString.substring(0, 6));
-      sb.append("...");
-      sb.append(addressString.substring(addressString.length() - 6));
-      return sb.toString();
-   }
-
    @Override
    protected void onResume() {
       _ltManager.subscribe(ltSubscriber);
-      if (_privateKeys.size() == 1) {
+      if (_accounts.size() == 1) {
          // We have exactly one private key, use it automatically
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.llRoot).setVisibility(View.GONE);
-         _ltManager.makeRequest(new TryLogin(_privateKeys.get(0), _mbwManager.getNetwork()));
+         InMemoryPrivateKey privateKey = obtainPrivateKeyForAccount(_accounts.get(0));
+         _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
       } else {
          // Let the user choose which private key to use
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.llRoot).setVisibility(View.VISIBLE);
       }
       super.onResume();
-   };
+   }
+
+   ;
 
    @Override
    protected void onPause() {
@@ -171,7 +195,67 @@ public class CreateTrader2Activity extends Activity {
       if (index == Spinner.INVALID_POSITION) {
          return null;
       }
-      return _privateKeys.get(index);
+      UUID accountId = _accounts.get(index);
+      return obtainPrivateKeyForAccount(accountId);
+   }
+
+   private UUID getSelectedAccount() {
+      int index = _spAddress.getSelectedItemPosition();
+      if (index == Spinner.INVALID_POSITION) {
+         return null;
+      }
+      return _accounts.get(index);
+   }
+
+   private InMemoryPrivateKey obtainPrivateKeyForAccount(UUID accountId) {
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      if (account instanceof SingleAddressAccount) {
+         // For single address accounts we use the private key directly
+         try {
+            return ((SingleAddressAccount) account).getPrivateKey(AesKeyCipher.defaultKeyCipher());
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException();
+         }
+      } else if (account instanceof Bip44Account) {
+         // For BIP44 accounts we derive a private key from the BIP32 hierarchy
+         try {
+            Bip39.MasterSeed masterSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+            int accountIndex = ((Bip44Account) account).getAccountIndex();
+            return createBip32LocalTraderPrivateKey(masterSeed.getBip32Seed(), accountIndex, "lt.mycelium.com");
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException();
+         }
+      } else {
+         throw new RuntimeException("Invalid account type");
+      }
+   }
+
+   /**
+    * The root index we use for generating authentication keys.
+    * 0x80 makes the number negative == hardened key derivation
+    * 0x424944 = "BID"
+    */
+   private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
+
+   private InMemoryPrivateKey createBip32LocalTraderPrivateKey(byte[] masterSeed, int accountIndex, String site) {
+      // Create BIP32 root node
+      HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed);
+      // Create bit id node
+      HdKeyNode bidNode = rootNode.createChildNode(BIP32_ROOT_AUTHENTICATION_INDEX);
+      // Create the private key for the specified account
+      InMemoryPrivateKey accountPriv = bidNode.createChildPrivateKey(accountIndex);
+      // Concatenate the private key bytes with the site name
+      byte[] sitePrivateKeySeed = new byte[0];
+      try {
+         sitePrivateKeySeed = BitUtils.concatenate(accountPriv.getPrivateKeyBytes(), site.getBytes("UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+         // Does not happen
+         throw new RuntimeException(e);
+      }
+      // Hash the seed and create a new private key from that which uses compressed public keys
+      byte[] sitePrivateKeyBytes = HashUtils.doubleSha256(sitePrivateKeySeed).getBytes();
+      return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
@@ -187,26 +271,34 @@ public class CreateTrader2Activity extends Activity {
          Utils.toastConnectionError(CreateTrader2Activity.this);
          finish();
          return true;
-      };
+      }
+
+      ;
 
       @Override
       public boolean onLtNoTraderAccount() {
          // No existing trader with this key, normal case.
          // Proceed to creation step 2
          InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
-         CreateTrader3Activity.callMe(CreateTrader2Activity.this, privateKey);
+         UUID accountId = Preconditions.checkNotNull(getSelectedAccount());
+         CreateTrader3Activity.callMe(CreateTrader2Activity.this, accountId, privateKey);
          finish();
          return true;
-      };
+      }
+
+      ;
 
       @Override
       public void onLtLogin(String nickname, TryLogin request) {
          // We are already registered with this key
          InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
-         _ltManager.setLocalTraderData(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), nickname);
+         UUID accountId = Preconditions.checkNotNull(getSelectedAccount());
+         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), nickname);
          setResult(RESULT_OK);
          finish();
-      };
+      }
+
+      ;
    };
 
 }

@@ -34,17 +34,6 @@
 
 package com.mycelium.wallet.pdf;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -53,7 +42,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.zxing.BarcodeFormat;
@@ -63,10 +51,16 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mycelium.wallet.R;
-
 import crl.android.pdfwriter.PDFWriter;
 import crl.android.pdfwriter.PaperSize;
 import crl.android.pdfwriter.StandardFonts;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.util.*;
 
 public class ExportDistiller {
 
@@ -78,11 +72,13 @@ public class ExportDistiller {
 
       public String address;
       public String encryptedKey;
+      public String encryptedMasterSeed;
       public String label;
 
-      public ExportEntry(String address, String encryptedKey, String label) {
+      public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label) {
          this.address = address;
          this.encryptedKey = encryptedKey;
+         this.encryptedMasterSeed = encryptedMasterSeed;
          this.label = label;
       }
 
@@ -93,6 +89,7 @@ public class ExportDistiller {
       private static final int WATER_MARK_WORK = 5;
       private static final int ADDRESS_WORK = 2;
       private static final int PRIVATE_KEY_WORK = 3;
+      private static final int MASTER_SEED_WORK = 3;
       private int _totalWork;
       private int _workCompleted;
 
@@ -100,9 +97,14 @@ public class ExportDistiller {
          // Sum up all the work to do
          _totalWork = WATER_MARK_WORK;
          for (ExportEntry entry : entries) {
-            _totalWork += ADDRESS_WORK;
+            if (entry.address != null) {
+               _totalWork += ADDRESS_WORK;
+            }
             if (entry.encryptedKey != null) {
                _totalWork += PRIVATE_KEY_WORK;
+            }
+            if (entry.encryptedMasterSeed != null) {
+               _totalWork += MASTER_SEED_WORK;
             }
          }
       }
@@ -119,6 +121,10 @@ public class ExportDistiller {
          _workCompleted = Math.min(_totalWork, _workCompleted + PRIVATE_KEY_WORK);
       }
 
+      private void masterSeedCompleted() {
+         _workCompleted = Math.min(_totalWork, _workCompleted + MASTER_SEED_WORK);
+      }
+
       public double getProgress() {
          return (double) _workCompleted / (double) _totalWork;
       }
@@ -126,7 +132,7 @@ public class ExportDistiller {
    }
 
    public static String exportPrivateKeysToFile(Context context, ExportPdfParameters params,
-         ExportProgressTracker progressTracker, String filePath) throws IOException {
+                                                ExportProgressTracker progressTracker, String filePath) throws IOException {
       // Write document to file
       String result = exportPrivateKeys(context, params, progressTracker);
       try {
@@ -151,7 +157,7 @@ public class ExportDistiller {
    }
 
    public static String exportPrivateKeys(Context context, ExportPdfParameters params,
-         ExportProgressTracker progressTracker) {
+                                          ExportProgressTracker progressTracker) {
 
       int pageWidth = PaperSize.EXECUTIVE_WIDTH;
       int pageHeight = PaperSize.EXECUTIVE_HEIGHT;
@@ -172,9 +178,10 @@ public class ExportDistiller {
       final int totalKeys = params.entriesWithEncryptedKeys();
       int activeRecords = params.getNumActive();
       int archivedRecords = params.getNumArchived();
-      int totalRecords = activeRecords + archivedRecords;
+      int totalAddresses = activeRecords + archivedRecords;
+      int totalRecords = activeRecords + archivedRecords + (params.masterSeed.isPresent() ? 1 : 0);
 
-      int totalPages = 1 + ((totalRecords - 1 + RECORDS_PR_PAGE - 1) / RECORDS_PR_PAGE) + 1;
+      int totalPages = 1 + ((totalRecords + RECORDS_PR_PAGE - 1) / RECORDS_PR_PAGE) + 1;
 
       MyWriter writer = new MyWriter(pageWidth, pageHeight, 20, 20, 20, 20);
 
@@ -236,23 +243,30 @@ public class ExportDistiller {
 
       // Total Addresses
       writer.addText(1F, fromTop, 10, "Total Addresses:");
-      writer.addText(4.2F, fromTop, 10, "" + totalRecords);
+      writer.addText(4.2F, fromTop, 10, "" + totalAddresses);
+      fromTop += 0.4F;
+
+      // Total Addresses
+      writer.addText(1F, fromTop, 10, "Master Seed:");
+      writer.addText(4.2F, fromTop, 10, params.masterSeed.isPresent() ? "Present" : "Not present");
       fromTop += 0.8F;
 
       // Description 1
-      writer.addText(1F, fromTop, 12, "This document contains encrypted Bitcoin private keys. To access the bitcoins");
+      writer.addText(1F, fromTop, 12, "This document contains an encrypted backup of your Mycelium Wallet.");
+      fromTop += 0.8F;
+      writer.addText(1F, fromTop, 12, "The backup contains sensitive data consisting of one or more private keys and an");
       fromTop += 0.5F;
-      writer.addText(1F, fromTop, 12,
-            "controlled by these private keys you need to import them into the Mycelium Bitcoin");
+      writer.addText(1F, fromTop, 12, "optional master seed. For your protection this data is encrypted with a 15 character");
       fromTop += 0.5F;
-      writer.addText(1F, fromTop, 12,
-            "Wallet, or some other wallet that recognizes this format. The private keys contained in");
+      writer.addText(1F, fromTop, 12, "random password.");
+      fromTop += 0.8F;
+      writer.addText(1F, fromTop, 12, "The password was shown on display while creating the backup, and is different for");
       fromTop += 0.5F;
-      writer.addText(1F, fromTop, 12, "this document are password protected. The password was shown on display while");
+      writer.addText(1F, fromTop, 12, "every backup. It is not possible to restore the backup and access your bitcoins");
       fromTop += 0.5F;
-      writer.addText(1F, fromTop, 12,
-            "creating the backup. It is not possible to access the bitcoins without the password.");
-      fromTop += 1F;
+      writer.addText(1F, fromTop, 12, "without the password.");
+      fromTop += 1.3F;
+
 
       // Description 2
       writer.addText(1F, fromTop, 12,
@@ -264,14 +278,13 @@ public class ExportDistiller {
       fromTop += 0.8F;
 
       // Description 3
-      writer.addText(1F, fromTop, 12, "Alternatively you can write it down elsewere.");
-      fromTop += 1F;
+      writer.addText(1F, fromTop, 12, "Alternatively you can write it down elsewhere. Keep it safe!");
+      fromTop += 1.3F;
 
       // Description 4
-      writer.addText(1F, fromTop, 12,
-            "To import a key in the Mycelium wallet you need to scan the private key QR code and");
+      writer.addText(1F, fromTop, 12, "To import a key or a master seed in the Mycelium wallet you need to scan the corresponding");
       fromTop += 0.45;
-      writer.addText(1F, fromTop, 12, "enter the encryption password.");
+      writer.addText(1F, fromTop, 12, "QR code and enter the encryption password.");
       fromTop += 1F;
 
       // Description 5
@@ -279,78 +292,84 @@ public class ExportDistiller {
             "Note that the embedded PDF viewer in Windows 8 cannot display the QR codes properly.");
       fromTop += 1.7F;
 
-      // Add first key to first page (we know that there will always be one
-      // acrive record)
-      fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, 1, activeRecords, params.firstEntry(), true,
-            progressTracker);
+      int pageNum = 1;
 
       // Add page number
-      int pageNum = 1;
       addPageNumber(writer, pageNum++, totalPages);
-      if (totalRecords > 1) {
-         writer.addPage();
-      }
 
       // There are 3 records positions per page
       int recordsOnThisPage = 0;
       fromTop = 0F;
+      int remainingRecords = totalRecords;
 
-      // Add remaining active records
-      List<ExportEntry> activeWithoutFirst = params.activeWithoutFirst();
-        for (int i = 0; i < activeWithoutFirst.size(); i++) {
-         ExportEntry exportEntry = activeWithoutFirst.get(i);
+
+      if (remainingRecords > 0) {
+         writer.addPage();
+      }
+
+      // Add master seed if present
+      if (params.masterSeed.isPresent()) {
+         remainingRecords--;
          recordsOnThisPage++;
-         boolean moreRecords = i != totalRecords - 1;
-         boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
+         fromTop = addMasterSeed(new OffsetWriter(0F, fromTop, writer), "Master Seed", params.masterSeed.get(), remainingRecords == 0, progressTracker);
+      }
+
+      List<ExportEntry> active = params.getActive();
+      for (int i = 0; i < active.size(); i++) {
+         ExportEntry exportEntry = active.get(i);
+         recordsOnThisPage++;
+         remainingRecords--;
+         boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), true, i + 1 + 1, params.getNumActive(),
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, active.size()),
                exportEntry, lastRecordOnPage, progressTracker);
 
-         // Add page number
          if (lastRecordOnPage) {
             recordsOnThisPage = 0;
             addPageNumber(writer, pageNum++, totalPages);
-            if (moreRecords) {
+            if (remainingRecords > 0) {
                writer.addPage();
                fromTop = 0F;
             }
          }
       }
 
-      // Add archived records
-      List<ExportEntry> archiveWithoutFirst = params.archiveWithoutFirst();
-      for (int i = 0; i < archiveWithoutFirst.size(); i++) {
+      List<ExportEntry> archived = params.getArchived();
+      for (int i = 0; i < archived.size(); i++) {
+         ExportEntry exportEntry = archived.get(i);
          recordsOnThisPage++;
-         boolean moreRecords = i != archiveWithoutFirst.size() - 1;
-         boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || !moreRecords;
+         remainingRecords--;
+         boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
 
          // Add Record
-         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), false, i + 1, archiveWithoutFirst.size(),
-               archiveWithoutFirst.get(i), lastRecordOnPage, progressTracker);
+         fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(false, i + 1, archived.size()),
+               exportEntry, lastRecordOnPage, progressTracker);
 
-         // Add page number
          if (lastRecordOnPage) {
             recordsOnThisPage = 0;
             addPageNumber(writer, pageNum++, totalPages);
-            if (moreRecords) {
+            if (remainingRecords > 0) {
                writer.addPage();
                fromTop = 0F;
             }
          }
-
       }
 
       addFinalPage(writer, totalPages);
       return writer.asString();
    }
 
+   private static String getTitle(boolean isActive, int entryNum, int totalEntries) {
+      return (isActive ? "Active " : "Archived ") + entryNum + " of " + totalEntries;
+   }
+
    private static void addPageNumber(MyWriter writer, int i, int totalPages) {
       writer.addText(16F, 26.4F, 12, "Page " + i + " of " + totalPages);
    }
 
-   private static double addRecord(OffsetWriter writer, boolean active, int entryNum, int totalEntries,
-         ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
+   private static double addRecord(OffsetWriter writer, String title,
+                                   ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
       String address = entry.address;
       String encryptedKey = entry.encryptedKey;
       double fromTop = 0;
@@ -358,7 +377,6 @@ public class ExportDistiller {
       writer.setLineColor(0, 0.5, 1);
       writer.addLine(1F, fromTop, 6.5F, fromTop);
       writer.setTextColor(0, 0.5, 1);
-      String title = (active ? "Active " : "Archived ") + entryNum + " of " + totalEntries;
       writer.addText(8F, fromTop - 0.4F, 13, title);
       writer.addLine(12.0F, fromTop, 18F, fromTop);
       fromTop += 0.5;
@@ -440,11 +458,74 @@ public class ExportDistiller {
       fromTop += 0.5F;
       return fromTop;
    }
-   
-   private static boolean isASCII(String string){
+
+   private static double addMasterSeed(OffsetWriter writer, String title,
+                                       ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
+      String encryptedMasterSeed = entry.encryptedMasterSeed;
+      double fromTop = 0;
+      // Add separator line and key title
+      writer.setLineColor(0, 0.5, 1);
+      writer.addLine(1F, fromTop, 6.5F, fromTop);
+      writer.setTextColor(0, 0.5, 1);
+      writer.addText(8F, fromTop - 0.4F, 13, title);
+      writer.addLine(12.0F, fromTop, 18F, fromTop);
+      fromTop += 0.5;
+
+      // Titles
+      writer.setTextColor(0, 0, 0);
+      writer.addText(6.8F, fromTop, 13, "Encrypted Master Seed");
+      fromTop += 1.5F;
+
+      writer.addQrCode(7.5, fromTop - 0.25, 3.5, encryptedMasterSeed);
+
+      progressTracker.masterSeedCompleted();
+      // Encrypted private key QR-code
+      fromTop += 4;
+
+      // Use Monospace font
+      writer.setMonoFont();
+
+      // Strings
+      if (encryptedMasterSeed.length() > 65) {
+         // if the encrypted master seed is long (512 bits) we chop it into 4 pieces
+         int partLength = encryptedMasterSeed.length() / 4;
+         String k1 = encryptedMasterSeed.substring(0, partLength);
+         String k2 = encryptedMasterSeed.substring(partLength, partLength * 2);
+         String k3 = encryptedMasterSeed.substring(partLength * 2, partLength * 3);
+         String k4 = encryptedMasterSeed.substring(partLength * 3);
+         writer.addText(5.7, fromTop, 12, k1);
+         fromTop += 0.5F;
+         writer.addText(5.7, fromTop, 12, k2);
+         fromTop += 0.5F;
+         writer.addText(5.7, fromTop, 12, k3);
+         fromTop += 0.5F;
+         writer.addText(5.7, fromTop, 12, k4);
+         fromTop += 0.5;
+      } else {
+         String k1 = encryptedMasterSeed.substring(0, encryptedMasterSeed.length() / 2);
+         String k2 = encryptedMasterSeed.substring(encryptedMasterSeed.length() / 2);
+         writer.addText(5.2, fromTop, 12, k1);
+         fromTop += 0.5F;
+         writer.addText(5.2, fromTop, 12, k2);
+         fromTop += 1;
+      }
+
+      // Use Standard font
+      writer.setStandardFont();
+
+      // Add end line if necessary
+      if (addEndLine) {
+         writer.setLineColor(0, 0.5, 1);
+         writer.addLine(1F, fromTop, 18F, fromTop);
+      }
+      fromTop += 0.5F;
+      return fromTop;
+   }
+
+   private static boolean isASCII(String string) {
       return CharMatcher.ASCII.matchesAllOf(string);
    }
-   
+
    private static void addPasswordBoxes(OffsetWriter offsetWriter) {
       offsetWriter.setLineColor(0, 0.5, 1);
       add3PasswordBoxes(new OffsetWriter(0F, 0F, offsetWriter));
@@ -478,20 +559,24 @@ public class ExportDistiller {
 
    private static final String DECODE_HEADER_HEADING = "Decoding the 3 Header Bytes";
    private static final String DECODE_HEADER_1 = "Regard the header as an array of 24 bits and decode the following values:";
-   private static final String DECODE_HEADER_2 = "version    = XXXX???? ???????? ???????? (must be 1)";
-   private static final String DECODE_HEADER_3 = "network    = ????X??? ???????? ???????? (0 = prodnet, 1 = testnet)";
-   private static final String DECODE_HEADER_4 = "compressed = ???????X ???????? ???????? (0 = uncompressed, 1 = compressed)";
-   private static final String DECODE_HEADER_5 = "HN         = ???????? XXXXX??? ???????? (0 <= HN <= 31)";
-   private static final String DECODE_HEADER_6 = "Hr         = ???????? ?????XXX XX?????? (1 <= Hr <= 31)";
-   private static final String DECODE_HEADER_7 = "Hp         = ???????? ???????? ??XXXXX? (1 <= Hp <= 31)";
-   private static final String DECODE_HEADER_8 = "reserved   = ?????XX? ???????? ???????X (must be zero)";
+   private static final String DECODE_HEADER_2 = "version    = XXXX???? ???????? ????????: must be 1";
+   private static final String DECODE_HEADER_3 = "network    = ????X??? ???????? ????????: 0 = prodnet, 1 = testnet";
+   private static final String DECODE_HEADER_4 = "content    = ?????XXX ???????? ????????: 000 = private key with uncompressed public key";
+   private static final String DECODE_HEADER_4_1 = "                                         001 = private key with compressed public key";
+   private static final String DECODE_HEADER_4_2 = "                                         010 = 128 bit master seed";
+   private static final String DECODE_HEADER_4_3 = "                                         011 = 192 bit master seed";
+   private static final String DECODE_HEADER_4_4 = "                                         100 = 256 bit master seed";
+   private static final String DECODE_HEADER_5 = "HN         = ???????? XXXXX??? ????????: 0 <= HN <= 31";
+   private static final String DECODE_HEADER_6 = "Hr         = ???????? ?????XXX XX??????: 1 <= Hr <= 31";
+   private static final String DECODE_HEADER_7 = "Hp         = ???????? ???????? ??XXXXX?: 1 <= Hp <= 31";
+   private static final String DECODE_HEADER_8 = "reserved   = ???????? ???????? ???????X: must be zero";
 
    private static final String AES_HEADING = "AES Key Derivation";
    private static final String AES_1 = "Make the user enter a 15-character password using characters A-Z, all in upper case. Convert the characters to 15 bytes using normal ASCII conversion. An implementations may use additional checksum characters for password integrity. They are not part of the AES key derivation.";
    private static final String AES_2 = "Run scrypt using parameters N = 2^HN, r = Hr, p = Hp on the password bytes and SALT, to derive 32 bytes.";
    private static final String AES_3 = "The 32 output bytes are used as the 256-bit AES key used for decryption.";
 
-   private static final String DECRYPT_HEADING = "Decrypting the Private Key";
+   private static final String DECRYPT_HEADING = "Decrypting the Content Data";
    private static final String DECRYPT_DESC = "The decryption function is 256-bit AES in CBC mode.";
    private static final String DECRYPT_1 = "Generate the AES initialization vector (IV) by doing a single round of SHA256 on the concatenation of SALT and C, and use the first 16 bytes of the output.";
    private static final String DECRYPT_2 = "Split E into two 16-byte blocks E1 and E2";
@@ -499,10 +584,11 @@ public class ExportDistiller {
    private static final String DECRYPT_4 = "X-or the initialization vector onto P1: P1 = P1 xor IV";
    private static final String DECRYPT_5 = "Do an AES block decryption of E2 into P2 using the derived AES key";
    private static final String DECRYPT_6 = "X-or E1 onto P2: P2 = P2 xor E1";
-   private static final String DECRYPT_7 = "The 32 byte private key is the concatenation of P1 and P2: P = P1 || P2";
-
-   private static final String GENERATE_ADDRESS_HEADING = "Generating the Bitcoin Address";
-   private static final String GENERATE_ADDRESS_DESC = "For each bitcoin private key there are two public keys. A compressed public key and an uncompressed public key. As each public key gives a different bitcoin address it is important to use the right one. The right public key to use is encoded in the header (compressed). Bitcoin addresses for the test network are different from the production (real) network. The network that this private key is for is encoded in the header (network).";
+   private static final String DECRYPT_7 = "The 32 byte plaintext data is the concatenation of P1 and P2: P = P1 || P2";
+   private static final String DECRYPT_8 = "If content is 000 or 001 the 32 bytes are a private key";
+   private static final String DECRYPT_9 = "If content is 010 the first 16 bytes are a master seed";
+   private static final String DECRYPT_10 = "If content is 011 the first 24 bytes are a master seed";
+   private static final String DECRYPT_11 = "If content is 100 the 32 bytes are a master seed";
 
    private static final String VERIFY_HEADING = "Verifying the Checksum";
    private static final String VERIFY_1 = "Convert the generated bitcoin address to an array of ASCII bytes";
@@ -537,14 +623,18 @@ public class ExportDistiller {
 
       item = 1;
       fromTop = addHeadingText(writer, fromTop, DECODE_HEADER_HEADING);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_1);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_2);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_3);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_4);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_5);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_6);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_7);
-      fromTop = addListItemText(writer, fromTop, item++, DECODE_HEADER_8);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_1);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_2);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_3);
+      fromTop = addText(writer, fromTop, DECODE_HEADER_4);
+      fromTop = addText(writer, fromTop, DECODE_HEADER_4_1);
+      fromTop = addText(writer, fromTop, DECODE_HEADER_4_2);
+      fromTop = addText(writer, fromTop, DECODE_HEADER_4_3);
+      fromTop = addText(writer, fromTop, DECODE_HEADER_4_4);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_5);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_6);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_7);
+      fromTop = addBodyText(writer, fromTop, DECODE_HEADER_8);
       fromTop = addGap(fromTop);
 
       item = 1;
@@ -564,10 +654,10 @@ public class ExportDistiller {
       fromTop = addListItemText(writer, fromTop, item++, DECRYPT_5);
       fromTop = addListItemText(writer, fromTop, item++, DECRYPT_6);
       fromTop = addListItemText(writer, fromTop, item++, DECRYPT_7);
-      fromTop = addGap(fromTop);
-
-      fromTop = addHeadingText(writer, fromTop, GENERATE_ADDRESS_HEADING);
-      fromTop = addBodyText(writer, fromTop, GENERATE_ADDRESS_DESC);
+      fromTop = addText(writer, fromTop, DECRYPT_8);
+      fromTop = addText(writer, fromTop, DECRYPT_9);
+      fromTop = addText(writer, fromTop, DECRYPT_10);
+      fromTop = addText(writer, fromTop, DECRYPT_11);
       fromTop = addGap(fromTop);
 
       item = 1;
@@ -607,6 +697,14 @@ public class ExportDistiller {
          writer.addText(1F, fromTop, 9, line);
          fromTop += 0.375;
       }
+      return fromTop;
+   }
+
+   private static double addText(MyWriter writer, double fromTop, String text) {
+      writer.setTextColor(0, 0, 0);
+      writer.setMonoFont();
+      writer.addText(1F, fromTop, 9, text);
+      fromTop += 0.375;
       return fromTop;
    }
 
@@ -653,7 +751,7 @@ public class ExportDistiller {
 
    private static String[] wordSplitter(String word, int maxLength) {
       if (word.length() < maxLength) {
-         return new String[] { word };
+         return new String[]{word};
       }
       int num = (word.length() + maxLength - 1) / maxLength;
       String[] chopped = new String[num];

@@ -54,14 +54,12 @@ import com.google.common.eventbus.Subscribe;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.Record.BackupState;
-import com.mycelium.wallet.RecordManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.event.AddressBookChanged;
-import com.mycelium.wallet.event.RecordSetChanged;
-import com.mycelium.wallet.event.SelectedRecordChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class NoticeFragment extends Fragment {
 
@@ -70,7 +68,6 @@ public class NoticeFragment extends Fragment {
    }
 
    private MbwManager _mbwManager;
-   private RecordManager _recordManager;
    private View _root;
    private Notice _notice;
 
@@ -90,7 +87,6 @@ public class NoticeFragment extends Fragment {
    @Override
    public void onAttach(Activity activity) {
       _mbwManager = MbwManager.getInstance(activity);
-      _recordManager = _mbwManager.getRecordManager();
       super.onAttach(activity);
    }
 
@@ -164,15 +160,15 @@ public class NoticeFragment extends Fragment {
    }
 
    private Notice determineNotice() {
-      List<Record> records = _recordManager.getAllRecords();
-
       // Check for missing backup verifications
-      for (Record record : records) {
-         if (record.hasPrivateKey() && record.backupState != BackupState.VERIFIED) {
+      for (WalletAccount account : _mbwManager.getWalletManager(false).getActiveAccounts()) {
+         if (account.canSpend() && _mbwManager.getMetadataStorage().getBackupState(account) != MetadataStorage.BackupState.VERIFIED) {
             return Notice.VERIFICATION_MISSING;
          }
       }
-
+      if (_mbwManager.getWalletManager(false).hasBip32MasterSeed() && _mbwManager.getMetadataStorage().getMasterSeedBackupState().equals(MetadataStorage.BackupState.UNKNOWN)) {
+         return Notice.VERIFICATION_MISSING;
+      }
       return Notice.NONE;
    }
 
@@ -228,19 +224,10 @@ public class NoticeFragment extends Fragment {
    }
 
    /**
-    * Fires when record set changed
+    * Selected Account has changed, so update accordingly
     */
    @Subscribe
-   public void recordSetChanged(RecordSetChanged event) {
-      _notice = determineNotice();
-      updateUi();
-   }
-
-   /**
-    * Fires when the selected record changes
-    */
-   @Subscribe
-   public void selectedRecordChanged(SelectedRecordChanged event) {
+   public void selectedAccountChanged(SelectedAccountChanged event) {
       _notice = determineNotice();
       updateUi();
    }

@@ -70,7 +70,7 @@ public class ExchangeRateManager {
          return _handler;
       }
 
-      public abstract void refreshingEcahngeRatesSuccedded();
+      public abstract void refreshingExchangeRatesSucceeded();
 
       public abstract void refreshingExchangeRatesFailed();
    }
@@ -149,7 +149,7 @@ public class ExchangeRateManager {
 
             @Override
             public void run() {
-               s.refreshingEcahngeRatesSuccedded();
+               s.refreshingExchangeRatesSucceeded();
             }
          });
       }

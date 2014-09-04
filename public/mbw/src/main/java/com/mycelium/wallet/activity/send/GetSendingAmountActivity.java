@@ -35,8 +35,10 @@
 package com.mycelium.wallet.activity.send;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -50,43 +52,36 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.TransactionUtils;
-import com.mrd.bitlib.crypto.PrivateKeyRing;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.Wallet;
-import com.mycelium.wallet.Wallet.SpendableOutputs;
+import com.mycelium.wapi.wallet.WalletAccount;
+
 
 public class GetSendingAmountActivity extends Activity implements NumberEntryListener {
 
-   private Wallet _wallet;
-   private SpendableOutputs _spendable;
+   private WalletAccount _account;
    private Double _oneBtcInFiat; // May be null
    private NumberEntry _numberEntry;
-   private PrivateKeyRing _privateKeyRing;
-   private long _balance;
    private Toast _toast;
    private boolean _enterFiatAmount;
+   private boolean _isColdStorage;
    private MbwManager _mbwManager;
-   private List<UnspentTransactionOutput> _outputs;
-   private long _maxSendable;
+   private long _maxSpendableAmount;
 
-   public static void callMe(Activity currentActivity, int requestCode, Wallet wallet, SpendableOutputs spendable,
-         Double oneBtcInFiat, Long amountToSend) {
+   public static void callMe(Activity currentActivity, int requestCode, UUID account,
+         Double oneBtcInFiat, Long amountToSend, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, GetSendingAmountActivity.class);
-      intent.putExtra("wallet", wallet);
-      intent.putExtra("spendable", spendable);
+      intent.putExtra("account", account);
       intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.putExtra("amountToSend", amountToSend);
+      intent.putExtra("isColdStorage", isColdStorage);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -99,9 +94,15 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       _toast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
       _mbwManager = MbwManager.getInstance(getApplication());
 
+      _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
+
       // Get intent parameters
-      _wallet = Preconditions.checkNotNull((Wallet) getIntent().getSerializableExtra("wallet"));
-      _spendable =  Preconditions.checkNotNull((SpendableOutputs) getIntent().getSerializableExtra("spendable"));
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
+      _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+
+      // Calculate the maximum amount that can be spent where we send everything we got to another address
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount();
+
       // May be null
       _oneBtcInFiat =  (Double) getIntent().getSerializableExtra("oneBtcInFiat");
       Long amount = (Long) getIntent().getSerializableExtra("amountToSend");
@@ -111,23 +112,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          amount = (Long) savedInstanceState.getSerializable("amountToSend");
       }
 
-      // Construct list of outputs
-      _outputs = new LinkedList<UnspentTransactionOutput>();
-      _outputs.addAll(_spendable.unspent);
-      _outputs.addAll(_spendable.change);
-
-      // Construct private key ring
-      _privateKeyRing = _wallet.getPrivateKeyRing();
-
-      // Determine and set balance
-      _balance = 0;
-      for (UnspentTransactionOutput out : _outputs) {
-         _balance += out.value;
-      }
-      ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_balance));
-
-      // Calculate the maximum amount we can send
-      _maxSendable = getMaxAmount();
+      ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_account.getBalance()));
 
       // Set amount
       String amountString;
@@ -184,8 +169,8 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       }
    };
 
-   private String getBalanceString(long balance) {
-      String balanceString = _mbwManager.getBtcValueString(balance);
+   private String getBalanceString(com.mycelium.wapi.model.Balance balance) {
+      String balanceString = _mbwManager.getBtcValueString(balance.getSpendableBalance());
       String balanceText = getResources().getString(R.string.max_btc, balanceString);
       return balanceText;
    }
@@ -259,7 +244,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
 
          // Set BTC balance
-         ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_balance));
+         ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_account.getBalance()));
 
          newDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          Long satoshis = getSatoshisToSend();
@@ -276,7 +261,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          btCurrency.setText(_mbwManager.getFiatCurrency());
 
          // Set Fiat balance
-         String fiatBalance = Utils.getFiatValueAsString(_balance, _oneBtcInFiat);
+         String fiatBalance = Utils.getFiatValueAsString(_account.getBalance().getSpendableBalance(), _oneBtcInFiat);
          String balanceString = getResources().getString(R.string.max_fiat, fiatBalance, _mbwManager.getFiatCurrency());
          ((TextView) findViewById(R.id.tvMaxAmount)).setText(balanceString);
 
@@ -330,7 +315,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       Long satoshis = getSatoshisToSend();
 
       // enable/disable Max button
-      findViewById(R.id.btMax).setEnabled(satoshis == null || _maxSendable != satoshis);
+      findViewById(R.id.btMax).setEnabled(satoshis == null || _maxSpendableAmount != satoshis);
 
       // Set alternate amount if we can
       if (satoshis == null || _oneBtcInFiat == null) {
@@ -349,7 +334,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    }
 
    private void maximizeAmount() {
-      if (_maxSendable == 0) {
+      if (_maxSpendableAmount == 0) {
          String msg = getResources().getString(R.string.insufficient_funds);
          _toast.setText(msg);
          _toast.show();
@@ -358,24 +343,12 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
             switchCurrency();
          }
          int newDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-         BigDecimal newAmount = BigDecimal.valueOf(_maxSendable).divide(BigDecimal.TEN.pow(newDecimalPlaces));
+         BigDecimal newAmount = BigDecimal.valueOf(_maxSpendableAmount).divide(BigDecimal.TEN.pow(newDecimalPlaces));
          _numberEntry.setEntry(newAmount, newDecimalPlaces);
       }
    }
 
-   private long getMaxAmount() {
-      long satoshis = _balance;
-      while (true) {
-         satoshis -= TransactionUtils.DEFAULT_MINER_FEE;
-         AmountValidation result = checkSendAmount(satoshis);
-         if (result == AmountValidation.Ok) {
-            return satoshis;
-         } else if (result == AmountValidation.ValueTooSmall) {
-            return 0;
-         }
 
-      }
-   }
 
    private enum AmountValidation {
       Ok, ValueTooSmall, NotEnoughFunds
@@ -386,21 +359,11 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
     * that we have enough funds to send it.
     */
    private AmountValidation checkSendAmount(long satoshis) {
-      // Create transaction builder
-      StandardTransactionBuilder stb = new StandardTransactionBuilder(_mbwManager.getNetwork());
-
-      // Try and add the output
       try {
-         // Note, null address used here, we just use it for measuring the
-         // transaction size
-         stb.addOutput(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
+         WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
+         _account.createUnsignedTransaction(Arrays.asList(receiver));
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
-      }
-
-      // Try to create an unsigned transaction
-      try {
-         stb.createUnsignedTransaction(_outputs, null, _privateKeyRing, _mbwManager.getNetwork());
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
       }
@@ -426,7 +389,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.red));
          if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
-            if (_balance < satoshis) {
+            if (_account.getBalance().getSpendableBalance() < satoshis) {
                // We do not have enough funds for sending the requested amount
                String msg = getResources().getString(R.string.insufficient_funds);
                _toast.setText(msg);
@@ -442,7 +405,6 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
             // accept it. Don't Toast about it, it's just annoying
          }
       }
-
       // Enable/disable Next button
       findViewById(R.id.btOk).setEnabled(result == AmountValidation.Ok && satoshis > 0);
    }

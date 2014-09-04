@@ -25,6 +25,7 @@ import java.math.BigInteger;
 
 import com.google.bitcoinj.Base58;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
@@ -183,6 +184,36 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
          Q = new Point(Q.getCurve(), Q.getX(), Q.getY(), true);
       }
       _publicKey = new PublicKey(Q.getEncoded());
+   }
+
+   public static Optional<InMemoryPrivateKey> fromBase58String(String base58, NetworkParameters network) {
+      try {
+         InMemoryPrivateKey key = new InMemoryPrivateKey(base58, network);
+         return Optional.of(key);
+      } catch (IllegalArgumentException e) {
+         return Optional.absent();
+      }
+   }
+
+   public static Optional<InMemoryPrivateKey> fromBase58MiniFormat(String base58, NetworkParameters network) {
+      // Is it a mini private key on the format proposed by Casascius?
+      if (base58 == null || base58.length() < 2 || !base58.startsWith("S")) {
+         return Optional.absent();
+      }
+      // Check that the string has a valid checksum
+      String withQuestionMark = base58 + "?";
+      byte[] checkHash = HashUtils.sha256(withQuestionMark.getBytes()).firstFourBytes();
+      if (checkHash[0] != 0x00) {
+         return Optional.absent();
+      }
+      // Now get the Sha256 hash and use it as the private key
+      Sha256Hash privateKeyBytes = HashUtils.sha256(base58.getBytes());
+      try {
+         InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, false);
+         return Optional.of(key);
+      } catch (IllegalArgumentException e) {
+         return Optional.absent();
+      }
    }
 
    @Override

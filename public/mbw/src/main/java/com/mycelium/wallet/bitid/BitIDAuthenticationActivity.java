@@ -14,8 +14,6 @@ import android.widget.Toast;
 import com.squareup.otto.Subscribe;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.RecordManager;
 import com.squareup.otto.Bus;
 
 public class BitIDAuthenticationActivity extends ActionBarActivity  {
@@ -163,16 +161,17 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    }
 
    private void signAndSend(boolean enforceSslCorrectness) {
-      progress.setCancelable(false);
-      progress.setMessage(getString(R.string.bitid_processing));
-      progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      progress.show();
-      errorView.setVisibility(View.INVISIBLE);
-      try {
-         new BitIdAsyncTask(request, enforceSslCorrectness, getRecord(), getEventBus()).execute();
-      } catch (Exception e) {
-         throw new RuntimeException(e);
-      }
+      //TODO: select some identity, derive key...
+//      progress.setCancelable(false);
+//      progress.setMessage(getString(R.string.bitid_processing));
+//      progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//      progress.show();
+//      errorView.setVisibility(View.INVISIBLE);
+//      try {
+//         new BitIdAsyncTask(request, enforceSslCorrectness, getRecord(), getEventBus()).execute();
+//      } catch (Exception e) {
+//         throw new RuntimeException(e);
+//      }
    }
 
    public void abort(View view) {
@@ -187,12 +186,5 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       return getMbwManager().getEventBus();
    }
 
-   Record getRecord() {
-      return getRecordManager().getSelectedRecord();
-   }
-
-   private RecordManager getRecordManager() {
-      return getMbwManager().getRecordManager();
-   }
 }
 

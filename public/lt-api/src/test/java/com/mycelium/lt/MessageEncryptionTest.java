@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import com.google.common.io.BaseEncoding;
 import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.HdKeyNode.KeyGenerationException;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.util.BitUtils;
@@ -24,7 +23,7 @@ public class MessageEncryptionTest {
    private static final String MESSAGE_THREE = "Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!";
 
    @Test
-   public void testEncryptionDecryptionPositive() throws KeyGenerationException {
+   public void testEncryptionDecryptionPositive() {
       // Generate random trade session ID, encryption key and derive HMAC key
       UUID tradeSessionId = UUID.randomUUID();
 
@@ -43,7 +42,7 @@ public class MessageEncryptionTest {
    }
 
    @Test
-   public void testEncryptionDecryptionNegative() throws KeyGenerationException {
+   public void testEncryptionDecryptionNegative() {
       // Generate random trade session ID, encryption key and derive HMAC key
       UUID tradeSessionId = UUID.randomUUID();
 
