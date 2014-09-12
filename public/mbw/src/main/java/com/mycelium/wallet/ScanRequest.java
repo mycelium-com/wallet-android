@@ -29,14 +29,8 @@ public class ScanRequest implements Serializable {
    public static ScanRequest returnKeyOrAddress() {
       ScanRequest request = new ScanRequest();
       request.privateKeyAction = PrivateKeyAction.RETURN;
-      request.addressAction = AddressAction.RETURN_AS_RECORD;
-      request.bitcoinUriAction = BitcoinUriAction.RETURN_AS_RECORD;
-      return request;
-   }
-
-   public static ScanRequest returnPrivateKey() {
-      ScanRequest request = new ScanRequest();
-      request.privateKeyAction = PrivateKeyAction.RETURN;
+      request.addressAction = AddressAction.RETURN;
+      request.bitcoinUriAction = BitcoinUriAction.RETURN_ADDRESS;
       return request;
    }
 
@@ -45,13 +39,6 @@ public class ScanRequest implements Serializable {
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
       request.addressAction = AddressAction.CHECK_BALANCE;
       request.bitcoinUriAction = BitcoinUriAction.CHECK_BALANCE;
-      return request;
-   }
-
-   public static ScanRequest sendCoins() {
-      ScanRequest request = new ScanRequest();
-      request.addressAction = AddressAction.SEND;
-      request.bitcoinUriAction = BitcoinUriAction.SEND;
       return request;
    }
 
@@ -70,6 +57,8 @@ public class ScanRequest implements Serializable {
       request.bitIdAction = BitIdAction.LOGIN;
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
       request.websiteAction = WebsiteAction.OPEN_BROWSER;
+      //at the moment, we just support wordlist backups
+      //request.masterSeedAction = MasterSeedAction.IMPORT;
       return request;
    }
 
@@ -136,12 +125,7 @@ public class ScanRequest implements Serializable {
          public boolean handle(ScanActivity scanActivity, String content) {
             Optional<InMemoryPrivateKey> key = getPrivateKey(scanActivity, content);
             if (!key.isPresent()) return false;
-            //todo hand over the key directly, change code at receivers
-            Optional<Record> record = Record.fromString(content, scanActivity.getNetwork());
-            if (!record.isPresent()) {
-               throw new IllegalStateException("could not create Record from private key");
-            }
-            scanActivity.finishOk(record.get());
+            scanActivity.finishOk(key.get());
             return true;
          }
       },
@@ -158,7 +142,6 @@ public class ScanRequest implements Serializable {
             // Check whether regular wallet contains the account
             boolean success = mbwManager.getWalletManager(false).hasAccount(account);
             if (success) {
-               mbwManager.getMetadataStorage().setBackupState(account, MetadataStorage.BackupState.VERIFIED);
                scanActivity.finishOk();
             } else {
                scanActivity.finishError(R.string.verify_backup_no_such_record, "");
@@ -186,7 +169,7 @@ public class ScanRequest implements Serializable {
             if (!address.isPresent()) {
                return false;
             }
-            SendMainActivity.callMe(scanActivity, MbwManager.getInstance(scanActivity).getSelectedAccount().getId(), scanActivity.getPrice(), null, address.get(), false);
+            SendMainActivity.callMe(scanActivity, MbwManager.getInstance(scanActivity).getSelectedAccount().getId(), null, address.get(), false);
             scanActivity.finishOk();
             return true;
          }
@@ -216,18 +199,6 @@ public class ScanRequest implements Serializable {
             scanActivity.finishOk(address.get());
             return true;
          }
-      },
-
-      RETURN_AS_RECORD {
-         @Override
-         public boolean handle(ScanActivity scanActivity, String content) {
-            Optional<Address> address = getAddress(scanActivity, content);
-            if (!address.isPresent()) {
-               return false;
-            }
-            scanActivity.finishOk(Record.recordFromAddress(address.get()));
-            return true;
-         }
       };
 
       private static Optional<Address> getAddress(ScanActivity scanActivity, String content) {
@@ -248,7 +219,7 @@ public class ScanRequest implements Serializable {
                scanActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
             } else {
-               SendMainActivity.callMe(scanActivity, MbwManager.getInstance(scanActivity).getSelectedAccount().getId(), scanActivity.getPrice(), uri.get(), false);
+               SendMainActivity.callMe(scanActivity, MbwManager.getInstance(scanActivity).getSelectedAccount().getId(), uri.get(), false);
                scanActivity.finishOk();
             }
             return true;
@@ -269,24 +240,6 @@ public class ScanRequest implements Serializable {
             return true;
          }
       },
-
-      RETURN_AS_RECORD {
-         @Override
-         public boolean handle(ScanActivity scanActivity, String content) {
-            if (!content.toLowerCase().startsWith("bitcoin")) return false;
-            Optional<BitcoinUri> uri = getUri(scanActivity, content);
-            if (!uri.isPresent()) {
-               scanActivity.finishError(R.string.unrecognized_format, content);
-               //started with bitcoin: but could not be parsed, was handled
-            } else {
-               Record record = Record.recordFromAddress(uri.get().address);
-               Long amount = uri.get().amount;
-               scanActivity.finishOk(record, amount);
-            }
-            return true;
-         }
-      },
-
       CHECK_BALANCE {
          @Override
          public boolean handle(ScanActivity scanActivity, String content) {
@@ -312,7 +265,8 @@ public class ScanRequest implements Serializable {
                scanActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
             } else {
-               scanActivity.finishOk(uri.get().address);
+               Long amount = uri.get().amount;
+               scanActivity.finishOk(uri.get().address, amount);
             }
             return true;
          }
@@ -409,6 +363,10 @@ public class ScanRequest implements Serializable {
                UUID acc;
                try {
                   WalletManager walletManager = MbwManager.getInstance(scanActivity).getWalletManager(false);
+                  if (walletManager.hasBip32MasterSeed()) {
+                     scanActivity.finishError(R.string.seed_already_configured, "");
+                     return true;
+                  }
                   walletManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
                   acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
                   MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);

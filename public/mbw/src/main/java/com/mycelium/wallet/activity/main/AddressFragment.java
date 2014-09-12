@@ -51,6 +51,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.squareup.otto.Bus;
@@ -108,6 +109,9 @@ public class AddressFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
+      if (_mbwManager.getSelectedAccount().isArchived()) {
+         return;
+      }
 
       // Update QR code
       QrImageView qrButton = (QrImageView) Preconditions.checkNotNull(_root.findViewById(R.id.ivQR));
@@ -140,7 +144,8 @@ public class AddressFragment extends Fragment {
     private class QrClickListener implements OnClickListener {
       @Override
       public void onClick(View v) {
-         ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId());
+         ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
+               _mbwManager.getSelectedAccount().getReceivingAddress(), _mbwManager.getSelectedAccount().canSpend());
       }
    }
 
@@ -153,11 +158,9 @@ public class AddressFragment extends Fragment {
       updateUi();
    }
 
-   /**
-    * Fires when the address book changed
-    */
    @Subscribe
-   public void addressBookChanged(AddressBookChanged event) {
+   public void accountChanged(AccountChanged event) {
       updateUi();
    }
+
 }

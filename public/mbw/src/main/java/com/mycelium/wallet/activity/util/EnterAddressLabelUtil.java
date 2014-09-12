@@ -39,32 +39,29 @@ import android.content.Context;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.EnterTextDialog;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.squareup.otto.Bus;
 
 import java.util.UUID;
 
 public class EnterAddressLabelUtil {
 
    public interface AddressLabelChangedHandler {
-      public void OnAddressLabelChanged(AddressBookManager.AddressBookKey key, String label);
-   }
-
-   public interface AccountLabelChangedHandler {
-      public void OnAccountLabelChanged(UUID account, String label);
+      public void OnAddressLabelChanged(Address address, String label);
    }
 
    public interface TransactionLabelChangedHandler {
       public void OnTransactionLabelChanged(Sha256Hash txid, String label);
    }
 
-   public static void enterAddressLabel(Context context, AddressBookManager addressBookManager, String address,
-         String defaultName, AddressLabelChangedHandler changeHandler) {
+   public static void enterAddressLabel(Context context, MetadataStorage storage, Address address,
+                                        String defaultName, AddressLabelChangedHandler changeHandler) {
       String hintText = context.getResources().getString(R.string.name);
-      AddressBookManager.AddressKey key = new AddressBookManager.AddressKey(Address.fromString(address));
-      String currentName = addressBookManager.getNameByKey(key);
+      String currentName = storage.getLabelByAddress(address);
       int title_id;
       if (currentName.length() == 0) {
          title_id = R.string.enter_address_label_title;
@@ -74,22 +71,22 @@ public class EnterAddressLabelUtil {
       }
       currentName = currentName.length() == 0 ? defaultName : currentName;
       String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
-      EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(addressBookManager,
-            key, invalidOkToastMessage, changeHandler));
+      EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(storage,
+              address, invalidOkToastMessage, changeHandler));
 
    }
 
    private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
 
-      private AddressBookManager _addressBook;
-      private AddressBookManager.AddressBookKey _key;
+      private MetadataStorage _storage;
+      private Address _address;
       private String _invalidOkToastMessage;
       private AddressLabelChangedHandler _changeHandler;
 
-      public EnterAddressLabelHandler(AddressBookManager addressBook, AddressBookManager.AddressBookKey key, String invalidOkToastMessage,
-            AddressLabelChangedHandler changeHandler) {
-         _key = key;
-         _addressBook = addressBook;
+      public EnterAddressLabelHandler(MetadataStorage storage, Address address, String invalidOkToastMessage,
+                                      AddressLabelChangedHandler changeHandler) {
+         _storage = storage;
+         _address = address;
          _invalidOkToastMessage = invalidOkToastMessage;
          _changeHandler = changeHandler;
       }
@@ -104,9 +101,8 @@ public class EnterAddressLabelUtil {
          // Make sure that no address exists with that name, or that we are
          // updating the existing entry with the same name. It is OK for the
          // name to be empty, in which case it will get deleted
-         AddressBookManager.AddressBookKey existing = _addressBook.getKeyByName(newText);
-         return existing == null || existing.equals(_key);
-
+         Optional<Address> address = _storage.getAddressByLabel(newText);
+         return !address.isPresent() || address.get().equals(_address);
       }
 
       @Override
@@ -124,25 +120,26 @@ public class EnterAddressLabelUtil {
          // No address exists with that name, or we are updating the
          // existing entry with the same name. If the name is blank the
          // entry will get deleted
-         _addressBook.insertUpdateOrDeleteEntry(_key, newText);
+         _storage.storeAddressLabel(_address, newText);
          if (_changeHandler != null) {
-            _changeHandler.OnAddressLabelChanged(_key, newText);
+            _changeHandler.OnAddressLabelChanged(_address, newText);
          }
       }
    }
 
-   public static void enterAccountLabel(Context context, UUID account, String defaultName, MetadataStorage storage, AccountLabelChangedHandler changeHandler) {
+   public static void enterAccountLabel(Context context, UUID account, String defaultName, MetadataStorage storage) {
       String hintText = context.getResources().getString(R.string.name);
       String currentName = storage.getLabelByAccount(account);
       int title_id;
       if (currentName.length() == 0) {
-         title_id = R.string.enter_address_label_title;
+         title_id = R.string.enter_account_label_title;
          currentName = defaultName;
       } else {
-         title_id = R.string.edit_address_label_title;
+         title_id = R.string.edit_account_label_title;
       }
-      String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
-      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account,invalidOkToastMessage, storage, changeHandler);
+      String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
+      Bus bus = MbwManager.getInstance(context).getEventBus();
+      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus);
       EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
 
    }
@@ -152,13 +149,13 @@ public class EnterAddressLabelUtil {
       private UUID account;
       private String invalidOkToastMessage;
       private MetadataStorage storage;
-      private AccountLabelChangedHandler changeHandler;
+      private Bus bus;
 
-      public EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, AccountLabelChangedHandler changeHandler) {
+      public EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
          this.account = account;
          this.invalidOkToastMessage = invalidOkToastMessage;
          this.storage = storage;
-         this.changeHandler = changeHandler;
+         this.bus = bus;
       }
 
       @Override
@@ -184,10 +181,8 @@ public class EnterAddressLabelUtil {
 
       @Override
       public void onNameEntered(String newText, String oldText) {
-         storage.storeAccountLabel(account,newText);
-         if (changeHandler != null) {
-            changeHandler.OnAccountLabelChanged(account, newText);
-         }
+         storage.storeAccountLabel(account, newText);
+         bus.post(new AccountChanged(account));
       }
    }
 

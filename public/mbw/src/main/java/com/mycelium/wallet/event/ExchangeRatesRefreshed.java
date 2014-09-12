@@ -34,10 +34,6 @@
 
 package com.mycelium.wallet.event;
 
-public class RefreshStatus {
-   public final boolean isRunning;
+public class ExchangeRatesRefreshed {
 
-   public RefreshStatus(boolean isRunning) {
-      this.isRunning = isRunning;
-   }
 }

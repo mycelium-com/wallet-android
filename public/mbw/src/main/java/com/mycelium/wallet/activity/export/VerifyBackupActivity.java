@@ -139,8 +139,7 @@ public class VerifyBackupActivity extends Activity {
          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
          boolean needsBackup =
                account instanceof SingleAddressAccount
-                     && account.canSpend()
-                     && _mbwManager.getMetadataStorage().getBackupState(account).equals(MetadataStorage.BackupState.UNKNOWN);
+                     && account.canSpend();
          if (needsBackup) {
             num++;
          }
@@ -170,7 +169,6 @@ public class VerifyBackupActivity extends Activity {
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account);
 
       if (success) {
-         _mbwManager.getMetadataStorage().setBackupState(account, MetadataStorage.BackupState.VERIFIED);
          updateUi();
          String message = getResources().getString(R.string.verify_backup_ok, record.address.toMultiLineString());
          ShowDialogMessage(message, false);

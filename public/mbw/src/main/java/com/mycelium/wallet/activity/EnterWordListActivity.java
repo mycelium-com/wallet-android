@@ -51,11 +51,13 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.SeedFromWordsCreated;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -97,7 +99,10 @@ public class EnterWordListActivity extends ActionBarActivity {
       acTextView.setOnItemClickListener(itemClicked);
       acTextView.setLongClickable(false);
 
-      askForWordNumber();
+      if (savedInstanceState == null) {
+         //only ask if we are not recreating the activity, because of rotation for example
+         askForWordNumber();
+      }
    }
 
    private void askForWordNumber() {
@@ -224,6 +229,7 @@ public class EnterWordListActivity extends ActionBarActivity {
          try {
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, password);
             _mbwManager.getWalletManager(false).configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+            _mbwManager.getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
             return _mbwManager.getWalletManager(false).createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
@@ -260,5 +266,35 @@ public class EnterWordListActivity extends ActionBarActivity {
       result.putExtra(AddAccountActivity.RESULT_KEY, account);
       setResult(RESULT_OK, result);
       finish();
+   }
+
+
+   @Override
+   public void onSaveInstanceState(Bundle savedInstanceState)
+   {
+      super.onSaveInstanceState(savedInstanceState);
+      savedInstanceState.putBoolean("usepass", usesPassword);
+      savedInstanceState.putInt("index", currentWordNum);
+      savedInstanceState.putInt("total", numberOfWords);
+      savedInstanceState.putStringArray("entered", enteredWords.toArray(new String[enteredWords.size()]));
+   }
+
+   @Override
+   public void onRestoreInstanceState(Bundle savedInstanceState)
+   {
+      super.onRestoreInstanceState(savedInstanceState);
+      enteredWords = new ArrayList<String>(Arrays.asList(savedInstanceState.getStringArray("entered")));
+      enterWordInfo.setText(enteredWords.toString());
+      usesPassword = savedInstanceState.getBoolean("usepass");
+      numberOfWords = savedInstanceState.getInt("total");
+      currentWordNum = savedInstanceState.getInt("index");
+      findViewById(R.id.btDeleteLastWord).setEnabled(currentWordNum > 1);
+      if (currentWordNum < numberOfWords) {
+         acTextView.setHint(getString(R.string.enter_next_word, currentWordNum, numberOfWords));
+      } else if (!checksumMatches()) {
+         findViewById(R.id.tvChecksumWarning).setVisibility(View.VISIBLE);
+         acTextView.setEnabled(false);
+         acTextView.setHint("");
+      }
    }
 }

@@ -43,13 +43,9 @@ import android.view.Window;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.mbwapi.api.ExchangeRate;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.event.BlockchainError;
-import com.mycelium.wallet.event.BlockchainReady;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -57,46 +53,40 @@ import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
-//todo hd: skip initialization step, also cache exchange rate
-
 public class SendInitializationActivity extends Activity {
    private MbwManager _mbwManager;
    private WalletAccount _account;
    private Long _amountToSend;
    private Address _receivingAddress;
    private boolean _isColdStorage;
-   private Double _oneBtcInFiat;
-   private Handler _synchnozingHandler;
+   private Handler _synchronizingHandler;
    private Handler _slowNetworkHandler;
-   private long _spendable;
-   private boolean _done;
    private boolean _ignoreExchangeRates;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, Double oneBtcInFiat) {
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("account", account);
       intent.putExtra("isColdStorage", isColdStorage);
-      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    public static void callMeWithResult(Activity currentActivity, UUID account, Long amountToSend,
-         Address receivingAddress, boolean isColdStorage, int request) {
+                                       Address receivingAddress, boolean isColdStorage, int request) {
       Intent intent = prepareSendingIntent(currentActivity, account, amountToSend, receivingAddress, isColdStorage);
       currentActivity.startActivityForResult(intent, request);
 
    }
 
    public static void callMe(Activity currentActivity, UUID account, Long amountToSend, Address receivingAddress,
-         boolean isColdStorage) {
+                             boolean isColdStorage) {
       Intent intent = prepareSendingIntent(currentActivity, account, amountToSend, receivingAddress, isColdStorage);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    private static Intent prepareSendingIntent(Activity currentActivity, UUID account, Long amountToSend,
-         Address receivingAddress, boolean isColdStorage) {
+                                              Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("account", account);
       intent.putExtra("amountToSend", amountToSend);
@@ -118,48 +108,42 @@ public class SendInitializationActivity extends Activity {
       _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
-      // May be null
-      _oneBtcInFiat = (Double) getIntent().getSerializableExtra("oneBtcInFiat");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
-
-      // Load saved state if any
-      if (savedInstanceState != null) {
-         _oneBtcInFiat = (Double) savedInstanceState.getSerializable("oneBtcInFiat");
-         _spendable = savedInstanceState.getLong("spendable");
-         _done = savedInstanceState.getBoolean("done");
-      }
-   }
-
-   @Override
-   protected void onSaveInstanceState(Bundle outState) {
-      outState.putSerializable("oneBtcInFiat", _oneBtcInFiat);
-      outState.putSerializable("spendable", _spendable);
-      outState.putBoolean("done", _done);
-      super.onSaveInstanceState(outState);
    }
 
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
-      _mbwManager.getExchangeRateManager().subscribe(exchangeSubscriber);
-      _synchnozingHandler = new Handler();
-      _synchnozingHandler.postDelayed(showSynchronizing, 2000);
+
+      // Show delayed messages so the user does not grow impatient
+      _synchronizingHandler = new Handler();
+      _synchronizingHandler.postDelayed(showSynchronizing, 2000);
       _slowNetworkHandler = new Handler();
       _slowNetworkHandler.postDelayed(showSlowNetwork, 6000);
-      continueIfDoneOrSynchronize();
+
+      // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
+      if (_mbwManager.getExchangeRateManager().getExchangeRatePrice() == null) {
+         _mbwManager.getExchangeRateManager().requestRefresh();
+      }
+
+      // If we are in cold storage spending mode we wish to synchronize the wallet
+      if (_isColdStorage) {
+         _mbwManager.getWalletManager(true).startSynchronization();
+      } else {
+         continueIfReady();
+      }
       super.onResume();
    }
 
    @Override
    protected void onPause() {
-      if (_synchnozingHandler != null) {
-         _synchnozingHandler.removeCallbacks(showSynchronizing);
+      if (_synchronizingHandler != null) {
+         _synchronizingHandler.removeCallbacks(showSynchronizing);
       }
       if (_slowNetworkHandler != null) {
          _slowNetworkHandler.removeCallbacks(showSlowNetwork);
       }
-      _mbwManager.getExchangeRateManager().unsubscribe(exchangeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -186,71 +170,32 @@ public class SendInitializationActivity extends Activity {
    };
 
    @Subscribe
-   public void blockChainReady(BlockchainReady blockchainReady) {
-      _spendable = _account.calculateMaxSpendableAmount();
-      // Check whether we are done
-      continueIfDoneOrSynchronize();
-   }
-
-   @Subscribe
    public void syncFailed(SyncFailed event) {
       Utils.toastConnectionError(this);
-      finish();
+      // If we are in cold storage spending mode there is no point in continuing.
+      // If we continued we would think that there were no funds on the private key
+      if (_isColdStorage) {
+         finish();
+      }
    }
 
    @Subscribe
    public void syncStopped(SyncStopped sync) {
-      if (sync.process.equals(SyncStopped.WALLET_MANAGER_SYNC_READY)) continueIfDoneOrSynchronize();
+      continueIfReady();
    }
 
-   private ExchangeRateManager.EventSubscriber exchangeSubscriber = new ExchangeRateManager.EventSubscriber(
-         new Handler()) {
-
-      @Override
-      public void refreshingExchangeRatesFailed() {
-         Utils.toastConnectionError(SendInitializationActivity.this);
-         finish();
-      }
-
-      @Override
-      public void refreshingExchangeRatesSucceeded() {
-         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
-         if (rate != null) {
-            _oneBtcInFiat = rate.price; // price may still be null, in that case
-                                        // we continue without
-            _ignoreExchangeRates = true;
-         }
-         // Check whether we are done
-         continueIfDoneOrSynchronize();
-      }
-   };
-
-   private void continueIfDoneOrSynchronize() {
-      if (_done) {
+   private void continueIfReady() {
+      if (isFinishing()) {
          return;
       }
       if (_account.getBalance().isSynchronizing) {
          // wait till its finished syncing
          return;
       }
-
-      if (_oneBtcInFiat == null && !_ignoreExchangeRates) {
-         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
-         if (rate == null) {
-            // We need a refresh
-            _mbwManager.getExchangeRateManager().requestRefresh();
-            return;
-         }
-         _oneBtcInFiat = rate.price; // price may still be null, in that case we
-                                     // just proceed and do without
-      }
-
-      // We are done call next activity
-      _done = true;
       if (_isColdStorage) {
-         ColdStorageSummaryActivity.callMe(this, _account.getId(), _oneBtcInFiat);
+         ColdStorageSummaryActivity.callMe(this, _account.getId());
       } else {
-         SendMainActivity.callMe(this, _account.getId(), _oneBtcInFiat, _amountToSend, _receivingAddress, false);
+         SendMainActivity.callMe(this, _account.getId(), _amountToSend, _receivingAddress, false);
       }
       finish();
    }

@@ -3,6 +3,7 @@ package com.mycelium.wallet.event;
 //TODO: which events to we need to translate?
 
 import android.os.Handler;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 /**
  * This Observer takes WAPI Events and translates into posts to EventBus
  */
-public class EventTranslator implements WalletManager.Observer {
+public class EventTranslator implements WalletManager.Observer, ExchangeRateManager.Observer {
    private Handler handler;
    private Bus bus;
 
@@ -35,9 +36,9 @@ public class EventTranslator implements WalletManager.Observer {
       //do we need to fire events? update spinning refresh button etc?
       //based on state fire sync started and sync stopped?
       if (state == WalletManager.State.READY) {
-         postEvent(new SyncStopped(SyncStopped.WALLET_MANAGER_SYNC_READY));
+         postEvent(new SyncStopped());
       } else if (state == WalletManager.State.SYNCHRONIZING) {
-         postEvent((new SyncStarted(SyncStarted.WALLET_MANAGER_SYNC_STARTED)));
+         postEvent(new SyncStarted());
       }
    }
 
@@ -65,5 +66,15 @@ public class EventTranslator implements WalletManager.Observer {
          default:
             //unknown event - do we want to fail?
       }
+   }
+
+   @Override
+   public void refreshingExchangeRatesSucceeded() {
+      postEvent(new ExchangeRatesRefreshed());
+   }
+
+   @Override
+   public void refreshingExchangeRatesFailed() {
+      postEvent(new RefreshingExchangeRatesFailed());
    }
 }

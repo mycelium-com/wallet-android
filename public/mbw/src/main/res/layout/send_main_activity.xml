@@ -68,7 +68,7 @@
                         android:layout_width="220dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="@string/address_book"
+                        android:text="@string/my_addresses"
                         android:textSize="20sp" />
 
                     <View

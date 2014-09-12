@@ -445,10 +445,6 @@ public class Record implements Serializable, Comparable<Record> {
       return Optional.absent();
    }
 
-   public static Record recordFromAddress(Address address) {
-      return new Record(address);
-   }
-
    public static Optional<Record> recordFromBase58Key(String base58String, NetworkParameters network) {
       // Is it a private key?
       try {
@@ -492,9 +488,4 @@ public class Record implements Serializable, Comparable<Record> {
          return Optional.absent();
       }
    }
-
-   public static Record createRandom(RandomSource randomSource, NetworkParameters network) {
-      return new Record(new InMemoryPrivateKey(randomSource, true), Source.CREATED_PRIVATE_KEY, network);
-   }
-
 }

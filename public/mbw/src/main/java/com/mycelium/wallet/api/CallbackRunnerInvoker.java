@@ -35,7 +35,7 @@
 package com.mycelium.wallet.api;
 
 /**
- * Interface implemented by sub-classes of {@link AsynchronousAccount} to invoke runnable instances in the caller's
+ * Interface implemented by sub-classes of {@link AsynchronousApi} to invoke runnable instances in the caller's
  * thread. This is core to how call-backs are implemented.
  */
 public interface CallbackRunnerInvoker {

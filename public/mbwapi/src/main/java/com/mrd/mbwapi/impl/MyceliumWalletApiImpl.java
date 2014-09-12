@@ -262,7 +262,11 @@ public class MyceliumWalletApiImpl implements MyceliumWalletApi {
                System.out.println("HTTP status = -1 Caller may have forgotten to call System.setProperty(\"http.keepAlive\", \"false\"); for old devices");
             }
          } catch (IOException e) {
-            e.printStackTrace();
+            if (e.getMessage() != null) {
+               System.out.println(e.getMessage());
+            } else {
+               e.printStackTrace();
+            }
             // handle below like the all status codes != 200
          }
          // Try the next server

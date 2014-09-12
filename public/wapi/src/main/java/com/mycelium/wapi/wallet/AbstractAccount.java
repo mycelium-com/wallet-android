@@ -542,8 +542,8 @@ public abstract class AbstractAccount implements WalletAccount {
    protected abstract void setBlockChainHeight(int blockHeight);
 
    @Override
-   public synchronized Transaction signAndQueueTransaction(UnsignedTransaction unsigned, KeyCipher cipher,
-                                                           RandomSource randomSource) throws InvalidKeyCipher {
+   public Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
+         throws InvalidKeyCipher {
       checkNotArchived();
       if (!isValidEncryptionKey(cipher)) {
          throw new InvalidKeyCipher();
@@ -554,14 +554,45 @@ public abstract class AbstractAccount implements WalletAccount {
 
       // Apply signatures and finalize transaction
       Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
+      return transaction;
+   }
 
+   @Override
+   public synchronized BroadcastResult broadcastTransaction(Transaction transaction) {
+      checkNotArchived();
+      try {
+         BroadcastTransactionResponse result = _wapi.broadcastTransaction(
+               new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes())).getResult();
+         TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(transaction);
+         if (result.success) {
+            markTransactionAsSpent(transaction);
+            postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
+            return BroadcastResult.SUCCESS;
+         } else {
+            // This transaction was rejected must be double spend or
+            // malleability, delete it locally.
+            _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
+            postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
+            return BroadcastResult.REJECTED;
+         }
+      } catch (WapiException e) {
+         postEvent(Event.SERVER_CONNECTION_ERROR);
+         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+         return BroadcastResult.NO_SERVER_CONNECTION;
+      }
+   }
+
+   public synchronized void queueTransaction(Transaction transaction) {
+      // Store transaction in outgoing buffer, so we can broadcast it
+      // later
+      byte[] rawTransaction = transaction.toBytes();
+      _backing.putOutgoingTransaction(transaction.getHash(), rawTransaction);
+      markTransactionAsSpent(transaction);
+   }
+
+   private void markTransactionAsSpent(Transaction transaction) {
       _backing.beginTransaction();
       try {
-         // Store transaction in outgoing buffer, so we can broadcast it
-         // later
-         byte[] rawTransaction = transaction.toBytes();
-         _backing.putOutgoingTransaction(transaction.getHash(), rawTransaction);
-
          // Remove inputs from unspent, marking them as spent
          for (TransactionInput input : transaction.inputs) {
             TransactionOutputEx parentOutput = _backing.getUnspentOutput(input.outPoint);
@@ -581,9 +612,9 @@ public abstract class AbstractAccount implements WalletAccount {
             }
          }
 
-         // Store transaction locally, so we have it in out history and don't
+         // Store transaction locally, so we have it in our history and don't
          // need to fetch it in a minute
-         _backing.putTransaction(TransactionEx.fromUnconfirmedTransaction(rawTransaction));
+         _backing.putTransaction(TransactionEx.fromUnconfirmedTransaction(transaction));
          _backing.setTransactionSuccessful();
       } finally {
          _backing.endTransaction();
@@ -596,7 +627,6 @@ public abstract class AbstractAccount implements WalletAccount {
       // some spending
       updateLocalBalance();
       persistContextIfNecessary();
-      return transaction;
 
    }
 

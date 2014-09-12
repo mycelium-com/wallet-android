@@ -48,29 +48,28 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
+import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.wallet.activity.modern.ExploreHelper;
-import com.mycelium.wallet.api.AndroidApiCache;
 import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.api.ApiCache;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.persistence.TxOutDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBacking;
 import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class MbwManager {
@@ -79,6 +78,13 @@ public class MbwManager {
    public static final String PROXY_PORT = "socksProxyPort";
    public static final String SELECTED_ACCOUNT = "selectedAccount";
    private static volatile MbwManager _instance = null;
+
+   /**
+    * The root index we use for generating authentication keys.
+    * 0x80 makes the number negative == hardened key derivation
+    * 0x424944 = "BID"
+    */
+   private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
@@ -92,12 +98,10 @@ public class MbwManager {
    private Context _applicationContext;
    private int _displayWidth;
    private int _displayHeight;
-   private ApiCache _cache;
    private AndroidAsyncApi _asyncApi;
    private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
-   private BlockChainAddressTracker _blockChainAddressTracker;
    private final String _btcValueFormatString;
    private String _pin;
    private Denomination _bitcoinDenomination;
@@ -117,6 +121,7 @@ public class MbwManager {
    private final WalletManager _walletManager;
    private WalletManager _tempWalletManager;
    private final RandomSource _randomSource;
+   private final EventTranslator _eventTranslator;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -139,9 +144,7 @@ public class MbwManager {
       // Initialize proxy early, to enable error reporting during startup..
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-      _cache = new AndroidApiCache(_applicationContext);
-      TxOutDb txOutDb = new TxOutDb(_applicationContext);
-      _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _cache, _eventBus);
+      _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _eventBus);
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
@@ -167,8 +170,6 @@ public class MbwManager {
       _displayWidth = dm.widthPixels;
       _displayHeight = dm.heightPixels;
 
-      _blockChainAddressTracker = new BlockChainAddressTracker(_asyncApi, txOutDb, _applicationContext, _eventBus,
-            _environment.getNetwork());
       _addressBookManager = new AddressBookManager(_applicationContext, _eventBus);
       _storage = new MetadataStorage(_applicationContext);
       exploreHelper = new ExploreHelper();
@@ -186,22 +187,14 @@ public class MbwManager {
             : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
       _walletManager = createWalletManager(_applicationContext, _environment);
-      _walletManager.addObserver(new EventTranslator(new Handler(), _eventBus));
+      _eventTranslator = new EventTranslator(new Handler(), _eventBus);
+      _walletManager.addObserver(_eventTranslator);
+      _exchangeRateManager.subscribe(_eventTranslator);
       migrateOldKeys();
 
-      // If we have no accounts create a new random one
-      if (_walletManager.getAccountIds().isEmpty()) {
-         InMemoryPrivateKey privateKey = new InMemoryPrivateKey(_randomSource, true);
-         try {
-            _walletManager.createSingleAddressAccount(privateKey, AesKeyCipher.defaultKeyCipher());
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
-         }
-         Toast.makeText(_applicationContext, R.string.created_new_random_key, Toast.LENGTH_LONG).show();
-      }
       //for managing temp accounts created through scanning
       _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
-      _tempWalletManager.addObserver(new EventTranslator(new Handler(), _eventBus));
+      _tempWalletManager.addObserver(_eventTranslator);
    }
 
    private void migrateOldKeys() {
@@ -223,7 +216,6 @@ public class MbwManager {
          if (record.hasPrivateKey()) {
             try {
                account = _walletManager.createSingleAddressAccount(record.key, AesKeyCipher.defaultKeyCipher());
-               _storage.setBackupState(account, record.backupState);
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }
@@ -246,7 +238,7 @@ public class MbwManager {
          }
       }
 
-      migrateAddressLabelsToAccountNames();
+      migrateAddressAndAccountLabelsToMetadataStorage();
    }
 
    private List<Record> loadClassicRecords() {
@@ -271,14 +263,21 @@ public class MbwManager {
       return recordList;
    }
 
-   private void migrateAddressLabelsToAccountNames() {
-      for (UUID accountId : _walletManager.getAccountIds()) {
-         WalletAccount account = _walletManager.getAccount(accountId);
-         if (account instanceof SingleAddressAccount) {
-            AddressBookManager.AddressKey key = new AddressBookManager.AddressKey(((SingleAddressAccount) account).getAddress());
-            String name = _addressBookManager.getNameByKey(key);
-            if (name != null && !name.equals("")) {
-               _storage.storeAccountLabel(accountId, name);
+   private void migrateAddressAndAccountLabelsToMetadataStorage() {
+      List<AddressBookManager.Entry> entries = _addressBookManager.getEntries();
+      for (AddressBookManager.Entry entry : entries) {
+         AddressBookManager.AddressBookKey key = entry.getAddressBookKey();
+         if (key instanceof AddressBookManager.AddressKey) {
+            Address address = ((AddressBookManager.AddressKey) key).address;
+            String label = entry.getName();
+            //check whether this is actually an addressbook entry, or the name of an account
+            UUID accountid = SingleAddressAccount.calculateId(address);
+            if (_walletManager.getAccountIds().contains(accountid)) {
+               //its one of our accounts, so we name it
+               _storage.storeAccountLabel(accountid, label);
+            } else {
+               //we just put it into the addressbook
+               _storage.storeAddressLabel(address, label);
             }
          }
       }
@@ -328,11 +327,6 @@ public class MbwManager {
       return walletManager;
    }
 
-
-   public ApiCache getCache() {
-      return _cache;
-   }
-
    public int getDisplayWidth() {
       return _displayWidth;
    }
@@ -378,10 +372,6 @@ public class MbwManager {
 
    public AddressBookManager getAddressBookManager() {
       return _addressBookManager;
-   }
-
-   public BlockChainAddressTracker getBlockChainAddressTracker() {
-      return _blockChainAddressTracker;
    }
 
    public boolean isPinProtected() {
@@ -585,13 +575,12 @@ public class MbwManager {
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }
-      _tempWalletManager.startSynchronization();
       return accountId;
    }
 
    public void forgetColdStorageWalletManager() {
       _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
-      _tempWalletManager.addObserver(new EventTranslator(new Handler(), _eventBus));
+      _tempWalletManager.addObserver(_eventTranslator);
    }
 
    public WalletAccount getSelectedAccount() {
@@ -605,9 +594,9 @@ public class MbwManager {
             // default to null and select another account below
          }
       }
-      // If nothing is selected, pick the first one
-      if (uuid == null || !_walletManager.hasAccount(uuid)) {
-         uuid = _walletManager.getAccountIds().get(0);
+      // If nothing is selected, or selected is archived, pick the first one
+      if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
+         uuid = _walletManager.getActiveAccounts().get(0).getId();
          setSelectedAccount(uuid);
       }
 
@@ -620,6 +609,48 @@ public class MbwManager {
       getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
       getEventBus().post(new SelectedAccountChanged(uuid));
       getEventBus().post(new ReceivingAddressChanged(account.getReceivingAddress()));
+   }
+
+   public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {
+      if (account instanceof SingleAddressAccount) {
+         // For single address accounts we use the private key directly
+         try {
+            return ((SingleAddressAccount) account).getPrivateKey(cipher);
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException();
+         }
+      } else if (account instanceof Bip44Account) {
+         // For BIP44 accounts we derive a private key from the BIP32 hierarchy
+         try {
+            Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(cipher);
+            int accountIndex = ((Bip44Account) account).getAccountIndex();
+            return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, website);
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException();
+         }
+      } else {
+         throw new RuntimeException("Invalid account type");
+      }
+   }
+
+   private InMemoryPrivateKey createBip32WebsitePrivateKey(byte[] masterSeed, int accountIndex, String site) {
+      // Create BIP32 root node
+      HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed);
+      // Create bit id node
+      HdKeyNode bidNode = rootNode.createChildNode(BIP32_ROOT_AUTHENTICATION_INDEX);
+      // Create the private key for the specified account
+      InMemoryPrivateKey accountPriv = bidNode.createChildPrivateKey(accountIndex);
+      // Concatenate the private key bytes with the site name
+      byte[] sitePrivateKeySeed = new byte[0];
+      try {
+         sitePrivateKeySeed = BitUtils.concatenate(accountPriv.getPrivateKeyBytes(), site.getBytes("UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+         // Does not happen
+         throw new RuntimeException(e);
+      }
+      // Hash the seed and create a new private key from that which uses compressed public keys
+      byte[] sitePrivateKeyBytes = HashUtils.doubleSha256(sitePrivateKeySeed).getBytes();
+      return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
    }
 
    public MetadataStorage getMetadataStorage() {

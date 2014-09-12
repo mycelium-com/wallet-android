@@ -34,12 +34,8 @@
 
 package com.mycelium.wallet.activity.main;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -47,24 +43,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.google.common.base.Preconditions;
-import com.google.common.eventbus.Subscribe;
-import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
-import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.squareup.otto.Subscribe;
+
+import java.util.List;
 
 public class NoticeFragment extends Fragment {
 
    private enum Notice {
-      VERIFICATION_MISSING, NONE
+      BACKUP_MISSING, MOVE_LEGACY_FUNDS, NONE
    }
 
    private MbwManager _mbwManager;
@@ -111,19 +110,47 @@ public class NoticeFragment extends Fragment {
       super.onPause();
    }
 
+   private Notice determineNotice() {
+      List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getActiveAccounts();
+      MetadataStorage meta = _mbwManager.getMetadataStorage();
+
+      // First check if we have HD accounts with funds, but have no master seed backup
+      if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
+         for (WalletAccount account : accounts) {
+            if (account instanceof Bip44Account) {
+               Bip44Account ba = (Bip44Account) account;
+               Balance balance = ba.getBalance();
+               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
+                  // We have an HD account with funds, and no master seed backup, tell the user to act
+                  return Notice.BACKUP_MISSING;
+               }
+            }
+         }
+      }
+
+      // Second check whether to warn about legacy accounts with funds
+      for (WalletAccount account : accounts) {
+         if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
+            return Notice.MOVE_LEGACY_FUNDS;
+         }
+      }
+
+      return Notice.NONE;
+   }
+
    private OnClickListener noticeClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View v) {
          switch (_notice) {
-         case VERIFICATION_MISSING:
-            showVerificationWarning();
-            break;
-         case NONE:
-            openMyceliumHelp();
-            break;
-         default:
-            break;
+            case BACKUP_MISSING:
+               showBackupWarning();
+               break;
+            case MOVE_LEGACY_FUNDS:
+               showMoveLegacyFundsWarning();
+               break;
+            default:
+               break;
          }
       }
    };
@@ -138,40 +165,27 @@ public class NoticeFragment extends Fragment {
       }
    };
 
-   private void showVerificationWarning() {
+   private void showBackupWarning() {
       if (!isAdded()) {
          return;
       }
-      VerifyBackupDialog dialog = new VerifyBackupDialog(getActivity());
-      dialog.show();
+      Utils.pinProtectedWordlistBackup(getActivity());
+   }
+
+   private void showMoveLegacyFundsWarning() {
+      if (!isAdded()) {
+         return;
+      }
+      Utils.showSimpleMessageDialog(getActivity(), R.string.move_legacy_funds_message);
    }
 
    private boolean shouldWarnAboutHeartbleedBug() {
-      System.out.println(Build.VERSION.RELEASE);
       // The Heartbleed bug is only present in Android version 4.1.1
       return Build.VERSION.RELEASE.equals("4.1.1");
    }
 
-   private void openMyceliumHelp() {
-      Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.setData(Uri.parse(Constants.MYCELIUM_WALLET_HELP_URL));
-      startActivity(intent);
-      Toast.makeText(getActivity(), R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
-   }
 
-   private Notice determineNotice() {
-      // Check for missing backup verifications
-      for (WalletAccount account : _mbwManager.getWalletManager(false).getActiveAccounts()) {
-         if (account.canSpend() && _mbwManager.getMetadataStorage().getBackupState(account) != MetadataStorage.BackupState.VERIFIED) {
-            return Notice.VERIFICATION_MISSING;
-         }
-      }
-      if (_mbwManager.getWalletManager(false).hasBip32MasterSeed() && _mbwManager.getMetadataStorage().getMasterSeedBackupState().equals(MetadataStorage.BackupState.UNKNOWN)) {
-         return Notice.VERIFICATION_MISSING;
-      }
-      return Notice.NONE;
-   }
-
+   //this got replaced by VerifyWordlistBackup, but stays here unused, in case we ever need again the old backup functionality
    private class VerifyBackupDialog extends Dialog {
 
       public VerifyBackupDialog(final Activity activity) {
@@ -206,36 +220,31 @@ public class NoticeFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      switch (_notice) {
-      case VERIFICATION_MISSING:
-         _root.findViewById(R.id.btBackupMissing).setVisibility(View.VISIBLE);
-         break;
-      default:
-         _root.findViewById(R.id.btBackupMissing).setVisibility(View.GONE);
-         break;
-      }
+      // Only show the "Secure My Funds" button when necessary
+      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.NONE ? View.GONE : View.VISIBLE);
 
-      if (shouldWarnAboutHeartbleedBug()) {
-         _root.findViewById(R.id.btWarning).setVisibility(View.VISIBLE);
-      } else {
-         _root.findViewById(R.id.btWarning).setVisibility(View.GONE);
-      }
+      // Only show the heartbleed warning when necessary
+      _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
 
-   }
-
-   /**
-    * Selected Account has changed, so update accordingly
-    */
-   @Subscribe
-   public void selectedAccountChanged(SelectedAccountChanged event) {
-      _notice = determineNotice();
-      updateUi();
    }
 
    @Subscribe
-   public void addressBookChanged(AddressBookChanged event) {
-      _notice = determineNotice();
-      updateUi();
+   public void accountChanged(AccountChanged event) {
+      Notice notice = determineNotice();
+      if (_notice != notice) {
+         _notice = notice;
+         updateUi();
+      }
    }
+
+   @Subscribe
+   public void balanceChanged(BalanceChanged event) {
+      Notice notice = determineNotice();
+      if (_notice != notice) {
+         _notice = notice;
+         updateUi();
+      }
+   }
+
 
 }

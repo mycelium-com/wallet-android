@@ -45,6 +45,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -59,12 +60,10 @@ public class ColdStorageSummaryActivity extends Activity {
 
    private MbwManager _mbwManager;
    private WalletAccount _account;
-   private Double _oneBtcInFiat;
 
-   public static void callMe(Activity currentActivity, UUID account, Double oneBtcInFiat) {
+   public static void callMe(Activity currentActivity, UUID account) {
       Intent intent = new Intent(currentActivity, ColdStorageSummaryActivity.class);
       intent.putExtra("account", account);
-      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
@@ -89,10 +88,15 @@ public class ColdStorageSummaryActivity extends Activity {
          return;
       }
 
+   }
 
-      // May be null
-      _oneBtcInFiat = (Double) getIntent().getSerializableExtra("oneBtcInFiat");
+   @Override
+   protected void onResume() {
+      updateUi();
+      super.onResume();
+   }
 
+   private void updateUi(){
       Balance balance = _account.getBalance();
 
       // Description
@@ -108,12 +112,20 @@ public class ColdStorageSummaryActivity extends Activity {
       // Balance
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));
 
+      ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
+      Double oneBtcInFiat;
+      if(rate!= null){
+         oneBtcInFiat = rate.price;
+      }else{
+         oneBtcInFiat = null;
+      }
+
       // Fiat
-      if (_oneBtcInFiat == null) {
+      if (oneBtcInFiat == null) {
          findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
       } else {
          TextView tvFiat = (TextView) findViewById(R.id.tvFiat);
-         String converted = Utils.getFiatValueAsString(balance.getSpendableBalance(), _oneBtcInFiat);
+         String converted = Utils.getFiatValueAsString(balance.getSpendableBalance(), oneBtcInFiat);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
       }
@@ -149,7 +161,7 @@ public class ColdStorageSummaryActivity extends Activity {
 
                @Override
                public void onClick(View arg0) {
-                  SendMainActivity.callMe(ColdStorageSummaryActivity.this, _account.getId(), _oneBtcInFiat, true);
+                  SendMainActivity.callMe(ColdStorageSummaryActivity.this, _account.getId(), true);
                   finish();
                }
             });
@@ -159,6 +171,7 @@ public class ColdStorageSummaryActivity extends Activity {
       } else {
          btSend.setVisibility(View.GONE);
       }
+
 
    }
 

@@ -45,10 +45,12 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -80,61 +82,50 @@ public class AddAccountActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       _toaster = new Toaster(this);
 
-      findViewById(R.id.btAdvanced).setOnClickListener(new View.OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            AddAdvancedAccountActivity.callMe(activity, ADD_ADVANCED_CODE);
-         }
-
-      });
-
-      View btHdCreate = findViewById(R.id.btHdCreate);
-      btHdCreate.setOnClickListener(createHdAccount);
+      findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
+      findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
       _progress = new ProgressDialog(this);
    }
+
+   View.OnClickListener advancedClickListener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+         _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+            @Override
+            public void run() {
+               AddAdvancedAccountActivity.callMe(AddAccountActivity.this, ADD_ADVANCED_CODE);
+            }
+         });
+      }
+
+   };
 
    View.OnClickListener createHdAccount = new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-         final WalletManager wallet = _mbwManager.getWalletManager(false);
-         // We can create an HD account if we have no master seed configured yet, or if the last account has had activity
-         if (wallet.hasBip32MasterSeed() && !wallet.canCreateAdditionalBip44Account()) {
-            _toaster.toast(R.string.use_acc_first, false);
-            return;
-         }
-
-         if (wallet.hasBip32MasterSeed()) {
-            _progress.setCancelable(false);
-            _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progress.setMessage(getString(R.string.hd_creation_started));
-            _progress.show();
-            new HdCreationAsyncTask(_mbwManager.getEventBus()).execute();
-            return;
-         }
-
-         AlertDialog.Builder importDialog = new AlertDialog.Builder(AddAccountActivity.this);
-         importDialog.setTitle(R.string.master_seed_configuration_title);
-         importDialog.setMessage(getString(R.string.master_seed_configuration_description));
-         importDialog.setNegativeButton(R.string.master_seed_import_backup_button, new DialogInterface.OnClickListener() {
-            //import master seed from qr code
-            public void onClick(DialogInterface arg0, int arg1) {
-               ImportSeedActivity.callMe(AddAccountActivity.this, IMPORT_SEED_CODE);
+         _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+            @Override
+            public void run() {
+               createNewHdAccount();
             }
          });
-         importDialog.setPositiveButton(R.string.master_seed_create_new_button, new DialogInterface.OnClickListener() {
-            //configure new random seed
-            public void onClick(DialogInterface arg0, int arg1) {
-               _progress.setCancelable(false);
-               _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-               _progress.setMessage(getString(R.string.configure_seed_started));
-               _progress.show();
-               new ConfigureSeedAsyncTask(_mbwManager.getEventBus()).execute();
-            }
-         });
-         importDialog.show();
       }
    };
+
+   private void createNewHdAccount() {
+      final WalletManager wallet = _mbwManager.getWalletManager(false);
+      // at this point, we have to have a master seed, since we created one on startup
+      Preconditions.checkState(wallet.hasBip32MasterSeed());
+      if (!wallet.canCreateAdditionalBip44Account()) {
+         _toaster.toast(R.string.use_acc_first, false);
+         return;
+      }
+      _progress.setCancelable(false);
+      _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+      _progress.setMessage(getString(R.string.hd_creation_started));
+      _progress.show();
+      new HdCreationAsyncTask(_mbwManager.getEventBus()).execute();
+   }
 
    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
@@ -156,32 +147,7 @@ public class AddAccountActivity extends Activity {
       @Override
       protected void onPostExecute(UUID account) {
          bus.post(new HdAccountCreated(account));
-      }
-   }
-
-   private class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private Bus bus;
-
-      public ConfigureSeedAsyncTask(Bus bus) {
-         this.bus = bus;
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(_mbwManager.getRandomSource());
-         try {
-            WalletManager walletManager = _mbwManager.getWalletManager(false);
-            walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            UUID acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-            return acc;
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
-         }
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-         bus.post(new HdAccountCreated(account));
+         bus.post(new AccountChanged(account));
       }
    }
 

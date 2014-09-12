@@ -46,13 +46,15 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.squareup.otto.Subscribe;
 
 import com.mycelium.wallet.Constants;
@@ -60,11 +62,12 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AboutActivity;
-import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
+
+import java.util.UUID;
 
 public class ModernMain extends ActionBarActivity {
 
@@ -74,9 +77,8 @@ public class ModernMain extends ActionBarActivity {
 
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
-   TextView tabCenter;
-   TextView tabText;
    ActionBar.Tab mBalanceTab;
+   ActionBar.Tab mAccountsTab;
    private MenuItem refreshItem;
    private Toaster _toaster;
 
@@ -92,7 +94,8 @@ public class ModernMain extends ActionBarActivity {
       bar.setDisplayOptions(1, ActionBar.DISPLAY_SHOW_TITLE);
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
-      mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
+      mAccountsTab = bar.newTab();
+      mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
       mBalanceTab = bar.newTab();
       mTabsAdapter.addTab(mBalanceTab.setText(getString(R.string.tab_balance)), BalanceMasterFragment.class, null);
       mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
@@ -172,6 +175,9 @@ public class ModernMain extends ActionBarActivity {
    public boolean onPrepareOptionsMenu(Menu menu) {
       final int tabIdx = mViewPager.getCurrentItem();
 
+      // Only show backup option if we haven't done a backup yet
+      Preconditions.checkNotNull(menu.findItem(R.id.miBackup)).setVisible(_mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED);
+
       // Add Record menu
       final boolean isRecords = tabIdx == 0;
       final boolean locked = _mbwManager.isKeyManagementLocked();
@@ -215,11 +221,12 @@ public class ModernMain extends ActionBarActivity {
          startActivityForResult(intent, REQUEST_SETTING_CHANGED);
          return true;
       } else if (itemId == R.id.miBackup) {
-         Utils.pinProtectedBackup(this);
+         Utils.pinProtectedWordlistBackup(this);
          return true;
-      } else if (itemId == R.id.miVerifyBackup) {
-         VerifyBackupActivity.callMe(this);
-         return true;
+      //with wordlists, we just need to backup and verify in one step
+      //} else if (itemId == R.id.miVerifyBackup) {
+      //   VerifyBackupActivity.callMe(this);
+      //   return true;
       } else if (itemId == R.id.miRefresh) {
          _mbwManager.getWalletManager(false).startSynchronization();
       } else if (itemId == R.id.miExplore) {
@@ -243,9 +250,23 @@ public class ModernMain extends ActionBarActivity {
          finish();
          startActivity(running);
       } else if (requestCode == GENERIC_SCAN_REQUEST) {
-         //report to user in case of error
-         //if no scan handlers match successfully, this is the last resort to display an error msg
-         ScanActivity.toastScanError(resultCode, data, this);
+         if (resultCode == RESULT_OK) {
+            ScanActivity.ResultType type = (ScanActivity.ResultType) data.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
+            if (type == ScanActivity.ResultType.ACCOUNT) {
+               UUID accountid = ScanActivity.getAccount(data);
+               WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+               //we are returning from seed import, so this has to be the first hd account
+               Preconditions.checkState(account instanceof Bip44Account);
+               String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+               //store the default name for the account
+               _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+               getSupportActionBar().selectTab(mAccountsTab);
+            }
+         } else {
+            //report to user in case of error
+            //if no scan handlers match successfully, this is the last resort to display an error msg
+            ScanActivity.toastScanError(resultCode, data, this);
+         }
       } else {
          super.onActivityResult(requestCode, resultCode, data);
       }
@@ -270,16 +291,12 @@ public class ModernMain extends ActionBarActivity {
 
    @Subscribe
    public void syncStarted(SyncStarted event) {
-      if (event.process.equals(SyncStarted.WALLET_MANAGER_SYNC_STARTED)) {
-         setRefreshAnimation();
-      }
+      setRefreshAnimation();
    }
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
-      if (event.process.equals(SyncStopped.WALLET_MANAGER_SYNC_READY)) {
-         setRefreshAnimation();
-      }
+      setRefreshAnimation();
    }
 
    @Subscribe

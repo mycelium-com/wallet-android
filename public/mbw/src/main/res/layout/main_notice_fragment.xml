@@ -15,8 +15,9 @@
         android:gravity="center_vertical"
         android:paddingBottom="7dp"
         android:paddingLeft="5dp"
+        android:paddingRight="7dp"
         android:paddingTop="8dp"
-        android:text="@string/backup_missing"
+        android:text="@string/secure_my_funds"
         android:textSize="16sp" />
 
     <Button

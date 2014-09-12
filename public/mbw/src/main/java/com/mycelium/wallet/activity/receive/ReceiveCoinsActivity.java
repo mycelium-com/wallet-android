@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.receive;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,11 +43,13 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -62,12 +65,14 @@ public class ReceiveCoinsActivity extends Activity {
    private static final int GET_AMOUNT_RESULT_CODE = 1;
 
    private MbwManager _mbwManager;
-   private WalletAccount _account;
+   private Address _address;
+   private boolean _havePrivateKey;
    private Long _amount;
 
-   public static void callMe(Activity currentActivity, UUID account) {
+   public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey) {
       Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
-      intent.putExtra("account", account);
+      intent.putExtra("address", address);
+      intent.putExtra("havePrivateKey", havePrivateKey);
       currentActivity.startActivity(intent);
    }
 
@@ -84,8 +89,8 @@ public class ReceiveCoinsActivity extends Activity {
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
-      _account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      _address = Preconditions.checkNotNull((Address) getIntent().getSerializableExtra("address"));
+      _havePrivateKey = getIntent().getBooleanExtra("havePrivateKey", false);
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -133,11 +138,13 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       // QR code
-      QrImageView iv = (QrImageView) findViewById(R.id.ivQrCode);
+      ImageView imageView = (ImageView) findViewById(R.id.ivQrCode);
+      //two-step cast to not confuse lint
+      QrImageView iv = (QrImageView) imageView;
       iv.setQrCode(qrText);
 
       // Show warning if the record has no private key
-      if (_account.canSpend()) {
+      if (_havePrivateKey) {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
@@ -171,7 +178,7 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    private String getBitcoinAddress() {
-      return _account.getReceivingAddress().toString();
+      return _address.toString();
    }
 
    public void shareRequest(View view) {

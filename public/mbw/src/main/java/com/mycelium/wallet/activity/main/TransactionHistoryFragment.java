@@ -34,9 +34,6 @@
 
 package com.mycelium.wallet.activity.main;
 
-import java.text.DateFormat;
-import java.util.*;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -44,19 +41,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
@@ -67,6 +58,9 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
+
+import java.text.DateFormat;
+import java.util.*;
 
 public class TransactionHistoryFragment extends Fragment {
 
@@ -116,9 +110,7 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
-      if (event.process.equals(SyncStopped.WALLET_MANAGER_SYNC_READY)) {
-         updateTransactionHistory();
-      }
+      updateTransactionHistory();
    }
 
    private void doSetLabel(TransactionSummary selected) {
@@ -149,8 +141,11 @@ public class TransactionHistoryFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      WalletAccount acc = _mbwManager.getSelectedAccount();
-      List<TransactionSummary> history = acc.getTransactionHistory(0, 20);
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      if (account.isArchived()) {
+         return;
+      }
+      List<TransactionSummary> history = account.getTransactionHistory(0, 20);
       if (history.isEmpty()) {
          _root.findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
@@ -304,7 +299,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-   private void setTransactionLabel (TransactionSummary record) {
+   private void setTransactionLabel(TransactionSummary record) {
       EnterAddressLabelUtil.enterTransactionLabel(getActivity(), record.txid, _storage, transactionLabelChanged);
    }
 

@@ -34,9 +34,15 @@
 
 package com.mycelium.wallet.event;
 
-import com.mrd.mbwapi.api.ApiError;
+import java.util.UUID;
 
-public class BlockchainError {
-   public BlockchainError(ApiError exception) {
+/**
+ * Event telling that a property of an account changed
+ */
+public class AccountChanged {
+   public final UUID account;
+
+   public AccountChanged(UUID account) {
+         this.account =   account;
    }
 }

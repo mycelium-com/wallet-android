@@ -19,7 +19,7 @@
     <string name="random_desc">Create a new random private key.</string>
     <string name="add_hd_key_desc">Create a new HD account.</string>
     <string name="scan">Scan</string>
-    <string name="advanced">Avanced</string>
+    <string name="advanced">Advanced</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
     <string name="import_from_android_wallet_backup_desc">Import Private Key from the \"Bitcoin Wallet\" client by Andreas Schildbach.</string>
@@ -50,7 +50,6 @@
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
     <string name="shuffle">Shuffle</string>
     <string name="use">Use</string>
-    <string name="select_spending_address">Select Spending Address</string>
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="receiver_label">Receiver:</string>
@@ -64,7 +63,7 @@
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
     <string name="qr_code">QR Code</string>
-    <string name="address_book">Address Book</string>
+    <string name="my_addresses">My Addresses</string>
     <string name="get_receiver_address">Get receiver address from:</string>
     <string name="next">Next</string>
     <string name="insufficient_funds">Insufficient funds</string>
@@ -75,6 +74,7 @@
     <string name="miner_fee_title">Miner Fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
+    <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent</string>
     <string name="export">Export</string>
     <string name="backup_private_key">Backup</string>
@@ -142,6 +142,7 @@
     <string name="pref_socks_proxy_not_enabled">Socks Proxy (Not enabled)</string>
     <string name="pref_socks_proxy_summary">Communicate through restrictive firewalls or through Tor using Orbot. Enter a host name and port, e.g. \'localhost:9050\'</string>
     <string name="settings">Settings</string>
+    <string name="pin_backup_first">You cannot set a PIN before you have made a backup of your master seed.</string>
     <string name="pin_invalid_pin">Invalid PIN code</string>
     <string name="pin_enter_pin">Enter PIN Code</string>
     <string name="pin_cleared">PIN code cleared</string>
@@ -158,7 +159,7 @@
     <string name="payment_request">Payment Request</string>
     <string name="bitcoin_address_label">Bitcoin Address:</string>
     <string name="export_single_private_key_warning">You are about to export the private key that controls all the Bitcoins of the selected address.\n\nAnyone who gains access to this key can take possession of the Bitcoins it controls.\n\nDo you want to continue?</string>
-    <string name="backup_all_warning">You are about to back up sensitive data that control all the Bitcoins of your Mycelium Bitcoin Wallet.\n\nAnyone who gains access to this data can take possession of your Bitcoins.\n\nDo you want to continue?</string>
+    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds if your device is lost or damaged.\n\nDo you want to do this now?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
@@ -187,20 +188,24 @@
     <string name="activate_action">Activate</string>
     <string name="archive_action">Archive</string>
     <string name="question_archive_account">Archived accounts are not monitored, you can not see the balance and receiving address and not work with the account at all.\r\n\r\nArchived accounts can be activated again.\r\n\r\nDo you want to archive this account?</string>
-    <string name="master_seed_configuration_title">Configuring Master Seed</string>
-    <string name="master_seed_configuration_description">Before adding your first HD account you need to configure a master seed.\nDo you want to create a new master seed or import a backup?</string>
+    <string name="master_seed_configuration_title">Welcome to Mycelium</string>
+    <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
-    <string name="master_seed_import_backup_button">Import Backup</string>
+    <string name="master_seed_restore_backup_button">Restore Backup</string>
     <string name="archived">Archived</string>
     <string name="activated">Activated</string>
     <string name="keep_one_active">You need to keep at least one active account.</string>
     <string name="please_wait">Please wait &#8230;</string>
     <string name="managing_archive_key">You are managing a single archived key.</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
+    <string name="account_label_not_unique">The name is already in use for another account</string>
     <string name="tap_qr_code_desc">Tapping the QR code may improve scanning</string>
     <string name="paste">Paste</string>
     <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there&#8230;</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
+    <string name="signing_transaction">Signing Transaction</string>
+    <string name="broadcasting_transaction">Broadcasting Transaction</string>
+    <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
@@ -210,7 +215,7 @@
     <string name="tap_to_refresh">Tap to refresh</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="my_accounts">My Accounts</string>
-    <string name="foreign_addresses">Other Addresses</string>
+    <string name="foreign_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message">Do you want to delete this account?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
@@ -231,7 +236,8 @@
     <string name="verify_seed_ok">Master seed backup successfully verified.</string>
     <string name="wrong_seed">The scanned seed does not match your master seed.</string>
     <string name="verify_backup_ignored">Backup ignored for this private key.</string>
-    <string name="backup_not_verified">Backup not verified</string>
+    <string name="legacy_account_with_funds">Legacy account with funds</string>
+    <string name="backup_missing">Backup missing</string>
     <string name="verify_backup_title">Backup and Verify</string>
     <string name="verify_backup_message_text_1">Having a proper backup is a cornerstone when managing your Bitcoin funds.\nYou have one or more Bitcoin private keys or a master seed where the backup has not been verified.\n\nPlease select the Backup option to make a back up.</string>
     <string name="verify_backup_message_text_2">Then select the Verify Backup option and verify your backup.</string>
@@ -277,7 +283,10 @@
     <string name="page_locked">This page is locked</string>
     <string name="unlock_label">Unlock</string>
     <string name="lock_label">Lock</string>
-    <string name="backup_missing">Backup Missing</string>
+    <string name="secure_my_funds">Secure My Funds</string>
+    <string name="move_legacy_funds_message">Your wallet has one or more legacy accounts with funds.\n\nTo make sure that your funds are safe and to improve your anonymity you should move those funds to one of your HD accounts.\n\nPlease go to the Accounts tab for details.</string>
+    <string name="ignore_warnings_title">Ignore Warnings</string>
+    <string name="ignore_warnings_description">Do you want to ignore warnings explaining that this legacy account holds funds, and do you have a secure backup of the private key?</string>
     <string name="testnet_label_startup">TESTNET</string>
     <string name="explore">Explore</string>
     <string name="getting_location">obtaining location…</string>
@@ -305,7 +314,7 @@
     <string name="import_decrypt_bip38_display_password">Display password</string>
     <string name="decrypt_button">Decrypt</string>
     <string name="pref_change_language">Change Language</string>
-    <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Keys tab</string>
+    <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Accounts tab</string>
     <string name="alert_button">Alert</string>
     <string name="heartbleed_alert">ALERT\n\nYour device runs Android version 4.1.1 and has a critical bug known as Heartbleed.\n\nThis bug allows an attacker to read the memory of any apps on your device that make HTTPS connections.\n\n You should take immediate action!\n\n1. Move your funds to new addresses where the private key has never been on an Android 4.1.1 device.\n\n2. Upgrade your device to another version than 4.1.1 or use another device.</string>
     <!--  LT start -->
@@ -549,9 +558,10 @@
     <string name="selected_single_info">You are now working on this single address.</string>
     <string name="not_broadcasted">Not broadcasted</string>
     <string name="hd_creation_started">Creating new HD Account…</string>
-    <string name="configure_seed_started">Configuring Master Seed…</string>
+    <string name="configure_seed_started">Preparing wallet…</string>
     <string name="import_words_started">Calculating Master Seed…</string>
     <string name="enter_next_word">enter word number %1$s of %2$s</string>
+    <string name="showing_word_number">Word %1$s: %2$s</string>
     <string name="delete_last_word">Delete Last Word</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
@@ -561,17 +571,31 @@
     <string name="warning_words_import">Warning: Do not put your words into the clipboard, other apps could read them and obtain your money.</string>
     <string name="contains_one_key">Contains one private key.</string>
     <string name="verify_backup_ok_message">The backup was successfully verified.</string>
-    <string name="wordlist_import_invalid_checksum">The checksum of your wordlist is invalid, please make sure you entered all words correctly.</string>
+    <string name="wordlist_import_invalid_checksum">The checksum of your word list is invalid, please make sure you entered all words correctly.</string>
     <string name="checkbox_wordlist_password">I have a password</string>
     <string name="words_12">12 words</string>
     <string name="words_18">18 words</string>
     <string name="words_24">24 words</string>
-    <string name="import_words_questions">Please select the length of the wordlist to import and indicate whether it is protected by a password.</string>
+    <string name="import_words_questions">Please select the length of the word list to restore and indicate whether it is protected by a password.</string>
     <string name="type_password_title">Enter Your Password</string>
     <string name="clipboard_not_available">Clipboard Content Not Valid</string>
     <string name="no_android_wallet_backup">No Export Found</string>
     <string name="unable_to_get_clipboard">Unable to get the current clipboard content</string>
     <string name="unable_to_clear_clipboard">Unable to clear the clipboard</string>
     <string name="unable_to_set_clipboard">Unable to set the clipboard string</string>
+    <string name="select_spending_account">Select Spending Account</string>
+    <string name="enter_account_label_title">Enter Account Label</string>
+    <string name="edit_account_label_title">Edit Account Label</string>
+    <string name="seed_already_configured">Cannot import: master seed is already configured</string>
+    <string name="backup_words_title">Master Seed Backup</string>
+    <string name="verify_words_title">Master Seed Verification</string>
+    <string name="wordlist_backup_description">THIS IS IMPORTANT\n\nYou are about to back up your master seed. This is a one time operation which for security reasons cannot be repeated once completed.\n\nYou will be shown a list of words, one after another. Write those words down using pen and paper, and store it in a safe place.</string>
+    <string name="next_word_button">Next Word</string>
+    <string name="cick_button_to_show_word">Tap the \'Next Word\' button to begin</string>
+    <string name="wordlist_verify_description">Please enter the words you just wrote down, one after another, to make sure that everything is backed up correctly.</string>
+    <string name="verify_word_wrong">You typed the wrong word, please try again</string>
+    <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!</string>
+    <string name="note_down_password_title">Write down your password</string>
+    <string name="title_wrong_password">Wrong password, please try again</string>
 
 </resources>

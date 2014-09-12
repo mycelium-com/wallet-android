@@ -66,6 +66,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
@@ -101,6 +102,13 @@ public class SettingsActivity extends PreferenceActivity {
    };
    private final OnPreferenceClickListener setPinClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
+
+         // Must make a backup before setting PIN
+         if(_mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED){
+            Utils.showSimpleMessageDialog(SettingsActivity.this, R.string.pin_backup_first);
+            return true;
+         }
+
          _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
             @Override
             public void run() {
@@ -337,8 +345,11 @@ public class SettingsActivity extends PreferenceActivity {
       if (!_ltManager.hasLocalTraderAccount()) {
          PreferenceScreen myceliumPreferences = (PreferenceScreen) findPreference("myceliumPreferences");
          PreferenceCategory localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
+         CheckBoxPreference disableLt = (CheckBoxPreference) findPreference("ltDisable");
          if (localTraderPrefs != null) {
-            myceliumPreferences.removePreference(localTraderPrefs);
+            localTraderPrefs.removeAll();
+            //its important we keep this prefs, so users can still enable / disable lt without having an account
+            localTraderPrefs.addPreference(disableLt);
          }
          return;
       }

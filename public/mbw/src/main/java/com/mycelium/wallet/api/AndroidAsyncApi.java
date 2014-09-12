@@ -40,8 +40,8 @@ import com.squareup.otto.Bus;
 
 public class AndroidAsyncApi extends AsynchronousApi {
 
-   public AndroidAsyncApi(MyceliumWalletApi api, ApiCache cache, Bus bus) {
-      super(api, cache, bus);
+   public AndroidAsyncApi(MyceliumWalletApi api, Bus bus) {
+      super(api, bus);
    }
 
    public static class HandlerRunnerPoster implements CallbackRunnerInvoker {

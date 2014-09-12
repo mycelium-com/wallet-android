@@ -86,6 +86,7 @@
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity android:name=".activity.send.SendMainActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
+        <activity android:name=".activity.send.SignAndBroadcastTransactionActivity" />
         <activity android:name=".activity.receive.GetReceivingAmountActivity" />
         <activity android:name=".activity.receive.ReceiveCoinsActivity" />
         <activity
@@ -119,6 +120,7 @@
         <activity android:name=".activity.MessageSigningActivity" />
         <activity android:name=".activity.ImportSeedActivity" />
         <activity android:name=".activity.EnterWordListActivity" />
+        <activity android:name=".activity.BackupWordListActivity" />
     </application>
 
 </manifest>

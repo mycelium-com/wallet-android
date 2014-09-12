@@ -35,45 +35,36 @@
 
 package com.mycelium.wallet.activity.send;
 
-import java.util.Arrays;
-import java.util.UUID;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.AddressBookManager;
-import com.mycelium.wallet.AndroidRandomSource;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.ScanRequest;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.api.AsyncTask;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Subscribe;
 
-//todo hd: don't use Wallet, use (ephermeral) walletmanager with id.
-//todo hd: skip syncing step so you can create a TX without network connection
+import java.util.Arrays;
+import java.util.UUID;
+
 public class SendMainActivity extends Activity {
 
    private static final int GET_AMOUNT_RESULT_CODE = 1;
@@ -88,7 +79,6 @@ public class SendMainActivity extends Activity {
    private MbwManager _mbwManager;
    private WalletAccount _account;
    private Double _oneBtcInFiat; // May be null
-   //todo Andreas refactor this to hold bitocoin Uri
    private Long _amountToSend;
    private Address _receivingAddress;
    private boolean _isColdStorage;
@@ -96,15 +86,14 @@ public class SendMainActivity extends Activity {
    private UnsignedTransaction _unsigned;
    private AsyncTask _task;
 
-   public static void callMe(Activity currentActivity, UUID account, Double oneBtcInFiat,  boolean isColdStorage) {
-      callMe(currentActivity, account, oneBtcInFiat, null, null, isColdStorage);
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
+      callMe(currentActivity, account, null, null, isColdStorage);
    }
 
-   public static void callMe(Activity currentActivity, UUID account, Double oneBtcInFiat,
+   public static void callMe(Activity currentActivity, UUID account,
                              Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
       intent.putExtra("account", account);
-      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
       intent.putExtra("isColdStorage", isColdStorage);
@@ -112,14 +101,13 @@ public class SendMainActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   public static void callMe(Activity currentActivity, UUID account, Double oneBtcInFiat, BitcoinUri uri, boolean isColdStorage) {
-      callMe(currentActivity, account, oneBtcInFiat, uri.amount, uri.address, isColdStorage);
+   public static void callMe(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
+      callMe(currentActivity, account, uri.amount, uri.address, isColdStorage);
    }
 
-   public static void callMe(Fragment currentFragment, UUID account, Double oneBtcInFiat, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+   public static void callMe(Fragment currentFragment, UUID account, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentFragment.getActivity(), SendMainActivity.class);
       intent.putExtra("account", account);
-      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.putExtra("amountToSend", amountToSend);
       intent.putExtra("receivingAddress", receivingAddress);
       intent.putExtra("isColdStorage", isColdStorage);
@@ -137,8 +125,6 @@ public class SendMainActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
 
-      // May be null
-      _oneBtcInFiat = (Double) getIntent().getSerializableExtra("oneBtcInFiat");
       // May be null
       _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
       // May be null
@@ -299,8 +285,8 @@ public class SendMainActivity extends Activity {
       // Set label if applicable
       TextView receiverLabel = (TextView) findViewById(R.id.tvReceiverLabel);
 
-      // See if the address is in the address book
-      String label = _mbwManager.getAddressBookManager().getNameByKey(new AddressBookManager.AddressKey(_receivingAddress));
+      // See if the address is in the address book or one of our accounts
+      String label = getAddressLabel(_receivingAddress);
 
       if (label == null || label.length() == 0) {
          // Hide label
@@ -315,12 +301,11 @@ public class SendMainActivity extends Activity {
       String choppedAddress = _receivingAddress.toMultiLineString();
       ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
 
-      // Show / hide warning
-      //TODO: check the walletmanager to see whether its our own address
-      Record record = null;
-      if (record != null) {
+      //Check the wallet manager to see whether its our own address, and whether we can spend from it
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
+      if (walletManager.isMyAddress(_receivingAddress)) {
          TextView tvWarning = (TextView) findViewById(R.id.tvWarning);
-         if (record.hasPrivateKey()) {
+         if (walletManager.hasPrivateKeyForAddress(_receivingAddress)) {
             // Show a warning as we are sending to one of our own addresses
             tvWarning.setVisibility(View.VISIBLE);
             tvWarning.setText(R.string.my_own_address_warning);
@@ -336,6 +321,16 @@ public class SendMainActivity extends Activity {
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       }
+   }
+
+   private String getAddressLabel(Address address) {
+      Optional<UUID> accountId = _mbwManager.getWalletManager(false).getAccountByAddress(address);
+      if (!accountId.isPresent()) {
+         // We don't have it in our accounts, look in address book, returns empty string by default
+         return _mbwManager.getMetadataStorage().getLabelByAddress(address);
+      }
+      // Get the name of the account
+      return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
    }
 
    private void updateAmount() {
@@ -412,9 +407,23 @@ public class SendMainActivity extends Activity {
 
    @Override
    protected void onResume() {
+      _mbwManager.getEventBus().register(this);
+
+      // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      if (_oneBtcInFiat == null) {
+         _mbwManager.getExchangeRateManager().requestRefresh();
+      }
+
       findViewById(R.id.btClipboard).setEnabled(getUriFromClipboard() != null);
       updateUi();
       super.onResume();
+   }
+
+   @Override
+   protected void onPause() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onPause();
    }
 
    private void cancelEverything() {
@@ -441,29 +450,8 @@ public class SendMainActivity extends Activity {
       findViewById(R.id.btScan).setEnabled(false);
       findViewById(R.id.btEnterAmount).setEnabled(false);
 
-      // Sign transaction in the background
-      new android.os.AsyncTask<Handler, Integer, Void>() {
-
-         @Override
-         protected Void doInBackground(Handler... handler) {
-            try {
-               _account.signAndQueueTransaction(_unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               throw new RuntimeException(invalidKeyCipher);
-            }
-            // execute broadcasting task from UI thread
-            handler[0].post(new Runnable() {
-
-               @Override
-               public void run() {
-                  _mbwManager.getWalletManager(_isColdStorage).startSynchronization();
-                  _mbwManager.forgetColdStorageWalletManager();
-                  SendMainActivity.this.finish();
-               }
-            });
-            return null;
-         }
-      }.execute(new Handler[] { new Handler() });
+      SignAndBroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned);
+      finish();
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
@@ -476,8 +464,15 @@ public class SendMainActivity extends Activity {
                }
             }
          } else {
-            Record record = ScanActivity.getRecord(intent);
-            _receivingAddress = record.address;
+            ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
+            if (type == ScanActivity.ResultType.PRIVATE_KEY) {
+               InMemoryPrivateKey key = ScanActivity.getPrivateKey(intent);
+               _receivingAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            } else if (type == ScanActivity.ResultType.ADDRESS) {
+               _receivingAddress = ScanActivity.getAddress(intent);
+            } else {
+               throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+            }
             Optional<Long> amount = ScanActivity.getAmount(intent);
             if (amount.isPresent()) {
                //we set the amount to the one contained in the qr code, even if another one was enter previously
@@ -520,10 +515,10 @@ public class SendMainActivity extends Activity {
       if (string.matches("[a-zA-Z0-9]*")) {
          // Raw format
          Address address = Address.fromString(string, _mbwManager.getNetwork());
-         if (address == null){
+         if (address == null) {
             return null;
          }
-         return new BitcoinUri(address,null,null);
+         return new BitcoinUri(address, null, null);
       } else {
          Optional<BitcoinUri> b = BitcoinUri.parse(string, _mbwManager.getNetwork());
          if (b.isPresent()) {
@@ -532,6 +527,12 @@ public class SendMainActivity extends Activity {
          }
       }
       return null;
+   }
+
+   @Subscribe
+   public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      updateUi();
    }
 
 }

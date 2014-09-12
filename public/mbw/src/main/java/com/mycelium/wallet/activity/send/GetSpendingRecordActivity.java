@@ -105,7 +105,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    private void update() {
       ListView listView = (ListView) findViewById(R.id.lvRecords);
-      _accountsAdapter = new AccountsAdapter(this,_mbwManager.getWalletManager(false).getActiveAccounts());
+      _accountsAdapter = new AccountsAdapter(this,_mbwManager.getWalletManager(false).getSpendingAccounts());
       listView.setAdapter(_accountsAdapter);
    }
 

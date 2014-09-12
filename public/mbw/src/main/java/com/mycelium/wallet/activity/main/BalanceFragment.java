@@ -51,10 +51,7 @@ import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.BlockchainError;
-import com.mycelium.wallet.event.BlockchainReady;
-import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -100,12 +97,11 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getExchangeRateManager().subscribe(exchangeSubscriber);
+      _mbwManager.getEventBus().register(this);
       _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
       if (_exchangeRate == null || _exchangeRate.price == null) {
          _mbwManager.getExchangeRateManager().requestRefresh();
       }
-      _mbwManager.getEventBus().register(this);
       _root.findViewById(R.id.btSend).setOnClickListener(sendClickListener);
       _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
       _root.findViewById(R.id.btScan).setOnClickListener(scanClickListener);
@@ -117,8 +113,7 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false,
-               _exchangeRate == null ? null : _exchangeRate.price);
+         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
       }
    };
 
@@ -126,7 +121,8 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getId());
+         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getReceivingAddress(),
+               _mbwManager.getSelectedAccount().canSpend());
       }
    };
 
@@ -140,7 +136,6 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onPause() {
-      _mbwManager.getExchangeRateManager().unsubscribe(exchangeSubscriber);
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -149,7 +144,9 @@ public class BalanceFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-
+      if (_mbwManager.getSelectedAccount().isArchived()) {
+         return;
+      }
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       Balance balance = Preconditions.checkNotNull(account.getBalance());
 
@@ -231,22 +228,17 @@ public class BalanceFragment extends Fragment {
 
    }
 
-   private ExchangeRateManager.EventSubscriber exchangeSubscriber = new ExchangeRateManager.EventSubscriber(
-         new Handler()) {
+   @Subscribe
+   public void refreshingExchangeRatesFailed(RefreshingExchangeRatesFailed event){
+      _toaster.toastConnectionError();
+      _exchangeRate = null;
+   }
 
-      @Override
-      public void refreshingExchangeRatesFailed() {
-         _toaster.toastConnectionError();
-         _exchangeRate = null;
-      }
-
-      @Override
-      public void refreshingExchangeRatesSucceeded() {
-         _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
-         updateUi();
-      }
-   };
-
+   @Subscribe
+   public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
+      _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
+      updateUi();
+   }
 
    /**
     * The selected Account changed, update UI to reflect other Balance
@@ -264,10 +256,8 @@ public class BalanceFragment extends Fragment {
       updateUi();
    }
 
-   //TODO: check which events below still occur, or which events have to be added for HD
-
    @Subscribe
-   public void balanceChanged(BlockchainReady blockchainReady) {
+   public void accountChanged(AccountChanged event) {
       updateUi();
    }
 

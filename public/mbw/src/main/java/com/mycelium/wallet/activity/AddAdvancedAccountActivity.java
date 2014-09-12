@@ -45,11 +45,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.EncryptionUtils;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.Record.Source;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -122,19 +125,20 @@ public class AddAdvancedAccountActivity extends Activity {
                return;
             }
             // If the record has a private key delete the contents of the clipboard
-            UUID acc;
+            UUID account;
             if (record.get().hasPrivateKey()) {
                Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                try {
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().key, AesKeyCipher.defaultKeyCipher());
-                  _mbwManager.getMetadataStorage().setBackupState(acc, MetadataStorage.BackupState.VERIFIED);
+                  account = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().key, AesKeyCipher.defaultKeyCipher());
+                  _mbwManager.getEventBus().post(new AccountChanged(account));
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                   throw new RuntimeException(invalidKeyCipher);
                }
             } else {
-               acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().address);
+               account = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().address);
+               _mbwManager.getEventBus().post(new AccountChanged(account));
             }
-            finishOk(acc);
+            finishOk(account);
          }
       });
 
@@ -161,35 +165,44 @@ public class AddAdvancedAccountActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == Activity.RESULT_OK) {
-            Record record = ScanActivity.getRecord(intent);
-            returnAccount(record);
+            ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
+            if (type == ScanActivity.ResultType.PRIVATE_KEY) {
+               InMemoryPrivateKey key = ScanActivity.getPrivateKey(intent);
+               returnAccount(key);
+            } else if (type == ScanActivity.ResultType.ADDRESS) {
+               Address address = ScanActivity.getAddress(intent);
+               returnAccount(address);
+            } else {
+               throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+            }
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }
       } else if (requestCode == CREATE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra("base58key");
-         Optional<Record> record = Record.recordFromBase58Key(base58Key, _network);
-         // Since the record is extracted from SIPA format the source defaults
-         // to SIPA, set it to CREATED
-         record.get().source = Source.CREATED_PRIVATE_KEY;
-         returnAccount(record.get());
+         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         if (key.isPresent()) {
+            returnAccount(key.get());
+         } else {
+            throw new RuntimeException("Creating private key from string unexpectedly failed.");
+         }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
    }
 
-   private void returnAccount(Record record) {
+   private void returnAccount(InMemoryPrivateKey key) {
       UUID acc;
-      if (record.hasPrivateKey()) {
-         try {
-            acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.key, AesKeyCipher.defaultKeyCipher());
-            _mbwManager.getMetadataStorage().setBackupState(acc, MetadataStorage.BackupState.VERIFIED);
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException(invalidKeyCipher);
-         }
-      } else {
-         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.address);
+      try {
+         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
       }
+      finishOk(acc);
+   }
+
+   private void returnAccount(Address address) {
+      UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
       finishOk(acc);
    }
 
@@ -249,7 +262,7 @@ public class AddAdvancedAccountActivity extends Activity {
                if (backupFile.getName().startsWith("bitcoin-wallet-backup")) {
                   // new protobuf based backup
                   byte[] decryptedBytes = EncryptionUtils.decryptOpenSslAes256CbcBytes(Utils.getFileContent(backupFile), password);
-                  List<Record> privateKeys = Utils.getPrivKeysFromBitcoinJProtobufBackup(new ByteArrayInputStream(decryptedBytes), _network);
+                  List<InMemoryPrivateKey> privateKeys = Utils.getPrivKeysFromBitcoinJProtobufBackup(new ByteArrayInputStream(decryptedBytes), _network);
                   chooseKeyForImportDialog(privateKeys);
                } else {
                   // old plaintext backup
@@ -270,19 +283,19 @@ public class AddAdvancedAccountActivity extends Activity {
     * Shows a list with found Bitcoin addresses in the "Bitcoin Wallet" backup file,
     * returns the one the user chooses to the calling activity
     *
-    * @param recordList list of found Records in backup file
+    * @param keyList list of found Records in backup file
     */
-   private void chooseKeyForImportDialog(final List<Record> recordList) {
+   private void chooseKeyForImportDialog(final List<InMemoryPrivateKey> keyList) {
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      CharSequence[] keys = new CharSequence[recordList.size()];
+      CharSequence[] keys = new CharSequence[keyList.size()];
       int pos = 0;
-      for (Record rec : recordList) {
-         keys[pos] = rec.address.toString();
+      for (InMemoryPrivateKey key : keyList) {
+         keys[pos] = key.getPublicKey().toAddress(_network).toString();
          pos++;
       }
       builder.setTitle(R.string.pick_android_wallet_address_for_import).setItems(keys, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int which) {
-            returnAccount(recordList.get(which));
+            returnAccount(keyList.get(which));
          }
       });
       builder.create().show();
@@ -294,11 +307,11 @@ public class AddAdvancedAccountActivity extends Activity {
     * @param plainBackupText
     * @return list of found records
     */
-   private List<Record> parseRecordsFromBackupText(String plainBackupText) {
+   private List<InMemoryPrivateKey> parseRecordsFromBackupText(String plainBackupText) {
       //todo try to implement this with Splitter.on(\"n") and String.indexOf(' ') to avoid regex
       //todo this could use a unit test with sample data
       StringTokenizer lines = new StringTokenizer(plainBackupText, "\n", false);
-      List<Record> foundRecords = new ArrayList<Record>();
+      List<InMemoryPrivateKey> foundKeys = new ArrayList<InMemoryPrivateKey>();
       // single line with key looks like:
       // KzCxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 2014-02-11T08:55:35Z
       Pattern p = Pattern.compile("^([A-Za-z0-9]{30,60}) \\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ$");
@@ -306,13 +319,13 @@ public class AddAdvancedAccountActivity extends Activity {
          String currLine = lines.nextToken();
          Matcher m = p.matcher(currLine);
          if (m.matches()) {
-            Optional<Record> importRec = Record.recordFromBase58Key(m.group(1), _network);
-            if (importRec.isPresent()) {
-               foundRecords.add(importRec.get());
+            Optional<InMemoryPrivateKey> importKey = InMemoryPrivateKey.fromBase58String(m.group(1), _network);
+            if (importKey.isPresent()) {
+               foundKeys.add(importKey.get());
             }
          }
       }
-      return foundRecords;
+      return foundKeys;
    }
 
 }

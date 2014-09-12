@@ -20,6 +20,8 @@ import java.util.UUID;
 
 public interface WalletAccount {
 
+   public enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION};
+
    /**
     * Get the network that this account is for.
     *
@@ -142,18 +144,32 @@ public interface WalletAccount {
          InsufficientFundsException;
 
    /**
-    * Sign and queue an unsigned transaction for broadcasting.
-    * <p/>
-    * The transaction is not broadcasted automatically.
+    * Sign an unsigned transaction without broadcasting it.
     *
     * @param unsigned     an unsigned transaction
     * @param cipher       the key cipher to use for decrypting the private key
     * @param randomSource a random source
-    * @return the signed and queued transaction.
+    * @return the signed transaction.
     * @throws InvalidKeyCipher
     */
-   Transaction signAndQueueTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
+   Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
          throws InvalidKeyCipher;
+
+   /**
+    * Broadcast a transaction
+    * @param transaction the transaction to broadcast
+    * @return the broadcast result
+    */
+   BroadcastResult broadcastTransaction(Transaction transaction);
+
+   /**
+    * Queue a transaction for broadcasting.
+    * <p/>
+    * The transaction is broadcasted on next synchronization.
+    *
+    * @param transaction     an transaction
+    */
+   void queueTransaction(Transaction transaction);
 
    /**
     * Determine the maximum spendable amount you can send in a transaction

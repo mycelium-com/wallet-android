@@ -3,12 +3,12 @@
       xmlns:yourapp="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/miSignMessage"
-        android:title="@string/sign_message"
-        yourapp:showAsAction="ifRoom|withText" />
+            android:id="@+id/miSignMessage"
+            android:title="@string/sign_message"
+            yourapp:showAsAction="ifRoom|withText"/>
 
     <item
-        android:id="@+id/miExport"
-        android:title="@string/export"/>
+            android:id="@+id/miExport"
+            android:title="@string/export"/>
 
 </menu>

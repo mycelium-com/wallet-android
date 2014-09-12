@@ -47,6 +47,7 @@ import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
@@ -85,14 +86,14 @@ public class ScanActivity extends Activity {
 
    public static final String RESULT_PAYLOAD = "payload";
    public static final String RESULT_ERROR = "error";
-   public static final String RESULT_RECORD_KEY = "record";
+   public static final String RESULT_PRIVATE_KEY = "privkey";
    public static final String RESULT_URI_KEY = "uri";
    public static final String RESULT_ADDRESS_KEY = "address";
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_AMOUNT_KEY = "amount";
    private static final String RESULT_ACCOUNT_KEY = "account";
 
-   public enum ResultType {ADDRESS, RECORD, ACCOUNT, URI}
+   public enum ResultType {ADDRESS, PRIVATE_KEY, ACCOUNT, NONE, URI}
 
    public static final int SCANNER_RESULT_CODE = 0;
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
@@ -372,18 +373,18 @@ public class ScanActivity extends Activity {
       finish();
    }
 
-   public void finishOk(Record record) {
+   public void finishOk(InMemoryPrivateKey key) {
       Intent result = new Intent();
-      result.putExtra(RESULT_RECORD_KEY, record);
-      result.putExtra(RESULT_TYPE_KEY, ResultType.RECORD);
+      result.putExtra(RESULT_PRIVATE_KEY, key);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.PRIVATE_KEY);
       setResult(RESULT_OK, result);
       finish();
    }
 
-   public void finishOk(Record record, Long amount) {
+   public void finishOk(Address address, Long amount) {
       Intent result = new Intent();
-      result.putExtra(RESULT_RECORD_KEY, record);
-      result.putExtra(RESULT_TYPE_KEY, ResultType.RECORD);
+      result.putExtra(RESULT_ADDRESS_KEY, address);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS);
       if (amount != null && amount > 0) {
          result.putExtra(RESULT_AMOUNT_KEY, amount);
       }
@@ -408,7 +409,9 @@ public class ScanActivity extends Activity {
    }
 
    public void finishOk() {
-      setResult(RESULT_OK);
+      Intent result = new Intent();
+      result.putExtra(RESULT_TYPE_KEY, ResultType.NONE);
+      setResult(RESULT_OK, result);
       finish();
    }
 
@@ -424,11 +427,11 @@ public class ScanActivity extends Activity {
       }
    }
 
-   public static Record getRecord(Intent intent) {
-      ScanActivity.checkType(intent, ResultType.RECORD);
-      Record record = (Record) intent.getSerializableExtra(RESULT_RECORD_KEY);
-      Preconditions.checkNotNull(record);
-      return record;
+   public static InMemoryPrivateKey getPrivateKey(Intent intent) {
+      ScanActivity.checkType(intent, ResultType.PRIVATE_KEY);
+      InMemoryPrivateKey key = (InMemoryPrivateKey) intent.getSerializableExtra(RESULT_PRIVATE_KEY);
+      Preconditions.checkNotNull(key);
+      return key;
    }
 
    public static Optional<Long> getAmount(Intent intent) {
@@ -451,14 +454,6 @@ public class ScanActivity extends Activity {
 
    public static void checkType(Intent intent, ResultType type) {
       Preconditions.checkState(type == intent.getSerializableExtra(RESULT_TYPE_KEY));
-   }
-
-   public ExchangeRate getExchangeRate() {
-      return _mbwManager.getExchangeRateManager().getExchangeRate();
-   }
-
-   public Double getPrice() {
-      return (getExchangeRate() == null ? null : getExchangeRate().price);
    }
 
    public NetworkParameters getNetwork() {

@@ -72,6 +72,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
+import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -651,6 +652,33 @@ public class Utils {
       return true;
    }
 
+   public static void pinProtectedWordlistBackup(final Activity activity) {
+      MbwManager manager = MbwManager.getInstance(activity);
+      manager.runPinProtectedFunction(activity, new Runnable() {
+
+         @Override
+         public void run() {
+            Utils.wordlistBackup(activity);
+         }
+      });
+   }
+
+   private static void wordlistBackup(final Activity parent) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+      builder.setMessage(R.string.backup_all_warning).setCancelable(true)
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int id) {
+                  dialog.dismiss();
+                  BackupWordListActivity.callMe(parent);
+               }
+            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+         public void onClick(DialogInterface dialog, int id) {
+         }
+      });
+      AlertDialog alertDialog = builder.create();
+      alertDialog.show();
+   }
+
    public static void pinProtectedBackup(final Activity activity) {
       MbwManager manager = MbwManager.getInstance(activity);
       manager.runPinProtectedFunction(activity, new Runnable() {
@@ -660,7 +688,6 @@ public class Utils {
             Utils.backup(activity);
          }
       });
-
    }
 
    private static void backup(final Activity parent) {
@@ -825,15 +852,15 @@ public class Utils {
     * @return list of byte-arrays containing 32-byte long raw private keys
     * @throws IOException
     */
-   public static List<Record> getPrivKeysFromBitcoinJProtobufBackup(InputStream inStream, NetworkParameters network) throws IOException {
-      List<Record> returnList = new ArrayList<Record>();
+   public static List<InMemoryPrivateKey> getPrivKeysFromBitcoinJProtobufBackup(InputStream inStream, NetworkParameters network) throws IOException {
+      List<InMemoryPrivateKey> returnList = new ArrayList<InMemoryPrivateKey>();
       Protos.Wallet wallet = Protos.Wallet.parseFrom(inStream);
       for (Protos.Key k : wallet.getKeyList()) {
          byte[] pubKeyBytes = k.getPublicKey().toByteArray();
          byte[] privKeyBytes = k.getPrivateKey().toByteArray();
          boolean keyIsCompressed = (pubKeyBytes.length == 33);
          InMemoryPrivateKey inMemoryKey = new InMemoryPrivateKey(privKeyBytes, keyIsCompressed);
-         returnList.add(Record.fromString(inMemoryKey.getBase58EncodedPrivateKey(network), network).get());
+         returnList.add(inMemoryKey);
       }
       return returnList;
    }

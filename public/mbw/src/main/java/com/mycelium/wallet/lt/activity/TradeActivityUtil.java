@@ -89,7 +89,8 @@ public class TradeActivityUtil {
             ts.buyerAddress, ts.feeAddress, acc);
       Transaction tx;
       try {
-         tx = acc.signAndQueueTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
+         tx = acc.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
+         // don't broadcast the transaction, let local trader do that for us
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }

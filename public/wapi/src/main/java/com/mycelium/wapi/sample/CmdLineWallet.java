@@ -132,7 +132,8 @@ public class CmdLineWallet {
                receivers.add(new Receiver(address, 10000 * (1 + new Random().nextInt(100))));
                try {
                   UnsignedTransaction unsigned = myAccount.createUnsignedTransaction(receivers);
-                  myAccount.signAndQueueTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), _randomSource);
+                  Transaction transaction = myAccount.signTransaction(unsigned,AesKeyCipher.defaultKeyCipher(), _randomSource);
+                  myAccount.broadcastTransaction(transaction);
                   wallet.startSynchronization();
                } catch (OutputTooSmallException e) {
                   throw new RuntimeException(e);
@@ -401,7 +402,8 @@ public class CmdLineWallet {
 
       print("fee: " + unsigned.calculateFee());
 
-      Transaction tx = account.signAndQueueTransaction(unsigned, cipher, _randomSource);
+      Transaction tx = account.signTransaction(unsigned,cipher, _randomSource);
+      account.broadcastTransaction(tx);
       print("Transaction " + tx.getHash().toString() + " queued");
    }
 

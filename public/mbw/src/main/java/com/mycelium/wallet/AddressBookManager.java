@@ -61,43 +61,9 @@ import com.squareup.otto.Bus;
 public class AddressBookManager {
    private static final String ADDRESS_BOOK_FILE_NAME = "address-book.txt";
 
-   public boolean hasAccount(WalletAccount account) {
-      return hasEntry(new AccountKey(account.getId()));
-   }
-
    public static abstract class AddressBookKey {
    }
 
-   public static class AccountKey extends AddressBookKey {
-
-      public final UUID id;
-
-      public AccountKey(UUID id) {
-         this.id = Preconditions.checkNotNull(id);
-      }
-
-      @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-
-         AccountKey that = (AccountKey) o;
-
-         if (!id.equals(that.id)) return false;
-
-         return true;
-      }
-
-      @Override
-      public int hashCode() {
-         return id.hashCode();
-      }
-
-      @Override
-      public String toString() {
-         return id.toString();
-      }
-   }
    public static class AddressKey extends AddressBookKey {
 
       public final Address address;
@@ -183,30 +149,6 @@ public class AddressBookManager {
       Collections.sort(_entries);
    }
 
-   // @formatter:off
-   // Inserts, updates or deletes an entry.
-   // If the specified name is empty and an entry exists for the specified
-   // address, then the entry is deleted.
-   // If an entry for the specified address exists and the name is not empty,
-   // then the entry is updated with the new name.
-   // If an entry for the specified address does not exists and the name is not
-   // empty, then the a new entry is created.
-   // No attempt is made at making names unique
-   // @formatter:on
-   public synchronized void insertUpdateOrDeleteEntry(AddressBookKey address, String name) {
-      if (address == null || name == null) {
-         return;
-      }
-      name = name.trim();
-      if (name.length() == 0) {
-         deleteEntry(address);
-      } else {
-         insertOrUpdateEntryInt(address, name);
-      }
-      Collections.sort(_entries);
-      save();
-   }
-
    public synchronized void deleteEntry(AddressBookKey address) {
       if (address == null) {
          return;
@@ -240,26 +182,6 @@ public class AddressBookManager {
       _addressMap.put(address, entry);
    }
 
-   public AddressBookKey getKeyByName(String name) {
-      if (name == null) {
-         return null;
-      }
-      name = name.trim();
-      for (Entry entry : _entries) {
-         if (name.equalsIgnoreCase(entry.getName())) {
-            return entry.getAddressBookKey();
-         }
-      }
-      return null;
-   }
-
-   public boolean hasEntry(AddressBookKey key) {
-      if (key == null) {
-         return false;
-      }
-      return _addressMap.containsKey(key);
-   }
-
    public String getNameByKey(AddressBookKey key) {
       if (key == null) {
          return null;
@@ -273,6 +195,20 @@ public class AddressBookManager {
 
    public List<Entry> getEntries() {
       return Collections.unmodifiableList(_entries);
+   }
+
+   public Address getAddressByKey(AddressBookKey key) {
+      if (key == null) {
+         return null;
+      }
+      Entry entry = _addressMap.get(key);
+      if (entry == null) {
+         return null;
+      }
+      if (!(entry.getAddressBookKey() instanceof AddressKey)) {
+         return null;
+      }
+      return ((AddressKey) entry.getAddressBookKey()).address;
    }
 
    private void save() {
@@ -320,15 +256,12 @@ public class AddressBookManager {
             if (list.size() > 1) {
                name = decode(list.get(1));
             }
-            //TODO: this not so nice, but the Addressbook is going to be changed soon, hopefully
             Address address = Address.fromString(addressString);
             AddressBookKey key;
             if (address != null) {
                key = new AddressKey(address);
-            } else {
-               key = new AccountKey(UUID.fromString(addressString));
+               entries.add(new Entry(key, name));
             }
-            entries.add(new Entry(key, name));
          }
          stream.close();
          return entries;

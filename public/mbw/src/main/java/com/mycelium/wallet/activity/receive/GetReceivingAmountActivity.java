@@ -53,6 +53,9 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
+import com.squareup.otto.Subscribe;
 
 public class GetReceivingAmountActivity extends Activity implements NumberEntryListener {
 
@@ -132,12 +135,10 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
    @Override
    protected void onResume() {
-      _mbwManager.getExchangeRateManager().subscribe(excahngeSubscriber);
-      ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
-      if (rate == null) {
+      _mbwManager.getEventBus().register(this);
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      if (_oneBtcInFiat == null) {
          _mbwManager.getExchangeRateManager().requestRefresh();
-      } else {
-         _oneBtcInFiat = rate.price;
       }
       findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
       super.onResume();
@@ -145,7 +146,7 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
 
    @Override
    protected void onPause() {
-      _mbwManager.getExchangeRateManager().unsubscribe(excahngeSubscriber);
+      _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -268,26 +269,13 @@ public class GetReceivingAmountActivity extends Activity implements NumberEntryL
       }
    }
 
-   private ExchangeRateManager.EventSubscriber excahngeSubscriber = new ExchangeRateManager.EventSubscriber(
-         new Handler()) {
-
-      @Override
-      public void refreshingExchangeRatesFailed() {
-         Utils.toastConnectionError(GetReceivingAmountActivity.this);
-         _oneBtcInFiat = null;
+   @Subscribe
+   public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      if (_oneBtcInFiat != null) {
          findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
+         updateAmounts(_numberEntry.getEntry());
       }
-
-      @Override
-      public void refreshingExchangeRatesSucceeded() {
-         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
-         if (rate != null) {
-            _oneBtcInFiat = rate.price; // price may still be null, in that case
-                                        // we continue without
-            findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
-            updateAmounts(_numberEntry.getEntry());
-         }
-      }
-   };
+   }
 
 }

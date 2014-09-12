@@ -1,9 +1,9 @@
 package com.mycelium.wapi.wallet.bip44;
 
+import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiLogger;
@@ -14,7 +14,6 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionStatus;
 import com.mycelium.wapi.wallet.*;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.SecureRandom;
@@ -25,9 +24,9 @@ import static org.junit.Assert.assertEquals;
 
 public class Bip44AccountTest {
 
-   private static final String MASTER_SEED_512 = "2e8905819b8723fe2c1d161860e5ee1830318dbf49a83bd451cfb8440c28bd6fa457fe1296106559a3c80937a1c1069be3a3a5bd381ee6260e8d9739fce1f607";
-   private static final String MASTER_SEED_512_A0_R0_ADDRESS = "18MNH3xiSXsYNYxCvwQ6JouW2RkWwStSwy";
-   private static final String MASTER_SEED_512_A0_C0_ADDRESS = "1AaypjAW4QtkFNiQ51caqKz21d1Tc7Z5wY";
+   private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
+   private static final String MASTER_SEED_512_A0_R0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
+   private static final String MASTER_SEED_512_A0_C0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
 
    /**
     * A fake random source that gets our tests going
@@ -107,9 +106,6 @@ public class Bip44AccountTest {
     * Test that the first two addresses we generate agree with a specific seed agree with Wallet32
     */
    @Test
-   //todo fix  walletManager.configureBip32MasterSeed(masterSeed, cipher);
-
-   @Ignore
    public void addressGenerationTest() throws KeyCipher.InvalidKeyCipher {
       SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
@@ -119,18 +115,18 @@ public class Bip44AccountTest {
       // Determine the next BIP44 account index
       int accountIndex = 0;
 
-      byte[] masterSeed = HexUtils.toBytes(MASTER_SEED_512);
+      Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
 
       WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, new FakeWapi());
 
-//      walletManager.configureBip32MasterSeed(masterSeed, cipher);
+      walletManager.configureBip32MasterSeed(masterSeed, cipher);
 
       UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
 
       Bip44Account account1 = (Bip44Account) walletManager.getAccount(account1Id);
 
-      assertEquals(account1.getReceivingAddress(), Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS));
-      assertEquals(account1.getChangeAddress(), Address.fromString(MASTER_SEED_512_A0_C0_ADDRESS));
+      assertEquals(Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS), account1.getReceivingAddress());
+      assertEquals(Address.fromString(MASTER_SEED_512_A0_C0_ADDRESS), account1.getChangeAddress());
    }
 
 

@@ -172,7 +172,8 @@ public class CreateTrader2Activity extends Activity {
          // We have exactly one private key, use it automatically
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.llRoot).setVisibility(View.GONE);
-         InMemoryPrivateKey privateKey = obtainPrivateKeyForAccount(_accounts.get(0));
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
+         InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, "lt.mycelium.com", AesKeyCipher.defaultKeyCipher());
          _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
       } else {
          // Let the user choose which private key to use
@@ -196,7 +197,8 @@ public class CreateTrader2Activity extends Activity {
          return null;
       }
       UUID accountId = _accounts.get(index);
-      return obtainPrivateKeyForAccount(accountId);
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      return _mbwManager.obtainPrivateKeyForAccount(account, "lt.mycelium.com", AesKeyCipher.defaultKeyCipher());
    }
 
    private UUID getSelectedAccount() {
@@ -205,57 +207,6 @@ public class CreateTrader2Activity extends Activity {
          return null;
       }
       return _accounts.get(index);
-   }
-
-   private InMemoryPrivateKey obtainPrivateKeyForAccount(UUID accountId) {
-      WalletManager walletManager = _mbwManager.getWalletManager(false);
-      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
-      if (account instanceof SingleAddressAccount) {
-         // For single address accounts we use the private key directly
-         try {
-            return ((SingleAddressAccount) account).getPrivateKey(AesKeyCipher.defaultKeyCipher());
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException();
-         }
-      } else if (account instanceof Bip44Account) {
-         // For BIP44 accounts we derive a private key from the BIP32 hierarchy
-         try {
-            Bip39.MasterSeed masterSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-            int accountIndex = ((Bip44Account) account).getAccountIndex();
-            return createBip32LocalTraderPrivateKey(masterSeed.getBip32Seed(), accountIndex, "lt.mycelium.com");
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException();
-         }
-      } else {
-         throw new RuntimeException("Invalid account type");
-      }
-   }
-
-   /**
-    * The root index we use for generating authentication keys.
-    * 0x80 makes the number negative == hardened key derivation
-    * 0x424944 = "BID"
-    */
-   private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
-
-   private InMemoryPrivateKey createBip32LocalTraderPrivateKey(byte[] masterSeed, int accountIndex, String site) {
-      // Create BIP32 root node
-      HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed);
-      // Create bit id node
-      HdKeyNode bidNode = rootNode.createChildNode(BIP32_ROOT_AUTHENTICATION_INDEX);
-      // Create the private key for the specified account
-      InMemoryPrivateKey accountPriv = bidNode.createChildPrivateKey(accountIndex);
-      // Concatenate the private key bytes with the site name
-      byte[] sitePrivateKeySeed = new byte[0];
-      try {
-         sitePrivateKeySeed = BitUtils.concatenate(accountPriv.getPrivateKeyBytes(), site.getBytes("UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-         // Does not happen
-         throw new RuntimeException(e);
-      }
-      // Hash the seed and create a new private key from that which uses compressed public keys
-      byte[] sitePrivateKeyBytes = HashUtils.doubleSha256(sitePrivateKeySeed).getBytes();
-      return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {

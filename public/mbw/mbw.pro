@@ -49,7 +49,7 @@
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
 -keep public class com.android.vending.licensing.ILicensingService
--keep public class HoneycombAsyncTaskExecInterface
+-keep public class com.google.zxing.client.android.common.executor.HoneycombAsyncTaskExecInterface
 
 
 #To remove debug logs:
@@ -110,6 +110,13 @@
   <init>(...);
   *;
 }
+
+#keep classes used for deserializing json
+-keepclasseswithmembers class com.mycelium.wapi.api.** {
+  <init>(...);
+  *;
+}
+
 -keep public class com.mycelium.lt.api.** {
   <init>(...);
  }

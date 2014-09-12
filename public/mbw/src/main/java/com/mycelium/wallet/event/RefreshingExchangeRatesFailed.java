@@ -34,13 +34,6 @@
 
 package com.mycelium.wallet.event;
 
-import com.mrd.mbwapi.api.QueryTransactionSummaryResponse;
+public class RefreshingExchangeRatesFailed {
 
-public class TransactionHistoryReady {
-
-   public final QueryTransactionSummaryResponse response;
-
-   public TransactionHistoryReady(QueryTransactionSummaryResponse response) {
-      this.response = response;
-   }
 }

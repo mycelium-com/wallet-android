@@ -26,7 +26,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.1.+'
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.google.android.gms:play-services:3.2.65'
-//    compile 'com.google.android.gms:play-services:4.2.42'
+    //    compile 'com.google.android.gms:play-services:4.2.42'
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
@@ -49,8 +49,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 20003
-        versionName '2.0.0-ALPHA3'
+        versionCode 20008
+        versionName '2.0.0-ALPHA6'
     }
 
     signingConfigs {
@@ -69,13 +69,11 @@ android {
     }
 
     buildTypes {
-
         debug {
             debuggable true
             runProguard true
             proguardFile 'mbw.pro'
         }
-
         release {
 //            debuggable true
             //runProguard true
@@ -90,9 +88,9 @@ android {
 
     productFlavors {
         bitsofgold {
-            if (buildFor=='idea') {
+            if (buildFor == 'idea') {
                 packageName 'il.co.bitsofgold.wallet'
-            }else{
+            } else {
                 applicationId 'il.co.bitsofgold.wallet'
 
             }
@@ -100,26 +98,26 @@ android {
             signingConfig signingConfigs.release
         }
         prodnet {
-            if (buildFor=='idea') {
+            if (buildFor == 'idea') {
                 packageName 'com.mycelium.wallet'
-            }else{
+            } else {
                 applicationId 'com.mycelium.wallet'
             }
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }
         dev {
-            if (buildFor=='idea') {
+            if (buildFor == 'idea') {
                 packageName 'com.mycelium.devwallet'
-            }else{
+            } else {
                 applicationId 'com.mycelium.devwallet'
             }
             signingConfig signingConfigs.debug
         }
         testnet {
-            if (buildFor=='idea') {
+            if (buildFor == 'idea') {
                 packageName 'com.mycelium.testnetwallet'
-            }else{
+            } else {
                 applicationId 'com.mycelium.testnetwallet'
             }
             versionName = defaultConfig.versionName + '-TESTNET'

@@ -58,21 +58,11 @@ public class ExchangeRateManager {
    private static final int MAX_RATE_AGE_MS = 1000 * 60;
    private static final String EXCHANGE_DATA = "exchange_rate_data";
 
-   public static abstract class EventSubscriber {
+   public interface Observer {
 
-      private Handler _handler;
+      public void refreshingExchangeRatesSucceeded();
 
-      public EventSubscriber(Handler handler) {
-         _handler = handler;
-      }
-
-      public Handler getHandler() {
-         return _handler;
-      }
-
-      public abstract void refreshingExchangeRatesSucceeded();
-
-      public abstract void refreshingExchangeRatesFailed();
+      public void refreshingExchangeRatesFailed();
    }
 
    private Context _applicationContext;
@@ -83,7 +73,7 @@ public class ExchangeRateManager {
    private long _latestRatesTime;
    private volatile Fetcher _fetcher;
    private Object _requestLock;
-   private List<EventSubscriber> _subscribers;
+   private List<Observer> _subscribers;
 
    public ExchangeRateManager(Context applicationContext, MyceliumWalletApi api, MbwManager manager) {
       _applicationContext = applicationContext;
@@ -112,14 +102,14 @@ public class ExchangeRateManager {
 
       _requestLock = new Object();
 
-      _subscribers = new LinkedList<EventSubscriber>();
+      _subscribers = new LinkedList<Observer>();
    }
 
-   public synchronized void subscribe(EventSubscriber subscriber) {
+   public synchronized void subscribe(Observer subscriber) {
       _subscribers.add(subscriber);
    }
 
-   public synchronized void unsubscribe(EventSubscriber subscriber) {
+   public synchronized void unsubscribe(Observer subscriber) {
       _subscribers.remove(subscriber);
    }
 
@@ -144,26 +134,14 @@ public class ExchangeRateManager {
    }
 
    private synchronized void notifyRefreshingExchangeRatesSucceeded() {
-      for (final EventSubscriber s : _subscribers) {
-         s.getHandler().post(new Runnable() {
-
-            @Override
-            public void run() {
-               s.refreshingExchangeRatesSucceeded();
-            }
-         });
+      for (final Observer s : _subscribers) {
+         s.refreshingExchangeRatesSucceeded();
       }
    }
 
    private synchronized void notifyRefreshingExchangeRatesFailed() {
-      for (final EventSubscriber s : _subscribers) {
-         s.getHandler().post(new Runnable() {
-
-            @Override
-            public void run() {
-               s.refreshingExchangeRatesFailed();
-            }
-         });
+      for (final Observer s : _subscribers) {
+         s.refreshingExchangeRatesFailed();
       }
    }
 
@@ -233,8 +211,19 @@ public class ExchangeRateManager {
    }
 
    /**
+    * Get the exchange rate price for the currently selected currency.
+    * <p/>
+    * Returns null if the current rate is too old or for a different currency.
+    * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
+    */
+   public synchronized Double getExchangeRatePrice() {
+      ExchangeRate rate = getExchangeRate();
+      return rate == null ? null : rate.price;
+   }
+
+   /**
     * Get the exchange rate for the currently selected currency.
-    * <p>
+    * <p/>
     * Returns null if the current rate is too old or for a different currency.
     * In that the case the caller could choose to call refreshRates() and listen
     * for callbacks. If a rate is returned the contained price may be null if

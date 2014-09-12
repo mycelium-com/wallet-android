@@ -108,6 +108,12 @@ public class WapiClient implements Wapi {
       }
    }
 
+   private void logError(String message) {
+      if (_logger != null) {
+         _logger.logError(message);
+      }
+   }
+
    private void logError(String message, Exception e) {
       if (_logger != null) {
          _logger.logError(message, e);
@@ -167,11 +173,10 @@ public class WapiClient implements Wapi {
                // Maybe the caller forgot to call
                // System.setProperty("http.keepAlive", "false"); for old
                // devices?
-               System.out
-                     .println("HTTP status = -1 Caller may have forgotten to call System.setProperty(\"http.keepAlive\", \"false\"); for old devices");
+               logError("HTTP status = -1 Caller may have forgotten to call System.setProperty(\"http.keepAlive\", \"false\"); for old devices");
             }
          } catch (IOException e) {
-            e.printStackTrace();
+            logError("IOException when sending request", e);
             // handle below like the all status codes != 200
          }
          // Try the next server

@@ -268,11 +268,6 @@ public class WalletManager {
       return filterAndConvert(Predicates.not(IS_ARCHIVE));
    }
 
-   private List<WalletAccount> filterAndConvert(Predicate<Map.Entry<UUID, AbstractAccount>> filter) {
-      Set<UUID> uuids = Maps.filterEntries(_allAccounts, filter).keySet();
-      return Lists.transform(Lists.newArrayList(uuids), key2Account);
-   }
-
    /**
     * Get archived accounts managed by the wallet manager
     *
@@ -282,6 +277,19 @@ public class WalletManager {
       return filterAndConvert(IS_ARCHIVE);
    }
 
+   /**
+    * Get accounts that can spend and are active
+    *
+    * @return the list of accounts
+    */
+   public List<WalletAccount> getSpendingAccounts() {
+      return filterAndConvert(ACTIVE_CAN_SPEND);
+   }
+
+   private List<WalletAccount> filterAndConvert(Predicate<Map.Entry<UUID, AbstractAccount>> filter) {
+      Set<UUID> uuids = Maps.filterEntries(_allAccounts, filter).keySet();
+      return Lists.transform(Lists.newArrayList(uuids), key2Account);
+   }
 
    /**
     * Check whether the wallet manager has a particular account
@@ -337,6 +345,47 @@ public class WalletManager {
       sb.append("Accounts: ").append(_allAccounts.size()).append(" Active: ").append(getActiveAccounts().size())
             .append(" HD: ").append(Bip44Accounts).append(" Simple:").append(simpleAccounts);
       return sb.toString();
+   }
+
+   /**
+    * Determine whether this address is managed by an account of the wallet
+    *
+    * @param address the address to query for
+    * @return if any account in the wallet manager has the address
+    */
+   public boolean isMyAddress(Address address) {
+      return getAccountByAddress(address).isPresent();
+   }
+
+
+   /**
+    * Get the account associated with an address if any
+    *
+    * @param address the address to query for
+    * @return the account UUID if found.
+    */
+   public synchronized Optional<UUID> getAccountByAddress(Address address) {
+      for (AbstractAccount account : _allAccounts.values()) {
+         if (account.isMine(address)) {
+            return Optional.of(account.getId());
+         }
+      }
+      return Optional.absent();
+   }
+
+   /**
+    * Determine whether any account in the wallet manager has the private key for the specified address
+    *
+    * @param address the address to query for
+    * @return true if any account in the wallet manager has the private key for the specified address
+    */
+   public synchronized boolean hasPrivateKeyForAddress(Address address) {
+      for (AbstractAccount account : _allAccounts.values()) {
+         if (account.isMine(address) && account.canSpend()) {
+            return true;
+         }
+      }
+      return false;
    }
 
    private void setStateAndNotify(State state) {
@@ -473,9 +522,9 @@ public class WalletManager {
     */
    public Bip39.MasterSeed getMasterSeed(KeyCipher cipher) throws InvalidKeyCipher {
 
-      byte[] binaryMasterSeed =_secureKeyValueStore.getEncryptedValue(MASTER_SEED_ID, cipher);
+      byte[] binaryMasterSeed = _secureKeyValueStore.getEncryptedValue(MASTER_SEED_ID, cipher);
       Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false);
-      if(!masterSeed.isPresent()){
+      if (!masterSeed.isPresent()) {
          throw new RuntimeException();
       }
       return masterSeed.get();
@@ -484,9 +533,9 @@ public class WalletManager {
    /**
     * Configure the BIP32 master seed of this wallet manager
     *
-    * @param masterSeed   the master seed to use.
-    * @param cipher the cipher used to encrypt the master seed. Must be the same
-    *               cipher as the one used by the secure storage instance
+    * @param masterSeed the master seed to use.
+    * @param cipher     the cipher used to encrypt the master seed. Must be the same
+    *                   cipher as the one used by the secure storage instance
     * @throws InvalidKeyCipher if the cipher is invalid
     */
    public void configureBip32MasterSeed(Bip39.MasterSeed masterSeed, KeyCipher cipher) throws InvalidKeyCipher {
@@ -500,6 +549,13 @@ public class WalletManager {
       @Override
       public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
          return input.getValue().isArchived();
+      }
+   };
+
+   private static final Predicate<Map.Entry<UUID, AbstractAccount>> ACTIVE_CAN_SPEND = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+      @Override
+      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+         return input.getValue().isActive() && input.getValue().canSpend();
       }
    };
 

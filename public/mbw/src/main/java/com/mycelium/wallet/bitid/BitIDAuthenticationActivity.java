@@ -11,6 +11,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.Address;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -161,17 +165,20 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    }
 
    private void signAndSend(boolean enforceSslCorrectness) {
-      //TODO: select some identity, derive key...
-//      progress.setCancelable(false);
-//      progress.setMessage(getString(R.string.bitid_processing));
-//      progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//      progress.show();
-//      errorView.setVisibility(View.INVISIBLE);
-//      try {
-//         new BitIdAsyncTask(request, enforceSslCorrectness, getRecord(), getEventBus()).execute();
-//      } catch (Exception e) {
-//         throw new RuntimeException(e);
-//      }
+      MbwManager manager = MbwManager.getInstance(this);
+      WalletAccount account = manager.getSelectedAccount();
+      InMemoryPrivateKey key = manager.obtainPrivateKeyForAccount(account, request.getHost().toString(), AesKeyCipher.defaultKeyCipher());
+      Address address = key.getPublicKey().toAddress(manager.getNetwork());
+      progress.setCancelable(false);
+      progress.setMessage(getString(R.string.bitid_processing));
+      progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+      progress.show();
+      errorView.setVisibility(View.INVISIBLE);
+      try {
+         new BitIdAsyncTask(request, enforceSslCorrectness, key, address, getEventBus()).execute();
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public void abort(View view) {

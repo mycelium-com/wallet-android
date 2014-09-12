@@ -46,6 +46,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class RecordRowBuilder {
 
@@ -135,17 +136,22 @@ public class RecordRowBuilder {
          TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
+
+         // Show legacy account with funds warning if necessary
+         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
+         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
+
+         // Show legacy account with funds warning if necessary
+         boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
+         rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
+
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
+         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
+         rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
       }
 
-      boolean needsBackupVerification = walletAccount.canSpend() && mbwManager.getMetadataStorage().getBackupState(walletAccount).equals(MetadataStorage.BackupState.UNKNOWN);
-      if (needsBackupVerification) {
-         rowView.findViewById(R.id.tvNoBackupWarning).setVisibility(View.VISIBLE);
-      } else {
-         rowView.findViewById(R.id.tvNoBackupWarning).setVisibility(View.GONE);
-      }
 
       // Show/hide trader account message
       if (walletAccount.getId().equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
@@ -155,6 +161,28 @@ public class RecordRowBuilder {
       }
 
       return rowView;
+   }
+
+   public static boolean showLegacyAccountWarning(WalletAccount account, MbwManager mbwManager) {
+      if (account.isArchived()) {
+         return false;
+      }
+      Balance balance = account.getBalance();
+      boolean showLegacyAccountWarning = (account instanceof SingleAddressAccount) &&
+            balance.getReceivingBalance() + balance.getSpendableBalance() > 0 &&
+            account.canSpend() &&
+            !mbwManager.getMetadataStorage().getIgnoreBackupWarning(account.getId());
+      return showLegacyAccountWarning;
+   }
+
+   public static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {
+      if (account.isArchived()) {
+         return false;
+      }
+      Balance balance = account.getBalance();
+      boolean showBackupMissingWarning = (account instanceof Bip44Account) &&
+            mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
+      return showBackupMissingWarning;
    }
 
    private static String getShortAddress(String addressString) {
