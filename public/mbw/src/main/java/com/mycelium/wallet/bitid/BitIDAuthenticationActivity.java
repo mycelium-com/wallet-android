@@ -167,7 +167,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    private void signAndSend(boolean enforceSslCorrectness) {
       MbwManager manager = MbwManager.getInstance(this);
       WalletAccount account = manager.getSelectedAccount();
-      InMemoryPrivateKey key = manager.obtainPrivateKeyForAccount(account, request.getHost().toString(), AesKeyCipher.defaultKeyCipher());
+      InMemoryPrivateKey key = manager.obtainPrivateKeyForAccount(account, request.getHost(), AesKeyCipher.defaultKeyCipher());
       Address address = key.getPublicKey().toAddress(manager.getNetwork());
       progress.setCancelable(false);
       progress.setMessage(getString(R.string.bitid_processing));

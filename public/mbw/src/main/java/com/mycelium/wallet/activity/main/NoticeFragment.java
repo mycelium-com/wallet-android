@@ -51,7 +51,6 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -87,11 +86,6 @@ public class NoticeFragment extends Fragment {
    public void onAttach(Activity activity) {
       _mbwManager = MbwManager.getInstance(activity);
       super.onAttach(activity);
-   }
-
-   @Override
-   public void onDetach() {
-      super.onDetach();
    }
 
    @Override

@@ -96,17 +96,6 @@ public class EnterLocationActivity extends Activity {
       outState.putSerializable("location", _atvLocation.getEditableText().toString());
    }
 
-
-   @Override
-   protected void onResume() {
-      super.onResume();
-   }
-
-   @Override
-   protected void onPause() {
-      super.onPause();
-   }
-
    OnItemClickListener atvLocationItemClickListener = new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

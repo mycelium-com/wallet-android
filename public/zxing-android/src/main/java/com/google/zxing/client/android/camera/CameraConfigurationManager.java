@@ -158,16 +158,16 @@ void initFromCameraParameters(Camera camera) {
 
   void setTorch(Camera camera, boolean newSetting) {
     Camera.Parameters parameters = camera.getParameters();
-    doSetTorch(parameters, newSetting, false);
+    doSetTorch(parameters, newSetting);
     camera.setParameters(parameters);
   }
 
   private void initializeTorch(Camera.Parameters parameters, SharedPreferences prefs, boolean safeMode) {
     boolean currentSetting = FrontLightMode.readPref(prefs) == FrontLightMode.ON;
-    doSetTorch(parameters, currentSetting, safeMode);
+    doSetTorch(parameters, currentSetting);
   }
 
-  private void doSetTorch(Camera.Parameters parameters, boolean newSetting, boolean safeMode) {
+  private void doSetTorch(Camera.Parameters parameters, boolean newSetting) {
     String flashMode;
     if (newSetting) {
       flashMode = findSettableValue(parameters.getSupportedFlashModes(),

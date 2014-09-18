@@ -43,7 +43,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SpinnerPrivateUri;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;

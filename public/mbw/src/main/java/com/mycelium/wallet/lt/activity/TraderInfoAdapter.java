@@ -45,7 +45,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
 public class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> {

@@ -179,26 +179,26 @@ public class SendRequestActivity extends Activity {
          Utils.toastConnectionError(SendRequestActivity.this);
          finish();
          return true;
-      };
+      }
 
       @Override
       public void onLtTradeCreated(UUID id, CreateTrade request) {
          SendRequestActivity.callMe(SendRequestActivity.this, new GetTradeSession(id), "");
          finish();
-      };
+      }
 
       @Override
       public void onLtTradeSessionFetched(com.mycelium.lt.api.model.TradeSession tradeSession,
             com.mycelium.wallet.lt.api.GetTradeSession request) {
          TradeActivity.callMe(SendRequestActivity.this, tradeSession);
          finish();
-      };
+      }
 
       @Override
       public void onLtTradeReceivingAddressSet(com.mycelium.wallet.lt.api.SetTradeReceivingAddress request) {
          SendRequestActivity.callMe(SendRequestActivity.this, new GetTradeSession(request.tradeSessionId), "");
          finish();
-      };
+      }
 
       @Override
       public void onLtAdCreated(UUID sellOrderId, CreateAd request) {
@@ -210,20 +210,20 @@ public class SendRequestActivity extends Activity {
       public void onLtAdEdited(EditAd request) {
          Toast.makeText(SendRequestActivity.this, R.string.lt_ad_edited, Toast.LENGTH_LONG).show();
          finish();
-      };
+      }
 
       @Override
       public void onLtAdRetrieved(com.mycelium.lt.api.model.Ad ad, com.mycelium.wallet.lt.api.GetAd request) {
          CreateOrEditAdActivity.callMe(SendRequestActivity.this, ad);
          finish();
-      };
+      }
 
       @Override
       public void onLtPublicTraderInfoFetched(com.mycelium.lt.api.model.PublicTraderInfo info,
             com.mycelium.wallet.lt.api.GetPublicTraderInfo request) {
          ViewTraderInfoActivity.callMe(SendRequestActivity.this, info);
          finish();
-      };
+      }
 
    };
 

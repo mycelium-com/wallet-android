@@ -34,29 +34,22 @@
 
 package com.mycelium.wallet;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.os.Handler;
+import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
+import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
+import com.mycelium.wapi.model.ExchangeRate;
 
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HexUtils;
-import com.mrd.mbwapi.api.ApiException;
-import com.mrd.mbwapi.api.ApiObject;
-import com.mrd.mbwapi.api.ExchangeRate;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
-import com.mrd.mbwapi.api.QueryExchangeRatesRequest;
-import com.mrd.mbwapi.api.QueryExchangeRatesResponse;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ExchangeRateManager {
 
    private static final int MAX_RATE_AGE_MS = 1000 * 60;
-   private static final String EXCHANGE_DATA = "exchange_rate_data";
+   private static final String EXCHANGE_DATA = "wapi_exchange_rates";
 
    public interface Observer {
 
@@ -65,43 +58,24 @@ public class ExchangeRateManager {
       public void refreshingExchangeRatesFailed();
    }
 
-   private Context _applicationContext;
-   private MyceliumWalletApi _api;
-   private MbwManager _mbwManager;
+   private final Context _applicationContext;
+   private final Wapi _api;
+   private final MbwManager _mbwManager;
    private QueryExchangeRatesResponse _latestRates;
    private String _currentRateName;
    private long _latestRatesTime;
    private volatile Fetcher _fetcher;
-   private Object _requestLock;
-   private List<Observer> _subscribers;
+   private final Object _requestLock;
+   private final List<Observer> _subscribers;
 
-   public ExchangeRateManager(Context applicationContext, MyceliumWalletApi api, MbwManager manager) {
+   public ExchangeRateManager(Context applicationContext, Wapi api, MbwManager manager) {
       _applicationContext = applicationContext;
       _api = api;
       _mbwManager = manager;
-      SharedPreferences settings = _applicationContext.getSharedPreferences(EXCHANGE_DATA, Activity.MODE_PRIVATE);
-
-      // Load the latest rates if we have them
-      String latestRatesString = settings.getString("latestRates", null);
-      if (latestRatesString != null) {
-         try {
-            byte[] bytes = HexUtils.toBytes(latestRatesString);
-            _latestRates = ApiObject.deserialize(QueryExchangeRatesResponse.class, new ByteReader(bytes));
-         } catch (RuntimeException e) {
-            // ignore, let the last rates remain unknown
-         } catch (ApiException e) {
-            // ignore, let the last rates remain unknown
-         }
-      }
-
-      // Load latest rates time
-      _latestRatesTime = settings.getLong("latestRatesTime", 0);
-
-      // Load the name of the current exchange rate
-      _currentRateName = settings.getString("currentRateName", null);
-
+      _latestRates = null;
+      _latestRatesTime = 0;
+      _currentRateName = null;
       _requestLock = new Object();
-
       _subscribers = new LinkedList<Observer>();
    }
 
@@ -115,15 +89,15 @@ public class ExchangeRateManager {
 
    private class Fetcher implements Runnable {
       public void run() {
+
          try {
-            QueryExchangeRatesResponse response = _api.queryExchangeRates(new QueryExchangeRatesRequest(_mbwManager
-                  .getFiatCurrency()));
+            QueryExchangeRatesResponse result = _api.queryExchangeRates(new QueryExchangeRatesRequest(Wapi.VERSION, _mbwManager.getFiatCurrency())).getResult();
             synchronized (_requestLock) {
-               setLatestRates(response);
+               setLatestRates(result);
                _fetcher = null;
                notifyRefreshingExchangeRatesSucceeded();
             }
-         } catch (ApiException e) {
+         } catch (WapiException e) {
             // we failed to get the exchange rate
             synchronized (_requestLock) {
                _fetcher = null;
@@ -147,14 +121,12 @@ public class ExchangeRateManager {
 
    public void requestRefresh() {
       synchronized (_requestLock) {
+         // Only start fetching if we are not already on it
          if (_fetcher == null) {
             _fetcher = new Fetcher();
             Thread t = new Thread(_fetcher);
             t.setDaemon(true);
             t.start();
-         } else {
-            // request already in progress
-            return;
          }
       }
    }
@@ -170,16 +142,6 @@ public class ExchangeRateManager {
             _currentRateName = _latestRates.exchangeRates[0].name;
          }
       }
-      // Turn latest rates into a string
-      ByteWriter writer = new ByteWriter(2048);
-      latestRates.serialize(writer);
-      String latestRatesString = HexUtils.toHex(writer.toBytes());
-
-      // Persist
-      Editor editor = getEditor();
-      editor.putString("latestRates", latestRatesString);
-      editor.putLong("latestRatesTime", _latestRatesTime);
-      editor.commit();
    }
 
    /**

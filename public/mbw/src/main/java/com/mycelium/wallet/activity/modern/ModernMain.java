@@ -109,11 +109,6 @@ public class ModernMain extends ActionBarActivity {
    }
 
    @Override
-   protected void onDestroy() {
-      super.onDestroy();
-   }
-
-   @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
 

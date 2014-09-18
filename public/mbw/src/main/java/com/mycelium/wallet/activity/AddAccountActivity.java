@@ -35,9 +35,7 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,7 +44,6 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -122,7 +119,7 @@ public class AddAccountActivity extends Activity {
       }
       _progress.setCancelable(false);
       _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      _progress.setMessage(getString(R.string.hd_creation_started));
+      _progress.setMessage(getString(R.string.hd_account_creation_started));
       _progress.show();
       new HdCreationAsyncTask(_mbwManager.getEventBus()).execute();
    }

@@ -120,13 +120,19 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * Wapi
     */
    private static final WapiClient.HttpEndpoint prodnetWapiEndpoint1 = new WapiClient.HttpsEndpoint(
-         "https://node3.mycelium.com/wapi", myceliumThumbprint);
+         "https://mws1.mycelium.com/wapi", myceliumThumbprint);
    private static final WapiClient.HttpEndpoint prodnetWapiEndpoint1Alt = new WapiClient.HttpsEndpoint(
-         "https://144.76.165.115/wapi", myceliumThumbprint);
+         "https://188.40.12.226/wapi", myceliumThumbprint);
+
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint2 = new WapiClient.HttpsEndpoint(
+         "https://mws2.mycelium.com/wapi", myceliumThumbprint);
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint2Alt = new WapiClient.HttpsEndpoint(
+         "https://88.198.17.7/wapi", myceliumThumbprint);
 
 
    private static final WapiClient.HttpEndpoint[] prodnetWapiEndpoints = new WapiClient.HttpEndpoint[] {
-         prodnetWapiEndpoint1, prodnetWapiEndpoint1Alt};
+         prodnetWapiEndpoint1, prodnetWapiEndpoint1Alt, prodnetWapiEndpoint2, prodnetWapiEndpoint2Alt };
+
    private static final WapiClient prodnetWapiClient = new WapiClient(prodnetWapiEndpoints, new WapiLogger() {
 
       @Override

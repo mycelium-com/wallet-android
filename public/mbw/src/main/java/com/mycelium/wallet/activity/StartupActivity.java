@@ -172,7 +172,7 @@ public class StartupActivity extends Activity {
    private void startMasterSeedTask() {
       _progress.setCancelable(false);
       _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      _progress.setMessage(getString(R.string.configure_seed_started));
+      _progress.setMessage(getString(R.string.preparing_wallet_on_first_startup_info));
       _progress.show();
       new ConfigureSeedAsyncTask().execute();
    }

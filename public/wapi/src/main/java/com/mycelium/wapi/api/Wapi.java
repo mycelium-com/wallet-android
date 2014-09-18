@@ -1,15 +1,7 @@
 package com.mycelium.wapi.api;
 
-import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
-import com.mycelium.wapi.api.request.CheckTransactionsRequest;
-import com.mycelium.wapi.api.request.GetTransactionsRequest;
-import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
-import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
-import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
-import com.mycelium.wapi.api.response.CheckTransactionsResponse;
-import com.mycelium.wapi.api.response.GetTransactionsResponse;
-import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
+import com.mycelium.wapi.api.request.*;
+import com.mycelium.wapi.api.response.*;
 
 public interface Wapi {
 
@@ -28,37 +20,73 @@ public interface Wapi {
 
    /**
     * Get the logger configured for this {@link Wapi}
-    * 
+    *
     * @return the logger configured for this {@link Wapi}
     */
    WapiLogger getLogger();
 
    /**
     * Query the full set of unspent outputs for a set of addresses
+    * Example HTTP POST:
+    * curl  -k -X POST -H "Content-Type: application/json"
+    *       -d '{"version":1,"addresses":["msxh4zZoVwdRXfgmAYYo2MpNrJi4snrH6C","mfv9QuzUD7ZtnHxfpVX2859hs2ZHC8TG16","mpii6kiLM5HffaJdeD4Smnpv5eWo7qfKQ5"]}'
+    *       https://144.76.165.115/wapitestnet/wapi/queryUnspentOutputs
     */
    WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request);
 
    /**
     * Query the transaction inventory of a set of addresses
+    * Example HTTP POST:
+    *curl   -k -X POST -H "Content-Type: application/json"
+    *       -d '{"version":1,"addresses":["mfd7QG4vn2U4U5BgnTuw7dmjKsutDxkK6b","mysJrGMsYht9u3gBvKHFcNJsVEmaEPhUGA","mvMyQXzaHk7Z6u3vsbzT7qmQJo225ma9g3"]}'
+    *       https://144.76.165.115/wapitestnet/wapi/queryTransactionInventory
     */
    WapiResponse<QueryTransactionInventoryResponse> queryTransactionInventory(QueryTransactionInventoryRequest request);
 
    /**
     * Get a set of transactions from a set of transaction IDs
+    * Example HTTP POST:
+    * curl  -k -X POST -H "Content-Type: application/json"
+    *       -d '{"version":1,"txIds":["1513b9b160ef6b20bbb06b7bb6e7364e58e27e1df53f8f7e12e67f17d46ad198"]}'
+    *       https://144.76.165.115/wapitestnet/wapi/getTransactions
     */
    WapiResponse<GetTransactionsResponse> getTransactions(GetTransactionsRequest request);
 
    /**
     * Broadcast a transaction
+    * Example HTTP POST:
+    * curl  -k -X POST -H "Content-Type: application/json"
+    *       -d '{"version":1,"rawTransaction":"AQAAAAHqHGsQSIun5hjDDWm7iFMwm85xNLt+HBfI3LS3uQHnSQEAAABrSDBFAiEA6rlGk4wgIL3TvC2YHK4XiBW2vPYg82iCgnQi+YOUwqACIBpzVk756/07SRORT50iRZvEGUIn3Lh3bhaRE1aUMgZZASECDFl9wEYDCvB1cJY6MbsakfKQ9tbQhn0eH9C//RI2iE//////ApHwGgAAAAAAGXapFIzWtPXZR7lk8RtvE0FDMHaLtsLCiKyghgEAAAAAABl2qRSuzci59wapXUEzwDzqKV9nIaqwz4isAAAAAA=="}'
+    *       https://144.76.165.115/wapitestnet/wapi/broadcastTransaction
     */
    WapiResponse<BroadcastTransactionResponse> broadcastTransaction(BroadcastTransactionRequest request);
 
    /**
     * Check the status of a transaction.
-    * <p>
+    * <p/>
     * This allows you to check whether it exists, has confirmed, or got its
     * timestamp updated.
+    * Example HTTP POST:
+    *curl   -k -X POST -H "Content-Type: application/json"
+    *       -d '{"txIds":["1513b9b160ef6b20bbb06b7bb6e7364e58e27e1df53f8f7e12e67f17d46ad198"]}'
+    *       https://144.76.165.115/wapitestnet/wapi/checkTransactions
     */
    WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request);
 
+   /**
+    * Query exchange rates
+    * <p/>
+    * Query the exchange rates for available exchanges converted to a specific fiat currency
+    * Example HTTP POST:
+    * curl  -k -X POST -H "Content-Type: application/json"
+    *       -d '{"version":1,"currency":"USD"}'
+    *       https://144.76.165.115/wapitestnet/wapi/queryExchangeRates
+    */
+   WapiResponse<QueryExchangeRatesResponse> queryExchangeRates(QueryExchangeRatesRequest request);
+
+   /**
+    * Check if the wapi-service is running
+    * <p>
+    */
+   WapiResponse<PingResponse> ping();
 }

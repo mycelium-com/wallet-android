@@ -105,7 +105,7 @@ public class AdSearchFragment extends Fragment {
          // May be null
          _ads = (List<AdSearchItem>) savedInstanceState.getSerializable(ADS);
       }
-      ((Button) view.findViewById(R.id.btChange)).setOnClickListener(changeLocationClickListener);
+      view.findViewById(R.id.btChange).setOnClickListener(changeLocationClickListener);
       return view;
    }
 
@@ -127,16 +127,6 @@ public class AdSearchFragment extends Fragment {
       _mbwManager = MbwManager.getInstance(getActivity().getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();
       super.onAttach(activity);
-   }
-
-   @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
    }
 
    @Override
@@ -524,7 +514,7 @@ public class AdSearchFragment extends Fragment {
       @Override
       public void onLtError(int errorCode) {
          // handled by parent activity
-      };
+      }
 
       @Override
       public void onLtAdSearch(java.util.List<AdSearchItem> result, AdSearch request) {

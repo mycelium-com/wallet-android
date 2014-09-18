@@ -222,7 +222,7 @@ public class SolveCaptchaActivity extends Activity implements NumberEntryListene
             Toast.makeText(SolveCaptchaActivity.this, R.string.lt_captcha_wrong, Toast.LENGTH_LONG).show();
             updateUi();
          }
-      };
+      }
    };
 
    private Integer getSolution() {

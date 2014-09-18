@@ -35,16 +35,17 @@
 package com.mycelium.wapi.model;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
 
-public class TransactionDetails implements Comparable<TransactionDetails> {
+import java.io.Serializable;
 
-   public static class Item {
-      public Address address;
-      public long value;
+public class TransactionDetails implements Comparable<TransactionDetails>, Serializable {
+   private static final long serialVersionUID = 1L;
+
+   public static class Item implements Serializable {
+      private static final long serialVersionUID = 1L;
+      public final Address address;
+      public final long value;
 
       public Item(Address address, long value) {
          this.address = address;
@@ -52,11 +53,11 @@ public class TransactionDetails implements Comparable<TransactionDetails> {
       }
    }
 
-   public Sha256Hash hash;
-   public int height;
-   public int time;
-   public Item[] inputs;
-   public Item[] outputs;
+   public final Sha256Hash hash;
+   public final int height;
+   public final int time;
+   public final Item[] inputs;
+   public final Item[] outputs;
 
    public TransactionDetails(Sha256Hash hash, int height, int time, Item[] inputs, Item[] outputs) {
       this.hash = hash;
@@ -64,33 +65,6 @@ public class TransactionDetails implements Comparable<TransactionDetails> {
       this.time = time;
       this.inputs = inputs;
       this.outputs = outputs;
-   }
-
-   protected TransactionDetails(ByteReader reader) throws InsufficientBytesException {
-      hash = reader.getSha256Hash();
-      height = reader.getIntLE();
-      time = reader.getIntLE();
-      inputs = readItems(reader);
-      outputs = readItems(reader);
-      // Payload may contain more, but we ignore it for forwards
-      // compatibility
-   }
-
-   private Item[] readItems(ByteReader reader) throws InsufficientBytesException {
-      int num = reader.getShortLE();
-      Item[] items = new Item[num];
-      for (int i = 0; i < num; i++) {
-         items[i] = new Item(new Address(reader.getBytes(21)), reader.getLongLE());
-      }
-      return items;
-   }
-
-   private void writeItems(Item[] items, ByteWriter writer) {
-      writer.putShortLE((short) items.length);
-      for (Item item : items) {
-         writer.putBytes(item.address.getAllAddressBytes());
-         writer.putLongLE(item.value);
-      }
    }
 
    /**

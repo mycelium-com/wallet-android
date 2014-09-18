@@ -238,7 +238,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
       checkboxShowPassword.setEnabled(false);
 
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_stretching);
-      ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
+      findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.transparent));
       String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
       if (_taskExecutionServiceController != null) {
@@ -285,7 +285,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
          }
       } catch (UserFacingException e) {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
-         ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.red));
+         findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.red));
          ((TextView) findViewById(R.id.tvProgress)).setText("");
          _mbwManager.reportIgnoredException(e);
       }

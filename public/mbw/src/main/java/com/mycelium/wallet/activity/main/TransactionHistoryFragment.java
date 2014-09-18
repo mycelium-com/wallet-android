@@ -103,27 +103,9 @@ public class TransactionHistoryFragment extends Fragment {
       super.onPause();
    }
 
-   @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
    @Subscribe
    public void syncStopped(SyncStopped event) {
       updateTransactionHistory();
-   }
-
-   private void doSetLabel(TransactionSummary selected) {
-      if (selected == null) {
-         return;
-      }
-      //TODO do we want to allow to label addresses?
-      //todo will we keep the addressbook?
-      // Set the label of the address
-//      String address = getSingleForeignAddressForTransaction(selected);
-//      if (address != null) {
-//         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _addressBook, address, "", addressLabelChanged);
-//      }
    }
 
    private void doShowDetails(TransactionSummary selected) {
@@ -223,7 +205,7 @@ public class TransactionHistoryFragment extends Fragment {
                   @SuppressWarnings("deprecation")
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     //TODO do we want to allow add to addressbook?
+                     //we do not allow do put addresses into the addresbook from transactions at the moment
                      Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(false);
                      currentActionMode = actionMode;
                      view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
@@ -233,11 +215,7 @@ public class TransactionHistoryFragment extends Fragment {
                   @Override
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                      final int itemId = menuItem.getItemId();
-                     if (itemId == R.id.miAddToAddressBook) {
-                        doSetLabel(record);
-                        finishActionMode();
-                        return true;
-                     } else if (itemId == R.id.miShowDetails) {
+                     if (itemId == R.id.miShowDetails) {
                         doShowDetails(record);
                         finishActionMode();
                         return true;
@@ -290,7 +268,7 @@ public class TransactionHistoryFragment extends Fragment {
          int confirmations = record.confirmations;
          TextView tvConfirmations = (TextView) rowView.findViewById(R.id.tvConfirmations);
          if (record.isOutgoing) {
-            tvConfirmations.setText(_context.getResources().getString(R.string.not_broadcasted));
+            tvConfirmations.setText(_context.getResources().getString(R.string.transaction_not_broadcasted_info));
          } else {
             tvConfirmations.setText(_context.getResources().getString(R.string.confirmations, confirmations));
          }

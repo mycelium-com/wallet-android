@@ -1,16 +1,24 @@
 package com.mycelium.wapi.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 
-public class TransactionOutputSummary implements Comparable<TransactionOutputSummary> {
+import java.io.Serializable;
+
+public class TransactionOutputSummary implements Comparable<TransactionOutputSummary>, Serializable {
+   private static final long serialVersionUID = 1L;
+
    public final OutPoint outPoint;
    public final long value;
    public final int height;
    public final int confirmations;
+   @JsonProperty
    public final Address address;
 
-   public TransactionOutputSummary(OutPoint outPoint, long value, int height, int confirmations, Address address) {
+   public TransactionOutputSummary(OutPoint outPoint, long value,
+                                   int height, int confirmations,
+                                   Address address) {
       this.outPoint = outPoint;
       this.value = value;
       this.height = height;

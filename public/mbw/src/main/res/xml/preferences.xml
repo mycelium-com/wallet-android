@@ -82,10 +82,4 @@
             android:title="@string/pref_socks_proxy" />
     </PreferenceCategory>
 
-    <Preference
-            android:key="master_key_debug"
-            android:layout="@layout/preference_layout"
-            android:summary="Print out your master seed in plaintext. This obviously goes away"
-            android:title="Debug Master Seed" />
-
 </PreferenceScreen>

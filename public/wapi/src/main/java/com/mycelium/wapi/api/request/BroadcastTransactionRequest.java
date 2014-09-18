@@ -2,7 +2,11 @@ package com.mycelium.wapi.api.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class BroadcastTransactionRequest {
+import java.io.Serializable;
+
+public class BroadcastTransactionRequest implements Serializable {
+   private static final long serialVersionUID = 1L;
+
    @JsonProperty
    public final int version;
    @JsonProperty

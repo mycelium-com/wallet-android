@@ -68,6 +68,6 @@ public class ViewTraderInfoActivity extends FragmentActivity {
       ft.replace(R.id.flTraderInfo, TraderInfoFragment.createInstance(_traderInfo));
       ft.commit();
       super.onResume();
-   };
+   }
 
 }

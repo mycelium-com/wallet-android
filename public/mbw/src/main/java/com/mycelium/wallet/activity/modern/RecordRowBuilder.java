@@ -89,7 +89,7 @@ public class RecordRowBuilder {
 
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
       if (name.length() == 0) {
-         ((TextView) rowView.findViewById(R.id.tvLabel)).setVisibility(View.GONE);
+         rowView.findViewById(R.id.tvLabel).setVisibility(View.GONE);
       } else {
          // Display name
          TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
@@ -105,7 +105,7 @@ public class RecordRowBuilder {
             if (numKeys > 1) {
                displayAddress = resources.getString(R.string.contains_keys, numKeys);
             } else {
-               displayAddress = resources.getString(R.string.contains_one_key);
+               displayAddress = resources.getString(R.string.account_contains_one_key_info);
             }
          } else {
             displayAddress = ""; //dont show key count of archived accs

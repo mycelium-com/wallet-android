@@ -3,12 +3,10 @@
            tools:ignore="MissingTranslation">
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
-    <string name="add_record_title">Add Address or Private Key</string>
     <string name="add_account_title">Add New Account</string>
     <string name="add_single_account_title">Add Single Address Account</string>
     <string name="import_seed_title">Import Master Seed</string>
     <string name="import_words_title">Enter Word List</string>
-    <string name="add_record_desc">You are about to add a Bitcoin address or private key to your wallet.\n\n&#8226; If you add a Bitcoin address you will be able to monitor its balance, but not spend from it.\n\n&#8226; If you add a private key you will get a Bitcoin address that you can spend from.</string>
     <string name="add_account_desc">Mycelium supports HD Accounts and Single Address Accounts. All HD Accounts are created based on the same Master Seed. The first time you create one, your Master Seed will get configured.</string>
     <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
     <string name="scan_desc">Scan Bitcoin address or private key.</string>
@@ -16,8 +14,6 @@
     <string name="use_acc_first">You can only have one unused HD Account.</string>
     <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
     <string name="wordlist_des">Create Master Seed from Word List</string>
-    <string name="random_desc">Create a new random private key.</string>
-    <string name="add_hd_key_desc">Create a new HD account.</string>
     <string name="scan">Scan</string>
     <string name="advanced">Advanced</string>
     <string name="clipboard">Clipboard</string>
@@ -30,42 +26,28 @@
     <string name="pick_android_wallet_address_for_import">Pick an address for import</string>
     <string name="import_android_wallet_backup_io_error">Could not read the Bitcoin Wallet backup file.</string>
     <string name="import_android_wallet_backup_decryption_error">Could not decrypt the Bitcoin Wallet backup file. Is the password correct?</string>
-    <string name="random">Random</string>
     <string name="hd_account">Add HD Account</string>
     <string name="close">Close</string>
     <string name="btc_value_string">%1$s %2$s</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
-    <string name="imported_bitcoin_address">Imported Bitcoin address.</string>
-    <string name="imported_private_key">Imported private key.</string>
-    <string name="key_already_present">The private key was already present</string>
-    <string name="upgraded_address_to_key">Upgraded Bitcoin address with private key</string>
-    <string name="address_already_present">The Bitcoin address was already monitored</string>
     <string name="an_icon">an icon</string>
     <string name="confirmations">%d Confirmations</string>
     <string name="send">Send</string>
     <string name="receive">Receive</string>
     <string name="private_key_deleted">Private key deleted.</string>
     <string name="account_deleted">Account deleted</string>
-    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
-    <string name="shuffle">Shuffle</string>
-    <string name="use">Use</string>
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
-    <string name="receiver_label">Receiver:</string>
     <string name="enter_recipient_title">Enter Recipient Address</string>
     <string name="recipient_title">Recipient Address</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>
     <string name="enter_amount_title">Enter Amount</string>
-    <string name="sample_address">1Bmc9QwQgmuN\r\nWTxo5PjzPWeS\r\nF4d3aHx6hH</string>
-    <string name="btc_balance">Balance: %1$s</string>
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
-    <string name="get_receiver_address">Get receiver address from:</string>
-    <string name="next">Next</string>
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
@@ -78,29 +60,20 @@
     <string name="transaction_sent">Transaction sent</string>
     <string name="export">Export</string>
     <string name="backup_private_key">Backup</string>
-    <string name="delete_private_key">Delete Private Key</string>
-    <string name="delete_address">Delete Address</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
-    <string name="copy_address_to_clipboard">Copy Address to Clipboard</string>
     <string name="copy_private_key_to_clipboard">Copy Private Key to Clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="private_key">Private Key</string>
     <string name="your_bitcoin_address">Your Bitcoin address:</string>
-    <string name="your_balance">Your balance:</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
-    <string name="balance">Balance</string>
     <string name="approximate_fiat_value">~%1$s %2$s</string>
     <string name="no_server_connection">No Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
-    <string name="no_private_key">Your wallet cannot send funds as it has no private keys</string>
     <string name="unrecognized_format">Unrecognized format</string>
-    <string name="unrecognized_format_version">Unrecognized private key version</string>
     <string name="unrecognized_private_key_format">Unrecognized private key format</string>
     <string name="no_transaction_records">This page shows your transaction history.\n\nThere are currently no transactions to show.</string>
     <string name="no_address_book_records">This page shows your address book.\n\nYour address book is empty.</string>
-    <string name="created_new_random_key">New random Bitcoin address created</string>
-    <string name="transaction_history">Transaction History</string>
     <string name="name">Name</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -108,7 +81,6 @@
     <string name="enter_address_label_title">Enter Address Label</string>
     <string name="enter_transaction_label_title">Enter Transaction Label</string>
     <string name="set_label">Set Label</string>
-    <string name="edit_label">Edit Label</string>
     <string name="show_details">Show Details</string>
     <string name="transaction_details">Transaction Details</string>
     <string name="hash">Hash</string>
@@ -122,9 +94,6 @@
     <string name="pref_category_pin">PIN Settings</string>
     <string name="pref_clear_pin">Clear PIN Code</string>
     <string name="pref_clear_pin_summary">Clear the current PIN code</string>
-    <string name="pref_category_advanced">Advanced</string>
-    <string name="pref_aggregated_view">Aggregated View</string>
-    <string name="pref_aggregated_view_summary">With aggregated view you operate on all keys and addresses in parallel. With segregated view you operate on one key at a time.</string>
     <string name="pref_set_pin">Set PIN Code</string>
     <string name="pref_set_pin_summary">Set a PIN code that restricts access to sending coins, exporting private keys, and changing the PIN code</string>
     <string name="pref_local_currency">Local Currency</string>
@@ -151,13 +120,11 @@
     <string name="pin_set">PIN code set</string>
     <string name="pin_confirm_pin">Confirm PIN Code</string>
     <string name="build_text">v%1$s</string>
-    <string name="address_book_empty">Your address book is empty</string>
     <string name="delete_address_confirmation">Are you sure that you want to delete this address from your address book?</string>
     <string name="add_to_addressbook">Add to address book</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="payment_request">Payment Request</string>
-    <string name="bitcoin_address_label">Bitcoin Address:</string>
     <string name="export_single_private_key_warning">You are about to export the private key that controls all the Bitcoins of the selected address.\n\nAnyone who gains access to this key can take possession of the Bitcoins it controls.\n\nDo you want to continue?</string>
     <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds if your device is lost or damaged.\n\nDo you want to do this now?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
@@ -170,14 +137,11 @@
     <string name="add_to_address_book_dialog_title">Add Address</string>
     <string name="scan_address_book_desc">Scan Bitcoin address.</string>
     <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
-    <string name="aggregated">Aggregated</string>
-    <string name="segregated">Segregated</string>
     <string name="max">Max</string>
     <string name="get_private_key">Get private key from:</string>
     <string name="cold_storage">Cold Storage</string>
     <string name="cold_storage_title">Cold Storage Spending</string>
     <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Several formats are supported.\n\nOnce the transaction has been sent every trace of the private key will be erased from memory.</string>
-    <string name="go_back">Back</string>
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
@@ -196,7 +160,7 @@
     <string name="activated">Activated</string>
     <string name="keep_one_active">You need to keep at least one active account.</string>
     <string name="please_wait">Please wait &#8230;</string>
-    <string name="managing_archive_key">You are managing a single archived key.</string>
+    <string name="synchronizing_please_wait">Synchronizing, please wait &#8230;</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
     <string name="account_label_not_unique">The name is already in use for another account</string>
     <string name="tap_qr_code_desc">Tapping the QR code may improve scanning</string>
@@ -209,7 +173,6 @@
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
-    <string name="key_management">Key Management</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>
     <string name="tap_to_refresh">Tap to refresh</string>
@@ -233,10 +196,8 @@
     <string name="verify_backup_master_seed">Your master seed has not been verified.</string>
     <string name="verify_backup_no_such_record">The private key does not match any of your Bitcoin addresses.</string>
     <string name="verify_backup_ok">Private key backup successfully verified for the following address:\n\n%1$s</string>
-    <string name="verify_seed_ok">Master seed backup successfully verified.</string>
-    <string name="wrong_seed">The scanned seed does not match your master seed.</string>
-    <string name="verify_backup_ignored">Backup ignored for this private key.</string>
     <string name="legacy_account_with_funds">Legacy account with funds</string>
+    <string name="wrong_seed">The scanned seed does not match your master seed.</string>
     <string name="backup_missing">Backup missing</string>
     <string name="verify_backup_title">Backup and Verify</string>
     <string name="verify_backup_message_text_1">Having a proper backup is a cornerstone when managing your Bitcoin funds.\nYou have one or more Bitcoin private keys or a master seed where the backup has not been verified.\n\nPlease select the Backup option to make a back up.</string>
@@ -260,26 +221,18 @@
     <string name="import_decrypt_key_invalid_checksum">The checksum is invalid. Please verify.</string>
     <string name="import_decrypt_stretching">Preparing decryption key&#8230;</string>
     <string name="out_of_memory_error">ERROR: Your device does not have enough memory to complete this task</string>
-    <string name="your_name_placeholder">Your Name</string>
     <string name="share_payment_request">Share Payment Request</string>
     <string name="share_bitcoin_address">Share Bitcoin Address</string>
     <string name="optional_amount">Optional Amount</string>
     <string name="show_qr_code_menu">Show QR Code</string>
-    <string name="tab_keys">Keys</string>
     <string name="tab_accounts">Accounts</string>
     <string name="tab_balance">Balance</string>
     <string name="tab_transactions">Transactions</string>
-    <string name="tab_trade">Trade</string>
     <string name="tab_addresses">Address Book</string>
-    <string name="active_key_limit_reached">The maximum number of active addresses is 10 and you have reached the limit.\n\nYou can have as many archived addresses as you like, and you can always activate an archived address.\n\nTo add another address please archive one of your existing addresses.</string>
     <string name="scan_qr_code">Scan QR Code</string>
-    <string name="background_image">background image</string>
     <string name="going_to_mycelium_com_help">Going to www.mycelium.com</string>
-    <string name="ask_set_label">This address does not have a label\n\n%1$s\n\nIt is recommended to set a label for all your addresses.\n\nWould you like to set the label?</string>
-    <string name="address_already_exists">This address is already part of your wallet.\n\nYou cannot add it to your address book.</string>
     <string name="add_dialog_title">Add Address</string>
     <string name="add_key">Add Key</string>
-    <string name="export_private_key_warning">Warning. You are about to export the private key that controls all the Bitcoins of this address.\n\nAnyone who gains access to this key can take possession of the Bitcoins it controls.\n\nDo you want to continue?</string>
     <string name="page_locked">This page is locked</string>
     <string name="unlock_label">Unlock</string>
     <string name="lock_label">Lock</string>
@@ -287,7 +240,6 @@
     <string name="move_legacy_funds_message">Your wallet has one or more legacy accounts with funds.\n\nTo make sure that your funds are safe and to improve your anonymity you should move those funds to one of your HD accounts.\n\nPlease go to the Accounts tab for details.</string>
     <string name="ignore_warnings_title">Ignore Warnings</string>
     <string name="ignore_warnings_description">Do you want to ignore warnings explaining that this legacy account holds funds, and do you have a secure backup of the private key?</string>
-    <string name="testnet_label_startup">TESTNET</string>
     <string name="explore">Explore</string>
     <string name="getting_location">obtaining location…</string>
     <string name="about">About</string>
@@ -317,11 +269,11 @@
     <string name="addressbook_cannot_add_private_key">You cannot add a private key to the address book.\n\nYou can import private keys in the Accounts tab</string>
     <string name="alert_button">Alert</string>
     <string name="heartbleed_alert">ALERT\n\nYour device runs Android version 4.1.1 and has a critical bug known as Heartbleed.\n\nThis bug allows an attacker to read the memory of any apps on your device that make HTTPS connections.\n\n You should take immediate action!\n\n1. Move your funds to new addresses where the private key has never been on an Android 4.1.1 device.\n\n2. Upgrade your device to another version than 4.1.1 or use another device.</string>
+
     <!--  LT start -->
     <string name="lt_buy_button">Buy</string>
     <string name="lt_sell_button">Sell</string>
     <string name="lt_edit_button">Edit</string>
-    <string name="lt_trade_button">Trade</string>
     <string name="lt_localization_not_available">This feature requires your device to be able to tell its current location. It seems that your device cannot do that. Try enabling location services in your device settings.</string>
     <string name="lt_create_account_title">Creating Trader Account</string>
     <string name="lt_create_account_address_desc">You are using Local Trader for the first time and need to enter a few details.\n\nChoose the account you wish to use for your Local Trader identity:</string>
@@ -368,14 +320,9 @@
     <string name="lt_detached">Local Trader account detached</string>
     <string name="lt_error_api_occurred">An error occurred</string>
     <string name="lt_error_incompatible_version">Your wallet needs an upgrade to use this functionality</string>
-    <string name="lt_account_does_not_exist">Your trader account does not exist.</string>
-    <string name="lt_price_label">Price</string>
-    <string name="lt_distance_label">Distance</string>
     <string name="lt_distance_in_kilometers">%1$s Km</string>
     <string name="lt_distance_in_miles">%1$s Miles</string>
     <string name="lt_distance_not_applicable">Omnipresent</string>
-    <string name="lt_limits_label">Limits</string>
-    <string name="lt_trader_label">Trader</string>
     <string name="lt_time_less_than_one_minute">Just now</string>
     <string name="lt_time_one_minute">1 minute</string>
     <string name="lt_time_in_minutes">%1$s minutes</string>
@@ -392,7 +339,6 @@
     <string name="lt_description_label">Description</string>
     <string name="lt_searching">Searching</string>
     <string name="lt_place_instant_buy_order_title">Creating Trade Request</string>
-    <string name="lt_enter_fiat_amount_to_trade">Enter amount to trade.</string>
     <string name="lt_refresh_market_rate_button">Refresh Market Rate</string>
     <string name="lt_change_price_button">Change Price</string>
     <string name="lt_change_button">Change</string>
@@ -425,12 +371,8 @@
     <string name="lt_new_price_column">New Price</string>
     <string name="lt_current_price_column">Current Price</string>
     <string name="lt_base_price_label">Base Price:</string>
-    <string name="lt_commission_label">Commission:</string>
-    <string name="lt_sell_commission_description">(%1$s%% of what you pay)</string>
-    <string name="lt_buy_commission_description">(%1$s%% of what the seller pays)</string>
     <string name="lt_changing_location_title">Changing Location</string>
     <string name="lt_changing_location_desc">Enter your location or use the cross hair to get an approximation</string>
-    <string name="lt_experimental">(experimental)</string>
     <string name="lt_buying_near">Buying Bitcoins Near</string>
     <string name="lt_selling_near">Selling Bitcoins Near</string>
     <string name="lt_trader_key">(Local Trader account key)</string>
@@ -449,7 +391,6 @@
     <string name="lt_buying_details">You are buying %1$s</string>
     <string name="lt_selling_details">You are selling %1$s</string>
     <string name="lt_no_trader_account_desc">There is no Local Trader account associated with this wallet.\n\nA trader account is linked directly to one of your bitcoin addresses, no passwords, no hassle.\n\nCreate one now?</string>
-    <string name="lt_you_are_trading_with_label">You are trading with</string>
     <string name="lt_trader_name_label">Trader Name</string>
     <string name="lt_trader_address_label">Account Tied to Address</string>
     <string name="lt_trader_email_address_label">Email Address</string>
@@ -462,7 +403,6 @@
     <string name="lt_aborted_buys_label">Aborted Buys</string>
     <string name="lt_total_bought_label">Total Bought</string>
     <string name="lt_local_trader_commission_label">Local Trader Commission</string>
-    <string name="lt_your_receiving_address_label">Your receiving address</string>
     <string name="lt_start_trading_button">Start Trading</string>
     <string name="lt_enter_amount_to_trade_title">Enter Amount to Trade</string>
     <string name="lt_enter_amount_title">Enter Amount</string>
@@ -485,7 +425,6 @@
     <string name="lt_accept_terms_title">Terms and Conditions</string>
     <string name="lt_accept_button">Accept</string>
     <string name="lt_decline_button">Decline</string>
-    <string name="lt_next_button">Next</string>
     <string name="lt_reveiving_address_title">Receiving Address</string>
     <string name="lt_reveiving_address_description">On a successful trade your funds will go to the following address:</string>
     <string name="lt_info_button">Info</string>
@@ -494,11 +433,6 @@
     <string name="lt_refresh_market_rate_title">Refreshing Market Rate</string>
     <string name="lt_refresh_market_rate_description">The new price depends on the price formula set by the seller and the current market rates.\n\nIf you refresh the price you both have to accept the deal.</string>
     <string name="lt_opening_map">Opening map</string>
-    <string name="lt_info_error">This information could not be obtained from the server.</string>
-    <string name="lt_enter_your_email_address">Enter your email address</string>
-    <string name="lt_check_your_mail">Check your email and click the verification link</string>
-
-    <!--  LT end -->
     <!--  LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
@@ -530,7 +464,6 @@
     <string name="email_notification_setting_explanation">Set your email address to receive notifications from Local Trader</string>
     <string name="amount_changed">Send amount was updated from QR code</string>
 
-
     <!-- BitID -->
     <string name="title_activity_bit_idauthentication">BitID Authentication</string>
     <string name="bitid_authentication">Authenticate using BitID</string>
@@ -549,34 +482,32 @@
     <string name="bitid_sslproblem">SSL Problem</string>
     <string name="bitid_sslquestion">The following SSL problem occurred, do you want to proceed?</string>
     <string name="invalid_bitid_uri">Invalid BitID URI</string>
-
-
     <!-- BitID end -->
 
     <string name="selected_archived_warning">You cannot work on archived accounts.</string>
     <string name="selected_hd_info">You are now working on this HD Account.</string>
     <string name="selected_single_info">You are now working on this single address.</string>
-    <string name="not_broadcasted">Not broadcasted</string>
-    <string name="hd_creation_started">Creating new HD Account…</string>
-    <string name="configure_seed_started">Preparing wallet…</string>
-    <string name="import_words_started">Calculating Master Seed…</string>
-    <string name="enter_next_word">enter word number %1$s of %2$s</string>
+    <string name="transaction_not_broadcasted_info">Not broadcasted</string>
+    <string name="hd_account_creation_started">Creating new HD Account…</string>
+    <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
+    <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
+    <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
     <string name="showing_word_number">Word %1$s: %2$s</string>
-    <string name="delete_last_word">Delete Last Word</string>
+    <string name="delete_last_entered_word">Delete Last Word</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
-    <string name="show_outputs">Show Unspent Outputs</string>
-    <string name="unspent_outputs">Unspent Outputs</string>
-    <string name="no_unspent_uotputs_description">This page shows on which addresses the funds in the selected account are located. There are currently no funds to display.</string>
+    <string name="show_outputs_menu_item">Show Unspent Outputs</string>
+    <string name="unspent_outputs_title">Unspent Outputs</string>
+    <string name="no_unspent_outputs_description">This page shows on which addresses the funds in the selected account are located. There are currently no funds to display.</string>
     <string name="warning_words_import">Warning: Do not put your words into the clipboard, other apps could read them and obtain your money.</string>
-    <string name="contains_one_key">Contains one private key.</string>
+    <string name="account_contains_one_key_info">Contains one private key.</string>
     <string name="verify_backup_ok_message">The backup was successfully verified.</string>
     <string name="wordlist_import_invalid_checksum">The checksum of your word list is invalid, please make sure you entered all words correctly.</string>
     <string name="checkbox_wordlist_password">I have a password</string>
-    <string name="words_12">12 words</string>
-    <string name="words_18">18 words</string>
-    <string name="words_24">24 words</string>
-    <string name="import_words_questions">Please select the length of the word list to restore and indicate whether it is protected by a password.</string>
+    <string name="wordlist_length_12">12 words</string>
+    <string name="wordlist_length_18">18 words</string>
+    <string name="wordlist_length_24">24 words</string>
+    <string name="import_wordlist_questions">Please select the length of the word list to restore and indicate whether it is protected by a password.</string>
     <string name="type_password_title">Enter Your Password</string>
     <string name="clipboard_not_available">Clipboard Content Not Valid</string>
     <string name="no_android_wallet_backup">No Export Found</string>
@@ -597,5 +528,8 @@
     <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!</string>
     <string name="note_down_password_title">Write down your password</string>
     <string name="title_wrong_password">Wrong password, please try again</string>
+    <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
+    <string name="testnet_label_startup">TESTNET</string>
+    <string name="dont_allow_archiving_unused_notification">You cannot archive an unused HD account</string>
 
 </resources>

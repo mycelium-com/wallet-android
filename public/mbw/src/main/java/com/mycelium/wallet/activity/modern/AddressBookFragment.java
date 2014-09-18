@@ -114,11 +114,6 @@ public class AddressBookFragment extends Fragment {
    }
 
    @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
-   @Override
    public void onResume() {
       _mbwManager.getEventBus().register(this);
       updateUi();
@@ -151,10 +146,10 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiMine() {
-      Map<Address, String> entries = new HashMap<Address, String>();
+      List<Entry> entries = new ArrayList<Entry>();
       for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-         entries.put(account.getReceivingAddress(), name);
+         entries.add(new Entry(account.getReceivingAddress(), name));
       }
       if (entries.isEmpty()) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
@@ -168,7 +163,11 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiForeign() {
-      Map<Address, String> entries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+      Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+      List<Entry> entries = new ArrayList<Entry>();
+      for (Map.Entry<Address, String> e : rawentries.entrySet()) {
+         entries.add(new Entry(e.getKey(), e.getValue()));
+      }
       if (entries.isEmpty()) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
          findViewById(R.id.lvForeignAddresses).setVisibility(View.GONE);
@@ -178,11 +177,6 @@ public class AddressBookFragment extends Fragment {
          ListView foreignList = (ListView) findViewById(R.id.lvForeignAddresses);
          foreignList.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_foreign_row, entries));
       }
-   }
-
-   private boolean isForeign(Entry entry) {
-      //if it has an Address as key, it is foreign, our own ones have UUID as key
-      return entry.getAddressBookKey() instanceof AddressBookManager.AddressKey;
    }
 
    @Override
@@ -297,10 +291,10 @@ public class AddressBookFragment extends Fragment {
       alertDialog.show();
    }
 
-   private class AddressBookAdapter extends ArrayAdapter<Map.Entry<Address, String>> {
+   private class AddressBookAdapter extends ArrayAdapter<Entry> {
 
-      public AddressBookAdapter(Context context, int textViewResourceId, Map<Address, String> entries) {
-         super(context, textViewResourceId, new ArrayList(entries.entrySet()));
+      public AddressBookAdapter(Context context, int textViewResourceId, List<Entry> entries) {
+         super(context, textViewResourceId, entries);
       }
 
       @Override
@@ -313,11 +307,11 @@ public class AddressBookFragment extends Fragment {
          }
          TextView tvName = (TextView) v.findViewById(R.id.address_book_name);
          TextView tvAddress = (TextView) v.findViewById(R.id.address_book_address);
-         Map.Entry<Address, String> e = getItem(position);
-         tvName.setText(e.getValue());
-         String text = e.getKey().toMultiLineString();
+         Entry e = getItem(position);
+         tvName.setText(e.getName());
+         String text = e.getAddress().toMultiLineString();
          tvAddress.setText(text);
-         v.setTag(e.getKey());
+         v.setTag(e.getAddress());
          return v;
       }
    }

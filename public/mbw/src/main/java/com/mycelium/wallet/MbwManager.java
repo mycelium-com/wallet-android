@@ -170,12 +170,12 @@ public class MbwManager {
       _displayWidth = dm.widthPixels;
       _displayHeight = dm.heightPixels;
 
-      _addressBookManager = new AddressBookManager(_applicationContext, _eventBus);
+      _addressBookManager = new AddressBookManager(_applicationContext);
       _storage = new MetadataStorage(_applicationContext);
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
-      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _environment.getMwsApi(), this);
+      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _environment.getWapi(), this);
 
 
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -266,20 +266,19 @@ public class MbwManager {
    private void migrateAddressAndAccountLabelsToMetadataStorage() {
       List<AddressBookManager.Entry> entries = _addressBookManager.getEntries();
       for (AddressBookManager.Entry entry : entries) {
-         AddressBookManager.AddressBookKey key = entry.getAddressBookKey();
-         if (key instanceof AddressBookManager.AddressKey) {
-            Address address = ((AddressBookManager.AddressKey) key).address;
-            String label = entry.getName();
-            //check whether this is actually an addressbook entry, or the name of an account
-            UUID accountid = SingleAddressAccount.calculateId(address);
-            if (_walletManager.getAccountIds().contains(accountid)) {
-               //its one of our accounts, so we name it
-               _storage.storeAccountLabel(accountid, label);
-            } else {
-               //we just put it into the addressbook
-               _storage.storeAddressLabel(address, label);
-            }
+
+         Address address = entry.getAddress();
+         String label = entry.getName();
+         //check whether this is actually an addressbook entry, or the name of an account
+         UUID accountid = SingleAddressAccount.calculateId(address);
+         if (_walletManager.getAccountIds().contains(accountid)) {
+            //its one of our accounts, so we name it
+            _storage.storeAccountLabel(accountid, label);
+         } else {
+            //we just put it into the addressbook
+            _storage.storeAddressLabel(address, label);
          }
+
       }
    }
 

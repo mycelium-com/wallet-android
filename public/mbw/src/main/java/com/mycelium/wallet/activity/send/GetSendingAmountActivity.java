@@ -208,7 +208,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       if (content.length() == 0) {
          return null;
       }
-      String number = content.toString().trim();
+      String number = content.trim();
       if (_enterFiatAmount) {
          number = Utils.truncateAndConvertDecimalString(number, 2);
          if (number == null) {
@@ -289,18 +289,9 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    }
 
    @Override
-   protected void onDestroy() {
-      cancelEverything();
-      super.onDestroy();
-   }
-
-   @Override
    protected void onResume() {
       findViewById(R.id.btPaste).setEnabled(enablePaste());
       super.onResume();
-   }
-
-   private void cancelEverything() {
    }
 
    @Override

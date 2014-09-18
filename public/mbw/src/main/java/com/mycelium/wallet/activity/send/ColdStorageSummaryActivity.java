@@ -45,18 +45,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.UUID;
 
 public class ColdStorageSummaryActivity extends Activity {
-
-   public static final int SCAN_RESULT_CODE = 0;
 
    private MbwManager _mbwManager;
    private WalletAccount _account;

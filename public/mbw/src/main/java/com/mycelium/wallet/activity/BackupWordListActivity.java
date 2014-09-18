@@ -149,7 +149,7 @@ public class BackupWordListActivity extends ActionBarActivity {
       acTextView.setAdapter(adapter);
       acTextView.setEnabled(true);
       acTextView.setText("");
-      acTextView.setHint(getString(R.string.enter_next_word, currentWordIndex + 1, wordlist.size()));
+      acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
       findViewById(R.id.btNextWord).setVisibility(View.GONE);
    }
 
@@ -167,7 +167,7 @@ public class BackupWordListActivity extends ActionBarActivity {
             } else {
                //ask for next word
                currentWordIndex++;
-               acTextView.setHint(getString(R.string.enter_next_word, currentWordIndex + 1, wordlist.size()));
+               acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
             }
          }
          acTextView.setText("");

@@ -70,7 +70,7 @@ public class LtMainActivity extends ActionBarActivity {
 
    public enum TAB_TYPE {
       DEFAULT, ACTIVE_TRADES, TRADE_HISTORY, MY_ADS
-   };
+   }
 
    public static void callMe(Context context, TAB_TYPE tabToSelect) {
       Intent intent = createIntent(context, tabToSelect);
@@ -300,7 +300,7 @@ public class LtMainActivity extends ActionBarActivity {
       public boolean onNoLtConnection() {
          Utils.toastConnectionError(LtMainActivity.this);
          return true;
-      };
+      }
 
       @Override
       public void onLtTraderActicityNotification(long timestamp) {

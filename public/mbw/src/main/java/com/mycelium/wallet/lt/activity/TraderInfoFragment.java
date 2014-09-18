@@ -96,16 +96,6 @@ public class TraderInfoFragment extends Fragment {
       super.onResume();
    }
 
-   @Override
-   public void onPause() {
-      super.onPause();
-   }
-
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
-   }
-
    private void updateUi() {
       if (!isAdded()) {
          return;

@@ -3,6 +3,6 @@
 
     <item
             android:id="@+id/miShowOutputs"
-            android:title="@string/show_outputs" />
+            android:title="@string/show_outputs_menu_item" />
 
 </menu>

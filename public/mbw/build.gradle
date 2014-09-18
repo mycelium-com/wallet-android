@@ -49,8 +49,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
 
-        versionCode 20008
-        versionName '2.0.0-ALPHA6'
+        versionCode 20009
+        versionName '2.0.0-ALPHA7'
     }
 
     signingConfigs {

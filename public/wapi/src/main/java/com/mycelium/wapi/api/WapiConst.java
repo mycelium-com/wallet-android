@@ -9,9 +9,10 @@ public class WapiConst {
       public static final String QUERY_UNSPENT_OUTPUTS = "queryUnspentOutputs";
       public static final String QUERY_TRANSACTION_INVENTORY = "queryTransactionInventory";
       public static final String GET_TRANSACTIONS = "getTransactions";
-      public static final String GET_TRANSACTION_OUTPUTS = "getTransactionOutputs";
       public static final String BROADCAST_TRANSACTION = "broadcastTransaction";
       public static final String CHECK_TRANSACTIONS = "checkTransactions";
+      public static final String QUERY_EXCHANGE_RATES = "queryExchangeRates";
+      public static final String PING = "ping";
    }
 
 }

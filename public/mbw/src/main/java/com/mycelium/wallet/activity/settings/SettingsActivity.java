@@ -55,9 +55,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mrd.bitlib.util.StringUtils;
 import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
@@ -67,8 +65,6 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.util.Locale;
 
@@ -155,24 +151,6 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
-   private final OnPreferenceClickListener debugMasterSeedClickListener = new OnPreferenceClickListener() {
-      public boolean onPreferenceClick(Preference preference) {
-         if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-            return false;
-         }
-         try {
-            Bip39.MasterSeed masterSeed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
-            StringBuilder sb = new StringBuilder();
-            sb.append("Word List:\n").append('[').append(StringUtils.join(masterSeed.getBip39WordList(), " ")).append("]\n");
-            sb.append("Password: ").append(masterSeed.getBip39Password().length() == 0 ? "<nothing>" : masterSeed.getBip39Password());
-            Utils.showSimpleMessageDialog(SettingsActivity.this, sb.toString());
-            return true;
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            return false;
-         }
-      }
-   };
-
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -233,8 +211,6 @@ public class SettingsActivity extends PreferenceActivity {
             return true;
          }
       });
-
-      findPreference("master_key_debug").setOnPreferenceClickListener(debugMasterSeedClickListener);
 
       _localCurrency = findPreference("local_currency");
       _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
@@ -375,11 +351,6 @@ public class SettingsActivity extends PreferenceActivity {
             return true;
          }
       });
-   }
-
-   @Override
-   protected void onPause() {
-      super.onPause();
    }
 
    private String getLanguageSettingTitle() {

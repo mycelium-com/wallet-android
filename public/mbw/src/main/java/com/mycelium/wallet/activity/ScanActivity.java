@@ -55,7 +55,6 @@ import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
-import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;

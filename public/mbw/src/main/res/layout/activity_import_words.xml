@@ -68,7 +68,7 @@
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
                 android:enabled="false"
-                android:text="@string/delete_last_word" />
+                android:text="@string/delete_last_entered_word" />
 
         <View
                 android:layout_width="1dp"

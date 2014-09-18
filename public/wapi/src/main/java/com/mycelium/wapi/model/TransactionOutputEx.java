@@ -34,10 +34,10 @@
 
 package com.mycelium.wapi.model;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.OutPoint;
+
+import java.io.Serializable;
 
 public class TransactionOutputEx implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -54,8 +54,8 @@ public class TransactionOutputEx implements Serializable {
    public final boolean isCoinBase;
 
    public TransactionOutputEx(@JsonProperty("outPoint") OutPoint outPoint, @JsonProperty("height") int height,
-         @JsonProperty("value") long value, @JsonProperty("script") byte[] script,
-         @JsonProperty("isCoinBase") boolean isCoinBase) {
+                              @JsonProperty("value") long value, @JsonProperty("script") byte[] script,
+                              @JsonProperty("isCoinBase") boolean isCoinBase) {
       this.outPoint = outPoint;
       this.height = height;
       this.value = value;

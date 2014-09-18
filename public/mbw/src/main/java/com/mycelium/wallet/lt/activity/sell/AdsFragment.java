@@ -105,11 +105,6 @@ public class AdsFragment extends Fragment {
    }
 
    @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
-   @Override
    public void onResume() {
       _ltManager.subscribe(ltSubscriber);
       if (_ltManager.hasLocalTraderAccount()) {
@@ -126,11 +121,6 @@ public class AdsFragment extends Fragment {
    public void onPause() {
       _ltManager.unsubscribe(ltSubscriber);
       super.onPause();
-   }
-
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
    }
 
    @Override
@@ -368,7 +358,7 @@ public class AdsFragment extends Fragment {
       @Override
       public void onLtAdsFetched(java.util.Collection<Ad> ads, GetAds request) {
          setAds(ads);
-      };
+      }
 
       @Override
       public void onLtAdDeleted(UUID adId, DeleteAd request) {
@@ -378,12 +368,12 @@ public class AdsFragment extends Fragment {
       @Override
       public void onLtAdActivated(UUID adId, ActivateAd request) {
          _ltManager.makeRequest(new GetAds());
-      };
+      }
 
       @Override
       public void onLtAdDeactivated(UUID adId, DeactivateAd request) {
          _ltManager.makeRequest(new GetAds());
-      };
+      }
 
       @Override
       public void onLtError(int errorCode) {

@@ -34,9 +34,6 @@
 
 package com.mycelium.wapi.model;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.Transaction;
@@ -45,6 +42,9 @@ import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
+import java.util.Date;
 
 public class TransactionEx implements Serializable, Comparable<TransactionEx> {
    private static final long serialVersionUID = 1L;
@@ -59,7 +59,7 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
    public final byte[] binary;
 
    public TransactionEx(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("height") int height,
-         @JsonProperty("time") int time, @JsonProperty("binary") byte[] binary) {
+                        @JsonProperty("time") int time, @JsonProperty("binary") byte[] binary) {
       this.txid = txid;
       this.height = height;
       this.time = time;

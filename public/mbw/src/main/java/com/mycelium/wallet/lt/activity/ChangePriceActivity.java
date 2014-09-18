@@ -422,7 +422,7 @@ public class ChangePriceActivity extends Activity {
          Utils.toastConnectionError(ChangePriceActivity.this);
          finish();
          return true;
-      };
+      }
 
       @Override
       public void onLtPriceFormulasFetched(java.util.List<PriceFormula> priceFormulas, GetPriceFormulas request) {
@@ -431,7 +431,7 @@ public class ChangePriceActivity extends Activity {
                _tradeSession.priceFormula);
          fetchNewPrice();
          updateUi();
-      };
+      }
 
       @Override
       public void onLtBtcSellPriceAssesed(BtcSellPrice btcSellPrice, AssessBtcSellPrice request) {
@@ -439,7 +439,7 @@ public class ChangePriceActivity extends Activity {
          _spPriceFormula.setEnabled(true);
          _spPremium.setEnabled(true);
          updateUi();
-      };
+      }
    };
 
 }

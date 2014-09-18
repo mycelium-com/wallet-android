@@ -57,53 +57,23 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
-//todo refactor string -> address atleast
+
 public class AddressBookManager {
    private static final String ADDRESS_BOOK_FILE_NAME = "address-book.txt";
 
    public static abstract class AddressBookKey {
    }
 
-   public static class AddressKey extends AddressBookKey {
-
-      public final Address address;
-
-      public AddressKey(Address address) {
-         this.address = Preconditions.checkNotNull(address);
-      }
-
-      @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-
-         AddressKey that = (AddressKey) o;
-         if (!address.equals(that.address)) return false;
-         return true;
-      }
-
-      @Override
-      public int hashCode() {
-         return address.hashCode();
-      }
-
-      @Override
-      public String toString() {
-         return address.toString();
-      }
-   }
-
-
    public static class Entry implements Comparable<Entry> {
-      private AddressBookKey _address;
+      private Address _address;
       private String _name;
 
-      public Entry(AddressBookKey address, String name) {
+      public Entry(Address address, String name) {
          _address = address;
          _name = name == null ? "" : name;
       }
 
-      public AddressBookKey getAddressBookKey() {
+      public Address getAddress() {
          return _address;
       }
 
@@ -133,36 +103,21 @@ public class AddressBookManager {
    }
 
    private Context _applicationContext;
-   private final Bus _eventBus;
    private List<Entry> _entries;
-   private Map<AddressBookKey, Entry> _addressMap;
+   private Map<Address, Entry> _addressMap;
 
-   public AddressBookManager(Context context, Bus eventBus) {
-      _eventBus = eventBus;
+   public AddressBookManager(Context context) {
       _applicationContext = context.getApplicationContext();
       List<Entry> entries = loadEntries(_applicationContext);
       _entries = Lists.newArrayList();
       _addressMap = Maps.newHashMap();
       for (Entry entry : entries) {
-         insertOrUpdateEntryInt(entry.getAddressBookKey(), entry.getName());
+         insertOrUpdateEntryInt(entry.getAddress(), entry.getName());
       }
       Collections.sort(_entries);
    }
 
-   public synchronized void deleteEntry(AddressBookKey address) {
-      if (address == null) {
-         return;
-      }
-      Entry entry = _addressMap.get(address);
-      if (entry == null) {
-         return;
-      }
-      _entries.remove(entry);
-      _addressMap.remove(address);
-      save();
-   }
-
-   private void insertOrUpdateEntryInt(AddressBookKey address, String name) {
+   private void insertOrUpdateEntryInt(Address address, String name) {
       Preconditions.checkNotNull(address,name);
       name = name.trim();
       if (name.length() == 0) {
@@ -182,52 +137,8 @@ public class AddressBookManager {
       _addressMap.put(address, entry);
    }
 
-   public String getNameByKey(AddressBookKey key) {
-      if (key == null) {
-         return null;
-      }
-      Entry entry = _addressMap.get(key);
-      if (entry == null) {
-         return "";
-      }
-      return entry.getName();
-   }
-
    public List<Entry> getEntries() {
       return Collections.unmodifiableList(_entries);
-   }
-
-   public Address getAddressByKey(AddressBookKey key) {
-      if (key == null) {
-         return null;
-      }
-      Entry entry = _addressMap.get(key);
-      if (entry == null) {
-         return null;
-      }
-      if (!(entry.getAddressBookKey() instanceof AddressKey)) {
-         return null;
-      }
-      return ((AddressKey) entry.getAddressBookKey()).address;
-   }
-
-   private void save() {
-      saveEntries(_entries, _applicationContext);
-      broadcastAddressBookChanged();
-   }
-
-   private static void saveEntries(List<Entry> entries, Context applicationContext) {
-      try {
-         FileOutputStream out = applicationContext.openFileOutput(ADDRESS_BOOK_FILE_NAME, Context.MODE_PRIVATE);
-         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-         for (Entry entry : entries) {
-            writer.write(encode(entry.getAddressBookKey().toString()) + ',' + encode(entry._name) + '\n');
-         }
-         writer.close();
-      } catch (IOException e) {
-         throw new RuntimeException(e);
-      }
-
    }
 
    private static List<Entry> loadEntries(Context applicationContext) {
@@ -257,10 +168,8 @@ public class AddressBookManager {
                name = decode(list.get(1));
             }
             Address address = Address.fromString(addressString);
-            AddressBookKey key;
             if (address != null) {
-               key = new AddressKey(address);
-               entries.add(new Entry(key, name));
+               entries.add(new Entry(address, name));
             }
          }
          stream.close();
@@ -339,32 +248,6 @@ public class AddressBookManager {
       return s.length();
    }
 
-   private static String encode(String value) {
-      if (value == null) {
-         // Treat null string values as the empty string
-         value = "";
-      }
-      if (value.indexOf('/') == -1 && value.indexOf(',') == -1) {
-         return value;
-      }
-      StringBuilder sb = new StringBuilder(value.length() + 1);
-      char[] chars = value.toCharArray();
-      for (char c : chars) {
-         if (c == '/') {
-            sb.append("//");
-         } else if (c == ',') {
-            sb.append("/,");
-         } else if (c == '(') {
-            sb.append("/(");
-         } else if (c == ')') {
-            sb.append("/)");
-         } else {
-            sb.append(c);
-         }
-      }
-      return sb.toString();
-   }
-
    private static String decode(String value) {
       StringBuilder sb = new StringBuilder(value.length() + 1);
       char[] chars = value.toCharArray();
@@ -393,9 +276,4 @@ public class AddressBookManager {
       }
       return sb.toString();
    }
-
-   private void broadcastAddressBookChanged() {
-      _eventBus.post(new AddressBookChanged());
-   }
-
 }

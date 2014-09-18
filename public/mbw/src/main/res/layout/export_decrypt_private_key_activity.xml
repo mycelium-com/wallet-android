@@ -44,7 +44,7 @@
             android:maxLength="21"
             android:singleLine="true"
             android:gravity="center"
-            android:hint="YOU RPA SSW ORD ABC D"/>
+            android:hint="@string/decryption_password_hint"/>
 
         <TextView
             android:id="@+id/tvStatus"

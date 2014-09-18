@@ -40,7 +40,6 @@ public class SingleAddressAccount extends AbstractAccount {
       _addressList = new ArrayList<Address>(1);
       _addressList.add(_context.getAddress());
       _keyStore = keyStore;
-      //TODO what should the cached balance for archived accounts look like? null / empty / last known?
       _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false) : calculateLocalBalance();
    }
 

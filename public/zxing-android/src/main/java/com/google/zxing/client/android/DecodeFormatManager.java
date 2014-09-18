@@ -60,15 +60,7 @@ final class DecodeFormatManager {
     return parseDecodeFormats(scanFormats, intent.getStringExtra(Intents.Scan.MODE));
   }
 
-  static Collection<BarcodeFormat> parseDecodeFormats(Uri inputUri) {
-    List<String> formats = inputUri.getQueryParameters(Intents.Scan.FORMATS);
-    if (formats != null && formats.size() == 1 && formats.get(0) != null){
-      formats = Arrays.asList(COMMA_PATTERN.split(formats.get(0)));
-    }
-    return parseDecodeFormats(formats, inputUri.getQueryParameter(Intents.Scan.MODE));
-  }
-
-  private static Collection<BarcodeFormat> parseDecodeFormats(Iterable<String> scanFormats,
+   private static Collection<BarcodeFormat> parseDecodeFormats(Iterable<String> scanFormats,
                                                               String decodeMode) {
     if (scanFormats != null) {
       Collection<BarcodeFormat> formats = EnumSet.noneOf(BarcodeFormat.class);

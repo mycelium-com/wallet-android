@@ -183,8 +183,6 @@ public class CreateTrader2Activity extends Activity {
       super.onResume();
    }
 
-   ;
-
    @Override
    protected void onPause() {
       _ltManager.unsubscribe(ltSubscriber);
@@ -224,8 +222,6 @@ public class CreateTrader2Activity extends Activity {
          return true;
       }
 
-      ;
-
       @Override
       public boolean onLtNoTraderAccount() {
          // No existing trader with this key, normal case.
@@ -237,8 +233,6 @@ public class CreateTrader2Activity extends Activity {
          return true;
       }
 
-      ;
-
       @Override
       public void onLtLogin(String nickname, TryLogin request) {
          // We are already registered with this key
@@ -248,8 +242,5 @@ public class CreateTrader2Activity extends Activity {
          setResult(RESULT_OK);
          finish();
       }
-
-      ;
    };
-
 }

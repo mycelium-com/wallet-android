@@ -72,7 +72,7 @@ public class BannerFactory {
       View banner = vi.inflate(R.layout.lt_banner_card, null);
 
       // Banner background
-      View background = (View) banner.findViewById(R.id.llBackground);
+      View background = banner.findViewById(R.id.llBackground);
       //background.setBackgroundResource(info.backgroundResourceId);
       setBackgroundResource(background, info.backgroundResourceId);
       

@@ -25,9 +25,6 @@ import java.util.UUID;
 
 public class Bip44Account extends AbstractAccount {
 
-   //TODO the external address look ahead length should really be 20, but we keep
-   // it at 2 for now for performance reasons until we solve the initial lazy
-   // startup time problem.
    private static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
    private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 2;
    private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;

@@ -34,7 +34,10 @@
 
 package com.mycelium.wapi.model;
 
-public class Balance {
+import java.io.Serializable;
+
+public class Balance implements Serializable {
+   private static final long serialVersionUID = 1L;
 
    /**
     * The sum of the unspent outputs which are confirmed and currently not spent
@@ -70,13 +73,13 @@ public class Balance {
 
    /**
     * Is the account in the process of synchronizing?
-    * <p>
+    * <p/>
     * This information allows a UI to display that the balance may not be final
     */
    public final boolean isSynchronizing;
 
    public Balance(long confirmed, long pendingReceiving, long pendingSending, long pendingChange, long updateTime,
-         int blockHeight, boolean isSynchronizing) {
+                  int blockHeight, boolean isSynchronizing) {
       this.confirmed = confirmed;
       this.pendingReceiving = pendingReceiving;
       this.pendingSending = pendingSending;

@@ -29,7 +29,7 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
       } else {
          // Then sort by outgoing status
          if (isOutgoing != other.isOutgoing) {
-            return isOutgoing?1:-1;
+            return isOutgoing ? 1 : -1;
          }
          // Finally sort by time
          if (time < other.time) {

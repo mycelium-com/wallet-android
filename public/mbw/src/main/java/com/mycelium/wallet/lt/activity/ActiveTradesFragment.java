@@ -74,9 +74,6 @@ public class ActiveTradesFragment extends Fragment {
 
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private ActionMode currentActionMode;
-   @SuppressWarnings("unused")
-   private TradeSession _selectedTradeSession;
    private TradeSessionsAdapter _tradeSessionAdapter;
 
    @Override
@@ -101,11 +98,6 @@ public class ActiveTradesFragment extends Fragment {
    }
 
    @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
-   @Override
    public void onResume() {
       _tradeSessionAdapter = new TradeSessionsAdapter(getActivity(), new ArrayList<TradeSession>());
       ListView list = (ListView) findViewById(R.id.lvRecentTrades);
@@ -119,11 +111,6 @@ public class ActiveTradesFragment extends Fragment {
    public void onPause() {
       _ltManager.unsubscribe(ltSubscriber);
       super.onPause();
-   }
-
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
    }
 
    private List<TradeSession> createTradeSessionList() {
@@ -170,25 +157,10 @@ public class ActiveTradesFragment extends Fragment {
       }
    }
 
-   @Override
-   public void setUserVisibleHint(boolean isVisibleToUser) {
-      super.setUserVisibleHint(isVisibleToUser);
-      if (!isVisibleToUser) {
-         finishActionMode();
-      }
-   }
-
-   private void finishActionMode() {
-      if (currentActionMode != null) {
-         currentActionMode.finish();
-      }
-   }
-
    OnItemClickListener itemListClickListener = new OnItemClickListener() {
 
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         _selectedTradeSession = (TradeSession) view.getTag();
          TradeActivity.callMe(ActiveTradesFragment.this.getActivity(), ((TradeSession) view.getTag()));
       }
    };
@@ -228,7 +200,7 @@ public class ActiveTradesFragment extends Fragment {
 
          // Dot
          boolean viewed = _mbwManager.getLocalTraderManager().isViewed(o);
-         ((ImageView) v.findViewById(R.id.ivDot)).setVisibility(viewed ? View.INVISIBLE : View.VISIBLE);
+         v.findViewById(R.id.ivDot).setVisibility(viewed ? View.INVISIBLE : View.VISIBLE);
 
          // Peer
          String peerName = o.isOwner ? o.peerName : o.ownerName;

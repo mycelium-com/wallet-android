@@ -135,8 +135,4 @@ public class SetTradeAddress extends Activity {
       super.onResume();
    }
 
-   @Override
-   protected void onPause() {
-      super.onPause();
-   }
 }

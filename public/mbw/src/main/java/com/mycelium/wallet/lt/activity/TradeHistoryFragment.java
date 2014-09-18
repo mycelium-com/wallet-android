@@ -100,11 +100,6 @@ public class TradeHistoryFragment extends Fragment {
    }
 
    @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
-   @Override
    public void onResume() {
       _myAdapter = new Wrapper(getActivity(), new ArrayList<TradeSession>());
       if (_ltManager.hasLocalTraderAccount()) {
@@ -120,11 +115,6 @@ public class TradeHistoryFragment extends Fragment {
          _myAdapter.detach();
       }
       super.onPause();
-   }
-
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
    }
 
    OnItemClickListener itemListClickListener = new OnItemClickListener() {
@@ -171,7 +161,7 @@ public class TradeHistoryFragment extends Fragment {
 
          // Dot
          boolean viewed = _mbwManager.getLocalTraderManager().isViewed(o);
-         ((ImageView) v.findViewById(R.id.ivDot)).setVisibility(viewed ? View.INVISIBLE : View.VISIBLE);
+         v.findViewById(R.id.ivDot).setVisibility(viewed ? View.INVISIBLE : View.VISIBLE);
 
          // Peer
          String peerName = o.isOwner ? o.peerName : o.ownerName;

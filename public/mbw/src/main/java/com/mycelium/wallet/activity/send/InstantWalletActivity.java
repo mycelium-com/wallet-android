@@ -117,7 +117,7 @@ public class InstantWalletActivity extends Activity {
          return Optional.absent();
       }
       NetworkParameters network = MbwManager.getInstance(this).getNetwork();
-      return Record.fromString(content.toString(), network);
+      return Record.fromString(content, network);
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {

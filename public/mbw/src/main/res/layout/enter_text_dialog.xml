@@ -37,10 +37,10 @@
         </View>
 
         <Button
-            android:id="@+id/btOk"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="@string/ok" />
+                android:id="@+id/btCancel"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel" />
 
         <View
             android:layout_width="0dp"
@@ -49,10 +49,10 @@
         </View>
 
         <Button
-            android:id="@+id/btCancel"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel" />
+                android:id="@+id/btOk"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/ok" />
 
         <View
             android:layout_width="0dp"

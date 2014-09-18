@@ -56,17 +56,6 @@ public class BalanceMasterFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-
-      super.onAttach(activity);
-   }
-
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-   }
-
-   @Override
    public void onResume() {
       Activity activity = getActivity();
       // Set beta build

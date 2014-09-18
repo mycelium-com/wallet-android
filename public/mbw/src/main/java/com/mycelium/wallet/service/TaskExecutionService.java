@@ -179,9 +179,4 @@ public class TaskExecutionService extends Service {
       _serviceMessenger = new Messenger(new IncomingHandler());
    }
 
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
-   }
-
 }

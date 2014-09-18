@@ -1,7 +1,7 @@
 ext {
     // Use this switch to select which IDE you are using
     //  buildFor='idea' or buildFor='androidStudio'
-    buildFor='androidStudio'
+    buildFor='idea'
 
     guavaArtifact = 'com.google.guava:guava-jdk5:14.0.1'
 

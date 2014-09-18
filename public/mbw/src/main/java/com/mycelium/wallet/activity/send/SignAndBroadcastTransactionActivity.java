@@ -148,7 +148,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          }
       };
 
-      task.execute(new Void[]{});
+      task.execute();
       return task;
    }
 
@@ -168,7 +168,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          }
       };
 
-      task.execute(new Void[]{});
+      task.execute();
       return task;
    }
 

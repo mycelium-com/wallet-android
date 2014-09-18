@@ -242,19 +242,6 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       super.onPause();
    }
 
-   @Override
-   public void onBackPressed() {
-      // Delete export file. It may not be created when the user exits, so we
-      // don't check for that
-
-      // XXX don't delete backup anyway... we may do it before the sharing has
-      // completed.
-      // XXX instead we should delete backup files when we start the backup
-      // process
-      // deleteBackupFile();
-      super.onBackPressed();
-   }
-
    @SuppressWarnings("unused")
    private void deleteBackupFile() {
       boolean success;

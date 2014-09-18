@@ -340,7 +340,7 @@ public class SendMainActivity extends Activity {
          ((TextView) findViewById(R.id.tvAmountTitle)).setText(R.string.enter_amount_title);
          ((TextView) findViewById(R.id.tvAmount)).setText("");
          findViewById(R.id.tvAmountFiat).setVisibility(View.GONE);
-         ((TextView) findViewById(R.id.tvError)).setVisibility(View.GONE);
+         findViewById(R.id.tvError).setVisibility(View.GONE);
       } else {
          ((TextView) findViewById(R.id.tvAmountTitle)).setText(R.string.amount_title);
          if (_transactionStatus == TransactionStatus.OutputTooSmall) {
@@ -348,13 +348,13 @@ public class SendMainActivity extends Activity {
             ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amountToSend));
             findViewById(R.id.tvAmountFiat).setVisibility(View.GONE);
             ((TextView) findViewById(R.id.tvError)).setText(R.string.amount_too_small_short);
-            ((TextView) findViewById(R.id.tvError)).setVisibility(View.VISIBLE);
+            findViewById(R.id.tvError).setVisibility(View.VISIBLE);
          } else if (_transactionStatus == TransactionStatus.InsufficientFunds) {
             // Insufficient funds
             ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amountToSend));
             findViewById(R.id.tvAmountFiat).setVisibility(View.GONE);
             ((TextView) findViewById(R.id.tvError)).setText(R.string.insufficient_funds);
-            ((TextView) findViewById(R.id.tvError)).setVisibility(View.VISIBLE);
+            findViewById(R.id.tvError).setVisibility(View.VISIBLE);
          } else {
             // Set Amount
             ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amountToSend));
@@ -366,7 +366,7 @@ public class SendMainActivity extends Activity {
                tvAmountFiat.setText(getFiatValue(_amountToSend, _oneBtcInFiat));
                tvAmountFiat.setVisibility(View.VISIBLE);
             }
-            ((TextView) findViewById(R.id.tvError)).setVisibility(View.GONE);
+            findViewById(R.id.tvError).setVisibility(View.GONE);
          }
       }
 
@@ -511,7 +511,7 @@ public class SendMainActivity extends Activity {
       if (content.length() == 0) {
          return null;
       }
-      String string = content.toString().trim();
+      String string = content.trim();
       if (string.matches("[a-zA-Z0-9]*")) {
          // Raw format
          Address address = Address.fromString(string, _mbwManager.getNetwork());

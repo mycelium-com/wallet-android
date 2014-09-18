@@ -69,7 +69,6 @@ public class ChangeLocationActivity extends Activity {
    }
 
    private MbwManager _mbwManager;
-   private LocalTraderManager _ltManager;
    private GpsLocationEx _chosenAddress;
    private Button _btUse;
    private TextView _tvLocation;
@@ -84,7 +83,7 @@ public class ChangeLocationActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.lt_change_location_activity);
       _mbwManager = MbwManager.getInstance(this);
-      _ltManager = _mbwManager.getLocalTraderManager();
+      LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
 
       _btUse = (Button) findViewById(R.id.btUse);
       _tvLocation = (TextView) findViewById(R.id.tvLocation);
@@ -99,7 +98,7 @@ public class ChangeLocationActivity extends Activity {
       }
 
       if (_chosenAddress == null) {
-         _chosenAddress = _ltManager.getUserLocation();
+         _chosenAddress = ltManager.getUserLocation();
       }
 
       _btUse.setOnClickListener(useClickListener);
@@ -174,11 +173,6 @@ public class ChangeLocationActivity extends Activity {
    protected void onResume() {
       updateUi();
       super.onResume();
-   }
-
-   @Override
-   protected void onPause() {
-      super.onPause();
    }
 
    private void updateUi() {

@@ -36,7 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +43,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.google.common.base.Preconditions;
-import com.mrd.mbwapi.api.ExchangeRate;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
@@ -53,6 +51,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -88,11 +87,6 @@ public class BalanceFragment extends Fragment {
       _mbwManager = MbwManager.getInstance(getActivity());
       _toaster = new Toaster(activity);
       super.onAttach(activity);
-   }
-
-   @Override
-   public void onDetach() {
-      super.onDetach();
    }
 
    @Override

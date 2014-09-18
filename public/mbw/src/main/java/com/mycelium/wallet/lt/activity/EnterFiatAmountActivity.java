@@ -126,11 +126,6 @@ public class EnterFiatAmountActivity extends Activity implements NumberEntryList
    }
 
    @Override
-   protected void onPause() {
-      super.onPause();
-   }
-
-   @Override
    public void onEntryChanged(String entry) {
       updateUi();
    }

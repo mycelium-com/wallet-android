@@ -137,11 +137,6 @@ public class CreateTradeActivity extends Activity implements NumberEntryListener
    }
 
    @Override
-   protected void onPause() {
-      super.onPause();
-   }
-
-   @Override
    public void onEntryChanged(String entry) {
       updateUi();
    }

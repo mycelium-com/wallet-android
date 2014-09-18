@@ -21,7 +21,7 @@ public abstract class List extends Base {
 		StringBuilder sb = new StringBuilder();
 		int x = 0;
 		while (x < mList.size()) {
-			sb.append(mList.get(x).toString());
+			sb.append(mList.get(x));
 			x++;
 		}
 		return sb.toString();

@@ -885,7 +885,6 @@ public class Utils {
                }
             }
             //when both are single, we take UUID
-            // //todo: change when we have something like creation date
             return lhs.getId().compareTo(rhs.getId());
          }
       };

@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.Bip39;

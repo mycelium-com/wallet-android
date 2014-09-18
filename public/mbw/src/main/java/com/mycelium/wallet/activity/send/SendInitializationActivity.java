@@ -148,11 +148,6 @@ public class SendInitializationActivity extends Activity {
       super.onPause();
    }
 
-   @Override
-   protected void onDestroy() {
-      super.onDestroy();
-   }
-
    private Runnable showSynchronizing = new Runnable() {
 
       @Override

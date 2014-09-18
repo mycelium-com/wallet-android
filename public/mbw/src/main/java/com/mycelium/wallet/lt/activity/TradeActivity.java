@@ -157,7 +157,7 @@ public class TradeActivity extends Activity {
       _btAbort = (Button) findViewById(R.id.btAbort);
       _tvStatus = (TextView) findViewById(R.id.tvStatus);
       _tvOldStatus = (TextView) findViewById(R.id.tvOldStatus);
-      _flConfidence = (View) findViewById(R.id.flConfidence);
+      _flConfidence = findViewById(R.id.flConfidence);
       _pbConfidence = (ProgressBar) findViewById(R.id.pbConfidence);
       _tvConfidence = (TextView) findViewById(R.id.tvConfidence);
 
@@ -720,7 +720,7 @@ public class TradeActivity extends Activity {
       @Override
       public void onLtBtcReleased(Boolean success, ReleaseBtc request) {
          _mbwManager.getWalletManager(false).startSynchronization();
-      };
+      }
 
    };
 

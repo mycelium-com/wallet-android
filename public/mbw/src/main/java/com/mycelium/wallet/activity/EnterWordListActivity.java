@@ -114,7 +114,7 @@ public class EnterWordListActivity extends ActionBarActivity {
 
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle(R.string.import_words_title);
-      builder.setMessage(R.string.import_words_questions)
+      builder.setMessage(R.string.import_wordlist_questions)
             .setView(checkBoxView)
             .setCancelable(false)
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -129,7 +129,7 @@ public class EnterWordListActivity extends ActionBarActivity {
                   } else {
                      throw new IllegalStateException("No radiobutton selected in word list import");
                   }
-                  acTextView.setHint(getString(R.string.enter_next_word, currentWordNum, numberOfWords));
+                  acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
                }
             })
             .show();
@@ -141,7 +141,7 @@ public class EnterWordListActivity extends ActionBarActivity {
          enteredWords.remove(enteredWords.size()-1);
          enterWordInfo.setText(enteredWords.toString());
          acTextView.setText("");
-         acTextView.setHint(getString(R.string.enter_next_word, --currentWordNum, numberOfWords));
+         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, --currentWordNum, numberOfWords));
          acTextView.setEnabled(true);
          findViewById(R.id.tvChecksumWarning).setVisibility(View.GONE);
          if (currentWordNum == 1) {
@@ -187,7 +187,7 @@ public class EnterWordListActivity extends ActionBarActivity {
 
    private boolean checkIfDone() {
       if (currentWordNum < numberOfWords) {
-         acTextView.setHint(getString(R.string.enter_next_word, ++currentWordNum, numberOfWords));
+         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, ++currentWordNum, numberOfWords));
          return false;
       }
       if (checksumMatches()) {
@@ -208,7 +208,7 @@ public class EnterWordListActivity extends ActionBarActivity {
    private void calculateSeed(String password) {
       _progress.setCancelable(false);
       _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      _progress.setMessage(getString(R.string.import_words_started));
+      _progress.setMessage(getString(R.string.importing_master_seed_from_wordlist));
       _progress.show();
       new MasterSeedFromWordsAsyncTask(_mbwManager.getEventBus(), enteredWords, password).execute();
    }
@@ -290,7 +290,7 @@ public class EnterWordListActivity extends ActionBarActivity {
       currentWordNum = savedInstanceState.getInt("index");
       findViewById(R.id.btDeleteLastWord).setEnabled(currentWordNum > 1);
       if (currentWordNum < numberOfWords) {
-         acTextView.setHint(getString(R.string.enter_next_word, currentWordNum, numberOfWords));
+         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
       } else if (!checksumMatches()) {
          findViewById(R.id.tvChecksumWarning).setVisibility(View.VISIBLE);
          acTextView.setEnabled(false);

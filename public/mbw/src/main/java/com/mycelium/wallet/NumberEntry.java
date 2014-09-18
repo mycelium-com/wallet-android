@@ -194,18 +194,18 @@ public class NumberEntry {
    }
 
    public void setEnabled(boolean enabled) {
-      ((Button) _llNumberEntry.findViewById(R.id.btOne)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btTwo)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btThree)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btFour)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btFive)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btSix)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btSeven)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btEight)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btNine)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btDot)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btZero)).setEnabled(enabled);
-      ((Button) _llNumberEntry.findViewById(R.id.btDel)).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btOne).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btTwo).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btThree).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btFour).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btFive).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btSix).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btSeven).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btEight).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btNine).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btDot).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btZero).setEnabled(enabled);
+      _llNumberEntry.findViewById(R.id.btDel).setEnabled(enabled);
    }
 
 }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -37,6 +38,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
@@ -62,7 +64,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    private CaptureActivityHandler handler;
    private Result savedResultToShow;
    private ViewfinderView viewfinderView;
-   private View resultView;
    private boolean hasSurface;
    private Collection<BarcodeFormat> decodeFormats;
    private Map<DecodeHintType, ?> decodeHints;
@@ -129,7 +130,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       cameraManager = new CameraManager(getApplication());
       viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
       viewfinderView.setCameraManager(cameraManager);
-      resultView = findViewById(R.id.result_view);
       handler = null;
 
       resetStatusView();
@@ -232,15 +232,26 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       showTorchState(state);
    }
 
+   @SuppressLint("NewApi")
+   public static void setAlpha(View view, float alpha) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+         AlphaAnimation aa = new AlphaAnimation(alpha, alpha);
+         aa.setDuration(Long.MAX_VALUE);
+         view.startAnimation(aa);
+      } else {
+         view.setAlpha(alpha);
+      }
+   }
+
    private void showTorchState(boolean state) {
       ImageView buttonFlash = (ImageView) findViewById(R.id.button_toggle_flash);
       // if we change our MinApi level to 16, change this to setImageAlpha
-      buttonFlash.setAlpha(state ? 255 : 128);
+      setAlpha(buttonFlash, state ? 1.0f : 0.5f);
    }
 
    private void showFocusState(boolean state) {
       ImageView buttonFocus = (ImageView) findViewById(R.id.button_toggle_focus);
-      buttonFocus.setAlpha(state ? 255 : 128);
+      setAlpha(buttonFocus, state ? 1.0f : 0.5f);
    }
 
    public void toggleFocus(View view) {
@@ -250,7 +261,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       onResume();
    }
 
-   private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
+   private void decodeOrStoreSavedBitmap(Result result) {
       // Bitmap isn't used yet -- will be used soon
       if (handler == null) {
          savedResultToShow = result;
@@ -419,7 +430,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          if (handler == null) {
             handler = new CaptureActivityHandler(this, decodeFormats, decodeHints, characterSet, cameraManager);
          }
-         decodeOrStoreSavedBitmap(null, null);
+         decodeOrStoreSavedBitmap(null);
       } catch (IOException ioe) {
          Log.w(TAG, ioe);
          displayFrameworkBugMessageAndExit();
@@ -440,15 +451,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       builder.show();
    }
 
-   public void restartPreviewAfterDelay(long delayMS) {
-      if (handler != null) {
-         handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
-      }
-      resetStatusView();
-   }
-
    private void resetStatusView() {
-      resultView.setVisibility(View.GONE);
       viewfinderView.setVisibility(View.VISIBLE);
    }
 

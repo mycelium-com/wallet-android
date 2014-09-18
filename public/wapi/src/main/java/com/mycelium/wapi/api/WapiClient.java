@@ -1,14 +1,5 @@
 package com.mycelium.wapi.api;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Random;
-import java.util.UUID;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,16 +8,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mrd.bitlib.util.SslUtils;
 import com.mycelium.wapi.api.WapiConst.Function;
-import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
-import com.mycelium.wapi.api.request.CheckTransactionsRequest;
-import com.mycelium.wapi.api.request.GetTransactionsRequest;
-import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
-import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
-import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
-import com.mycelium.wapi.api.response.CheckTransactionsResponse;
-import com.mycelium.wapi.api.response.GetTransactionsResponse;
-import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
+import com.mycelium.wapi.api.request.*;
+import com.mycelium.wapi.api.response.*;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Random;
 
 public class WapiClient implements Wapi {
 
@@ -34,8 +23,6 @@ public class WapiClient implements Wapi {
    private static final int LONG_TIMEOUT_MS = 60000;
    private static final int MEDIUM_TIMEOUT_MS = 20000;
    private static final int SHORT_TIMEOUT_MS = 4000;
-
-   public static final int TIMEOUT_MS = 60000 * 2;
 
    public static class HttpEndpoint {
       public final String baseUrlString;
@@ -57,18 +44,6 @@ public class WapiClient implements Wapi {
          super(baseUrlString);
          this.certificateThumbprint = certificateThumbprint;
       }
-   }
-
-   protected static byte[] uuidToBytes(UUID uuid) {
-      ByteArrayOutputStream ba = new ByteArrayOutputStream(16);
-      DataOutputStream da = new DataOutputStream(ba);
-      try {
-         da.writeLong(uuid.getMostSignificantBits());
-         da.writeLong(uuid.getLeastSignificantBits());
-      } catch (IOException e) {
-         // Never happens
-      }
-      return ba.toByteArray();
    }
 
    private ObjectMapper _objectMapper;
@@ -252,6 +227,20 @@ public class WapiClient implements Wapi {
       };
       return sendRequest(Function.CHECK_TRANSACTIONS, request, typeref);
    }
+
+   @Override
+   public WapiResponse<QueryExchangeRatesResponse> queryExchangeRates(QueryExchangeRatesRequest request) {
+      TypeReference<WapiResponse<QueryExchangeRatesResponse>> typeref = new TypeReference<WapiResponse<QueryExchangeRatesResponse>>() {
+      };
+      return sendRequest(Function.QUERY_EXCHANGE_RATES, request, typeref);
+   }
+
+   @Override
+   public  WapiResponse<PingResponse> ping(){
+      TypeReference<WapiResponse<PingResponse>> typeref = new TypeReference<WapiResponse<PingResponse>>() { };
+      return sendRequest(Function.PING, null, typeref);
+   }
+ 
 
    @Override
    public WapiLogger getLogger() {

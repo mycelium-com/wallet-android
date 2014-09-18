@@ -42,7 +42,6 @@ import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.pdf.ExportDistiller;

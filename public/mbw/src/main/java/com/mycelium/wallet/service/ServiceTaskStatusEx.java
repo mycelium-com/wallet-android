@@ -39,7 +39,7 @@ public class ServiceTaskStatusEx extends ServiceTaskStatus {
 
    public enum State {
       NOTRUNNING, STARTING, RUNNING, FINISHED
-   };
+   }
 
    public State state;
 

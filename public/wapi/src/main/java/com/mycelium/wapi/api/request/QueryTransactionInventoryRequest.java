@@ -1,11 +1,14 @@
 package com.mycelium.wapi.api.request;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.Address;
 
-public class QueryTransactionInventoryRequest {
+public class QueryTransactionInventoryRequest implements Serializable {
+   private static final long serialVersionUID = 1L;
+
    @JsonProperty
    public final int version;
    @JsonProperty

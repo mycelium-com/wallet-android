@@ -87,11 +87,6 @@ public class MyInfoFragment extends Fragment {
    }
 
    @Override
-   public void onDetach() {
-      super.onDetach();
-   }
-
-   @Override
    public void onResume() {
       updateUi();
       _ltManager.subscribe(ltSubscriber);
@@ -102,11 +97,6 @@ public class MyInfoFragment extends Fragment {
    public void onPause() {
       _ltManager.unsubscribe(ltSubscriber);
       super.onPause();
-   }
-
-   @Override
-   public void onDestroy() {
-      super.onDestroy();
    }
 
    private void updateUi() {

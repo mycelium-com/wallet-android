@@ -10,6 +10,7 @@ import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionStatus;
@@ -99,6 +100,12 @@ public class Bip44AccountTest {
       public WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request) {
          CheckTransactionsResponse response = new CheckTransactionsResponse(new ArrayList<TransactionStatus>());
          return new WapiResponse<CheckTransactionsResponse>(response);
+      }
+
+      @Override
+      public WapiResponse<QueryExchangeRatesResponse> queryExchangeRates(QueryExchangeRatesRequest request) {
+         QueryExchangeRatesResponse response = new QueryExchangeRatesResponse(request.currency, new ExchangeRate[]{});
+         return new WapiResponse<QueryExchangeRatesResponse>(response);
       }
    }
 

@@ -1,7 +1,5 @@
 package com.mycelium.wallet.event;
 
-//TODO: which events to we need to translate?
-
 import android.os.Handler;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -33,7 +31,6 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
 
    @Override
    public void onWalletStateChanged(WalletManager wallet, WalletManager.State state) {
-      //do we need to fire events? update spinning refresh button etc?
       //based on state fire sync started and sync stopped?
       if (state == WalletManager.State.READY) {
          postEvent(new SyncStopped());
@@ -64,7 +61,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             postEvent(new ReceivingAddressChanged(wallet.getAccount(accountId).getReceivingAddress()));
             break;
          default:
-            //unknown event - do we want to fail?
+            //unknown event
       }
    }
 

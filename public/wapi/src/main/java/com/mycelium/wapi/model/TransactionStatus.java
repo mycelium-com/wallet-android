@@ -34,11 +34,11 @@
 
 package com.mycelium.wapi.model;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
 
 public class TransactionStatus implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -54,7 +54,7 @@ public class TransactionStatus implements Serializable {
 
    @JsonCreator
    public TransactionStatus(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("found") boolean found,
-         @JsonProperty("height") int height, @JsonProperty("time")int time) {
+                            @JsonProperty("height") int height, @JsonProperty("time") int time) {
       this.txid = txid;
       this.found = found;
       this.height = height;

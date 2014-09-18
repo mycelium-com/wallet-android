@@ -52,7 +52,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -79,11 +78,6 @@ public class AddressFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      super.onAttach(activity);
-   }
-
-   @Override
    public void onResume() {
       getEventBus().register(this);
       updateUi();
@@ -94,11 +88,6 @@ public class AddressFragment extends Fragment {
    public void onPause() {
       getEventBus().unregister(this);
       super.onPause();
-   }
-
-   @Override
-   public void onDetach() {
-      super.onDetach();
    }
 
    private Bus getEventBus() {

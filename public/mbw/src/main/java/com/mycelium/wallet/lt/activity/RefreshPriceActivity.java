@@ -225,13 +225,13 @@ public class RefreshPriceActivity extends Activity {
          Utils.toastConnectionError(RefreshPriceActivity.this);
          finish();
          return true;
-      };
+      }
 
       @Override
       public void onLtBtcSellPriceAssesed(BtcSellPrice btcSellPrice, AssessBtcSellPrice request) {
          _newBtcSellPrice = btcSellPrice;
          updateUi();
-      };
+      }
    };
 
 }

@@ -170,12 +170,12 @@ public class MrdDecryptDataActivity extends Activity implements TaskExecutionSer
 
       if (getPassword().length() != MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_key_enter_password);
-         ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
+         findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.transparent));
       } else if (MrdExport.isChecksumValid(getPassword())) {
          // Leave the status at what it is, it is updated by the progress
       } else {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_key_invalid_checksum);
-         ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.red));
+         findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.red));
       }
 
    }
@@ -286,7 +286,7 @@ public class MrdDecryptDataActivity extends Activity implements TaskExecutionSer
    private void startKeyStretching() {
       hideKeyboard();
 
-      ((TextView) findViewById(R.id.tvStatus)).setBackgroundColor(getResources().getColor(R.color.transparent));
+      findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.transparent));
       String password = getPassword().substring(0, MrdExport.V1.V1_PASSPHRASE_LENGTH);
       KdfParameters kdfParameters = KdfParameters.fromPassphraseAndHeader(password, _header);
 
