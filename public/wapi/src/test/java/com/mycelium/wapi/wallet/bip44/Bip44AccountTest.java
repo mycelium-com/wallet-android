@@ -107,6 +107,11 @@ public class Bip44AccountTest {
          QueryExchangeRatesResponse response = new QueryExchangeRatesResponse(request.currency, new ExchangeRate[]{});
          return new WapiResponse<QueryExchangeRatesResponse>(response);
       }
+
+      @Override
+      public WapiResponse<PingResponse> ping() {
+         return new WapiResponse<PingResponse>(new PingResponse("junit test"));
+      }
    }
 
    /**

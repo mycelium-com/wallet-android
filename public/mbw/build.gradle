@@ -76,7 +76,7 @@ android {
         }
         release {
 //            debuggable true
-            //runProguard true
+            runProguard true
             proguardFile 'mbw.pro'
             applicationVariants.all { variant ->
                 def file = variant.outputFile
