@@ -17,6 +17,7 @@
 package com.mycelium.wapi.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Preconditions;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -33,15 +34,23 @@ public class ExchangeRate implements Serializable {
    @JsonProperty
    public final Double price; // null if price is not available
 
-   public ExchangeRate(@JsonProperty("name") String name, @JsonProperty("time") long time, @JsonProperty("currency") String currency, @JsonProperty("price") Double price) {
+   public ExchangeRate(@JsonProperty("name") String name, @JsonProperty("time") long time, @JsonProperty("price") double price, @JsonProperty("currency") String currency) {
       this.name = name;
       this.time = time;
       this.currency = currency;
       this.price = price;
    }
 
-   public ExchangeRate(ExchangeRate o) {
-      this(o.name, o.time, o.currency, o.price);
+   public static ExchangeRate missingRate(String name, long time, String currency) {
+      return new ExchangeRate(name, time, currency);
+   }
+
+   //explicit parameter instead of passing null, proguard did remove the null parameter otherwise
+   private ExchangeRate(String name, long time, String currency) {
+      this.name = name;
+      this.time = time;
+      this.currency = currency;
+      this.price = null;
    }
 
    @Override

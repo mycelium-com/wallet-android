@@ -112,7 +112,7 @@
 }
 
 #keep classes used for deserializing json
--keepclasseswithmembers class com.mycelium.wapi.api.** {
+-keepclasseswithmembers class com.mycelium.wapi.** {
   <init>(...);
   *;
 }

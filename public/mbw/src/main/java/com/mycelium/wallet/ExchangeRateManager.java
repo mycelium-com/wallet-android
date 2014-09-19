@@ -204,7 +204,7 @@ public class ExchangeRateManager {
       }
       if (_currentRateName != null) {
          // We end up here if the exchange is no longer on the list
-         return new ExchangeRate(_currentRateName, System.currentTimeMillis(), currency, null);
+         return ExchangeRate.missingRate(_currentRateName, System.currentTimeMillis(),  currency);
       }
       return null;
    }

@@ -29,11 +29,14 @@ public class QueryTransactionInventoryRequest implements Serializable {
    public final int version;
    @JsonProperty
    public final List<Address> addresses;
+   @JsonProperty
+   public final int limit;
 
    public QueryTransactionInventoryRequest(@JsonProperty("version") int version,
-         @JsonProperty("addresses") List<Address> addresses) {
+         @JsonProperty("addresses") List<Address> addresses, @JsonProperty("limit") int limit) {
       this.version = version;
       this.addresses = addresses;
+      this.limit = limit;
    }
 
 }

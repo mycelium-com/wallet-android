@@ -134,7 +134,7 @@ public class SingleAddressAccount extends AbstractAccount {
       // Get the latest transactions
       List<Sha256Hash> discovered;
       try {
-         discovered = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList))
+         discovered = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList, 30))
                .getResult().txIds;
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);

@@ -27,7 +27,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
@@ -105,7 +104,7 @@ public class CmdLineWallet {
       final WalletManager wallet1 = new WalletManager(secureKeyValueStore1, backing1, network, wapi);
 
       try {
-         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"push", "math", "onion"}, null);
+         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"salmon", "army", "unique", "urge", "robot", "view", "vote", "milk", "once", "mansion", "type", "unable"}, null);
          wallet1.configureBip32MasterSeed(masterSeed, cipher);
       } catch (InvalidKeyCipher e) {
          throw new RuntimeException(e);
@@ -119,7 +118,7 @@ public class CmdLineWallet {
       final WalletManager wallet2 = new WalletManager(secureKeyValueStore2, backing2, network, wapi);
 
       try {
-         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"degree", "rain", "vendor"}, null);
+         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"erosion", "intact", "atom", "water", "clap", "chef", "wool", "section", "busy", "elevator", "weekend", "diary"}, null);
          wallet2.configureBip32MasterSeed(masterSeed, cipher);
       } catch (InvalidKeyCipher e) {
          throw new RuntimeException(e);
@@ -148,7 +147,7 @@ public class CmdLineWallet {
                receivers.add(new Receiver(address, 10000 * (1 + new Random().nextInt(100))));
                try {
                   UnsignedTransaction unsigned = myAccount.createUnsignedTransaction(receivers);
-                  Transaction transaction = myAccount.signTransaction(unsigned,AesKeyCipher.defaultKeyCipher(), _randomSource);
+                  Transaction transaction = myAccount.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), _randomSource);
                   myAccount.broadcastTransaction(transaction);
                   wallet.startSynchronization();
                } catch (OutputTooSmallException e) {
@@ -341,9 +340,10 @@ public class CmdLineWallet {
    private static void printTransactionHistory(WalletManager wallet) {
       for (WalletAccount account : wallet.getActiveAccounts()) {
          print("Wallet: " + account.getId());
-         List<TransactionSummary> list = account.getTransactionHistory(0, 10);
+         List<TransactionSummary> list = account.getTransactionHistory(0, 5000);
+         int index = 0;
          for (TransactionSummary s : list) {
-            print("Value: " + s.value + " Confirmations: " + s.confirmations + " Time: "
+            print("#"+(++index)+" Value: " + s.value + " Confirmations: " + s.confirmations + " Time: "
                   + new Date(s.time * 1000).toString() + " ID: " + s.txid.toString());
          }
       }
@@ -418,7 +418,7 @@ public class CmdLineWallet {
 
       print("fee: " + unsigned.calculateFee());
 
-      Transaction tx = account.signTransaction(unsigned,cipher, _randomSource);
+      Transaction tx = account.signTransaction(unsigned, cipher, _randomSource);
       account.broadcastTransaction(tx);
       print("Transaction " + tx.getHash().toString() + " queued");
    }
@@ -449,7 +449,11 @@ public class CmdLineWallet {
    private static String readLine() {
       BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
       try {
-         return br.readLine().trim();
+         String s = br.readLine();
+         if (s == null) {
+            return "";
+         }
+         return s.trim();
       } catch (IOException e) {
          throw new RuntimeException(e);
       }
@@ -470,7 +474,7 @@ public class CmdLineWallet {
    public static void tryQueryTransactionInventory(WapiClient wapi) throws WapiException {
       List<Address> addresses = new LinkedList<Address>();
       addresses.add(Address.fromString("moXV3ZY5QtQqfRgdfZyWRbR2h5GzuEE9BC"));
-      QueryTransactionInventoryRequest request = new QueryTransactionInventoryRequest(Wapi.VERSION, addresses);
+      QueryTransactionInventoryRequest request = new QueryTransactionInventoryRequest(Wapi.VERSION, addresses, 50);
       QueryTransactionInventoryResponse response = wapi.queryTransactionInventory(request).getResult();
       for (Sha256Hash txid : response.txIds) {
          System.out.println(txid);

@@ -252,20 +252,21 @@ public class Bip44Account extends AbstractAccount {
       }
       // Do look ahead query
       List<Sha256Hash> ids = _wapi.queryTransactionInventory(
-            new QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead)).getResult().txIds;
+            new QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).getResult().txIds;
       if (ids.isEmpty()) {
          // nothing found
          return false;
       }
       int lastExternalIndex = _context.getLastExternalIndexWithActivity();
+      int lastInternalIndex = _context.getLastInternalIndexWithActivity();
 
       Collection<TransactionEx> transactions = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, ids))
             .getResult().transactions;
       for (TransactionEx tx : transactions) {
          handleNewExternalTransaction(tx);
       }
-      // Return true if the last external index has changed
-      return lastExternalIndex != _context.getLastExternalIndexWithActivity();
+      // Return true if the last external or internal index has changed
+      return lastExternalIndex != _context.getLastExternalIndexWithActivity() || lastInternalIndex != _context.getLastInternalIndexWithActivity();
    }
 
    private boolean updateUnspentOutputs() {
