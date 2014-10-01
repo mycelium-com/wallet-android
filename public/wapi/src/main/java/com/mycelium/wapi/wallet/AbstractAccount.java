@@ -49,6 +49,7 @@ import java.util.*;
 public abstract class AbstractAccount implements WalletAccount {
    public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
    private static final int COINBASE_MIN_CONFIRMATIONS = 120;
+   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 100;
 
    public interface EventHandler {
       void onEvent(UUID accountId, Event event);
@@ -236,24 +237,16 @@ public abstract class AbstractAccount implements WalletAccount {
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return false;
          }
-         Set<Sha256Hash> addedTransactions = new HashSet<Sha256Hash>();
-         for (TransactionEx t : response.transactions) {
-            try {
-               if (handleNewExternalTransaction(t)) {
-                  addedTransactions.add(t.txid);
-               }
-            } catch (WapiException e) {
-               _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-               postEvent(Event.SERVER_CONNECTION_ERROR);
-               return false;
-            }
+         try {
+            handleNewExternalTransactions(response.transactions);
+         } catch (WapiException e) {
+            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+            postEvent(Event.SERVER_CONNECTION_ERROR);
+            return false;
          }
          // Finally update out list of unspent outputs with added or updated
          // outputs
          for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
-            if (!addedTransactions.contains(output.outPoint.hash)) {
-               continue;
-            }
             _backing.putUnspentOutput(output);
          }
       }
@@ -269,54 +262,73 @@ public abstract class AbstractAccount implements WalletAccount {
       return map;
    }
 
-   protected boolean handleNewExternalTransaction(TransactionEx tex) throws WapiException {
-      Transaction t;
-      try {
-         t = Transaction.fromByteReader(new ByteReader(tex.binary));
-      } catch (TransactionParsingException e) {
-         // We hit a transaction that we cannot parse. Log but otherwise ignore
-         _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
-         return false;
+   protected void handleNewExternalTransactions(Collection<TransactionEx> transactions) throws WapiException {
+      if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+         handleNewExternalTransactionsInt(transactions);
+      } else {
+         // We have quite a list of transactions to handle, do it in batches
+         ArrayList<TransactionEx> all = new ArrayList<TransactionEx>(transactions);
+         for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+            int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
+            List<TransactionEx> sub = all.subList(i, endIndex);
+            handleNewExternalTransactionsInt(sub);
+         }
+      }
+   }
+
+   private void handleNewExternalTransactionsInt(Collection<TransactionEx> transactions) throws WapiException {
+      // Transform and put into two arrays with matching indexes
+      ArrayList<TransactionEx> texArray = new ArrayList<TransactionEx>(transactions.size());
+      ArrayList<Transaction> txArray = new ArrayList<Transaction>(transactions.size());
+      for (TransactionEx tex : transactions) {
+         try {
+            txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
+            texArray.add(tex);
+         } catch (TransactionParsingException e) {
+            // We hit a transaction that we cannot parse. Log but otherwise ignore it
+            _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
+            continue;
+         }
       }
 
       // Grab and handle parent transactions
-      if (!fetchStoreAndValidateParentOutputs(t)) {
-         // We failed to find or verify the parent outputs
-         return false;
-      }
+      fetchStoreAndValidateParentOutputs(txArray);
 
       // Store transaction locally
-      _backing.putTransaction(tex);
-      onNewTransaction(tex, t);
-      return true;
+      for (int i = 0; i < txArray.size(); i++) {
+         _backing.putTransaction(texArray.get(i));
+         onNewTransaction(texArray.get(i), txArray.get(i));
+      }
    }
 
-   private boolean fetchStoreAndValidateParentOutputs(Transaction t) throws WapiException {
+   private void fetchStoreAndValidateParentOutputs(ArrayList<Transaction> transactions) throws WapiException {
       Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<Sha256Hash, TransactionEx>();
       Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<OutPoint, TransactionOutputEx>();
 
       // Find list of parent outputs to fetch
       Collection<Sha256Hash> toFetch = new HashSet<Sha256Hash>();
-      for (TransactionInput in : t.inputs) {
-         if (in.outPoint.equals(OutPoint.COINBASE_OUTPOINT)) {
-            // Coinbase input, so no parent
-            continue;
-         }
-         TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(in.outPoint);
-         if (parentOutput != null) {
-            // We already have the parent output, no need to fetch the entire
-            // parent transaction
-            parentOutputs.put(parentOutput.outPoint, parentOutput);
-            continue;
-         }
-         TransactionEx parentTransaction = _backing.getTransaction(in.outPoint.hash);
-         if (parentTransaction != null) {
-            // We had the parent transaction in our own transactions, no need to
-            // fetch it remotely
-            parentTransactions.put(parentTransaction.txid, parentTransaction);
-         } else {
-            // Need to fetch it
-            toFetch.add(in.outPoint.hash);
+      for (Transaction t : transactions) {
+         for (TransactionInput in : t.inputs) {
+            if (in.outPoint.hash.equals(OutPoint.COINBASE_OUTPOINT.hash)) {
+               // Coinbase input, so no parent
+               continue;
+            }
+            TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(in.outPoint);
+            if (parentOutput != null) {
+               // We already have the parent output, no need to fetch the entire
+               // parent transaction
+               parentOutputs.put(parentOutput.outPoint, parentOutput);
+               continue;
+            }
+            TransactionEx parentTransaction = _backing.getTransaction(in.outPoint.hash);
+            if (parentTransaction != null) {
+               // We had the parent transaction in our own transactions, no need to
+               // fetch it remotely
+               parentTransactions.put(parentTransaction.txid, parentTransaction);
+            } else {
+               // Need to fetch it
+               toFetch.add(in.outPoint.hash);
+            }
          }
       }
 
@@ -336,7 +348,8 @@ public abstract class AbstractAccount implements WalletAccount {
             } else {
                _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
                      + " Calculated: " + hash);
-               return false;
+               throw new RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid
+                     + " Calculated: " + hash);
             }
          }
       }
@@ -347,32 +360,32 @@ public abstract class AbstractAccount implements WalletAccount {
 
       // Now figure out which parent outputs we need to persist
       List<TransactionOutputEx> toPersist = new LinkedList<TransactionOutputEx>();
-      for (TransactionInput in : t.inputs) {
-         if (in.outPoint.equals(OutPoint.COINBASE_OUTPOINT)) {
-            // coinbase input, so no parent
-            continue;
+      for (Transaction t : transactions) {
+         for (TransactionInput in : t.inputs) {
+            if (in.outPoint.hash.equals(OutPoint.COINBASE_OUTPOINT.hash)) {
+               // coinbase input, so no parent
+               continue;
+            }
+            TransactionOutputEx parentOutput = parentOutputs.get(in.outPoint);
+            if (parentOutput != null) {
+               // We had it all along
+               continue;
+            }
+            TransactionEx parentTex = parentTransactions.get(in.outPoint.hash);
+            if (parentTex != null) {
+               // Parent output not found, maybe we already have it
+               parentOutput = TransactionEx.getTransactionOutput(parentTex, in.outPoint.index);
+               toPersist.add(parentOutput);
+               continue;
+            }
+            _logger.logError("Parent transaction not found: " + in.outPoint.hash);
          }
-         TransactionOutputEx parentOutput = parentOutputs.get(in.outPoint);
-         if (parentOutput != null) {
-            // We had it all along
-            continue;
-         }
-         TransactionEx parentTex = parentTransactions.get(in.outPoint.hash);
-         if (parentTex != null) {
-            // Parent output not found, maybe we already have it
-            parentOutput = TransactionEx.getTransactionOutput(parentTex, in.outPoint.index);
-            toPersist.add(parentOutput);
-            continue;
-         }
-         _logger.logError("Parent transaction not found: " + in.outPoint.hash);
-         return false;
       }
 
       // Persist
       for (TransactionOutputEx output : toPersist) {
          _backing.putParentTransactionOutput(output);
       }
-      return true;
    }
 
    protected Balance calculateLocalBalance() {
@@ -793,22 +806,26 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    protected TransactionSummary transform(Transaction tx, int time, int height, int blockChainHeight) {
-      int value = 0;
+      long value = 0;
       for (TransactionOutput output : tx.outputs) {
          if (isMine(output.script)) {
             value += output.value;
          }
       }
 
-      for (TransactionInput input : tx.inputs) {
-         // find parent output
-         TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
-         if (funding == null) {
-            _logger.logError("Unable to find parent output for: " + input.outPoint);
-            continue;
-         }
-         if (isMine(funding)) {
-            value -= funding.value;
+      if (tx.isCoinbase()) {
+         // For coinbase transactions there is nothing to subtract
+      } else {
+         for (TransactionInput input : tx.inputs) {
+            // find parent output
+            TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
+            if (funding == null) {
+               _logger.logError("Unable to find parent output for: " + input.outPoint);
+               continue;
+            }
+            if (isMine(funding)) {
+               value -= funding.value;
+            }
          }
       }
 
@@ -962,35 +979,45 @@ public abstract class AbstractAccount implements WalletAccount {
          throw new RuntimeException();
       }
 
-      // Populate the inputs
-      TransactionDetails.Item[] inputs = new TransactionDetails.Item[tx.inputs.length];
-      for (int i = 0; i < tx.inputs.length; i++) {
-         Sha256Hash parentHash = tx.inputs[i].outPoint.hash;
-         if (parentHash.equals(Sha256Hash.ZERO_HASH)) {
-            // Coinbase, skip
-            continue;
+      List<TransactionDetails.Item> inputs = new ArrayList<TransactionDetails.Item>(tx.inputs.length);
+      if (tx.isCoinbase()) {
+         // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
+         // and make the address the null address
+         long value = 0;
+         for (TransactionOutput out : tx.outputs) {
+            value += out.value;
          }
-         // Get the parent transaction
-         TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(tx.inputs[i].outPoint);
-         if (parentOutput == null) {
-            continue;
+         inputs.add(new TransactionDetails.Item(Address.getNullAddress(_network), value, true));
+      } else {
+         // Populate the inputs
+         for (TransactionInput input : tx.inputs) {
+            Sha256Hash parentHash = input.outPoint.hash;
+            // Get the parent transaction
+            TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(input.outPoint);
+            if (parentOutput == null) {
+               // We never heard about the parent, skip
+               continue;
+            }
+            // Determine the parent address
+            Address parentAddress;
+            ScriptOutput parentScript = ScriptOutput.fromScriptBytes(parentOutput.script);
+            if (parentScript == null) {
+               // Null address means we couldn't figure out the address, strange script
+               parentAddress = Address.getNullAddress(_network);
+            } else {
+               parentAddress = parentScript.getAddress(_network);
+            }
+            inputs.add(new TransactionDetails.Item(parentAddress, parentOutput.value, false));
          }
-         ScriptOutput parentScript = ScriptOutput.fromScriptBytes(parentOutput.script);
-         if (parentScript == null) {
-            continue;
-         }
-         Address parentAddress = parentScript.getAddress(_network);
-         inputs[i] = new TransactionDetails.Item(parentAddress, parentOutput.value);
       }
-
       // Populate the outputs
       TransactionDetails.Item[] outputs = new TransactionDetails.Item[tx.outputs.length];
       for (int i = 0; i < tx.outputs.length; i++) {
          Address address = tx.outputs[i].script.getAddress(_network);
-         outputs[i] = new TransactionDetails.Item(address, tx.outputs[i].value);
+         outputs[i] = new TransactionDetails.Item(address, tx.outputs[i].value, false);
       }
 
-      return new TransactionDetails(txid, tex.height, tex.time, inputs, outputs);
+      return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
    }
 
 }

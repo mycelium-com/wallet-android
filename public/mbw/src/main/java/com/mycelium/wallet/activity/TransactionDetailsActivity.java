@@ -76,6 +76,7 @@ public class TransactionDetailsActivity extends Activity {
    private TransactionDetails _tx;
    private int _white_color;
    private UrlClickListener _urlClickListener;
+   private CopyClickListener _copyClickListener;
    private MbwManager _mbwManager;
    private String _addressInfoTemplate;
    private String _transactionInfoTemplate;
@@ -91,6 +92,7 @@ public class TransactionDetailsActivity extends Activity {
 
       _white_color = getResources().getColor(R.color.white);
       _urlClickListener = new UrlClickListener();
+      _copyClickListener = new CopyClickListener();
       setContentView(R.layout.transaction_details_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
@@ -124,7 +126,7 @@ public class TransactionDetailsActivity extends Activity {
       tvHash.setTag(_transactionInfoTemplate + hash);
       tvHash.setOnClickListener(_urlClickListener);
       tvHash.setLongClickable(true);
-      tvHash.setOnLongClickListener(new CopyClickListener());
+      tvHash.setOnLongClickListener(_copyClickListener);
 
       // Set Confirmed
       String confirmed;
@@ -183,20 +185,26 @@ public class TransactionDetailsActivity extends Activity {
       ll.setOrientation(LinearLayout.VERTICAL);
       ll.setLayoutParams(WCWC);
 
-      String address = item.address.toString();
+      if (item.isCoinbase) {
+         // Coinbase input
+         ll.addView(getValue(item.value, null));
+         ll.addView(getCoinbaseText());
+      } else {
+         String address = item.address.toString();
 
-      // Add BTC value
-      ll.addView(getValue(item.value, address));
+         // Add BTC value
+         ll.addView(getValue(item.value, address));
 
-      // Add address chunks
-      String[] chunks = Utils.stringChopper(address, 12);
-      ll.addView(getAddressChunk(chunks[0], -1, address));
-      ll.addView(getAddressChunk(chunks[1], -1, address));
-      ll.addView(getAddressChunk(chunks[2], 0, address));
-
+         // Add address chunks
+         String[] chunks = Utils.stringChopper(address, 12);
+         ll.addView(getAddressChunk(chunks[0], -1, address));
+         ll.addView(getAddressChunk(chunks[1], -1, address));
+         ll.addView(getAddressChunk(chunks[2], 0, address));
+         ll.setOnClickListener(_urlClickListener);
+         ll.setOnLongClickListener(_copyClickListener);
+         ll.setTag(address);
+      }
       ll.setPadding(10, 10, 10, 10);
-      ll.setOnClickListener(_urlClickListener);
-      ll.setTag(_addressInfoTemplate + address);
       return ll;
    }
 
@@ -209,6 +217,15 @@ public class TransactionDetailsActivity extends Activity {
       tv.setPadding(0, 0, 0, padding);
       tv.setTag(tag);
 
+      return tv;
+   }
+
+   private View getCoinbaseText() {
+      TextView tv = new TextView(this);
+      tv.setLayoutParams(FPWC);
+      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+      tv.setText(R.string.newly_generated_coins_from_coinbase);
+      tv.setTextColor(_white_color);
       return tv;
    }
 
@@ -243,7 +260,7 @@ public class TransactionDetailsActivity extends Activity {
          if (v.getTag() == null) {
             return;
          }
-         String url = v.getTag().toString();
+         String url = _addressInfoTemplate +  v.getTag().toString();
          Intent intent = new Intent(Intent.ACTION_VIEW);
          intent.setData(Uri.parse(url));
          startActivity(intent);

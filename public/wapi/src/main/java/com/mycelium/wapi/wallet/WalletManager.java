@@ -303,6 +303,15 @@ public class WalletManager {
       return filterAndConvert(ACTIVE_CAN_SPEND);
    }
 
+   /**
+    * Get accounts that can spend and have a positive balance
+    *
+    * @return the list of accounts
+    */
+   public List<WalletAccount> getSpendingAccountsWithBalance() {
+      return filterAndConvert(Predicates.and(ACTIVE_CAN_SPEND, HAS_BALANCE));
+   }
+
    private List<WalletAccount> filterAndConvert(Predicate<Map.Entry<UUID, AbstractAccount>> filter) {
       Set<UUID> uuids = Maps.filterEntries(_allAccounts, filter).keySet();
       return Lists.transform(Lists.newArrayList(uuids), key2Account);
@@ -573,6 +582,13 @@ public class WalletManager {
       @Override
       public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
          return input.getValue().isActive() && input.getValue().canSpend();
+      }
+   };
+
+   private static final Predicate<Map.Entry<UUID, AbstractAccount>> HAS_BALANCE = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+      @Override
+      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+         return input.getValue().getBalance().getSpendableBalance() > 0;
       }
    };
 

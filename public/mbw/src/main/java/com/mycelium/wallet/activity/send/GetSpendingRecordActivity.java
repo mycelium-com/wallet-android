@@ -49,6 +49,7 @@ import android.widget.ListView;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.List;
@@ -58,7 +59,6 @@ public class GetSpendingRecordActivity extends Activity {
    private Long _amountToSend;
    private Address _receivingAddress;
    private MbwManager _mbwManager;
-   private AccountsAdapter _accountsAdapter;
 
    public static void callMeWithResult(Activity currentActivity, Long amountToSend, Address receivingAddress, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
@@ -105,8 +105,15 @@ public class GetSpendingRecordActivity extends Activity {
 
    private void update() {
       ListView listView = (ListView) findViewById(R.id.lvRecords);
-      _accountsAdapter = new AccountsAdapter(this,_mbwManager.getWalletManager(false).getSpendingAccounts());
-      listView.setAdapter(_accountsAdapter);
+      MetadataStorage storage = _mbwManager.getMetadataStorage();
+      //get accounts with key and positive balance
+      List<WalletAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+      if (spendingAccounts.isEmpty()) {
+         //if we dont have any account with a balance, just show all accounts with priv key
+         spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
+      }
+      AccountsAdapter accountsAdapter = new AccountsAdapter(this, Utils.sortAccounts(spendingAccounts, storage));
+      listView.setAdapter(accountsAdapter);
    }
 
    class AccountsAdapter extends ArrayAdapter<WalletAccount> {

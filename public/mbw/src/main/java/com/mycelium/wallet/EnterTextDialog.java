@@ -36,6 +36,8 @@ package com.mycelium.wallet;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.text.Editable;
@@ -43,6 +45,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -165,8 +168,36 @@ public class EnterTextDialog {
          }
       });
       et.setText(currentText == null ? "" : currentText);
-      InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+
+      // Some older devices need this to show the keyboard
+      if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+         if (imm != null) {
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+         }
+         et.setSelection(et.getText().length());
+
+         // Hide the keyboard, when the dialog exits
+         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+               InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+               if (imm != null) {
+                  imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+               }
+            }
+         });
+
+      }else{
+         // For > Android 4.x set the input-mode for the dialog-box, so that the keyboard pops up
+         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+         et.setSelectAllOnFocus(true);
+      }
+
+
       dialog.show();
+
+      et.requestFocus();
+
    }
 }

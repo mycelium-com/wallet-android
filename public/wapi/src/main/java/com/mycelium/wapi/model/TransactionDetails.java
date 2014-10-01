@@ -28,10 +28,12 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
       private static final long serialVersionUID = 1L;
       public final Address address;
       public final long value;
+      public final boolean isCoinbase;
 
-      public Item(Address address, long value) {
+      public Item(Address address, long value, boolean isCoinbase) {
          this.address = address;
          this.value = value;
+         this.isCoinbase = isCoinbase;
       }
    }
 

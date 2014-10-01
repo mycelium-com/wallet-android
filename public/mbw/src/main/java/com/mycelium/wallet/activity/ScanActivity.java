@@ -234,6 +234,8 @@ public class ScanActivity extends Activity {
             return;
          }
          content = intent.getStringExtra("SCAN_RESULT").trim();
+         // Get rid of any UTF-8 BOM marker. Those should not be present, but might have slipped in nonetheless,
+         if (content.charAt(0) == '\uFEFF') content = content.substring(1);
          //TODO: if we do not want to handle data, do not decrypt it first
          //(check for scanrequest action none on priv key, seed?
          if (isMrdEncryptedPrivateKey(content)) {

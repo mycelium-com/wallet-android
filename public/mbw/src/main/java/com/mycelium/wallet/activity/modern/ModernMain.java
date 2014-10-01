@@ -170,8 +170,8 @@ public class ModernMain extends ActionBarActivity {
    public boolean onPrepareOptionsMenu(Menu menu) {
       final int tabIdx = mViewPager.getCurrentItem();
 
-      // Only show backup option if we haven't done a backup yet
-      Preconditions.checkNotNull(menu.findItem(R.id.miBackup)).setVisible(_mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED);
+      // at the moment, we allow to make backups multiple times
+      Preconditions.checkNotNull(menu.findItem(R.id.miBackup)).setVisible(true);
 
       // Add Record menu
       final boolean isRecords = tabIdx == 0;

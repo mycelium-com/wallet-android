@@ -492,7 +492,8 @@
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
-    <string name="showing_word_number">Word %1$s: %2$s</string>
+    <string name="showing_word_number">Word %1$s:</string>
+    <string name="start_word_list_verification">Start Verification</string>
     <string name="delete_last_entered_word">Delete Last Word</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
@@ -520,16 +521,22 @@
     <string name="seed_already_configured">Cannot import: master seed is already configured</string>
     <string name="backup_words_title">Master Seed Backup</string>
     <string name="verify_words_title">Master Seed Verification</string>
-    <string name="wordlist_backup_description">THIS IS IMPORTANT\n\nYou are about to back up your master seed. This is a one time operation which for security reasons cannot be repeated once completed.\n\nYou will be shown a list of words, one after another. Write those words down using pen and paper, and store it in a safe place.</string>
+    <string name="wordlist_backup_description">THIS IS IMPORTANT\n\nYou are about to back up your master seed.\n\nAfter making a backup you should set a PIN to prevent anyone that briefly holds your phone from making another backup and steal your current and future funds.\n\nYou will be shown a list of words, one after another. Write those words down using pen and paper, and store them in a safe place.</string>
     <string name="next_word_button">Next Word</string>
-    <string name="cick_button_to_show_word">Tap the \'Next Word\' button to begin</string>
+    <string name="start_with_first_word_button">Show first Word</string>
+    <string name="cick_button_to_show_word">Tap the button below to start</string>
     <string name="wordlist_verify_description">Please enter the words you just wrote down, one after another, to make sure that everything is backed up correctly.</string>
     <string name="verify_word_wrong">You typed the wrong word, please try again</string>
-    <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!</string>
+    <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!\n\nIf you have not configured a PIN now is a good time to do so.\nYou can configure a PIN in the Settings menu</string>
     <string name="note_down_password_title">Write down your password</string>
     <string name="title_wrong_password">Wrong password, please try again</string>
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
     <string name="testnet_label_startup">TESTNET</string>
     <string name="dont_allow_archiving_unused_notification">You cannot archive an unused HD account</string>
+    <string name="newly_generated_coins_from_coinbase">Newly generated coins</string>
+    <string name="release_notes_hd">The world\'s best mobile wallet just got better.\n\nMaking a secure backup is now a breeze, and new HD accounts make you more anonymous than ever!\n\nCheck out the release notes for details.</string>
+    <string name="title_upgrade_info">Welcome to Mycelium 2.0</string>
+    <string name="button_continue">Continue</string>
+    <string name="butto_show_release_notes">Show Details</string>
 
 </resources>

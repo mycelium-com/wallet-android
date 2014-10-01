@@ -42,7 +42,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -77,6 +79,7 @@ public class EnterWordListActivity extends ActionBarActivity {
    private boolean usesPassword;
    private int numberOfWords;
    private int currentWordNum;
+   private ArrayList<String> basewords;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -90,13 +93,14 @@ public class EnterWordListActivity extends ActionBarActivity {
       findViewById(R.id.btDeleteLastWord).setOnClickListener(deleteListener);
       currentWordNum = 1;
 
-      List<String> words = Lists.newArrayList(Bip39.ENGLISH_WORD_LIST);
-      ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, words);
+      basewords = Lists.newArrayList(Bip39.ENGLISH_WORD_LIST);
+      ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, basewords);
       acTextView = (AutoCompleteTextView) findViewById(R.id.tvWordCompleter);
       acTextView.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
       acTextView.setThreshold(1);
       acTextView.setAdapter(adapter);
       acTextView.setOnItemClickListener(itemClicked);
+      acTextView.addTextChangedListener(charEntered);
       acTextView.setLongClickable(false);
 
       if (savedInstanceState == null) {
@@ -155,13 +159,33 @@ public class EnterWordListActivity extends ActionBarActivity {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long rowId) {
          String selection = (String) parent.getItemAtPosition(position);
-         enteredWords.add(selection);
-         enterWordInfo.setText(enteredWords.toString());
-         acTextView.setText("");
-         if (checkIfDone()) {
-            askForPassword();
-         } else {
-            findViewById(R.id.btDeleteLastWord).setEnabled(true);
+         addWordToList(selection);
+      }
+   };
+
+   private void addWordToList(String selection) {
+      enteredWords.add(selection);
+      enterWordInfo.setText(enteredWords.toString());
+      acTextView.setText("");
+      if (checkIfDone()) {
+         askForPassword();
+      } else {
+         findViewById(R.id.btDeleteLastWord).setEnabled(true);
+      }
+   }
+
+   TextWatcher charEntered = new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+         String word = s.toString();
+         if (basewords.contains(word)) {
+            addWordToList(word);
          }
       }
    };

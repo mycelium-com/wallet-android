@@ -64,7 +64,8 @@ public class Constants {
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
    public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
-   public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help.html";
+   public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
+   public static final String MYCELIUM_2_RELEASE_NOTES_URL = "http://mycelium.com/wallet/whats_new_in_20.html";
    public static final String LANGUAGE_SETTING = "user_language";
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String LAST_UPDATE_CHECK = "last_update_check";

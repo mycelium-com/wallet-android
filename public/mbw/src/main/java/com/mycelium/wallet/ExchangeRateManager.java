@@ -74,7 +74,7 @@ public class ExchangeRateManager {
       _mbwManager = manager;
       _latestRates = null;
       _latestRatesTime = 0;
-      _currentRateName = null;
+      _currentRateName = getPreferences().getString("currentRateName", null);
       _requestLock = new Object();
       _subscribers = new LinkedList<Observer>();
    }
@@ -211,6 +211,10 @@ public class ExchangeRateManager {
 
    private SharedPreferences.Editor getEditor() {
       return _applicationContext.getSharedPreferences(EXCHANGE_DATA, Activity.MODE_PRIVATE).edit();
+   }
+
+   private SharedPreferences getPreferences() {
+      return _applicationContext.getSharedPreferences(EXCHANGE_DATA, Activity.MODE_PRIVATE);
    }
 
 }

@@ -147,7 +147,7 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<Entry>();
-      for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts())) {
+      for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          entries.add(new Entry(account.getReceivingAddress(), name));
       }
@@ -168,6 +168,7 @@ public class AddressBookFragment extends Fragment {
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
          entries.add(new Entry(e.getKey(), e.getValue()));
       }
+      entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
          findViewById(R.id.lvForeignAddresses).setVisibility(View.GONE);

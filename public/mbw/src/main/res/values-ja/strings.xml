@@ -5,6 +5,7 @@
   <string name="scan_desc">ビットコインアドレスまたは秘密キーをスキャン</string>
   <string name="clipboard_desc">クリップボードからビットコインアドレスまたは秘密キーをインポート</string>
   <string name="scan">スキャン</string>
+  <string name="advanced">詳細設定</string>
   <string name="clipboard">クリップボード</string>
   <string name="import_from_android_wallet_backup_desc">Andreas Schildbach が「ビットコイン 財布」クライアントから秘密キーををインポートします。</string>
   <string name="android_wallet_backup">ビットコイン 財布のバックアップ</string>
@@ -125,6 +126,7 @@
   <string name="archive_name_empty">アーカイブ (空)</string>
   <string name="activate_action">有効にする</string>
   <string name="archive_action">アドレスをアーカイブへ</string>
+  <string name="master_seed_configuration_title">ようこそ！</string>
   <string name="archived">アーカイブ済み</string>
   <string name="activated">有効にしました！</string>
   <string name="please_wait">しばらくお待ちください&#8230;</string>
@@ -139,6 +141,7 @@
   <string name="enter_local_currency">お使いの通貨をご入力ください。</string>
   <string name="tap_to_refresh">タップして残高を更新</string>
   <string name="using_address_from_clipboard">クリップボードからのアドレス</string>
+  <string name="foreign_addresses">アドレス帳</string>
   <string name="confirm_delete_pk_title">一度削除されたものはバックアップされてなければ復元できませんが、本当に宜しいですか？</string>
   <string name="confirm_delete_pk_with_balance">実行後、元に戻すことはできません！\n\nこの秘密キーは次のアドレス:\n%1$s\n\nと上記に含まれる %2$s\n\nがなくなりますが、本当に削除してもよろしいですか？</string>
   <string name="confirm_delete_pk_with_balance_with_label">実行後、元に戻すことはできません！\n\nラベル:\n%1$s\n\nこの秘密キーは次のアドレス:\n%2$s\n\nと上記に含まれる %3$s\n\nがなくなりますが、本当に削除してもよろしいですか？</string>
@@ -176,8 +179,9 @@
   <string name="share_bitcoin_address">ビットコインアドレスを共有する</string>
   <string name="optional_amount">任意の額</string>
   <string name="show_qr_code_menu">QRコードの表示</string>
+  <string name="tab_accounts">アカウント</string>
   <string name="tab_balance">残高</string>
-  <string name="tab_transactions">トランザクション</string>
+  <string name="tab_transactions">取引</string>
   <string name="tab_addresses">アドレス帳 </string>
   <string name="scan_qr_code">QR コードをスキャンする</string>
   <string name="going_to_mycelium_com_help">www.mycelium.comに接続しています</string>
@@ -329,6 +333,7 @@
   <string name="lt_no_trader_account_desc">この財布にひもづいたローカルトレーダーは存在しません。\n\nトレーダーアカウントはビットコインのアドレスに直接リンクされ、パスワードや面倒な作業は不要です。\n\n今すぐ作成しますか？</string>
   <string name="lt_trader_name_label">トレーダーの名前</string>
   <string name="lt_trader_address_label">アドレスにひもづいたアカウント</string>
+  <string name="lt_trader_email_address_label">メール アドレス</string>
   <string name="lt_trader_age_label">トレーダーアカウント年数</string>
   <string name="lt_trader_last_activity">最後のアクティビティ</string>
   <string name="lt_successful_sells_label">完了した売却</string>
@@ -388,4 +393,10 @@
   <string name="geocode_error">ジオコーダからのエラー: %s \n もう一度やり直してください。</string>
   <string name="donate_button">寄付</string>
   <string name="donate_description">Myceliumは優れた財布で無料で使用することができます。\n\n皆さんの寄付で私たちの開発活動をサポートして下さい。\n\nどんな額でも結構です!</string>
+  <string name="title_activity_bit_idauthentication">BitID 認証</string>
+  <string name="sign_bitid">ログイン</string>
+  <string name="account">アカウント</string>
+  <string name="backup_words_title">マスター シード バックアップ</string>
+  <string name="next_word_button">次の単語</string>
+  <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
 </resources>

@@ -7,7 +7,11 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginLeft="@dimen/button_padding"
+            android:layout_marginRight="@dimen/button_padding"
+            android:layout_marginTop="@dimen/button_padding"
+            >
 
         <TextView
                 android:id="@+id/tvTitle"
@@ -44,13 +48,48 @@
                 android:layout_height="10dp" >
         </View>
 
+        <LinearLayout
+                android:id="@+id/llShowWords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/half_padding"
+                android:baselineAligned="true"
+                android:background="@drawable/abc_ab_stacked_transparent_dark_holo"
+                >
+            <TextView
+                    android:id="@+id/tvClickButtonToShowFirstWord"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cick_button_to_show_word"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/lightgrey"
+                    android:layout_gravity="center"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tvShowWordNumber"
+                    android:textSize="@dimen/bigtext"
+                    android:textColor="@color/grey"
+                    android:paddingRight="@dimen/half_padding"
+                    android:layout_gravity="center"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tvShowWord"
+                    android:textSize="@dimen/bigtext"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"/>
+        </LinearLayout>
+
         <AutoCompleteTextView
                 android:id="@+id/tvWordCompleter"
                 style="Widget.AppCompat.Base.AutoCompleteTextView"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textVisiblePassword"
-                android:popupBackground="@drawable/abc_menu_dropdown_panel_holo_dark"/>
+                android:popupBackground="@drawable/abc_menu_dropdown_panel_holo_dark"
+                android:visibility="gone"/>
 
         <View
                 android:layout_width="1dp"
@@ -64,7 +103,8 @@
                 android:gravity="center"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
-                android:text="@string/next_word_button" />
+                android:text="@string/start_with_first_word_button" />
+
 
         <View
                 android:layout_width="1dp"

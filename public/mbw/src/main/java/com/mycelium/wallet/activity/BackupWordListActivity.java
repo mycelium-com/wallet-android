@@ -36,13 +36,17 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.Bip39;
@@ -56,19 +60,21 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import java.util.List;
 
 public class BackupWordListActivity extends ActionBarActivity {
-
+   private MbwManager _mbwManager;
+   private Button btnNextWord;
+   private AutoCompleteTextView acTextView;
+   private TextView tvShowWord;
+   private TextView tvShowWordNumber;
+   private List<String> wordlist;
+   private String password;
+   private int currentWordIndex;
+   private boolean startedVerification = false;
 
    public static void callMe(Activity activity) {
       Intent intent = new Intent(activity, BackupWordListActivity.class);
       activity.startActivity(intent);
    }
 
-   private MbwManager _mbwManager;
-   private AutoCompleteTextView acTextView;
-   private List<String> wordlist;
-   private String password;
-   private int currentWordIndex;
-   private boolean startedVerification = false;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -88,15 +94,17 @@ public class BackupWordListActivity extends ActionBarActivity {
       password = masterSeed.getBip39Password();
       currentWordIndex = 0;
 
-      findViewById(R.id.btNextWord).setOnClickListener(nextListener);
+      btnNextWord = (Button)findViewById(R.id.btNextWord);
+      btnNextWord.setOnClickListener(nextListener);
+
+      tvShowWordNumber = (TextView)findViewById(R.id.tvShowWordNumber);
+      tvShowWord = (TextView)findViewById(R.id.tvShowWord);
+
 
       acTextView = (AutoCompleteTextView) findViewById(R.id.tvWordCompleter);
-      acTextView.setOnItemClickListener(itemClicked);
+      acTextView.addTextChangedListener(charEntered);
       acTextView.setLongClickable(false);
 
-      //first we just show
-      acTextView.setEnabled(false);
-      acTextView.setHint(R.string.cick_button_to_show_word);
    }
 
    private View.OnClickListener nextListener = new View.OnClickListener() {
@@ -105,13 +113,26 @@ public class BackupWordListActivity extends ActionBarActivity {
          if (currentWordIndex == wordlist.size()) {
             switchToVerify();
          } else {
-            acTextView.setText(getString(R.string.showing_word_number, currentWordIndex + 1, wordlist.get(currentWordIndex)));
+            if (currentWordIndex == 0) findViewById(R.id.tvClickButtonToShowFirstWord).setVisibility(View.GONE);
+
+            if (currentWordIndex == wordlist.size()-1) {
+               btnNextWord.setText(R.string.start_word_list_verification);
+            }else {
+               btnNextWord.setText(R.string.next_word_button);
+            }
+            tvShowWordNumber.setText(getString(R.string.showing_word_number, currentWordIndex + 1));
+            tvShowWord.setText(wordlist.get(currentWordIndex));
+
             currentWordIndex++;
          }
       }
    };
 
    private void switchToVerify() {
+      // Switch to word entry
+      findViewById(R.id.llShowWords).setVisibility(View.GONE);
+      acTextView.setVisibility(View.VISIBLE);
+
       startedVerification = true;
       currentWordIndex = 0;
       checkForPasswordToShow();
@@ -150,27 +171,41 @@ public class BackupWordListActivity extends ActionBarActivity {
       acTextView.setEnabled(true);
       acTextView.setText("");
       acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
+      acTextView.requestFocus();
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
       findViewById(R.id.btNextWord).setVisibility(View.GONE);
    }
 
-   AdapterView.OnItemClickListener itemClicked = new AdapterView.OnItemClickListener() {
+   private void askForNextWord() {
+      if (currentWordIndex == wordlist.size() - 1) {
+         //we are done, final steps
+         askForPassword(false);
+      } else {
+         //ask for next word
+         currentWordIndex++;
+         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
+         acTextView.setText("");
+      }
+   }
+
+   TextWatcher charEntered = new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
       @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long rowId) {
-         String selection = (String) parent.getItemAtPosition(position);
-         if (!selection.equals(wordlist.get(currentWordIndex))) {
+      public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+         String word = s.toString();
+         if (word.equals(wordlist.get(currentWordIndex))) {
+            askForNextWord();
+         } else if (wordlist.contains(word)) {
+            //is a valid word, but not the one we are looking for
             Toast.makeText(BackupWordListActivity.this, R.string.verify_word_wrong, Toast.LENGTH_LONG).show();
-         } else {
-            if (currentWordIndex == wordlist.size() - 1) {
-               //we are done, final steps
-               askForPassword(false);
-            } else {
-               //ask for next word
-               currentWordIndex++;
-               acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
-            }
+            acTextView.setText("");
          }
-         acTextView.setText("");
       }
    };
 

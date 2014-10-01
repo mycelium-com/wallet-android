@@ -262,9 +262,7 @@ public class Bip44Account extends AbstractAccount {
 
       Collection<TransactionEx> transactions = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, ids))
             .getResult().transactions;
-      for (TransactionEx tx : transactions) {
-         handleNewExternalTransaction(tx);
-      }
+      handleNewExternalTransactions(transactions);
       // Return true if the last external or internal index has changed
       return lastExternalIndex != _context.getLastExternalIndexWithActivity() || lastInternalIndex != _context.getLastInternalIndexWithActivity();
    }

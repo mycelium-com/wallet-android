@@ -124,6 +124,7 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
+         //perform a generic scan, act based upon what we find in the QR code
          ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, ScanRequest.genericScanRequest());
       }
    };

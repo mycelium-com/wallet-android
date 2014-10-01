@@ -155,9 +155,7 @@ public class SingleAddressAccount extends AbstractAccount {
          try {
             GetTransactionsResponse response;
             response = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
-            for (TransactionEx tex : response.transactions) {
-               handleNewExternalTransaction(tex);
-            }
+            handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);

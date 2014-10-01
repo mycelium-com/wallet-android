@@ -75,6 +75,7 @@ import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -865,7 +866,7 @@ public class Utils {
       return returnList;
    }
 
-   public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts) {
+   public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts, final MetadataStorage storage) {
       Comparator<WalletAccount> comparator = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount lhs, WalletAccount rhs) {
@@ -884,13 +885,27 @@ public class Utils {
                   return 0;
                }
             }
-            //when both are single, we take UUID
-            return lhs.getId().compareTo(rhs.getId());
+            //when both are single, we take label
+            String lname = storage.getLabelByAccount(lhs.getId());
+            String rname = storage.getLabelByAccount(rhs.getId());
+            return lname.compareTo(rname);
          }
       };
       accounts = new ArrayList<WalletAccount>(accounts);
       Collections.sort(accounts, comparator);
       return accounts;
+   }
+
+   public static List<AddressBookManager.Entry> sortAddressbookEntries(List<AddressBookManager.Entry> entries) {
+      Comparator<AddressBookManager.Entry> comparator = new Comparator<AddressBookManager.Entry>() {
+         @Override
+         public int compare(AddressBookManager.Entry lhs, AddressBookManager.Entry rhs) {
+            return lhs.getName().compareTo(rhs.getName());
+         }
+      };
+      entries = new ArrayList<AddressBookManager.Entry>(entries);
+      Collections.sort(entries, comparator);
+      return entries;
    }
 
 }

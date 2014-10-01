@@ -324,8 +324,8 @@ public class AccountsFragment extends Fragment {
          getView().findViewById(R.id.svRecords).setVisibility(View.VISIBLE);
          getView().findViewById(R.id.llLocked).setVisibility(View.GONE);
 
-         List<WalletAccount> activeRecords = Utils.sortAccounts(walletManager.getActiveAccounts());
-         List<WalletAccount> archivedRecords = Utils.sortAccounts(walletManager.getArchivedAccounts());
+         List<WalletAccount> activeRecords = Utils.sortAccounts(walletManager.getActiveAccounts(), _storage);
+         List<WalletAccount> archivedRecords = Utils.sortAccounts(walletManager.getArchivedAccounts(), _storage);
 
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          LinearLayout active = createAccountViewList(activeRecords.isEmpty() ? R.string.active_name_empty : R.string.active_name,

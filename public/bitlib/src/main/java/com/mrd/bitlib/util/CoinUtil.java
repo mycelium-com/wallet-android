@@ -30,6 +30,7 @@ public class CoinUtil {
    private static final BigDecimal BTC_IN_SATOSHIS = new BigDecimal(100000000);
    private static final BigDecimal mBTC_IN_SATOSHIS = new BigDecimal(100000);
    private static final BigDecimal uBTC_IN_SATOSHIS = new BigDecimal(100);
+   private static final BigDecimal BITS_IN_SATOSHIS = new BigDecimal(100);
    private static final DecimalFormat COIN_FORMAT;
 
    static {
@@ -45,7 +46,7 @@ public class CoinUtil {
 
    public enum Denomination {
       BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS), mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS), uBTC(2, "uBTC", "\u00B5BTC",
-            uBTC_IN_SATOSHIS);
+            uBTC_IN_SATOSHIS), BITS(2, "bits", "bits", BITS_IN_SATOSHIS);
 
       private final int _decimalPlaces;
       private final String _asciiString;
@@ -90,6 +91,8 @@ public class CoinUtil {
             return mBTC;
          } else if (string.equals("uBTC")) {
             return uBTC;
+         } else if (string.equals("bits")) {
+            return BITS;
          } else {
             return BTC;
          }

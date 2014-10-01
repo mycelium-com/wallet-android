@@ -57,9 +57,9 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * Two redundant Mycelium wallet service servers for prodnet
     */
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1 = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://mws1.mycelium.com/mws", myceliumThumbprint);
+         "https://mws6.mycelium.com/mws", myceliumThumbprint);
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://188.40.12.226/mws", myceliumThumbprint);
+         "https://88.198.9.165/mws", myceliumThumbprint);
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint(
          "https://mws2.mycelium.com/mws", myceliumThumbprint);
    private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
@@ -129,9 +129,26 @@ public class MbwProdEnvironment extends MbwEnvironment {
    private static final WapiClient.HttpEndpoint prodnetWapiEndpoint2Alt = new WapiClient.HttpsEndpoint(
          "https://88.198.17.7/wapi", myceliumThumbprint);
 
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint3 = new WapiClient.HttpsEndpoint(
+         "https://mws6.mycelium.com/wapi", myceliumThumbprint);
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint3Alt = new WapiClient.HttpsEndpoint(
+         "https://88.198.9.165/wapi", myceliumThumbprint);
+
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint4 = new WapiClient.HttpsEndpoint(
+         "https://mws7.mycelium.com/wapi", myceliumThumbprint);
+   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint4Alt = new WapiClient.HttpsEndpoint(
+         "https://46.4.3.125/wapi", myceliumThumbprint);
 
    private static final WapiClient.HttpEndpoint[] prodnetWapiEndpoints = new WapiClient.HttpEndpoint[] {
-         prodnetWapiEndpoint1, prodnetWapiEndpoint1Alt, prodnetWapiEndpoint2, prodnetWapiEndpoint2Alt };
+         prodnetWapiEndpoint1,
+         prodnetWapiEndpoint1Alt,
+         prodnetWapiEndpoint2,
+         prodnetWapiEndpoint2Alt,
+         prodnetWapiEndpoint3,
+         prodnetWapiEndpoint3Alt,
+         prodnetWapiEndpoint4,
+         prodnetWapiEndpoint4Alt
+   };
 
    private static final WapiClient prodnetWapiClient = new WapiClient(prodnetWapiEndpoints, new WapiLogger() {
 

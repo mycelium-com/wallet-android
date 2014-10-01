@@ -121,7 +121,8 @@ public class StartupActivity extends Activity {
             return;
          } else if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             //user has accounts, but no seed. we just create one for him
-            startMasterSeedTask();
+            //first show an upgrade info, then make seed
+            showUpgradeInfo();
             //the Asynctask will execute delayedfinish
             return;
          }
@@ -149,6 +150,30 @@ public class StartupActivity extends Activity {
          }
       }
    };
+
+   private void showUpgradeInfo() {
+      //show upgrade info
+      new AlertDialog.Builder(this)
+            .setTitle(R.string.title_upgrade_info)
+            .setMessage(R.string.release_notes_hd)
+            .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int which) {
+                  // continue with master seed init
+                  startMasterSeedTask();
+               }
+            })
+            .setNegativeButton(R.string.butto_show_release_notes, new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int which) {
+                  // navigate to website
+                  Intent intent = new Intent(Intent.ACTION_VIEW);
+                  intent.setData(Uri.parse(Constants.MYCELIUM_2_RELEASE_NOTES_URL));
+                  startActivity(intent);
+                  //and get everything up while they read it :)
+                  startMasterSeedTask();
+               }
+            })
+            .show();
+   }
 
    private void initMasterSeed() {
       AlertDialog.Builder importDialog = new AlertDialog.Builder(this);
@@ -249,9 +274,7 @@ public class StartupActivity extends Activity {
    }
 
    private void normalStartup() {
-      // Normal startup, show the selected record in the BalanceActivity
-      // Intent intent = new Intent(StartupActivity.this,
-      // BalanceActivity.class);
+      // Normal startup, show the selected account in the BalanceActivity
       Intent intent = new Intent(StartupActivity.this, ModernMain.class);
       startActivity(intent);
       finish();
@@ -304,7 +327,11 @@ public class StartupActivity extends Activity {
       Address receivingAddress = Preconditions.checkNotNull(b.get().address);
       Long amountToSend = b.get().amount;
 
-      List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
+      List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+      if (spendingAccounts.isEmpty()) {
+         //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
+         spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
+      }
       if (spendingAccounts.size() == 1) {
          SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), amountToSend, receivingAddress, false, REQUEST_FROM_URI);
       } else {
