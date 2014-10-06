@@ -17,14 +17,6 @@
   <string name="advanced">高級設置</string>
   <string name="clipboard">剪貼板</string>
   <string name="enter_wordlist">輸入單詞列表</string>
-  <string name="import_from_android_wallet_backup_desc">從Andreas Schildbach\"比特幣錢包\"客戶端導入私鑰。</string>
-  <string name="android_wallet_backup">比特幣錢包備份</string>
-  <string name="pick_android_wallet_backup">選擇一個備份文件</string>
-  <string name="enter_android_wallet_backup_password_title">備份密碼</string>
-  <string name="enter_android_wallet_backup_password_message">輸入\"比特幣錢包\"應用程序創建備份密碼。</string>
-  <string name="pick_android_wallet_address_for_import">選取導入位址</string>
-  <string name="import_android_wallet_backup_io_error">不能讀取比特幣錢包備份文件。</string>
-  <string name="import_android_wallet_backup_decryption_error">不能解密比特幣錢包備份文件。密碼正確嗎？</string>
   <string name="hd_account">添加HD帳戶</string>
   <string name="close">退出</string>
   <string name="sending">正在匯款 %1$s</string>
@@ -153,6 +145,7 @@
   <string name="activated">激活了</string>
   <string name="keep_one_active">你至少要保留一個活躍帳戶。</string>
   <string name="please_wait">請等一下</string>
+  <string name="synchronizing_please_wait">同步，請稍候...</string>
   <string name="address_label_not_unique">地址簿已具有該標籤另一個地址</string>
   <string name="account_label_not_unique">該名稱已被另一個帳戶使用</string>
   <string name="tap_qr_code_desc">請打QR Code可能會提高掃描</string>
@@ -470,6 +463,8 @@
   <string name="preparing_wallet_on_first_startup_info">正在準備錢包...</string>
   <string name="importing_master_seed_from_wordlist">正在計算主種子...</string>
   <string name="importing_wordlist_enter_next_word">輸入單詞數 %1$s / %2$s</string>
+  <string name="showing_word_number">單詞%1$s:</string>
+  <string name="start_word_list_verification">開始驗證</string>
   <string name="delete_last_entered_word">刪除最後一個單詞</string>
   <string name="account">帳戶</string>
   <string name="verify_backup_seed_des">通過掃描QR代碼來驗證主種子備份。輸入單詞數 %1$s / %2$s</string>
@@ -497,10 +492,20 @@
   <string name="seed_already_configured">無法導入： 主種子已經被配置</string>
   <string name="backup_words_title">主種子備份</string>
   <string name="verify_words_title">主種子驗證</string>
+  <string name="wordlist_backup_description">現在非常重要\n\n 您將要備份您的主種子.\n\n備份完畢後，您應該設置PIN 來防止任何人拿你手機製作另一個備份，並竊取您的當前和未來的資金.\n\n 您將看到一個單詞列表，一個接一個。用筆和紙寫這些單詞，並將它們存儲在一個安全的地方。</string>
   <string name="next_word_button">下一個單詞</string>
+  <string name="start_with_first_word_button">顯示第一個詞</string>
+  <string name="cick_button_to_show_word">請點擊下面的按鈕以開始</string>
   <string name="wordlist_verify_description">請輸入剛才你寫下來的單詞，一個接一個，以確保所有備份都正確。</string>
   <string name="verify_word_wrong">單詞鍵入錯誤，請再試一次</string>
+  <string name="verify_wordlist_success">您的詞列表備份已經成功通過驗證。將備份存儲在安全的地方，您的資金安全需要它們！ \n\n如果您還沒有設置PIN，肯請您現在設置。 \n 您可以在設置菜單中設置一個PIN</string>
   <string name="note_down_password_title">寫下您的密碼</string>
   <string name="title_wrong_password">密碼錯誤，再試一次</string>
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
+  <string name="dont_allow_archiving_unused_notification">您不能存檔未使用的HD帳戶</string>
+  <string name="newly_generated_coins_from_coinbase">新生成的硬幣</string>
+  <string name="release_notes_hd">世界最佳手機錢包剛升級.\n\n 安全備份現在輕而易舉。新的HD帳戶讓你比以往任何時候更加匿名！\n\n 請閱讀更新說明，了解詳細信息。</string>
+  <string name="title_upgrade_info">歡迎光臨Mycelium 2.0</string>
+  <string name="button_continue">繼續</string>
+  <string name="butto_show_release_notes">顯示詳細信息</string>
 </resources>

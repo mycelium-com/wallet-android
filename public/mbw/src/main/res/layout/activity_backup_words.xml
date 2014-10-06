@@ -34,14 +34,6 @@
                 android:gravity="center"
                 android:text="@string/wordlist_backup_description" />
 
-        <TextView
-                android:id="@+id/tvDescriptionWordlistVerify"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:visibility="gone"
-                android:text="@string/wordlist_verify_description" />
 
         <View
                 android:layout_width="1dp"

@@ -17,14 +17,6 @@
   <string name="advanced">高级设置</string>
   <string name="clipboard">剪贴板</string>
   <string name="enter_wordlist">输入单词列表</string>
-  <string name="import_from_android_wallet_backup_desc">从Andreas Schildbach\"比特币钱包\"客户端导入私钥。</string>
-  <string name="android_wallet_backup">比特币钱包备份</string>
-  <string name="pick_android_wallet_backup">选择一个备份文件</string>
-  <string name="enter_android_wallet_backup_password_title">备份密码</string>
-  <string name="enter_android_wallet_backup_password_message">输入\"比特币钱包\"应用程序创建备份密码。</string>
-  <string name="pick_android_wallet_address_for_import">选取导入地址</string>
-  <string name="import_android_wallet_backup_io_error">不能读取比特币钱包备份文件。</string>
-  <string name="import_android_wallet_backup_decryption_error">不能解密比特币钱包备份文件。密码正确吗？</string>
   <string name="hd_account">添加HD帐户</string>
   <string name="close">退出</string>
   <string name="sending">正在汇款 %1$s</string>
@@ -153,6 +145,7 @@
   <string name="activated">激活了</string>
   <string name="keep_one_active">你至少要保留一个活跃帐户。</string>
   <string name="please_wait">请等一下</string>
+  <string name="synchronizing_please_wait">同步，请稍候...</string>
   <string name="address_label_not_unique">地址簿已具有该标签另一个地址</string>
   <string name="account_label_not_unique">该名称已被另一个帐户使用</string>
   <string name="tap_qr_code_desc">请打二维码可能会提高扫描</string>
@@ -472,6 +465,8 @@
   <string name="preparing_wallet_on_first_startup_info">正在准备钱包...</string>
   <string name="importing_master_seed_from_wordlist">正在计算主种子...</string>
   <string name="importing_wordlist_enter_next_word">输入单词数 %1$s / %2$s</string>
+  <string name="showing_word_number">单词%1$s:</string>
+  <string name="start_word_list_verification">开始验证</string>
   <string name="delete_last_entered_word">删除最后一个单词</string>
   <string name="account">帐户</string>
   <string name="verify_backup_seed_des">通过扫描QR代码来验证主种子备份。</string>
@@ -499,10 +494,20 @@
   <string name="seed_already_configured">无法导入： 主种子已经被配置</string>
   <string name="backup_words_title">主种子备份</string>
   <string name="verify_words_title">主种子验证</string>
+  <string name="wordlist_backup_description">现在非常重要\n\n  您将要备份您的主种子.\n\n备份完毕后，您应该设置 PIN 来防止任何人拿你手机制作另一个备份，并窃取您的当前和未来的资金.\n\n 您将看到一个单词列表，一个接一个。用笔和纸写这些单词，并将它们存储在一个安全的地方。</string>
   <string name="next_word_button">下一个单词</string>
+  <string name="start_with_first_word_button">显示第一个词</string>
+  <string name="cick_button_to_show_word">请点击下面按钮来开始</string>
   <string name="wordlist_verify_description">请输入刚才你写下来的单词，一个接一个，以确保所有备份都正确。</string>
   <string name="verify_word_wrong">单词键入错误，请再试一次</string>
+  <string name="verify_wordlist_success">您的词列表备份已经成功通过验证。将备份存储在安全的地方，您的资金安全需要它们 ！\n\n如果您还没有设置 PIN，肯请您现在设置。\n 您可以在设置菜单中设置一个PIN</string>
   <string name="note_down_password_title">写下你的密码</string>
   <string name="title_wrong_password">错了密码，请再试一次</string>
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
+  <string name="dont_allow_archiving_unused_notification">您不能存档未使用的HD帐户</string>
+  <string name="newly_generated_coins_from_coinbase">新生成的硬币</string>
+  <string name="release_notes_hd">世界最佳手机钱包刚升级.\n\n  安全备份现在轻而易举。新的HD帐户让你比以往任何时候更加匿名！ \n\n 请阅读更新说明，了解详细信息。</string>
+  <string name="title_upgrade_info">欢迎光临Mycelium 2.0</string>
+  <string name="button_continue">继续…</string>
+  <string name="butto_show_release_notes">显示详细信息</string>
 </resources>

@@ -53,26 +53,29 @@ public class MbwProdEnvironment extends MbwEnvironment {
     */
    private static final String myceliumThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
 
-   /**
-    * Two redundant Mycelium wallet service servers for prodnet
-    */
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1 = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://mws6.mycelium.com/mws", myceliumThumbprint);
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint1Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://88.198.9.165/mws", myceliumThumbprint);
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2 = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://mws2.mycelium.com/mws", myceliumThumbprint);
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsProdnetEndpoint2Alt = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://88.198.17.7/mws", myceliumThumbprint);
-
 
    /**
     * The set of endpoints we use for prodnet. The wallet chooses a random
     * endpoint and if it does not respond it round-robins through the list. This
     * way we achieve client side load-balancing and fail-over.
+    *
+    * Three redundant Mycelium wallet service servers for prodnet, one by DNS, one by IP
     */
    private static final MyceliumWalletApiImpl.HttpEndpoint[] prodnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] {
-         httpsProdnetEndpoint1, httpsProdnetEndpoint2, httpsProdnetEndpoint1Alt, httpsProdnetEndpoint2Alt };
+         // node2
+         new MyceliumWalletApiImpl.HttpsEndpoint("https://mws2.mycelium.com/mws", myceliumThumbprint),
+         new MyceliumWalletApiImpl.HttpsEndpoint("https://88.198.17.7/mws", myceliumThumbprint),
+
+         // node6
+         new MyceliumWalletApiImpl.HttpsEndpoint("https://mws6.mycelium.com/mws", myceliumThumbprint),
+         new MyceliumWalletApiImpl.HttpsEndpoint("https://88.198.9.165/mws", myceliumThumbprint),
+
+         // node7
+         new MyceliumWalletApiImpl.HttpsEndpoint("https://mws7.mycelium.com/mws", myceliumThumbprint),
+         new MyceliumWalletApiImpl.HttpsEndpoint("https://46.4.3.125/mws", myceliumThumbprint),
+   };
+
+
    private static final MyceliumWalletApiImpl prodnetApi = new MyceliumWalletApiImpl(prodnetServerEndpoints,
          NetworkParameters.productionNetwork);
 
@@ -119,35 +122,18 @@ public class MbwProdEnvironment extends MbwEnvironment {
    /**
     * Wapi
     */
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint1 = new WapiClient.HttpsEndpoint(
-         "https://mws1.mycelium.com/wapi", myceliumThumbprint);
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint1Alt = new WapiClient.HttpsEndpoint(
-         "https://188.40.12.226/wapi", myceliumThumbprint);
-
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint2 = new WapiClient.HttpsEndpoint(
-         "https://mws2.mycelium.com/wapi", myceliumThumbprint);
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint2Alt = new WapiClient.HttpsEndpoint(
-         "https://88.198.17.7/wapi", myceliumThumbprint);
-
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint3 = new WapiClient.HttpsEndpoint(
-         "https://mws6.mycelium.com/wapi", myceliumThumbprint);
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint3Alt = new WapiClient.HttpsEndpoint(
-         "https://88.198.9.165/wapi", myceliumThumbprint);
-
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint4 = new WapiClient.HttpsEndpoint(
-         "https://mws7.mycelium.com/wapi", myceliumThumbprint);
-   private static final WapiClient.HttpEndpoint prodnetWapiEndpoint4Alt = new WapiClient.HttpsEndpoint(
-         "https://46.4.3.125/wapi", myceliumThumbprint);
-
    private static final WapiClient.HttpEndpoint[] prodnetWapiEndpoints = new WapiClient.HttpEndpoint[] {
-         prodnetWapiEndpoint1,
-         prodnetWapiEndpoint1Alt,
-         prodnetWapiEndpoint2,
-         prodnetWapiEndpoint2Alt,
-         prodnetWapiEndpoint3,
-         prodnetWapiEndpoint3Alt,
-         prodnetWapiEndpoint4,
-         prodnetWapiEndpoint4Alt
+         // node2
+         new WapiClient.HttpsEndpoint("https://mws2.mycelium.com/wapi", myceliumThumbprint),
+         new WapiClient.HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),
+
+         // node6
+         new WapiClient.HttpsEndpoint("https://mws6.mycelium.com/wapi", myceliumThumbprint),
+         new WapiClient.HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),
+
+         // node7
+         new WapiClient.HttpsEndpoint("https://mws7.mycelium.com/wapi", myceliumThumbprint),
+         new WapiClient.HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint)
    };
 
    private static final WapiClient prodnetWapiClient = new WapiClient(prodnetWapiEndpoints, new WapiLogger() {

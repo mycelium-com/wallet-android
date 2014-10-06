@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <!-- Top row -->
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal">
+
+        <Button
+                android:id="@+id/btQ"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="Q"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btW"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="W"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btE"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="E"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btR"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="R"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btT"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="T"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btY"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="Y"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btU"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="U"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btI"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="I"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btO"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="O"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btP"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="P"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+    </LinearLayout>
+
+    <!-- Middle row -->
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal">
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="0.5"/>
+
+        <Button
+                android:id="@+id/btA"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="A"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btS"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="S"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+
+        <Button
+                android:id="@+id/btD"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="D"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btF"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="F"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btG"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="G"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btH"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="H"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btJ"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="J"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btK"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="K"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btL"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="L"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="0.5"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal">
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+        <Button
+                android:id="@+id/btZ"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="Z"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btX"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="X"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btC"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="C"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btV"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="V"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btB"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="B"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btN"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="N"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btM"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="M"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <Button
+                android:id="@+id/btDel"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.75"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:text="&lt;"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText"/>
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="0.25"/>
+
+    </LinearLayout>
+
+</LinearLayout>

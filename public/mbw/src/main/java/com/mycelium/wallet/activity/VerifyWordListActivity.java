@@ -59,16 +59,15 @@ import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.util.List;
 
-public class BackupWordListActivity extends ActionBarActivity {
-   private Button btnNextWord;
-   private TextView tvShowWord;
-   private TextView tvShowWordNumber;
+public class VerifyWordListActivity extends ActionBarActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
+   private MbwManager _mbwManager;
    private List<String> wordlist;
    private String password;
    private int currentWordIndex;
+   private WordAutoCompleterFragment _wordAutoCompleter;
 
    public static void callMe(Activity activity) {
-      Intent intent = new Intent(activity, BackupWordListActivity.class);
+      Intent intent = new Intent(activity, VerifyWordListActivity.class);
       activity.startActivity(intent);
    }
 
@@ -78,9 +77,9 @@ public class BackupWordListActivity extends ActionBarActivity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_backup_words);
+      setContentView(R.layout.activity_verify_words);
       Utils.preventScreenshots(this);
-      MbwManager _mbwManager = MbwManager.getInstance(this);
+      _mbwManager = MbwManager.getInstance(this);
       Bip39.MasterSeed masterSeed;
       try {
          masterSeed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
@@ -92,64 +91,61 @@ public class BackupWordListActivity extends ActionBarActivity {
       password = masterSeed.getBip39Password();
       currentWordIndex = 0;
 
-      btnNextWord = (Button)findViewById(R.id.btNextWord);
-      btnNextWord.setOnClickListener(nextListener);
-
-      tvShowWordNumber = (TextView)findViewById(R.id.tvShowWordNumber);
-      tvShowWord = (TextView)findViewById(R.id.tvShowWord);
-
-      AutoCompleteTextView acTextView = (AutoCompleteTextView) findViewById(R.id.tvWordCompleter);
-      acTextView.setLongClickable(false);
+      _wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
+      _wordAutoCompleter.setListener(this);
+      _wordAutoCompleter.setMinimumCompletionCharacters(2);
+      _wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
+      UsKeyboardFragment keyboard = (UsKeyboardFragment) getSupportFragmentManager().findFragmentById(R.id.usKeyboard);
+      keyboard.setListener(_wordAutoCompleter);
    }
 
-   private View.OnClickListener nextListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-         if (currentWordIndex == wordlist.size()) {
-            switchToVerify();
-         } else {
-            if (currentWordIndex == 0) findViewById(R.id.tvClickButtonToShowFirstWord).setVisibility(View.GONE);
-            showWordNumber();
-         }
-      }
-   };
-
-   private void showWordNumber() {
-      if (currentWordIndex == wordlist.size()-1) {
-         btnNextWord.setText(R.string.start_word_list_verification);
-      }else {
-         btnNextWord.setText(R.string.next_word_button);
-      }
-      tvShowWordNumber.setText(getString(R.string.showing_word_number, currentWordIndex + 1));
-      tvShowWord.setText(wordlist.get(currentWordIndex));
-      currentWordIndex++;
-   }
-
-   private void switchToVerify() {
-      //check whether we need to show a password
-      if (password.length() == 0) {
-         startVerification();
+   private void askForNextWord() {
+      if (currentWordIndex == wordlist.size() - 1) {
+         //we are done, final steps
+         askForPassword(false);
       } else {
-         final TextView pass = new TextView(this);
-         pass.setText(password);
-         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-         builder.setTitle(R.string.note_down_password_title);
+         //ask for next word
+         currentWordIndex++;
+         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
+      }
+   }
+
+   private void askForPassword(boolean wasWrong) {
+      if (password.length() > 0) {
+         final EditText pass = new EditText(this);
+
+         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         if (wasWrong) {
+            builder.setTitle(R.string.title_wrong_password);
+         } else {
+            builder.setTitle(R.string.type_password_title);
+         }
          builder.setView(pass)
                .setCancelable(false)
                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface dialog, int id) {
-                     startVerification();
+                     if (pass.getText().toString().equals(password)) {
+                        setVerified();
+                     } else {
+                        askForPassword(true);
+                     }
                   }
                })
                .show();
+      } else {
+         setVerified();
       }
    }
 
-   private void startVerification() {
-      VerifyWordListActivity.callMe(this);
-      finish();
+   private void setVerified() {
+      _mbwManager.getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
+      Utils.showSimpleMessageDialog(this, R.string.verify_wordlist_success, new Runnable() {
+         @Override
+         public void run() {
+            VerifyWordListActivity.this.finish();
+         }
+      });
    }
-
 
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState)
@@ -163,10 +159,15 @@ public class BackupWordListActivity extends ActionBarActivity {
    {
       super.onRestoreInstanceState(savedInstanceState);
       currentWordIndex = savedInstanceState.getInt("index");
-      if (currentWordIndex != 0) {
-         currentWordIndex--;
-         findViewById(R.id.tvClickButtonToShowFirstWord).setVisibility(View.GONE);
+      _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
+   }
+
+   @Override
+   public void onWordSelected(String word) {
+      if (word.equals(wordlist.get(currentWordIndex))) {
+         askForNextWord();
+      } else {
+         Toast.makeText(VerifyWordListActivity.this, R.string.verify_word_wrong, Toast.LENGTH_LONG).show();
       }
-      showWordNumber();
    }
 }

@@ -6,14 +6,6 @@
   <string name="clipboard_desc">Nhập địa chỉ Bitcoin hoặc private key từ Clipboard.</string>
   <string name="scan">Quét</string>
   <string name="clipboard">Clipboard</string>
-  <string name="import_from_android_wallet_backup_desc">Công cụ nhập Key Riêng từ \"Ví Bitcoin\" bởi Andreas Schildbach.</string>
-  <string name="android_wallet_backup">Ví Bitcoin sao lưu</string>
-  <string name="pick_android_wallet_backup">Chọn một tập tin sao lưu</string>
-  <string name="enter_android_wallet_backup_password_title">Sao lưu mật khẩu</string>
-  <string name="enter_android_wallet_backup_password_message">Điền mật khẩu được dùng khi sao lưu bằng chương trình \"Ví Bitcoin\".</string>
-  <string name="pick_android_wallet_address_for_import">Điền địa chỉ nhập</string>
-  <string name="import_android_wallet_backup_io_error">Không đọc được tập tin sao lưu Ví Bitcoin.</string>
-  <string name="import_android_wallet_backup_decryption_error">Không giải mã được tập tin sao lưu Ví Bitcoin. Mật khẩu đúng chứ?</string>
   <string name="close">Đóng</string>
   <string name="sending">Đang gửi %1$s</string>
   <string name="receiving">Đang nhận %1$s</string>

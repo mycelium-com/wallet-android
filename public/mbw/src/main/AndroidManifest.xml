@@ -121,6 +121,7 @@
         <activity android:name=".activity.ImportSeedActivity" />
         <activity android:name=".activity.EnterWordListActivity" />
         <activity android:name=".activity.BackupWordListActivity" />
+        <activity android:name=".activity.VerifyWordListActivity" />
     </application>
 
 </manifest>

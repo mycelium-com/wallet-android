@@ -42,22 +42,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.*;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Environment;
 import android.text.ClipboardManager;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.animation.*;
-import android.widget.*;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -67,11 +68,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mrd.mbwapi.api.QueryUnspentOutputsResponse;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
@@ -79,12 +77,9 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import org.bitcoinj.wallet.Protos;
 
-import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
@@ -141,99 +136,7 @@ public class Utils {
        */
    }
 
-   public static class BitcoinScanResult {
-      public Address address;
-      public Long amount;
 
-      public BitcoinScanResult(Address address, Long amount) {
-         this.address = address;
-         this.amount = amount;
-      }
-   }
-
-   public static BitcoinScanResult parseScanResult(final Intent intent, NetworkParameters network) {
-      if (!("QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT")))) {
-         return null;
-      }
-      String contents = intent.getStringExtra("SCAN_RESULT").trim();
-
-      // Determine address string and amount
-      if (contents.matches("[a-zA-Z0-9]*")) {
-         // Raw format
-         Address address = Address.fromString(contents.trim(), network);
-         if (address == null) {
-            return null;
-         }
-         return new BitcoinScanResult(address, null);
-      } else {
-         Optional<BitcoinUri> b = BitcoinUri.parse(contents, network);
-         if (b.isPresent()) {
-            // On URI format
-            return new BitcoinScanResult(b.get().address, b.get().amount);
-         }
-      }
-
-      return null;
-   }
-
-   public static long maxAmountSendable(QueryUnspentOutputsResponse unspent) {
-      long amount = 0;
-      for (UnspentTransactionOutput out : unspent.unspent) {
-         amount += out.value;
-      }
-      for (UnspentTransactionOutput out : unspent.change) {
-         amount += out.value;
-      }
-      return amount;
-   }
-
-   public static Bitmap getLargeQRCodeBitmap(String text, MbwManager manager) {
-      // make size 85% of display size
-      int size = Math.min(manager.getDisplayWidth(), manager.getDisplayHeight()) * 81 / 100;
-      int margin = Math.min(manager.getDisplayWidth(), manager.getDisplayHeight()) * 8 / 100;
-      return getQRCodeBitmap(text, size, margin);
-   }
-
-   public static Bitmap getQRCodeBitmap(String url, int size, int margin) {
-      Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
-      hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
-      hints.put(EncodeHintType.MARGIN, 0);
-      return getQRCodeBitmap(url, size, margin, hints);
-   }
-
-   private static Bitmap getQRCodeBitmap(String url, int size, int margin, Hashtable<EncodeHintType, Object> hints) {
-      try {
-         final BitMatrix result = new QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, 0, 0, hints);
-
-         final int width = result.getWidth();
-         final int height = result.getHeight();
-         final int[] pixels = new int[width * height];
-
-         for (int y = 0; y < height; y++) {
-            final int offset = y * width;
-            for (int x = 0; x < width; x++) {
-               pixels[offset + x] = result.get(x, y) ? Color.BLACK : Color.WHITE;
-            }
-         }
-
-         final Bitmap smallBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-         smallBitmap.setPixels(pixels, 0, width, 0, 0, width, height);
-
-         Bitmap largeBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-         Canvas canvas = new Canvas(largeBitmap);
-         Paint p = new Paint();
-         p.setDither(false);
-         p.setAntiAlias(false);
-         Rect src = new Rect(0, 0, smallBitmap.getWidth(), smallBitmap.getHeight());
-         Rect dst = new Rect(margin, margin, largeBitmap.getWidth() - margin, largeBitmap.getHeight() - margin);
-         canvas.drawColor(0xFFFFFFFF);
-         canvas.drawBitmap(smallBitmap, src, dst, p);
-         return largeBitmap;
-      } catch (final WriterException x) {
-         x.printStackTrace();
-         return null;
-      }
-   }
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
       Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
@@ -263,50 +166,11 @@ public class Utils {
       }
    }
 
-   public static AlertDialog showQrCode(final Context context, int titleMessageId, Bitmap qrCode, final String value,
-                                        int buttonLabelId, boolean pulse) {
-      LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      View layout = inflater.inflate(R.layout.qr_code_dialog, null);
-      AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
-      final AlertDialog qrCodeDialog = builder.create();
-      qrCodeDialog.setCanceledOnTouchOutside(true);
-      TextView text = (TextView) layout.findViewById(R.id.tvTitle);
-      text.setText(titleMessageId);
-
-      ImageView qrAdress = (ImageView) layout.findViewById(R.id.ivQrCode);
-      qrAdress.setImageBitmap(qrCode);
-      qrAdress.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            qrCodeDialog.dismiss();
-         }
-      });
-
-      Button copy = (Button) layout.findViewById(R.id.btCopyToClipboard);
-      copy.setText(buttonLabelId);
-      copy.setOnClickListener(new OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            Utils.setClipboardString(value, context);
-            Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-         }
-      });
-
-      // Make QR code fade along with the entire view
-      if (pulse) {
-         layout.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slow_pulse));
-      }
-      qrCodeDialog.show();
-      return qrCodeDialog;
-   }
-
    public static boolean isConnected(Context context) {
       ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
       NetworkInfo[] NI = cm.getAllNetworkInfo();
-      for (int i = 0; i < NI.length; i++) {
-         if (NI[i].isConnected()) {
+      for (NetworkInfo aNI : NI) {
+         if (aNI.isConnected()) {
             return true;
          }
       }
@@ -321,10 +185,6 @@ public class Utils {
       }
    }
 
-   public static void moveView(View view, int startDeltaX, int startDeltaY, long duration) {
-      moveView(view, startDeltaX, startDeltaY, 0, 0, duration);
-   }
-
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
       AnimationSet set = new AnimationSet(true);
       Animation move = new TranslateAnimation(startDeltaX, endDeltaX, startDeltaY, endDeltaY);
@@ -332,28 +192,6 @@ public class Utils {
       move.setFillAfter(true);
       move.setZAdjustment(Animation.ZORDER_TOP);
       set.addAnimation(move);
-      set.setFillAfter(true);
-      view.startAnimation(set);
-   }
-
-   public static void fadeViewInOut(View view) {
-      fadeViewInOut(view, 0, 1000, 1000);
-   }
-
-   public static void fadeViewInOut(View view, long startDelay, long fadeTime, long stayTime) {
-      AnimationSet set = new AnimationSet(false);
-      Animation in = new AlphaAnimation(0.0f, 1.0f);
-      in.setStartOffset(startDelay);
-      in.setDuration(fadeTime);
-      in.setFillAfter(false);
-      in.setZAdjustment(Animation.ZORDER_TOP);
-      set.addAnimation(in);
-      Animation out = new AlphaAnimation(1.0f, 0.0f);
-      out.setStartOffset(fadeTime + startDelay + stayTime);
-      out.setDuration(fadeTime);
-      out.setFillAfter(true);
-      out.setZAdjustment(Animation.ZORDER_TOP);
-      set.addAnimation(out);
       set.setFillAfter(true);
       view.startAnimation(set);
    }
@@ -458,7 +296,7 @@ public class Utils {
       if (oneBtcInFiat == null) {
          return null;
       }
-      return Double.valueOf(satoshis) * oneBtcInFiat / Constants.ONE_BTC_IN_SATOSHIS;
+      return (double) satoshis * oneBtcInFiat / Constants.ONE_BTC_IN_SATOSHIS;
    }
 
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat) {
@@ -608,9 +446,7 @@ public class Utils {
       int digitsBefore = 0;
       int digitsAfter = 0;
       char[] chars = string.toCharArray();
-      for (int i = 0; i < chars.length; i++) {
-         char c = chars[i];
-
+      for (char c : chars) {
          // Check for digits
          if (c == '.') {
             if (foundDot || foundComma) {
@@ -728,47 +564,6 @@ public class Utils {
       alertDialog.show();
    }
 
-   public static void addHorizontalSwipeDotView(Context context, LinearLayout root, int dots, int selected) {
-      // Calculate size of dots and gaps
-      DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-      int imageSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, metrics);
-      int gapWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, metrics);
-
-      // Create layout parameters for images and gaps
-      LinearLayout.LayoutParams imageParameters = new LinearLayout.LayoutParams(imageSize, imageSize, 0);
-      LinearLayout.LayoutParams gapParameters = new LinearLayout.LayoutParams(gapWidth, 1, 0);
-
-      // Create horizontal layout
-      LinearLayout layout = new LinearLayout(context);
-      layout.setOrientation(LinearLayout.HORIZONTAL);
-      layout.setLayoutParams(new LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT, 0));
-
-      // Fetch drawables for full and line circles
-      Drawable full = context.getResources().getDrawable(R.drawable.circle_full_white);
-      Drawable line = context.getResources().getDrawable(R.drawable.circle_line_white);
-
-      boolean first = true;
-      for (int i = 0; i < dots; i++) {
-         if (first) {
-            first = false;
-         } else {
-            View gap = new View(context);
-            gap.setLayoutParams(gapParameters);
-            layout.addView(gap);
-         }
-         ImageView image = new ImageView(context);
-         image.setLayoutParams(imageParameters);
-         if (i == selected) {
-            image.setImageDrawable(full);
-         } else {
-            image.setImageDrawable(line);
-         }
-         layout.addView(image);
-      }
-
-      root.addView(layout);
-   }
-
    /**
     * Prevent the OS from taking screenshots for the specified activity
     */
@@ -783,87 +578,6 @@ public class Utils {
          return;
       }
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-   }
-
-   /**
-    * Search for possible backup files created by Schildbach's "Bitcoin Wallet"
-    * app (matching by filename).
-    *
-    * @return list of possible files or empty list if none found
-    */
-   public static ArrayList<File> findAndroidWalletBackupFiles(final NetworkParameters network) {
-      final File[] foundFiles;
-      final String filenamePattern;
-      if (network.isTestnet()) {
-         filenamePattern = "bitcoin-wallet-(keys|backup)-testnet-\\d\\d\\d\\d-\\d\\d-\\d\\d";
-      } else {
-         filenamePattern = "bitcoin-wallet-(keys|backup)-\\d\\d\\d\\d-\\d\\d-\\d\\d";
-      }
-      File backupDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-      if (backupDir.exists() && backupDir.isDirectory()) {
-         foundFiles = backupDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-               return (filename.matches(filenamePattern));
-            }
-         });
-         if (foundFiles.length > 1) {
-            Arrays.sort(foundFiles, new Comparator<File>() {
-               public int compare(File lhs, File rhs) {
-                  return rhs.getName().compareTo(lhs.getName());
-               }
-            });
-         }
-         return new ArrayList<File>(Arrays.asList(foundFiles));
-      }
-      return new ArrayList<File>();
-   }
-
-   /**
-    * Returns the contents of a file as a string
-    *
-    * @param textFile an UTF-8 encoded text file
-    * @return content of a text file as string
-    * @throws java.io.IOException
-    */
-   public static String getFileContent(File textFile) throws IOException {
-      final StringBuilder filecontent = new StringBuilder();
-      final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(textFile),
-            Charset.forName("UTF-8")));
-      try {
-         while (true) {
-            final String currLine = reader.readLine();
-            if (currLine == null) {
-               break;
-            }
-            filecontent.append(currLine);
-         }
-      } finally {
-         reader.close();
-      }
-      return filecontent.toString();
-   }
-
-   /**
-    * Reads private keys from a protocol buffer encoded input stream as it is used by the bitcoinj
-    * library. Ignores the rest of the content, just tries to read unencrypted private keys
-    * (assumes that keys are unencrypted).
-    *
-    * @param inStream
-    * @return list of byte-arrays containing 32-byte long raw private keys
-    * @throws IOException
-    */
-   public static List<InMemoryPrivateKey> getPrivKeysFromBitcoinJProtobufBackup(InputStream inStream, NetworkParameters network) throws IOException {
-      List<InMemoryPrivateKey> returnList = new ArrayList<InMemoryPrivateKey>();
-      Protos.Wallet wallet = Protos.Wallet.parseFrom(inStream);
-      for (Protos.Key k : wallet.getKeyList()) {
-         byte[] pubKeyBytes = k.getPublicKey().toByteArray();
-         byte[] privKeyBytes = k.getPrivateKey().toByteArray();
-         boolean keyIsCompressed = (pubKeyBytes.length == 33);
-         InMemoryPrivateKey inMemoryKey = new InMemoryPrivateKey(privKeyBytes, keyIsCompressed);
-         returnList.add(inMemoryKey);
-      }
-      return returnList;
    }
 
    public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts, final MetadataStorage storage) {

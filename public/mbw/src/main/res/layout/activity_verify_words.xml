@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:orientation="vertical">
+
+    <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginLeft="@dimen/button_padding"
+                android:layout_marginRight="@dimen/button_padding"
+                android:layout_marginTop="@dimen/button_padding"
+                >
+
+            <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/verify_words_title"
+                    android:textSize="24sp" />
+
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="10dp" >
+            </View>
+
+            <TextView
+                    android:id="@+id/tvDescriptionWordlistVerify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/wordlist_verify_description" />
+
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="10dp" >
+            </View>
+
+
+            <fragment
+                    android:id="@+id/wordAutoCompleter"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    class="com.mycelium.wallet.activity.WordAutoCompleterFragment"
+                    tools:layout="@layout/word_auto_completer_fragment"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+    </View>
+
+    <fragment
+            android:id="@+id/usKeyboard"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            class="com.mycelium.wallet.activity.UsKeyboardFragment"
+            tools:layout="@layout/us_keyboard_fragment"/>
+
+</LinearLayout>

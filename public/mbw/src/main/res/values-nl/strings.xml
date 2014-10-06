@@ -17,14 +17,6 @@
   <string name="advanced">Geadvanceerd</string>
   <string name="clipboard">Klembord</string>
   <string name="enter_wordlist">Voer woordenlijst in</string>
-  <string name="import_from_android_wallet_backup_desc">Persoonlijke sleutel van de \"Bitcoin Wallet\" client gemaakt door Andreas Schildbach importeren.</string>
-  <string name="android_wallet_backup">Bitcoin portefeuille back-up</string>
-  <string name="pick_android_wallet_backup">Kies een back-up bestand</string>
-  <string name="enter_android_wallet_backup_password_title">Back-up wachtwoord</string>
-  <string name="enter_android_wallet_backup_password_message">Geef het wachtwoord dat werd gebruikt bij het maken van de back-up in de \"Bitcoin Wallet\" app.</string>
-  <string name="pick_android_wallet_address_for_import">Kies een adres om te importeren</string>
-  <string name="import_android_wallet_backup_io_error">Het back-upbestand van Bitcoin portemonnee kon niet worden gelezen.</string>
-  <string name="import_android_wallet_backup_decryption_error">Het back-up bestand van Bitcoin portemonnee kan niet worden gedecodeerd. Is het wachtwoord correct?</string>
   <string name="hd_account">HD-Account toevoegen</string>
   <string name="close">Sluiten</string>
   <string name="sending">Bezig met verzenden %1$s</string>
@@ -135,6 +127,7 @@
   <string name="cold_storage">Koude opslag</string>
   <string name="cold_storage_title">Bitcoins uit de koude opslag uitgeven</string>
   <string name="cold_storage_desc">U staat op het punt om uit te geven van een private key in koude opslag. Dit zou een private key op papier of een private key ticket van een Bitcoin geldautomaat kunnen zijn. Verschillende typen indelingen zijn ondersteund.\n\nZodra de transactie is verstuurd zal elk spoor van de private key worden gewist uit het geheugen.</string>
+  <string name="keep_account_address">Verwijder alleen de private key en behoudt als alleen-lezen account</string>
   <string name="manual_entry">Handmatige invoer</string>
   <string name="active_name">Actief</string>
   <string name="active_name_empty">Actief (leeg)</string>
@@ -142,6 +135,7 @@
   <string name="archive_name_empty">Archief (leeg)</string>
   <string name="activate_action">Activeren</string>
   <string name="archive_action">Archiveren</string>
+  <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\r\n\r\nGearchiveerde accounts kunnen later weer geactiveerd worden. \r\n\r\nWilt u dit account archiveren?</string>
   <string name="master_seed_configuration_title">Welkom bij Mycelium</string>
   <string name="master_seed_configuration_description">Wilt u een back-up terugzetten, of een nieuwe portemonnee aanmaken?</string>
   <string name="master_seed_create_new_button">Nieuwe aanmaken</string>
@@ -150,6 +144,7 @@
   <string name="activated">Geactiveerd</string>
   <string name="keep_one_active">U dient tenminste één actief account te behouden.</string>
   <string name="please_wait">Een ogenblik geduld &#8230;</string>
+  <string name="synchronizing_please_wait">Aan het synchroniseren, even geduld&#8230;</string>
   <string name="address_label_not_unique">Het adresboek bevat een ander adres met die naam</string>
   <string name="account_label_not_unique">Deze naam is al in gebruik voor een ander account</string>
   <string name="tap_qr_code_desc">Door op de QR code te tikken kunt u eventueel de scan verbeteren</string>
@@ -157,6 +152,7 @@
   <string name="slow_network">Uw netwerkverbinding lijkt traag. \nMet een beetje geduld, zal het wel lukken&#8230;</string>
   <string name="signing_transaction">Ondertekening van de transactie</string>
   <string name="broadcasting_transaction">Verzenden transactie</string>
+  <string name="transaction_rejected_message">De transactie is geweigerd door het netwerk. Dit geeft aan dat uw portemonnee niet gesynchroniseerd is</string>
   <string name="enter_bitcoin_address">Bitcoin adres invoeren</string>
   <string name="bitcoin_address_invalid">Ongeldig Bitcoin adres</string>
   <string name="bitcoin_address_valid">Bitcoin adres geldig</string>
@@ -174,9 +170,11 @@
   <string name="confirm_delete_pk_without_balance_with_label">Dit kan niet ongedaan worden gemaakt!\n\nPrivate key label:\n%1$s\n\nPrivate key adres:\n%2$s\n\nWilt u deze verwijderen?</string>
   <string name="verify_private_key_backup">Back-up verifiëren</string>
   <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
+  <string name="verify_backup_desc">Een goede back-up van uw private keys is een belangrijk onderdeel van het beheren van uw Bitcoin tegoeden.\n\nDoor uw back-up te verifiëren kunt u controlen of deze werkt zodat dat u geen geld verliest als u uw Android apparaat verliest of als het beschadigd raakt.</string>
   <string name="verify_backup_clipboard_desc">Private key back-ups verifiëren door middel van de private key op klembord.</string>
   <string name="verify_backup_num_keys">U heeft %1$s keys die nog nooit zijn geverifieerd.</string>
   <string name="verify_backup_one_key">U heeft 1 key die nog nooit is geverifieerd.</string>
+  <string name="verify_backup_master_seed">Uw master seed is niet geverifieerd.</string>
   <string name="verify_backup_no_such_record">De private key komt niet overeen met een van uw Bitcoin adressen.</string>
   <string name="verify_backup_ok">Private key back-up geverifieerd voor het volgende address:\n\n%1$s</string>
   <string name="legacy_account_with_funds">Ouder account met tegoeden</string>
@@ -478,6 +476,7 @@
   <string name="clipboard_not_available">De inhoud van het Klembord is niet geldig</string>
   <string name="no_android_wallet_backup">Export niet gevonden</string>
   <string name="unable_to_get_clipboard">Niet in staat om de huidige inhoud van het Klembord te lezen</string>
+  <string name="unable_to_clear_clipboard">Het klembord kan niet gewist worden</string>
   <string name="select_spending_account">Selecteer account voor uitgaven</string>
   <string name="enter_account_label_title">Voer het Label in van het Account</string>
   <string name="edit_account_label_title">Account Label bewerken</string>
@@ -490,4 +489,5 @@
   <string name="note_down_password_title">Noteer uw wachtwoord</string>
   <string name="title_wrong_password">Verkeerd wachtwoord, probeer het a.u.b. opnieuw</string>
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
+  <string name="newly_generated_coins_from_coinbase">Nieuw gegenereerde coins</string>
 </resources>

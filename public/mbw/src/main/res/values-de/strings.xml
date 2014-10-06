@@ -12,14 +12,6 @@
   <string name="clipboard_desc">Bitcoin-Adresse oder privaten Schlüssel aus der Zwischenablage importieren</string>
   <string name="scan">Scannen</string>
   <string name="clipboard">Zwischenablage</string>
-  <string name="import_from_android_wallet_backup_desc">Privaten Schlüssel von der \"Andreas-Schildbach-Wallet\" importieren.</string>
-  <string name="android_wallet_backup">Bitcoin Wallet Backup</string>
-  <string name="pick_android_wallet_backup">Wählen Sie ein Backup File</string>
-  <string name="enter_android_wallet_backup_password_title">Backup Passwort</string>
-  <string name="enter_android_wallet_backup_password_message">Geben Sie das Passwort ein, das Sie zum Erstellen des Backups in der Bitcoin-Wallet App verwendet haben.</string>
-  <string name="pick_android_wallet_address_for_import">Wählen Sie eine Adresse für den Import</string>
-  <string name="import_android_wallet_backup_io_error">Das Bitcoin-Wallet Backup File konnte nicht gelesen werden.</string>
-  <string name="import_android_wallet_backup_decryption_error">Das Bitcoin Wallet Backup File konnte nicht entschlüsselt werden. Ist das Passwort korrekt?</string>
   <string name="close">Schließen</string>
   <string name="sending">Sende %1$s</string>
   <string name="receiving">Empfange %1$s</string>

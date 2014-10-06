@@ -17,14 +17,6 @@
   <string name="advanced">Napredno</string>
   <string name="clipboard">Odložišče</string>
   <string name="enter_wordlist">Vnesite niz besed</string>
-  <string name="import_from_android_wallet_backup_desc">Uvozi zasebni ključ iz aplikacije Bitcoin Wallet avtorja Andreasa Schildbacha.</string>
-  <string name="android_wallet_backup">Rezervna kopija denarnice</string>
-  <string name="pick_android_wallet_backup">Izberite rezervno datoteko</string>
-  <string name="enter_android_wallet_backup_password_title">Geslo rezervne kopije</string>
-  <string name="enter_android_wallet_backup_password_message">Vnesite geslo, s katerim je zaščitena rezervna kopija iz denarnice Bitcoin Wallet.</string>
-  <string name="pick_android_wallet_address_for_import">Izberite naslov za uvoz</string>
-  <string name="import_android_wallet_backup_io_error">Rezervne kopije ni bilo mogoče prebrati.</string>
-  <string name="import_android_wallet_backup_decryption_error">Rezervne kopije ni bilo mogoče dešifrirati. Ste vnesli pravo geslo?</string>
   <string name="hd_account">Dodaj HD-račun</string>
   <string name="close">Zapri</string>
   <string name="sending">Pošiljam %1$s</string>
@@ -152,6 +144,7 @@
   <string name="activated">Aktiviran</string>
   <string name="keep_one_active">Ohraniti morate vsaj en aktiven račun.</string>
   <string name="please_wait">Prosimo, počakajte&#8230;</string>
+  <string name="synchronizing_please_wait">Usklajujem -- prosim, počakajte&#8230;</string>
   <string name="address_label_not_unique">V imeniku že obstaja vnos s tem imenom.</string>
   <string name="account_label_not_unique">To ime že nosi obstoječ račun</string>
   <string name="tap_qr_code_desc">Morebitne težave pri čitanju QR-kode lahko morda izboljšate z dotikom QR-kode.</string>
@@ -226,7 +219,7 @@
   <string name="page_locked">Ta stran je zaklenjena</string>
   <string name="unlock_label">Odkleni</string>
   <string name="lock_label">Zakleni</string>
-  <string name="secure_my_funds">Zaščiti moja sredstva</string>
+  <string name="secure_my_funds">Zaščitite svoja sredstva</string>
   <string name="move_legacy_funds_message">Vaša denarnica vsebuje enega ali več podedovanih računov, ki vsebujejo sredstva.\n\nČe želite zagotoviti varnost teh sredstev in izboljšati svojo zasebnost plačevanja, morate prenesti ta sredstva v enega od svojih HD-računov.\n\nZa podrobnosti pojdite na zavihek Računi.</string>
   <string name="ignore_warnings_title">Prezri opozorila</string>
   <string name="ignore_warnings_description">Ali želite prezreti opozorila, da ta podedovani račun vsebuje sredstva, in ali imate varno rezervno kopijo ustreznega zasebnega ključa?</string>
@@ -469,6 +462,8 @@
   <string name="preparing_wallet_on_first_startup_info">Pripravljam denarnico&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Računam glavno seme&#8230;</string>
   <string name="importing_wordlist_enter_next_word">vnesite besedo št. %1$s od %2$s</string>
+  <string name="showing_word_number">Beseda %1$s:</string>
+  <string name="start_word_list_verification">Prični preverjanje</string>
   <string name="delete_last_entered_word">Izbriši zadnjo besedo</string>
   <string name="account">Račun</string>
   <string name="verify_backup_seed_des">Preveri glavno seme s čitanjem QR-kode.</string>
@@ -496,10 +491,20 @@
   <string name="seed_already_configured">Uvoz ni mogoč: glavno seme je že nastavljeno</string>
   <string name="backup_words_title">Rezervna kopija glavnega semena</string>
   <string name="verify_words_title">Preverjanje glavnega semena</string>
+  <string name="wordlist_backup_description">POMEMBNO\n\nIzdelali boste rezervno kopijo glavnega semena.\n\nPo izdelavi rezervno kopije si nastavite PIN-kodo; s tem boste preprečili, da bi nekdo, ki bi za kratek čas dobil v roke vašo napravo, lahko izdelal še eno rezervno kopijo in tako ukradel vaše trenutno in bodoče novce.\n\nPrikazan vam bo niz besed, ena za drugo. Te besede si zapišite na papir in jih varno shranite.</string>
   <string name="next_word_button">Naslednja beseda</string>
+  <string name="start_with_first_word_button">Prikaži prvo besedo</string>
+  <string name="cick_button_to_show_word">Za začetek pritisnite spodnji gumb</string>
   <string name="wordlist_verify_description">Prosimo, vnesite besede, ki ste si jih zapisali, eno za drugo; na ta način bomo preverili, da je rezervna kopija veljavna in delujoča.</string>
   <string name="verify_word_wrong">Vnesli ste napačno besedo; prosimo, poskusite znova</string>
+  <string name="verify_wordlist_success">Niz besed vaše rezervne kopije je bil uspešno preverjen. Zapisani niz varno shranite, saj so od njega odvisna vaša sredstva!\n\nČe si še niste nastavili PIN-kode, je sedaj primeren čas za to.\nPIN-kodo si lahko nastavite v meniju Nastavitve.</string>
   <string name="note_down_password_title">Zapišite si geslo</string>
   <string name="title_wrong_password">Napačno geslo; prosimo, poskusite ponovno</string>
   <string name="decryption_password_hint">VNE SIT EVA ŠEG ESL O</string>
+  <string name="dont_allow_archiving_unused_notification">Nerabljenega HD-računa ne morete arhivirati</string>
+  <string name="newly_generated_coins_from_coinbase">Novonastali novci</string>
+  <string name="release_notes_hd">Najboljša mobilna denarnica na svetu je pravkar postala še boljša.\n\nIzdelava varne rezervne kopije je sedaj enostavna, novi HD-računi pa bolje kot kdajkoli skrbijo za vašo zasebnost.\n\nPodrobnosti si oglejte v Opombah ob izdaji.</string>
+  <string name="title_upgrade_info">Dobrodošli v Myceliumu 2.0</string>
+  <string name="button_continue">Naprej</string>
+  <string name="butto_show_release_notes">Prikaži podrobnosti</string>
 </resources>

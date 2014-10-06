@@ -18,14 +18,6 @@
     <string name="advanced">Advanced</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
-    <string name="import_from_android_wallet_backup_desc">Import Private Key from the \"Bitcoin Wallet\" client by Andreas Schildbach.</string>
-    <string name="android_wallet_backup">Bitcoin Wallet Backup</string>
-    <string name="pick_android_wallet_backup">Pick a backup file</string>
-    <string name="enter_android_wallet_backup_password_title">Backup password</string>
-    <string name="enter_android_wallet_backup_password_message">Enter the password that was used when creating the backup in the \"Bitcoin Wallet\" app.</string>
-    <string name="pick_android_wallet_address_for_import">Pick an address for import</string>
-    <string name="import_android_wallet_backup_io_error">Could not read the Bitcoin Wallet backup file.</string>
-    <string name="import_android_wallet_backup_decryption_error">Could not decrypt the Bitcoin Wallet backup file. Is the password correct?</string>
     <string name="hd_account">Add HD Account</string>
     <string name="close">Close</string>
     <string name="btc_value_string">%1$s %2$s</string>
@@ -538,5 +530,6 @@
     <string name="title_upgrade_info">Welcome to Mycelium 2.0</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
+    <string name="word_does_not_exist_in_wordlist">The word you typed does not exist in the word list</string>
 
 </resources>

@@ -42,9 +42,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -63,7 +60,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class EnterWordListActivity extends ActionBarActivity {
+public class EnterWordListActivity extends ActionBarActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
 
 
    public static void callMe(Activity activity, int requestCode) {
@@ -74,34 +71,30 @@ public class EnterWordListActivity extends ActionBarActivity {
    private MbwManager _mbwManager;
    private ProgressDialog _progress;
    private TextView enterWordInfo;
-   private AutoCompleteTextView acTextView;
    private List<String> enteredWords;
    private boolean usesPassword;
    private int numberOfWords;
    private int currentWordNum;
-   private ArrayList<String> basewords;
+   private WordAutoCompleterFragment _wordAutoCompleter;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_import_words);
+      setContentView(R.layout.enter_word_list_activity);
       _mbwManager = MbwManager.getInstance(this);
       _progress = new ProgressDialog(this);
       enteredWords = new ArrayList<String>();
       enterWordInfo = (TextView) findViewById(R.id.tvEnterWord);
       findViewById(R.id.btDeleteLastWord).setOnClickListener(deleteListener);
+      _wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
+      _wordAutoCompleter.setListener(this);
+      _wordAutoCompleter.setMinimumCompletionCharacters(2);
+      _wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
+      UsKeyboardFragment keyboard = (UsKeyboardFragment) getSupportFragmentManager().findFragmentById(R.id.usKeyboard);
+      keyboard.setListener(_wordAutoCompleter);
       currentWordNum = 1;
 
-      basewords = Lists.newArrayList(Bip39.ENGLISH_WORD_LIST);
-      ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, basewords);
-      acTextView = (AutoCompleteTextView) findViewById(R.id.tvWordCompleter);
-      acTextView.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-      acTextView.setThreshold(1);
-      acTextView.setAdapter(adapter);
-      acTextView.setOnItemClickListener(itemClicked);
-      acTextView.addTextChangedListener(charEntered);
-      acTextView.setLongClickable(false);
 
       if (savedInstanceState == null) {
          //only ask if we are not recreating the activity, because of rotation for example
@@ -133,7 +126,7 @@ public class EnterWordListActivity extends ActionBarActivity {
                   } else {
                      throw new IllegalStateException("No radiobutton selected in word list import");
                   }
-                  acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
+                  _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
                }
             })
             .show();
@@ -142,11 +135,10 @@ public class EnterWordListActivity extends ActionBarActivity {
    private View.OnClickListener deleteListener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-         enteredWords.remove(enteredWords.size()-1);
+         enteredWords.remove(enteredWords.size() - 1);
+         --currentWordNum;
          enterWordInfo.setText(enteredWords.toString());
-         acTextView.setText("");
-         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, --currentWordNum, numberOfWords));
-         acTextView.setEnabled(true);
+         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
          findViewById(R.id.tvChecksumWarning).setVisibility(View.GONE);
          if (currentWordNum == 1) {
             findViewById(R.id.btDeleteLastWord).setEnabled(false);
@@ -154,41 +146,15 @@ public class EnterWordListActivity extends ActionBarActivity {
       }
    };
 
-   AdapterView.OnItemClickListener itemClicked = new AdapterView.OnItemClickListener() {
-
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long rowId) {
-         String selection = (String) parent.getItemAtPosition(position);
-         addWordToList(selection);
-      }
-   };
-
    private void addWordToList(String selection) {
       enteredWords.add(selection);
       enterWordInfo.setText(enteredWords.toString());
-      acTextView.setText("");
       if (checkIfDone()) {
          askForPassword();
       } else {
          findViewById(R.id.btDeleteLastWord).setEnabled(true);
       }
    }
-
-   TextWatcher charEntered = new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-      @Override
-      public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-         String word = s.toString();
-         if (basewords.contains(word)) {
-            addWordToList(word);
-         }
-      }
-   };
 
    private void askForPassword() {
       if (usesPassword) {
@@ -211,15 +177,15 @@ public class EnterWordListActivity extends ActionBarActivity {
 
    private boolean checkIfDone() {
       if (currentWordNum < numberOfWords) {
-         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, ++currentWordNum, numberOfWords));
+         currentWordNum++;
+         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
          return false;
       }
       if (checksumMatches()) {
          return true;
       } else {
          findViewById(R.id.tvChecksumWarning).setVisibility(View.VISIBLE);
-         acTextView.setEnabled(false);
-         acTextView.setHint("");
+         _wordAutoCompleter.setHintText("");
          currentWordNum++; //needed for the delete button to function correctly
          return false;
       }
@@ -235,6 +201,12 @@ public class EnterWordListActivity extends ActionBarActivity {
       _progress.setMessage(getString(R.string.importing_master_seed_from_wordlist));
       _progress.show();
       new MasterSeedFromWordsAsyncTask(_mbwManager.getEventBus(), enteredWords, password).execute();
+   }
+
+
+   @Override
+   public void onWordSelected(String word) {
+      addWordToList(word);
    }
 
    private class MasterSeedFromWordsAsyncTask extends AsyncTask<Void, Integer, UUID> {
@@ -294,8 +266,7 @@ public class EnterWordListActivity extends ActionBarActivity {
 
 
    @Override
-   public void onSaveInstanceState(Bundle savedInstanceState)
-   {
+   public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
       savedInstanceState.putBoolean("usepass", usesPassword);
       savedInstanceState.putInt("index", currentWordNum);
@@ -304,8 +275,7 @@ public class EnterWordListActivity extends ActionBarActivity {
    }
 
    @Override
-   public void onRestoreInstanceState(Bundle savedInstanceState)
-   {
+   public void onRestoreInstanceState(Bundle savedInstanceState) {
       super.onRestoreInstanceState(savedInstanceState);
       enteredWords = new ArrayList<String>(Arrays.asList(savedInstanceState.getStringArray("entered")));
       enterWordInfo.setText(enteredWords.toString());
@@ -314,11 +284,10 @@ public class EnterWordListActivity extends ActionBarActivity {
       currentWordNum = savedInstanceState.getInt("index");
       findViewById(R.id.btDeleteLastWord).setEnabled(currentWordNum > 1);
       if (currentWordNum < numberOfWords) {
-         acTextView.setHint(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
+         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
       } else if (!checksumMatches()) {
          findViewById(R.id.tvChecksumWarning).setVisibility(View.VISIBLE);
-         acTextView.setEnabled(false);
-         acTextView.setHint("");
+         _wordAutoCompleter.setHintText("");
       }
    }
 }
