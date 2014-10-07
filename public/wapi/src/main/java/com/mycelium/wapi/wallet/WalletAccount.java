@@ -51,12 +51,22 @@ public interface WalletAccount {
    UUID getId();
 
    /**
-    * Get the block chain height as it were last time this account was
-    * synchronized;
+    * Set whether this account is allowed to do zero confirmation spending
+    * <p/>
+    * Zero confirmation spending is disabled by default. When enabled then zero confirmation outputs send from address
+    * not part of this account will be part of the spendable outputs.
     *
-    * @return the block chain height as it were last time this account was
-    * synchronized;
+    * @param allowZeroConfSpending if true the account will allow zero confirmation spending
     */
+   public void setAllowZeroConfSpending(boolean allowZeroConfSpending);
+
+      /**
+       * Get the block chain height as it were last time this account was
+       * synchronized;
+       *
+       * @return the block chain height as it were last time this account was
+       * synchronized;
+       */
    int getBlockChainHeight();
 
    /**

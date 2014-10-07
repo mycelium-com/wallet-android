@@ -196,7 +196,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       // todo de-duplicate code
-      if (balance.getSendingBalance() > 0) {
+      if (balance.getSendingBalance() != 0) {
          String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);

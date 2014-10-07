@@ -61,12 +61,18 @@ public abstract class AbstractAccount implements WalletAccount {
    private AccountBacking _backing;
    protected Balance _cachedBalance;
    private EventHandler _eventHandler;
+   protected boolean _allowZeroConfSpending;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
       _logger = wapi.getLogger();
       _wapi = wapi;
       _backing = backing;
+   }
+
+   @Override
+   public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
+      _allowZeroConfSpending = allowZeroConfSpending;
    }
 
    /**
@@ -469,7 +475,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
       int blockHeight = getBlockChainHeight();
       return new Balance(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
-            blockHeight, true);
+            blockHeight, true, _allowZeroConfSpending);
    }
 
    private TransactionOutput transform(TransactionOutputEx parent) {
@@ -682,12 +688,14 @@ public abstract class AbstractAccount implements WalletAccount {
                continue;
             }
          }
-         if (output.height == -1 && !isFromMe(output.outPoint.hash)) {
-            // Prune receiving coins that is not change sent to ourselves
-            it.remove();
+         // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
+         if (!_allowZeroConfSpending) {
+            if (output.height == -1 && !isFromMe(output.outPoint.hash)) {
+               // Prune receiving coins that is not change sent to ourselves
+               it.remove();
+            }
          }
       }
-
       return list;
    }
 
@@ -775,7 +783,7 @@ public abstract class AbstractAccount implements WalletAccount {
       // might change right when we make a copy
       Balance b = _cachedBalance;
       return new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
-            b.blockHeight, isSynchronizing());
+            b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending);
    }
 
    /**

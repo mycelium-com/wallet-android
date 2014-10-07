@@ -56,7 +56,7 @@ public class SingleAddressAccount extends AbstractAccount {
       _addressList = new ArrayList<Address>(1);
       _addressList.add(_context.getAddress());
       _keyStore = keyStore;
-      _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false) : calculateLocalBalance();
+      _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
    }
 
    public static UUID calculateId(Address address) {

@@ -60,8 +60,13 @@ public class Balance implements Serializable {
     */
    public final boolean isSynchronizing;
 
+   /**
+    * Does the account that this balance came from allow spending generic zero confirmation outputs
+    */
+   public final boolean allowsZeroConfSpending;
+
    public Balance(long confirmed, long pendingReceiving, long pendingSending, long pendingChange, long updateTime,
-                  int blockHeight, boolean isSynchronizing) {
+                  int blockHeight, boolean isSynchronizing, boolean allowsZeroConfSpending) {
       this.confirmed = confirmed;
       this.pendingReceiving = pendingReceiving;
       this.pendingSending = pendingSending;
@@ -69,13 +74,14 @@ public class Balance implements Serializable {
       this.updateTime = updateTime;
       this.blockHeight = blockHeight;
       this.isSynchronizing = isSynchronizing;
+      this.allowsZeroConfSpending = allowsZeroConfSpending;
    }
 
    /**
     * Get the value to show as the balance in a UI
     */
    public long getSpendableBalance() {
-      return confirmed + pendingChange;
+      return allowsZeroConfSpending ? confirmed + pendingChange + pendingReceiving : confirmed + pendingChange;
    }
 
    /**

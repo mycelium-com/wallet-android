@@ -563,6 +563,7 @@ public class MbwManager {
 
    public UUID createOnTheFlyAccount(Address address) {
       UUID accountId = _tempWalletManager.createSingleAddressAccount(address);
+      _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
       _tempWalletManager.startSynchronization();
       return accountId;
    }
@@ -574,6 +575,7 @@ public class MbwManager {
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }
+      _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
       return accountId;
    }
 

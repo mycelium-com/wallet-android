@@ -193,7 +193,7 @@ public class LtMainActivity extends ActionBarActivity {
    @Override
    protected void onResume() {
       checkGooglePlayServices();
-      showWelcomeMessage();
+      //showWelcomeMessage();
       // _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
       _ltManager.startMonitoringTrader();
@@ -237,16 +237,17 @@ public class LtMainActivity extends ActionBarActivity {
       Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
    }
 
-   /**
-    * Show welcome message
-    */
-   private void showWelcomeMessage() {
-      if (!_hasWelcomed) {
-         // Only show welcome message per activity instance
-         _hasWelcomed = true;
-         Utils.showOptionalMessage(this, R.string.lt_welcome_message);
-      }
-   }
+//  Welcome message disabled for now as the text is outdated. Kept the code so we can change the text later on if we wish
+//   /**
+//    * Show welcome message
+//    */
+//   private void showWelcomeMessage() {
+//      if (!_hasWelcomed) {
+//         // Only show welcome message per activity instance
+//         _hasWelcomed = true;
+//         Utils.showOptionalMessage(this, R.string.lt_welcome_message);
+//      }
+//   }
 
    /**
     * figure out whether Google Play Services are available and act accordingly
