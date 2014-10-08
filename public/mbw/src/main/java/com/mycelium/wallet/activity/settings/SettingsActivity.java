@@ -65,7 +65,10 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -127,7 +130,12 @@ public class SettingsActivity extends PreferenceActivity {
          return true;
       }
    };
-
+   private final OnPreferenceClickListener legacyBackupClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         Utils.pinProtectedBackup(SettingsActivity.this);
+         return true;
+      }
+   };
    private final OnPreferenceClickListener ltDisableLocalTraderClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
@@ -276,6 +284,10 @@ public class SettingsActivity extends PreferenceActivity {
       // Clear PIN
       updateClearPin();
 
+      // Legacy backup function
+      Preference legacyBackup = Preconditions.checkNotNull(findPreference("legacyBackup"));
+      legacyBackup.setOnPreferenceClickListener(legacyBackupClickListener);
+
       // Local Trader
       _ltDisable = (CheckBoxPreference) findPreference("ltDisable");
       _ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
@@ -310,6 +322,7 @@ public class SettingsActivity extends PreferenceActivity {
    @Override
    protected void onResume() {
       setupLocalTraderSettings();
+      showOrHideLegacyBackup();
       super.onResume();
    }
 
@@ -330,6 +343,20 @@ public class SettingsActivity extends PreferenceActivity {
          return;
       }
       setupEmailNotificationSetting();
+   }
+
+   @SuppressWarnings("deprecation")
+   private void showOrHideLegacyBackup() {
+      List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
+      Preference legacyPref = findPreference("legacyBackup");
+      PreferenceCategory legacyCat = (PreferenceCategory) findPreference("legacy");
+      for (WalletAccount account : accounts) {
+         if (account instanceof SingleAddressAccount) {
+            return; //we have a single address account with priv key, so its fine to show the setting
+         }
+      }
+      //no matching account, hide setting
+      legacyCat.removePreference(legacyPref);
    }
 
    @SuppressWarnings("deprecation")

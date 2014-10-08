@@ -202,7 +202,7 @@ public class TransactionDetailsActivity extends Activity {
          ll.addView(getAddressChunk(chunks[2], 0, address));
          ll.setOnClickListener(_urlClickListener);
          ll.setOnLongClickListener(_copyClickListener);
-         ll.setTag(address);
+         ll.setTag(_addressInfoTemplate + address);
       }
       ll.setPadding(10, 10, 10, 10);
       return ll;
@@ -260,7 +260,7 @@ public class TransactionDetailsActivity extends Activity {
          if (v.getTag() == null) {
             return;
          }
-         String url = _addressInfoTemplate +  v.getTag().toString();
+         String url = v.getTag().toString();
          Intent intent = new Intent(Intent.ACTION_VIEW);
          intent.setData(Uri.parse(url));
          startActivity(intent);

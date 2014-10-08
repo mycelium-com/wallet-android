@@ -94,14 +94,15 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                               MetadataStorage storage, NetworkParameters network, String exportFilePath) {
       _kdfParameters = kdfParameters;
 
+      //JD: disabled, since we use wordlist for the seed
       // Fetch the master seed if we have it
-      if (walletManager.hasBip32MasterSeed()) {
-         try {
-            _masterSeed = walletManager.getMasterSeed(cipher);
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
-         }
-      }
+//      if (walletManager.hasBip32MasterSeed()) {
+//         try {
+//            _masterSeed = walletManager.getMasterSeed(cipher);
+//         } catch (KeyCipher.InvalidKeyCipher e) {
+//            throw new RuntimeException(e);
+//         }
+//      }
 
       // Populate the active and archived entries to export
       _active = new LinkedList<EntryToExport>();

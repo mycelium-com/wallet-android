@@ -529,7 +529,7 @@ public class Utils {
 
    private static void backup(final Activity parent) {
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-      builder.setMessage(R.string.backup_all_warning).setCancelable(true)
+      builder.setMessage(R.string.backup_legacy_warning).setCancelable(true)
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();

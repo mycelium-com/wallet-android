@@ -349,8 +349,12 @@ public class ScanRequest implements Serializable {
                //started with http/https, but unable to parse, so we handled it.
             } else {
                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
-               scanActivity.startActivity(browserIntent);
-               scanActivity.finishOk();
+               if (browserIntent.resolveActivity(scanActivity.getPackageManager()) != null) {
+                  scanActivity.startActivity(browserIntent);
+                  scanActivity.finishOk();
+               } else {
+                  scanActivity.finishError(R.string.error_no_browser, content);
+               }
             }
             return true;
          }

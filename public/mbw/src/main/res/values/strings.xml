@@ -119,6 +119,7 @@
     <string name="payment_request">Payment Request</string>
     <string name="export_single_private_key_warning">You are about to export the private key that controls all the Bitcoins of the selected address.\n\nAnyone who gains access to this key can take possession of the Bitcoins it controls.\n\nDo you want to continue?</string>
     <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds if your device is lost or damaged.\n\nDo you want to do this now?</string>
+    <string name="backup_legacy_warning">You will back up the single address accounts in your wallet. \nThis backup will not contain your master seed, none of your HD accounts can be restored from it!\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private key to clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private key on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to delete it?</string>
@@ -195,7 +196,7 @@
     <string name="verify_backup_message_text_1">Having a proper backup is a cornerstone when managing your Bitcoin funds.\nYou have one or more Bitcoin private keys or a master seed where the backup has not been verified.\n\nPlease select the Backup option to make a back up.</string>
     <string name="verify_backup_message_text_2">Then select the Verify Backup option and verify your backup.</string>
     <string name="encrypted_pdf_backup_title">Encrypted PDF Backup</string>
-    <string name="encrypted_pdf_backup_description">You are about to back up your encrypted private keys and master seed to a PDF document.\nThe PDF document can safely be shared using email or with file-sharing apps you have installed, such as Dropbox. This is because your keys are encrypted.</string>
+    <string name="encrypted_pdf_backup_description">You are about to back up your encrypted private keys to a PDF document.\nThe PDF document can safely be shared using email or with file-sharing apps you have installed, such as Dropbox. This is because your keys are encrypted.</string>
     <string name="encrypted_pdf_backup_password_description_1">This is the random password with checksum used for encrypting this backup.</string>
     <string name="encrypted_pdf_backup_password_description_2">This is your only opportunity for viewing the password for this backup.\nYour next backup will use a different password.\nWrite it down and keep it safe!</string>
     <string name="encrypted_pdf_backup_stretching">Preparing encryption key&#8230;</string>
@@ -531,5 +532,8 @@
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
     <string name="word_does_not_exist_in_wordlist">The word you typed does not exist in the word list</string>
+    <string name="pref_legacy_backup_title">Legacy Backup</string>
+    <string name="pref_legacy_backup_summary">Create a legacy backup, containing your single address accounts.</string>
+    <string name="error_no_browser">Cannot navigate to website, no browser found on phone</string>
 
 </resources>

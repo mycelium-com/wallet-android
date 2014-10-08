@@ -2,84 +2,93 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:key="myceliumPreferences">
 
     <ListPreference
-        android:key="user_language"
-        android:layout="@layout/preference_layout"
-        android:title="@string/pref_change_language" />
+            android:key="user_language"
+            android:layout="@layout/preference_layout"
+            android:title="@string/pref_change_language" />
 
     <Preference
-        android:key="local_currency"
-        android:layout="@layout/preference_layout"
-        android:summary="@string/pref_local_currency_summary"
-        android:title="@string/pref_local_currency" />
+            android:key="local_currency"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_local_currency_summary"
+            android:title="@string/pref_local_currency" />
 
     <ListPreference
-        android:key="exchange_source"
-        android:layout="@layout/preference_layout"
-        android:summary="@string/pref_exchange_source_summary"
-        android:title="@string/pref_exchange_source" />
+            android:key="exchange_source"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_exchange_source_summary"
+            android:title="@string/pref_exchange_source" />
     <ListPreference
-        android:key="bitcoin_denomination"
-        android:layout="@layout/preference_layout"
-        android:summary="@string/pref_bitcoin_denomination_summary"
-        android:title="@string/pref_bitcoin_denomination" />
+            android:key="bitcoin_denomination"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/pref_bitcoin_denomination_summary"
+            android:title="@string/pref_bitcoin_denomination" />
 
     <!-- PIN Settings -->
 
     <PreferenceCategory android:title="@string/pref_category_pin" >
         <Preference
-            android:key="clearPin"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_clear_pin_summary"
-            android:title="@string/pref_clear_pin" />
+                android:key="clearPin"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/pref_clear_pin_summary"
+                android:title="@string/pref_clear_pin" />
         <Preference
-            android:key="setPin"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_set_pin_summary"
-            android:title="@string/pref_set_pin" />
+                android:key="setPin"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/pref_set_pin_summary"
+                android:title="@string/pref_set_pin" />
     </PreferenceCategory>
 
     <!-- Local Trader Settings -->
 
     <PreferenceCategory android:title="@string/lt_pref_category"  android:key="localtraderPrefs">
         <CheckBoxPreference
-            android:key="ltDisable"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/lt_disable_preference_summary"
-            android:title="@string/lt_disable_preference" />
+                android:key="ltDisable"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/lt_disable_preference_summary"
+                android:title="@string/lt_disable_preference" />
 
         <CheckBoxPreference
-            android:key="ltNotificationSound"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/lt_sound_on_trade_preference_summary"
-            android:title="@string/lt_sound_on_trade_preference" />
-        
+                android:key="ltNotificationSound"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/lt_sound_on_trade_preference_summary"
+                android:title="@string/lt_sound_on_trade_preference" />
+
         <CheckBoxPreference
-            android:key="ltMilesKilometers"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/lt_miles_kilometers_preference_summary"
-            android:title="@string/lt_miles_kilometers_preference" />
+                android:key="ltMilesKilometers"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/lt_miles_kilometers_preference_summary"
+                android:title="@string/lt_miles_kilometers_preference" />
 
         <Preference
-            android:key="ltNotificationEmail2"
-            android:layout="@layout/preference_layout"
-            android:title="@string/lt_use_email_for_notifications"
-            android:summary="@string/email_notification_setting_explanation"
-            />
+                android:key="ltNotificationEmail2"
+                android:layout="@layout/preference_layout"
+                android:title="@string/lt_use_email_for_notifications"
+                android:summary="@string/email_notification_setting_explanation"
+                />
     </PreferenceCategory>
 
-    
+
     <!-- Advanced Settings -->
 
     <PreferenceCategory
-        android:key="advancedSettings"
-        android:title="@string/pref_advanced_settings" >
+            android:key="advancedSettings"
+            android:title="@string/pref_advanced_settings" >
 
         <EditTextPreference
-            android:inputType="text"
-            android:key="proxy"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_socks_proxy_summary"
-            android:title="@string/pref_socks_proxy" />
+                android:inputType="text"
+                android:key="proxy"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/pref_socks_proxy_summary"
+                android:title="@string/pref_socks_proxy" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:key="legacy">
+        <Preference
+                android:key="legacyBackup"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/pref_legacy_backup_summary"
+                android:title="@string/pref_legacy_backup_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>
