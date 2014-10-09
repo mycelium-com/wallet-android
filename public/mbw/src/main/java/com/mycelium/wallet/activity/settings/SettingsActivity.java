@@ -349,6 +349,8 @@ public class SettingsActivity extends PreferenceActivity {
    private void showOrHideLegacyBackup() {
       List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       Preference legacyPref = findPreference("legacyBackup");
+      if (legacyPref == null) return; // it was already removed, don't remove it again.
+
       PreferenceCategory legacyCat = (PreferenceCategory) findPreference("legacy");
       for (WalletAccount account : accounts) {
          if (account instanceof SingleAddressAccount) {

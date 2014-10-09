@@ -207,6 +207,10 @@ public class MbwManager {
          _localTraderManager.unsetLocalTraderAccount();
       }
 
+      //check which address was the last recently selected one
+      SharedPreferences prefs = _applicationContext.getSharedPreferences("selected", Context.MODE_PRIVATE);
+      String lastAddress = prefs.getString("last", null);
+
       // Migrate all existing records to accounts
       List<Record> records = loadClassicRecords();
       for (Record record : records) {
@@ -221,6 +225,11 @@ public class MbwManager {
             }
          } else {
             account = _walletManager.createSingleAddressAccount(record.address);
+         }
+
+         //check whether this was the selected record
+         if (record.address.toString().equals(lastAddress)) {
+            setSelectedAccount(account);
          }
 
          //check whether the record was archived
