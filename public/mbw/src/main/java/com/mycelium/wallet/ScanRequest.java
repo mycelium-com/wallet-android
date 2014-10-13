@@ -60,6 +60,14 @@ import java.util.UUID;
 public class ScanRequest implements Serializable {
    private static final long serialVersionUID = 0L;
 
+   public static ScanRequest returnKeyOrAddressOrUri() {
+      ScanRequest request = new ScanRequest();
+      request.privateKeyAction = PrivateKeyAction.RETURN;
+      request.addressAction = AddressAction.RETURN;
+      request.bitcoinUriAction = BitcoinUriAction.RETURN;
+      return request;
+   }
+
    public static ScanRequest returnKeyOrAddress() {
       ScanRequest request = new ScanRequest();
       request.privateKeyAction = PrivateKeyAction.RETURN;
@@ -148,7 +156,9 @@ public class ScanRequest implements Serializable {
             Optional<InMemoryPrivateKey> key = getPrivateKey(scanActivity, content);
             if (!key.isPresent()) return false;
             UUID account = MbwManager.getInstance(scanActivity).createOnTheFlyAccount(key.get());
-            SendInitializationActivity.callMe(scanActivity, account, null, null, true);
+            //we dont know yet where at what to send
+            BitcoinUri uri = new BitcoinUri(null,null,null);
+            SendInitializationActivity.callMe(scanActivity, account,uri, true);
             scanActivity.finishOk();
             return true;
          }
@@ -217,7 +227,9 @@ public class ScanRequest implements Serializable {
                return false;
             }
             UUID account = MbwManager.getInstance(scanActivity).createOnTheFlyAccount(address.get());
-            SendInitializationActivity.callMe(scanActivity, account, null, null, true);
+            //we dont know yet where at what to send
+            BitcoinUri uri = new BitcoinUri(null,null,null);
+            SendInitializationActivity.callMe(scanActivity, account, uri, true);
             scanActivity.finishOk();
             return true;
          }
@@ -284,7 +296,9 @@ public class ScanRequest implements Serializable {
                //started with bitcoin: but could not be parsed, was handled
             } else {
                UUID account = MbwManager.getInstance(scanActivity).createOnTheFlyAccount(uri.get().address);
-               SendInitializationActivity.callMe(scanActivity, account, null, null, true);
+               //we dont know yet where at what to send
+               BitcoinUri targeturi = new BitcoinUri(null,null,null);
+               SendInitializationActivity.callMe(scanActivity, account, targeturi, true);
                scanActivity.finishOk();
             }
             return true;
@@ -299,8 +313,7 @@ public class ScanRequest implements Serializable {
                scanActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
             } else {
-               Long amount = uri.get().amount;
-               scanActivity.finishOk(uri.get().address, amount);
+               scanActivity.finishOk(uri.get().address);
             }
             return true;
          }

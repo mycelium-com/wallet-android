@@ -57,11 +57,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.mbwapi.api.ApiError;
 import com.mrd.mbwapi.api.WalletVersionResponse;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.VersionManager;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
@@ -123,7 +119,8 @@ public class AboutActivity extends Activity {
                NetworkParameters network = mbwManager.getNetwork();
                Address address = network.isProdnet() ? Address.fromString(Constants.PRODNET_DONATION_ADDRESS) :Address.fromString(Constants.TESTNET_DONATION_ADDRESS);
                WalletAccount account = mbwManager.getSelectedAccount();
-               SendInitializationActivity.callMe(AboutActivity.this, account.getId(), null, address, false);
+               BitcoinUri uri = new BitcoinUri(address, null, getString(R.string.donation_transaction_label));
+               SendInitializationActivity.callMe(AboutActivity.this, account.getId(), uri, false);
             }
          });
       }

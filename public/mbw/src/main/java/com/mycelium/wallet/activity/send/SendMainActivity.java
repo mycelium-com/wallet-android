@@ -71,6 +71,7 @@ public class SendMainActivity extends Activity {
    private static final int SCAN_RESULT_CODE = 2;
    private static final int ADDRESS_BOOK_RESULT_CODE = 3;
    private static final int MANUAL_ENTRY_RESULT_CODE = 4;
+   private static final int REQUEST_PICK_ACCOUNT = 5;
 
    private enum TransactionStatus {
       MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -81,6 +82,7 @@ public class SendMainActivity extends Activity {
    private Double _oneBtcInFiat; // May be null
    private Long _amountToSend;
    private Address _receivingAddress;
+   private String _transactionLabel;
    private boolean _isColdStorage;
    private TransactionStatus _transactionStatus;
    private UnsignedTransaction _unsigned;
@@ -102,7 +104,14 @@ public class SendMainActivity extends Activity {
    }
 
    public static void callMe(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-      callMe(currentActivity, account, uri.amount, uri.address, isColdStorage);
+      Intent intent = new Intent(currentActivity, SendMainActivity.class);
+      intent.putExtra("account", account);
+      intent.putExtra("amountToSend", uri.amount);
+      intent.putExtra("receivingAddress", uri.address);
+      intent.putExtra("transactionLabel", uri.label);
+      intent.putExtra("isColdStorage", isColdStorage);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      currentActivity.startActivity(intent);
    }
 
    public static void callMe(Fragment currentFragment, UUID account, Long amountToSend, Address receivingAddress, boolean isColdStorage) {
@@ -129,6 +138,9 @@ public class SendMainActivity extends Activity {
       _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
+      //May be null
+      _transactionLabel = getIntent().getStringExtra("transactionLabel");
+
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
 
@@ -136,10 +148,20 @@ public class SendMainActivity extends Activity {
       if (savedInstanceState != null) {
          _amountToSend = (Long) savedInstanceState.getSerializable("amountToSend");
          _receivingAddress = (Address) savedInstanceState.getSerializable("receivingAddress");
+         _transactionLabel = savedInstanceState.getString("transactionLabel");
       }
 
-      // See if we can create the transaction with what we have
-      _transactionStatus = tryCreateUnsignedTransaction();
+      //check whether the account can spend, if not, ask user to select one
+      if (_account.canSpend()) {
+         // See if we can create the transaction with what we have
+         _transactionStatus = tryCreateUnsignedTransaction();
+      } else {
+         //we need the user to pick a spending account - the activity will then init sendmain correctly
+         BitcoinUri uri = new BitcoinUri(_receivingAddress,_amountToSend, _transactionLabel);
+         GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_PICK_ACCOUNT);
+         //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
+         finish();
+      }
 
       // Scan
       findViewById(R.id.btScan).setOnClickListener(scanClickListener);
@@ -170,13 +192,14 @@ public class SendMainActivity extends Activity {
       super.onSaveInstanceState(savedInstanceState);
       savedInstanceState.putSerializable("amountToSend", _amountToSend);
       savedInstanceState.putSerializable("receivingAddress", _receivingAddress);
+      savedInstanceState.putString("transactionLabel", _transactionLabel);
    }
 
    private OnClickListener scanClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View arg0) {
-         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, ScanRequest.returnKeyOrAddress());
+         ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, ScanRequest.returnKeyOrAddressOrUri());
       }
    };
 
@@ -282,7 +305,7 @@ public class SendMainActivity extends Activity {
       findViewById(R.id.llRecipientAddress).setVisibility(View.VISIBLE);
       findViewById(R.id.llEnterRecipient).setVisibility(View.GONE);
 
-      // Set label if applicable
+      // Set address label if applicable
       TextView receiverLabel = (TextView) findViewById(R.id.tvReceiverLabel);
 
       // See if the address is in the address book or one of our accounts
@@ -320,6 +343,16 @@ public class SendMainActivity extends Activity {
 
       } else {
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
+      }
+
+      //if present, show transaction label
+      if (_transactionLabel != null) {
+         findViewById(R.id.tvTransactionLabelTitle).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvTransactionLabel).setVisibility(View.VISIBLE);
+         ((TextView) findViewById(R.id.tvTransactionLabel)).setText(_transactionLabel);
+      } else {
+         findViewById(R.id.tvTransactionLabelTitle).setVisibility(View.GONE);
+         findViewById(R.id.tvTransactionLabel).setVisibility(View.GONE);
       }
    }
 
@@ -450,7 +483,7 @@ public class SendMainActivity extends Activity {
       findViewById(R.id.btScan).setEnabled(false);
       findViewById(R.id.btEnterAmount).setEnabled(false);
 
-      SignAndBroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned);
+      SignAndBroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned, _transactionLabel);
       finish();
    }
 
@@ -470,17 +503,21 @@ public class SendMainActivity extends Activity {
                _receivingAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork());
             } else if (type == ScanActivity.ResultType.ADDRESS) {
                _receivingAddress = ScanActivity.getAddress(intent);
+            } else if (type == ScanActivity.ResultType.URI) {
+               BitcoinUri uri = ScanActivity.getUri(intent);
+               _receivingAddress = uri.address;
+               _transactionLabel = uri.label;
+               if (uri.amount != null) {
+                  //we set the amount to the one contained in the qr code, even if another one was entered previously
+                  if (_amountToSend != null && _amountToSend > 0) {
+                     Toast.makeText(this, R.string.amount_changed, Toast.LENGTH_LONG).show();
+                  }
+                  _amountToSend = uri.amount;
+               }
             } else {
                throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
             }
-            Optional<Long> amount = ScanActivity.getAmount(intent);
-            if (amount.isPresent()) {
-               //we set the amount to the one contained in the qr code, even if another one was enter previously
-               if (_amountToSend != null && _amountToSend > 0) {
-                  Toast.makeText(this, R.string.amount_changed, Toast.LENGTH_LONG).show();
-               }
-               _amountToSend = amount.get();
-            }
+
          }
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser

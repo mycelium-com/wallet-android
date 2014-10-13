@@ -56,14 +56,12 @@ import java.util.List;
 
 public class GetSpendingRecordActivity extends Activity {
 
-   private Long _amountToSend;
-   private Address _receivingAddress;
+   private BitcoinUri _uri;
    private MbwManager _mbwManager;
 
-   public static void callMeWithResult(Activity currentActivity, Long amountToSend, Address receivingAddress, int request) {
+   public static void callMeWithResult(Activity currentActivity, BitcoinUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
-      intent.putExtra("amountToSend", amountToSend);
-      intent.putExtra("receivingAddress", receivingAddress);
+      intent.putExtra("uri", uri);
       currentActivity.startActivityForResult(intent, request);
    }
 
@@ -76,11 +74,7 @@ public class GetSpendingRecordActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
       // Get intent parameters
-      // May be null
-      _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
-      // May be null
-      _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
-
+      _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
    }
 
    class RecordClicked implements OnItemClickListener {
@@ -91,8 +85,7 @@ public class GetSpendingRecordActivity extends Activity {
             return;
          }
          WalletAccount account = (WalletAccount) v.getTag();
-         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _amountToSend, _receivingAddress,
-               false);
+         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _uri, false);
          GetSpendingRecordActivity.this.finish();
       }
    }
@@ -104,6 +97,7 @@ public class GetSpendingRecordActivity extends Activity {
    }
 
    private void update() {
+      View warningNoSpendingAccounts = findViewById(R.id.tvNoSpendingAccounts);
       ListView listView = (ListView) findViewById(R.id.lvRecords);
       MetadataStorage storage = _mbwManager.getMetadataStorage();
       //get accounts with key and positive balance
@@ -112,8 +106,16 @@ public class GetSpendingRecordActivity extends Activity {
          //if we dont have any account with a balance, just show all accounts with priv key
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
-      AccountsAdapter accountsAdapter = new AccountsAdapter(this, Utils.sortAccounts(spendingAccounts, storage));
-      listView.setAdapter(accountsAdapter);
+      //if we have no accounts to show, just display the info text
+      if (spendingAccounts.isEmpty()) {
+         listView.setVisibility(View.GONE);
+         warningNoSpendingAccounts.setVisibility(View.VISIBLE);
+      } else {
+         AccountsAdapter accountsAdapter = new AccountsAdapter(this, Utils.sortAccounts(spendingAccounts, storage));
+         listView.setAdapter(accountsAdapter);
+         listView.setVisibility(View.VISIBLE);
+         warningNoSpendingAccounts.setVisibility(View.GONE);
+      }
    }
 
    class AccountsAdapter extends ArrayAdapter<WalletAccount> {

@@ -45,11 +45,7 @@ import android.view.WindowManager;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Record;
-import com.mycelium.wallet.ScanRequest;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 
 import java.util.UUID;
@@ -95,7 +91,8 @@ public class InstantWalletActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                UUID account = MbwManager.getInstance(InstantWalletActivity.this).createOnTheFlyAccount(record.get().key);
-               SendInitializationActivity.callMe(InstantWalletActivity.this, account, _amountToSend, _receivingAddress, true);
+               BitcoinUri uri = new BitcoinUri(_receivingAddress, _amountToSend, null);
+               SendInitializationActivity.callMe(InstantWalletActivity.this, account, uri, true);
                InstantWalletActivity.this.finish();
             }
          });

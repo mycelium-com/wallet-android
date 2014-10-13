@@ -164,6 +164,31 @@
             android:gravity="center"
             android:orientation="vertical" >
 
+            <!-- Transaction Label -->
+
+            <TextView
+                    android:id="@+id/tvTransactionLabelTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transaction_label_title"
+                    android:visibility="gone"
+                    android:textSize="24sp" />
+
+            <TextView
+                    android:id="@+id/tvTransactionLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:visibility="gone"
+                    android:typeface="monospace" />
+
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="20dp" >
+            </View>
+
             <!-- Amount Title -->
 
             <TextView

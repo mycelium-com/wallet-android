@@ -382,17 +382,6 @@ public class ScanActivity extends Activity {
       finish();
    }
 
-   public void finishOk(Address address, Long amount) {
-      Intent result = new Intent();
-      result.putExtra(RESULT_ADDRESS_KEY, address);
-      result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS);
-      if (amount != null && amount > 0) {
-         result.putExtra(RESULT_AMOUNT_KEY, amount);
-      }
-      setResult(RESULT_OK, result);
-      finish();
-   }
-
    public void finishOk(Address address) {
       Intent result = new Intent();
       result.putExtra(RESULT_ADDRESS_KEY, address);
@@ -435,15 +424,18 @@ public class ScanActivity extends Activity {
       return key;
    }
 
-   public static Optional<Long> getAmount(Intent intent) {
-      return Optional.fromNullable((Long) intent.getSerializableExtra(RESULT_AMOUNT_KEY));
-   }
-
    public static Address getAddress(Intent intent) {
       ScanActivity.checkType(intent, ResultType.ADDRESS);
       Address address = (Address) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
       Preconditions.checkNotNull(address);
       return address;
+   }
+
+   public static BitcoinUri getUri(Intent intent) {
+      ScanActivity.checkType(intent, ResultType.URI);
+      BitcoinUri uri = (BitcoinUri) intent.getSerializableExtra(RESULT_URI_KEY);
+      Preconditions.checkNotNull(uri);
+      return uri;
    }
 
    public static UUID getAccount(Intent intent) {

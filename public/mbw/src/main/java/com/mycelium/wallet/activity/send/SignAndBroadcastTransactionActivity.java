@@ -60,17 +60,19 @@ public class SignAndBroadcastTransactionActivity extends Activity {
    private MbwManager _mbwManager;
    private WalletAccount _account;
    private boolean _isColdStorage;
+   private String _transactionLabel;
    private StandardTransactionBuilder.UnsignedTransaction _unsigned;
    private Transaction _transaction;
    private AsyncTask<Void, Integer, Transaction> _signingTask;
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
    private WalletAccount.BroadcastResult _broadcastResult;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned) {
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, String transactionLabel) {
       Intent intent = new Intent(currentActivity, SignAndBroadcastTransactionActivity.class);
       intent.putExtra("account", account);
       intent.putExtra("isColdStorage", isColdStorage);
       intent.putExtra("unsigned", unsigned);
+      intent.putExtra("transactionLabel", transactionLabel);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
@@ -86,6 +88,9 @@ public class SignAndBroadcastTransactionActivity extends Activity {
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _unsigned = Preconditions.checkNotNull((StandardTransactionBuilder.UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
+
+      //May be null
+      _transactionLabel = getIntent().getStringExtra("transactionLabel");
 
       // Load state
       if (savedInstanceState != null) {
@@ -200,6 +205,10 @@ public class SignAndBroadcastTransactionActivity extends Activity {
 
                public void onClick(DialogInterface arg0, int arg1) {
                   _account.queueTransaction(_transaction);
+                  //store the transaction label if there is one
+                  if (_transactionLabel != null) {
+                     _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getHash(), _transactionLabel);
+                  }
                   SignAndBroadcastTransactionActivity.this.finish();
                }
             });
@@ -216,6 +225,11 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          // Toast success and finish
          Toast.makeText(this, getResources().getString(R.string.transaction_sent),
                Toast.LENGTH_LONG).show();
+
+         //store the transaction label if there is one
+         if (_transactionLabel != null) {
+            _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getHash(), _transactionLabel);
+         }
 
          // Include the transaction hash in the response
          Intent result = new Intent();

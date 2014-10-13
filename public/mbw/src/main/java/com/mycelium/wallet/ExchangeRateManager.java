@@ -199,6 +199,9 @@ public class ExchangeRateManager {
       }
       for (ExchangeRate r : _latestRates.exchangeRates) {
          if (r.name.equals(_currentRateName)) {
+            //if the price is 0, obviously something went wrong
+            if (r.price.equals(Double.valueOf(0))) return null;
+            //everything is fine, return the rate
             return r;
          }
       }

@@ -153,12 +153,15 @@ public class AccountsFragment extends Fragment {
 
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      // after adding a key, remove add key button eventually if limit is hit
       ActivityCompat.invalidateOptionsMenu(getActivity());
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-         UUID account = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         _mbwManager.setSelectedAccount(account);
-         _focusedAccount = _mbwManager.getSelectedAccount();
+         UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+         //check whether the account is active - we might have scanned the priv key for an archived watchonly
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+         if (account.isActive()) {
+            _mbwManager.setSelectedAccount(accountid);
+         }
+         _focusedAccount = account;
          update();
          setNameForNewAccount(_focusedAccount);
       } else {

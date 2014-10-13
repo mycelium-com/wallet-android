@@ -535,5 +535,8 @@
     <string name="pref_legacy_backup_title">Legacy Backup</string>
     <string name="pref_legacy_backup_summary">Create a legacy backup, containing your single address accounts.</string>
     <string name="error_no_browser">Cannot navigate to website, no browser found on phone</string>
+    <string name="transaction_label_title">Transaction Label</string>
+    <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
+    <string name="donation_transaction_label">Donation to Mycelium</string>
 
 </resources>

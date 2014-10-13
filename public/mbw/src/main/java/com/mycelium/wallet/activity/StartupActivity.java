@@ -316,16 +316,16 @@ public class StartupActivity extends Activity {
    private void handleBitcoinUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-      Optional<BitcoinUri> b = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (!b.isPresent()) {
+      Optional<BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
+      if (!bitcoinUri.isPresent()) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
          return;
       }
 
-      Address receivingAddress = Preconditions.checkNotNull(b.get().address);
-      Long amountToSend = b.get().amount;
+      //address must be present
+      Preconditions.checkNotNull(bitcoinUri.get().address);
 
       List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
       if (spendingAccounts.isEmpty()) {
@@ -333,9 +333,9 @@ public class StartupActivity extends Activity {
          spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
       }
       if (spendingAccounts.size() == 1) {
-         SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), amountToSend, receivingAddress, false, REQUEST_FROM_URI);
+         SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bitcoinUri.get(), false, REQUEST_FROM_URI);
       } else {
-         GetSpendingRecordActivity.callMeWithResult(this, amountToSend, receivingAddress, REQUEST_FROM_URI);
+         GetSpendingRecordActivity.callMeWithResult(this, bitcoinUri.get(), REQUEST_FROM_URI);
       }
       //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
    }

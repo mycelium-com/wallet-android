@@ -43,6 +43,7 @@ import android.view.Window;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -56,41 +57,39 @@ import java.util.UUID;
 public class SendInitializationActivity extends Activity {
    private MbwManager _mbwManager;
    private WalletAccount _account;
-   private Long _amountToSend;
-   private Address _receivingAddress;
+   private BitcoinUri _uri;
    private boolean _isColdStorage;
    private Handler _synchronizingHandler;
    private Handler _slowNetworkHandler;
-   private boolean _ignoreExchangeRates;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("account", account);
+
+      //we dont know anything specific yet
+      intent.putExtra("uri", new BitcoinUri(null, null, null));
+
       intent.putExtra("isColdStorage", isColdStorage);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
-   public static void callMeWithResult(Activity currentActivity, UUID account, Long amountToSend,
-                                       Address receivingAddress, boolean isColdStorage, int request) {
-      Intent intent = prepareSendingIntent(currentActivity, account, amountToSend, receivingAddress, isColdStorage);
+   public static void callMeWithResult(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage, int request) {
+      Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage);
       currentActivity.startActivityForResult(intent, request);
 
    }
 
-   public static void callMe(Activity currentActivity, UUID account, Long amountToSend, Address receivingAddress,
-                             boolean isColdStorage) {
-      Intent intent = prepareSendingIntent(currentActivity, account, amountToSend, receivingAddress, isColdStorage);
+   public static void callMe(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
+      Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
-   private static Intent prepareSendingIntent(Activity currentActivity, UUID account, Long amountToSend,
-                                              Address receivingAddress, boolean isColdStorage) {
+   private static Intent prepareSendingIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("account", account);
-      intent.putExtra("amountToSend", amountToSend);
-      intent.putExtra("receivingAddress", receivingAddress);
+      intent.putExtra("uri", uri);
       intent.putExtra("isColdStorage", isColdStorage);
       return intent;
    }
@@ -104,10 +103,7 @@ public class SendInitializationActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
 
-      // May be null
-      _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
-      // May be null
-      _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
+      _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
    }
@@ -190,7 +186,7 @@ public class SendInitializationActivity extends Activity {
       if (_isColdStorage) {
          ColdStorageSummaryActivity.callMe(this, _account.getId());
       } else {
-         SendMainActivity.callMe(this, _account.getId(), _amountToSend, _receivingAddress, false);
+         SendMainActivity.callMe(this, _account.getId(), _uri, false);
       }
       finish();
    }
