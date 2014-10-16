@@ -571,7 +571,9 @@ public class AccountsFragment extends Fragment {
             if (_focusedAccount instanceof SingleAddressAccount) {
                MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
             } else {
-               _toaster.toast(getString(R.string.cant_sign_message), false);
+               Intent intent = new Intent(getActivity(), HDSigningActivity.class);
+               intent.putExtra("account", _focusedAccount.getId());
+               startActivity(intent);
             }
          }
       });

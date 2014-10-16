@@ -122,6 +122,7 @@
         <activity android:name=".activity.EnterWordListActivity" />
         <activity android:name=".activity.BackupWordListActivity" />
         <activity android:name=".activity.VerifyWordListActivity" />
+        <activity android:name=".activity.modern.HDSigningActivity" />
     </application>
 
 </manifest>

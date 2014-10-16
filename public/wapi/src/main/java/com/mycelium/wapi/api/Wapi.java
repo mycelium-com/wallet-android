@@ -52,10 +52,10 @@ public interface Wapi {
    WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request);
 
    /**
-    * Query the transaction inventory of a set of addresses
+    * Query the transaction inventory of a set of addresses with a limit on how many transaction IDs to retrieve
     * Example HTTP POST:
     *curl   -k -X POST -H "Content-Type: application/json"
-    *       -d '{"version":1,"addresses":["mfd7QG4vn2U4U5BgnTuw7dmjKsutDxkK6b","mysJrGMsYht9u3gBvKHFcNJsVEmaEPhUGA","mvMyQXzaHk7Z6u3vsbzT7qmQJo225ma9g3"]}'
+    *       -d '{"version":1,"addresses":["mfd7QG4vn2U4U5BgnTuw7dmjKsutDxkK6b","mysJrGMsYht9u3gBvKHFcNJsVEmaEPhUGA","mvMyQXzaHk7Z6u3vsbzT7qmQJo225ma9g3"],"limit":1000}'
     *       https://144.76.165.115/wapitestnet/wapi/queryTransactionInventory
     */
    WapiResponse<QueryTransactionInventoryResponse> queryTransactionInventory(QueryTransactionInventoryRequest request);

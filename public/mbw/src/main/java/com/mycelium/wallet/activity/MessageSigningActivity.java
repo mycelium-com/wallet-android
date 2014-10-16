@@ -80,17 +80,21 @@ public class MessageSigningActivity extends Activity {
            /**/"-----END BITCOIN SIGNATURE-----";
 
     public static void callMe(Context currentActivity, SingleAddressAccount account) {
-       Intent intent = new Intent(currentActivity, MessageSigningActivity.class);
        InMemoryPrivateKey privateKey;
        try {
           privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
        } catch (KeyCipher.InvalidKeyCipher e) {
           throw new RuntimeException(e);
        }
-       String privKey = privateKey.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
-       intent.putExtra(PRIVATE_KEY, privKey);
-       currentActivity.startActivity(intent);
+       callMe(currentActivity, privateKey);
     }
+
+   public static void callMe(Context currentActivity, InMemoryPrivateKey key) {
+      Intent intent = new Intent(currentActivity, MessageSigningActivity.class);
+      String privKey = key.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
+      intent.putExtra(PRIVATE_KEY, privKey);
+      currentActivity.startActivity(intent);
+   }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

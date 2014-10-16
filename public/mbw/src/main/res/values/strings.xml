@@ -538,5 +538,6 @@
     <string name="transaction_label_title">Transaction Label</string>
     <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
     <string name="donation_transaction_label">Donation to Mycelium</string>
+    <string name="select_key_for_signing">Select Key for Signing</string>
 
 </resources>

@@ -41,7 +41,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -59,9 +60,11 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -100,6 +103,13 @@ public class Utils {
       symbols.setGroupingSeparator(' ');
       FIAT_FORMAT.setDecimalFormatSymbols(symbols);
    }
+
+   public static final Function<AddressBookManager.Entry, Comparable> ENTRY_NAME = new Function<AddressBookManager.Entry, Comparable>() {
+      @Override
+      public Comparable apply(AddressBookManager.Entry input) {
+         return input.getName();
+      }
+   };
 
    @SuppressLint(Constants.IGNORE_NEW_API)
    public static void setAlpha(View view, float alpha) {
@@ -610,16 +620,12 @@ public class Utils {
       return accounts;
    }
 
+   public static List<Address> sortAAddresses(List<Address> addresses) {
+      return Ordering.usingToString().sortedCopy(addresses);
+   }
+
    public static List<AddressBookManager.Entry> sortAddressbookEntries(List<AddressBookManager.Entry> entries) {
-      Comparator<AddressBookManager.Entry> comparator = new Comparator<AddressBookManager.Entry>() {
-         @Override
-         public int compare(AddressBookManager.Entry lhs, AddressBookManager.Entry rhs) {
-            return lhs.getName().compareTo(rhs.getName());
-         }
-      };
-      entries = new ArrayList<AddressBookManager.Entry>(entries);
-      Collections.sort(entries, comparator);
-      return entries;
+      return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
 }

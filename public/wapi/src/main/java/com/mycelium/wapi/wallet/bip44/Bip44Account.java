@@ -334,6 +334,27 @@ public class Bip44Account extends AbstractAccount {
       return _currentReceivingAddress;
    }
 
+   //used for message signing picker
+   public List<Address> getAllAddresses() {
+      List<Address> addresses = new ArrayList<Address>();
+
+      //get all used external plus the next unused
+      BiMap<Integer, Address> external = _externalAddresses.inverse();
+      Integer externalIndex = _context.getLastExternalIndexWithActivity() + 1;
+      for (Integer i = 0; i <= externalIndex; i++) {
+         addresses.add(external.get(i));
+      }
+
+      //get all used internal
+      BiMap<Integer, Address> internal = _internalAddresses.inverse();
+      Integer internalIndex = _context.getLastInternalIndexWithActivity();
+      for (Integer i = 0; i <= internalIndex; i++) {
+         addresses.add(internal.get(i));
+      }
+
+      return addresses;
+   }
+
    @Override
    protected boolean isMine(Address address) {
       return _internalAddresses.containsKey(address) || _externalAddresses.containsKey(address);
@@ -377,7 +398,7 @@ public class Bip44Account extends AbstractAccount {
    }
 
    @Override
-   protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
+   public InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
       boolean isChange = false;
       Integer index = _externalAddresses.get(address);
       if (index == null) {
