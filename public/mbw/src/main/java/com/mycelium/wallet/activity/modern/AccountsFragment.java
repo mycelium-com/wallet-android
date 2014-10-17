@@ -458,6 +458,10 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
+      if (account.isActive() && account.canSpend()) {
+         menus.add(R.menu.record_options_menu_sign);
+      }
+
       if (account.isActive()) {
          menus.add(R.menu.record_options_menu_active);
          menus.add(R.menu.records_options_menu_unspent);

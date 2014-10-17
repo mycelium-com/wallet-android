@@ -274,7 +274,7 @@ public class Bip44Account extends AbstractAccount {
       // Add all external addresses
       combined.addAll(_externalAddresses.keySet());
       // Add the change addresses we monitor
-      for (int i = _context.getFirstMonitoredInternalIndex(); i <= _context.getLastInternalIndexWithActivity(); i++) {
+      for (int i = _context.getFirstMonitoredInternalIndex(); i < _internalAddresses.keySet().size(); i++) {
          combined.add(_internalAddresses.inverse().get(i));
       }
 
