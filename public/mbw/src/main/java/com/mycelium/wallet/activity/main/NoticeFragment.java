@@ -94,6 +94,8 @@ public class NoticeFragment extends Fragment {
       _notice = determineNotice();
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
       _root.findViewById(R.id.btBackupMissing).setOnClickListener(noticeClickListener);
+      _root.findViewById(R.id.btEndOfLine).setOnClickListener(endOfLineClickListener);
+      _root.findViewById(R.id.btBuggyOS).setOnClickListener(buggyOsClickListener);
       updateUi();
       super.onResume();
    }
@@ -148,6 +150,21 @@ public class NoticeFragment extends Fragment {
          }
       }
    };
+
+   private OnClickListener endOfLineClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+         showEndOfLineWarning();
+      }
+   };
+
+   private OnClickListener buggyOsClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+         showBuggyOsWarning();
+      }
+   };
+
    private OnClickListener warningClickListener = new OnClickListener() {
 
       @Override
@@ -173,11 +190,33 @@ public class NoticeFragment extends Fragment {
       Utils.showSimpleMessageDialog(getActivity(), R.string.move_legacy_funds_message);
    }
 
+   private void showEndOfLineWarning() {
+      if (!isAdded()) {
+         return;
+      }
+      Utils.showSimpleMessageDialog(getActivity(), R.string.warning_end_of_line);
+   }
+
+   private void showBuggyOsWarning() {
+      if (!isAdded()) {
+         return;
+      }
+      Utils.showSimpleMessageDialog(getActivity(), R.string.warning_android22_bug);
+   }
+
    private boolean shouldWarnAboutHeartbleedBug() {
       // The Heartbleed bug is only present in Android version 4.1.1
       return Build.VERSION.RELEASE.equals("4.1.1");
    }
 
+   private boolean shouldWarnAboutEndOfLine() {
+      return android.os.Build.VERSION.SDK_INT < 14;
+   }
+
+   private boolean shouldWarnAboutBuggyOS() {
+      // There seems to be a BigDecimal-Bug with Android 2.2 and the OpenSSL-Version used there
+      return android.os.Build.VERSION.RELEASE.startsWith("2.2");
+   }
 
    //this got replaced by VerifyWordlistBackup, but stays here unused, in case we ever need again the old backup functionality
    private class VerifyBackupDialog extends Dialog {
@@ -214,11 +253,21 @@ public class NoticeFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      // Only show the "Secure My Funds" button when necessary
-      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.NONE ? View.GONE : View.VISIBLE);
 
-      // Only show the heartbleed warning when necessary
-      _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
+      if (shouldWarnAboutBuggyOS()) {
+         // Show warning for unsupported Android-Version and/or hardware
+         _root.findViewById(R.id.btBuggyOS).setVisibility(View.VISIBLE);
+      } else if (shouldWarnAboutEndOfLine()) {
+         // Show that there are nor further updates for this app on this android OS Version
+         _root.findViewById(R.id.btEndOfLine).setVisibility(View.VISIBLE);
+      } else {
+
+         // Only show the "Secure My Funds" button when necessary
+         _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.NONE ? View.GONE : View.VISIBLE);
+
+         // Only show the heartbleed warning when necessary
+         _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
+      }
 
    }
 

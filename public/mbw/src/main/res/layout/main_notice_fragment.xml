@@ -17,8 +17,44 @@
         android:paddingLeft="5dp"
         android:paddingRight="7dp"
         android:paddingTop="8dp"
+        android:visibility="gone"
         android:text="@string/secure_my_funds"
         android:textSize="16sp" />
+
+    <TextView
+            android:id="@+id/btBuggyOS"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
+            android:gravity="center_vertical"
+            android:paddingBottom="7dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="7dp"
+            android:background="@drawable/btn_red"
+            android:paddingTop="8dp"
+            android:text="@string/warning_phone_not_supported"
+            android:visibility="gone"
+            android:textSize="16sp" />
+
+    <TextView
+            android:id="@+id/btEndOfLine"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
+            android:gravity="center_vertical"
+            android:paddingBottom="7dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="7dp"
+            android:paddingTop="8dp"
+            android:text="@string/warning_no_further_updates"
+            android:visibility="gone"
+            android:textSize="16sp" />
 
     <Button
         android:id="@+id/btWarning"
@@ -31,6 +67,7 @@
         android:paddingRight="20dp"
         android:text="@string/alert_button"
         android:background="@drawable/btn_red"
+        android:visibility="gone"
         android:textSize="20sp" />
 
 </LinearLayout>

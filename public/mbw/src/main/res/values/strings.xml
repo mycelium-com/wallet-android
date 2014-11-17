@@ -539,5 +539,9 @@
     <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
     <string name="donation_transaction_label">Donation to Mycelium</string>
     <string name="select_key_for_signing">Select Key for Signing</string>
+    <string name="warning_phone_not_supported">Phone not supported</string>
+    <string name="warning_no_further_updates">No further Mycelium updates</string>
+    <string name="warning_android22_bug">You are at risk of losing your money, if you use this phone for bitcoin transactions.\n\nYour phone runs on Android 2.2. This version has a known bug which affects how Bitcoin addresses are generated. Under certain circumstances this might lead to transactions to addresses which can never get spent again.\n\nEither check if there is an update for your phones operating-system or get a new phone and import your backup there.\n\n\nAll in all:\nDON\'T USE THIS PHONE TO SEND OR RECEIVE BITCOIN</string>
+    <string name="warning_end_of_line">Your phone runs a rather old version of Android. For technical reasons we are not able to release further updates of Mycelium for this version of Android.\n\n If you want to stay up-to-date and secure, either check if there is an update for your phones operating-system or get a new phone and import your backup there.</string>
 
 </resources>

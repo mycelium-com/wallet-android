@@ -27,14 +27,8 @@ public class QueryTransactionInventoryRequest implements Serializable {
 
    @JsonProperty
    public final int version;
-   /**
-    * The list of addresses to query
-    */
    @JsonProperty
    public final List<Address> addresses;
-   /**
-    * The maximum number of transaction IDs to receive
-    */
    @JsonProperty
    public final int limit;
 
