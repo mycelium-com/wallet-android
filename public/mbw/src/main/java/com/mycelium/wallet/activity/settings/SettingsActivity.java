@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity.settings;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -48,12 +47,8 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.mbwapi.api.CurrencyCode;
@@ -64,7 +59,6 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
@@ -101,32 +95,24 @@ public class SettingsActivity extends PreferenceActivity {
    };
    private final OnPreferenceClickListener setPinClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
-
-         // Must make a backup before setting PIN
-         if(_mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED){
-            Utils.showSimpleMessageDialog(SettingsActivity.this, R.string.pin_backup_first);
-            return true;
-         }
-
-         _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
-            @Override
-            public void run() {
-               setPin();
-            }
-         });
+         _mbwManager.showSetPinDialog(SettingsActivity.this, Optional.<Runnable>of(new Runnable() {
+                  @Override
+                  public void run() {
+                     updateClearPin();
+                  }
+               })
+         );
          return true;
       }
    };
    private final OnPreferenceClickListener clearPinClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
-         _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
+         _mbwManager.showClearPinDialog(SettingsActivity.this, Optional.<Runnable>of(new Runnable() {
             @Override
             public void run() {
-               _mbwManager.setPin("");
                updateClearPin();
-               Toast.makeText(SettingsActivity.this, R.string.pin_cleared, Toast.LENGTH_LONG).show();
             }
-         });
+         }));
          return true;
       }
    };
@@ -162,15 +148,12 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
-   private ListPreference _language;
-   private CheckBoxPreference _ltDisable;
    private CheckBoxPreference _ltNotificationSound;
    private CheckBoxPreference _ltMilesKilometers;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private Dialog _dialog;
-   private EditTextPreference _proxy;
-   private ImmutableMap<String, String> _languageLookup;
+   private ListPreference _minerFee;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -220,6 +203,30 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
+      // Miner Fee
+      _minerFee = (ListPreference) findPreference("miner_fee");
+      _minerFee.setTitle(getMinerFeeTitle());
+      _minerFee.setSummary(getMinerFeeSummary());
+      _minerFee.setDefaultValue(_mbwManager.getMinerFee().toString());
+      _minerFee.setValue(_mbwManager.getMinerFee().toString());
+      CharSequence[] minerFees = new CharSequence[]{MinerFee.ECONOMIC.toString(), MinerFee.NORMAL.toString(), MinerFee.PRIORITY.toString()};
+      CharSequence[] minerFeeNames = new CharSequence[]{getString(R.string.miner_fee_economic_name),
+            getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name)};
+      _minerFee.setEntries(minerFeeNames);
+      _minerFee.setEntryValues(minerFees);
+      _minerFee.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+
+         @Override
+         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            _mbwManager.setMinerFee(MinerFee.fromString(newValue.toString()));
+            _minerFee.setTitle(getMinerFeeTitle());
+            _minerFee.setSummary(getMinerFeeSummary());
+            String description = MinerFee.getMinerFeeDescription(_mbwManager.getMinerFee(), SettingsActivity.this);
+            Utils.showSimpleMessageDialog(SettingsActivity.this, description);
+            return true;
+         }
+      });
+
       _localCurrency = findPreference("local_currency");
       _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
       _localCurrency.setTitle(localCurrencyTitle());
@@ -252,18 +259,18 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
-      _language = (ListPreference) findPreference("user_language");
-      _language.setTitle(getLanguageSettingTitle());
-      _language.setDefaultValue(Locale.getDefault().getLanguage());
-      _language.setSummary(_mbwManager.getLanguage());
-      _language.setValue(_mbwManager.getLanguage());
+      ListPreference language = (ListPreference) findPreference("user_language");
+      language.setTitle(getLanguageSettingTitle());
+      language.setDefaultValue(Locale.getDefault().getLanguage());
+      language.setSummary(_mbwManager.getLanguage());
+      language.setValue(_mbwManager.getLanguage());
 
-      _languageLookup = loadLanguageLookups();
-      _language.setSummary(_languageLookup.get(_mbwManager.getLanguage()));
+      ImmutableMap<String, String> languageLookup = loadLanguageLookups();
+      language.setSummary(languageLookup.get(_mbwManager.getLanguage()));
 
-      _language.setEntries(R.array.languages_desc);
-      _language.setEntryValues(R.array.languages);
-      _language.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+      language.setEntries(R.array.languages_desc);
+      language.setEntryValues(R.array.languages);
+      language.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             String lang = newValue.toString();
@@ -289,9 +296,9 @@ public class SettingsActivity extends PreferenceActivity {
       legacyBackup.setOnPreferenceClickListener(legacyBackupClickListener);
 
       // Local Trader
-      _ltDisable = (CheckBoxPreference) findPreference("ltDisable");
-      _ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
-      _ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
+      CheckBoxPreference ltDisable = (CheckBoxPreference) findPreference("ltDisable");
+      ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
+      ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
 
       _ltNotificationSound = (CheckBoxPreference) findPreference("ltNotificationSound");
@@ -303,10 +310,10 @@ public class SettingsActivity extends PreferenceActivity {
       _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
 
       // Socks Proxy
-      _proxy = Preconditions.checkNotNull((EditTextPreference) findPreference("proxy"));
-      _proxy.setTitle(getSocksProxyTitle());
+      EditTextPreference proxy = Preconditions.checkNotNull((EditTextPreference) findPreference("proxy"));
+      proxy.setTitle(getSocksProxyTitle());
 
-      _proxy.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+      proxy.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             String value = (String) newValue;
@@ -441,6 +448,16 @@ public class SettingsActivity extends PreferenceActivity {
             _mbwManager.getBitcoinDenomination().getAsciiName());
    }
 
+   private String getMinerFeeTitle() {
+      return getResources().getString(R.string.pref_miner_fee_title,
+            MinerFee.getMinerFeeName(_mbwManager.getMinerFee(), this));
+   }
+
+   private String getMinerFeeSummary() {
+      return getResources().getString(R.string.pref_miner_fee_summary,
+            _mbwManager.getBtcValueString(_mbwManager.getMinerFee().kbMinerFee));
+   }
+
    @SuppressWarnings("deprecation")
    private void updateClearPin() {
       Preference clearPin = findPreference("clearPin");
@@ -456,31 +473,6 @@ public class SettingsActivity extends PreferenceActivity {
       super.onDestroy();
    }
 
-   private void setPin() {
-      final Context context = SettingsActivity.this;
-      _dialog = new PinDialog(context, false, new PinDialog.OnPinEntered() {
-         private String newPin = null;
-
-         @Override
-         public void pinEntered(PinDialog dialog, String pin) {
-            if (newPin == null) {
-               newPin = pin;
-               dialog.setTitle(R.string.pin_confirm_pin);
-            } else if (newPin.equals(pin)) {
-               _mbwManager.setPin(pin);
-               Toast.makeText(context, R.string.pin_set, Toast.LENGTH_LONG).show();
-               updateClearPin();
-               dialog.dismiss();
-            } else {
-               Toast.makeText(context, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
-               _mbwManager.vibrate(500);
-               dialog.dismiss();
-            }
-         }
-      });
-      _dialog.setTitle(R.string.pin_enter_new_pin);
-      _dialog.show();
-   }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == GET_CURRENCY_RESULT_CODE && resultCode == RESULT_OK) {

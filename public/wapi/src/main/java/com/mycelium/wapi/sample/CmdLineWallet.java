@@ -146,7 +146,7 @@ public class CmdLineWallet {
                List<Receiver> receivers = new ArrayList<Receiver>();
                receivers.add(new Receiver(address, 10000 * (1 + new Random().nextInt(100))));
                try {
-                  UnsignedTransaction unsigned = myAccount.createUnsignedTransaction(receivers);
+                  UnsignedTransaction unsigned = myAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
                   Transaction transaction = myAccount.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), _randomSource);
                   myAccount.broadcastTransaction(transaction);
                   wallet.startSynchronization();
@@ -375,7 +375,7 @@ public class CmdLineWallet {
          account = accounts.get(index);
       }
       // Determine max amount
-      long maxAmount = account.calculateMaxSpendableAmount();
+      long maxAmount = account.calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE);
       if (maxAmount == 0) {
          print("Not enough funds");
          return;
@@ -407,7 +407,7 @@ public class CmdLineWallet {
       receivers.add(new Receiver(address, amount));
       UnsignedTransaction unsigned;
       try {
-         unsigned = account.createUnsignedTransaction(receivers);
+         unsigned = account.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
       } catch (OutputTooSmallException e) {
          print("invalid amount");
          return;

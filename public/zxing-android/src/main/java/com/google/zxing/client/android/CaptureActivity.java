@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.*;
 import android.os.Build;
 import android.os.Bundle;
@@ -72,6 +73,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    private BeepManager beepManager;
    private AmbientLightManager ambientLightManager;
    private boolean enableContinuousFocus;
+   private ImageView buttonFlash;
 
    ViewfinderView getViewfinderView() {
       return viewfinderView;
@@ -97,6 +99,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       }
       setContentView(R.layout.capture);
 
+      buttonFlash = (ImageView) findViewById(R.id.button_toggle_flash);
+      //dont show flash button if device has no flash
+      if (!hasFlash()) buttonFlash.setVisibility(View.GONE);
+
       hasSurface = false;
       inactivityTimer = new InactivityTimer(this);
       beepManager = new BeepManager(this);
@@ -113,6 +119,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       showFocusState(enableContinuousFocus);
 
       PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+   }
+
+   private boolean hasFlash() {
+      //check whether the device has a flash LED for its camera
+      return this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
    }
 
    @SuppressWarnings("deprecation")
@@ -244,7 +255,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    }
 
    private void showTorchState(boolean state) {
-      ImageView buttonFlash = (ImageView) findViewById(R.id.button_toggle_flash);
       // if we change our MinApi level to 16, change this to setImageAlpha
       setAlpha(buttonFlash, state ? 1.0f : 0.5f);
    }

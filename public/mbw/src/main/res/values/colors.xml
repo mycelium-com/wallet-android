@@ -29,6 +29,8 @@
     <color name="transparent">#00000000</color>
     <color name="transparentgrey">#88888888</color>
     <color name="buttoncolor">#ff1c3d5c</color>
+    <color name="fnbuttoncolor">#ff112639</color>
+    <color name="fnbuttoncolor_border">#ff255179</color>
     <color name="buttonredcolor">#ffff1c1c</color>
     
     <drawable name="semi_black">#80000000</drawable>

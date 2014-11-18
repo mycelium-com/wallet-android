@@ -36,19 +36,14 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.google.common.collect.Lists;
+import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -97,6 +92,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
       _wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
       UsKeyboardFragment keyboard = (UsKeyboardFragment) getSupportFragmentManager().findFragmentById(R.id.usKeyboard);
       keyboard.setListener(_wordAutoCompleter);
+      setHint();
    }
 
    private void askForNextWord() {
@@ -106,7 +102,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
       } else {
          //ask for next word
          currentWordIndex++;
-         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
+         setHint();
       }
    }
 
@@ -139,12 +135,38 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
 
    private void setVerified() {
       _mbwManager.getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
-      Utils.showSimpleMessageDialog(this, R.string.verify_wordlist_success, new Runnable() {
-         @Override
-         public void run() {
-            VerifyWordListActivity.this.finish();
-         }
-      });
+
+      if (!_mbwManager.isPinProtected()) {
+         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         builder
+               .setMessage(R.string.verify_wordlist_success)
+               .setCancelable(false)
+               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                     VerifyWordListActivity.this.finish();
+                  }
+               })
+               .setNeutralButton(R.string.pref_set_pin, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                     _mbwManager.showSetPinDialog(VerifyWordListActivity.this, Optional.<Runnable>of(new Runnable() {
+                        @Override
+                        public void run() {
+                           // close this activity after the PIN code dialog was closed
+                           VerifyWordListActivity.this.finish();
+                        }
+                     }));
+                  }
+               });
+         AlertDialog alertDialog = builder.create();
+         alertDialog.show();
+      }else {
+         Utils.showSimpleMessageDialog(this, R.string.verify_wordlist_success, new Runnable() {
+            @Override
+            public void run() {
+               VerifyWordListActivity.this.finish();
+            }
+         });
+      }
    }
 
    @Override
@@ -154,12 +176,27 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
       savedInstanceState.putInt("index", currentWordIndex);
    }
 
+   void setHint(){
+      ((TextView)findViewById(R.id.tvHint)).setText(
+            getString(R.string.importing_wordlist_enter_next_word,  currentWordIndex + 1, wordlist.size())
+      );
+      findViewById(R.id.tvHint).setVisibility(View.VISIBLE);
+   }
+
+   void setHint(boolean show){
+      if (show){
+         setHint();
+      }else{
+         findViewById(R.id.tvHint).setVisibility(View.INVISIBLE);
+      }
+   }
+
    @Override
    public void onRestoreInstanceState(Bundle savedInstanceState)
    {
       super.onRestoreInstanceState(savedInstanceState);
       currentWordIndex = savedInstanceState.getInt("index");
-      _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordIndex + 1, wordlist.size()));
+      setHint();
    }
 
    @Override
@@ -169,5 +206,10 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
       } else {
          Toast.makeText(VerifyWordListActivity.this, R.string.verify_word_wrong, Toast.LENGTH_LONG).show();
       }
+   }
+
+   @Override
+   public void onCurrentWordChanged(String currentWord) {
+      ((TextView)findViewById(R.id.tvWord)).setText(currentWord);
    }
 }

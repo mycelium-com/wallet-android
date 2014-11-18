@@ -35,7 +35,9 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -43,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -62,7 +65,7 @@ import java.util.List;
 public class NoticeFragment extends Fragment {
 
    private enum Notice {
-      BACKUP_MISSING, MOVE_LEGACY_FUNDS, NONE
+      BACKUP_MISSING, MOVE_LEGACY_FUNDS, RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE
    }
 
    private MbwManager _mbwManager;
@@ -94,8 +97,7 @@ public class NoticeFragment extends Fragment {
       _notice = determineNotice();
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
       _root.findViewById(R.id.btBackupMissing).setOnClickListener(noticeClickListener);
-      _root.findViewById(R.id.btEndOfLine).setOnClickListener(endOfLineClickListener);
-      _root.findViewById(R.id.btBuggyOS).setOnClickListener(buggyOsClickListener);
+      _root.findViewById(R.id.btPinResetNotice).setOnClickListener(noticeClickListener);
       updateUi();
       super.onResume();
    }
@@ -109,6 +111,17 @@ public class NoticeFragment extends Fragment {
    private Notice determineNotice() {
       List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getActiveAccounts();
       MetadataStorage meta = _mbwManager.getMetadataStorage();
+
+      Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
+      // Check first if a Pin-Reset is now possible
+      if (resetPinRemainingBlocksCount.isPresent() && resetPinRemainingBlocksCount.get()==0){
+         return Notice.RESET_PIN_AVAILABLE;
+      }
+
+      // Then check if a Pin-Reset is in process
+      if (resetPinRemainingBlocksCount.isPresent()){
+         return Notice.RESET_PIN_IN_PROGRESS;
+      }
 
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
@@ -139,6 +152,10 @@ public class NoticeFragment extends Fragment {
       @Override
       public void onClick(View v) {
          switch (_notice) {
+            case RESET_PIN_AVAILABLE:
+            case RESET_PIN_IN_PROGRESS:
+               showPinResetWarning();
+               break;
             case BACKUP_MISSING:
                showBackupWarning();
                break;
@@ -149,21 +166,48 @@ public class NoticeFragment extends Fragment {
                break;
          }
       }
+
    };
 
-   private OnClickListener endOfLineClickListener = new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-         showEndOfLineWarning();
-      }
-   };
+   private void showPinResetWarning() {
+      Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
 
-   private OnClickListener buggyOsClickListener = new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-         showBuggyOsWarning();
+      if (!resetPinRemainingBlocksCount.isPresent()){
+         recheckNotice();
+         return;
       }
-   };
+
+      if (resetPinRemainingBlocksCount.get()==0){
+         // delay is done
+         _mbwManager.showClearPinDialog(this.getActivity(), Optional.<Runnable>of(new Runnable() {
+            @Override
+            public void run() {
+               recheckNotice();
+            }
+         }));
+         return;
+      }
+
+      // delay is still remaining, provide option to abort
+      String remaining = Utils.formatBlockcountAsApproxDuration(this.getActivity(), resetPinRemainingBlocksCount.or(1));
+      new AlertDialog.Builder(this.getActivity())
+            .setMessage(String.format(this.getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
+            .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
+            .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                  _mbwManager.getMetadataStorage().clearResetPinStartBlockheight();
+                  recheckNotice();
+               }
+            })
+            .setNegativeButton(this.getActivity().getString(R.string.no), new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                  // nothing to do here
+               }
+            })
+            .show();
+   }
 
    private OnClickListener warningClickListener = new OnClickListener() {
 
@@ -190,33 +234,11 @@ public class NoticeFragment extends Fragment {
       Utils.showSimpleMessageDialog(getActivity(), R.string.move_legacy_funds_message);
    }
 
-   private void showEndOfLineWarning() {
-      if (!isAdded()) {
-         return;
-      }
-      Utils.showSimpleMessageDialog(getActivity(), R.string.warning_end_of_line);
-   }
-
-   private void showBuggyOsWarning() {
-      if (!isAdded()) {
-         return;
-      }
-      Utils.showSimpleMessageDialog(getActivity(), R.string.warning_android22_bug);
-   }
-
    private boolean shouldWarnAboutHeartbleedBug() {
       // The Heartbleed bug is only present in Android version 4.1.1
       return Build.VERSION.RELEASE.equals("4.1.1");
    }
 
-   private boolean shouldWarnAboutEndOfLine() {
-      return android.os.Build.VERSION.SDK_INT < 14;
-   }
-
-   private boolean shouldWarnAboutBuggyOS() {
-      // There seems to be a BigDecimal-Bug with Android 2.2 and the OpenSSL-Version used there
-      return android.os.Build.VERSION.RELEASE.startsWith("2.2");
-   }
 
    //this got replaced by VerifyWordlistBackup, but stays here unused, in case we ever need again the old backup functionality
    private class VerifyBackupDialog extends Dialog {
@@ -254,39 +276,33 @@ public class NoticeFragment extends Fragment {
          return;
       }
 
-      if (shouldWarnAboutBuggyOS()) {
-         // Show warning for unsupported Android-Version and/or hardware
-         _root.findViewById(R.id.btBuggyOS).setVisibility(View.VISIBLE);
-      } else if (shouldWarnAboutEndOfLine()) {
-         // Show that there are nor further updates for this app on this android OS Version
-         _root.findViewById(R.id.btEndOfLine).setVisibility(View.VISIBLE);
-      } else {
+      // Show button, that a PIN reset is in progress and allow to abort it
+      _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
 
-         // Only show the "Secure My Funds" button when necessary
-         _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.NONE ? View.GONE : View.VISIBLE);
+      // Only show the "Secure My Funds" button when necessary
+      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.BACKUP_MISSING ? View.VISIBLE : View.GONE);
 
-         // Only show the heartbleed warning when necessary
-         _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
+      // Only show the heartbleed warning when necessary
+      _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
+
+   }
+
+   private void recheckNotice() {
+      Notice notice = determineNotice();
+      if (_notice != notice) {
+         _notice = notice;
+         updateUi();
       }
-
    }
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
-      Notice notice = determineNotice();
-      if (_notice != notice) {
-         _notice = notice;
-         updateUi();
-      }
+      recheckNotice();
    }
 
    @Subscribe
    public void balanceChanged(BalanceChanged event) {
-      Notice notice = determineNotice();
-      if (_notice != notice) {
-         _notice = notice;
-         updateUi();
-      }
+      recheckNotice();
    }
 
 

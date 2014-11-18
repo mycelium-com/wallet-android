@@ -246,4 +246,8 @@ public class Address implements Serializable, Comparable<Address> {
       return ((byte) (network.getStandardAddressHeader() & 0xFF)) == version || ((byte) (network.getMultisigAddressHeader() & 0xFF)) == version;
    }
 
+   public String getBlockchainExplorerLink(){
+      return getNetwork().getBlockchainExplorerAddress() + toString();
+   }
+
 }

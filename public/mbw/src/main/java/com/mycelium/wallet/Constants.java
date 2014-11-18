@@ -56,16 +56,19 @@ public class Constants {
     */
    public static final String SETTINGS_NAME = "settings";
    public static final String PIN_SETTING = "PIN";
+   public static final String PIN_SETTING_RESETTABLE = "PinResettable";
    public static final String PROXY_SETTING = "proxy";
    public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
    public static final String DEFAULT_CURRENCY = "USD";
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
+   public static final String MINER_FEE_SETTING = "MinerFeeSetting";
    public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
    public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
    public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
    public static final String MYCELIUM_2_RELEASE_NOTES_URL = "http://mycelium.com/wallet/whats_new_in_20.html";
+   public static final String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
    public static final String LANGUAGE_SETTING = "user_language";
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String LAST_UPDATE_CHECK = "last_update_check";
@@ -104,4 +107,14 @@ public class Constants {
    public static final String PRODNET_DONATION_ADDRESS = "13YxhmcAyr9W1frumWr3trXLAj2hSHWBmo";
    public static final String TESTNET_DONATION_ADDRESS = "mtjVQkh6kZbixqwLPMinWievE5jWSHdovP";
 
+   public static final int BITCOIN_BLOCKS_PER_DAY = (24 * 60) / 10;
+
+   // Minimum age of the PIN in blocks, so that we allow a second wordlist backup
+   public static final int MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP = 2 * BITCOIN_BLOCKS_PER_DAY;
+
+   // Minimum age of the PIN in blocks, until you can reset the PIN
+   public static final int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
+
+   // Force user to read the warnings about additional backups
+   public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
 }

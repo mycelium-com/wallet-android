@@ -38,15 +38,14 @@
                     android:text="@string/hash"
                     android:textSize="18sp" />
 
-                <TextView
+                <com.mycelium.wallet.activity.util.TransactionDetailsLabel
                     android:id="@+id/tvHash"
-
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:textSize="18sp"
-                    android:typeface="monospace" />
+                    />
+
             </TableRow>
 
             <!-- Confirmed -->

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/pin_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
+        tools:showIn="@layout/enter_pin_keypad">
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:gravity="center">
+
+        <Button
+                android:id="@+id/pin_button1"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/one"/>
+
+        <Button
+                android:id="@+id/pin_button2"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/two"/>
+
+        <Button
+                android:id="@+id/pin_button3"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/three"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+        <Button
+                android:id="@+id/pin_button4"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/four"/>
+
+        <Button
+                android:id="@+id/pin_button5"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/five"/>
+
+        <Button
+                android:id="@+id/pin_button6"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/six"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+        <Button
+                android:id="@+id/pin_button7"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/seven"/>
+
+        <Button
+                android:id="@+id/pin_button8"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/eight"/>
+
+        <Button
+                android:id="@+id/pin_button9"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/nine"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+        <Button
+                android:id="@+id/pin_clr"
+                style="@style/MyceliumPinpadButtonFn"
+                android:text="@string/pin_pad_clear"/>
+
+        <Button
+                android:id="@+id/pin_button0"
+                style="@style/MyceliumPinpadButton"
+                android:text="@string/zero"/>
+
+        <Button
+                android:id="@+id/pin_back"
+                style="@style/MyceliumPinpadButtonFn"
+                android:text="@string/pin_pad_backspace"/>
+
+    </LinearLayout>
+</LinearLayout>

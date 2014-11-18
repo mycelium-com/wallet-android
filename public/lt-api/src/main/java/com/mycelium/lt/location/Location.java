@@ -16,7 +16,12 @@
 
 package com.mycelium.lt.location;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Location {
+   @JsonProperty
    public double lat;
+
+   @JsonProperty
    public double lng;
 }

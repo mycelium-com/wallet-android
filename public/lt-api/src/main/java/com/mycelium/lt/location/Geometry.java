@@ -16,10 +16,20 @@
 
 package com.mycelium.lt.location;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Geometry {
+
+   @JsonProperty
    public Location location;
+
+   @JsonProperty
    public String locationType;
+
+   @JsonProperty
    public Area viewport;
+
+   @JsonProperty
    public Area bounds;
 
 }

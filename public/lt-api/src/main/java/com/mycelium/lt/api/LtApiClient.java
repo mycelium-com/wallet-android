@@ -32,20 +32,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.BitlibJsonModule;
 import com.mrd.bitlib.util.SslUtils;
 import com.mycelium.lt.api.LtConst.Function;
 import com.mycelium.lt.api.LtConst.Param;
-import com.mycelium.lt.api.model.Ad;
-import com.mycelium.lt.api.model.AdSearchItem;
-import com.mycelium.lt.api.model.BtcSellPrice;
-import com.mycelium.lt.api.model.Captcha;
-import com.mycelium.lt.api.model.LtSession;
-import com.mycelium.lt.api.model.PriceFormula;
-import com.mycelium.lt.api.model.PublicTraderInfo;
-import com.mycelium.lt.api.model.SellOrder;
-import com.mycelium.lt.api.model.SellOrderSearchItem;
-import com.mycelium.lt.api.model.TradeSession;
-import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.lt.api.model.*;
 import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.CreateTradeParameters;
@@ -122,7 +113,7 @@ public class LtApiClient implements LtApi {
       // We ignore properties that do not map onto the version of the class we
       // deserialize
       _objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      _objectMapper.registerModule(new LtJsonModule());
+      _objectMapper.registerModule(new BitlibJsonModule());
       _logger = logger;
    }
 
@@ -226,6 +217,10 @@ public class LtApiClient implements LtApi {
       connection.setDoInput(true);
       connection.setDoOutput(true);
       return connection;
+   }
+
+   public String getUrl(){
+      return getEndpoint().baseUrlString;
    }
 
    @Override
@@ -550,6 +545,26 @@ public class LtApiClient implements LtApi {
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.EMAIL, email);
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<GeocoderSearchResults> searchGeocoder(UUID sessionId, String query, int maxResults) {
+      LtRequest r = new LtRequest(Function.SEARCH_GEOCODER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.QUERY, query);
+      r.addQueryParameter(Param.MAX_RESULTS, String.valueOf(maxResults));
+      return sendRequest(r, new TypeReference<LtResponse<GeocoderSearchResults>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<GeocoderSearchResults> reverseGeocoder(UUID sessionId, double lat, double lon) {
+      LtRequest r = new LtRequest(Function.REVERSE_GEOCODER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.LATITUDE, String.valueOf(lat));
+      r.addQueryParameter(Param.LONGITUDE, String.valueOf(lon));
+      return sendRequest(r, new TypeReference<LtResponse<GeocoderSearchResults>>() {
       });
    }
 

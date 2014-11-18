@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginLeft="@dimen/button_padding"
+            android:layout_marginRight="@dimen/button_padding"
+            android:layout_marginTop="@dimen/button_padding"
+            >
+
+        <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/additional_backup_words_title"
+                android:textSize="24sp" />
+
+        <View
+                android:layout_width="1dp"
+                android:layout_height="10dp" >
+        </View>
+
+        <TextView
+                android:id="@+id/tvDescriptionAdditionalNotPossiblePinTooNew"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="@string/wordlist_additional_backup_not_possible_pin_too_new" />
+
+        <TextView
+                android:id="@+id/tvDescriptionAdditionalNotPossibleNoPin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="@string/wordlist_additional_backup_not_possible_no_pin" />
+
+       <TextView
+                android:id="@+id/tvDescriptionAdditionalWordlistBackup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="@string/wordlist_additional_backup_description" />
+
+        <View
+                android:layout_width="1dp"
+                android:layout_height="10dp" >
+        </View>
+
+        <Button
+                android:id="@+id/btOkayImFine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:enabled="false"
+                android:text="@string/wordlist_start_with_additional_wordlist_backup" />
+
+        <View
+                android:layout_width="1dp"
+                android:layout_height="10dp" >
+        </View>
+
+    </LinearLayout>
+
+</ScrollView>

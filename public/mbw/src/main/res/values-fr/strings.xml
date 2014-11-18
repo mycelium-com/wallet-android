@@ -7,12 +7,12 @@
   <string name="import_seed_title">Importer Racine</string>
   <string name="import_words_title">Entrez la liste de mots</string>
   <string name="add_account_desc">Mycélium prend en charge les comptes HD et  les adresses uniques. Tous les comptes HD sont créées selon la même Racine. La première fois que vous ce  compte, votre Racine sera configuré.</string>
-  <string name="add_single_acc_info">Afin d\'ajouter qu\'un seul compte d\'adresse basé sur une clé privé ou une adresse en mode lecture seulement, s\'il vous plaît cliquez sur le bouton Options avancées ci-dessous.</string>
+  <string name="add_single_acc_info">Pour créer un compte à adresse unique avec clé privée, ou pour créer un compte en lecture seule, veuillez choisir le mode avancé ci-dessous.</string>
   <string name="scan_desc">Numériser l’adresse Bitcoin ou la clé privée.</string>
   <string name="scan_seed">Numérisez la Racine de la sauvegarde Mycelium</string>
-  <string name="use_acc_first">Vous ne pouvez avoir qu\'un seul compte inutilisé de HD.</string>
+  <string name="use_acc_first">Vous ne pouvez avoir qu\'un seul compte HD inutilisé.</string>
   <string name="clipboard_desc">Ajouter l’adresse Bitcoin ou la clé privée à partir du presse-papiers.</string>
-  <string name="wordlist_des">Créez le Racine à partir d\'une liste de mots</string>
+  <string name="wordlist_des">Créez la Racine à partir d\'une liste de mots</string>
   <string name="scan">Numériser</string>
   <string name="advanced">Avancé</string>
   <string name="clipboard">Presse-papiers</string>
@@ -21,7 +21,7 @@
   <string name="close">Fermer</string>
   <string name="sending">Envoi de %1$s</string>
   <string name="receiving">Entrant %1$s</string>
-  <string name="an_icon">un icône</string>
+  <string name="an_icon">une icône</string>
   <string name="confirmations">%d Confirmations</string>
   <string name="send">Envoyer</string>
   <string name="receive">Recevoir</string>
@@ -38,15 +38,15 @@
   <string name="my_addresses">Mes adresses</string>
   <string name="insufficient_funds">Fonds insuffisants</string>
   <string name="insufficient_funds_for_fee">Fonds insuffisants pour les frais</string>
-  <string name="amount_too_small">Le montant envoyé est sous le minimum</string>
+  <string name="amount_too_small">Le montant que vous avez choisi est trop petit</string>
   <string name="amount_too_small_short">Montant sous le minimum</string>
   <string name="miner_fee_label">Frais de gestion :</string>
   <string name="miner_fee_title">Frais de gestion</string>
   <string name="synchronizing">Synchronisation en cours</string>
-  <string name="transaction_not_sent">Échec de diffusion de la transaction</string>
-  <string name="queue_transaction_message">Transaction non diffusé. \nDésirez vous placer la transaction en file d\'attente afin qu\'elle soit envoyé automatiquement une fois la ligne obtenu?</string>
+  <string name="transaction_not_sent">Échec de l\'envoi de la transaction</string>
+  <string name="queue_transaction_message">La transaction n\'a pas été envoyée. \nDésirez-vous la garder en attente afin de la transmettre lorsque la connexion sera rétablie ?</string>
   <string name="transaction_sent">Transaction envoyée</string>
-  <string name="export">Expédier</string>
+  <string name="export">Exporter</string>
   <string name="backup_private_key">Sauvegarde</string>
   <string name="copy_to_clipboard">Copier au presse-papiers</string>
   <string name="copy_private_key_to_clipboard">Copier la clé privée au presse-papiers</string>
@@ -65,9 +65,9 @@
   <string name="ok">OK</string>
   <string name="cancel">Annuler</string>
   <string name="edit_address_label_title">Renommer l\'adresse</string>
-  <string name="enter_address_label_title">Saisir le nom</string>
+  <string name="enter_address_label_title">Choisir un nom pour l\'adresse</string>
   <string name="enter_transaction_label_title">Choisissez un nom de catégorie</string>
-  <string name="set_label">Saisir</string>
+  <string name="set_label">Choisir un nom</string>
   <string name="show_details">Vue détaillée</string>
   <string name="transaction_details">Transaction détaillée</string>
   <string name="hash">Hash</string>
@@ -88,7 +88,7 @@
   <string name="pref_local_currency_summary">Sélectionnez la monnaie courrante</string>
   <string name="pref_exchange_source">Bourse</string>
   <string name="pref_exchange_source_with_value">Bourse (%1$s)</string>
-  <string name="pref_exchange_source_summary">Sélectionnez la bourse afin d\'obtention de taux de change entre le Bitcoin et votre devise</string>
+  <string name="pref_exchange_source_summary">Sélectionnez la bourse utilisée pour le taux de change entre le Bitcoin et votre devise</string>
   <string name="pref_bitcoin_denomination">Dénomination du Bitcoin</string>
   <string name="pref_bitcoin_denomination_with_denomination">Dénomination (%1$s)</string>
   <string name="pref_bitcoin_denomination_summary">Définir la dénomination du Bitcoin : BTC, mBTC ou μBTC</string>
@@ -112,8 +112,8 @@
   <string name="delete">Supprimer</string>
   <string name="payment_request">Paiement requis</string>
   <string name="export_single_private_key_warning">Vous êtes sur le point d\'expédier la clé privée qui contrôle tous les Bitcoins associés à cette adresse.\n\nCelui qui obtient accès à cette clé prend contrôle et possession des Bitcoins associés.\n\nVoulez-vous continuer?</string>
-  <string name="backup_all_warning">Vous devez sauvegarder le Racine de votre portefeuille.\nUne sauvegarde de votre Racine vous permet de restaurer vos fonds si votre appareil est perdu ou endommagé.\n\nVoulez vous sauvegarder maintenant?</string>
-  <string name="export_to_clipboard_warning">AVERTISSEMENT : Expédier la clé privée vers le presse-papiers l\'expose à toutes autres applications de votre appareil.\n\nNote : garder votre clé privée sur le presse-papiers ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer?</string>
+  <string name="backup_all_warning">Vous devez sauvegarder la Racine de votre portefeuille.\nUne sauvegarde de votre Racine vous permet de restaurer vos fonds si votre appareil est perdu ou endommagé.\n\nVoulez vous sauvegarder maintenant?</string>
+  <string name="export_to_clipboard_warning">AVERTISSEMENT : exporter la clé privée vers le presse-papiers l\'expose à toutes autres applications de votre appareil.\n\nNote : garder votre clé privée sur le presse-papiers ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer?</string>
   <string name="found_clipboard_private_key_title">Une clé privée se trouve dans le presse-papiers</string>
   <string name="found_clipboard_private_keys_message">Le presse-papiers contient un clé privée.\r\nVoulez-vous la supprimer?</string>
   <string name="exchange_source_not_available">Taux de change non disponible %1$s</string>
@@ -135,7 +135,7 @@
   <string name="archive_name_empty">Archivé (vide)</string>
   <string name="activate_action">Activer</string>
   <string name="archive_action">Archiver</string>
-  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne voyez pas voir le solde et l\'adresse de réception ni fonctionner avec le compte.\r\n\r\nLes comptes archivés peuvent être activés à nouveau.\r\n\r\nSouhaitez vous archiver ce compte ?</string>
+  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne pouvez voir ni le solde ni l\'adresse de réception, et ne pouvez pas travailler avec ce compte.\r\n\r\nLes comptes archivés peuvent être activés à nouveau.\r\n\r\nSouhaitez-vous archiver ce compte ?</string>
   <string name="master_seed_configuration_title">Bienvenue à Mycélium</string>
   <string name="master_seed_configuration_description">Vous voulez restaurer une sauvegarde, ou créer un nouveau portefeuille ?</string>
   <string name="master_seed_create_new_button">Créer</string>
@@ -248,7 +248,7 @@
   <string name="pref_change_language">Changer la langue</string>
   <string name="addressbook_cannot_add_private_key">Vous ne pouvez pas ajouter une clé privée au carnet d\'adresses.\n\nVous pouvez l\'importer à partir de l\'onglet clés seulement</string>
   <string name="alert_button">Alerte</string>
-  <string name="heartbleed_alert">ALERTE\n\nVotre appareil fonctionne sur Android version 4.1.1 et a un virus connue sous le nom  de Heartbleed.\n\nCe virus permet à un attaquant de lire la mémoire de tous les applications sur votre appareil connectant HTTPS.\n\nVous devriez prendre des mesures immédiates!\n\n1. Déplacer vos fonds vers des nouvelles adresses où la clé privée n\'a jamais été sur un Android 4.1.1.\n\n2. Mettre à jour votre appareil à une autre version que 4.1.1 ou utilisez un autre appareil.</string>
+  <string name="heartbleed_alert">ALERTE\n\nVotre appareil fonctionne sur Android version 4.1.1 et a un virus connu sous le nom  de Heartbleed.\n\nCe virus permet à un attaquant de lire la mémoire de tous les applications sur votre appareil connectant HTTPS.\n\nVous devriez prendre des mesures immédiates!\n\n1. Déplacer vos fonds vers des nouvelles adresses où la clé privée n\'a jamais été sur un Android 4.1.1.\n\n2. Mettre à jour votre appareil à une autre version que 4.1.1 ou utilisez un autre appareil.</string>
   <string name="lt_buy_button">Acheter</string>
   <string name="lt_sell_button">Vends</string>
   <string name="lt_edit_button">Modifier</string>
@@ -509,4 +509,5 @@
   <string name="title_upgrade_info">Bienvenue au Mycelium 2.0</string>
   <string name="button_continue">Continuer</string>
   <string name="butto_show_release_notes">Vue détaillée</string>
+  <string name="word_does_not_exist_in_wordlist">Le mot que vous avez entré n\'existe pas dans la liste de mots</string>
 </resources>

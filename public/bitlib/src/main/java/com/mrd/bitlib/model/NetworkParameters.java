@@ -31,6 +31,9 @@ public class NetworkParameters implements Serializable {
    public static final NetworkParameters productionNetwork;
    private static byte[] TESTNET_GENESIS_BLOCK;
 
+   private final String _blockchain_explorer_transaction;
+   private final String _blockchain_explorer_address;
+
    private static byte[] PRODNET_GENESIS_BLOCK;
 
    static {
@@ -80,6 +83,8 @@ public class NetworkParameters implements Serializable {
          _port = 8333;
          _packetMagic = 0xf9beb4d9;
          _packetMagicBytes = new byte[] { (byte) 0xf9, (byte) 0xbe, (byte) 0xb4, (byte) 0xd9 };
+         _blockchain_explorer_address = "https://blockchain.info/address/";
+         _blockchain_explorer_transaction = "https://blockchain.info/tx/";
       } else {
          _standardAddressHeader = 0x6F;
          _multisigAddressHeader = 0xC4;
@@ -90,6 +95,8 @@ public class NetworkParameters implements Serializable {
          // _packetMagicBytes = new byte[] { (byte) 0xfa, (byte) 0xbf, (byte)
          // 0xb5, (byte) 0xda };
          _packetMagicBytes = new byte[] { (byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07 };
+         _blockchain_explorer_address = "http://tbtc.blockr.io/address/info/";
+         _blockchain_explorer_transaction = "http://tbtc.blockr.io/tx/info/";
       }
    }
 
@@ -155,4 +162,14 @@ public class NetworkParameters implements Serializable {
    public String toString() {
       return isProdnet() ? "prodnet" : "testnet";
    }
+
+   public String getBlockchainExplorerTransaction() {
+      return _blockchain_explorer_transaction;
+   }
+
+   public String getBlockchainExplorerAddress() {
+      return _blockchain_explorer_address;
+   }
 }
+
+

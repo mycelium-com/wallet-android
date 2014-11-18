@@ -35,28 +35,19 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.MessageSigningActivity;
-import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 
 import java.util.List;
@@ -65,7 +56,6 @@ import java.util.UUID;
 public class HDSigningActivity extends Activity {
 
    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-   private static final LinearLayout.LayoutParams FPWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
 
 
    private SigningClickListener _signingClickListener;
@@ -108,49 +98,27 @@ public class HDSigningActivity extends Activity {
       String addressString = address.toString();
 
       // Add address chunks
-      String[] chunks = Utils.stringChopper(addressString, 12);
-      ll.addView(getAddressChunk(chunks[0], -1, address));
-      ll.addView(getAddressChunk(chunks[1], -1, address));
-      ll.addView(getAddressChunk(chunks[2], 0, address));
-
+      AddressLabel addressLabel = new AddressLabel(this);
+      addressLabel.setAddress(address);
+      ll.addView(addressLabel);
       //Make address clickable
-      ll.setOnClickListener(_signingClickListener);
-      ll.setTag(address);
-
+      addressLabel.setOnClickListener(_signingClickListener);
       return ll;
    }
 
-   private TextView getAddressChunk(String chunk, int padding, Object tag) {
-      TextView tv = new TextView(this);
-      tv.setLayoutParams(FPWC);
-      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      setLinkText(tv, chunk);
-      tv.setTypeface(Typeface.MONOSPACE);
-      tv.setPadding(0, 0, 0, padding);
-      tv.setTag(tag);
-
-      return tv;
-   }
-
-   private void setLinkText(TextView tv, String text) {
-      SpannableString link = new SpannableString(text);
-      link.setSpan(new UnderlineSpan(), 0, text.length(), 0);
-      tv.setText(link);
-      tv.setTextColor(getResources().getColor(R.color.brightblue));
-   }
 
    private class SigningClickListener implements View.OnClickListener {
 
       @Override
       public void onClick(View v) {
-         if (v.getTag() == null) {
+         AddressLabel addressLabel = (AddressLabel) v;
+         if (addressLabel.getAddress() == null) {
             return;
          }
-         Address address = (Address) v.getTag();
          Bip44Account account = (Bip44Account) _mbwManager.getWalletManager(false).getAccount(_accountid);
          InMemoryPrivateKey key;
          try {
-            key = account.getPrivateKeyForAddress(address, AesKeyCipher.defaultKeyCipher());
+            key = account.getPrivateKeyForAddress(addressLabel.getAddress(), AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }

@@ -28,15 +28,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.base.Preconditions;
 
-public class JsonCoder {
+public class GoogleMapsGeocoder extends Geocoder {
 
    final String language;
+   private final boolean forceHttps;
 
-   public JsonCoder(String language) {
+   public GoogleMapsGeocoder(String language) {
       this.language = language;
+      forceHttps = false;
    }
 
-   public GeocodeResponse query(String address, int maxresults) throws RemoteGeocodeException {
+   public GoogleMapsGeocoder(String language, boolean forceHttps) {
+      this.language = language;
+      this.forceHttps = forceHttps;
+   }
+
+   @Override
+   public GeocodeResponse query(String address, int maxResults) throws RemoteGeocodeException {
 
       final String encodedAddress;
       try {
@@ -57,10 +65,10 @@ public class JsonCoder {
          throw new RemoteGeocodeException(transportAgnosticUrl, e.status);
       }
 
-      if (maxresults == -1) {
+      if (maxResults == -1) {
          return res;
       } else {
-         return sizeLimited(res, maxresults);
+         return sizeLimited(res, maxResults);
       }
    }
 
@@ -70,7 +78,10 @@ public class JsonCoder {
       try {
          return new URL(url).openStream();
       } catch (SSLException e) {
-         // Fall through and try with HTTP
+         // if not forceHttps fall through and try with HTTP,
+         if (forceHttps){
+            throw new RuntimeException("unable to reach " + url);
+         }
       } catch (IOException e) {
          throw new RuntimeException("querying url " + url, e);
       }
@@ -85,18 +96,20 @@ public class JsonCoder {
       }
    }
 
-   private GeocodeResponse sizeLimited(GeocodeResponse res, int maxresults) {
-      int maxSize = Math.min(res.results.size(), maxresults);
+   private GeocodeResponse sizeLimited(GeocodeResponse res, int maxResults) {
+      int maxSize = Math.min(res.results.size(), maxResults);
       GeocodeResponse res2 = new GeocodeResponse();
       res2.status = res.status;
       res2.results = res.results.subList(0, maxSize);
       return res2;
    }
 
+   @Override
    public GeocodeResponse getFromLocation(double latitude, double longitude) throws RemoteGeocodeException {
       String transportAgnosticUrl = "maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude
             + "&sensor=true&language=" + language;
       InputStream inputData = openStream(transportAgnosticUrl);
+
       return response2Graph(inputData);
    }
 
@@ -117,10 +130,6 @@ public class JsonCoder {
          throw new RemoteGeocodeException("an error occurred while querying", graph.status, graph.errorMessage);
       }
       return graph;
-   }
-
-   private boolean isValidStatus(String status) {
-      return "OK".equals(status) || "ZERO_RESULTS".equals(status);
    }
 
 }

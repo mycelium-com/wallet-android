@@ -60,6 +60,7 @@ import com.mrd.mbwapi.api.WalletVersionResponse;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -105,6 +106,21 @@ public class AboutActivity extends Activity {
       setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
       setMailTo((TextView) findViewById(R.id.tvContactEmail), R.string.contact_email);
+
+      //set playstore link to qr code
+      String packageName = getApplicationContext().getPackageName();
+      final String playstoreUrl = Constants.PLAYSTORE_BASE_URL + packageName;
+      QrImageView playstoreQr = (QrImageView) findViewById(R.id.ivPlaystoreQR);
+      playstoreQr.setQrCode(playstoreUrl);
+      playstoreQr.setTapToCycleBrightness(false);
+      playstoreQr.setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(playstoreUrl));
+            startActivity(intent);
+         }
+      });
    }
 
    OnClickListener donateClickListener = new OnClickListener() {

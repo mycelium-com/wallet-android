@@ -18,11 +18,13 @@ package com.mrd.bitlib.crypto;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.List;
 
 import com.google.bitcoinj.Base58;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
@@ -210,6 +212,24 @@ public class HdKeyNode {
     */
    public PublicKey createChildPublicKey(int index) throws KeyGenerationException {
       return createChildNode(index)._publicKey;
+   }
+
+
+   /**
+    * Create the Bip32 derived child from this KeyNode, according to the keyPath.
+    *
+    * @param keyPath
+    *           the Bip32 Path
+    * @return the child node corresponding to the current node + keyPath
+    */
+   public HdKeyNode createChildNode(HdKeyPath keyPath){
+      List<Integer> addrN = keyPath.getAddressN();
+      HdKeyNode ak = this;
+      for (Integer i : addrN){
+         ak = ak.createChildNode(i);
+
+      }
+      return ak;
    }
 
    /**

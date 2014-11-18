@@ -46,27 +46,26 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFragment.UsKeyboardListener {
 
    private WordAutoCompleterListener _listener;
    private String _currentWord;
-   private TextView tvWord;
    private List<Button> _completionButtons;
-   private String _hintText;
    private String[] _completions;
    private int _minimumCharacters;
 
    public interface WordAutoCompleterListener {
       public void onWordSelected(String word);
+      public void onCurrentWordChanged(String currentWord);
    }
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View root = Preconditions.checkNotNull(inflater.inflate(R.layout.word_auto_completer_fragment, container, false));
       _currentWord = "";
-      tvWord = (TextView) root.findViewById(R.id.tvWord);
       _completionButtons = new ArrayList<Button>();
       _completionButtons.add((Button) root.findViewById(R.id.btSuggestion1));
       _completionButtons.add((Button) root.findViewById(R.id.btSuggestion2));
@@ -82,19 +81,53 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
 
       @Override
       public void onClick(View view) {
-         if (!WordAutoCompleterFragment.this.isAdded() || _listener == null) {
-            return;
-         }
-         String word = ((Button) view).getText().toString();
-         _currentWord = "";
-         updateUi();
-         _listener.onWordSelected(word);
+         acceptWord(((Button) view).getText().toString());
       }
    };
 
+   private void acceptWord(String word) {
+      if (!WordAutoCompleterFragment.this.isAdded() || _listener == null) {
+         return;
+      }
+      _listener.onWordSelected(word);
+
+      // prepare for next word
+      _currentWord="";
+      setCurrentWord(_currentWord);
+      // hide buttons
+      showCompletionButtons();
+   }
+
+   private void setCurrentWord(String word) {
+      _currentWord = word;
+      _listener.onCurrentWordChanged(word);
+
+      if ( exactMatch(word) ){
+         // exact match
+         acceptWord(_currentWord);
+
+      }
+   }
+
+   private boolean exactMatch(String entered){
+      // check if the word matches one entry in the wordlist exactly
+      if (Arrays.asList(_completions).contains(entered)){
+         // check if there is no other word starting with the same letters (eg. "sea" / "seat")
+         for (String w : _completions){
+            if (!w.equals(entered) && w.startsWith(entered)){
+               return false;
+            }
+         }
+         return true;
+      }else{
+         return false;
+      }
+
+   }
+
    public void setCompletions(String[] completions) {
       _completions = completions;
-      updateUi();
+      showCompletionButtons();
    }
 
    public void setMinimumCompletionCharacters(int minimumCharacters) {
@@ -105,37 +138,21 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
       _listener = listener;
    }
 
-   public void setHintText(String hintText) {
-      _hintText = hintText;
-      updateUi();
-   }
-
    @Override
    public void onCharacterKeyClicked(char character) {
-      _currentWord += character;
-      updateUi();
+      setCurrentWord(_currentWord + character);
+      showCompletionButtons();
    }
 
    @Override
    public void onDelClicked() {
       if (_currentWord.length() > 0) {
-         _currentWord = _currentWord.substring(0, _currentWord.length() - 1);
-         updateUi();
+         setCurrentWord(_currentWord.substring(0, _currentWord.length() - 1));
+         showCompletionButtons();
       }
    }
 
-   private void updateUi() {
-      if (!isAdded()) {
-         return;
-      }
-      if (_currentWord.length() == 0) {
-         tvWord.setText(_hintText == null ? "" : _hintText);
-         tvWord.setTextColor(getResources().getColor(R.color.grey));
-      } else {
-         tvWord.setText(_currentWord);
-         tvWord.setTextColor(getResources().getColor(R.color.white));
-      }
-
+   private void showCompletionButtons() {
       // Make the first button invisible, the rest disappear
       boolean first = true;
       for (Button b : _completionButtons) {
@@ -156,6 +173,7 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
          b.setVisibility(View.VISIBLE);
          b.setText(word);
       }
+
    }
 
    private List<String> determineCompletions(String partialWord, int maxCompletions) {
@@ -187,7 +205,7 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
 
    @Override
    public void onResume() {
-      updateUi();
+      showCompletionButtons();
       super.onResume();
    }
 

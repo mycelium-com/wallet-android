@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical" >
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_horizontal"
+            android:paddingBottom="40dp"
+
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+        <include layout="@layout/enter_pin_display"/>
+
+
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_horizontal">
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <include layout="@layout/enter_pin_numpad"/>
+
+            </LinearLayout>
+        </LinearLayout>
+        <CheckBox
+                android:id="@+id/cb_resettable_pin"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Resettable PIN"
+                android:textSize="20sp"
+                android:layout_marginTop="20dp"/>
+        <TextView
+                android:id="@+id/tv_resettable_pin_info"
+                android:layout_width="fill_parent"
+                android:textSize="12sp"
+                android:textColor="@color/lightgrey"
+                android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+</ScrollView>

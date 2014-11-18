@@ -35,162 +35,41 @@
 package com.mycelium.wallet.persistence;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 
-
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class MetadataStorage {
-
-   private static final String TABLE_ACCOUNT_LABELS = "accountlabels";
-   private static final String TABLE_BACKUP_STATUS = "backupstatus";
-   private static final String TABLE_TRANSACTION_LABELS = "transactionlabels";
-   private static final String TABLE_KEY_VALUE_STORE = "keyValueStore";
-
-   private class OpenHelper extends SQLiteOpenHelper {
-
-      private static final String DATABASE_NAME = "mds.db";
-      private static final int DATABASE_VERSION = 3;
-
-      public OpenHelper(Context context) {
-         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-      }
-
-      @Override
-      public void onCreate(SQLiteDatabase db) {
-         db.execSQL("CREATE TABLE " + TABLE_KEY_VALUE_STORE + " (key TEXT, category TEXT, value TEXT, PRIMARY KEY (key, category) );");
-      }
-
-      @Override
-      public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         if (oldVersion < 3) {
-            db.execSQL("DROP TABLE " + TABLE_ACCOUNT_LABELS + ";");
-            db.execSQL("DROP TABLE " + TABLE_BACKUP_STATUS + ";");
-            db.execSQL("DROP TABLE " + TABLE_TRANSACTION_LABELS + ";");
-            db.execSQL("CREATE TABLE " + TABLE_KEY_VALUE_STORE + " (key TEXT, category TEXT, value TEXT, PRIMARY KEY (key, category) );");
-         }
-      }
-   }
-
-   private OpenHelper _openHelper;
-   private SQLiteDatabase _db;
-   private SQLiteStatement _insertOrReplaceKeyValueEntry;
+public class MetadataStorage extends GenericMetadataStorage {
+   public static final String ADDRESSLABEL_CATEGORY = "addresslabel";
+   public static final String ACCOUNTLABEL_CATEGORY = "al";
+   public static final String TRANSACTION_LABEL_CATEGORY = "tl";
+   private static final KeyCategory SEED_BACKUPSTATE = new KeyCategory("seed", "backupstate");
+   private static final KeyCategory PIN_RESET_BLOCKHEIGHT = new KeyCategory("pin", "reset_blockheight");
+   private static final KeyCategory PIN_BLOCKHEIGHT = new KeyCategory("pin", "blockheight");
 
    public MetadataStorage(Context context) {
-      _openHelper = new OpenHelper(context);
-      _db = _openHelper.getWritableDatabase();
-      _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");
-   }
-
-
-   private void storeKeyCategoryValueEntry(final String key, final String category, final String value){
-      _insertOrReplaceKeyValueEntry.bindString(1, key);
-      _insertOrReplaceKeyValueEntry.bindString(2, category);
-      _insertOrReplaceKeyValueEntry.bindString(3, value);
-      _insertOrReplaceKeyValueEntry.executeInsert();
-   }
-
-   private String getKeyValueEntry(final String key, final String defaultValue){
-      return getKeyCategoryValueEntry(key, "", defaultValue);
-   }
-
-   private String getKeyCategoryValueEntry(final String key, final String category, final String defaultValue){
-      Cursor cursor = null;
-      try {
-         cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"value"}, " key = ? and category = ?", new String[]{key, category}, null, null, null, "1");
-         if (cursor.moveToNext()) {
-            return cursor.getString(0);
-         }
-         return defaultValue;
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-   }
-
-   private void deleteByKeyCategory(final String key, final String category){
-      _db.delete(TABLE_KEY_VALUE_STORE, "key = ? and category = ?", new String[]{key, category});
-   }
-
-   private void deleteAllByKey(final String key){
-      _db.delete(TABLE_KEY_VALUE_STORE, "key = ?", new String[]{key});
-   }
-
-
-   private Map<String, String> getKeysAndValuesByCategory(final String category){
-      Cursor cursor = null;
-      Map<String, String> entries = new HashMap<String, String>();
-      try {
-         cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key", "value"}, " category = ?", new String[]{category}, null, null, null, null);
-         while (cursor.moveToNext()) {
-            entries.put(cursor.getString(0), cursor.getString(1));
-         }
-         return entries;
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-   }
-
-   private Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
-      Cursor cursor = null;
-      try {
-         cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key"}, " value = ? and category = ?", new String[]{value, category}, null, null, null, "1");
-         if (cursor.moveToNext()) {
-            return Optional.of(cursor.getString(0));
-         }
-         return Optional.absent();
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-   }
-
-   private void storeKeyValueEntry(final String key, final String value) {
-      storeKeyCategoryValueEntry(key, "", value);
+      super(context);
    }
 
    public void storeTransactionLabel(Sha256Hash txid, String label) {
-      storeKeyCategoryValueEntry(txid.toString(), "tl", label);
+      storeKeyCategoryValueEntry(txid.toString(), TRANSACTION_LABEL_CATEGORY, label);
    }
 
    public String getLabelByTransaction(Sha256Hash txid) {
-      return getKeyCategoryValueEntry(txid.toString(), "tl", "");
-   }
-
-   public void setAchievementDonatedMycelium(final Boolean hasDonated){
-      storeKeyValueEntry("hasDonatedMycelium", hasDonated ? "1" : "0");
-   }
-
-   public boolean getAchievementDonatedMycelium(){
-      return "1".equals(getKeyValueEntry("hasDonatedMycelium", "0"));
-   }
-
-   public void setAchievementColdStorageSpending(final Boolean hasUsed){
-      storeKeyValueEntry("coldStorageSpending", hasUsed ? "1" : "0");
-   }
-
-   public boolean getAchievementColdStorageSpending(){
-      return "1".equals(getKeyValueEntry("coldStorageSpending", "0"));
+      return getKeyCategoryValueEntry(txid.toString(), TRANSACTION_LABEL_CATEGORY, "");
    }
 
    public String getLabelByAccount(UUID account) {
-      return getKeyCategoryValueEntry(account.toString(), "al", "");
+      return getKeyCategoryValueEntry(account.toString(), ACCOUNTLABEL_CATEGORY, "");
    }
 
    public Optional<UUID> getAccountByLabel(String label) {
-      Optional<String> account = getFirstKeyForCategoryValue("al", label);
+      Optional<String> account = getFirstKeyForCategoryValue(ACCOUNTLABEL_CATEGORY, label);
 
       if (account.isPresent()){
          return Optional.of(UUID.fromString(account.get()));
@@ -200,7 +79,7 @@ public class MetadataStorage {
    }
 
    public void storeAccountLabel(UUID account, String label) {
-      storeKeyCategoryValueEntry(account.toString(), "al", label);
+      storeKeyCategoryValueEntry(account.toString(), ACCOUNTLABEL_CATEGORY, label);
    }
 
    public void deleteAccountMetadata(UUID account){
@@ -208,7 +87,7 @@ public class MetadataStorage {
    }
 
    public Map<Address, String> getAllAddressLabels() {
-      Map<String, String> entries = getKeysAndValuesByCategory("addresslabel");
+      Map<String, String> entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY);
       Map<Address, String> addresses = new HashMap<Address, String>();
       for (Map.Entry<String, String> e : entries.entrySet()) {
          String val = e.getValue();
@@ -219,7 +98,7 @@ public class MetadataStorage {
    }
 
    public String getLabelByAddress(Address address) {
-      return getKeyCategoryValueEntry(address.toString(), "addresslabel", "");
+      return getKeyCategoryValueEntry(address.toString(), ADDRESSLABEL_CATEGORY, "");
    }
 
    public void deleteAddressMetadata(Address address) {
@@ -228,7 +107,7 @@ public class MetadataStorage {
    }
 
    public Optional<Address> getAddressByLabel(String label) {
-      Optional<String> address = getFirstKeyForCategoryValue("addresslabel", label);
+      Optional<String> address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label);
 
       if (address.isPresent()){
          return Optional.of(Address.fromString(address.get()));
@@ -238,9 +117,8 @@ public class MetadataStorage {
    }
 
    public void storeAddressLabel(Address address, String label) {
-      storeKeyCategoryValueEntry(address.toString(), "addresslabel", label);
+      storeKeyCategoryValueEntry(address.toString(), ADDRESSLABEL_CATEGORY, label);
    }
-
 
    public void setIgnoreBackupWarning(UUID account, Boolean ignore){
       storeKeyCategoryValueEntry(account.toString(), "ibw", ignore ? "1" : "0");
@@ -250,14 +128,70 @@ public class MetadataStorage {
       return  "1".equals(getKeyCategoryValueEntry(account.toString(), "ibw", "0"));
    }
 
+   public boolean firstMasterseedBackupFinished(){
+    return  getMasterSeedBackupState().equals(BackupState.VERIFIED);
+   }
+
    public BackupState getMasterSeedBackupState() {
       return BackupState.fromString(
-            getKeyCategoryValueEntry("seed", "backupstate", BackupState.UNKNOWN.toString())
+            getKeyCategoryValueEntry(SEED_BACKUPSTATE, BackupState.UNKNOWN.toString())
       );
    }
 
+   public void deleteMasterKeyBackupAgeMs(){
+      deleteByKeyCategory(SEED_BACKUPSTATE);
+   }
+
+   public Optional<Long> getMasterKeyBackupAgeMs(){
+      Optional<String> lastBackup = getKeyCategoryValueEntry(SEED_BACKUPSTATE);
+      if (lastBackup.isPresent()) {
+         return Optional.of(Calendar.getInstance().getTimeInMillis() - Long.valueOf(lastBackup.get()));
+      }else{
+         return Optional.absent();
+      }
+   }
+
    public void setMasterKeyBackupState(BackupState state) {
-      storeKeyCategoryValueEntry("seed", "backupstate", state.toString());
+      storeKeyCategoryValueEntry(SEED_BACKUPSTATE, state.toString());
+
+      // if this is the first verified backup, remember the date
+      if (state == BackupState.VERIFIED && getMasterSeedBackupState() != BackupState.VERIFIED){
+         storeKeyCategoryValueEntry(SEED_BACKUPSTATE, String.valueOf(Calendar.getInstance().getTimeInMillis()) );
+      }
+   }
+
+   public void setResetPinStartBlockheight(int blockChainHeight) {
+      storeKeyCategoryValueEntry(PIN_RESET_BLOCKHEIGHT, String.valueOf(blockChainHeight));
+   }
+
+   public void clearResetPinStartBlockheight() {
+      deleteByKeyCategory(PIN_RESET_BLOCKHEIGHT);
+   }
+
+   public Optional<Integer> getResetPinStartBlockHeight(){
+      Optional<String> resetIn = getKeyCategoryValueEntry(PIN_RESET_BLOCKHEIGHT);
+      if (resetIn.isPresent()){
+         return Optional.of(Integer.valueOf(resetIn.get()));
+      }else{
+         return Optional.absent();
+      }
+   }
+
+   public void setLastPinSetBlockheight(int blockChainHeight){
+      storeKeyCategoryValueEntry(PIN_BLOCKHEIGHT, String.valueOf(blockChainHeight));
+   }
+
+   public void clearLastPinSetBlockheight(){
+      deleteByKeyCategory(PIN_BLOCKHEIGHT);
+   }
+
+   public Optional<Integer> getLastPinSetBlockheight(){
+      Optional<String> lastSet = getKeyCategoryValueEntry(PIN_BLOCKHEIGHT);
+      if (lastSet.isPresent()){
+         return Optional.of(Integer.valueOf(lastSet.get()));
+      }else{
+         return Optional.absent();
+      }
    }
 
    public enum BackupState {

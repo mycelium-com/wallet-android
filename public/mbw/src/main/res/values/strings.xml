@@ -520,7 +520,8 @@
     <string name="cick_button_to_show_word">Tap the button below to start</string>
     <string name="wordlist_verify_description">Please enter the words you just wrote down, one after another, to make sure that everything is backed up correctly.</string>
     <string name="verify_word_wrong">You typed the wrong word, please try again</string>
-    <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!\n\nIf you have not configured a PIN now is a good time to do so.\nYou can configure a PIN in the Settings menu</string>
+    <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!\n\nYou have not configured a PIN!\nNow is a good time to do so.\n\nYou can configure a PIN in the Settings menu.</string>
+    <string name="verify_wordlist_success_pin_already_set">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!</string>
     <string name="note_down_password_title">Write down your password</string>
     <string name="title_wrong_password">Wrong password, please try again</string>
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
@@ -539,9 +540,35 @@
     <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
     <string name="donation_transaction_label">Donation to Mycelium</string>
     <string name="select_key_for_signing">Select Key for Signing</string>
-    <string name="warning_phone_not_supported">Phone not supported</string>
-    <string name="warning_no_further_updates">No further Mycelium updates</string>
-    <string name="warning_android22_bug">You are at risk of losing your money, if you use this phone for bitcoin transactions.\n\nYour phone runs on Android 2.2. This version has a known bug which affects how Bitcoin addresses are generated. Under certain circumstances this might lead to transactions to addresses which can never get spent again.\n\nEither check if there is an update for your phones operating-system or get a new phone and import your backup there.\n\n\nAll in all:\nDON\'T USE THIS PHONE TO SEND OR RECEIVE BITCOIN</string>
-    <string name="warning_end_of_line">Your phone runs a rather old version of Android. For technical reasons we are not able to release further updates of Mycelium for this version of Android.\n\n If you want to stay up-to-date and secure, either check if there is an update for your phones operating-system or get a new phone and import your backup there.</string>
+    <string name="playstore_link_label">Playstore Link</string>
+    <string name="hide_unused_account_menu">Delete Account</string>
+    <string name="dont_allow_hiding_used_notification">You cannot hide a used account, but you can archive it</string>
+    <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
+    <string name="pref_miner_fee_summary">Transactions are sent with a %1$s miner fee for every 1000 bytes of transaction size</string>
+    <string name="miner_fee_economic_name">Economic</string>
+    <string name="miner_fee_normal_name">Normal</string>
+    <string name="miner_fee_priority_name">Priority</string>
+    <string name="miner_fee_economic_desc">Warning: Using the economic miner fee schedule is experimental, and may result in transactions that never confirm. Use at your own risk.</string>
+    <string name="miner_fee_normal_desc">With the normal miner fee schedule you can expect your transactions to confirm within the next few blocks.</string>
+    <string name="miner_fee_priority_desc">With the priority fee schedule you can expect your transaction to confirm within one or two blocks.</string>
+    <string name="backup_menu_entry">Create Backup</string>
+    <string name="lt_copied_to_clipboard">Chat message was copied to clipboard</string>
+    <string name="total_balance_title">Total:</string>
+    <string name="additional_backup_words_title">Additional Masterseed Backup</string>
+    <string name="wordlist_additional_backup_not_possible_pin_too_new">Sorry, an additional backup is currently not possible.\nYour PIN was recently changed.\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed shortly after setting a new PIN.\n\n You have to wait for at least %1$d blocks (~ %2$s)</string>
+    <string name="wordlist_additional_backup_not_possible_no_pin">Sorry, an additional backup is currently not possible.\nYou haven\'t set a PIN\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed without having set a PIN-Code.\n\nPlease go to Settings and configure a PIN.</string>
+    <string name="wordlist_additional_backup_description">WARNING - an additional backup is risky.\n\nYou already have exported your master seed before. If you have lost the old backup and you are not sure who might have access to it, it is very dangerous to continue to use this master seed.\n\n\nOnly keep using this master seed if you are sure all backups are safe!</string>
+    <string name="wordlist_start_with_additional_wordlist_backup">Okay, I understand</string>
+    <string name="pin_pad_clear">CLR</string>
+    <string name="pin_pad_backspace">DEL</string>
+    <string name="pin_resettable_pin_info">If you forget your pin, you have the option to reset it after a waiting period of %s.</string>
+    <string name="pin_unresettable_pin_info">If you forget your pin, the only option is to recover from your backup.</string>
+    <string name="pin_forgotten_button">I forgot the PIN</string>
+    <string name="pin_forgotten_reset_pin_dialog_title">Reset Pin</string>
+    <string name="pin_forgotten_reset_pin_dialog_content">For security reasons you will have to wait for about %1$s until the PIN is removed.\n\nDo you want to initiate the PIN reset procedure now?</string>
+    <string name="pin_forgotten_reset_wait_button_text">Wait %s</string>
+    <string name="pin_forgotten_abort_pin_reset">A PIN reset is in progress. You still have to wait for %1$s until you can reset the PIN.\n\nDo you want to abort the pending PIN reset?</string>
+    <string name="pin_reset_in_progress_alert">PIN Reset in progress</string>
+
 
 </resources>

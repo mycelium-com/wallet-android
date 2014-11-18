@@ -23,10 +23,25 @@ import com.mrd.bitlib.model.UnspentTransactionOutput;
 public class TransactionUtils {
 
    /**
-    * The default miner fee which we base our fee calculation on
+    * The miner fee per 1000 bytes used by Bitcoin Core 0.9.x for block inclusion
     */
-   public static final long DEFAULT_MINER_FEE = 10000;
-   
+   public static final long INCLUDE_IN_BLOCK_FEE = 1000; // 0.00001
+
+   /**
+    * The minimum fee (except for high priority transactions) to pay per 1000 bytes
+    */
+   public static final long MINIMUM_KB_FEE = INCLUDE_IN_BLOCK_FEE;
+
+   /**
+    * The default fee which we base our fee calculation on
+    */
+   public static final long DEFAULT_KB_FEE = 10000; // 0.0001
+
+   /**
+    * a generous fee which makes a transaction more likely to confirm fast
+    */
+   public static final long GENEROUS_KB_FEE = DEFAULT_KB_FEE * 2;
+
    /**
     * The minimum output value allowed when relaying transactions
     */
@@ -58,9 +73,9 @@ public class TransactionUtils {
     * @param blockchainHeight
     *           the current block chain height
     */
-   public static boolean hasInSufficientFees(Transaction tx, UnspentTransactionOutput[] funding, int blockchainHeight) {
+   public static boolean hasInSufficientFees(Transaction tx, UnspentTransactionOutput[] funding, int blockchainHeight, long minerFeeToUse) {
       // Can this transaction be sent without a fee?
-      long txPriority = calcuateTransactionPriority(tx, funding, blockchainHeight);
+      long txPriority = calculateTransactionPriority(tx, funding, blockchainHeight);
       int txSize = tx.toBytes().length;
       long minOutoutSize = calculateMinOutputValue(tx);
       if (txPriority > HIGH_PRIORITY_THRESHOLD && minOutoutSize >= HIGH_PRIORITY_MIN_OUTPUT_SIZE
@@ -71,12 +86,12 @@ public class TransactionUtils {
 
       // A fee is required, does it pay enough fees?
       long feePaid = calculateFeePaid(tx);
-      long feeRequired = calculateFeeRequired(txSize);
+      long feeRequired = calculateFeeRequired(txSize, minerFeeToUse);
       return feePaid < feeRequired;
    }
 
-   private static long calculateFeeRequired(int txSize) {
-      long minFee = (1 + (txSize / 1000)) * DEFAULT_MINER_FEE;
+   private static long calculateFeeRequired(int txSize, long minerFeeToUse) {
+      long minFee = (1 + (txSize / 1000)) * minerFeeToUse;
       return minFee;
    }
 
@@ -107,7 +122,7 @@ public class TransactionUtils {
     *           the current block chain height
     * @return the priority of this transaction
     */
-   public static long calcuateTransactionPriority(Transaction tx, UnspentTransactionOutput[] funding, int blockchainHeight) {
+   public static long calculateTransactionPriority(Transaction tx, UnspentTransactionOutput[] funding, int blockchainHeight) {
       long sum = 0;
       for (UnspentTransactionOutput output : funding) {
          int confirmations = output.height == -1 ? 0 : blockchainHeight - output.height + 1;

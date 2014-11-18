@@ -21,6 +21,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Ordering;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.ByteWriter;
@@ -29,10 +30,7 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class StandardTransactionBuilder {
 
@@ -248,34 +246,27 @@ public class StandardTransactionBuilder {
     * @param changeAddress The address to send any change to, can be null
     * @param keyRing       The public key ring matching the unspent outputs
     * @param network       The network we are working on
+    * @param minerFeeToUse The miner fee to pay for every 1000 bytes of transaction size
     * @return An unsigned transaction or null if not enough funds were available
     * @throws InsufficientFundsException
     */
    public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
                                                         Address changeAddress, IPublicKeyRing keyRing,
-                                                        NetworkParameters network)
+                                                        NetworkParameters network, long minerFeeToUse)
          throws InsufficientFundsException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
+      OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
+      long fee = oldOutputs.getFee();
+      long outputSum = oldOutputs.getOutputSum();
+       //todo extract coinselector interface with 2 implementations, oldest and pruning
+      List<UnspentTransactionOutput> funding = pruneRedundantOutputs(oldOutputs.getAllFunding(), fee + outputSum);
+      fee = estimateFee(funding.size(), _outputs.size() + 1, minerFeeToUse);
 
-      // Find the funding for this transaction
-      List<UnspentTransactionOutput> funding = new LinkedList<UnspentTransactionOutput>();
-      long fee = TransactionUtils.DEFAULT_MINER_FEE;
-      long outputSum = outputSum();
       long found = 0;
-      while (found < fee + outputSum) {
-         UnspentTransactionOutput output = extractOldest(unspent);
-         if (output == null) {
-            // We do not have enough funds
-            throw new InsufficientFundsException(outputSum, fee);
-         }
+      for (UnspentTransactionOutput output : funding) {
          found += output.value;
-         funding.add(output);
-         // When we estimate the fee we automatically add an extra output for an eventual change output.
-         // This slightly increases the change for paying a little extra, but adding change is the norm
-         fee = estimateFee(funding.size(), _outputs.size() + 1);
       }
-
       // We have fund all the funds we need
       long toSend = fee + outputSum;
 
@@ -310,6 +301,28 @@ public class StandardTransactionBuilder {
       }
 
       return new UnsignedTransaction(outputs, funding, keyRing, network);
+   }
+
+   private List<UnspentTransactionOutput> pruneRedundantOutputs(List<UnspentTransactionOutput> funding, long outputSum) {
+      List<UnspentTransactionOutput> largestToSmallest = Ordering.natural().reverse().onResultOf(new Function<UnspentTransactionOutput, Comparable>() {
+         @Override
+         public Comparable apply(UnspentTransactionOutput input) {
+            return input.value;
+         }
+      }).sortedCopy(funding);
+
+      long target = 0;
+      for (int i = 0; i < largestToSmallest.size(); i++) {
+         UnspentTransactionOutput output = largestToSmallest.get(i);
+         target += output.value;
+         if (target >= outputSum){
+
+            List<UnspentTransactionOutput> ret = largestToSmallest.subList(0, i+1);
+            Collections.shuffle(ret);
+            return ret;
+         }
+      }
+      return largestToSmallest;
    }
 
    @VisibleForTesting
@@ -423,11 +436,50 @@ public class StandardTransactionBuilder {
       return estimate;
    }
 
-   private static long estimateFee(int inputs, int outputs) {
+   private static long estimateFee(int inputs, int outputs, long minerFeeToUse) {
       int txSize = estimateTransactionSize(inputs, outputs);
       // fee is based on the size of the transaction, we have to pay for
       // every 1000 bytes
-      long requiredFee = (1 + (txSize / 1000)) * TransactionUtils.DEFAULT_MINER_FEE;
+      long requiredFee = (1 + (txSize / 1000)) * minerFeeToUse;
       return requiredFee;
+   }
+
+   private class OldOutputs {
+      private List<UnspentTransactionOutput> allFunding;
+      private long fee;
+      private long outputSum;
+
+      public OldOutputs(long minerFeeToUse, List<UnspentTransactionOutput> unspent) throws InsufficientFundsException {
+         // Find the funding for this transaction
+         allFunding = new LinkedList<UnspentTransactionOutput>();
+         fee = minerFeeToUse;
+         outputSum = outputSum();
+         long found = 0;
+         while (found < fee + outputSum) {
+            UnspentTransactionOutput output = extractOldest(unspent);
+            if (output == null) {
+               // We do not have enough funds
+               throw new InsufficientFundsException(outputSum, fee);
+            }
+            found += output.value;
+            allFunding.add(output);
+            // When we estimate the fee we automatically add an extra output for an eventual change output.
+            // This slightly increases the change for paying a little extra, but adding change is the norm
+            fee = estimateFee(allFunding.size(), _outputs.size() + 1, minerFeeToUse);
+         }
+      }
+
+      public List<UnspentTransactionOutput> getAllFunding() {
+         return allFunding;
+      }
+
+      public long getFee() {
+         return fee;
+      }
+
+      public long getOutputSum() {
+         return outputSum;
+      }
+
    }
 }

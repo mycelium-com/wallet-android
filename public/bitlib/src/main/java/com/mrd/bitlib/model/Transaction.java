@@ -129,7 +129,7 @@ public class Transaction implements Serializable {
     * Calculate the unmalleable hash of this transaction. If the signature bytes
     * for an input cannot be determined the result is null
     */
-   public Sha256Hash getUmnalleableHash() {
+   public Sha256Hash getUnmalleableHash() {
       if (_unmalleableHash == null) {
          ByteWriter writer = new ByteWriter(2000);
          for (TransactionInput i : inputs) {

@@ -711,7 +711,7 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
-   public synchronized long calculateMaxSpendableAmount() {
+   public synchronized long calculateMaxSpendableAmount(long minerFeeToUse) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs());
       long satoshis = 0;
@@ -721,7 +721,7 @@ public abstract class AbstractAccount implements WalletAccount {
       // Iteratively figure out whether we can send everything by subtracting
       // the miner fee for every iteration
       while (true) {
-         satoshis -= TransactionUtils.DEFAULT_MINER_FEE;
+         satoshis -= minerFeeToUse;
          if (satoshis <= 0) {
             return 0;
          }
@@ -741,7 +741,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
          // Try to create an unsigned transaction
          try {
-            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network);
+            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeeToUse);
             // We have enough to pay the fees, return the amount as the maximum
             return satoshis;
          } catch (InsufficientFundsException e) {
@@ -757,7 +757,7 @@ public abstract class AbstractAccount implements WalletAccount {
    protected abstract PublicKey getPublicKeyForAddress(Address address);
 
    @Override
-   public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers)
+   public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
          throws OutputTooSmallException, InsufficientFundsException {
       checkNotArchived();
 
@@ -771,7 +771,7 @@ public abstract class AbstractAccount implements WalletAccount {
       }
       Address changeAddress = getChangeAddress();
       UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
-            _network);
+            _network, minerFeeToUse);
       return unsigned;
    }
 

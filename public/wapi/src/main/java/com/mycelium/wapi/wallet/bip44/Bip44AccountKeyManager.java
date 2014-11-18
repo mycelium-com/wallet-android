@@ -55,6 +55,7 @@ public class Bip44AccountKeyManager {
    private HdKeyNode _publicChangeChainRoot;
    private NetworkParameters _network;
 
+
    public static Bip44AccountKeyManager createNew(HdKeyNode bip32Root, NetworkParameters network, int accountIndex, SecureKeyValueStore secureKeyValueStore, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       HdKeyNode bip44Root = bip32Root.createChildNode(BIP44_PURPOSE);
       HdKeyNode coinTypeRoot = bip44Root.createChildNode(network.isProdnet() ? BIP44_PRODNET_COIN_TYPE : BIP44_TESTNET_COIN_TYPE);
@@ -166,7 +167,7 @@ public class Bip44AccountKeyManager {
       return address;
    }
 
-   private static byte[] getAccountNodeId(NetworkParameters network, int accountIndex) {
+   protected static byte[] getAccountNodeId(NetworkParameters network, int accountIndex) {
       // Create a compact unique account ID
       byte[] id = new byte[1 + 1 + 4];
       id[0] = 44; // BIP44
@@ -175,7 +176,7 @@ public class Bip44AccountKeyManager {
       return id;
    }
 
-   private static byte[] getChainNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain) {
+   protected static byte[] getChainNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain) {
       // Create a compact unique chain node ID
       byte[] id = new byte[1 + 1 + 4 + 1];
       id[0] = 44; // BIP44

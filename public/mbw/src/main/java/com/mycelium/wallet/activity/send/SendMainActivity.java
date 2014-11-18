@@ -271,7 +271,7 @@ public class SendMainActivity extends Activity {
       // Create the unsigned transaction
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
-         _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver));
+         _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
          return TransactionStatus.OK;
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();

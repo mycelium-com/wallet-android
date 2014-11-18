@@ -16,6 +16,7 @@ targetCompatibility = 1.6
 
 dependencies {
     compile 'com.google.protobuf:protobuf-java:2.5.0@jar'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
     testCompile 'junit:junit:' + junitVersion
     compile guavaArtifact
 }

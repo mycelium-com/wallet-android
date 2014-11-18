@@ -3,7 +3,7 @@
     package="com.mycelium.wallet">
 
     <!--  Note that the permission below depends on the package and must be changed for each build target -->
-    <permission android:name="com.mycelium.wallet.permission.C2D_MESSAGE"
+    <permission android:name="com.mycelium.testnetwallet.permission.C2D_MESSAGE"
                 android:protectionLevel="signature" />
     <uses-permission android:name="com.mycelium.wallet.permission.C2D_MESSAGE" />
 

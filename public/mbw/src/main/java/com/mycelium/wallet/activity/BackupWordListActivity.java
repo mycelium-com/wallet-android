@@ -36,24 +36,17 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
@@ -92,7 +85,7 @@ public class BackupWordListActivity extends ActionBarActivity {
       password = masterSeed.getBip39Password();
       currentWordIndex = 0;
 
-      btnNextWord = (Button)findViewById(R.id.btNextWord);
+      btnNextWord = (Button)findViewById(R.id.btOkay);
       btnNextWord.setOnClickListener(nextListener);
 
       tvShowWordNumber = (TextView)findViewById(R.id.tvShowWordNumber);

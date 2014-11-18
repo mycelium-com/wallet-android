@@ -38,6 +38,7 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -160,6 +161,14 @@ public class RecordRowBuilder {
          rowView.findViewById(R.id.tvTraderKey).setVisibility(View.GONE);
       }
 
+      return rowView;
+   }
+
+   public View buildTotalView(LinearLayout parent, long balanceSum) {
+      View rowView = inflater.inflate(R.layout.record_row_total, parent, false);
+      String balanceString = mbwManager.getBtcValueString(balanceSum);
+      TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
+      tvBalance.setText(balanceString);
       return rowView;
    }
 

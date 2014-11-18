@@ -16,8 +16,14 @@
 
 package com.mycelium.lt.location;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Area {
+
+   @JsonProperty
    public Location southwest;
+
+   @JsonProperty
    public Location northeast;
 
 }

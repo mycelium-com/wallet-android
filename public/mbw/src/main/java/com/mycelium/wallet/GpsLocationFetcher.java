@@ -43,10 +43,7 @@ import android.location.LocationManager;
 import android.os.Handler;
 
 import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.location.Geocode;
-import com.mycelium.lt.location.GeocodeResponse;
-import com.mycelium.lt.location.JsonCoder;
-import com.mycelium.lt.location.RemoteGeocodeException;
+import com.mycelium.lt.location.*;
 import com.mycelium.wallet.lt.AddressDescription;
 
 public class GpsLocationFetcher {
@@ -139,10 +136,10 @@ public class GpsLocationFetcher {
       if (lastKnownLocation == null)
          return null;
       final List<Geocode> list;
-      String language = MbwManager.getInstance(context).getLanguage();
-      JsonCoder jsonCoder = new JsonCoder(language);
-      GeocodeResponse response = jsonCoder.getFromLocation(lastKnownLocation.getLatitude(),
-            lastKnownLocation.getLongitude());
+
+      Geocoder geocoder = MbwManager.getInstance(context).getLocalTraderManager().getGeocoder();
+      GeocodeResponse response = geocoder.getFromLocation(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+
       list = response.results;
       if (list.isEmpty()) {
          return null;

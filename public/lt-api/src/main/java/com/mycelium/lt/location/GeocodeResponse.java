@@ -16,12 +16,20 @@
 
 package com.mycelium.lt.location;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class GeocodeResponse {
+
+   @JsonProperty
    public String status;
+
+   @JsonProperty
    public String errorMessage;
+
+   @JsonProperty
    public List<Geocode> results = new ArrayList<Geocode>();
 
 }

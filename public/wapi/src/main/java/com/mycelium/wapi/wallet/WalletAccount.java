@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
@@ -166,7 +167,7 @@ public interface WalletAccount {
     * @throws InsufficientFundsException if not enough funds were present to create the unsigned
     *                                    transaction
     */
-   UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers) throws OutputTooSmallException,
+   UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws OutputTooSmallException,
          InsufficientFundsException;
 
    /**
@@ -200,7 +201,7 @@ public interface WalletAccount {
    /**
     * Determine the maximum spendable amount you can send in a transaction
     */
-   long calculateMaxSpendableAmount();
+   long calculateMaxSpendableAmount(long minerFeeToUse);
 
    /**
     * Determine whether the provided encryption key is valid for this wallet account.
@@ -240,6 +241,11 @@ public interface WalletAccount {
          this.address = address;
          this.amount = amount;
       }
+
+      public Receiver(Address address, Bitcoins amount) {
+         this(address, amount.getLongValue());
+      }
+
    }
 
 }

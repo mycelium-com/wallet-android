@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- sending a NFC payment request -->
+    <uses-permission android:name="android.permission.NFC" />
+
     <!-- this can now even be skipped since we don't use sdcard anymore -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -122,6 +125,7 @@
         <activity android:name=".activity.EnterWordListActivity" />
         <activity android:name=".activity.BackupWordListActivity" />
         <activity android:name=".activity.VerifyWordListActivity" />
+        <activity android:name=".activity.AdditionalBackupWarningActivity" />
         <activity android:name=".activity.modern.HDSigningActivity" />
     </application>
 

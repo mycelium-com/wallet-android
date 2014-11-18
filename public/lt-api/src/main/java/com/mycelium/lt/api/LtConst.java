@@ -54,6 +54,8 @@ public class LtConst {
       public static final String TOKEN = "token";
       public static final String AD_ID = "adId";
       public static final String EMAIL = "email";
+      public static final String QUERY = "query";
+      public static final String MAX_RESULTS = "maxResults";
    }
 
    public static class Function {
@@ -116,6 +118,10 @@ public class LtConst {
       public static final String MAIL_LINK_UNSUBSCRIBE_MAIL = "unsubscribeMail";
       public static final String MAIL_LINK_AD_RENEWAL = "renewAd";
       public static final String LT_API_HEALTHCHECK = "apiHealthCheck";
+
+      public static final String SEARCH_GEOCODER = "searchGeocoder";
+      public static final String REVERSE_GEOCODER = "reverseGeocode";
+
    }
 
 }

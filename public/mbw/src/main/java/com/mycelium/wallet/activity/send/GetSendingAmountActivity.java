@@ -101,7 +101,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
 
       // Calculate the maximum amount that can be spent where we send everything we got to another address
-      _maxSpendableAmount = _account.calculateMaxSpendableAmount();
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_mbwManager.getMinerFee().kbMinerFee);
 
       // May be null
       _oneBtcInFiat =  (Double) getIntent().getSerializableExtra("oneBtcInFiat");
@@ -278,8 +278,8 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       _enterFiatAmount = !_enterFiatAmount;
       _numberEntry.setEntry(newAmount, newDecimalPlaces);
 
-      // Check whether we can enable the paste button
-      findViewById(R.id.btPaste).setEnabled(enablePaste());
+      // Check whether we can show the paste button
+      findViewById(R.id.btPaste).setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
    }
 
    @Override
@@ -290,7 +290,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
    @Override
    protected void onResume() {
-      findViewById(R.id.btPaste).setEnabled(enablePaste());
+      findViewById(R.id.btPaste).setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
       super.onResume();
    }
 
@@ -352,7 +352,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    private AmountValidation checkSendAmount(long satoshis) {
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
-         _account.createUnsignedTransaction(Arrays.asList(receiver));
+         _account.createUnsignedTransaction(Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
       } catch (InsufficientFundsException e) {

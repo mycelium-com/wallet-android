@@ -34,7 +34,6 @@
                 android:gravity="center"
                 android:text="@string/wordlist_backup_description" />
 
-
         <View
                 android:layout_width="1dp"
                 android:layout_height="10dp" >
@@ -89,14 +88,13 @@
         </View>
 
         <Button
-                android:id="@+id/btNextWord"
+                android:id="@+id/btOkay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
                 android:text="@string/start_with_first_word_button" />
-
 
         <View
                 android:layout_width="1dp"

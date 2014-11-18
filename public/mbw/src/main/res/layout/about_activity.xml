@@ -156,7 +156,28 @@
                 android:id="@+id/tvContactEmail"/>
         </LinearLayout>
 
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/buttonspacing">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/playstore_link_label"
+                    android:width="@dimen/about_caption_size" />
+
+            <com.mycelium.wallet.activity.util.QrImageView
+                    android:id="@+id/ivPlaystoreQR"
+                    android:layout_width="@dimen/small_qrcode"
+                    android:layout_height="@dimen/small_qrcode"
+                    android:contentDescription="@string/an_icon"
+                    android:longClickable="false" />
+        </LinearLayout>
+
 </LinearLayout>
+
         <Button
             android:layout_marginTop="@dimen/buttonspacing"
             android:layout_width="@dimen/about_buttonsize"

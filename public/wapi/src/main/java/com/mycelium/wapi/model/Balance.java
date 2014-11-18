@@ -124,8 +124,7 @@ public class Balance implements Serializable {
       }
       Balance other = (Balance) obj;
       return confirmed == other.confirmed && pendingChange == other.pendingChange
-            && pendingReceiving == other.pendingReceiving && pendingSending == other.pendingSending
-            && blockHeight == other.blockHeight;
+            && pendingReceiving == other.pendingReceiving && pendingSending == other.pendingSending;
    }
 
 }

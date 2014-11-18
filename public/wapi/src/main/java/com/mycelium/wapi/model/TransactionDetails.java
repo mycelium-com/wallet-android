@@ -17,6 +17,7 @@
 package com.mycelium.wapi.model;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
@@ -100,6 +101,20 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
          }
          return 0;
       }
+   }
+
+   protected NetworkParameters getNetwork(){
+      if (inputs.length>0){
+         return inputs[0].address.getNetwork();
+      }else if (outputs.length>0){
+         return inputs[0].address.getNetwork();
+      }else{
+         throw new RuntimeException("Transaction without inputs or outputs - unable to determine network");
+      }
+   }
+
+   public String getBlockchainExplorerLink() {
+      return getNetwork().getBlockchainExplorerTransaction() + hash.toString();
    }
 
 }

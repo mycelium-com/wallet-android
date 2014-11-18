@@ -40,45 +40,29 @@ import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.common.base.Joiner;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.model.TransactionDetails;
 
 public class TransactionDetailsActivity extends Activity {
 
-   private static final String BLOCKCHAIN_INFO_TRANSACTION_LINK_TEMPLATE = "https://blockchain.info/tx/";
-   private static final String BLOCKR_TESTNET_INFO_TRANSACTION_LINK_TEMPLATE = "http://tbtc.blockr.io/tx/info/";
-   private static final String BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE = "https://blockchain.info/address/";
-   private static final String BLOCKR_TESTNET_INFO_ADDRESS_LINK_TEMPLATE = "http://tbtc.blockr.io/address/info/";
    @SuppressWarnings("deprecation")
    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
    private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
    private TransactionDetails _tx;
    private int _white_color;
-   private UrlClickListener _urlClickListener;
-   private CopyClickListener _copyClickListener;
    private MbwManager _mbwManager;
-   private String _addressInfoTemplate;
    private String _transactionInfoTemplate;
 
    /**
@@ -91,18 +75,8 @@ public class TransactionDetailsActivity extends Activity {
       super.onCreate(savedInstanceState);
 
       _white_color = getResources().getColor(R.color.white);
-      _urlClickListener = new UrlClickListener();
-      _copyClickListener = new CopyClickListener();
       setContentView(R.layout.transaction_details_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
-
-      if (_mbwManager.getNetwork().equals(NetworkParameters.testNetwork)) {
-         _addressInfoTemplate = BLOCKR_TESTNET_INFO_ADDRESS_LINK_TEMPLATE;
-         _transactionInfoTemplate = BLOCKR_TESTNET_INFO_TRANSACTION_LINK_TEMPLATE;
-      } else {
-         _addressInfoTemplate = BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE;
-         _transactionInfoTemplate = BLOCKCHAIN_INFO_TRANSACTION_LINK_TEMPLATE;
-      }
 
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
@@ -110,23 +84,11 @@ public class TransactionDetailsActivity extends Activity {
       updateUi();
    }
 
-   private void setLinkText(TextView tv, String text) {
-      SpannableString link = new SpannableString(text);
-      link.setSpan(new UnderlineSpan(), 0, text.length(), 0);
-      tv.setText(link);
-      tv.setTextColor(getResources().getColor(R.color.brightblue));
-   }
-
    private void updateUi() {
       // Set Hash
-      String hash = _tx.hash.toString();
-      String choppedHash = Joiner.on(" ").join(Utils.stringChopper(hash, 4));
-      TextView tvHash = ((TextView) findViewById(R.id.tvHash));
-      setLinkText(tvHash, choppedHash);
-      tvHash.setTag(_transactionInfoTemplate + hash);
-      tvHash.setOnClickListener(_urlClickListener);
-      tvHash.setLongClickable(true);
-      tvHash.setOnLongClickListener(_copyClickListener);
+      TransactionDetailsLabel tvHash = ((TransactionDetailsLabel) findViewById(R.id.tvHash));
+      tvHash.setTransaction(_tx);
+
 
       // Set Confirmed
       String confirmed;
@@ -195,30 +157,14 @@ public class TransactionDetailsActivity extends Activity {
          // Add BTC value
          ll.addView(getValue(item.value, address));
 
-         // Add address chunks
-         String[] chunks = Utils.stringChopper(address, 12);
-         ll.addView(getAddressChunk(chunks[0], -1, address));
-         ll.addView(getAddressChunk(chunks[1], -1, address));
-         ll.addView(getAddressChunk(chunks[2], 0, address));
-         ll.setOnClickListener(_urlClickListener);
-         ll.setOnLongClickListener(_copyClickListener);
-         ll.setTag(_addressInfoTemplate + address);
+         AddressLabel adrLabel = new AddressLabel(this);
+         adrLabel.setAddress(item.address);
+         ll.addView(adrLabel);
       }
       ll.setPadding(10, 10, 10, 10);
       return ll;
    }
 
-   private TextView getAddressChunk(String chunk, int padding, Object tag) {
-      TextView tv = new TextView(this);
-      tv.setLayoutParams(FPWC);
-      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      setLinkText(tv, chunk);
-      tv.setTypeface(Typeface.MONOSPACE);
-      tv.setPadding(0, 0, 0, padding);
-      tv.setTag(tag);
-
-      return tv;
-   }
 
    private View getCoinbaseText() {
       TextView tv = new TextView(this);
@@ -237,36 +183,6 @@ public class TransactionDetailsActivity extends Activity {
       tv.setTextColor(_white_color);
       tv.setTag(tag);
       return tv;
-   }
-
-   private class CopyClickListener implements View.OnLongClickListener {
-
-      @Override
-      public boolean onLongClick(View v) {
-         if (v.getTag() == null) {
-            return false;
-         }
-         Context context = TransactionDetailsActivity.this;
-         Utils.setClipboardString(v.getTag().toString(), TransactionDetailsActivity.this);
-         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-         return true;
-      }
-   }
-
-   private class UrlClickListener implements OnClickListener {
-
-      @Override
-      public void onClick(View v) {
-         if (v.getTag() == null) {
-            return;
-         }
-         String url = v.getTag().toString();
-         Intent intent = new Intent(Intent.ACTION_VIEW);
-         intent.setData(Uri.parse(url));
-         startActivity(intent);
-         Toast.makeText(TransactionDetailsActivity.this, R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT)
-               .show();
-      }
    }
 
 }

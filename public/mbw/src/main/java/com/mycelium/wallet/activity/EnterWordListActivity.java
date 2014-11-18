@@ -45,7 +45,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
-import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -126,7 +125,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
                   } else {
                      throw new IllegalStateException("No radiobutton selected in word list import");
                   }
-                  _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
+                  setHint();
                }
             })
             .show();
@@ -137,14 +136,29 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
       public void onClick(View v) {
          enteredWords.remove(enteredWords.size() - 1);
          --currentWordNum;
+         setHint();
          enterWordInfo.setText(enteredWords.toString());
-         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
          findViewById(R.id.tvChecksumWarning).setVisibility(View.GONE);
          if (currentWordNum == 1) {
             findViewById(R.id.btDeleteLastWord).setEnabled(false);
          }
       }
    };
+
+   void setHint(){
+      ((TextView)findViewById(R.id.tvHint)).setText(
+            getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords)
+      );
+      findViewById(R.id.tvHint).setVisibility(View.VISIBLE);
+   }
+
+   void setHint(boolean show){
+      if (show){
+         setHint();
+      }else{
+         findViewById(R.id.tvHint).setVisibility(View.INVISIBLE);
+      }
+   }
 
    private void addWordToList(String selection) {
       enteredWords.add(selection);
@@ -178,14 +192,14 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
    private boolean checkIfDone() {
       if (currentWordNum < numberOfWords) {
          currentWordNum++;
-         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
+         setHint();
          return false;
       }
       if (checksumMatches()) {
          return true;
       } else {
          findViewById(R.id.tvChecksumWarning).setVisibility(View.VISIBLE);
-         _wordAutoCompleter.setHintText("");
+         setHint(false);
          currentWordNum++; //needed for the delete button to function correctly
          return false;
       }
@@ -208,6 +222,12 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
    public void onWordSelected(String word) {
       addWordToList(word);
    }
+
+   @Override
+   public void onCurrentWordChanged(String currentWord) {
+      ((TextView)findViewById(R.id.tvWord)).setText(currentWord);
+   }
+
 
    private class MasterSeedFromWordsAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
@@ -284,10 +304,10 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
       currentWordNum = savedInstanceState.getInt("index");
       findViewById(R.id.btDeleteLastWord).setEnabled(currentWordNum > 1);
       if (currentWordNum < numberOfWords) {
-         _wordAutoCompleter.setHintText(getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords));
+         setHint();
       } else if (!checksumMatches()) {
          findViewById(R.id.tvChecksumWarning).setVisibility(View.VISIBLE);
-         _wordAutoCompleter.setHintText("");
+         setHint(false);
       }
    }
 }

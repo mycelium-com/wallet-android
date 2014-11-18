@@ -388,7 +388,7 @@
 
         <Button
                 android:id="@+id/btDel"
-                style="@style/MyceliumSlimButton"
+                style="@style/MyceliumSlimButtonFn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.75"
@@ -397,6 +397,7 @@
                 android:gravity="center"
                 android:text="&lt;"
                 android:textSize="20sp"
+
                 tools:ignore="HardcodedText"/>
 
         <View

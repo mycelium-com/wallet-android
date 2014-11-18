@@ -22,17 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.mrd.bitlib.model.Address;
-import com.mycelium.lt.api.model.Ad;
-import com.mycelium.lt.api.model.AdSearchItem;
-import com.mycelium.lt.api.model.BtcSellPrice;
-import com.mycelium.lt.api.model.Captcha;
-import com.mycelium.lt.api.model.LtSession;
-import com.mycelium.lt.api.model.PriceFormula;
-import com.mycelium.lt.api.model.PublicTraderInfo;
-import com.mycelium.lt.api.model.SellOrder;
-import com.mycelium.lt.api.model.SellOrderSearchItem;
-import com.mycelium.lt.api.model.TradeSession;
-import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.lt.api.model.*;
 import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.CreateTradeParameters;
@@ -100,7 +90,7 @@ public interface LtApi {
     * @return
     *
     * Example HTTP POST:
-    * curl  -k -X POST -H "Content-Type: application/json" https://node3.mycelium.com/lttestnet/createSession?v=9&locale=de&bitcoinDenomination=mBTC
+    * curl  -k -X POST -H "Content-Type: application/json" "https://node3.mycelium.com/lttestnet/createSession?v=9&locale=de&bitcoinDenomination=mBTC"
     */
    public LtResponse<LtSession> createSession(int apiVersion, String locale, String bitcoinDenomination);
 
@@ -126,7 +116,7 @@ public interface LtApi {
 
    /**
     * Return the Nickname of the Trader
-    * 
+    *
     * @param sessionId
     *           session Id obtained from createSession
     * @param params
@@ -152,6 +142,11 @@ public interface LtApi {
    @Deprecated
    public LtResponse<UUID> createSellOrder(UUID sessionId, TradeParameters params);
 
+   /* Example HTTP POST:
+   curl  -k -X POST -H "Content-Type: application/json"
+          -d '{"type":"SELL_BTC","location":{"name":"Aarhus, Dänemark","longitude":10.2039213180542,"latitude":56.16293716430664,"countryCode":"DK"},"currency":"USD","minimumFiat":10,"maximumFiat":15,"priceFormulaId":"BITSTAMP","premium":5.0,"description":""}'
+          https://node3.mycelium.com/lttestnet/createAd?sessionId=1b28a900-61d8-4aac-85b1-943d7b01f241
+   */
    public LtResponse<UUID> createAd(UUID sessionId, AdParameters params);
 
    @Deprecated
@@ -287,9 +282,9 @@ public interface LtApi {
     */
    public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, Address traderIdentity);
 
-   /**
-    * Get the last change timestamp for a trader identity without authentication
-    * or session id
+   /*
+    Get the last change timestamp for a trader identity without authentication
+    or session id
     */
    public LtResponse<Long> getLastTradeSessionChange(Address traderIdentity);
 
@@ -318,4 +313,22 @@ public interface LtApi {
    public LtResponse<Void> stopWaitingForTraderChange(UUID token);
 
    public LtResponse<Void> setTraderNotificationEmail(UUID sessionId, String email);
+
+   /*
+    Query the geocoder from the backend - only use it as fallback if the geocoder is
+    not available on client side
+
+   curl  -k -X POST -H "Content-Type: application/json" "https://node3.mycelium.com/lttestnet/searchGeocoder?sessionId=1ecc892f-249f-4e3a-bde8-cb06bb3cf891&query=Wien"
+    */
+   public LtResponse<GeocoderSearchResults> searchGeocoder(UUID sessionId, String query, int maxResults);
+
+   /*
+   Reverse geocode (coord->name) from the backend - only use it as fallback if the geocoder is
+   not available on client side
+
+   Example HTTP POST:
+   curl  -k -X POST -H "Content-Type: application/json" "https://node3.mycelium.com/lttestnet/reverseGeocode?sessionId=1ecc892f-249f-4e3a-bde8-cb06bb3cf891&latitude=48.1182699&longitude=16.1826199"
+    */
+   public LtResponse<GeocoderSearchResults> reverseGeocoder(UUID sessionId, double lat, double lon);
+
 }

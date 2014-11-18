@@ -93,6 +93,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
    private final SQLiteStatement _updateSingleAddressAccount;
    private final SQLiteStatement _deleteSingleAddressAccount;
+   private final SQLiteStatement _deleteBip44Account;
    private final SQLiteStatement _insertOrReplaceKeyValue;
    private final SQLiteStatement _deleteKeyValue;
 
@@ -104,6 +105,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=? WHERE id=?");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
+      _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?)");
       _deleteKeyValue = _database.compileStatement("DELETE FROM kv WHERE k = ?");
       _backings = new HashMap<UUID, SqliteAccountBacking>();
@@ -333,6 +335,28 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          setTransactionSuccessful();
       } catch (Exception e) {
          Log.e(LOG_TAG, "Exception in deleteSingleAddressAccountContext", e);
+         throw new RuntimeException(e);
+      } finally {
+         endTransaction();
+      }
+   }
+
+   @Override
+   public void deleteBip44AccountContext(UUID accountId) {
+      // "DELETE FROM bip44 WHERE id = ?"
+      beginTransaction();
+      try {
+         SqliteAccountBacking backing = _backings.get(accountId);
+         if (backing == null) {
+            return;
+         }
+         _deleteBip44Account.bindBlob(1, SQLiteQueryWithBlobs.uuidToBytes(accountId));
+         _deleteBip44Account.execute();
+         backing.dropTables();
+         _backings.remove(accountId);
+         setTransactionSuccessful();
+      } catch (Exception e) {
+         Log.e(LOG_TAG, "Exception in deleteSBip44AccountContext", e);
          throw new RuntimeException(e);
       } finally {
          endTransaction();

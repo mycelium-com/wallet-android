@@ -27,10 +27,15 @@ public class GpsLocation implements Serializable {
 
    @JsonProperty
    public double latitude;
+
    @JsonProperty
    public double longitude;
+
    @JsonProperty
    public String name;
+
+   @JsonProperty("countryCode")
+   public String countryCode;
 
    public GpsLocation(@JsonProperty(LtConst.Param.LATITUDE) double latitude,
          @JsonProperty(LtConst.Param.LONGITUDE) double longitude, @JsonProperty(LtConst.Param.NAME) String name) {

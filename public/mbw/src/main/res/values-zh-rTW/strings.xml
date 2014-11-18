@@ -133,7 +133,7 @@
   <string name="active_name">活動</string>
   <string name="active_name_empty">活動 ( 空 )</string>
   <string name="archive_name">存檔了</string>
-  <string name="archive_name_empty">存檔了 ( 空 )</string>
+  <string name="archive_name_empty">存檔( 空 )</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存檔</string>
   <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要與這個帳戶進行操作.\r\n\r\n存檔帳戶可以被再次激活.\r\n\r\n您需要存檔該帳戶嗎？</string>

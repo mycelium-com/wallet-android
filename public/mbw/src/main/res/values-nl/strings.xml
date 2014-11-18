@@ -156,6 +156,7 @@
   <string name="enter_bitcoin_address">Bitcoin adres invoeren</string>
   <string name="bitcoin_address_invalid">Ongeldig Bitcoin adres</string>
   <string name="bitcoin_address_valid">Bitcoin adres geldig</string>
+  <string name="redirecting_to_block_explorer">U wordt doorgestuurd naar een block explorer</string>
   <string name="enter_local_currency">Voer uw lokale valuta in</string>
   <string name="tap_to_refresh">Tik hier om te vernieuwen</string>
   <string name="using_address_from_clipboard">Maak gebruik van adres op klembord</string>
@@ -457,6 +458,8 @@
   <string name="preparing_wallet_on_first_startup_info">Portemonnee wordt voorbereid&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Berekening van Master Seed&#8230;</string>
   <string name="importing_wordlist_enter_next_word">Voer woord nummer %1$s van %2$s in</string>
+  <string name="showing_word_number">Woord %1$s:</string>
+  <string name="start_word_list_verification">Start Verificatie</string>
   <string name="delete_last_entered_word">Laatste woord verwijderen</string>
   <string name="account">Rekening</string>
   <string name="verify_backup_seed_des">Master seed van de back-up verifiëren door de QR code te scannen.</string>
@@ -477,17 +480,28 @@
   <string name="no_android_wallet_backup">Export niet gevonden</string>
   <string name="unable_to_get_clipboard">Niet in staat om de huidige inhoud van het Klembord te lezen</string>
   <string name="unable_to_clear_clipboard">Het klembord kan niet gewist worden</string>
+  <string name="unable_to_set_clipboard">Onmogelijk om inhoud klembord te veranderen</string>
   <string name="select_spending_account">Selecteer account voor uitgaven</string>
   <string name="enter_account_label_title">Voer het Label in van het Account</string>
   <string name="edit_account_label_title">Account Label bewerken</string>
   <string name="seed_already_configured">Import niet mogelijk: master seed is reeds geconfigureerd</string>
   <string name="backup_words_title">Master Seed back-up</string>
   <string name="verify_words_title">Master Seed verificatie</string>
+  <string name="wordlist_backup_description">DIT IS BELANGRIJK\n\nJe staat op het punt een backup te maken van je master seed.\n\nNa het maken van een backup kun je het beste een PIN instellen om te voorkomen dat iemand die kort je telefoon vasthoud ook een backup kan maken en zo je huidige en toekomstige saldo kan stelen.\n\nJe krijgt een lijst met woorden te zien, één voor één. Schrijf die woorden op met pen en papier, en bewaar ze op een veilige plek.</string>
   <string name="next_word_button">Volgend woord</string>
+  <string name="start_with_first_word_button">Toon eerste woord</string>
+  <string name="cick_button_to_show_word">Tik op de knop hieronder om te beginnen</string>
   <string name="wordlist_verify_description">Voer de woorden in die u net heeft genoteerd, om te controleren of de back-up correct is verlopen.</string>
   <string name="verify_word_wrong">U heeft het verkeerde woord ingevoerd, probeer het a.u.b. opnieuw</string>
+  <string name="verify_wordlist_success">De back-up van de woordenlijst is met succes geverifieerd. Bewaar de back-up op een veilige plaats, uw geld is er van afhankelijk!\n\nAls u geen PIN hebt geconfigureerd is dit een goed moment om dat te doen.\nU kunt een PIN configureren in het menu Instellingen</string>
   <string name="note_down_password_title">Noteer uw wachtwoord</string>
   <string name="title_wrong_password">Verkeerd wachtwoord, probeer het a.u.b. opnieuw</string>
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
+  <string name="dont_allow_archiving_unused_notification">U kunt een ongebruikt HD-account niet archiveren</string>
   <string name="newly_generated_coins_from_coinbase">Nieuw gegenereerde coins</string>
+  <string name="release_notes_hd">\'s Werelds beste mobiele portemonnee is zojuist verbeterd.\n\nHet maken van een veilige back-up is nu een fluitje van een cent en nieuwe HD accounts maken u anoniemer dan ooit!\n\nLees de release notes voor meer informatie.</string>
+  <string name="title_upgrade_info">Welkom bij Mycelium 2.0</string>
+  <string name="button_continue">Doorgaan</string>
+  <string name="butto_show_release_notes">Details tonen</string>
+  <string name="word_does_not_exist_in_wordlist">Het woord dat u heeft ingevoerd bestaat niet in de woordenlijst</string>
 </resources>

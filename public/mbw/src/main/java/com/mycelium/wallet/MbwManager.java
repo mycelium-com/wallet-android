@@ -36,7 +36,6 @@ package com.mycelium.wallet;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -44,6 +43,7 @@ import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -56,6 +56,7 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.wallet.activity.modern.ExploreHelper;
+import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -103,8 +104,9 @@ public class MbwManager {
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
    private final String _btcValueFormatString;
-   private String _pin;
+   private Pin _pin;
    private Denomination _bitcoinDenomination;
+   private MinerFee _minerFee;
    private String _fiatCurrency;
    private boolean _enableContinuousFocus;
    private boolean _keyManagementLocked;
@@ -155,10 +157,15 @@ public class MbwManager {
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
-      _pin = preferences.getString(Constants.PIN_SETTING, "");
+      _pin = new Pin(
+            preferences.getString(Constants.PIN_SETTING, ""),
+            preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
+      );
+
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
             Denomination.mBTC.toString()));
+      _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
       _mainViewFragmentIndex = preferences.getInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, 0);
@@ -288,6 +295,8 @@ public class MbwManager {
             _storage.storeAddressLabel(address, label);
          }
 
+
+
       }
    }
 
@@ -383,26 +392,136 @@ public class MbwManager {
    }
 
    public boolean isPinProtected() {
-      return getPin().length() > 0;
+      return getPin().isSet();
    }
 
-   private String getPin() {
+   // returns the age of the PIN in blocks (~10min)
+   public Optional<Integer> getRemainingPinLockdownDuration(){
+      Optional<Integer> pinSetHeight = getMetadataStorage().getLastPinSetBlockheight();
+      if (!pinSetHeight.isPresent()) return Optional.absent();
+
+      int blockHeight = getSelectedAccount().getBlockChainHeight();
+
+      int pinAge = blockHeight - pinSetHeight.get();
+      if (pinAge > Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP){
+         return Optional.of(0);
+      }else {
+         return Optional.of(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP - pinAge);
+      }
+   }
+
+   public boolean isPinOldEnough() {
+      if (!isPinProtected()){
+         return false;
+      }
+
+      Optional<Integer> pinLockdownDuration = getRemainingPinLockdownDuration();
+      if (!pinLockdownDuration.isPresent()){
+         // PIN height was not set (older version) - take the current height and let the user wait...
+         setPinBlockheight();
+         return false;
+      }
+      return !(pinLockdownDuration.get() > 0);
+   }
+
+   public Pin getPin() {
       return _pin;
    }
 
-   public void setPin(String pin) {
+   public void showClearPinDialog(final Context context, final Optional<Runnable> afterDialogClosed) {
+      this.runPinProtectedFunction(context, new ClearPinDialog(context, true) , new Runnable() {
+         @Override
+         public void run() {
+            MbwManager.this.savePin(Pin.CLEAR_PIN);
+            Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
+            if (afterDialogClosed.isPresent()) afterDialogClosed.get().run();
+         }
+      });
+   }
+
+   public void showSetPinDialog(final Context context, final Optional<Runnable> afterDialogClosed ){
+
+      // Must make a backup before setting PIN
+      if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
+         Utils.showSimpleMessageDialog(context, R.string.pin_backup_first);
+         return;
+      }
+
+
+      final NewPinDialog _dialog = new NewPinDialog(context, false);
+      _dialog.setOnPinValid(new PinDialog.OnPinEntered() {
+         private String newPin = null;
+
+         @Override
+         public void pinEntered(PinDialog dialog, Pin pin) {
+            if (newPin == null) {
+               newPin = pin.getPin();
+               dialog.setTitle(R.string.pin_confirm_pin);
+            } else if (newPin.equals(pin.getPin())) {
+               MbwManager.this.savePin(pin);
+               Toast.makeText(context, R.string.pin_set, Toast.LENGTH_LONG).show();
+               dialog.dismiss();
+               if (afterDialogClosed.isPresent()) afterDialogClosed.get().run();
+            } else {
+               Toast.makeText(context, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
+               MbwManager.this.vibrate(500);
+               dialog.dismiss();
+               if (afterDialogClosed.isPresent()) afterDialogClosed.get().run();
+            }
+         }
+      });
+
+
+      this.runPinProtectedFunction(context, new Runnable() {
+         @Override
+         public void run() {
+            _dialog.show();
+         }
+      });
+
+   }
+
+   public void savePin(Pin pin) {
+      // if we were not pin protected and get a new pin, remember the blockheight
+      // at which the pin was set - so that we can measure the age of the pin.
+      if (!isPinProtected()) {
+         setPinBlockheight();
+      }else{
+         // if we were pin-protected and now the pin is removed, reset the blockheight
+         if (!pin.isSet()){
+            getMetadataStorage().clearLastPinSetBlockheight();
+         }
+      }
       _pin = pin;
-      getEditor().putString(Constants.PIN_SETTING, _pin).commit();
+      getEditor().putString(Constants.PIN_SETTING, _pin.getPin()).commit();
+      getEditor().putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").commit();
+   }
+
+   private void setPinBlockheight() {
+      int blockHeight = getSelectedAccount().getBlockChainHeight();
+      getMetadataStorage().setLastPinSetBlockheight(blockHeight);
    }
 
    public void runPinProtectedFunction(final Context context, final Runnable fun) {
       if (isPinProtected()) {
-         Dialog d = new PinDialog(context, true, new PinDialog.OnPinEntered() {
+         PinDialog d = new PinDialog(context, true);
+         runPinProtectedFunction(context, d, fun);
+      }else{
+         fun.run();
+      }
+   }
 
+   public void runPinProtectedFunction(final Context context, PinDialog pinDialog, final Runnable fun) {
+      if (isPinProtected()) {
+         pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
             @Override
-            public void pinEntered(PinDialog dialog, String pin) {
+            public void pinEntered(PinDialog dialog, Pin pin) {
                if (pin.equals(getPin())) {
                   dialog.dismiss();
+
+                  // as soon as you enter the correct pin once, abort the reset-pin-procedure
+                  MbwManager.this.getMetadataStorage().clearResetPinStartBlockheight();
+
                   fun.run();
                } else {
                   Toast.makeText(context, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
@@ -411,10 +530,24 @@ public class MbwManager {
                }
             }
          });
-         d.setTitle(R.string.pin_enter_pin);
-         d.show();
+         pinDialog.show();
       } else {
          fun.run();
+      }
+   }
+
+   public void startResetPinProcedure(){
+      getMetadataStorage().setResetPinStartBlockheight(getSelectedAccount().getBlockChainHeight());
+   }
+
+   public Optional<Integer> getResetPinRemainingBlocksCount(){
+      Optional<Integer> resetPinStartBlockHeight = getMetadataStorage().getResetPinStartBlockHeight();
+      if (!resetPinStartBlockHeight.isPresent()){
+         // no reset procedure ongoing
+         return Optional.absent();
+      }else{
+         int blockAge = getSelectedAccount().getBlockChainHeight() - resetPinStartBlockHeight.get();
+         return Optional.of(Math.max(0, Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN - blockAge));
       }
    }
 
@@ -427,6 +560,15 @@ public class MbwManager {
       if (v != null) {
          v.vibrate(milliseconds);
       }
+   }
+
+   public MinerFee getMinerFee() {
+      return _minerFee;
+   }
+
+   public void setMinerFee(MinerFee minerFee){
+      _minerFee = minerFee;
+      getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).commit();
    }
 
    public CoinUtil.Denomination getBitcoinDenomination() {
@@ -543,6 +685,14 @@ public class MbwManager {
          _httpErrorCollector.reportErrorToServer(msg);
       }
    }
+
+   public void reportIgnoredException(String Message, Throwable e) {
+      if (_httpErrorCollector != null) {
+         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n" + Message + "\n", e);
+         _httpErrorCollector.reportErrorToServer(msg);
+      }
+   }
+
 
    public String getLanguage() {
       return _language;

@@ -29,6 +29,33 @@
             </View>
 
             <TextView
+                    android:id="@+id/tvHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/lightgrey"
+                    android:gravity="center"/>
+
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="5dp">
+            </View>
+            <!-- Current word -->
+            <TextView
+                    android:id="@+id/tvWord"
+                    style="@style/GenericText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textSize="18sp"/>
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="5dp">
+            </View>
+
+            <!-- Wordlist -->
+            <TextView
                     android:id="@+id/tvEnterWord"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -40,12 +67,6 @@
                     android:layout_height="5dp">
             </View>
 
-            <fragment
-                    android:id="@+id/wordAutoCompleter"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    class="com.mycelium.wallet.activity.WordAutoCompleterFragment"
-                    tools:layout="@layout/word_auto_completer_fragment"/>
 
             <TextView
                     android:id="@+id/tvChecksumWarning"
@@ -81,6 +102,12 @@
             android:layout_height="0dp"
             android:layout_weight="1">
     </View>
+    <fragment
+            android:id="@+id/wordAutoCompleter"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            class="com.mycelium.wallet.activity.WordAutoCompleterFragment"
+            tools:layout="@layout/word_auto_completer_fragment"/>
 
     <fragment
             android:id="@+id/usKeyboard"

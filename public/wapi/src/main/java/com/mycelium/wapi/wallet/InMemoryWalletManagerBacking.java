@@ -98,6 +98,12 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    }
 
    @Override
+   public void deleteBip44AccountContext(UUID accountId) {
+      _backings.remove(accountId);
+      _bip44Contexts.remove(accountId);
+   }
+
+   @Override
    public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
       InMemoryAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);

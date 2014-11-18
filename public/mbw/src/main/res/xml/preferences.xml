@@ -22,6 +22,9 @@
             android:layout="@layout/preference_layout"
             android:summary="@string/pref_bitcoin_denomination_summary"
             android:title="@string/pref_bitcoin_denomination" />
+    <ListPreference
+            android:key="miner_fee"
+            android:layout="@layout/preference_layout"/>
 
     <!-- PIN Settings -->
 

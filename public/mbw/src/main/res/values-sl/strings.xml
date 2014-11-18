@@ -137,7 +137,7 @@
   <string name="archive_action">Arhiviraj</string>
   <string name="question_archive_account">Na arhiviranih računih se ne spremljajo transakcije, na njih ne morete videti stanja in prejemnega naslov ter z njimi na noben način ne morete delati.\r\n\r\nArhivirane račune je vedno mogoče ponovno aktivirati.\r\n\r\nŽelite sedaj arhivirati ta račun?</string>
   <string name="master_seed_configuration_title">Dobrodošli v Myceliumu</string>
-  <string name="master_seed_configuration_description">Ali želite obnoviti varnostno kopijo ali ustvarite nove denarnice?</string>
+  <string name="master_seed_configuration_description">Ali želite obnoviti rezervno kopijo ali ustvariti novo denarnico?</string>
   <string name="master_seed_create_new_button">Ustvari novo</string>
   <string name="master_seed_restore_backup_button">Obnovi iz rezervne kopije</string>
   <string name="archived">Arhiviran</string>
@@ -252,7 +252,7 @@
   <string name="lt_buy_button">Kupi</string>
   <string name="lt_sell_button">Prodaj</string>
   <string name="lt_edit_button">Uredi</string>
-  <string name="lt_localization_not_available">Za delovanje te funkcije mora vaša naprava znati zaznati svojo lokacijo. Zdi se, da to trenutno ni mogoče. Poskusite omogočiti lokacijske storitve v nastavitvah naprave.</string>
+  <string name="lt_localization_not_available">Za delovanje te funkcije mora vaša naprava znati zaznati svojo lokacijo. Kaže, da to trenutno ni mogoče. Poskusite omogočiti lokacijske storitve v nastavitvah naprave.</string>
   <string name="lt_create_account_title">Ustvarjam račun za trgovca</string>
   <string name="lt_create_account_address_desc">Ker prvič uporabljate Krajevno trgovanje, morate vnesti nekaj podrobnosti.\n\nIzberite račun, ki ga želite uporabljati za svojo istovetnost v krajevnem trgovanju:</string>
   <string name="lt_use_button">Uporabi</string>
@@ -261,7 +261,7 @@
   <string name="lt_error_account_name_taken">Ime, ki ste ga izbrali, je že zasedeno. Prosimo, izberite drugo ime.</string>
   <string name="lt_error_cannot_trade_with_self">Sami s seboj ne morete trgovati.</string>
   <string name="lt_create_button">Ustvari</string>
-  <string name="lt_no_ads">Ta stran prikazuje vaše oglase za trgovanje.\n\nSeznam je trenutno prazen.\n\nOglas dodate tako, da kliknete gumb [+].</string>
+  <string name="lt_no_ads">Ta stran prikazuje vaše oglase za trgovanje.\n\nSeznam je trenutno prazen.\n\nOglas dodate z gumbom [+].</string>
   <string name="lt_no_recent_trades">Na tej strani so prikazani vaši posli v teku.\n\nSeznam zaključenih poslov najdete v zavihku Zgodovina trgovanja.</string>
   <string name="lt_buy_bitcoin_tab">Kupi novce</string>
   <string name="lt_sell_bitcoin_tab">Prodaj novce</string>
@@ -491,7 +491,7 @@
   <string name="seed_already_configured">Uvoz ni mogoč: glavno seme je že nastavljeno</string>
   <string name="backup_words_title">Rezervna kopija glavnega semena</string>
   <string name="verify_words_title">Preverjanje glavnega semena</string>
-  <string name="wordlist_backup_description">POMEMBNO\n\nIzdelali boste rezervno kopijo glavnega semena.\n\nPo izdelavi rezervno kopije si nastavite PIN-kodo; s tem boste preprečili, da bi nekdo, ki bi za kratek čas dobil v roke vašo napravo, lahko izdelal še eno rezervno kopijo in tako ukradel vaše trenutno in bodoče novce.\n\nPrikazan vam bo niz besed, ena za drugo. Te besede si zapišite na papir in jih varno shranite.</string>
+  <string name="wordlist_backup_description">POMEMBNO\n\nIzdelali boste rezervno kopijo glavnega semena.\n\nPo izdelavi rezervno kopije si nastavite PIN-kodo; s tem boste preprečili, da bi nekdo, ki bi za kratek čas dobil v roke vašo napravo, lahko izdelal še eno rezervno kopijo in tako ukradel vaše trenutne in bodoče novce.\n\nPrikazan vam bo niz angleških besed, ena za drugo. Te besede si zapišite na papir in jih varno shranite.</string>
   <string name="next_word_button">Naslednja beseda</string>
   <string name="start_with_first_word_button">Prikaži prvo besedo</string>
   <string name="cick_button_to_show_word">Za začetek pritisnite spodnji gumb</string>
@@ -507,4 +507,5 @@
   <string name="title_upgrade_info">Dobrodošli v Myceliumu 2.0</string>
   <string name="button_continue">Naprej</string>
   <string name="butto_show_release_notes">Prikaži podrobnosti</string>
+  <string name="word_does_not_exist_in_wordlist">Besede, ki ste jo vnesli, ni na seznamu besed</string>
 </resources>

@@ -1,46 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/btBackupMissing"
-        style="@style/MyceliumButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
-        android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
-        android:gravity="center_vertical"
-        android:paddingBottom="7dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="7dp"
-        android:paddingTop="8dp"
-        android:visibility="gone"
-        android:text="@string/secure_my_funds"
-        android:textSize="16sp" />
-
-    <TextView
-            android:id="@+id/btBuggyOS"
-            style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
-            android:gravity="center_vertical"
-            android:paddingBottom="7dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="7dp"
-            android:background="@drawable/btn_red"
-            android:paddingTop="8dp"
-            android:text="@string/warning_phone_not_supported"
-            android:visibility="gone"
-            android:textSize="16sp" />
-
-    <TextView
-            android:id="@+id/btEndOfLine"
+            android:id="@+id/btBackupMissing"
             style="@style/MyceliumButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,22 +17,37 @@
             android:paddingLeft="5dp"
             android:paddingRight="7dp"
             android:paddingTop="8dp"
-            android:text="@string/warning_no_further_updates"
+            android:text="@string/secure_my_funds"
+            android:textSize="16sp"
             android:visibility="gone"
-            android:textSize="16sp" />
+            />
 
     <Button
-        android:id="@+id/btWarning"
-        style="@style/MyceliumButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="5dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:text="@string/alert_button"
-        android:background="@drawable/btn_red"
-        android:visibility="gone"
-        android:textSize="20sp" />
+            android:id="@+id/btWarning"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="@string/alert_button"
+            android:background="@drawable/btn_red"
+            android:textSize="20sp"
+            android:visibility="gone"/>
+
+    <Button
+            android:id="@+id/btPinResetNotice"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="@string/pin_reset_in_progress_alert"
+            android:background="@drawable/btn_red"
+            android:textSize="20sp"
+            android:visibility="gone"/>
 
 </LinearLayout>

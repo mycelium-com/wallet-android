@@ -26,12 +26,19 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.1.+'
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.google.android.gms:play-services:3.2.65'
+    compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     //    compile 'com.google.android.gms:play-services:4.2.42'
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
 
 android {
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+
     if (buildFor != 'idea') {
         useOldManifestMerger true
     }
@@ -46,11 +53,11 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 20026
-        versionName  '2.0.6'
+        versionCode 21000
+        versionName  '2.1.0-BETA'
     }
 
     signingConfigs {

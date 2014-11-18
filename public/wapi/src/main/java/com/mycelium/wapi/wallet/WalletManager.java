@@ -456,7 +456,7 @@ public class WalletManager {
       }
    }
 
-   private void addAccount(AbstractAccount account) {
+   public void addAccount(AbstractAccount account) {
       synchronized (_allAccounts) {
          account.setEventHandler(_accountEventManager);
          _allAccounts.put(account.getId(), account);
@@ -613,9 +613,23 @@ public class WalletManager {
       return last.hasHadActivity();
    }
 
+   public boolean removeUnusedBip44Account() {
+      Bip44Account last = _bip44Accounts.get(_bip44Accounts.size() - 1);
+      //we do not remove used accounts
+      if (last.hasHadActivity()) return false;
+      //if its unused, we can remove it from the manager
+      synchronized (_allAccounts) {
+         _bip44Accounts.remove(last);
+         _allAccounts.remove(last.getId());
+         _backing.deleteBip44AccountContext(last.getId());
+         return true;
+      }
+   }
+
    private int getNextBip44Index() {
       return _bip44Accounts.size();
    }
+
 
    public UUID createAdditionalBip44Account(KeyCipher cipher) throws InvalidKeyCipher {
       if (!canCreateAdditionalBip44Account()) {

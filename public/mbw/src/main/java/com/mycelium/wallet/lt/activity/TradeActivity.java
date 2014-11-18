@@ -64,6 +64,7 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -184,7 +185,10 @@ public class TradeActivity extends Activity {
 
       _lvChat = (ListView) findViewById(R.id.lvChat);
       _lvChat.setAdapter(_chatAdapter);
+      //to follow urls
       _lvChat.setOnItemClickListener(chatItemClickListener);
+      //to copy to clipboard
+      _lvChat.setOnItemLongClickListener(chatLongClickListener);
    }
 
    @Override
@@ -381,7 +385,6 @@ public class TradeActivity extends Activity {
                   startActivity(intent);
                   String toast = getString(R.string.lt_going_to_website, uri.getHost());
                   Toast.makeText(TradeActivity.this, toast, Toast.LENGTH_LONG).show();
-                  return;
                }
             }
          }
@@ -417,6 +420,24 @@ public class TradeActivity extends Activity {
             // pass through
          }
          return null;
+      }
+   };
+
+   OnItemLongClickListener chatLongClickListener = new OnItemLongClickListener() {
+      @Override
+      public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+         if (view != null) {
+            TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
+            if (tvMessage != null) {
+               String text = tvMessage.getText().toString();
+               //set the message to clipboard
+               Utils.setClipboardString(text, TradeActivity.this);
+               String toast = getString(R.string.lt_copied_to_clipboard);
+               Toast.makeText(TradeActivity.this, toast, Toast.LENGTH_LONG).show();
+               return true;
+            }
+         }
+         return false;
       }
    };
 

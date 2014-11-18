@@ -10,12 +10,14 @@
   <string name="add_single_acc_info">秘密鍵または読み取り専用アドレスに元にシングルアドレスアカウントを追加するには、下の詳細ボタンをクリックしてください。</string>
   <string name="scan_desc">ビットコインアドレスまたは秘密キーをスキャン</string>
   <string name="scan_seed">Myceliumのバックアップからマスターシードをスキャン</string>
+  <string name="use_acc_first">未使用の階層的決定性アカウントのみ使用できます。</string>
   <string name="clipboard_desc">クリップボードからビットコインアドレスまたは秘密キーをインポート</string>
   <string name="wordlist_des">ワードリストからマスターシードを作成</string>
   <string name="scan">スキャン</string>
   <string name="advanced">詳細</string>
   <string name="clipboard">クリップボード</string>
   <string name="enter_wordlist">ワードリストの入力</string>
+  <string name="hd_account">階層的決定性アカウントの追加</string>
   <string name="close">閉じる</string>
   <string name="sending">%1$s を送金</string>
   <string name="receiving">受信中 %1$s</string>
@@ -148,7 +150,7 @@
   <string name="tap_qr_code_desc">QRコードをタップするとスキャンしやすくなることもあります。</string>
   <string name="paste">貼り付け</string>
   <string name="slow_network">ネットワークの接続が遅いです。\n(´・ω・`)ﾌﾞﾛｯｸﾁｪｰﾝﾏﾀﾞｰ??&#8230;</string>
-  <string name="signing_transaction">取引の署名</string>
+  <string name="signing_transaction">取引に署名しています</string>
   <string name="broadcasting_transaction">取引を配信しています。</string>
   <string name="transaction_rejected_message">ネットワークによりこの取引は拒否されました。あなたのウォレットは同期していません</string>
   <string name="enter_bitcoin_address">ビットコインアドレスをご入力ください。</string>
@@ -177,7 +179,7 @@
   <string name="verify_backup_master_seed">あなたのマスターシードは確認されていません。</string>
   <string name="verify_backup_no_such_record">この秘密キーはいずれのビットコインアドレスとも一致しません。</string>
   <string name="verify_backup_ok">次のアドレスについて秘密キーのバックアップが正常に確認されました:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">お残高のあるレガシーアカウント</string>
+  <string name="legacy_account_with_funds">残高のあるレガシーアカウント</string>
   <string name="wrong_seed">スキャンされたシードはあなたのマスターシードに一致しません。</string>
   <string name="backup_missing">バックアップが見つかりません。</string>
   <string name="verify_backup_title">バックアップと確認</string>
@@ -217,7 +219,10 @@
   <string name="page_locked">このページはロックされました。</string>
   <string name="unlock_label">ロック解除</string>
   <string name="lock_label">ロック</string>
-  <string name="secure_my_funds">私のお残高を安全に管理</string>
+  <string name="secure_my_funds">私の残高を安全に管理</string>
+  <string name="move_legacy_funds_message">あなたのウォレットには１つあるいは複数の、残高があるレガシーアカウントが
+あります。\n\nあなたの残高の安全性と匿名性を高めるために、それらを階層的決定性ア
+カウントのひとつに移動させて下さい。\n\n詳細をアカウントタブでご覧下さい。</string>
   <string name="ignore_warnings_title">警告を無視</string>
   <string name="ignore_warnings_description">レガシーアカウントにお金があることについての警告を無視し、秘密鍵の安全なバックアップをとりますか？</string>
   <string name="explore">ビットコインが使える場所を探す</string>
@@ -439,7 +444,7 @@
   <string name="sign_bitid">ログイン</string>
   <string name="bitid_question">%1$s\n\nがBitIDプロトコルを使用し認証して欲しいと言っています。リクエストをサインしますか？</string>
   <string name="bitid_unsecure_warning">警告：このウェブサイトはhttpでコールバックを受けます。重要なデータのため、httpsを使用してください。</string>
-  <string name="bitid_processing">署名を送信です。</string>
+  <string name="bitid_processing">署名を送信中です。</string>
   <string name="bitid_success">%1$sにログインできました！</string>
   <string name="bitid_error">認証失敗！\nサーバー接続中にエラーが発生しました。申し訳ありません！</string>
   <string name="bitid_expired">期限切れのため認証に失敗しました。\nウェブサイトを再読込みして、再度スキャンしてください。</string>
@@ -452,8 +457,10 @@
   <string name="bitid_sslquestion">次のSSLの問題が発生しました。続行しますか？</string>
   <string name="invalid_bitid_uri">無効なBitID　URIです。</string>
   <string name="selected_archived_warning">アーカイブされたアカウントで行えません。</string>
+  <string name="selected_hd_info">今この階層的決定性アカウントを使っています。</string>
   <string name="selected_single_info">このシングルアカウントで現在行っています。</string>
   <string name="transaction_not_broadcasted_info">一斉通報されていません</string>
+  <string name="hd_account_creation_started">階層的決定性アカウントを作成中です&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">ウォレットを準備中&#8230;</string>
   <string name="importing_master_seed_from_wordlist">マスターシードを計算中&#8230;</string>
   <string name="importing_wordlist_enter_next_word">ワード番号%2$sの%1$sを入力してください</string>
@@ -486,11 +493,27 @@
   <string name="seed_already_configured">インポートできません：マスターシードは既に設定されています</string>
   <string name="backup_words_title">マスターシードのバックアップ</string>
   <string name="verify_words_title">マスターシードの確認</string>
+  <string name="wordlist_backup_description">【重要】\n\nマスターシードのバックアップをするところです。\n\nバックアッ
+プを取るとき、誰かがちょっとあなたの電話を取って、バックアップをもう一つ
+取ることで今後のあなたの資金を操作しないために、必ず暗証番号を設定して下
+さい。\n\nリストのワードがひとつずつ見られます。紙とペンを使い、それらを
+書き留めておいて下さい。そして安全な場所に保管して下さい。</string>
   <string name="next_word_button">次の単語</string>
+  <string name="start_with_first_word_button">最初のワード</string>
+  <string name="cick_button_to_show_word">下のボタンをタップしてスタート</string>
   <string name="wordlist_verify_description">すべてが正しくバックアップされているかを確認するため、今メモしたワードを一つずつ入力してください。</string>
   <string name="verify_word_wrong">入力したワードは間違っています。再試行してください。</string>
+  <string name="verify_wordlist_success">あなたのワードリストのバックアップ完了が確認されました。バックアップを安全な場所に保管しておいて下さい、あなたの資金の安全性はそれにかかっています！\n\nもし暗証番を設定していなかったのなら、今がそうする時です。\n暗証番号の設定は、設定メニューですることができます。</string>
   <string name="note_down_password_title">パスワードをメモしておいて下さい</string>
   <string name="title_wrong_password">パスワードが間違っています。再試行してください。</string>
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
+  <string name="dont_allow_archiving_unused_notification">未使用の階層的決定性アカウントはアーカイブできません。</string>
+  <string name="newly_generated_coins_from_coinbase">新しいビットコイン</string>
+  <string name="release_notes_hd">世界で最高のモバイルウォレットが、さらによくなりました。\n\n安全なバック
+アップが簡単にできるようになり、階層的決定性（HD）アカウントにより今まで以上に匿名性が
+高くなりました！\n\n詳細はリリースノートをチェック！</string>
   <string name="title_upgrade_info">ようこそ！</string>
+  <string name="button_continue">続ける</string>
+  <string name="butto_show_release_notes">詳細へ</string>
+  <string name="word_does_not_exist_in_wordlist">あなたが入力したワードは、ワードリストにはありません。</string>
 </resources>

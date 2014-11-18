@@ -47,13 +47,13 @@ public class Bip44Account extends AbstractAccount {
    private static final int INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
    private static final long FORCED_DISCOVERY_INTERVAL_MS = 1000 * 60 * 60 * 24;
 
-   private Bip44AccountBacking _backing;
-   private Bip44AccountContext _context;
-   private Bip44AccountKeyManager _keyManager;
-   private BiMap<Address, Integer> _externalAddresses;
-   private BiMap<Address, Integer> _internalAddresses;
+   protected Bip44AccountBacking _backing;
+   protected Bip44AccountContext _context;
+   protected Bip44AccountKeyManager _keyManager;
+   protected BiMap<Address, Integer> _externalAddresses;
+   protected BiMap<Address, Integer> _internalAddresses;
    private Address _currentReceivingAddress;
-   private volatile boolean _isSynchronizing;
+   protected volatile boolean _isSynchronizing;
 
    public Bip44Account(Bip44AccountContext context, Bip44AccountKeyManager keyManager,
                        NetworkParameters network, Bip44AccountBacking backing, Wapi wapi) {
@@ -61,14 +61,18 @@ public class Bip44Account extends AbstractAccount {
       _backing = backing;
       _keyManager = keyManager;
       _context = context;
-      _externalAddresses = HashBiMap.create();
-      _internalAddresses = HashBiMap.create();
+      initAddressCache();
 
       if (isArchived()) {
          return;
       }
       ensureAddressIndexes(false);
       _cachedBalance = calculateLocalBalance();
+   }
+
+   protected void initAddressCache() {
+      _externalAddresses = HashBiMap.create();
+      _internalAddresses = HashBiMap.create();
    }
 
    @Override
@@ -150,13 +154,13 @@ public class Bip44Account extends AbstractAccount {
       // the last
       // external address with activity
       Address receivingAddress = _externalAddresses.inverse().get(_context.getLastExternalIndexWithActivity() + 1);
-      if (!receivingAddress.equals(_currentReceivingAddress)) {
+      if (receivingAddress != null && !receivingAddress.equals(_currentReceivingAddress)) {
          _currentReceivingAddress = receivingAddress;
          postEvent(Event.RECEIVING_ADDRESS_CHANGED);
       }
    }
 
-   private void ensureAddressIndexes(boolean isChangeChain, boolean full_look_ahead) {
+   protected void ensureAddressIndexes(boolean isChangeChain, boolean full_look_ahead) {
       int index;
       BiMap<Address, Integer> addressMap;
       if (isChangeChain) {
@@ -245,7 +249,8 @@ public class Bip44Account extends AbstractAccount {
       // Make look ahead address list
       List<Address> lookAhead = new ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
       for (int i = 0; i < EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
-         lookAhead.add(_externalAddresses.inverse().get(_context.getLastExternalIndexWithActivity() + 1 + i));
+         Address externalAddress = _externalAddresses.inverse().get(_context.getLastExternalIndexWithActivity() + 1 + i);
+         if (externalAddress != null) lookAhead.add(externalAddress);
       }
       for (int i = 0; i < INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
          lookAhead.add(_internalAddresses.inverse().get(_context.getLastInternalIndexWithActivity() + 1 + i));
@@ -272,6 +277,7 @@ public class Bip44Account extends AbstractAccount {
       Collection<Address> combined = new ArrayList<Address>(_externalAddresses.keySet().size()
             + _context.getLastInternalIndexWithActivity() - _context.getFirstMonitoredInternalIndex() + 1);
       // Add all external addresses
+      combined.addAll(_externalAddresses.keySet());
       combined.addAll(_externalAddresses.keySet());
       // Add the change addresses we monitor
       for (int i = _context.getFirstMonitoredInternalIndex(); i < _internalAddresses.keySet().size(); i++) {
@@ -380,21 +386,29 @@ public class Bip44Account extends AbstractAccount {
          Address receivingAddress = out.script.getAddress(_network);
          Integer externalIndex = _externalAddresses.get(receivingAddress);
          if (externalIndex != null) {
-            // Sends coins to an external address, update internal max index if
-            // necessary
-            _context.setLastExternalIndexWithActivity(Math.max(_context.getLastExternalIndexWithActivity(),
-                  externalIndex));
+            updateLastExternalIndex(externalIndex);
          } else {
-            Integer internalIndex = _internalAddresses.get(receivingAddress);
-            if (internalIndex != null) {
-               // Sends coins to an internal address, update internal max index
-               // if necessary
-               _context.setLastInternalIndexWithActivity(Math.max(_context.getLastInternalIndexWithActivity(),
-                     internalIndex));
-            }
+            updateLastInternalIndex(receivingAddress);
          }
       }
       ensureAddressIndexes(false);
+   }
+
+   protected void updateLastExternalIndex(Integer externalIndex) {
+      // Sends coins to an external address, update internal max index if
+      // necessary
+      _context.setLastExternalIndexWithActivity(Math.max(_context.getLastExternalIndexWithActivity(),
+            externalIndex));
+   }
+
+   protected void updateLastInternalIndex(Address receivingAddress) {
+      Integer internalIndex = _internalAddresses.get(receivingAddress);
+      if (internalIndex != null) {
+         // Sends coins to an internal address, update internal max index
+         // if necessary
+         _context.setLastInternalIndexWithActivity(Math.max(_context.getLastInternalIndexWithActivity(),
+               internalIndex));
+      }
    }
 
    @Override
@@ -439,13 +453,18 @@ public class Bip44Account extends AbstractAccount {
             sb.append(" Balance: ").append(_cachedBalance);
          }
          sb.append(" Receiving Address: ").append(getReceivingAddress());
-         sb.append(" Monitored Addresses: external=").append(_context.getLastExternalIndexWithActivity() + 2)
-               .append(" internal=")
-               .append(_context.getLastInternalIndexWithActivity() + 1 - _context.getFirstMonitoredInternalIndex());
+         toStringMonitoredAddresses(sb);
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
       }
       return sb.toString();
    }
+
+   protected void toStringMonitoredAddresses(StringBuilder sb) {
+      sb.append(" Monitored Addresses: external=").append(_context.getLastExternalIndexWithActivity() + 2)
+            .append(" internal=")
+            .append(_context.getLastInternalIndexWithActivity() + 1 - _context.getFirstMonitoredInternalIndex());
+   }
+
 
    public int getPrivateKeyCount() {
       return _context.getLastExternalIndexWithActivity() + 2 + _context.getLastInternalIndexWithActivity() + 1;

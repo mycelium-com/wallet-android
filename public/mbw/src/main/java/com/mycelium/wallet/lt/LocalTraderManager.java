@@ -55,6 +55,7 @@ import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
+import com.mycelium.lt.location.Geocoder;
 import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
@@ -79,6 +80,7 @@ public class LocalTraderManager {
    final private MbwManager _mbwManager;
    final private Set<LocalTraderEventSubscriber> _subscribers;
    final private Thread _executer;
+   final private Geocoder _geocoder;
    private LtSession _session;
    final private List<Request> _requests;
    private boolean _isLoggedIn;
@@ -98,6 +100,11 @@ public class LocalTraderManager {
    private String _localTraderPrivateKeyString;
    private UUID _localTraderAccountId;
    private InMemoryPrivateKey _localTraderPrivateKey;
+
+
+   public Geocoder getGeocoder() {
+      return _geocoder;
+   }
 
    public LocalTraderManager(Context context, TradeSessionDb db, LtApi api, MbwManager mbwManager) {
       _notificationsEnabled = true;
@@ -148,6 +155,8 @@ public class LocalTraderManager {
 
       _traderChangeMonitor = new TraderChangeMonitor(this, _api);
       _tradeSessionChangeMonitor = new TradeSessionChangeMonitor(this, _api);
+
+      _geocoder = new FallBackGeocoder(_mbwManager);
    }
 
    public void subscribe(LocalTraderEventSubscriber listener) {
@@ -765,6 +774,14 @@ public class LocalTraderManager {
 
    private SharedPreferences getGcmPreferences() {
       return _context.getSharedPreferences(Constants.LOCAL_TRADER_GCM_SETTINGS_NAME, Activity.MODE_PRIVATE);
+   }
+
+   public LtApi getApi(){
+      return _api;
+   }
+
+   public LtSession getSession(){
+      return _session;
    }
 
 }

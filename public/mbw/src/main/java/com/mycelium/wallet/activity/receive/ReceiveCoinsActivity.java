@@ -37,6 +37,11 @@ package com.mycelium.wallet.activity.receive;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -106,6 +111,22 @@ public class ReceiveCoinsActivity extends Activity {
       // Amount Hint
       ((TextView) findViewById(R.id.tvAmount)).setHint(getResources().getString(R.string.amount_hint_denomination,
             _mbwManager.getBitcoinDenomination().toString()));
+
+      shareByNfc();
+   }
+
+   protected void shareByNfc() {
+      NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+      if (nfc!=null) {
+         nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
+
+            @Override
+            public NdefMessage createNdefMessage(NfcEvent event) {
+               NdefRecord uriRecord = NdefRecord.createUri(getPaymentUri());
+               return new NdefMessage(new NdefRecord[]{uriRecord});
+            }
+         }, this);
+      }
    }
 
    @Override

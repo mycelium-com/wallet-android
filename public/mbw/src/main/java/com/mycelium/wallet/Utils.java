@@ -41,7 +41,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -59,9 +60,11 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -71,12 +74,14 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.BackupWordListActivity;
+import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -100,6 +105,13 @@ public class Utils {
       symbols.setGroupingSeparator(' ');
       FIAT_FORMAT.setDecimalFormatSymbols(symbols);
    }
+
+   public static final Function<AddressBookManager.Entry, Comparable> ENTRY_NAME = new Function<AddressBookManager.Entry, Comparable>() {
+      @Override
+      public Comparable apply(AddressBookManager.Entry input) {
+         return input.getName();
+      }
+   };
 
    @SuppressLint(Constants.IGNORE_NEW_API)
    public static void setAlpha(View view, float alpha) {
@@ -203,6 +215,13 @@ public class Utils {
    public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable postRunner) {
       String message = context.getResources().getString(messageResource);
       showSimpleMessageDialog(context, message, postRunner);
+   }
+
+   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks){
+      MbwManager mbwManager = MbwManager.getInstance(context);
+      PrettyTime p = new PrettyTime(new Locale(mbwManager.getLanguage()));
+      String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max(blocks, 1) * 10 * 60 * 1000));
+      return ret;
    }
 
    /**
@@ -501,19 +520,27 @@ public class Utils {
    }
 
    private static void wordlistBackup(final Activity parent) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-      builder.setMessage(R.string.backup_all_warning).setCancelable(true)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  BackupWordListActivity.callMe(parent);
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-         }
-      });
-      AlertDialog alertDialog = builder.create();
-      alertDialog.show();
+      MbwManager _mbwManager = MbwManager.getInstance(parent);
+      if (_mbwManager.getMetadataStorage().firstMasterseedBackupFinished()) {
+         // second+ backup
+         AdditionalBackupWarningActivity.callMe(parent);
+      }else{
+         // first backup
+         AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+         builder.setMessage(R.string.backup_all_warning).setCancelable(true)
+               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                     dialog.dismiss();
+                     BackupWordListActivity.callMe(parent);
+                  }
+               }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+         });
+         AlertDialog alertDialog = builder.create();
+         alertDialog.show();
+      }
+
    }
 
    public static void pinProtectedBackup(final Activity activity) {
@@ -611,27 +638,11 @@ public class Utils {
    }
 
    public static List<Address> sortAAddresses(List<Address> addresses) {
-      Comparator<Address> comparator = new Comparator<Address>() {
-         @Override
-         public int compare(Address lhs, Address rhs) {
-            return lhs.toString().compareTo(rhs.toString());
-         }
-      };
-      addresses = new ArrayList<Address>(addresses);
-      Collections.sort(addresses, comparator);
-      return addresses;
+      return Ordering.usingToString().sortedCopy(addresses);
    }
 
    public static List<AddressBookManager.Entry> sortAddressbookEntries(List<AddressBookManager.Entry> entries) {
-      Comparator<AddressBookManager.Entry> comparator = new Comparator<AddressBookManager.Entry>() {
-         @Override
-         public int compare(AddressBookManager.Entry lhs, AddressBookManager.Entry rhs) {
-            return lhs.getName().compareTo(rhs.getName());
-         }
-      };
-      entries = new ArrayList<AddressBookManager.Entry>(entries);
-      Collections.sort(entries, comparator);
-      return entries;
+      return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
 }

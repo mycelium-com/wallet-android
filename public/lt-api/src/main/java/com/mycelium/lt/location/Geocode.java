@@ -16,18 +16,32 @@
 
 package com.mycelium.lt.location;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class Geocode {
 
+   @JsonProperty
    private static final String COUNTRY = "country";
 
+   @JsonProperty
    public Collection<String> types = new ArrayList<String>();
+
+   @JsonProperty
    public String formattedAddress;
+
+   @JsonProperty
    public Collection<AddressComponent> addressComponents = new ArrayList<AddressComponent>();
+
+   @JsonProperty
    public Collection<String> postcodeLocalities = new ArrayList<String>();
+
+   @JsonProperty
    public Geometry geometry;
+
+   @JsonProperty
    public boolean partialMatch;
 
    public double getLatitude() {

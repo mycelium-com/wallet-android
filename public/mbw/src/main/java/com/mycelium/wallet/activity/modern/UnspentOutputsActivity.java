@@ -35,22 +35,15 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -61,11 +54,7 @@ public class UnspentOutputsActivity extends Activity {
 
    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
    private static final LinearLayout.LayoutParams FPWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-   private static final String BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE = "https://blockchain.info/address/";
-   private static final String BLOCKR_TESTNET_INFO_ADDRESS_LINK_TEMPLATE = "http://tbtc.blockr.io/address/info/";
 
-   private String _addressInfoTemplate;
-   private UrlClickListener _urlClickListener;
    private MbwManager _mbwManager;
    private UUID _accountid;
 
@@ -75,21 +64,14 @@ public class UnspentOutputsActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.unspent_outputs_activity);
 
-      _urlClickListener = new UrlClickListener();
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _accountid = (UUID) getIntent().getSerializableExtra("account");
-      if (_mbwManager.getNetwork().equals(NetworkParameters.testNetwork)) {
-         _addressInfoTemplate = BLOCKR_TESTNET_INFO_ADDRESS_LINK_TEMPLATE;
-      } else {
-         _addressInfoTemplate = BLOCKCHAIN_INFO_ADDRESS_LINK_TEMPLATE;
-      }
-
       updateUi();
    }
 
    private void updateUi() {
 
-      LinearLayout outputview = (LinearLayout) findViewById(R.id.listUnspentOutputs);
+      LinearLayout outputView = (LinearLayout) findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
       List<TransactionOutputSummary> outputs = account.getUnspentTransactionOutputSummary();
 
@@ -100,7 +82,7 @@ public class UnspentOutputsActivity extends Activity {
       }
 
       for (TransactionOutputSummary item : outputs) {
-         outputview.addView(getItemView(item));
+         outputView.addView(getItemView(item));
       }
    }
 
@@ -111,65 +93,24 @@ public class UnspentOutputsActivity extends Activity {
       ll.setLayoutParams(WCWC);
       ll.setPadding(10, 10, 10, 10);
 
-      String address = item.address.toString();
 
       // Add BTC value
-      ll.addView(getValue(item.value, address));
+      ll.addView(getValue(item.value));
 
-      // Add address chunks
-      String[] chunks = Utils.stringChopper(address, 12);
-      ll.addView(getAddressChunk(chunks[0], -1, address));
-      ll.addView(getAddressChunk(chunks[1], -1, address));
-      ll.addView(getAddressChunk(chunks[2], 0, address));
-
-      //Make address clickable
-      ll.setOnClickListener(_urlClickListener);
-      ll.setTag(_addressInfoTemplate + address);
+      AddressLabel addressLabel = new AddressLabel(this);
+      addressLabel.setAddress(item.address);
+      ll.addView(addressLabel);
 
       return ll;
    }
 
-   private View getValue(long value, Object tag) {
+   private View getValue(long value) {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
       tv.setText(_mbwManager.getBtcValueString(value));
       tv.setTextColor(getResources().getColor(R.color.white));
-      tv.setTag(tag);
       return tv;
    }
 
-   private TextView getAddressChunk(String chunk, int padding, Object tag) {
-      TextView tv = new TextView(this);
-      tv.setLayoutParams(FPWC);
-      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      setLinkText(tv, chunk);
-      tv.setTypeface(Typeface.MONOSPACE);
-      tv.setPadding(0, 0, 0, padding);
-      tv.setTag(tag);
-
-      return tv;
-   }
-
-   private void setLinkText(TextView tv, String text) {
-      SpannableString link = new SpannableString(text);
-      link.setSpan(new UnderlineSpan(), 0, text.length(), 0);
-      tv.setText(link);
-      tv.setTextColor(getResources().getColor(R.color.brightblue));
-   }
-
-   private class UrlClickListener implements View.OnClickListener {
-
-      @Override
-      public void onClick(View v) {
-         if (v.getTag() == null) {
-            return;
-         }
-         String url = v.getTag().toString();
-         Intent intent = new Intent(Intent.ACTION_VIEW);
-         intent.setData(Uri.parse(url));
-         startActivity(intent);
-         Toast.makeText(UnspentOutputsActivity.this, R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT).show();
-      }
-   }
 }

@@ -71,7 +71,7 @@ public class TradeActivityUtil {
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
       WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {
-         account.createUnsignedTransaction(Arrays.asList(receiver));
+         account.createUnsignedTransaction(Arrays.asList(receiver), mbwManager.getMinerFee().kbMinerFee);
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
@@ -86,7 +86,7 @@ public class TradeActivityUtil {
 
       // Create unsigned transaction
       UnsignedTransaction unsigned = createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc);
+            ts.buyerAddress, ts.feeAddress, acc, mbwManager.getMinerFee().kbMinerFee);
       Transaction tx;
       try {
          tx = acc.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
@@ -98,7 +98,7 @@ public class TradeActivityUtil {
    }
 
    private static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
-         Address buyerAddress, Address feeAddress, WalletAccount acc) {
+         Address buyerAddress, Address feeAddress, WalletAccount acc, long minerFeeToUse) {
       Preconditions.checkArgument(satoshisForBuyer > TransactionUtils.MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
@@ -108,7 +108,7 @@ public class TradeActivityUtil {
          receiver.add(new WalletAccount.Receiver(feeAddress, localTraderFee));
       }
       try {
-         return acc.createUnsignedTransaction(receiver);
+         return acc.createUnsignedTransaction(receiver, minerFeeToUse);
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {

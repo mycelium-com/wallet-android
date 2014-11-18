@@ -342,6 +342,7 @@ public class StartupActivity extends Activity {
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      //todo make sure delayed init has finished (ev mit countdownlatch)
       if (requestCode == IMPORT_WORDLIST) {
          if (resultCode != RESULT_OK) {
             //user cancelled the import, so just ask what he wants again

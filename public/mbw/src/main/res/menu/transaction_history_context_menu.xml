@@ -3,6 +3,12 @@
       xmlns:yourapp="http://schemas.android.com/apk/res-auto">
 
     <item
+            android:id="@+id/miSetLabel"
+            android:title="@string/set_label"
+            yourapp:showAsAction="ifRoom|withText"
+            android:icon="@drawable/holo_dark_ic_action_labels"/>
+
+    <item
             android:id="@+id/miShowDetails"
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/show_details"/>
@@ -11,9 +17,5 @@
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/add_to_addressbook"/>
 
-    <item
-            android:id="@+id/miSetLabel"
-            android:title="@string/set_label"
-            android:icon="@drawable/holo_dark_ic_action_labels"/>
 
 </menu>
