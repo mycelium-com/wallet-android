@@ -35,12 +35,12 @@
 package com.mycelium.wallet.api;
 
 import android.os.Handler;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
+import com.mycelium.wapi.api.Wapi;
 import com.squareup.otto.Bus;
 
 public class AndroidAsyncApi extends AsynchronousApi {
 
-   public AndroidAsyncApi(MyceliumWalletApi api, Bus bus) {
+   public AndroidAsyncApi(Wapi api, Bus bus) {
       super(api, bus);
    }
 

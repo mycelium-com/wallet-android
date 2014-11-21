@@ -186,7 +186,6 @@
   <string name="verify_backup_message_text_1">ビットコインを管理する際、正しくバックアップを行うことは不可欠です。\nバックアップが確認されていない一つまたは複数のビットコインの秘密鍵またはマスターシードがあります。\n\nバックアップを行うために、バックアップオプションを選択してください。</string>
   <string name="verify_backup_message_text_2">次にバックアップのオプションを確認し、バックアップを確認して下さい。</string>
   <string name="encrypted_pdf_backup_title">暗号化されたPDFバックアップ</string>
-  <string name="encrypted_pdf_backup_description">暗号化された秘密鍵とマスターシードをPDFドキュメントファイルにバックアップします。\n PDFドキュメントはEメールまたはインストールされているファイルをシェアするアプリ、例えばDropboxなどのアプリでも安全に共有することができます。これはあなたの鍵が暗号化されているためです。</string>
   <string name="encrypted_pdf_backup_password_description_1">これはバックアップを暗号化するために使われているランダムなチェックサムのパスワードです。</string>
   <string name="encrypted_pdf_backup_password_description_2">このバックアップに対してパスワードを閲覧できる唯一の機会になります。\n次回のバックアップでは異なるパスワードが使われます。\n書き留めて保管して下さい!</string>
   <string name="encrypted_pdf_backup_stretching">暗号キーを準備しています&#8230;</string>

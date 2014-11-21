@@ -32,8 +32,8 @@
   <string name="amount_label">Betrag</string>
   <string name="amount_title">Betrag</string>
   <string name="enter_amount_title">Betrag eingeben</string>
-  <string name="max_btc">Maximalbetrag:%1$s</string>
-  <string name="max_fiat">Sie können maximal %1$s %2$s ausgeben</string>
+  <string name="max_btc">Maximalbetrag: %1$s</string>
+  <string name="max_fiat">Maximalbetrag: %1$s %2$s</string>
   <string name="qr_code">QR-Code</string>
   <string name="my_addresses">Meine Adressen</string>
   <string name="insufficient_funds">Zu wenig Bitcoins</string>
@@ -100,7 +100,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="pref_socks_proxy_not_enabled">SOCKS-Proxy (nicht aktiviert)</string>
   <string name="pref_socks_proxy_summary">Kommunikation durch restriktiv eingestellte Firewall oder durch Tor über Orbot. Host-Namen und Port eingeben, z. Bsp.\'localhost:9050\'</string>
   <string name="settings">Einstellungen</string>
-  <string name="pin_backup_first">Eine PIN erst eingegeben werden, nachdem Sie ein Backup von Ihrem Master Seed erstellt haben.</string>
+  <string name="pin_backup_first">Eine PIN kann erst eingegeben werden, nachdem Sie ein Backup von Ihrem Master Seed erstellt haben.</string>
   <string name="pin_invalid_pin">Ungültiger PIN-Code</string>
   <string name="pin_enter_pin">PIN-Code eingeben</string>
   <string name="pin_cleared">PIN-Code gelöscht</string>
@@ -188,7 +188,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="verify_backup_message_text_1">Ein korrektes Backup ist eine wichtige Grundlage beim Umgang mit Ihren Bitcoins. \nSIe haben eine oder mehrere Bitcoin private Schlüssel oder ein Master Seed, deren Backup noch nicht verifiziert wurde.\n\nBitte wählen Sie die Backup-Option, um eine Sicherungskopie zu erstellen.</string>
   <string name="verify_backup_message_text_2">Dann die Backup überprüfen Option wählen und das Backup überprüfen.</string>
   <string name="encrypted_pdf_backup_title">Verschlüsseltes PDF Backup</string>
-  <string name="encrypted_pdf_backup_description">Sie dabei, ein verschlüsseltes PDF-Dokument als Backup Ihrer privaten Schlüssel und Master Seed zu erstellen.\nDa Ihre Daten verschlüsselt sind, kann dieses PDF-Dokument sicher per Email oder über einen Cloud-Speicher wie zum Beispiel Dropbox verteilt werden, .</string>
   <string name="encrypted_pdf_backup_password_description_1">Das ist das Zufallspasswort mit Prüfsumme zum Verschlüsseln des Backups.</string>
   <string name="encrypted_pdf_backup_password_description_2">Das ist Ihre einzige Chance, das Passwort für dieses Backup zu sehen.\nFür Ihr nächstes Backup wird ein anderes Passwort verwendet.\nNotieren Sie es und bewahren Sie es an einem sicheren Ort auf!</string>
   <string name="encrypted_pdf_backup_stretching">Verschlüsselungsschlüssel wird vorbereitet&#8230;</string>

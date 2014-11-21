@@ -18,7 +18,7 @@ buildscript {
 dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
     compile project(':public:zxing-android')
-    compile project(':public:mbwapi')
+//    compile project(':public:mbwapi')
     compile project(':public:bitlib')
     compile project(':public:wapi')
     compile project(':public:lt-api')
@@ -56,8 +56,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 21000
-        versionName  '2.1.0-BETA'
+        versionCode 21002
+        versionName  '2.1.0-BETA1'
     }
 
     signingConfigs {

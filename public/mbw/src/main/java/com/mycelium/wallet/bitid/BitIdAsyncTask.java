@@ -44,8 +44,8 @@ import com.google.common.io.InputSupplier;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
 import com.mycelium.wallet.AndroidRandomSource;
+import com.mycelium.wallet.Constants;
 import com.squareup.otto.Bus;
 
 import java.io.BufferedWriter;
@@ -87,8 +87,8 @@ public class BitIdAsyncTask extends AsyncTask<Void, Integer, BitIDResponse> {
          final HttpURLConnection conn = (HttpURLConnection) new URL(request.getCallbackUri()).openConnection();
          //todo evaluate enforceSslCorrectness to disable verification stuff if false (and remove setting it to true)
          enforceSslCorrectness = true;
-         conn.setReadTimeout(MyceliumWalletApi.SHORT_TIMEOUT_MS);
-         conn.setConnectTimeout(MyceliumWalletApi.SHORT_TIMEOUT_MS);
+         conn.setReadTimeout(Constants.SHORT_HTTP_TIMEOUT_MS);
+         conn.setConnectTimeout(Constants.SHORT_HTTP_TIMEOUT_MS);
          conn.setRequestMethod("POST");
          conn.setRequestProperty("Content-Type", "application/json");
          conn.setDoInput(true);

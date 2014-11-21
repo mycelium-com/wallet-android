@@ -32,6 +32,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
@@ -496,36 +497,61 @@ public abstract class AbstractAccount implements WalletAccount {
       List<Sha256Hash> broadcastedIds = new LinkedList<Sha256Hash>();
       List<byte[]> transactions = _backing.getOutgoingTransactions();
       for (byte[] rawTransaction : transactions) {
-         try {
-            BroadcastTransactionResponse result = _wapi.broadcastTransaction(
-                  new BroadcastTransactionRequest(Wapi.VERSION, rawTransaction)).getResult();
-            TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
-            if (result.success) {
-               broadcastedIds.add(tex.txid);
-               postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
-            } else {
-               // This transaction was rejected must be double spend or
-               // malleability, delete it locally.
-               _backing.deleteTransaction(tex.txid);
-               _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
-               postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-               // Unspent outputs will get synchronized automatically on next
-               // synchronization
-            }
+         TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
+
+         BroadcastResult result = broadcastTransaction(TransactionEx.toTransaction(tex));
+         if (result == BroadcastResult.SUCCESS){
+            broadcastedIds.add(tex.txid);
             _backing.removeOutgoingTransaction(tex.txid);
-
-         } catch (WapiException e) {
-            postEvent(Event.SERVER_CONNECTION_ERROR);
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-            // We failed to broadcast it now, leave it in the queue for later
-            return false;
+         }else{
+            if (result == BroadcastResult.REJECTED) {
+               // invalid tx
+               _backing.deleteTransaction(tex.txid);
+               _backing.removeOutgoingTransaction(tex.txid);
+            }else{
+               // No connection --> retry next sync
+            }
          }
-
       }
       if (!broadcastedIds.isEmpty()) {
          onTransactionsBroadcasted(broadcastedIds);
       }
       return true;
+   }
+
+   @Override
+   public synchronized BroadcastResult broadcastTransaction(Transaction transaction) {
+      checkNotArchived();
+      try {
+         WapiResponse<BroadcastTransactionResponse> response = _wapi.broadcastTransaction(
+               new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes()));
+         if (response.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
+            if (response.getResult().success) {
+               markTransactionAsSpent(transaction);
+               postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
+               return BroadcastResult.SUCCESS;
+            } else {
+               // This transaction was rejected must be double spend or
+               // malleability, delete it locally.
+               _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
+               postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
+               return BroadcastResult.REJECTED;
+            }
+         }else if (response.getErrorCode() == Wapi.ERROR_CODE_NO_SERVER_CONNECTION){
+            postEvent(Event.SERVER_CONNECTION_ERROR);
+            _logger.logError("Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
+            return BroadcastResult.NO_SERVER_CONNECTION;
+         }else{
+            postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
+            _logger.logError("Server connection failed with error: " + response.getErrorCode());
+            return BroadcastResult.REJECTED;
+         }
+
+      } catch (WapiException e) {
+         postEvent(Event.SERVER_CONNECTION_ERROR);
+         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+         return BroadcastResult.NO_SERVER_CONNECTION;
+      }
    }
 
    protected void checkNotArchived() {
@@ -590,31 +616,6 @@ public abstract class AbstractAccount implements WalletAccount {
       // Apply signatures and finalize transaction
       Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
       return transaction;
-   }
-
-   @Override
-   public synchronized BroadcastResult broadcastTransaction(Transaction transaction) {
-      checkNotArchived();
-      try {
-         BroadcastTransactionResponse result = _wapi.broadcastTransaction(
-               new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes())).getResult();
-         TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(transaction);
-         if (result.success) {
-            markTransactionAsSpent(transaction);
-            postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
-            return BroadcastResult.SUCCESS;
-         } else {
-            // This transaction was rejected must be double spend or
-            // malleability, delete it locally.
-            _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
-            postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-            return BroadcastResult.REJECTED;
-         }
-      } catch (WapiException e) {
-         postEvent(Event.SERVER_CONNECTION_ERROR);
-         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-         return BroadcastResult.NO_SERVER_CONNECTION;
-      }
    }
 
    public synchronized void queueTransaction(Transaction transaction) {

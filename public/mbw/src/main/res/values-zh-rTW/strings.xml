@@ -187,7 +187,6 @@
   <string name="verify_backup_message_text_1">擁有一份正確備份是你保護您的比特幣資金重要手段。 \n您有一個或多個比特幣私有密鑰或一個主種子的備份尚未驗證.\n\n請選擇備份選項來做一個備份。</string>
   <string name="verify_backup_message_text_2">然後選擇驗證備份選項並驗證您的備份</string>
   <string name="encrypted_pdf_backup_title">加密的PDF備份</string>
-  <string name="encrypted_pdf_backup_description">您將要以PDF文檔格式備份您的加密私鑰和主種子。 \n這個PDF文檔可以安全地使用電子郵件或已經安裝文件共享應用程序進行共享，如Dropbox。這是因為它是用您的密鑰進行加密得。</string>
   <string name="encrypted_pdf_backup_password_description_1">這是用於加密此備份的隨機密碼</string>
   <string name="encrypted_pdf_backup_password_description_2">這是您查看此備份的密碼的唯一機會\n您下一次備份的密碼會使用不同的密碼\n把它寫一下和保證它的安全</string>
   <string name="encrypted_pdf_backup_stretching">正在準備加密密鑰</string>

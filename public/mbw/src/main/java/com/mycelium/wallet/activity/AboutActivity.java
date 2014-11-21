@@ -55,13 +55,13 @@ import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.mbwapi.api.ApiError;
-import com.mrd.mbwapi.api.WalletVersionResponse;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.response.VersionInfoResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 public class AboutActivity extends Activity {
@@ -85,13 +85,13 @@ public class AboutActivity extends Activity {
          public void onClick(View v) {
             final ProgressDialog progress = ProgressDialog.show(AboutActivity.this, getString(R.string.update_check),
                   getString(R.string.please_wait), true);
-            versionManager.forceCheckForUpdate(new AbstractCallbackHandler<WalletVersionResponse>() {
+            versionManager.forceCheckForUpdate(new AbstractCallbackHandler<VersionInfoResponse>() {
                @Override
-               public void handleCallback(WalletVersionResponse response, ApiError exception) {
+               public void handleCallback(VersionInfoResponse response, WapiException exception) {
                   progress.dismiss();
                   if (exception != null) {
                      new Toaster(AboutActivity.this).toast(R.string.version_check_failed, false);
-                     mbwManager.reportIgnoredException(new RuntimeException(exception.errorMessage));
+                     mbwManager.reportIgnoredException(new RuntimeException("WapiException: " + String.valueOf(exception.errorCode)));
                   } else {
                      showVersionInfo(versionManager, response);
                   }
@@ -142,7 +142,7 @@ public class AboutActivity extends Activity {
       }
    };
 
-   private void showVersionInfo(VersionManager versionManager, WalletVersionResponse response) {
+   private void showVersionInfo(VersionManager versionManager, VersionInfoResponse response) {
       if (versionManager.isSameVersion(response.versionNumber)) {
          new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, response.versionNumber))
                .setTitle(getString(R.string.update_check))

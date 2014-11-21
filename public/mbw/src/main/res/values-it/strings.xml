@@ -186,7 +186,6 @@
   <string name="verify_backup_message_text_1">Un corretto backup è basilare per la gestione dei tuoi fondi in Bitcoin.\nPossiedi una o più chiavi private Bitcoin o un master seed il cui backup non è stato verificato.\n\nSi consiglia di selezionare l\'opzione di backup.</string>
   <string name="verify_backup_message_text_2">Quindi selezionare l\'opzione di verifica del backup per effettuare il controllo.</string>
   <string name="encrypted_pdf_backup_title">Backup in PDF crittografato</string>
-  <string name="encrypted_pdf_backup_description">Stai per effettuare il backup delle tue chiavi private crittografate e master seed in un documento PDF.\nIl documento PDF può essere condiviso in sicurezza via email o applicazioni di file hosting, come Dropbox. Questo è possibile perché le tue chiavi sono crittate.</string>
   <string name="encrypted_pdf_backup_password_description_1">Questa è la password casuale con il checksum utilizzato per crittografare il backup.</string>
   <string name="encrypted_pdf_backup_password_description_2">Questa è l\'unica opportunità per visualizzare la password di questo backup.\nIl backup successivo userà una password diversa.\nAnnotala e mettila al sicuro!</string>
   <string name="encrypted_pdf_backup_stretching">Elaborazione della chiave di crittazione&#8230;</string>
@@ -508,4 +507,6 @@
   <string name="title_upgrade_info">Mycelium 2.0</string>
   <string name="button_continue">Continua</string>
   <string name="butto_show_release_notes">Mostra dettagli</string>
+  <string name="pin_forgotten_reset_pin_dialog_title">Ripristino Pin</string>
+  <string name="pin_forgotten_reset_wait_button_text">Attendere %s</string>
 </resources>

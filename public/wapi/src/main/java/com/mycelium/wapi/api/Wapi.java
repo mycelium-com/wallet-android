@@ -103,7 +103,20 @@ public interface Wapi {
 
    /**
     * Check if the wapi-service is running
-    * <p>
+    *
     */
    WapiResponse<PingResponse> ping();
+
+   /**
+    * Report a app crash back to the server which sends a mail to the devolopers
+    *
+    */
+   WapiResponse<ErrorCollectorResponse> collectError(ErrorCollectorRequest request);
+
+   /**
+    * Get the current version-number, to check if there is an update available
+    *
+    */
+   WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request);
+
 }

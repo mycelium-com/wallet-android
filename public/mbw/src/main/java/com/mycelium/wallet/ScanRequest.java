@@ -36,12 +36,15 @@ package com.mycelium.wallet;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
@@ -73,6 +76,7 @@ public class ScanRequest implements Serializable {
       request.privateKeyAction = PrivateKeyAction.RETURN;
       request.addressAction = AddressAction.RETURN;
       request.bitcoinUriAction = BitcoinUriAction.RETURN_ADDRESS;
+      request.sssShareAction = SssShareAction.START_COMBINING;
       return request;
    }
 
@@ -81,6 +85,7 @@ public class ScanRequest implements Serializable {
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
       request.addressAction = AddressAction.CHECK_BALANCE;
       request.bitcoinUriAction = BitcoinUriAction.CHECK_BALANCE;
+      request.sssShareAction = SssShareAction.START_COMBINING;
       return request;
    }
 
@@ -99,8 +104,15 @@ public class ScanRequest implements Serializable {
       request.bitIdAction = BitIdAction.LOGIN;
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
       request.websiteAction = WebsiteAction.OPEN_BROWSER;
+      request.sssShareAction = SssShareAction.START_COMBINING;
       //at the moment, we just support wordlist backups
       //request.masterSeedAction = MasterSeedAction.IMPORT;
+      return request;
+   }
+
+   public static ScanRequest getShare() {
+      ScanRequest request = new ScanRequest();
+      request.sssShareAction = SssShareAction.RETURN_SHARE;
       return request;
    }
 
@@ -374,6 +386,40 @@ public class ScanRequest implements Serializable {
       }
    }
 
+   public enum SssShareAction implements Action {
+      START_COMBINING {
+         @Override
+      public boolean handle(ScanActivity scanActivity, String content) {
+            if (!content.startsWith(BipSss.Share.SSS_PREFIX)) {
+               return false;
+            }
+            BipSss.Share share = BipSss.Share.fromString(content);
+            if (null == share) {
+               scanActivity.finishError(R.string.error_invalid_sss_share, content);
+            } else {
+               BipSsImportActivity.callMe(scanActivity, share, ScanActivity.IMPORT_SSS_CONTENT_CODE);
+               //dont finish, we wait for result
+            }
+            return true;
+         }
+      },
+      RETURN_SHARE {
+         @Override
+         public boolean handle(ScanActivity scanActivity, String content) {
+            if (!content.startsWith(BipSss.Share.SSS_PREFIX)) {
+               return false;
+            }
+            BipSss.Share share = BipSss.Share.fromString(content);
+            if (null == share) {
+               scanActivity.finishError(R.string.error_invalid_sss_share, content);
+            } else {
+               scanActivity.finishOk(share);
+            }
+            return true;
+         }
+      }
+   }
+
    public enum MasterSeedAction implements Action {
       VERIFY {
          @Override
@@ -438,9 +484,10 @@ public class ScanRequest implements Serializable {
    public Action bitIdAction = Action.NONE;
    public Action websiteAction = Action.NONE;
    public Action masterSeedAction = Action.NONE;
+   public Action sssShareAction = Action.NONE;
 
    public List<Action> getAllActions() {
-      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction);
+      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction);
    }
 
 }

@@ -186,7 +186,6 @@
   <string name="verify_backup_message_text_1">Sans sauvegarde, si votre téléphone est perdu, volé ou détruit, vous perdrez tout votre argent !\n Au moins une de vos master seeds ou de vos clés Bitcoin n\'a pas été correctement sauvegardée.\n\n Veuillez sélectionner l\'option Sauvegarde.</string>
   <string name="verify_backup_message_text_2">Sélectionner l\'option vérification de sauvegarde, puis vérifier.</string>
   <string name="encrypted_pdf_backup_title">Sauvegarde sur PDF</string>
-  <string name="encrypted_pdf_backup_description">Vous allez sauvegardez vos clés privées et votre master seed dans un document PDF.\n Ce document PDF peut parfaitement être échangé par email, messagerie instantanée ou des applications de partage de fichiers comme Dropbox, car il est encrypté.</string>
   <string name="encrypted_pdf_backup_password_description_1">Ceci est le mot de passe aléatoire et son code de contrôle utilisés pour le chiffrage de cette sauvegarde.</string>
   <string name="encrypted_pdf_backup_password_description_2">C\'est maintenant votre seule chance de visualiser le mot de passe de cette sauvegarde.\nVos prochaines sauvegardes auront un mot de passe différent.\nInscrivez-le en lieu sûr!</string>
   <string name="encrypted_pdf_backup_stretching">Préparation d\'une clé chiffrée&#8230;</string>

@@ -81,7 +81,7 @@ public class TransactionUtils {
       if (txPriority > HIGH_PRIORITY_THRESHOLD && minOutoutSize >= HIGH_PRIORITY_MIN_OUTPUT_SIZE
             && txSize < HIGH_PRIORITY_MAX_TX_SIZE) {
          // High priority transaction, can be sent without a fee
-         return true;
+         return false;
       }
 
       // A fee is required, does it pay enough fees?

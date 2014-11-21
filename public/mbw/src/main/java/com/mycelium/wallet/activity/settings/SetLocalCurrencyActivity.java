@@ -51,8 +51,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
-import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.wallet.R;
+import com.mycelium.wapi.api.lib.CurrencyCode;
 
 public class SetLocalCurrencyActivity extends Activity {
 

@@ -45,6 +45,9 @@ public class Constants {
    public static final long MS_PR_HOUR = MS_PR_MINUTE * 60;
    public static final long MS_PR_DAY = MS_PR_HOUR * 24;
 
+
+   public static final int SHORT_HTTP_TIMEOUT_MS = 4000;
+
    /**
     * The number of transactions to display in our transaction history. The
     * higher the number the more bandwidth we require from the smartphone.

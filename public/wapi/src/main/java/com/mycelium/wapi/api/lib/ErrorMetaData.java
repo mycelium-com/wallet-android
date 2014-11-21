@@ -32,51 +32,38 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.api;
+package com.mycelium.wapi.api.lib;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.io.Serializable;
 
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.Sha256Hash;
+public class ErrorMetaData implements Serializable{
+   private static final long serialVersionUID = 1L;
+   public static final ErrorMetaData DUMMY = new ErrorMetaData(0, 0, "junit", "junit", "junit", "junit");
+   private final int totalMemory;
+   private final int sdk_level;
+   private final String model;
+   private final String vendor;
+   private final String version;
+   private final String device;
 
-public class QueryTransactionSummaryRequest extends ApiObject {
-   // The maximum number of transaction IDs to query. No more than this number
-   // of transactions can
-   // be queried.
-   public static final int MAXIMUM_TRANSACTIONS = 100;
-
-   public List<Sha256Hash> transactionHashes;
-
-   public QueryTransactionSummaryRequest(List<Sha256Hash> transactionHashes) {
-      this.transactionHashes = transactionHashes;
-   }
-
-   protected QueryTransactionSummaryRequest(ByteReader reader) throws InsufficientBytesException {
-      transactionHashes = new LinkedList<Sha256Hash>();
-      int num = reader.getIntLE();
-      for (int i = 0; i < num; i++) {
-         Sha256Hash hash = reader.getSha256Hash();
-         transactionHashes.add(hash);
-      }
-      // Payload may contain more, but we ignore it for forwards
-      // compatibility
+   public ErrorMetaData(int totalMemory, int sdk_level, String model, String vendor, String version, String device) {
+      this.totalMemory = totalMemory;
+      this.sdk_level = sdk_level;
+      this.model = model;
+      this.vendor = vendor;
+      this.version = version;
+      this.device = device;
    }
 
    @Override
-   protected ByteWriter toByteWriter(ByteWriter writer) {
-      writer.putIntLE(transactionHashes.size());
-      for (Sha256Hash hash : transactionHashes) {
-         writer.putSha256Hash(hash);
-      }
-      return writer;
+   public String toString() {
+      return "ErrorMetaData{" +
+            "totalMemory=" + totalMemory +
+            ", sdk_level=" + sdk_level +
+            ", model='" + model + '\'' +
+            ", vendor='" + vendor + '\'' +
+            ", version='" + version + '\'' +
+            ", device='" + device + '\'' +
+            '}';
    }
-
-   @Override
-   protected byte getType() {
-      return ApiObject.TRANSACTION_SUMMARY_REQUEST_TYPE;
-   }
-
 }

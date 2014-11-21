@@ -32,60 +32,33 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.api;
+package com.mycelium.wapi.wallet;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.wapi.api.WapiLogger;
 
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
+public abstract class Node3Test {
 
-public class AddressOutputState {
-   public Address address;
-   public Set<OutPoint> confirmed;
-   public Set<OutPoint> receiving;
-   public Set<OutPoint> sending;
+   protected final WapiClient.HttpsEndpoint endpoint = new  WapiClient.HttpsEndpoint(
+         "https://node3.mycelium.com/wapitestnet", "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F");
 
-   public AddressOutputState(Address address, Set<OutPoint> confirmed, Set<OutPoint> receiving, Set<OutPoint> sending) {
-      this.address = address;
-      this.confirmed = confirmed;
-      this.receiving = receiving;
-      this.sending = sending;
-   }
-
-   public AddressOutputState(ByteReader reader) throws InsufficientBytesException {
-      byte[] addressBytes = reader.getBytes(21);
-      address = new Address(addressBytes);
-      confirmed = outPointSetFromReader(reader);
-      receiving = outPointSetFromReader(reader);
-      sending = outPointSetFromReader(reader);
-   }
-
-   private static Set<OutPoint> outPointSetFromReader(ByteReader reader) throws InsufficientBytesException {
-      int size = reader.getIntLE();
-      Set<OutPoint> list = new HashSet<OutPoint>(size);
-      for (int i = 0; i < size; i++) {
-         list.add(new OutPoint(reader));
+   protected final WapiLogger log = new WapiLogger() {
+      @Override
+      public void logError(String message, Exception e) {
+         //
       }
-      return list;
-   }
 
-   private static void outPointSetToWriter(Set<OutPoint> outPoints, ByteWriter writer) {
-      writer.putIntLE(outPoints.size());
-      for (OutPoint outPoint : outPoints) {
-         outPoint.toByteWriter(writer);
+      @Override
+      public void logError(String message) {
+         //
       }
-   }
 
-   public ByteWriter toByteWriter(ByteWriter writer) {
-      writer.putBytes(address.getAllAddressBytes());
-      outPointSetToWriter(confirmed, writer);
-      outPointSetToWriter(receiving, writer);
-      outPointSetToWriter(sending, writer);
-      return writer;
-   }
+      @Override
+      public void logInfo(String message) {
+         //
+      }
+   };
+
+   protected final WapiClient api = new WapiClient(new WapiClient.HttpEndpoint[]{endpoint}, log);
 
 }

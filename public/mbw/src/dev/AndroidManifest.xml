@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet">
 
+    <!--  Note that the permission below depends on the package and must be changed for each build target -->
+    <permission android:name="com.mycelium.devwallet.permission.C2D_MESSAGE"
+                android:protectionLevel="signature" />
+    <uses-permission android:name="com.mycelium.devwallet.permission.C2D_MESSAGE" />
+
     <application>
         <!--file provider to enable secure intent sharing for encrypted backups-->
         <provider

@@ -187,7 +187,6 @@
   <string name="verify_backup_message_text_1">拥有一份正确备份是你保护您的比特币资金重要手段。 \n您有一个或多个比特币私有密钥或一个主种子的备份尚未验证.\n\n请选择备份选项来做一个备份。</string>
   <string name="verify_backup_message_text_2">然后选择验证备份选项并验证您的备份</string>
   <string name="encrypted_pdf_backup_title">加密的PDF备份</string>
-  <string name="encrypted_pdf_backup_description">您将要以PDF文档格式备份您的加密私钥和主种子。 \n这个PDF文档可以安全地使用电子邮件或已经安装文件共享应用程序进行共享，如 Dropbox。这是因为它是用您的密钥进行加密得。</string>
   <string name="encrypted_pdf_backup_password_description_1">这是用于加密此备份的随机密码</string>
   <string name="encrypted_pdf_backup_password_description_2">这是您查看此备份的密码的唯一机会\n您下一次备份的密码会使用不同的密码\n把它写一下和保证它的安全</string>
   <string name="encrypted_pdf_backup_stretching">正在准备加密密钥</string>

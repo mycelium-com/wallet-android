@@ -37,8 +37,6 @@ package com.mycelium.wallet;
 import android.util.Log;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
-import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.lt.api.LtApiClient.Logger;
@@ -53,31 +51,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
     */
    private static final String myceliumThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
 
-
-   /**
-    * The set of endpoints we use for prodnet. The wallet chooses a random
-    * endpoint and if it does not respond it round-robins through the list. This
-    * way we achieve client side load-balancing and fail-over.
-    *
-    * Three redundant Mycelium wallet service servers for prodnet, one by DNS, one by IP
-    */
-   private static final MyceliumWalletApiImpl.HttpEndpoint[] prodnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] {
-         // node2
-         new MyceliumWalletApiImpl.HttpsEndpoint("https://mws2.mycelium.com/mws", myceliumThumbprint),
-         new MyceliumWalletApiImpl.HttpsEndpoint("https://88.198.17.7/mws", myceliumThumbprint),
-
-         // node6
-         new MyceliumWalletApiImpl.HttpsEndpoint("https://mws6.mycelium.com/mws", myceliumThumbprint),
-         new MyceliumWalletApiImpl.HttpsEndpoint("https://88.198.9.165/mws", myceliumThumbprint),
-
-         // node7
-         new MyceliumWalletApiImpl.HttpsEndpoint("https://mws7.mycelium.com/mws", myceliumThumbprint),
-         new MyceliumWalletApiImpl.HttpsEndpoint("https://46.4.3.125/mws", myceliumThumbprint),
-   };
-
-
-   private static final MyceliumWalletApiImpl prodnetApi = new MyceliumWalletApiImpl(prodnetServerEndpoints,
-         NetworkParameters.productionNetwork);
 
    /**
     * Local Trader API for prodnet
@@ -107,11 +80,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;
-   }
-
-   @Override
-   public MyceliumWalletApi getMwsApi() {
-      return prodnetApi;
    }
 
    @Override

@@ -29,6 +29,8 @@ public class WapiConst {
       public static final String CHECK_TRANSACTIONS = "checkTransactions";
       public static final String QUERY_EXCHANGE_RATES = "queryExchangeRates";
       public static final String PING = "ping";
+      public static final String COLLECT_ERROR = "collectError";
+      public static final String GET_VERSION_INFO = "getVersion";
    }
 
 }

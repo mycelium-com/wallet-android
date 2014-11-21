@@ -39,22 +39,18 @@ import java.math.BigDecimal;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.mbwapi.api.ExchangeRate;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
-import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.squareup.otto.Subscribe;
 
 public class GetReceivingAmountActivity extends Activity implements NumberEntryListener {

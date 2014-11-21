@@ -32,65 +32,30 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.util;
+package com.mycelium.wapi.wallet;
 
-import com.mrd.bitlib.model.Address;
-import com.mrd.mbwapi.api.TransactionSummary;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.request.VersionInfoRequest;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import java.util.Set;
+import java.util.Locale;
 
-public enum TransactionType {
+import static org.junit.Assert.assertEquals;
 
-   ReceivedFromOthers {
-      @Override
-      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
-         return TransactionSummaryUtils.getSenders(record);
-      }
+public class UpdateCheckTest extends Node3Test{
 
-      @Override
-      public String singleForeignAddress(TransactionSummary tx, Set<Address> addressSet) {
-         String[] candidates = TransactionSummaryUtils.getSenders(tx);
-         if (candidates.length != 1) {
-            return null;
-         }
-         return candidates[0];
-      }
-
-   }, SentToOthers {
-      @Override
-      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
-         return TransactionSummaryUtils.getReceiversNotMe(record, addressSet);
-      }
-
-      @Override
-      public String singleForeignAddress(TransactionSummary tx, Set<Address> addressSet) {
-         String[] candidates = TransactionSummaryUtils.getReceiversNotMe(tx, addressSet);
-         if (candidates.length != 1) {
-            return null;
-         }
-         return candidates[0];
-      }
-
-   }, SentToSelf {
-      @Override
-      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
-         return EMPTY_STRING_ARRAY;
-      }
-
-   }, Mining {
-      @Override
-      public String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet) {
-         return TransactionSummaryUtils.getReceiversMe(record, addressSet);
-      }
-   };
-
-
-   public String singleForeignAddress(TransactionSummary tx, Set<Address> addressSet) {
-      //implementation valid for SentToSelf + Mining
-      return null;
+   @Test
+   @Ignore
+   public void testUpdateCheck() throws WapiException {
+      //      WalletVersionResponse response = api.getVersionInfo(new WalletVersionRequest("1.2.0rc1", Locale.GERMAN));
+      String versionResponse = api.getVersionInfo(new VersionInfoRequest("1.0.0", Locale.GERMAN)).getResult().versionNumber;
+      assertEquals("2.0.5",versionResponse);
+      versionResponse = api.getVersionInfo(new VersionInfoRequest("1.0.0-TESTNET", Locale.GERMAN)).getResult().versionNumber;
+      assertEquals("2.0.5-TESTNET",versionResponse);
+      versionResponse = api.getVersionInfo(new VersionInfoRequest("1.2.0", Locale.GERMAN)).getResult().versionNumber;
+      assertEquals("2.0.5",versionResponse);
+      versionResponse = api.getVersionInfo(new VersionInfoRequest("1.2.0rc1", Locale.GERMAN)).getResult().versionNumber;
+      assertEquals("1.2.0rc1",versionResponse);
    }
-
-   public abstract String[] relevantAddresses(TransactionSummary record, Set<Address> addressSet);
-
-   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 }

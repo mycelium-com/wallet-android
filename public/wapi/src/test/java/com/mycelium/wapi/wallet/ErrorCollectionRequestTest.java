@@ -32,70 +32,24 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.api;
+package com.mycelium.wapi.wallet;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.lib.ErrorMetaData;
+import com.mycelium.wapi.api.request.ErrorCollectorRequest;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import com.google.common.base.Joiner;
+import java.io.IOException;
 
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
+public class ErrorCollectionRequestTest extends Node3Test {
 
-public class QueryTransactionInventoryRequest extends ApiObject {
-   // The maximum value for limit. No more than this number of transactions can
-   // be retrieved
-   public static final int MAXIMUM = 100;
+   @Test
+   @Ignore
+   public void testSendRealMail2() throws WapiException, IOException {
 
-   public List<Address> addresses;
-   public int limit;
+      api.collectError(new ErrorCollectorRequest(new RuntimeException("fresh test from junit to node1"), "-1", ErrorMetaData.DUMMY));
 
-   public QueryTransactionInventoryRequest(List<Address> addresses, int limit) {
-      this.addresses = addresses;
-      this.limit = limit;
-   }
-
-   public QueryTransactionInventoryRequest(Address address, int limit) {
-      this.addresses = new ArrayList<Address>(1);
-      this.addresses.add(address);
-      this.limit = limit;
-   }
-
-   protected QueryTransactionInventoryRequest(ByteReader reader) throws InsufficientBytesException {
-      int num = reader.getIntLE();
-      addresses = new ArrayList<Address>(num);
-      for (int i = 0; i < num; i++) {
-         byte[] addressBytes = reader.getBytes(21);
-         addresses.add(new Address(addressBytes));
-      }
-      limit = reader.getIntLE();
-      // Payload may contain more, but we ignore it for forwards
-      // compatibility
-   }
-
-   @Override
-   protected ByteWriter toByteWriter(ByteWriter writer) {
-      writer.putIntLE(addresses.size());
-      for (Address address : addresses) {
-         writer.putBytes(address.getAllAddressBytes());
-      }
-      writer.putIntLE(limit);
-      return writer;
-   }
-
-   @Override
-   protected byte getType() {
-      return ApiObject.TRANSACTION_INVENTORY_REQUEST_TYPE;
-   }
-
-   @Override
-   public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append('[').append(Joiner.on(", ").join(addresses)).append(']');
-      sb.append(", ").append(limit);
-      return sb.toString();
    }
 
 }

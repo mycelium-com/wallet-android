@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.mbwapi.api;
+package com.mycelium.wapi.api.lib;
 
 import java.util.Arrays;
 import java.util.Comparator;

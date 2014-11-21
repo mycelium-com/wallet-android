@@ -49,11 +49,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
-import com.mrd.mbwapi.api.WalletVersionRequest;
-import com.mrd.mbwapi.api.WalletVersionResponse;
 import com.mycelium.wallet.activity.UpdateNotificationActivity;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AsynchronousApi;
+import com.mycelium.wapi.api.request.VersionInfoRequest;
+import com.mycelium.wapi.api.response.VersionInfoResponse;
 
 public class VersionManager {
    private static final long ONE_WEEK_IN_MILLIS = 1000 * 60 * 60 * 24 * 7;
@@ -91,7 +91,7 @@ public class VersionManager {
       return "unknown";
    }
 
-   public void showVersionDialog(final WalletVersionResponse response, final Context activity) {
+   public void showVersionDialog(final VersionInfoResponse response, final Context activity) {
       Intent intent = new Intent(activity, UpdateNotificationActivity.class);
       intent.putExtra(UpdateNotificationActivity.RESPONSE,response);
       activity.startActivity(intent);
@@ -99,14 +99,14 @@ public class VersionManager {
 
    public void checkForUpdate() {
       if (isWeeklyCheckDue()) {
-         WalletVersionRequest req = new WalletVersionRequest(version, new Locale(language));
+         VersionInfoRequest req = new VersionInfoRequest(version, new Locale(language));
          asyncApi.getWalletVersion(req);
          checkedForVersionUpdate();
       }
    }
 
-   public void forceCheckForUpdate(AbstractCallbackHandler<WalletVersionResponse> callback) {
-      WalletVersionRequest req = new WalletVersionRequest(version, new Locale(language));
+   public void forceCheckForUpdate(AbstractCallbackHandler<VersionInfoResponse> callback) {
+      VersionInfoRequest req = new VersionInfoRequest(version, new Locale(language));
       asyncApi.getWalletVersion(req, callback);
    }
 
@@ -149,7 +149,7 @@ public class VersionManager {
    }
 
 
-   public void showIfRelevant(WalletVersionResponse response, Context modernMain) {
+   public void showIfRelevant(VersionInfoResponse response, Context modernMain) {
       if (isIgnored(response.versionNumber)) {
          return;
       }

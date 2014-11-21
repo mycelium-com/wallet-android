@@ -34,10 +34,11 @@
 
 package com.mycelium.wallet.api;
 
-import com.mrd.mbwapi.api.*;
-import com.mycelium.wallet.event.SyncStarted;
-import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.WalletVersionEvent;
+import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.request.VersionInfoRequest;
+import com.mycelium.wapi.api.response.VersionInfoResponse;
 import com.squareup.otto.Bus;
 
 
@@ -52,16 +53,16 @@ import com.squareup.otto.Bus;
 public abstract class AsynchronousApi {
 
 
-   private final MyceliumWalletApi _api;
+   private final Wapi _wapi;
    private final Bus eventBus;
 
    /**
     * Create a new asynchronous API instance.
     *
-    * @param api The MWAPI instance used for communicating with the MWAPI server.
+    * @param wapi The WAPI instance used for communicating with the WAPI server.
     */
-   public AsynchronousApi(MyceliumWalletApi api, Bus eventBus) {
-      _api = api;
+   public AsynchronousApi(Wapi wapi, Bus eventBus) {
+      _wapi = wapi;
       this.eventBus = eventBus;
    }
 
@@ -69,10 +70,10 @@ public abstract class AsynchronousApi {
    abstract protected CallbackRunnerInvoker createCallbackRunnerInvoker();
 
 
-   public void getWalletVersion(final WalletVersionRequest versionRequest) {
-      AbstractCallbackHandler<WalletVersionResponse> callback = new AbstractCallbackHandler<WalletVersionResponse>() {
+   public void getWalletVersion(final VersionInfoRequest versionRequest) {
+      AbstractCallbackHandler<VersionInfoResponse> callback = new AbstractCallbackHandler<VersionInfoResponse>() {
          @Override
-         public void handleCallback(WalletVersionResponse response, ApiError exception) {
+         public void handleCallback(VersionInfoResponse response, WapiException exception) {
             final WalletVersionEvent latestVersion;
             if (response == null) {
                latestVersion = new WalletVersionEvent();
@@ -85,18 +86,18 @@ public abstract class AsynchronousApi {
       getWalletVersion(versionRequest, callback);
    }
 
-   public void getWalletVersion(final WalletVersionRequest req, AbstractCallbackHandler<WalletVersionResponse> callback) {
-      executeRequest(new AbstractCaller<WalletVersionResponse>(callback) {
+   public void getWalletVersion(final VersionInfoRequest req, AbstractCallbackHandler<VersionInfoResponse> callback) {
+      executeRequest(new AbstractCaller<VersionInfoResponse>(callback) {
          @Override
-         protected void callFunction() throws ApiException {
-            _response = _api.getVersionInfo(req);
+         protected void callFunction() throws WapiException {
+            _response = _wapi.getVersionInfo(req).getResult();
          }
       });
    }
 
    abstract private class SynchronousFunctionCaller implements Runnable, AsyncTask {
 
-      protected ApiError _error;
+      protected WapiException _error;
       private volatile boolean _canceled;
 
       @Override
@@ -108,8 +109,8 @@ public abstract class AsynchronousApi {
       public void run() {
          try {
             callFunction();
-         } catch (ApiException e) {
-            _error = new ApiError(e.errorCode, e.getMessage());
+         } catch (WapiException e) {
+            _error = new WapiException(e.errorCode);
          } finally {
             if (_canceled) {
                return; //todo fix please this will swallow OOME and other errors
@@ -118,7 +119,7 @@ public abstract class AsynchronousApi {
          }
       }
 
-      abstract protected void callFunction() throws ApiException;
+      abstract protected void callFunction() throws WapiException;
 
       abstract protected void callback();
 
@@ -136,7 +137,7 @@ public abstract class AsynchronousApi {
       }
 
       @Override
-      protected abstract void callFunction() throws ApiException;
+      protected abstract void callFunction() throws WapiException;
 
       protected void callback() {
          _callbackInvoker.invoke(new AbstractCallbackRunner<T>(_callbackHandler, _response, _error));
@@ -146,9 +147,9 @@ public abstract class AsynchronousApi {
    private static class AbstractCallbackRunner<T> implements Runnable {
       private AbstractCallbackHandler<T> _callbackHandler;
       private T _response;
-      private ApiError _error;
+      private WapiException _error;
 
-      private AbstractCallbackRunner(AbstractCallbackHandler<T> callbackHandler, T response, ApiError error) {
+      private AbstractCallbackRunner(AbstractCallbackHandler<T> callbackHandler, T response, WapiException error) {
          _callbackHandler = callbackHandler;
          _response = response;
          _error = error;

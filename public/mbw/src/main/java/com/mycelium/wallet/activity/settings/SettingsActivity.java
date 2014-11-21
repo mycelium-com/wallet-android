@@ -51,7 +51,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mrd.mbwapi.api.CurrencyCode;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -59,6 +58,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
+import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 

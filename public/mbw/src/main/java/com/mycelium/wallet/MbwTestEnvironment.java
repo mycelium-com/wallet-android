@@ -37,8 +37,6 @@ package com.mycelium.wallet;
 import android.util.Log;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.mbwapi.api.MyceliumWalletApi;
-import com.mrd.mbwapi.impl.MyceliumWalletApiImpl;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.lt.api.LtApiClient.Logger;
@@ -50,31 +48,11 @@ public class MbwTestEnvironment extends MbwEnvironment {
 
    private static final String myceliumThumbprint = "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F";
 
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://node3.mycelium.com/mwstestnet", myceliumThumbprint);
-   private static final MyceliumWalletApiImpl.HttpsEndpoint httpsTestnetEndpointAlt = new MyceliumWalletApiImpl.HttpsEndpoint(
-         "https://144.76.165.115/mwstestnet", myceliumThumbprint);
-
-
-
-   // private static final MyceliumWalletApiImpl.HttpEndpoint
-   // httpsTestnetEndpoint = new MyceliumWalletApiImpl.HttpEndpoint(
-   // "http://192.168.1.139:8086");
-
-   /**
-    * The set of endpoints we use for testnet. The wallet chooses a random
-    * endpoint and if it does not respond it round-robins through the list. This
-    * way we achieve client side load-balancing and fail-over.
-    */
-   private static final MyceliumWalletApiImpl.HttpEndpoint[] testnetServerEndpoints = new MyceliumWalletApiImpl.HttpEndpoint[] { httpsTestnetEndpoint , httpsTestnetEndpointAlt};
-   private static final MyceliumWalletApiImpl testnetApi = new MyceliumWalletApiImpl(testnetServerEndpoints,
-         NetworkParameters.testNetwork);
-
    /**
     * Local Trader API for testnet
     */
    // private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint =
-//         "http://212.186.198.83:8089/trade/");
+   //      "http://212.186.198.83:8089/trade/");
 
    private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
          "https://node3.mycelium.com/lttestnet/", myceliumThumbprint);
@@ -101,11 +79,6 @@ public class MbwTestEnvironment extends MbwEnvironment {
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
-   }
-
-   @Override
-   public MyceliumWalletApi getMwsApi() {
-      return testnetApi;
    }
 
    @Override

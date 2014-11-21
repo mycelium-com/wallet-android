@@ -17,6 +17,8 @@ import com.mycelium.wapi.model.TransactionStatus;
 import com.mycelium.wapi.wallet.*;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -111,6 +113,23 @@ public class Bip44AccountTest {
       @Override
       public WapiResponse<PingResponse> ping() {
          return new WapiResponse<PingResponse>(new PingResponse("junit test"));
+      }
+
+      @Override
+      public WapiResponse<ErrorCollectorResponse> collectError(ErrorCollectorRequest request) {
+         ErrorCollectorResponse response = new ErrorCollectorResponse();
+         return new WapiResponse<ErrorCollectorResponse>(response);
+      }
+
+      @Override
+      public WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request) {
+         VersionInfoResponse response = null;
+         try {
+            response = new VersionInfoResponse("1.0.0-JUNIT",new URI("https://example.com"),"Fake response from junit");
+            return new WapiResponse<VersionInfoResponse>(response);
+         } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+         }
       }
    }
 

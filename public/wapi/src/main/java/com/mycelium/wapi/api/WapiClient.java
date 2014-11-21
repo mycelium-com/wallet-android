@@ -256,7 +256,19 @@ public class WapiClient implements Wapi {
       TypeReference<WapiResponse<PingResponse>> typeref = new TypeReference<WapiResponse<PingResponse>>() { };
       return sendRequest(Function.PING, null, typeref);
    }
- 
+
+   @Override
+   public WapiResponse<ErrorCollectorResponse> collectError(ErrorCollectorRequest request) {
+      TypeReference<WapiResponse<ErrorCollectorResponse>> typeref = new TypeReference<WapiResponse<ErrorCollectorResponse>>() { };
+      return sendRequest(Function.COLLECT_ERROR, request, typeref);
+   }
+
+   @Override
+   public WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request) {
+      TypeReference<WapiResponse<VersionInfoResponse>> typeref = new TypeReference<WapiResponse<VersionInfoResponse>>() { };
+      return sendRequest(Function.GET_VERSION_INFO, request, typeref);
+   }
+
 
    @Override
    public WapiLogger getLogger() {

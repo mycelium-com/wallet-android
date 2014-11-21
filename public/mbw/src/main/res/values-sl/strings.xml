@@ -186,7 +186,6 @@
   <string name="verify_backup_message_text_1">Dobra rezervna kopija je eden od temeljev varnega ravnanja z bitcoini.\nV denarnici imate vsaj en zasebni ključ ali glavno seme brez preverjene rezervne kopije.\n\nProsimo, napravite in preverite rezervno kopijo.</string>
   <string name="verify_backup_message_text_2">Potem preverite rezervno kopijo s spodnjim gumbom.</string>
   <string name="encrypted_pdf_backup_title">Šifrirana rezervna kopija kot PDF</string>
-  <string name="encrypted_pdf_backup_description">Napravili boste šifrirano rezervno kopijo svojih zasebnih ključev in glavnega semena v obliki PDF dokumenta.\nTa dokument lahko varno posredujete prek e-pošte ali aplikacij za izmenjavo datotek kot npr. Dropbox. To je varno zato, ker so vaši ključi šifrirani.</string>
   <string name="encrypted_pdf_backup_password_description_1">Ta rezervna kopija je šifrirana s tem naključnim geslom s kontrolnim znakom:</string>
   <string name="encrypted_pdf_backup_password_description_2">To je edina priložnost, ko lahko vidite geslo te rezervne kopije.\nČe ustvarite novo rezervno kopijo, bo za novo kopijo uporabljeno novo geslo.\nTo geslo si zapišite in pazite nanj!</string>
   <string name="encrypted_pdf_backup_stretching">Pripravljam šifrirni ključ&#8230;</string>

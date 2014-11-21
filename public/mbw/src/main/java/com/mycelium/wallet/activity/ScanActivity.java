@@ -45,10 +45,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
-import com.mrd.bitlib.crypto.Bip38;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
@@ -87,17 +84,19 @@ public class ScanActivity extends Activity {
    public static final String RESULT_ERROR = "error";
    public static final String RESULT_PRIVATE_KEY = "privkey";
    public static final String RESULT_URI_KEY = "uri";
+   public static final String RESULT_SHARE_KEY = "share";
    public static final String RESULT_ADDRESS_KEY = "address";
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_AMOUNT_KEY = "amount";
    private static final String RESULT_ACCOUNT_KEY = "account";
 
-   public enum ResultType {ADDRESS, PRIVATE_KEY, ACCOUNT, NONE, URI}
+   public enum ResultType {ADDRESS, PRIVATE_KEY, ACCOUNT, NONE, URI, SHARE}
 
    public static final int SCANNER_RESULT_CODE = 0;
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
    public static final int IMPORT_ENCRYPTED_MASTER_SEED_CODE = 2;
    public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 3;
+   public static final int IMPORT_SSS_CONTENT_CODE = 4;
 
    private MbwManager _mbwManager;
    private boolean _hasLaunchedScanner;
@@ -227,6 +226,8 @@ public class ScanActivity extends Activity {
          content = handleDecryptedMrdPrivateKey(intent);
       } else if (IMPORT_ENCRYPTED_MASTER_SEED_CODE == requestCode) {
          content = HexUtils.toHex(handleDecryptedMrdMasterSeed(intent).toBytes(false));
+      } else if (IMPORT_SSS_CONTENT_CODE == requestCode) {
+         content = intent.getStringExtra("secret");
       } else {
          Preconditions.checkState(SCANNER_RESULT_CODE == requestCode);
          if (!isQRCode(intent)) {
@@ -374,6 +375,14 @@ public class ScanActivity extends Activity {
       finish();
    }
 
+   public void finishOk(BipSss.Share share) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_SHARE_KEY, share);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.SHARE);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
    public void finishOk(InMemoryPrivateKey key) {
       Intent result = new Intent();
       result.putExtra(RESULT_PRIVATE_KEY, key);
@@ -436,6 +445,13 @@ public class ScanActivity extends Activity {
       BitcoinUri uri = (BitcoinUri) intent.getSerializableExtra(RESULT_URI_KEY);
       Preconditions.checkNotNull(uri);
       return uri;
+   }
+
+   public static BipSss.Share getShare(Intent intent) {
+      ScanActivity.checkType(intent, ResultType.SHARE);
+      BipSss.Share share = (BipSss.Share) intent.getSerializableExtra(RESULT_SHARE_KEY);
+      Preconditions.checkNotNull(share);
+      return share;
    }
 
    public static UUID getAccount(Intent intent) {

@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.mycelium.wapi.api.response;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.UUID;
+package com.mycelium.wapi.api.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mycelium.wapi.model.TransactionOutputEx;
 
-public class QueryUnspentOutputsResponse implements Serializable {
+import java.io.Serializable;
+import java.util.Locale;
+
+public class VersionInfoRequest implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @JsonProperty
-   public final int height;
-   @JsonProperty
-   public final Collection<TransactionOutputEx> unspent;
+   public String currentVersion;
 
-   public QueryUnspentOutputsResponse(@JsonProperty("height") int height,
-                                      @JsonProperty("unspent") Collection<TransactionOutputEx> unspent) {
-      this.height = height;
-      this.unspent = unspent;
+   @JsonProperty
+   public Locale locale;
+
+
+   public VersionInfoRequest(@JsonProperty("currentVersion") String currentVersion,
+                             @JsonProperty("locale") Locale locale) {
+      this.currentVersion = currentVersion;
+      this.locale = locale;
    }
 
 }

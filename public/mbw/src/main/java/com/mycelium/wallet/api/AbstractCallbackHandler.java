@@ -34,7 +34,7 @@
 
 package com.mycelium.wallet.api;
 
-import com.mrd.mbwapi.api.ApiError;
+import com.mycelium.wapi.api.WapiException;
 
 /**
  * Implement this function to get a callback when calls to
@@ -51,5 +51,5 @@ public interface AbstractCallbackHandler<T> {
     * @param exception
     *           Is null unless an error occurred.
     */
-   public void handleCallback(T response, ApiError exception);
+   public void handleCallback(T response, WapiException exception);
 }

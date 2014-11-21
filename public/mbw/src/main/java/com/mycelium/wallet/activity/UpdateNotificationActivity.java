@@ -43,11 +43,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-
-import com.mrd.mbwapi.api.WalletVersionResponse;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.VersionManager;
+import com.mycelium.wapi.api.response.VersionInfoResponse;
 
 public class UpdateNotificationActivity extends Activity {
 
@@ -59,7 +58,7 @@ public class UpdateNotificationActivity extends Activity {
       setTitle(R.string.new_version_exists);
       setContentView(R.layout.update_notification);
 
-      final WalletVersionResponse response = Preconditions.checkNotNull((WalletVersionResponse) getIntent().getSerializableExtra(RESPONSE));
+      final VersionInfoResponse response = Preconditions.checkNotNull((VersionInfoResponse) getIntent().getSerializableExtra(RESPONSE));
       Button ignoreButton = (Button) findViewById(R.id.ignoreUpdate);
       Button playButton = (Button) findViewById(R.id.getPlay);
       Button myceliumButton = (Button) findViewById(R.id.getMycelium);

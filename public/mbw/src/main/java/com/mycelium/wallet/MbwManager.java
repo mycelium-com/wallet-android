@@ -130,7 +130,7 @@ public class MbwManager {
       _environment = MbwEnvironment.determineEnvironment(_applicationContext);
       String version = VersionManager.determineVersion(_applicationContext);
 
-      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _environment.getMwsApi());
+      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _environment.getWapi());
 
       if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.GINGERBREAD) {
          // Disable HTTP keep-alive on systems predating Gingerbread
@@ -146,7 +146,7 @@ public class MbwManager {
       // Initialize proxy early, to enable error reporting during startup..
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-      _asyncApi = new AndroidAsyncApi(_environment.getMwsApi(), _eventBus);
+      _asyncApi = new AndroidAsyncApi(_environment.getWapi(), _eventBus);
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 

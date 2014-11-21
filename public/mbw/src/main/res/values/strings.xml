@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<resources xmlns:tools="http://schemas.android.com/tools"
-           tools:ignore="MissingTranslation">
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
     <string name="add_account_title">Add New Account</string>
@@ -152,13 +152,13 @@
     <string name="archived">Archived</string>
     <string name="activated">Activated</string>
     <string name="keep_one_active">You need to keep at least one active account.</string>
-    <string name="please_wait">Please wait &#8230;</string>
-    <string name="synchronizing_please_wait">Synchronizing, please wait &#8230;</string>
+    <string name="please_wait">Please wait …</string>
+    <string name="synchronizing_please_wait">Synchronizing, please wait …</string>
     <string name="address_label_not_unique">The address book has another address with that name</string>
     <string name="account_label_not_unique">The name is already in use for another account</string>
     <string name="tap_qr_code_desc">Tapping the QR code may improve scanning</string>
     <string name="paste">Paste</string>
-    <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there&#8230;</string>
+    <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there…</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
     <string name="signing_transaction">Signing Transaction</string>
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
@@ -199,20 +199,20 @@
     <string name="encrypted_pdf_backup_description">You are about to back up your encrypted private keys to a PDF document.\nThe PDF document can safely be shared using email or with file-sharing apps you have installed, such as Dropbox. This is because your keys are encrypted.</string>
     <string name="encrypted_pdf_backup_password_description_1">This is the random password with checksum used for encrypting this backup.</string>
     <string name="encrypted_pdf_backup_password_description_2">This is your only opportunity for viewing the password for this backup.\nYour next backup will use a different password.\nWrite it down and keep it safe!</string>
-    <string name="encrypted_pdf_backup_stretching">Preparing encryption key&#8230;</string>
-    <string name="encrypted_pdf_backup_encrypting">Encrypting private keys&#8230;</string>
-    <string name="encrypted_pdf_backup_creating">Creating PDF document&#8230;</string>
+    <string name="encrypted_pdf_backup_stretching">Preparing encryption key…</string>
+    <string name="encrypted_pdf_backup_encrypting">Encrypting private keys…</string>
+    <string name="encrypted_pdf_backup_creating">Creating PDF document…</string>
     <string name="encrypted_pdf_backup_document_ready">PDF document created</string>
-    <string name="encrypted_pdf_backup_sharing">Sharing PDF document&#8230;</string>
+    <string name="encrypted_pdf_backup_sharing">Sharing PDF document…</string>
     <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
     <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\r\n\r\nFollow these simple steps to secure your funds:\r\n1. Print the PDF document.\r\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\r\n3. Verify that you can import the private keys to your Mycelium Wallet.\r\n4. Store the printout in a safe place.</string>
     <string name="share_pdf">Share PDF</string>
-    <string name="share_with">Share with&#8230;</string>
+    <string name="share_with">Share with…</string>
     <string name="import_decrypt_key_title">Private Key Decryption</string>
     <string name="import_decrypt_key_description">You are about to decrypt a password protected private key.</string>
     <string name="import_decrypt_key_enter_password">Enter the 15 character password and checksum.</string>
     <string name="import_decrypt_key_invalid_checksum">The checksum is invalid. Please verify.</string>
-    <string name="import_decrypt_stretching">Preparing decryption key&#8230;</string>
+    <string name="import_decrypt_stretching">Preparing decryption key…</string>
     <string name="out_of_memory_error">ERROR: Your device does not have enough memory to complete this task</string>
     <string name="share_payment_request">Share Payment Request</string>
     <string name="share_bitcoin_address">Share Bitcoin Address</string>
@@ -263,7 +263,7 @@
     <string name="alert_button">Alert</string>
     <string name="heartbleed_alert">ALERT\n\nYour device runs Android version 4.1.1 and has a critical bug known as Heartbleed.\n\nThis bug allows an attacker to read the memory of any apps on your device that make HTTPS connections.\n\n You should take immediate action!\n\n1. Move your funds to new addresses where the private key has never been on an Android 4.1.1 device.\n\n2. Upgrade your device to another version than 4.1.1 or use another device.</string>
 
-    <!--  LT start -->
+    <!-- LT start -->
     <string name="lt_buy_button">Buy</string>
     <string name="lt_sell_button">Sell</string>
     <string name="lt_edit_button">Edit</string>
@@ -297,7 +297,7 @@
     <string name="lt_create_order_choose_maximum">Choose the maximum amount to trade:</string>
     <string name="lt_create_order_description">Optional description of your order:</string>
     <string name="lt_create_order_description_too_long">The description is too long</string>
-    <string name="lt_create_order_description_hint">Buy from me because&#8230;</string>
+    <string name="lt_create_order_description_hint">Buy from me because…</string>
     <string name="lt_ad_type_sell_btc_label">Sell Bitcoin</string>
     <string name="lt_ad_type_buy_btc_label">Buy Bitcoin</string>
     <string name="lt_ad_created">Ad created</string>
@@ -426,7 +426,7 @@
     <string name="lt_refresh_market_rate_title">Refreshing Market Rate</string>
     <string name="lt_refresh_market_rate_description">The new price depends on the price formula set by the seller and the current market rates.\n\nIf you refresh the price you both have to accept the deal.</string>
     <string name="lt_opening_map">Opening map</string>
-    <!--  LT end -->
+    <!-- LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
@@ -569,6 +569,12 @@
     <string name="pin_forgotten_reset_wait_button_text">Wait %s</string>
     <string name="pin_forgotten_abort_pin_reset">A PIN reset is in progress. You still have to wait for %1$s until you can reset the PIN.\n\nDo you want to abort the pending PIN reset?</string>
     <string name="pin_reset_in_progress_alert">PIN Reset in progress</string>
-
+    <string name="error_invalid_sss_share">The share you have scanned has an invalid format.</string>
+    <string name="importing_secret_shares_title">Combining Shares</string>
+    <string name="sss_incompatible_shares_warning">The shares you have imported are not compatible.</string>
+    <string name="sss_one_more_share_needed">You need 1 more share</string>
+    <string name="sss_unrecognized_share_warning">Unrecognized share content</string>
+    <string name="sss_more_shares_needed">You need %1$s more shares.</string>
+    <string name="sss_share_number_scanned">You scanned share number %1$s.</string>
 
 </resources>
