@@ -4,4 +4,9 @@
     <item
         android:id="@+id/miHowTo"
         android:title="@string/lt_how_to_trade_menu"/>
+
+    <item
+            android:id="@+id/miDeleteTradeAccount"
+            android:title="@string/lt_delete_account"/>
+
 </menu>

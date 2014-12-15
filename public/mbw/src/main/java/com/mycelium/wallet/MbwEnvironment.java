@@ -38,7 +38,7 @@ import android.content.Context;
 
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.lt.api.LtApi;
-import com.mycelium.wapi.api.Wapi;
+import com.mycelium.net.ServerEndpoints;
 
 public abstract class MbwEnvironment {
 
@@ -73,5 +73,5 @@ public abstract class MbwEnvironment {
 
    public abstract LtApi getLocalTraderApi();
    
-   public abstract Wapi getWapi();
+   public abstract ServerEndpoints getWapiEndpoints();
 }

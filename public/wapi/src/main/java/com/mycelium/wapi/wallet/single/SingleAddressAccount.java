@@ -112,13 +112,10 @@ public class SingleAddressAccount extends AbstractAccount {
             }
          }
 
-         if (updateLocalBalance()) {
-            // The balance has changed, lets see if there are any transactions
-            // we need to discover
-            if (synchronizeTransactionHistory) {
-               if (!discoverTransactions()) {
-                  return false;
-               }
+         //lets see if there are any transactions we need to discover
+         if (synchronizeTransactionHistory) {
+            if (!discoverTransactions()) {
+               return false;
             }
          }
 

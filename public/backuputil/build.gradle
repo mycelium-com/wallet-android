@@ -1,9 +1,8 @@
 apply plugin: 'java'
-apply plugin: 'fatjar'
+apply plugin: 'gradle-one-jar'
 apply plugin: "application"
 
-def mainClass = 'com.mrd.bitlib.BackupUtil'
-mainClassName = mainClass
+project.ext.set("mainClassName", 'com.mrd.bitlib.BackupUtil')
 
 repositories {
     mavenCentral()
@@ -14,7 +13,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
+        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
         classpath 'org.batcha.gradle.plugins:git-dependencies:0.2'
     }
 }
@@ -30,12 +29,22 @@ dependencies {
     testCompile 'junit:junit:'+junitVersion
 }
 
-fatJar {
+jar {
     manifest {
-
         attributes(
-                "Main-Class": mainClass,
+                "Main-Class": project.mainClassName,
                 "Implementation-Version": version ?: 'dev'
         )
+    }
+}
+
+task oneJar(type: OneJar) {
+    mainClass = mainClassName
+    additionalDir = file(projectRootDir + '/gradle/oneJar')
+
+    manifest {
+        attributes 'Timestamp': String.valueOf(System.currentTimeMillis())
+        attributes 'Implementation-Version': getCheckedOutGitCommitHash()
+        attributes 'Main-Class': project.mainClassName
     }
 }

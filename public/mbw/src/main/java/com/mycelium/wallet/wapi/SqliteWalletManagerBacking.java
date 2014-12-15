@@ -43,8 +43,11 @@ import android.util.Log;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
@@ -64,7 +67,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "walletbacking.db";
-      private static final int DATABASE_VERSION = 1;
+      private static final int DATABASE_VERSION = 2;
 
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -74,13 +77,16 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id STRING PRIMARY KEY, address BLOB, addressstring STRING, archived INTEGER, blockheight INTEGER);");
          db.execSQL("CREATE TABLE bip44 (id STRING PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery);");
-         db.execSQL("CREATE TABLE kv (k BLOB PRIMARY KEY, v BLOB);");
+         db.execSQL("CREATE TABLE kv (k BLOB PRIMARY KEY, v BLOB, checksum BLOB);");
       }
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
          for (UUID account : getAccountIds(db)) {
             new SqliteAccountBacking(account, db).upgradeTables();
+         }
+         if (oldVersion==1 && newVersion>=2){
+            db.execSQL("ALTER TABLE kv ADD COLUMN checksum BLOB");
          }
       }
 
@@ -100,13 +106,14 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    public SqliteWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
+
       _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?)");
       _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
       _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=? WHERE id=?");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
-      _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?)");
+      _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?)");
       _deleteKeyValue = _database.compileStatement("DELETE FROM kv WHERE k = ?");
       _backings = new HashMap<UUID, SqliteAccountBacking>();
       for (UUID id : getAccountIds(_database)) {
@@ -132,9 +139,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             accounts.add(uuid);
          }
          return accounts;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in getSingleAddressAccountIds", e);
-         throw new RuntimeException(e);
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -153,9 +157,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             accounts.add(uuid);
          }
          return accounts;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in getBip44AccountIds", e);
-         throw new RuntimeException(e);
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -198,9 +199,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             list.add(new Bip44AccountContext(id, accountIndex, isArchived, blockHeight, lastExternalIndexWithActivity, lastInternalIndexWithActivity, firstMonitoredInternalIndex, lastDiscovery));
          }
          return list;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in loadBip44AccountContexts", e);
-         throw new RuntimeException(e);
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -233,9 +231,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceBip44Account.executeInsert();
 
          _database.setTransactionSuccessful();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in createBip44AccountContext", e);
-         throw new RuntimeException(e);
       } finally {
          _database.endTransaction();
       }
@@ -272,9 +267,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             list.add(new SingleAddressAccountContext(id, address, isArchived, blockHeight));
          }
          return list;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in loadSingleAddressAccountContexts", e);
-         throw new RuntimeException(e);
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -303,9 +295,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceSingleAddressAccount.bindLong(5, context.getBlockHeight());
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in createSingleAddressAccountContext", e);
-         throw new RuntimeException(e);
       } finally {
          _database.endTransaction();
       }
@@ -333,9 +322,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          backing.dropTables();
          _backings.remove(accountId);
          setTransactionSuccessful();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in deleteSingleAddressAccountContext", e);
-         throw new RuntimeException(e);
       } finally {
          endTransaction();
       }
@@ -355,9 +341,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          backing.dropTables();
          _backings.remove(accountId);
          setTransactionSuccessful();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in deleteSBip44AccountContext", e);
-         throw new RuntimeException(e);
       } finally {
          endTransaction();
       }
@@ -383,15 +366,22 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
          blobQuery.bindBlob(1, id);
-         cursor = blobQuery.query(false, TABLE_KV, new String[]{"v"}, "k = ?", null, null, null,
+         cursor = blobQuery.query(false, TABLE_KV, new String[]{"v", "checksum"}, "k = ?", null, null, null,
                null, null);
          if (cursor.moveToNext()) {
-            return cursor.getBlob(0);
+            byte[] retVal = cursor.getBlob(0);
+            byte[] checkSumDb = cursor.getBlob(1);
+
+            // checkSumDb might be null for older data, where we hadn't had a checksum
+            if (checkSumDb!=null && !Arrays.equals(checkSumDb, calcChecksum(id, retVal))){
+               // mismatch in checksum - the DB might be corrupted
+               Log.e(LOG_TAG, "Checksum failed - SqliteDB might be corrupted");
+               throw new DbCorruptedException("Checksum failed while reading from DB. Your file storage might be corrupted");
+            }
+
+            return retVal;
          }
          return null;
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in getValue", e);
-         throw new RuntimeException(e);
       } finally {
          if (cursor != null) {
             cursor.close();
@@ -401,25 +391,23 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    @Override
    public void setValue(byte[] key, byte[] value) {
-      try {
-         _insertOrReplaceKeyValue.bindBlob(1, key);
-         SQLiteQueryWithBlobs.bindBlobWithNull(_insertOrReplaceKeyValue, 2, value);
-         _insertOrReplaceKeyValue.executeInsert();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in setValue", e);
-         throw new RuntimeException(e);
-      }
+      _insertOrReplaceKeyValue.bindBlob(1, key);
+      SQLiteQueryWithBlobs.bindBlobWithNull(_insertOrReplaceKeyValue, 2, value);
+      _insertOrReplaceKeyValue.bindBlob(3, calcChecksum(key, value));
+
+      _insertOrReplaceKeyValue.executeInsert();
+   }
+
+   private byte[] calcChecksum(byte[] key, byte[] value){
+      byte toHash[] = BitUtils.concatenate(key, value);
+      byte[] ret = HashUtils.sha256(toHash).firstNBytes(8);
+      return ret;
    }
 
    @Override
    public void deleteValue(byte[] id) {
-      try {
-         _deleteKeyValue.bindBlob(1, id);
-         _deleteKeyValue.execute();
-      } catch (Exception e) {
-         Log.e(LOG_TAG, "Exception in deleteValue", e);
-         throw new RuntimeException(e);
-      }
+      _deleteKeyValue.bindBlob(1, id);
+      _deleteKeyValue.execute();
    }
 
    private static void createAccountBackingTables(UUID id, SQLiteDatabase db) {
@@ -529,17 +517,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public synchronized void putUnspentOutput(TransactionOutputEx output) {
-         try {
-            _insertOrReplaceUtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
-            _insertOrReplaceUtxo.bindLong(2, output.height);
-            _insertOrReplaceUtxo.bindLong(3, output.value);
-            _insertOrReplaceUtxo.bindLong(4, output.isCoinBase ? 1 : 0);
-            _insertOrReplaceUtxo.bindBlob(5, output.script);
-            _insertOrReplaceUtxo.executeInsert();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in putUnspentOutput", e);
-            throw new RuntimeException(e);
-         }
+         _insertOrReplaceUtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
+         _insertOrReplaceUtxo.bindLong(2, output.height);
+         _insertOrReplaceUtxo.bindLong(3, output.value);
+         _insertOrReplaceUtxo.bindLong(4, output.isCoinBase ? 1 : 0);
+         _insertOrReplaceUtxo.bindBlob(5, output.script);
+         _insertOrReplaceUtxo.executeInsert();
       }
 
       @Override
@@ -556,9 +539,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                list.add(tex);
             }
             return list;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getAllUnspentOutputs", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -579,9 +559,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                      cursor.getBlob(3), cursor.getInt(2) != 0);
             }
             return null;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getUnspentOutput", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -597,17 +574,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void putParentTransactionOutput(TransactionOutputEx output) {
-         try {
-            _insertOrReplacePtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
-            _insertOrReplacePtxo.bindLong(2, output.height);
-            _insertOrReplacePtxo.bindLong(3, output.value);
-            _insertOrReplacePtxo.bindLong(4, output.isCoinBase ? 1 : 0);
-            _insertOrReplacePtxo.bindBlob(5, output.script);
-            _insertOrReplacePtxo.executeInsert();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in putParentTransactoinOutput", e);
-            throw new RuntimeException(e);
-         }
+         _insertOrReplacePtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
+         _insertOrReplacePtxo.bindLong(2, output.height);
+         _insertOrReplacePtxo.bindLong(3, output.value);
+         _insertOrReplacePtxo.bindLong(4, output.isCoinBase ? 1 : 0);
+         _insertOrReplacePtxo.bindBlob(5, output.script);
+         _insertOrReplacePtxo.executeInsert();
       }
 
       @Override
@@ -623,9 +595,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                      cursor.getBlob(3), cursor.getInt(2) != 0);
             }
             return null;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getParentTransactoinOutput", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -642,9 +611,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             cursor = blobQuery.query(false, ptxoTableName, new String[]{"height"}, "outpoint = ?", null, null, null,
                   null, null);
             return cursor.moveToNext();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in hasParentTransactionOutput", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -654,16 +620,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void putTransaction(TransactionEx tx) {
-         try {
-            _insertOrReplaceTx.bindBlob(1, tx.txid.getBytes());
-            _insertOrReplaceTx.bindLong(2, tx.height == -1 ? Integer.MAX_VALUE : tx.height);
-            _insertOrReplaceTx.bindLong(3, tx.time);
-            _insertOrReplaceTx.bindBlob(4, tx.binary);
-            _insertOrReplaceTx.executeInsert();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in putTransaction", e);
-            throw new RuntimeException(e);
-         }
+         _insertOrReplaceTx.bindBlob(1, tx.txid.getBytes());
+         _insertOrReplaceTx.bindLong(2, tx.height == -1 ? Integer.MAX_VALUE : tx.height);
+         _insertOrReplaceTx.bindLong(3, tx.time);
+         _insertOrReplaceTx.bindBlob(4, tx.binary);
+         _insertOrReplaceTx.executeInsert();
       }
 
       @Override
@@ -682,9 +643,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                return new TransactionEx(hash, height, cursor.getInt(1), cursor.getBlob(2));
             }
             return null;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getUnspentOutput", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -707,9 +665,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             cursor = blobQuery.query(false, txTableName, new String[]{"height"}, "id = ?", null, null, null, null,
                   null);
             return cursor.moveToNext();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in hasTransaction", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -731,9 +686,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                list.add(tex);
             }
             return list;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getUnconfirmedTransactions", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -759,9 +711,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                list.add(tex);
             }
             return list;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getUnconfirmedTransactions", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -771,14 +720,9 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void putOutgoingTransaction(Sha256Hash txid, byte[] rawTransaction) {
-         try {
-            _insertOrReplaceOutTx.bindBlob(1, txid.getBytes());
-            _insertOrReplaceOutTx.bindBlob(2, rawTransaction);
-            _insertOrReplaceOutTx.executeInsert();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in putOutgoingTransaction", e);
-            throw new RuntimeException(e);
-         }
+         _insertOrReplaceOutTx.bindBlob(1, txid.getBytes());
+         _insertOrReplaceOutTx.bindBlob(2, rawTransaction);
+         _insertOrReplaceOutTx.executeInsert();
       }
 
       @Override
@@ -791,9 +735,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                list.add(cursor.getBlob(0));
             }
             return list;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getOutgoingTransactions", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -816,9 +757,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             cursor = blobQuery.query(false, outTxTableName, new String[]{}, "id = ?", null, null, null, null,
                   null);
             return cursor.moveToNext();
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in hasTransaction", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();
@@ -840,9 +778,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                list.add(tex);
             }
             return list;
-         } catch (Exception e) {
-            Log.e(LOG_TAG, "Exception in getTransactionHistory", e);
-            throw new RuntimeException(e);
          } finally {
             if (cursor != null) {
                cursor.close();

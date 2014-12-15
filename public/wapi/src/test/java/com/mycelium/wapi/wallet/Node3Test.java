@@ -34,12 +34,14 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.mycelium.net.HttpsEndpoint;
+import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiLogger;
 
 public abstract class Node3Test {
 
-   protected final WapiClient.HttpsEndpoint endpoint = new  WapiClient.HttpsEndpoint(
+   protected final HttpsEndpoint endpoint = new HttpsEndpoint(
          "https://node3.mycelium.com/wapitestnet", "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F");
 
    protected final WapiLogger log = new WapiLogger() {
@@ -59,6 +61,6 @@ public abstract class Node3Test {
       }
    };
 
-   protected final WapiClient api = new WapiClient(new WapiClient.HttpEndpoint[]{endpoint}, log);
+   protected final WapiClient api = new WapiClient(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), log);
 
 }

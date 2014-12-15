@@ -22,16 +22,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mrd.bitlib.util.SslUtils;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiConst.Function;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
+import com.squareup.okhttp.*;
+import okio.BufferedSink;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 
 public class WapiClient implements Wapi {
 
@@ -40,38 +43,16 @@ public class WapiClient implements Wapi {
    private static final int MEDIUM_TIMEOUT_MS = 20000;
    private static final int SHORT_TIMEOUT_MS = 4000;
 
-   public static class HttpEndpoint {
-      public final String baseUrlString;
 
-      public HttpEndpoint(String baseUrlString) {
-         this.baseUrlString = baseUrlString;
-      }
-
-      @Override
-      public String toString() {
-         return baseUrlString;
-      }
-   }
-
-   public static class HttpsEndpoint extends HttpEndpoint {
-      public final String certificateThumbprint;
-
-      public HttpsEndpoint(String baseUrlString, String certificateThumbprint) {
-         super(baseUrlString);
-         this.certificateThumbprint = certificateThumbprint;
-      }
-   }
 
    private ObjectMapper _objectMapper;
    private WapiLogger _logger;
 
-   private HttpEndpoint[] _serverEndpoints;
-   private int _currentServerUrlIndex;
+   private ServerEndpoints _serverEndpoints;
 
-   public WapiClient(HttpEndpoint[] serverEndpoints, WapiLogger logger) {
+   public WapiClient(ServerEndpoints serverEndpoints, WapiLogger logger) {
       _serverEndpoints = serverEndpoints;
       // Choose a random endpoint to use
-      _currentServerUrlIndex = new Random().nextInt(_serverEndpoints.length);
       _objectMapper = new ObjectMapper();
       // We ignore properties that do not map onto the version of the class we
       // deserialize
@@ -82,11 +63,11 @@ public class WapiClient implements Wapi {
 
    private <T> WapiResponse<T> sendRequest(String function, Object request, TypeReference<WapiResponse<T>> typeReference) {
       try {
-         HttpURLConnection connection = getConnectionAndSendRequest(function, request);
+         Response connection = getConnectionAndSendRequest(function, request);
          if (connection == null) {
             return new WapiResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
-         return _objectMapper.readValue(connection.getInputStream(), typeReference);
+         return _objectMapper.readValue(connection.body().string(), typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
          return new WapiResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
@@ -117,19 +98,19 @@ public class WapiClient implements Wapi {
     * timeout, retry all servers with a medium timeout, followed by a retry with
     * long timeout.
     */
-   private HttpURLConnection getConnectionAndSendRequest(String function, Object request) {
-      HttpURLConnection connection;
-      connection = getConnectionAndSendRequestWithTimeout(request, function, SHORT_TIMEOUT_MS);
-      if (connection != null) {
-         return connection;
+   private Response getConnectionAndSendRequest(String function, Object request) {
+      Response response;
+      response = getConnectionAndSendRequestWithTimeout(request, function, SHORT_TIMEOUT_MS);
+      if (response != null) {
+         return response;
       }
-      connection = getConnectionAndSendRequestWithTimeout(request, function, MEDIUM_TIMEOUT_MS);
-      if (connection != null) {
-         return connection;
+      response = getConnectionAndSendRequestWithTimeout(request, function, MEDIUM_TIMEOUT_MS);
+      if (response != null) {
+         return response;
       }
-      connection = getConnectionAndSendRequestWithTimeout(request, function, LONG_TIMEOUT_MS);
-      if (connection != null) {
-         return connection;
+      response = getConnectionAndSendRequestWithTimeout(request, function, LONG_TIMEOUT_MS);
+      if (response != null) {
+         return response;
       }
       return getConnectionAndSendRequestWithTimeout(request, function, VERY_LONG_TIMEOUT_MS);
    }
@@ -138,41 +119,47 @@ public class WapiClient implements Wapi {
     * Attempt to connect and send to a URL in our list of URLS, if it fails try
     * the next until we have cycled through all URLs. timeout.
     */
-   private HttpURLConnection getConnectionAndSendRequestWithTimeout(Object request, String function, int timeout) {
-      int originalConnectionIndex = _currentServerUrlIndex;
+   private Response getConnectionAndSendRequestWithTimeout(Object request, String function, int timeout) {
+      int originalConnectionIndex = _serverEndpoints.getCurrentEndpointIndex();
       while (true) {
          try {
-            HttpURLConnection connection = getHttpConnection(_serverEndpoints[_currentServerUrlIndex], function,
-                  timeout);
+            // currently active server-endpoint
+            HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
+            OkHttpClient client = serverEndpoint.getClient();
 
-            byte[] toSend = getPostBytes(request);
-            connection.setRequestProperty("Content-Length", String.valueOf(toSend.length));
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.getOutputStream().write(toSend);
-            int status = connection.getResponseCode();
+            // configure TimeOuts
+            client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+            client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
+            client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
+
+            _logger.logInfo("Wapi " + function + " starting...");
+
+            // build request
+            final String toSend = getPostBody(request);
+            Request rq = new Request.Builder()
+                  .post(RequestBody.create(MediaType.parse("application/json"), toSend))
+                  .url(serverEndpoint.getUri(WapiConst.WAPI_BASE_PATH, function).toString())
+                  .build();
+
+            // execute request
+            Response response = client.newCall(rq).execute();
+            _logger.logInfo("Wapi " + function + " finished");
 
             // Check for status code 2XX
-            if (status / 100 == 2) {
+            if (response.isSuccessful()) {
                // If the status code is not 200 we cycle to the next server
-               return connection;
-            }
-            if (status == -1) {
-               // We have observed that status -1 might be returned when doing
-               // HTTPS session reuse on old android devices.
-               // Disabling http.keepAlive fixes it, but it has to be done
-               // before any HTTP connections are made.
-               // Maybe the caller forgot to call
-               // System.setProperty("http.keepAlive", "false"); for old
-               // devices?
-               logError("HTTP status = -1 Caller may have forgotten to call System.setProperty(\"http.keepAlive\", \"false\"); for old devices");
+               return response;
+            }else{
+               logError(String.format("Http call to %s failed with %d %s", function, response.code(), response.message()));
+               // throw...
             }
          } catch (IOException e) {
-            logError("IOException when sending request", e);
+            logError("IOException when sending request " + function, e);
             // handle below like the all status codes != 200
          }
          // Try the next server
-         _currentServerUrlIndex = (_currentServerUrlIndex + 1) % _serverEndpoints.length;
-         if (_currentServerUrlIndex == originalConnectionIndex) {
+         _serverEndpoints.switchToNextEndpoint();
+         if (_serverEndpoints.getCurrentEndpointIndex() == originalConnectionIndex) {
             // We have tried all URLs
             return null;
          }
@@ -180,33 +167,18 @@ public class WapiClient implements Wapi {
       }
    }
 
-   private byte[] getPostBytes(Object request) {
+   private String getPostBody(Object request) {
 
       try {
          String postString = _objectMapper.writeValueAsString(request);
-         return postString.getBytes("UTF-8");
+         return postString;
       } catch (JsonProcessingException e) {
          logError("Error during JSON serialization", e);
-         throw new RuntimeException(e);
-      } catch (UnsupportedEncodingException e) {
-         // Never happens
-         logError("Error during binary serialization", e);
          throw new RuntimeException(e);
       }
    }
 
-   private HttpURLConnection getHttpConnection(HttpEndpoint endpoint, String function, int timeout) throws IOException {
-      URL url = new URL(endpoint.baseUrlString + WapiConst.WAPI_BASE_PATH + '/' + function);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      if (endpoint instanceof HttpsEndpoint) {
-         SslUtils.configureTrustedCertificate(connection, ((HttpsEndpoint) (endpoint)).certificateThumbprint);
-      }
-      connection.setConnectTimeout(timeout);
-      connection.setReadTimeout(timeout);
-      connection.setDoInput(true);
-      connection.setDoOutput(true);
-      return connection;
-   }
+
 
    @Override
    public WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request) {
@@ -276,3 +248,5 @@ public class WapiClient implements Wapi {
    }
 
 }
+
+

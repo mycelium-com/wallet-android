@@ -73,6 +73,7 @@ public interface LtApi {
    public final static int ERROR_CODE_TRADED_AMOUNT_TOO_SMALL = 17;
    public final static int ERROR_CODE_INVALID_FUNDING_TRANSACTION = 18;
    public final static int ERROR_CODE_PRICE_FORMULA_NOT_AVAILABLE = 19;
+   public final static int ERROR_CODE_WRONG_TRADER = 20;
 
    public static final String TRADE_ACTIVITY_NOTIFICATION_KEY = "tradeActivity";
    public static final String AD_ACTIVITY_NOTIFICATION_KEY = "adActivity";
@@ -330,5 +331,11 @@ public interface LtApi {
    curl  -k -X POST -H "Content-Type: application/json" "https://node3.mycelium.com/lttestnet/reverseGeocode?sessionId=1ecc892f-249f-4e3a-bde8-cb06bb3cf891&latitude=48.1182699&longitude=16.1826199"
     */
    public LtResponse<GeocoderSearchResults> reverseGeocoder(UUID sessionId, double lat, double lon);
+
+
+   public LtResponse<Void> deleteTradeHistory(UUID sessionId, UUID tradeHistory);
+
+   public LtResponse<Void> deleteAccount(UUID sessionId);
+
 
 }

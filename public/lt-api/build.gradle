@@ -9,8 +9,9 @@ targetCompatibility = 1.6
 
 dependencies {
     compile project(':public:bitlib')
-//    compile project(':public:mbwapi')
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.0'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.0'
+    compile project(':public:mbwlib')
+
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
     testCompile 'junit:junit:' + junitVersion
 }

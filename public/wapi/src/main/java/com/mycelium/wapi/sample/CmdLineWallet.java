@@ -28,10 +28,11 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
-import com.mycelium.wapi.api.WapiClient.HttpEndpoint;
-import com.mycelium.wapi.api.WapiClient.HttpsEndpoint;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
@@ -95,7 +96,8 @@ public class CmdLineWallet {
          }
       };
 
-      WapiClient wapi = new WapiClient(new HttpEndpoint[]{endpoint}, logger);
+      ServerEndpoints serverEndpoints = new ServerEndpoints(new HttpEndpoint[]{endpoint});
+      WapiClient wapi = new WapiClient(serverEndpoints, logger);
 
       AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
@@ -227,7 +229,8 @@ public class CmdLineWallet {
          }
       };
 
-      WapiClient wapi = new WapiClient(new HttpEndpoint[]{endpoint}, logger);
+      ServerEndpoints serverEndpoints = new ServerEndpoints(new HttpEndpoint[]{endpoint});
+      WapiClient wapi = new WapiClient(serverEndpoints, logger);
 
       AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 

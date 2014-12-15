@@ -121,6 +121,8 @@ public class LtConst {
 
       public static final String SEARCH_GEOCODER = "searchGeocoder";
       public static final String REVERSE_GEOCODER = "reverseGeocode";
+      public static final String DELETE_TRADE_HISTORY = "deleteTradeHistory";
+      public static final String DELETE_ACCOUNT = "deleteAccount";
 
    }
 

@@ -52,4 +52,8 @@ public class LtResponse<T> {
    protected LtResponse() {
       // For Jackson
    }
+
+   public static <T> LtResponse<T> error(int errorCodeInvalidSession) {
+      return new LtResponse<T>(errorCodeInvalidSession,null);
+   }
 }

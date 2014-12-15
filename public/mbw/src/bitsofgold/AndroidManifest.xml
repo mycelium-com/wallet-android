@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet"
-    android:versionCode="00"
-    android:versionName="overwrittenByGradle" >
+ >
 
     <!--  Note that the permission below depends on the package and must be changed for each build target -->
     <permission android:name="il.co.bitsofgold.wallet.permission.C2D_MESSAGE"

@@ -32,74 +32,50 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
+package com.mycelium.net;
 
-import android.util.Log;
+import com.google.common.collect.Lists;
 
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.lt.api.LtApi;
-import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.lt.api.LtApiClient.Logger;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.HttpsEndpoint;
-import com.mycelium.net.ServerEndpoints;
+import java.util.ArrayList;
+import java.util.Random;
 
-public class MbwTestEnvironment extends MbwEnvironment {
+public class ServerEndpoints {
+   final private ArrayList<HttpEndpoint> endpoints;
+   private int currentEndpoint;
+   private ServerEndpointType allowedEndpointTypes = ServerEndpointType.ONLY_HTTPS;
 
-   public static final String myceliumThumbprint = "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F";
 
-   /**
-    * Local Trader API for testnet
-    */
-   // private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint =
-   //      "http://212.186.198.83:8089/trade/");
+   public ServerEndpoints(HttpEndpoint endpoints[]) {
+      this.endpoints = Lists.newArrayList(endpoints);
+      currentEndpoint = new Random().nextInt(this.endpoints.size());
 
-   private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
-         "https://node3.mycelium.com/lttestnet/", myceliumThumbprint);
-
-   private static final LtApiClient testnetLocalTraderApi = new LtApiClient(testnetLocalTraderEndpoint, new Logger() {
-
-      @Override
-      public void logError(String message, Exception e) {
-         Log.e("", message, e);
-
-      }
-
-      @Override
-      public void logError(String message) {
-         Log.e("", message);
-
-      }
-   });
-
-   public MbwTestEnvironment(String brand){
-      super(brand);
+      // ensure correct kind of endpoint
+      switchToNextEndpoint();
    }
 
-   @Override
-   public NetworkParameters getNetwork() {
-      return NetworkParameters.testNetwork;
+   public HttpEndpoint getCurrentEndpoint(){
+      return endpoints.get(currentEndpoint);
    }
 
-   @Override
-   public LtApi getLocalTraderApi() {
-      return testnetLocalTraderApi;
+   public int getCurrentEndpointIndex(){
+      return currentEndpoint;
    }
 
+   public HttpEndpoint switchToNextEndpoint(){
+      HttpEndpoint selectedEndpoint;
+      int cnt=0;
+      do{
+         currentEndpoint++;
+         if (currentEndpoint >= endpoints.size()) {
+            currentEndpoint = 0;
+         }
+         selectedEndpoint = endpoints.get(currentEndpoint);
+         cnt++;
+         if (cnt>endpoints.size()){
+            throw new RuntimeException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
+         }
+      }while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
 
-   /**
-    * Wapi
-    */
-   private static final HttpEndpoint testnetWapiEndpoint =
-         new HttpsEndpoint("https://node3.mycelium.com/wapitestnet", myceliumThumbprint);
-//         new HttpEndpoint("http://node3.mycelium.com/wapitestnet");
-   private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{testnetWapiEndpoint});
-
-
-
-   @Override
-   public ServerEndpoints getWapiEndpoints() {
-      return  testnetWapiEndpoints;
+      return selectedEndpoint;
    }
-
 }

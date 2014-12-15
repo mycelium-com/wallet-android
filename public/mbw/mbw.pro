@@ -7,6 +7,7 @@
 #ignore xzing version trickery
 -dontwarn com.google.zxing.**
 -dontwarn java.lang.management.**
+-dontwarn okio.**
 
 
 -keepclassmembers class ** {

@@ -150,6 +150,12 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
       return ret;
    }
 
+   public byte[] firstNBytes(int n) {
+      byte[] ret = new byte[n];
+      System.arraycopy(_bytes, 0, ret, 0, n);
+      return ret;
+   }
+
    public String toHex() {
       return HexUtils.toHex(_bytes);
    }

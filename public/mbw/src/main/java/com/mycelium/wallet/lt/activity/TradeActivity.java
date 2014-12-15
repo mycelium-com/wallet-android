@@ -55,12 +55,8 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -92,12 +88,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
-import com.mycelium.wallet.lt.api.AbortTrade;
-import com.mycelium.wallet.lt.api.AcceptTrade;
-import com.mycelium.wallet.lt.api.ChangeTradeSessionPrice;
-import com.mycelium.wallet.lt.api.ReleaseBtc;
-import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
-import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
+import com.mycelium.wallet.lt.api.*;
 
 public class TradeActivity extends Activity {
 
@@ -167,7 +158,7 @@ public class TradeActivity extends Activity {
       _etMessage.setOnEditorActionListener(editActionListener);
       _btSendMessage.setOnClickListener(sendMessageClickListener);
       _btAccept.setOnClickListener(acceptClickListener);
-      _btAbort.setOnClickListener(abortorStopClickListener);
+      _btAbort.setOnClickListener(abortorStopOrDeleteClickListener);
       _btCashReceived.setOnClickListener(cashReceivedClickListener);
       _updateSound = RingtoneManager
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
@@ -300,13 +291,41 @@ public class TradeActivity extends Activity {
       });
    }
 
-   OnClickListener abortorStopClickListener = new OnClickListener() {
+   OnClickListener abortorStopOrDeleteClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View arg0) {
-         confirmAbort();
+         if (_tradeSession.abortAction.isApplicable()) {
+            //abort trade
+            confirmAbort();
+         } else {
+            //delete history
+            confirmDelete();
+         }
       }
    };
+
+   private void confirmDelete() {
+      AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
+      confirmDialog.setTitle(R.string.lt_confirm_title);
+      confirmDialog.setMessage(getString(R.string.lt_confirm_delete_history));
+      confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+         public void onClick(DialogInterface arg0, int arg1) {
+            // User clicked yes
+            _ltManager.makeRequest(new DeleteTradeHistory(_tradeSession.id));
+            finish();
+         }
+      });
+      confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+         public void onClick(DialogInterface arg0, int arg1) {
+            // User clicked no
+         }
+      });
+      confirmDialog.show();
+
+   }
 
    private void confirmAbort() {
       String message;
@@ -497,10 +516,15 @@ public class TradeActivity extends Activity {
          _flConfidence.setVisibility(View.GONE);
       }
 
-      // Stop or Abort
-      if (_tradeSession.isWaitingForPeerAccept || _tradeSession.acceptAction.isEnabled()) {
+      //Delete or Stop or Abort
+      if (!_tradeSession.abortAction.isApplicable()) {
+         //trade is through, so delete history is possible
+         _btAbort.setText(R.string.lt_delete_trade_history);
+      } else if (_tradeSession.isWaitingForPeerAccept || _tradeSession.acceptAction.isEnabled()) {
+         //no one acceptec, so stop is possible
          _btAbort.setText(R.string.lt_stop_trade_button);
       } else {
+         //was accepted, so only abort with penalty is possible
          _btAbort.setText(R.string.lt_abort_trade_button);
       }
 
@@ -533,7 +557,6 @@ public class TradeActivity extends Activity {
       }
 
       applyActionStateToButton(tradeSession.acceptAction, canWeAffordThis, _btAccept);
-      applyActionStateToButton(tradeSession.abortAction, _btAbort);
       applyActionStateToButton(tradeSession.refreshRateAction, _btRefresh);
       applyActionStateToButton(tradeSession.changePriceAction, _btChangePrice);
       applyActionStateToButton(tradeSession.releaseBtcAction, canWeAffordThis, _btCashReceived);

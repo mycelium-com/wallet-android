@@ -40,9 +40,10 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.lt.api.LtApiClient.Logger;
-import com.mycelium.wapi.api.Wapi;
-import com.mycelium.wapi.api.WapiClient;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.HttpsEndpoint;
+import com.mycelium.net.ServerEndpoints;
+import com.mycelium.wapi.api.*;
 
 public class MbwProdEnvironment extends MbwEnvironment {
    /**
@@ -87,43 +88,30 @@ public class MbwProdEnvironment extends MbwEnvironment {
       return prodnetLocalTraderApi;
    }
 
+
    /**
     * Wapi
     */
-   private static final WapiClient.HttpEndpoint[] prodnetWapiEndpoints = new WapiClient.HttpEndpoint[] {
+   private static final HttpEndpoint[] prodnetWapiEndpoints = new HttpEndpoint[] {
          // node2
-         new WapiClient.HttpsEndpoint("https://mws2.mycelium.com/wapi", myceliumThumbprint),
-         new WapiClient.HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),
+         new HttpsEndpoint("https://mws2.mycelium.com/wapi", myceliumThumbprint),
+         new HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),
 
          // node6
-         new WapiClient.HttpsEndpoint("https://mws6.mycelium.com/wapi", myceliumThumbprint),
-         new WapiClient.HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),
+         new HttpsEndpoint("https://mws6.mycelium.com/wapi", myceliumThumbprint),
+         new HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),
 
          // node7
-         new WapiClient.HttpsEndpoint("https://mws7.mycelium.com/wapi", myceliumThumbprint),
-         new WapiClient.HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint)
+         new HttpsEndpoint("https://mws7.mycelium.com/wapi", myceliumThumbprint),
+         new HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint)
    };
 
-   private static final WapiClient prodnetWapiClient = new WapiClient(prodnetWapiEndpoints, new WapiLogger() {
-
-      @Override
-      public void logError(String message) {
-         Log.e("Wapi", message);
-      }
-
-      @Override
-      public void logError(String message, Exception e) {
-         Log.e("Wapi", message, e);
-      }
-
-      @Override
-      public void logInfo(String message) {
-         Log.i("Wapi", message);
-      }
-   });
+   private static final ServerEndpoints prodnetWapiServerEndpoints = new ServerEndpoints(prodnetWapiEndpoints);
 
    @Override
-   public Wapi getWapi() {
-      return prodnetWapiClient;
+   public ServerEndpoints getWapiEndpoints() {
+      return prodnetWapiServerEndpoints;
    }
+
+
 }

@@ -45,7 +45,7 @@ public class TransactionUtils {
    /**
     * The minimum output value allowed when relaying transactions
     */
-   public static final long MINIMUM_OUTPUT_VALUE = 5430;
+   public static final long MINIMUM_OUTPUT_VALUE = 5460;
 
    /**
     * The priority threshold at which a transaction is considered to be high

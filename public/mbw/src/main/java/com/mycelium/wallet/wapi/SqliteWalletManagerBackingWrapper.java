@@ -32,74 +32,38 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
+package com.mycelium.wallet.wapi;
 
-import android.util.Log;
+import android.content.Context;
+import android.os.Handler;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.api.exception.DbCorruptedException;
+import com.mycelium.wapi.wallet.WalletManagerBacking;
 
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.lt.api.LtApi;
-import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.lt.api.LtApiClient.Logger;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.HttpsEndpoint;
-import com.mycelium.net.ServerEndpoints;
+// Wrapper for SqliteWalletManagerBacking, to catch the DbCorrupted RuntimeException and inform the user about it
+public class SqliteWalletManagerBackingWrapper extends SqliteWalletManagerBacking {
+   private final Context context;
 
-public class MbwTestEnvironment extends MbwEnvironment {
 
-   public static final String myceliumThumbprint = "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F";
+   public SqliteWalletManagerBackingWrapper(Context context) {
+      super(context);
+      this.context = context;
+   }
 
-   /**
-    * Local Trader API for testnet
-    */
-   // private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint =
-   //      "http://212.186.198.83:8089/trade/");
+   @Override
+   public byte[] getValue(byte[] id) {
+      try {
+         return super.getValue(id);
+      }catch (final DbCorruptedException dbe){
+         // inform the user that something wrong is going on with his hardware
+         // todo: fix/show info to the user, that something wrong happened with his DB. for now, just report the error
+         // Utils.showSimpleMessageDialog(context.getApplicationContext(), "The database storing your private and public keys is corrupted. This might be the result of an hardware error. \n\nIt is advisable to delete the application data and restore from your backup. \nIf this happens again, think about getting a new device.");
 
-   private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
-         "https://node3.mycelium.com/lttestnet/", myceliumThumbprint);
-
-   private static final LtApiClient testnetLocalTraderApi = new LtApiClient(testnetLocalTraderEndpoint, new Logger() {
-
-      @Override
-      public void logError(String message, Exception e) {
-         Log.e("", message, e);
-
+         // rethrow the exception, so that the app exits and we get an error mail
+         throw new RuntimeException(dbe);
       }
 
-      @Override
-      public void logError(String message) {
-         Log.e("", message);
 
-      }
-   });
-
-   public MbwTestEnvironment(String brand){
-      super(brand);
    }
-
-   @Override
-   public NetworkParameters getNetwork() {
-      return NetworkParameters.testNetwork;
-   }
-
-   @Override
-   public LtApi getLocalTraderApi() {
-      return testnetLocalTraderApi;
-   }
-
-
-   /**
-    * Wapi
-    */
-   private static final HttpEndpoint testnetWapiEndpoint =
-         new HttpsEndpoint("https://node3.mycelium.com/wapitestnet", myceliumThumbprint);
-//         new HttpEndpoint("http://node3.mycelium.com/wapitestnet");
-   private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{testnetWapiEndpoint});
-
-
-
-   @Override
-   public ServerEndpoints getWapiEndpoints() {
-      return  testnetWapiEndpoints;
-   }
-
 }

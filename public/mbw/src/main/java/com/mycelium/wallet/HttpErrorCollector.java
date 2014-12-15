@@ -39,6 +39,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.lib.ErrorMetaData;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.request.ErrorCollectorRequest;
@@ -58,10 +59,10 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
    }
 
    //todo make sure proxy is set before this. require as dependency?
-   public static HttpErrorCollector registerInVM(Context applicationContext) {
+   public static HttpErrorCollector registerInVM(Context applicationContext, WapiClient wapi) {
       MbwEnvironment env = MbwEnvironment.determineEnvironment(applicationContext);
       String version = VersionManager.determineVersion(applicationContext);
-      return registerInVM(applicationContext, version, env.getWapi());
+      return registerInVM(applicationContext, version, wapi);
    }
 
    public static HttpErrorCollector registerInVM(Context applicationContext, String version, Wapi api) {

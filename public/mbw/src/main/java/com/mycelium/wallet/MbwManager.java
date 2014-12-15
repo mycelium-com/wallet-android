@@ -41,6 +41,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.common.base.Optional;
@@ -62,15 +63,18 @@ import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteWalletManagerBacking;
+import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.util.*;
 
 public class MbwManager {
@@ -95,6 +99,7 @@ public class MbwManager {
    }
 
    private final Bus _eventBus;
+   private final WapiClient _wapi;
    private NetworkConnectionWatcher _connectionWatcher;
    private Context _applicationContext;
    private int _displayWidth;
@@ -125,12 +130,15 @@ public class MbwManager {
    private final RandomSource _randomSource;
    private final EventTranslator _eventTranslator;
 
+
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.determineEnvironment(_applicationContext);
       String version = VersionManager.determineVersion(_applicationContext);
 
-      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _environment.getWapi());
+      _wapi = initWapi();
+
+      _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _wapi);
 
       if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.GINGERBREAD) {
          // Disable HTTP keep-alive on systems predating Gingerbread
@@ -146,7 +154,8 @@ public class MbwManager {
       // Initialize proxy early, to enable error reporting during startup..
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-      _asyncApi = new AndroidAsyncApi(_environment.getWapi(), _eventBus);
+     
+      _asyncApi = new AndroidAsyncApi(_wapi, _eventBus);
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
@@ -182,7 +191,7 @@ public class MbwManager {
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
-      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _environment.getWapi(), this);
+      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, this);
 
 
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -202,7 +211,28 @@ public class MbwManager {
       //for managing temp accounts created through scanning
       _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
       _tempWalletManager.addObserver(_eventTranslator);
+
    }
+
+   private WapiClient initWapi() {
+      return new WapiClient(_environment.getWapiEndpoints(), new WapiLogger() {
+         @Override
+         public void logError(String message) {
+            Log.e("Wapi", message);
+         }
+
+         @Override
+         public void logError(String message, Exception e) {
+            Log.e("Wapi", message, e);
+         }
+
+         @Override
+         public void logInfo(String message) {
+            Log.i("Wapi", message);
+         }
+      });
+   }
+
 
    private void migrateOldKeys() {
       // We only migrate old keys if we don't have any accounts yet - otherwise, migration has already taken place
@@ -308,18 +338,19 @@ public class MbwManager {
     * @return a new wallet manager instance
     */
    private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
+      WalletManagerBacking backing;
+      SecureKeyValueStore secureKeyValueStore;
 
 
       // Create persisted account backing
-      WalletManagerBacking backing = new SqliteWalletManagerBacking(context);
+      backing = new SqliteWalletManagerBackingWrapper(context);
 
       // Create persisted secure storage instance
-      SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
+      secureKeyValueStore = new SecureKeyValueStore(backing,
             new AndroidRandomSource());
 
       // Create and return wallet manager
-      return new WalletManager(secureKeyValueStore, backing, environment.getNetwork(),
-            environment.getWapi());
+      return new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi);
    }
 
    /**
@@ -339,7 +370,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(),
-            environment.getWapi());
+            _wapi);
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
@@ -821,4 +852,8 @@ public class MbwManager {
       return _randomSource;
    }
 
+
+   public WapiClient getWapi() {
+      return _wapi;
+   }
 }

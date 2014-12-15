@@ -32,74 +32,11 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
+package com.mycelium.wapi.api.exception;
 
-import android.util.Log;
 
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.lt.api.LtApi;
-import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.lt.api.LtApiClient.Logger;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.HttpsEndpoint;
-import com.mycelium.net.ServerEndpoints;
-
-public class MbwTestEnvironment extends MbwEnvironment {
-
-   public static final String myceliumThumbprint = "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F";
-
-   /**
-    * Local Trader API for testnet
-    */
-   // private static final LtApiClient.HttpEndpoint testnetLocalTraderEndpoint =
-   //      "http://212.186.198.83:8089/trade/");
-
-   private static final LtApiClient.HttpsEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpsEndpoint(
-         "https://node3.mycelium.com/lttestnet/", myceliumThumbprint);
-
-   private static final LtApiClient testnetLocalTraderApi = new LtApiClient(testnetLocalTraderEndpoint, new Logger() {
-
-      @Override
-      public void logError(String message, Exception e) {
-         Log.e("", message, e);
-
-      }
-
-      @Override
-      public void logError(String message) {
-         Log.e("", message);
-
-      }
-   });
-
-   public MbwTestEnvironment(String brand){
-      super(brand);
+public class DbCorruptedException extends RuntimeException {
+   public DbCorruptedException(String detailMessage) {
+      super(detailMessage);
    }
-
-   @Override
-   public NetworkParameters getNetwork() {
-      return NetworkParameters.testNetwork;
-   }
-
-   @Override
-   public LtApi getLocalTraderApi() {
-      return testnetLocalTraderApi;
-   }
-
-
-   /**
-    * Wapi
-    */
-   private static final HttpEndpoint testnetWapiEndpoint =
-         new HttpsEndpoint("https://node3.mycelium.com/wapitestnet", myceliumThumbprint);
-//         new HttpEndpoint("http://node3.mycelium.com/wapitestnet");
-   private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{testnetWapiEndpoint});
-
-
-
-   @Override
-   public ServerEndpoints getWapiEndpoints() {
-      return  testnetWapiEndpoints;
-   }
-
 }

@@ -34,7 +34,9 @@
 
 package com.mycelium.wallet.lt.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -64,6 +66,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
+import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 
 public class LtMainActivity extends ActionBarActivity {
@@ -181,6 +184,10 @@ public class LtMainActivity extends ActionBarActivity {
       final boolean isAdsTab = tabIdx == ((TabsAdapter.TabInfo) _myAdsTab.getTag()).index;
       Preconditions.checkNotNull(menu.findItem(R.id.miAddAd)).setVisible(isAdsTab);
 
+      //check delete trade account visibility
+      final boolean hasTradeAccAndIsInfoTab = _ltManager.hasLocalTraderAccount() && (tabIdx == ((TabsAdapter.TabInfo) _myTraderInfoTab.getTag()).index);
+      Preconditions.checkNotNull(menu.findItem(R.id.miDeleteTradeAccount).setVisible(hasTradeAccAndIsInfoTab));
+
       return super.onPrepareOptionsMenu(menu);
    }
 
@@ -216,6 +223,7 @@ public class LtMainActivity extends ActionBarActivity {
       final int itemId = item.getItemId();
       if (itemId == R.id.miHowTo) {
          openLocalTraderHelp();
+         return true;
       }
       if (itemId == android.R.id.home) {
         // Respond to the action bar's home button, navigates to parent activity
@@ -227,7 +235,31 @@ public class LtMainActivity extends ActionBarActivity {
         finish();
         return true;
       }
+      if (itemId == R.id.miDeleteTradeAccount) {
+         deleteTraderAccount();
+         return true;
+      }
       return super.onOptionsItemSelected(item);
+   }
+
+   private void deleteTraderAccount() {
+      AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
+      confirmDialog.setTitle(R.string.lt_confirm_title);
+      confirmDialog.setMessage(R.string.lt_confirm_delete_trader_message);
+      confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+         public void onClick(DialogInterface arg0, int arg1) {
+            _ltManager.makeRequest(new DeleteTrader());
+            finish();
+         }
+      });
+      confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+         public void onClick(DialogInterface arg0, int arg1) {
+            // User clicked no
+         }
+      });
+      confirmDialog.show();
    }
 
    private void openLocalTraderHelp() {

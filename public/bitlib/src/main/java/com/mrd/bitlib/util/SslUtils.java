@@ -43,9 +43,9 @@ public class SslUtils {
 
    private static final Map<String, SSLSocketFactory> _sslSocketFactories = new HashMap<String, SSLSocketFactory>();
 
-   private static final HostnameVerifier HOST_NAME_VERIFIER;
+   public static final HostnameVerifier HOST_NAME_VERIFIER_ACCEPT_ALL;
 
-   private static synchronized SSLSocketFactory getSsLSocketFactory(String certificateThumbprint) {
+   public static synchronized SSLSocketFactory getSsLSocketFactory(String certificateThumbprint) {
       SSLSocketFactory factory = _sslSocketFactories.get(certificateThumbprint);
       if (factory == null) {
          factory = createSslSocketFactory(certificateThumbprint);
@@ -99,7 +99,7 @@ public class SslUtils {
 
       // Used for disabling host name verification. This is safe because we
       // trust the MWAPI server certificate explicitly
-      HOST_NAME_VERIFIER = new HostnameVerifier() {
+      HOST_NAME_VERIFIER_ACCEPT_ALL = new HostnameVerifier() {
          @Override
          public boolean verify(String hostname, SSLSession session) {
             return true;
@@ -125,8 +125,8 @@ public class SslUtils {
 
       HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) connection;
 
-      if (httpsUrlConnection.getHostnameVerifier() != HOST_NAME_VERIFIER) {
-         httpsUrlConnection.setHostnameVerifier(HOST_NAME_VERIFIER);
+      if (httpsUrlConnection.getHostnameVerifier() != HOST_NAME_VERIFIER_ACCEPT_ALL) {
+         httpsUrlConnection.setHostnameVerifier(HOST_NAME_VERIFIER_ACCEPT_ALL);
       }
       SSLSocketFactory sslSocketFactory = getSsLSocketFactory(serverThumbprint);
       if (httpsUrlConnection.getSSLSocketFactory() != sslSocketFactory) {

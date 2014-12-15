@@ -406,8 +406,8 @@
     <string name="lt_price_of_one_btc_label">(Per 1 BTC)</string>
     <string name="lt_confirm_title">Confirm</string>
     <string name="lt_confirm_cash_received">Did you receive %1$s %2$s and are you ready to send the bitcoins to %3$s?</string>
-    <string name="lt_confirm_stop">Do you wish to stop this trade?"</string>
-    <string name="lt_confirm_abort">Because both of you accepted the deal your ratings may get a penalty.\nDo you wish to abort this trade?"</string>
+    <string name="lt_confirm_stop">Do you wish to stop this trade?</string>
+    <string name="lt_confirm_abort">Because both of you accepted the deal your ratings may get a penalty.\nDo you wish to abort this trade?</string>
     <string name="lt_enter_location_tite">Enter Location</string>
     <string name="lt_location_hint">Enter city or address</string>
     <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">WELCOME!\n\nMycelium Local Trader lets you trade cash for bitcoins by finding traders in your local area, without you having to trust an exchange provider with your money. All trades are done directly in person.\n\nUntil September 1st, 2014, the fee for trading through the Local Trader system will be 0.2%, which will be added to the total sale price.</string>
@@ -576,5 +576,9 @@
     <string name="sss_unrecognized_share_warning">Unrecognized share content</string>
     <string name="sss_more_shares_needed">You need %1$s more shares.</string>
     <string name="sss_share_number_scanned">You scanned share number %1$s.</string>
+    <string name="lt_delete_account">Delete Trader Identity</string>
+    <string name="lt_delete_trade_history">Delete This Trade</string>
+    <string name="lt_confirm_delete_history">Do you want to delete the information for this trade from your phone?</string>
+    <string name="lt_confirm_delete_trader_message">Do you want to delete your local trader identity? All trade information and ratings will be permanently removed and can not be recovered.</string>
 
 </resources>

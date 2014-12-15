@@ -47,6 +47,7 @@ import android.os.RemoteException;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.HttpErrorCollector;
+import com.mycelium.wallet.MbwManager;
 
 public class TaskExecutionService extends Service {
 
@@ -175,7 +176,10 @@ public class TaskExecutionService extends Service {
    public void onCreate() {
       _state = ServiceTaskStatusEx.State.NOTRUNNING;
       _applicationContext = this.getApplicationContext();
-      _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext());
+
+      // todo!!!!!!!!!!!
+      _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext(), MbwManager.getInstance(null).getWapi());
+
       _serviceMessenger = new Messenger(new IncomingHandler());
    }
 

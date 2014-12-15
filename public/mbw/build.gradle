@@ -18,10 +18,11 @@ buildscript {
 dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
     compile project(':public:zxing-android')
-//    compile project(':public:mbwapi')
     compile project(':public:bitlib')
     compile project(':public:wapi')
     compile project(':public:lt-api')
+    compile project(':public:mbwlib')
+
     compile 'com.squareup:otto:1.3.4'
     compile 'com.android.support:appcompat-v7:19.1.+'
     compile 'com.android.support:support-v4:19.1.0'
@@ -37,10 +38,8 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
-    }
+        exclude 'META-INF/DEPENDENCIES'
 
-    if (buildFor != 'idea') {
-        useOldManifestMerger true
     }
 
     compileOptions {
@@ -56,8 +55,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 21002
-        versionName  '2.1.0-BETA1'
+        versionCode 21005
+        versionName '2.1.0-BETA3'
     }
 
     signingConfigs {
@@ -83,50 +82,37 @@ android {
         }*/
         release {
 //            debuggable true
-            runProguard true
+            minifyEnabled true
             proguardFile 'mbw.pro'
             applicationVariants.all { variant ->
-                def file = variant.outputFile
-                def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
-                variant.outputFile = new File(file.parent, file.name.replace(".apk", versionExtension))
+                variant.outputs.each { output ->
+                    def file = output.outputFile
+                    if (file != null && file.name.endsWith('.apk')) {
+                        def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
+                        output.outputFile = new File(file.parent, file.name.replace(".apk", versionExtension))
+                    }
+                }
             }
         }
     }
 
     productFlavors {
         bitsofgold {
-            if (buildFor == 'idea') {
-                packageName 'il.co.bitsofgold.wallet'
-            } else {
-                applicationId 'il.co.bitsofgold.wallet'
-
-            }
+            applicationId 'il.co.bitsofgold.wallet'
             versionName = defaultConfig.versionName + '-BOG'
             signingConfig signingConfigs.release
         }
         prodnet {
-            if (buildFor == 'idea') {
-                packageName 'com.mycelium.wallet'
-            } else {
-                applicationId 'com.mycelium.wallet'
-            }
+            applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }
         dev {
-            if (buildFor == 'idea') {
-                packageName 'com.mycelium.devwallet'
-            } else {
-                applicationId 'com.mycelium.devwallet'
-            }
+            applicationId 'com.mycelium.devwallet'
             signingConfig signingConfigs.debug
         }
         testnet {
-            if (buildFor == 'idea') {
-                packageName 'com.mycelium.testnetwallet'
-            } else {
-                applicationId 'com.mycelium.testnetwallet'
-            }
+            applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.testnetplay
         }

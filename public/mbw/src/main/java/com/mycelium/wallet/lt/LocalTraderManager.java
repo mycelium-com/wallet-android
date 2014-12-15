@@ -227,6 +227,8 @@ public class LocalTraderManager {
       public void updateSingleTradeSession(TradeSession tradeSession);
 
       public void cacheTraderInfo(TraderInfo traderInfo);
+
+      public void unsetLocalTraderAccount();
    }
 
    private class Executor implements Runnable, LocalManagerApiContext {
@@ -322,6 +324,10 @@ public class LocalTraderManager {
 
       public void updateLocalTradeSessions(Collection<TradeSession> collection) {
          LocalTraderManager.this.updateLocalTradeSessions(collection);
+      }
+
+      public void unsetLocalTraderAccount() {
+         LocalTraderManager.this.unsetLocalTraderAccount();
       }
 
       public void updateSingleTradeSession(TradeSession tradeSession) {

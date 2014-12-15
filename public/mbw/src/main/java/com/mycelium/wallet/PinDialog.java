@@ -145,7 +145,7 @@ public class PinDialog extends Dialog {
       if (pin.length() > index) {
          return _hidden ? "*" : pin.substring(index, index + 1);
       } else {
-         return "";
+         return " ";
       }
    }
 

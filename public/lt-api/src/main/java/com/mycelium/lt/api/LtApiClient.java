@@ -569,6 +569,23 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> deleteTradeHistory(UUID sessionId, UUID tradeHistory) {
+      LtRequest r = new LtRequest(Function.DELETE_TRADE_HISTORY);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.TRADE_SESSION_ID, tradeHistory.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> deleteAccount(UUID sessionId) {
+      LtRequest r = new LtRequest(Function.DELETE_ACCOUNT);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> requestMarketRateRefresh(UUID sessionId, UUID tradeSessionId) {
       LtRequest r = new LtRequest(Function.REQUEST_MARKET_RATE_REFRESH);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());

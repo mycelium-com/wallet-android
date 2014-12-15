@@ -245,4 +245,12 @@ public abstract class LocalTraderEventSubscriber {
    public void onNotificationEmailSet(SetNotificationMail request) {
       onLtGenericSuccess(request);
    }
+
+   public void onLtAccountDeleted(DeleteTrader request) {
+      onLtGenericSuccess(request);
+   }
+
+   public void onLtHistoryDeleted(DeleteTradeHistory request) {
+      onLtGenericSuccess(request);
+   }
 }

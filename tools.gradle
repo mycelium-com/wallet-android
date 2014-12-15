@@ -1,0 +1,38 @@
+
+def getCheckedOutGitCommitHash() {
+    def gitFolder = project.rootDir.getPath() + "/.git/"
+    def takeFromHash = 12   // take the first n chars from the commit hash
+
+    /*
+     * Simple access to the current commit-hash, without having to rely on a local git installation
+     *   (based on https://gist.github.com/JonasGroeger/7620911 )
+     *
+     *  '.git/HEAD' contains either
+     *      in case of detached head: the currently checked out commit hash ("3b3fe8f99d45d48ada83596cee371b21899d97a8")
+     *      otherwise: a reference to a file containing the current commit hash  ("ref: refs/heads/master")
+     */
+    def hash = ""
+    try {
+        def head = new File(gitFolder + "HEAD").text.split(":") // .git/HEAD
+        def isCommit = (head.length == 1)
+
+        if (isCommit) {
+            hash = head[0].trim();
+        } else {
+            def refHead = new File(gitFolder + head[1].trim()) // .git/refs/heads/master
+            hash = refHead.text.trim()
+        }
+    }catch(IOException ex){
+        hash = ""
+        logger.warn("Unable to detect current git commit hash: {}", ex.toString())
+    }
+
+    def version = hash.take(takeFromHash)
+    logger.debug("Detected '{}' as git commit hash - using {} as version", hash, version)
+
+    return version
+}
+
+ext{
+    getCheckedOutGitCommitHash = this.&getCheckedOutGitCommitHash
+}
