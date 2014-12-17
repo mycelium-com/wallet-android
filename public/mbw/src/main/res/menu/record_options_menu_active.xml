@@ -5,4 +5,12 @@
         android:id="@+id/miArchive"
         android:title="@string/archive_action"/>
 
+    <item
+            android:id="@+id/miShowOutputs"
+            android:title="@string/show_outputs_menu_item" />
+
+    <item
+            android:id="@+id/miRescan"
+            android:title="@string/rescan_account_menu_item" />
+
 </menu>

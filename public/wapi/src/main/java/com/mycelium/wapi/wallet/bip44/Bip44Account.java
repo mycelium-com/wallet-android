@@ -111,6 +111,15 @@ public class Bip44Account extends AbstractAccount {
    }
 
    @Override
+   public void dropCachedData() {
+      if (_context.isArchived()) {
+         return;
+      }
+      clearInternalStateInt(false);
+      _context.persistIfNecessary(_backing);
+   }
+
+   @Override
    public boolean isValidEncryptionKey(KeyCipher cipher) {
       return _keyManager.isValidEncryptionKey(cipher);
    }

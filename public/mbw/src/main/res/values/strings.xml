@@ -580,5 +580,6 @@
     <string name="lt_delete_trade_history">Delete This Trade</string>
     <string name="lt_confirm_delete_history">Do you want to delete the information for this trade from your phone?</string>
     <string name="lt_confirm_delete_trader_message">Do you want to delete your local trader identity? All trade information and ratings will be permanently removed and can not be recovered.</string>
+    <string name="rescan_account_menu_item">Rescan Account</string>
 
 </resources>

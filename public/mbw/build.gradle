@@ -35,6 +35,11 @@ def commonDebugKeystore = file("../../keystore_debug")
 
 android {
 
+    lintOptions{
+        disable 'InvalidPackage'
+        //todo configure lint.xml for okio InvalidPackage
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
@@ -55,8 +60,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 21005
-        versionName '2.1.0-BETA3'
+        versionCode 21006
+        versionName '2.1.0-BETA4'
     }
 
     signingConfigs {

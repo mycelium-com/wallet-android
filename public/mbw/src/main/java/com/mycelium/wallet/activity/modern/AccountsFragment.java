@@ -499,7 +499,6 @@ public class AccountsFragment extends Fragment {
 
       if (account.isActive()) {
          menus.add(R.menu.record_options_menu_active);
-         menus.add(R.menu.records_options_menu_unspent);
       }
       if (account.isArchived()) {
          menus.add(R.menu.record_options_menu_archive);
@@ -580,28 +579,35 @@ public class AccountsFragment extends Fragment {
             } else if (id == R.id.miMakeBackup) {
                makeBackup();
                return true;
+            } else if (id == R.id.miRescan) {
+               rescan();
+               return true;
             }
-            return false;
+               return false;
+            }
+
+            @Override
+            public void onDestroyActionMode (ActionMode actionMode){
+               currentActionMode = null;
+               // Loose focus
+               if (_focusedAccount != null) {
+                  _focusedAccount = null;
+                  update();
+               }
+            }
          }
 
-         @Override
-         public void onDestroyActionMode(ActionMode actionMode) {
-            currentActionMode = null;
-            // Loose focus
-            if (_focusedAccount != null) {
-               _focusedAccount = null;
-               update();
-            }
-         }
-      };
-      currentActionMode = parent.startSupportActionMode(actionMode);
-      // Late set the focused record. We have to do this after
-      // startSupportActionMode above, as it calls onDestroyActionMode when
-      // starting for some reason, and this would clear the focus and force
-      // an update.
-      _focusedAccount = account;
-      update();
-   }
+         ;
+         currentActionMode=parent.startSupportActionMode(actionMode);
+         // Late set the focused record. We have to do this after
+         // startSupportActionMode above, as it calls onDestroyActionMode when
+         // starting for some reason, and this would clear the focus and force
+         // an update.
+         _focusedAccount=account;
+
+         update();
+      }
+
 
    private void makeBackup() {
       if (!AccountsFragment.this.isAdded()) {
@@ -721,6 +727,14 @@ public class AccountsFragment extends Fragment {
          }
 
       });
+   }
+
+   private void rescan() {
+      if (!AccountsFragment.this.isAdded()) {
+         return;
+      }
+      _focusedAccount.dropCachedData();
+      _mbwManager.getWalletManager(false).startSynchronization();
    }
 
    private void ignoreSelectedPrivateKey() {

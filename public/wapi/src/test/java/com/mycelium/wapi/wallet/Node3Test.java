@@ -34,6 +34,7 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiClient;

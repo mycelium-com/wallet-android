@@ -150,6 +150,15 @@ public interface WalletAccount {
    void activateAccount();
 
    /**
+    * In order to rescan an account.
+    * <p/>
+    * This causes the locally cached data to be dropped.
+    * Balance and transaction history will get deleted.
+    * Data will be re-created upon next synchronize.
+    */
+   void dropCachedData();
+
+   /**
     * Create a new unsigned transaction sending funds to one or more addresses.
     * <p/>
     * The unsigned transaction must be signed and queued before it will affect

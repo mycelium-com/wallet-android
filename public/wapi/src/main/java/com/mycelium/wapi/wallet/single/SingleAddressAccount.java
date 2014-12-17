@@ -82,6 +82,15 @@ public class SingleAddressAccount extends AbstractAccount {
    }
 
    @Override
+   public void dropCachedData() {
+      if (_context.isArchived()) {
+         return;
+      }
+      clearInternalStateInt(false);
+      _context.persistIfNecessary(_backing);
+   }
+
+   @Override
    public boolean isValidEncryptionKey(KeyCipher cipher) {
       return _keyStore.isValidEncryptionKey(cipher);
    }
@@ -118,6 +127,9 @@ public class SingleAddressAccount extends AbstractAccount {
                return false;
             }
          }
+
+         // recalculate cached Balance
+         updateLocalBalance();
 
          _context.persistIfNecessary(_backing);
          return true;
