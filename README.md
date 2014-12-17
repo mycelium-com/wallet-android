@@ -10,6 +10,8 @@ after joining, you need to explicitly enable beta versions for the software at
 
 https://play.google.com/apps/testing/com.mycelium.wallet
 
+As Beta Testers, please make sure you have a **backup of all the private keys** inside Mycelium. Beta testers will experience a lot of the bugs that are introduced. So far this was never necessary but we don't explicitly give this guarantee.
+
 Building
 ========
 
@@ -94,6 +96,8 @@ Authors
 =======
  - Jan Møller
  - Andreas Petersson
+ - Daniel Weigl
+ - Jan Dreske
 
 Credits
 =======
