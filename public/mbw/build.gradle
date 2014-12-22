@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
@@ -18,22 +18,24 @@ buildscript {
 dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
     compile project(':public:zxing-android')
-    compile project(':public:bitlib')
     compile project(':public:wapi')
     compile project(':public:lt-api')
     compile project(':public:mbwlib')
 
     compile 'com.squareup:otto:1.3.4'
-    compile 'com.android.support:appcompat-v7:19.1.+'
+    compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.google.android.gms:play-services:3.2.65'
+    compile 'com.google.android.gms:play-services-base:6.5.+'
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
-    //    compile 'com.google.android.gms:play-services:4.2.42'
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
 
 android {
+
+    dexOptions {
+        jumboMode true
+    }
 
     lintOptions{
         disable 'InvalidPackage'
@@ -46,6 +48,7 @@ android {
         exclude 'META-INF/DEPENDENCIES'
 
     }
+
 
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
@@ -60,8 +63,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 21006
-        versionName '2.1.0-BETA4'
+        versionCode 21010
+        versionName '2.1.0'
     }
 
     signingConfigs {
@@ -80,11 +83,15 @@ android {
     }
 
     buildTypes {
-        /*debug {
+
+/*
+        debug {
             debuggable true
             runProguard true
             proguardFile 'mbw.pro'
-        }*/
+        }
+*/
+
         release {
 //            debuggable true
             minifyEnabled true

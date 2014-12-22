@@ -81,7 +81,6 @@ public class NoticeFragment extends Fragment {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(false);
-      setRetainInstance(true);
       super.onCreate(savedInstanceState);
    }
 

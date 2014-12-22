@@ -15,12 +15,14 @@
             <fragment
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                class="com.mycelium.wallet.activity.main.AddressFragment" />
+                class="com.mycelium.wallet.activity.main.AddressFragment"
+                />
 
             <fragment
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                class="com.mycelium.wallet.activity.main.BalanceFragment" />
+                class="com.mycelium.wallet.activity.main.BalanceFragment"
+                />
 
             <View
                 android:layout_width="fill_parent"
@@ -29,7 +31,9 @@
             <fragment
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                class="com.mycelium.wallet.activity.main.NoticeFragment" />
+                class="com.mycelium.wallet.activity.main.NoticeFragment"
+                />
+
 
             <View
                 android:layout_width="fill_parent"
@@ -38,7 +42,8 @@
             <fragment
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                class="com.mycelium.wallet.activity.main.LocalTraderFragment" />
+                class="com.mycelium.wallet.activity.main.LocalTraderFragment"
+                    />
 
         </LinearLayout>
     </ScrollView>

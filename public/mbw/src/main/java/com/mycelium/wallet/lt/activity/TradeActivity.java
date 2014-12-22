@@ -517,7 +517,7 @@ public class TradeActivity extends Activity {
       }
 
       //Delete or Stop or Abort
-      if (!_tradeSession.abortAction.isApplicable()) {
+      if (!_tradeSession.isOpen) {
          //trade is through, so delete history is possible
          _btAbort.setText(R.string.lt_delete_trade_history);
       } else if (_tradeSession.isWaitingForPeerAccept || _tradeSession.acceptAction.isEnabled()) {
@@ -562,6 +562,13 @@ public class TradeActivity extends Activity {
       applyActionStateToButton(tradeSession.releaseBtcAction, canWeAffordThis, _btCashReceived);
       applyActionStateToButton(tradeSession.sendMessageAction, _btSendMessage);
       applyActionStateToButton(tradeSession.sendMessageAction, _etMessage);
+      applyActionStateToButton(tradeSession.abortAction, _btAbort);
+
+      //if the trade is through, show the button to enable delete history
+      if (!_tradeSession.isOpen) {
+         _btAbort.setVisibility(View.VISIBLE);
+         _btAbort.setEnabled(true);
+      }
    }
 
    private void displayInsufficientFunds() {

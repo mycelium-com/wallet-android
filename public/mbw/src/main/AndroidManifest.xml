@@ -2,22 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet" >
 
+    <!--basics-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Permissions required for Google Cloud Messaging -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- sending a NFC payment request -->
     <uses-permission android:name="android.permission.NFC" />
-
-    <!-- this can now even be skipped since we don't use sdcard anymore -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--scanning qr codes-->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!--location for local trader-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature
@@ -51,10 +49,8 @@
 
         <!-- hack - hardcode to be able to support froyo -->
         <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="3265000" />
-
-        <!-- android:value="@integer/google_play_services_version" /> -->
+                android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version"/>
 
         <activity
             android:name=".activity.modern.ModernMain"

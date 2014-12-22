@@ -78,7 +78,7 @@ public class BalanceFragment extends Fragment {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(true);
-      setRetainInstance(true);
+//      setRetainInstance(true);
       super.onCreate(savedInstanceState);
    }
 

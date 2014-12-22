@@ -8,6 +8,18 @@
     <uses-permission android:name="com.mycelium.devwallet.permission.C2D_MESSAGE" />
 
     <application>
+
+        <!--  Receiver for Google Cloud Messaging -->
+        <receiver
+            android:name="com.mycelium.wallet.lt.notification.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <!--  Note that the below must match the package name -->
+                <category android:name="com.mycelium.devwallet" />
+            </intent-filter>
+        </receiver>
+
         <!--file provider to enable secure intent sharing for encrypted backups-->
         <provider
             android:name="android.support.v4.content.FileProvider"

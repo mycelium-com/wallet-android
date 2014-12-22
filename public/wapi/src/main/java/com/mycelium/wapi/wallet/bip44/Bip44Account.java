@@ -42,7 +42,7 @@ import java.util.UUID;
 public class Bip44Account extends AbstractAccount {
 
    private static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
-   private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 2;
+   private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
    private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
    private static final int INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
    private static final long FORCED_DISCOVERY_INTERVAL_MS = 1000 * 60 * 60 * 24;
@@ -287,7 +287,7 @@ public class Bip44Account extends AbstractAccount {
             + _context.getLastInternalIndexWithActivity() - _context.getFirstMonitoredInternalIndex() + 1);
       // Add all external addresses
       combined.addAll(_externalAddresses.keySet());
-      combined.addAll(_externalAddresses.keySet());
+
       // Add the change addresses we monitor
       for (int i = _context.getFirstMonitoredInternalIndex(); i < _internalAddresses.keySet().size(); i++) {
          combined.add(_internalAddresses.inverse().get(i));
