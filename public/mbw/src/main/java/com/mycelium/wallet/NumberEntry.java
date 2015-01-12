@@ -112,7 +112,7 @@ public class NumberEntry {
          }
       } else {
          // Append Digit
-         if (digit == 0 && _entry.startsWith("0") && !hasDot()) {
+         if (digit == 0 && _entry.equals("0")) {
             // Only one leading zero
             return;
          }
