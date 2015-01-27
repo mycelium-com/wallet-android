@@ -86,7 +86,7 @@ public class FallBackGeocoder extends Geocoder {
    }
 
    // if we increase our language level, use multi exception catch --^
-   private boolean fallback(){
+   private synchronized boolean fallback(){
       if (effectiveGeocoder instanceof GoogleMapsGeocoder){
          // The local geocoder failed - switch to our own BackendGeocoder and try again
          // Also keep the BackendGeocoder as default for the lifecycle of this

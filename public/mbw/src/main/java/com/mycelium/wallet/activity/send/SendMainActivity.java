@@ -43,6 +43,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
@@ -87,6 +88,7 @@ public class SendMainActivity extends Activity {
    private TransactionStatus _transactionStatus;
    private UnsignedTransaction _unsigned;
    private AsyncTask _task;
+   private MinerFee _fee;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
       callMe(currentActivity, account, null, null, isColdStorage);
@@ -143,12 +145,14 @@ public class SendMainActivity extends Activity {
 
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+      _fee = _mbwManager.getMinerFee();
 
       // Load saved state, overwriting amount and address
       if (savedInstanceState != null) {
          _amountToSend = (Long) savedInstanceState.getSerializable("amountToSend");
          _receivingAddress = (Address) savedInstanceState.getSerializable("receivingAddress");
          _transactionLabel = savedInstanceState.getString("transactionLabel");
+         _fee = MinerFee.fromString(savedInstanceState.getString("feeLvl"));
       }
 
       //check whether the account can spend, if not, ask user to select one
@@ -178,6 +182,9 @@ public class SendMainActivity extends Activity {
       // Enter Amount
       findViewById(R.id.btEnterAmount).setOnClickListener(amountClickListener);
 
+      // Change miner fee
+      findViewById(R.id.btFeeLvl).setOnClickListener(feeClickListener);
+
       // Send button
       findViewById(R.id.btSend).setOnClickListener(sendClickListener);
 
@@ -193,6 +200,7 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putSerializable("amountToSend", _amountToSend);
       savedInstanceState.putSerializable("receivingAddress", _receivingAddress);
       savedInstanceState.putString("transactionLabel", _transactionLabel);
+      savedInstanceState.putString("feeLvl", _fee.tag);
    }
 
    private OnClickListener scanClickListener = new OnClickListener() {
@@ -243,8 +251,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         GetSendingAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(),
-               _oneBtcInFiat, _amountToSend, _isColdStorage);
+         GetSendingAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(), _amountToSend, _fee.kbMinerFee, _isColdStorage);
       }
    };
 
@@ -261,6 +268,20 @@ public class SendMainActivity extends Activity {
       }
    };
 
+   private OnClickListener feeClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         _fee = _fee.getNext();
+         _transactionStatus = tryCreateUnsignedTransaction();
+         updateUi();
+         //warn user if minimum fee is selected
+         if (_fee == MinerFee.ECONOMIC) {
+            Toast.makeText(SendMainActivity.this, getString(R.string.toast_warning_low_fee), Toast.LENGTH_SHORT).show();
+         }
+      }
+   };
+
    private TransactionStatus tryCreateUnsignedTransaction() {
       _unsigned = null;
 
@@ -271,7 +292,7 @@ public class SendMainActivity extends Activity {
       // Create the unsigned transaction
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
-         _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
+         _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _fee.kbMinerFee);
          return TransactionStatus.OK;
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
@@ -385,13 +406,12 @@ public class SendMainActivity extends Activity {
          } else if (_transactionStatus == TransactionStatus.InsufficientFunds) {
             // Insufficient funds
             ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amountToSend));
-            findViewById(R.id.tvAmountFiat).setVisibility(View.GONE);
             ((TextView) findViewById(R.id.tvError)).setText(R.string.insufficient_funds);
             findViewById(R.id.tvError).setVisibility(View.VISIBLE);
          } else {
             // Set Amount
             ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amountToSend));
-            if (_oneBtcInFiat == null) {
+            if (!_mbwManager.hasFiatCurrency() || _oneBtcInFiat == null) {
                findViewById(R.id.tvAmountFiat).setVisibility(View.GONE);
             } else {
                // Set approximate amount in fiat
@@ -403,23 +423,26 @@ public class SendMainActivity extends Activity {
          }
       }
 
-      // Update Fee
+      // Update Fee-Display
+      TextView btFeeLvl = (Button) findViewById(R.id.btFeeLvl);
       if (_unsigned == null) {
-         // Hide fee
-         findViewById(R.id.llFee).setVisibility(View.GONE);
+         // Only show button for fee lvl, cannot calculate fee yet
+         ((Button) findViewById(R.id.btFeeLvl)).setText(MinerFee.getMinerFeeName(_fee, this));
       } else {
-         // Show fee
-         findViewById(R.id.llFee).setVisibility(View.VISIBLE);
+         // Show fee fully calculated
+         btFeeLvl.setVisibility(View.VISIBLE);
 
          long fee = _unsigned.calculateFee();
-         TextView tvFee = (TextView) findViewById(R.id.tvFee);
-         tvFee.setText(_mbwManager.getBtcValueString(fee));
-         if (_oneBtcInFiat == null) {
+
+         //show fee lvl on button
+         ((Button) findViewById(R.id.btFeeLvl)).setText(MinerFee.getMinerFeeName(_fee, this) + ", " + _mbwManager.getBtcValueString(fee));
+
+         if (!_mbwManager.hasFiatCurrency() || _oneBtcInFiat == null) {
             findViewById(R.id.tvFeeFiat).setVisibility(View.INVISIBLE);
          } else {
             // Set approximate fee in fiat
             TextView tvFeeFiat = ((TextView) findViewById(R.id.tvFeeFiat));
-            tvFeeFiat.setText(getFiatValue(fee, _oneBtcInFiat));
+            tvFeeFiat.setText("(" + getFiatValue(fee, _oneBtcInFiat) + ")");
             tvFeeFiat.setVisibility(View.VISIBLE);
          }
       }
@@ -428,7 +451,7 @@ public class SendMainActivity extends Activity {
 
    private String getFiatValue(long satoshis, Double oneBtcInFiat) {
       String currency = _mbwManager.getFiatCurrency();
-      String converted = Utils.getFiatValueAsString(satoshis, _oneBtcInFiat);
+      String converted = Utils.getFiatValueAsString(satoshis, oneBtcInFiat);
       return getResources().getString(R.string.approximate_fiat_value, currency, converted);
    }
 

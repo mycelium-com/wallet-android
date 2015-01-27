@@ -22,17 +22,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
 import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.FeedbackEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiConst.Function;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
 import com.squareup.okhttp.*;
-import okio.BufferedSink;
+
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -63,11 +63,11 @@ public class WapiClient implements Wapi {
 
    private <T> WapiResponse<T> sendRequest(String function, Object request, TypeReference<WapiResponse<T>> typeReference) {
       try {
-         Response connection = getConnectionAndSendRequest(function, request);
-         if (connection == null) {
+         Response response = getConnectionAndSendRequest(function, request);
+         if (response == null) {
             return new WapiResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
-         return _objectMapper.readValue(connection.body().string(), typeReference);
+         return _objectMapper.readValue(response.body().string(), typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
          return new WapiResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
@@ -122,18 +122,18 @@ public class WapiClient implements Wapi {
    private Response getConnectionAndSendRequestWithTimeout(Object request, String function, int timeout) {
       int originalConnectionIndex = _serverEndpoints.getCurrentEndpointIndex();
       while (true) {
+         // currently active server-endpoint
+         HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
-            // currently active server-endpoint
-            HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
             OkHttpClient client = serverEndpoint.getClient();
+            _logger.logInfo("Connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
 
             // configure TimeOuts
             client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
             client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
             client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
 
-            _logger.logInfo("Wapi " + function + " starting...");
-
+            Stopwatch callDuration = Stopwatch.createStarted();
             // build request
             final String toSend = getPostBody(request);
             Request rq = new Request.Builder()
@@ -143,19 +143,25 @@ public class WapiClient implements Wapi {
 
             // execute request
             Response response = client.newCall(rq).execute();
-            _logger.logInfo("Wapi " + function + " finished");
+            callDuration.stop();
+            _logger.logInfo(String.format("Wapi %s finished (%dms)", function, callDuration.elapsed(TimeUnit.MILLISECONDS)));
 
             // Check for status code 2XX
             if (response.isSuccessful()) {
-               // If the status code is not 200 we cycle to the next server
-               return response;
+               if (serverEndpoint instanceof FeedbackEndpoint){
+                  ((FeedbackEndpoint) serverEndpoint).onSuccess();
+               }return response;
             }else{
+               // If the status code is not 200 we cycle to the next server
                logError(String.format("Http call to %s failed with %d %s", function, response.code(), response.message()));
                // throw...
             }
          } catch (IOException e) {
             logError("IOException when sending request " + function, e);
-            // handle below like the all status codes != 200
+            if (serverEndpoint instanceof FeedbackEndpoint){
+               _logger.logInfo("Resetting tor");
+               ((FeedbackEndpoint) serverEndpoint).onError();
+            }
          }
          // Try the next server
          _serverEndpoints.switchToNextEndpoint();
@@ -168,7 +174,6 @@ public class WapiClient implements Wapi {
    }
 
    private String getPostBody(Object request) {
-
       try {
          String postString = _objectMapper.writeValueAsString(request);
          return postString;
@@ -177,8 +182,6 @@ public class WapiClient implements Wapi {
          throw new RuntimeException(e);
       }
    }
-
-
 
    @Override
    public WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request) {

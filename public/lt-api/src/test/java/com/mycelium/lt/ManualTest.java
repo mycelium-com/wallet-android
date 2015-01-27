@@ -16,6 +16,8 @@
 
 package com.mycelium.lt;
 
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.ServerEndpoints;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -41,15 +43,20 @@ public class ManualTest {
       public void logError(String message) {
          System.out.println(message);
       }
+
+      @Override
+      public void logInfo(String message) {
+         System.out.println(message);
+      }
    };
 
    @Test
    @Ignore
    public void testManualConnect() throws LtApiException {
-      LtApiClient.HttpEndpoint testnetLocalTraderEndpoint = new LtApiClient.HttpEndpoint(
+      HttpEndpoint testnetLocalTraderEndpoint = new HttpEndpoint(
             "http://192.168.178.53:8098/trade/");
 
-      LtApiClient client = new LtApiClient(testnetLocalTraderEndpoint, LOGGER);
+      LtApiClient client = new LtApiClient(new ServerEndpoints(new HttpEndpoint[]{testnetLocalTraderEndpoint}), LOGGER);
       LtResponse<LtSession> session = client.createSession(LtApi.VERSION, "en", "BTC");
       client.sellOrderSearch(session.getResult().id, new SearchParameters(new GpsLocation(0, 0, "dummy"), 2,
             AdType.SELL_BTC));

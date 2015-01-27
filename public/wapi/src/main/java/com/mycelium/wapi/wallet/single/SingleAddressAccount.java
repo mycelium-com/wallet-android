@@ -29,10 +29,8 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 
 import java.util.ArrayList;
@@ -40,7 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class SingleAddressAccount extends AbstractAccount {
+public class SingleAddressAccount extends AbstractAccount implements ExportableAccount {
 
    private SingleAddressAccountContext _context;
    private List<Address> _addressList;
@@ -297,4 +295,18 @@ public class SingleAddressAccount extends AbstractAccount {
       return _context.getAddress();
    }
 
+   @Override
+   public String getPrivateData(KeyCipher cipher) throws InvalidKeyCipher {
+      return _keyStore.getPrivateKey(getAddress(), cipher).getBase58EncodedPrivateKey(getNetwork());
+   }
+
+   @Override
+   public String getPublicData() {
+      return getAddress().toString();
+   }
+
+   @Override
+   public boolean containsPrivateData() {
+      return canSpend();
+   }
 }

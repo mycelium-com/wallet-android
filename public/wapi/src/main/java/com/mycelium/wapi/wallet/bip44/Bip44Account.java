@@ -30,6 +30,7 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
+import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
@@ -39,7 +40,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class Bip44Account extends AbstractAccount {
+public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
    private static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
    private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
@@ -507,4 +508,18 @@ public class Bip44Account extends AbstractAccount {
       return _isSynchronizing;
    }
 
+   @Override
+   public String getPrivateData(KeyCipher cipher) throws InvalidKeyCipher {
+      return _keyManager.getPrivateAccountRoot(cipher).serialize(_network);
+   }
+
+   @Override
+   public String getPublicData() {
+      return _keyManager.getPublicAccountRoot().serialize(getNetwork());
+   }
+
+   @Override
+   public boolean containsPrivateData() {
+      return canSpend();
+   }
 }

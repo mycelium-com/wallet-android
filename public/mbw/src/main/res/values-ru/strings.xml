@@ -111,7 +111,6 @@
   <string name="edit">Редактировать</string>
   <string name="delete">Удалить</string>
   <string name="payment_request">Запрос на  оплату</string>
-  <string name="export_single_private_key_warning">Предупреждение. Вы собираетесь экспортировать приватный ключ, контролирующий все биткойны этого адреса.\n\nТот, кто получит доступ к этому ключу, сможет стать владельцем биткойнов этого адреса.\n\nВы хотите продолжить?</string>
   <string name="export_to_clipboard_warning">Предупреждение: Экспорт приватного ключа в буфер обмена делает его доступным для  других приложений на вашем устройстве.\n\n Держать ваш приватный ключ в буфере обмена рискованно, необходимо переместить его в  безопасное место.\n\nХотите продолжить?</string>
   <string name="found_clipboard_private_key_title">В буфере обмена обнаружен приватный ключ</string>
   <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\r\nВы хотите удалить его?</string>
@@ -127,10 +126,7 @@
   <string name="cold_storage_title">Расходование из  \"холодного хранилища\"</string>
   <string name="cold_storage_desc">Вы собираетесь тратить с  приватного ключа,  находящимся в  \"холодном хранилище\" -  этот термин  применяется для  способа  хранения  биткойнов офлайн. Это может быть резервная копия приватного ключа  на бумаге или чек из  Биткойн терминала.  Поддерживается несколько форматов.\n\nПо завершении транзакции все следы приватного ключа будут удалены из памяти.</string>
   <string name="manual_entry">Ручной ввод</string>
-  <string name="active_name">Активные</string>
-  <string name="active_name_empty">Активные (пусто)</string>
   <string name="archive_name">Архивированные</string>
-  <string name="archive_name_empty">Архив (пустой)</string>
   <string name="activate_action">Активировать</string>
   <string name="archive_action">Архивировать</string>
   <string name="master_seed_configuration_title">Добро пожаловать в Mycelium !</string>

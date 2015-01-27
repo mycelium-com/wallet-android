@@ -119,7 +119,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Fiat
-      if (oneBtcInFiat == null) {
+      if (!_mbwManager.hasFiatCurrency() || oneBtcInFiat == null) {
          findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
       } else {
          TextView tvFiat = (TextView) findViewById(R.id.tvFiat);

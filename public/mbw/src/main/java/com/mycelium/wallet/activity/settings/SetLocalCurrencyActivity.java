@@ -35,48 +35,39 @@
 package com.mycelium.wallet.activity.settings;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.text.InputType;
-import android.view.MotionEvent;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.view.ViewGroup;
+import android.widget.*;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.api.lib.CurrencyCode;
 
 public class SetLocalCurrencyActivity extends Activity {
 
-   public static void callMeForResult(Activity currentActivity, String currency, int requestCode) {
+   public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, SetLocalCurrencyActivity.class);
-      intent.putExtra("currency", currency);
-      currentActivity.startActivityForResult(intent, requestCode);
+      currentActivity.startActivity(intent);
    }
 
-   public static final String CURRENCY_RESULT_NAME = "currency";
    private Map<String, String> _currencySelectionToCurrencyMap;
+   private List<String> _currencies;
+   private ArrayAdapter<String> _adapter;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.settings_local_currency_activity);
 
-      ((AutoCompleteTextView) findViewById(R.id.tvCurrency)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-      String enteredString = getIntent().getStringExtra("currency");
-      // Load saved state
-      if (savedInstanceState != null) {
-         enteredString = savedInstanceState.getString("entered");
-      }
-      enteredString = enteredString == null ? "" : enteredString;
       
       // Build data structures for holding currencies
       _currencySelectionToCurrencyMap = new HashMap<String, String>();
@@ -87,73 +78,84 @@ public class SetLocalCurrencyActivity extends Activity {
          _currencySelectionToCurrencyMap.put(strings[i], codes[i].getShortString());
       }
 
-      // Populate adapter
-      ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,
-            strings);
+      // Populate adapter - and overwrite getView to correctly set checkbox status
+      _adapter = new ArrayAdapter<String>(this, R.layout.listview_item_with_checkbox, R.id.tv_currency_name, strings){
+         @Override
+         public View getView(int pos, View convertView, ViewGroup parent){
+            if(convertView == null) {
+               LayoutInflater inflater = (LayoutInflater)getSystemService(SetLocalCurrencyActivity.LAYOUT_INFLATER_SERVICE);
+               convertView = inflater.inflate(R.layout.listview_item_with_checkbox, null);
+            }
 
-      // Configure text view in an arcane manner.
-      AutoCompleteTextView acTextView = (AutoCompleteTextView) findViewById(R.id.tvCurrency);
-      acTextView.setHint(enteredString);
-      acTextView.setThreshold(0);
-      acTextView.setAdapter(adapter);
-      acTextView.setOnItemClickListener(itemClicked);
+            String fullname = getItem(pos);
+            String currency = _currencySelectionToCurrencyMap.get(fullname);
+
+            TextView tv = (TextView) convertView.findViewById(R.id.tv_currency_name);
+            tv.setText(fullname);
+            CheckBox box = (CheckBox) convertView.findViewById(R.id.checkbox_currency);
+            box.setChecked(_currencies.contains(currency));
+
+            convertView.setOnClickListener(itemClicked);
+
+            return convertView;
+         }
+      };
+
+      //configure edittext for filtering
+      EditText search = (EditText) findViewById(R.id.etFilterCurrency);
+      search.addTextChangedListener(filterWatcher);
+
+      // Configure list view
+      ListView listview = (ListView) findViewById(R.id.lvCurrencies);
+      listview.setAdapter(_adapter);
+
+      _currencies = MbwManager.getInstance(this).getCurrencyList();
    }
 
-   OnItemClickListener itemClicked = new OnItemClickListener() {
+   View.OnClickListener itemClicked = new View.OnClickListener() {
 
       @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long rowId) {
-         String selection = (String) parent.getItemAtPosition(position);
+      public void onClick(View v) {
+         String selection = ((TextView) v.findViewById(R.id.tv_currency_name)).getText().toString();
          String currency = _currencySelectionToCurrencyMap.get(selection);
          if (currency == null) {
             return;
          }
-         Intent result = new Intent();
-         result.putExtra(CURRENCY_RESULT_NAME, currency);
-         setResult(RESULT_OK, result);
-         finish();
-
+         CheckBox box = (CheckBox) v.findViewById(R.id.checkbox_currency);
+         box.setChecked(!box.isChecked());
+         setCurrency(currency, box.isChecked());
       }
    };
 
-   @Override
-   protected void onResume() {
-
-      // This is pretty crude but does the trick
-      // We simulate a click motion event at the end of the text view to make
-      // the keyboard appear and the cursor appear at the end.
-      // In turn this makes the drop down appear as we have a touch listener
-      // opening it up
-      Handler handle = new Handler();
-      handle.postDelayed(new Runnable() {
-
-         @SuppressLint("Recycle")
-         @Override
-         public void run() {
-            AutoCompleteTextView acTextView = (AutoCompleteTextView) findViewById(R.id.tvCurrency);
-            acTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                  MotionEvent.ACTION_DOWN, acTextView.getWidth(), 0, 0));
-            acTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                  MotionEvent.ACTION_UP, acTextView.getWidth(), 0, 0));
-         }
-      }, 100);
-      super.onResume();
-   }
-
-   @Override
-   protected void onPause() {
-      AutoCompleteTextView acTextView = (AutoCompleteTextView) findViewById(R.id.tvCurrency);
-      if (acTextView.isPopupShowing()) {
-         acTextView.dismissDropDown();
+   TextWatcher filterWatcher = new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+         //empty
       }
-      super.onPause();
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+         SetLocalCurrencyActivity.this._adapter.getFilter().filter(s);
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+         //empty
+      }
+   };
+
+   private void setCurrency(String currency, boolean isSelected) {
+      if (isSelected) {
+         //should not happen - should be fail instead?
+         if (_currencies.contains(currency)) return;
+
+         _currencies.add(currency);
+      } else {
+         _currencies.remove(currency);
+      }
+      MbwManager.getInstance(this).setCurrencyList(_currencies);
    }
 
-   @Override
-   public void onSaveInstanceState(Bundle savedInstanceState) {
-      super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putString("entered", ((AutoCompleteTextView) findViewById(R.id.tvCurrency)).getText()
-            .toString());
-   }
+
 
 }

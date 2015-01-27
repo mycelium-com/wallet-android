@@ -189,6 +189,13 @@
         <Button
             android:layout_width="@dimen/about_buttonsize"
             android:layout_height="wrap_content"
+            android:text="@string/button_changelog"
+            android:id="@+id/bt_show_changelog"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
             android:text="@string/mycelium_license"
             android:id="@+id/bt_license_mycelium"
             android:layout_marginBottom="@dimen/buttonspacing" />
@@ -206,6 +213,13 @@
             android:layout_height="wrap_content"
             android:text="@string/pdfwriter_license"
             android:id="@+id/bt_license_pdfwriter"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
+            android:text="Connection Logs"
+            android:id="@+id/bt_show_server_info"
             android:layout_marginBottom="@dimen/buttonspacing" />
 
     </LinearLayout>

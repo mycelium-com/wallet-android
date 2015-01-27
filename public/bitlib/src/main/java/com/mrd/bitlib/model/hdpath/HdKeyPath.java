@@ -49,6 +49,7 @@ public class HdKeyPath {
       }
    }
 
+   @SuppressWarnings("unchecked")
    public <T extends HdKeyPath> Optional<T> findPartOf(Class<T> ofClass){
       HdKeyPath ak = this;
       while (ak.parent != null && !ak.getClass().equals(ofClass)){
@@ -56,7 +57,7 @@ public class HdKeyPath {
       }
 
       if (ak.getClass().equals(ofClass)) {
-         return (Optional<T>) Optional.of(ak);
+         return Optional.of((T)ak);
       }else{
          return Optional.absent();
       }

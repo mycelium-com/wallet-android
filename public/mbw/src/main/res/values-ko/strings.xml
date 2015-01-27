@@ -95,7 +95,6 @@
   <string name="edit">편집</string>
   <string name="delete">삭제</string>
   <string name="payment_request">지불 요청</string>
-  <string name="export_single_private_key_warning">고객은 고객의 모든 비트코인 주소를 통제 할 수 있는 개인 키를 인출하려고 합니다  .\n\n  이 개인 키를 누군가 가진다면 고객의 비트코인을 통제 할 수 있습니다.\n\n 그래도 계속 하시겠습니까?</string>
   <string name="export_to_clipboard_warning">경고: 클립보드로 개인 키를 인출하는것은 고객의 device에 있는 다른 모든 앱에 개인 키를 노출시키는 겁니다. \n\n 참조: 클립보드에 개인 키를 저장하는것은 바람직스럽지 않고, 보다 안전한 곳에 저장해야 합니다.\n\n 그래도 계속 하시겠습니까?</string>
   <string name="found_clipboard_private_key_title">개인 키를 클립보드에서 찾음</string>
   <string name="found_clipboard_private_keys_message">클립보드에 개인 키가 있습니다.\r\n 이것을 삭제하시겠습니까?</string>
@@ -110,10 +109,7 @@
   <string name="cold_storage_title">Cold Storage(오프라인 보관) 지출</string>
   <string name="cold_storage_desc">고객께서는 Cold Storage(오프라인 보관)에 보관되어 있는 개인 키로 부터 지출을 하려고 합니다. 이것은 비트코인 ATM에서 얻은 개인 키 스립 또는 종이 개인 키 백업으로 가져 올 수 있습니다.\n\n 비트코인 전송이 이루어진 이후에는 모든 개인 키의 거래 흔적은 삭제됩니다. </string>
   <string name="manual_entry">수동 입력</string>
-  <string name="active_name">활성</string>
-  <string name="active_name_empty">활성 (비어 있음)</string>
   <string name="archive_name">비 활성화 보관</string>
-  <string name="archive_name_empty">비활성 보관(비어있음)</string>
   <string name="activate_action">활성화</string>
   <string name="archive_action">보관하기</string>
   <string name="archived">비 활성화 보관</string>

@@ -34,14 +34,14 @@
 
 package com.mycelium.wallet.activity.receive;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,17 +52,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.QrImageView;
-import com.mycelium.wapi.wallet.WalletAccount;
 
-import java.util.UUID;
 //todo HD for the future: keep receiving slots for 20 addresses. assign a name
 
 public class ReceiveCoinsActivity extends Activity {
@@ -115,17 +113,28 @@ public class ReceiveCoinsActivity extends Activity {
       shareByNfc();
    }
 
+   @TargetApi(16)
    protected void shareByNfc() {
-      NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-      if (nfc!=null) {
-         nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
+      if (Build.VERSION.SDK_INT < 16){
+         // the function isNdefPushEnabled is only available for SdkVersion >= 16
+         // We would be theoretically able to push the message over Ndef, but it is not
+         // possible to check if Ndef/NFC is available or not - so dont try it at all, if
+         // SdkVersion is too low
+         return;
+      }
 
+      NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+      if (nfc!=null && nfc.isNdefPushEnabled() ) {
+         nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
             @Override
             public NdefMessage createNdefMessage(NfcEvent event) {
                NdefRecord uriRecord = NdefRecord.createUri(getPaymentUri());
                return new NdefMessage(new NdefRecord[]{uriRecord});
             }
          }, this);
+         findViewById(R.id.ivNfc).setVisibility(View.VISIBLE);
+      } else {
+         findViewById(R.id.ivNfc).setVisibility(View.GONE);
       }
    }
 

@@ -19,21 +19,20 @@ package com.mycelium.lt.api;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.BitlibJsonModule;
-import com.mrd.bitlib.util.SslUtils;
 import com.mycelium.lt.api.LtConst.Function;
 import com.mycelium.lt.api.LtConst.Param;
 import com.mycelium.lt.api.model.*;
@@ -49,6 +48,10 @@ import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.lt.api.params.TradeParameters;
 import com.mycelium.lt.api.params.TraderParameters;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.FeedbackEndpoint;
+import com.mycelium.net.ServerEndpoints;
+import com.squareup.okhttp.*;
 
 @SuppressWarnings("deprecation")
 public class LtApiClient implements LtApi {
@@ -57,30 +60,8 @@ public class LtApiClient implements LtApi {
 
    public interface Logger {
       public void logError(String message, Exception e);
-
       public void logError(String message);
-   }
-
-   public static class HttpEndpoint {
-      public final String baseUrlString;
-
-      public HttpEndpoint(String baseUrlString) {
-         this.baseUrlString = baseUrlString;
-      }
-
-      @Override
-      public String toString() {
-         return baseUrlString;
-      }
-   }
-
-   public static class HttpsEndpoint extends HttpEndpoint {
-      public final String certificateThumbprint;
-
-      public HttpsEndpoint(String baseUrlString, String certificateThumbprint) {
-         super(baseUrlString);
-         this.certificateThumbprint = certificateThumbprint;
-      }
+      public void logInfo(String message);
    }
 
    protected static byte[] uuidToBytes(UUID uuid) {
@@ -95,20 +76,13 @@ public class LtApiClient implements LtApi {
       return ba.toByteArray();
    }
 
-   private HttpEndpoint _primaryEndpoint;
-   private HttpEndpoint _secondaryEndpoint;
-   private HttpEndpoint _currentEndpoint;
+   private ServerEndpoints _serverEndpoints;
    private ObjectMapper _objectMapper;
    private Logger _logger;
 
-   public LtApiClient(HttpEndpoint primaryEndpoint, Logger logger) {
-      this(primaryEndpoint, primaryEndpoint, logger);
-   }
+   public LtApiClient(ServerEndpoints serverEndpoints, Logger logger) {
+      _serverEndpoints = serverEndpoints;
 
-   public LtApiClient(HttpEndpoint primaryEndpoint, HttpEndpoint secondaryEndpoint, Logger logger) {
-      _primaryEndpoint = primaryEndpoint;
-      _secondaryEndpoint = secondaryEndpoint;
-      _currentEndpoint = _primaryEndpoint;
       _objectMapper = new ObjectMapper();
       // We ignore properties that do not map onto the version of the class we
       // deserialize
@@ -118,24 +92,18 @@ public class LtApiClient implements LtApi {
    }
 
    private HttpEndpoint getEndpoint() {
-      return _currentEndpoint;
+      return _serverEndpoints.getCurrentEndpoint();
    }
 
-   private void failOver() {
-      if (_currentEndpoint == _primaryEndpoint) {
-         _currentEndpoint = _secondaryEndpoint;
-      } else {
-         _currentEndpoint = _primaryEndpoint;
-      }
-   }
 
    private <T> LtResponse<T> sendRequest(LtRequest request, TypeReference<LtResponse<T>> typeReference) {
       try {
-         HttpURLConnection connection = getConnectionAndSendRequest(request);
-         if (connection == null) {
+         Response response = getConnectionAndSendRequest(request, TIMEOUT_MS);
+         if (response == null) {
             return new LtResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
-         return _objectMapper.readValue(connection.getInputStream(), typeReference);
+         String retVal = response.body().string();
+         return _objectMapper.readValue(retVal, typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
          return new LtResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
@@ -160,67 +128,74 @@ public class LtApiClient implements LtApi {
       }
    }
 
-   private HttpURLConnection getConnectionAndSendRequest(LtRequest request) {
+   private Response getConnectionAndSendRequest(LtRequest request, int timeout) {
+      int originalConnectionIndex = _serverEndpoints.getCurrentEndpointIndex();
+
       // Figure what our current endpoint is. On errors we fail over until we
       // are back at the initial endpoint
       HttpEndpoint initialEndpoint = getEndpoint();
       while (true) {
+         HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
-            HttpURLConnection connection = getHttpConnection(request, getEndpoint(), TIMEOUT_MS);
-            byte[] data = request.getPostBytes();
-            connection.setRequestProperty("Content-Length", String.valueOf(data.length));
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.getOutputStream().write(data);
-            int status = connection.getResponseCode();
+            OkHttpClient client = serverEndpoint.getClient();
+            _logger.logInfo("LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
+
+            // configure TimeOuts
+            client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+            client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
+            client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
+
+            Stopwatch callDuration = Stopwatch.createStarted();
+            // build request
+            final String toSend = getPostBody(request);
+            Request rq = new Request.Builder()
+                  .post(RequestBody.create(MediaType.parse("application/json"), toSend))
+                  .url(serverEndpoint.getUri(request.toString()).toString())
+                  .build();
+
+            // execute request
+            Response response = client.newCall(rq).execute();
+            callDuration.stop();
+            _logger.logInfo(String.format("LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
+
+
             // Check for status code 2XX
-            if (status / 100 == 2) {
-               return connection;
+            if (response.isSuccessful()) {
+               if (serverEndpoint instanceof FeedbackEndpoint){
+                  ((FeedbackEndpoint) serverEndpoint).onSuccess();
+               }
+               return response;
+            }else{
+               // If the status code is not 200 we cycle to the next server
+               logError(String.format("Local Trader server request for class %s returned HTTP status code %d", request.getClass().toString(), response.code()));
             }
-            if (status == -1) {
-               // We have observed that status -1 might be returned when doing
-               // HTTPS session reuse on old android devices.
-               // Disabling http.keepAlive fixes it, but it has to be done
-               // before
-               // any HTTP connections are made.
-               // Maybe the caller forgot to call
-               // System.setProperty("http.keepAlive", "false"); for old
-               // devices?
-               logError("HTTP status = -1 Caller may have forgotten to call System.setProperty(\"http.keepAlive\", \"false\"); for old devices");
-            }
-            logError("Local Trader server request for class " + request.getClass().toString()
-                  + " returned HTTP status code " + status);
+
          } catch (IOException e) {
             logError("getConnectionAndSendRequest failed IO exception.");
-            // handle below like the all status codes != 200
+            if (serverEndpoint instanceof FeedbackEndpoint){
+               _logger.logInfo("Resetting tor");
+               ((FeedbackEndpoint) serverEndpoint).onError();
+            }
          }
 
          // We had an IO exception or a bad status, fail over and try again
-         failOver();
+         _serverEndpoints.switchToNextEndpoint();
          // Check if we are back at the initial endpoint, in which case we have
          // to give up
-         if (getEndpoint() == initialEndpoint) {
-            // null simply means no server connection
+         if (_serverEndpoints.getCurrentEndpointIndex() == originalConnectionIndex) {
+            // We have tried all URLs
             return null;
          }
       }
    }
 
-   private HttpURLConnection getHttpConnection(LtRequest request, HttpEndpoint endpoint, int timeout)
-         throws IOException {
-      URL url = request.getUrl(endpoint.baseUrlString);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      if (endpoint instanceof HttpsEndpoint) {
-         SslUtils.configureTrustedCertificate(connection, ((HttpsEndpoint) (endpoint)).certificateThumbprint);
-      }
-      connection.setConnectTimeout(timeout);
-      connection.setReadTimeout(timeout);
-      connection.setDoInput(true);
-      connection.setDoOutput(true);
-      return connection;
+   private String getPostBody(LtRequest request) {
+      String postString = request.getPostString();
+      return postString;
    }
 
    public String getUrl(){
-      return getEndpoint().baseUrlString;
+      return getEndpoint().getBaseUrl();
    }
 
    @Override

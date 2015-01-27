@@ -51,11 +51,12 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
+import com.google.common.base.Joiner;
+import com.google.common.io.ByteSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.modern.DarkThemeChangeLog;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
@@ -63,6 +64,7 @@ import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.response.VersionInfoResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
+import de.cketti.library.changelog.ChangeLog;
 
 public class AboutActivity extends Activity {
    @Override
@@ -79,6 +81,14 @@ public class AboutActivity extends Activity {
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
       findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));
       findViewById(R.id.bt_special_thanks).setOnClickListener(new ShowLicenseListener(R.raw.special_thanks));
+
+      findViewById(R.id.bt_show_changelog).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            ChangeLog cl = new DarkThemeChangeLog(AboutActivity.this);
+            cl.getLogDialog().show();
+         }
+      });
 
       findViewById(R.id.bt_check_update).setOnClickListener(new View.OnClickListener() {
          @Override
@@ -97,6 +107,13 @@ public class AboutActivity extends Activity {
                   }
                }
             });
+         }
+      });
+
+      findViewById(R.id.bt_show_server_info).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            ConnectionLogsActivity.callMe(AboutActivity.this);
          }
       });
 
@@ -184,13 +201,13 @@ public class AboutActivity extends Activity {
       public void onClick(View v) {
          final String message;
          try {
-            message = CharStreams.toString(CharStreams.newReaderSupplier(new InputSupplier<InputStream>() {
-               @Override
-               public InputStream getInput() throws IOException {
-
-                  return getResources().openRawResource(resourceId);
-               }
-            }, Charsets.UTF_8));
+            message = Joiner.on("\n").join(
+                  (new ByteSource() {
+                     @Override
+                     public InputStream openStream() throws IOException {
+                        return getResources().openRawResource(resourceId);
+                     }
+                  }).asCharSource(Charsets.UTF_8).readLines());
          } catch (IOException e) {
             throw new RuntimeException(e);
          }

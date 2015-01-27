@@ -48,7 +48,7 @@ public class NumberEntry {
    private static final int MAX_DIGITS_BEFORE_DOT = 9;
 
    public interface NumberEntryListener {
-      public void onEntryChanged(String entry);
+      public void onEntryChanged(String entry, boolean wasSet);
    }
 
    private NumberEntryListener _listener;
@@ -128,10 +128,7 @@ public class NumberEntry {
          }
          _entry = _entry + (digit);
       }
-      _listener.onEntryChanged(_entry);
-      if (hasDot()) {
-
-      }
+      _listener.onEntryChanged(_entry, false);
    }
 
    private boolean hasDot() {
@@ -160,17 +157,17 @@ public class NumberEntry {
 
    public void setEntry(BigDecimal number, int maxDecimals) {
       _maxDecimals = maxDecimals;
-      if (number == null || number.equals(BigDecimal.ZERO)) {
+      if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
          _entry = "";
       } else {
-         _entry = number.toPlainString();
+         _entry = number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).toPlainString();
       }
-      _listener.onEntryChanged(_entry);
+      _listener.onEntryChanged(_entry, true);
    }
 
    public BigDecimal getEntryAsBigDecimal() {
       if (_entry.length() == 0) {
-         return null;
+         return BigDecimal.ZERO;
       }
       if (_entry.equals("0.")) {
          return BigDecimal.ZERO;

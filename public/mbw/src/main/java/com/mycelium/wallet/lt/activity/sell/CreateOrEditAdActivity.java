@@ -166,6 +166,10 @@ public class CreateOrEditAdActivity extends Activity {
       PriceFormula priceFormula = isEdit() ? _ad.priceFormula : null;
       _location = isEdit() ? _ad.location : _ltManager.getUserLocation();
       _currency = isEdit() ? _ad.currency : _mbwManager.getFiatCurrency();
+      if (_currency.equals("")) {
+         //lt without fiat is pointless, if there is none, revert to usd
+         _currency = "USD";
+      }
       // Load saved state
       if (savedInstanceState != null) {
          adType = AdType.values()[savedInstanceState.getInt("adType")];
@@ -374,7 +378,9 @@ public class CreateOrEditAdActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         SetLocalCurrencyActivity.callMeForResult(CreateOrEditAdActivity.this, _currency, GET_CURRENCY_RESULT_CODE);
+         _currency = _mbwManager.getNextCurrency(_currency, false);
+         fetchNewPrice();
+         updateUi();
       }
    };
 
@@ -552,8 +558,6 @@ public class CreateOrEditAdActivity extends Activity {
       } else if (requestCode == ENTER_MIN_AMOUNT_REQUEST_CODE && resultCode == RESULT_OK) {
          _minAmount = (Integer) intent.getSerializableExtra("amount");
          enableUi();
-      } else if (requestCode == GET_CURRENCY_RESULT_CODE && resultCode == RESULT_OK) {
-         _currency = Preconditions.checkNotNull(intent.getStringExtra(SetLocalCurrencyActivity.CURRENCY_RESULT_NAME));
       } else {
          // We didn't like what we got, bail
       }

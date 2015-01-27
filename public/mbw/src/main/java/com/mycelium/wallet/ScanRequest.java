@@ -36,7 +36,6 @@ package com.mycelium.wallet;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.crypto.Bip39;
@@ -198,6 +197,8 @@ public class ScanRequest implements Serializable {
             // Check whether regular wallet contains the account
             boolean success = mbwManager.getWalletManager(false).hasAccount(account);
             if (success) {
+               // Mark key as verified
+               mbwManager.getMetadataStorage().setSingleKeyBackupState(account, MetadataStorage.BackupState.VERIFIED);
                scanActivity.finishOk();
             } else {
                scanActivity.finishError(R.string.verify_backup_no_such_record, "");
@@ -436,7 +437,7 @@ public class ScanRequest implements Serializable {
                try {
                   Bip39.MasterSeed ourSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
                   if (masterSeed.get().equals(ourSeed)) {
-                     MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
+                     MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
                      scanActivity.finishOk();
                   } else {
                      scanActivity.finishError(R.string.wrong_seed, "");
@@ -466,7 +467,7 @@ public class ScanRequest implements Serializable {
                   }
                   walletManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
                   acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-                  MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
+                  MbwManager.getInstance(scanActivity).getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                   throw new RuntimeException(invalidKeyCipher);
                }

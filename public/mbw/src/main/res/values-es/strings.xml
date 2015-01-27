@@ -95,7 +95,6 @@
   <string name="edit">Editar</string>
   <string name="delete">Eliminar</string>
   <string name="payment_request">Solicitud de Pago</string>
-  <string name="export_single_private_key_warning">Estás a punto de exportar la clave privada que controla todos los Bitcoins de la dirección seleccionada.\n\nQuien sea que obtenga acceso a esta clave puede tomar posesión de los Bitcoins que controla.\n\n¿Desea continuar?</string>
   <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: no es suficiente almacenar su clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Desea continuar?</string>
   <string name="found_clipboard_private_key_title">Clave privada encontrada en portapapeles</string>
   <string name="found_clipboard_private_keys_message">¿El Portapapeles contiene una clave Privada.\r\nDesea eliminarla?</string>
@@ -111,10 +110,7 @@
   <string name="cold_storage_title">Gastos del \"Almacenamiento en Frío\"</string>
   <string name="cold_storage_desc">Está a punto de pagar con una clave privada del \"Almacenamiento en Frío\" (almacenamiento offline de tus Bitcoins). Podría tratarse de una copia de seguridad de una clave privada en papel o de una hoja de una clave privada de un cajero automático de Bitcoins. Se aceptan diversos formatos.\n\nUna vez se envíe la transacción, se eliminará de la memoria toda huella de la clave privada.</string>
   <string name="manual_entry">Entrada manual</string>
-  <string name="active_name">Activo</string>
-  <string name="active_name_empty">Activo (vacío)</string>
   <string name="archive_name">Archivado</string>
-  <string name="archive_name_empty">Archivado (Vacío)</string>
   <string name="activate_action">Activar</string>
   <string name="archive_action">Archivo</string>
   <string name="archived">Archivado</string>

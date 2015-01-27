@@ -111,8 +111,6 @@
   <string name="edit">编辑</string>
   <string name="delete">删除</string>
   <string name="payment_request">付款请求</string>
-  <string name="export_single_private_key_warning">您将要导出控制的选定地址的比特币\n\n任何人获得了此密钥能占有它控制的比特币\n\n您要继续吗
-</string>
   <string name="backup_all_warning">您应该备份钱包的主种子。 \n如果您的设备丢失或者损坏，你可以从备份中恢复您的资金.\n\n您想要现在这样做吗？</string>
   <string name="backup_legacy_warning">你将在你钱包中备份单地址帐户。\n 这份备份将不会包含您主的种子，您的HD帐户不可以从它恢复 ！\n\n 您希望继续吗？</string>
   <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
@@ -131,10 +129,7 @@
   <string name="cold_storage_desc">您将要从冷库中的密钥花费。支持多种格式，如备份文件和从比特币取款机的密钥\n\n发送了交易以后，密钥会被删除</string>
   <string name="keep_account_address">只删除私钥并保留它作为一个只读帐户</string>
   <string name="manual_entry">手动输入</string>
-  <string name="active_name">活动</string>
-  <string name="active_name_empty">活动 ( 空 )</string>
   <string name="archive_name">存档了</string>
-  <string name="archive_name_empty">存档( 空 )</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存档</string>
   <string name="question_archive_account">存档帐户没有被监测、 你不能看到帐户余额和接收地址。请不要与这个帐户进行操作.\r\n\r\n存档帐户可以被再次激活.\r\n\r\n您需要存档该帐户吗？</string>

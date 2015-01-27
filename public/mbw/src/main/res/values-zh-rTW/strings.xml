@@ -111,8 +111,6 @@
   <string name="edit">編輯</string>
   <string name="delete">刪除</string>
   <string name="payment_request">付款請求</string>
-  <string name="export_single_private_key_warning">您將要導出控制的選定地址的比特幣\n\n任何人獲得了此密鑰能佔有它控制的比特幣\n\n您要繼續嗎
-</string>
   <string name="backup_all_warning">您應該備份錢包的主種子。 \n如果您的設備丟失或者損壞，你可以從備份中恢復您的資金.\n\n您想要現在這樣做嗎？</string>
   <string name="backup_legacy_warning">你將在你錢包中備份單地址帳戶。 \n 這份備份將不會包含您主的種子，您的HD帳戶不可以從它恢復！ \n\n 您希望繼續嗎？</string>
   <string name="export_to_clipboard_warning">警告：將導出密鑰到剪貼板將公開給您的手機\n\n注意：您必須粘貼它到安全的地方\n\n您要繼續嗎</string>
@@ -131,10 +129,7 @@
   <string name="cold_storage_desc">您將要從冷庫中的密鑰花費。支持多種格式，如備份文件和從比特幣取款機的密鑰\n\n發送了交易以後，密鑰會被刪除</string>
   <string name="keep_account_address">只刪除私鑰並保留它作為一個只讀帳戶</string>
   <string name="manual_entry">手動輸入</string>
-  <string name="active_name">活動</string>
-  <string name="active_name_empty">活動 ( 空 )</string>
   <string name="archive_name">存檔了</string>
-  <string name="archive_name_empty">存檔( 空 )</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存檔</string>
   <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要與這個帳戶進行操作.\r\n\r\n存檔帳戶可以被再次激活.\r\n\r\n您需要存檔該帳戶嗎？</string>

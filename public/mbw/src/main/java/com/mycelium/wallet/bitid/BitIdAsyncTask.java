@@ -39,6 +39,7 @@ import android.os.AsyncTask;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.common.io.ByteSource;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -107,15 +108,15 @@ public class BitIdAsyncTask extends AsyncTask<Void, Integer, BitIDResponse> {
             //yes, this seems weird, but there might be a IOException in case of a 401 response, and afterwards the object is in a stable state again
             response.code = conn.getResponseCode();
          }
-         response.message = CharStreams.toString(CharStreams.newReaderSupplier(new InputSupplier<InputStream>() {
+         response.message = new ByteSource() {
             @Override
-            public InputStream getInput() throws IOException {
+            public InputStream openStream() throws IOException {
                if (response.code >= 200 && response.code < 300) {
                   return conn.getInputStream();
                }
                return conn.getErrorStream();
             }
-         }, Charsets.UTF_8));
+         }.asCharSource(Charsets.UTF_8).read();
 
          if (response.code >= 200 && response.code < 300) {
             response.status = BitIDResponse.ResponseStatus.SUCCESS;

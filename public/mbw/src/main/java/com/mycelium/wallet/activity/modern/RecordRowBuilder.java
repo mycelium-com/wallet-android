@@ -180,7 +180,7 @@ public class RecordRowBuilder {
       boolean showLegacyAccountWarning = (account instanceof SingleAddressAccount) &&
             balance.getReceivingBalance() + balance.getSpendableBalance() > 0 &&
             account.canSpend() &&
-            !mbwManager.getMetadataStorage().getIgnoreBackupWarning(account.getId());
+            !mbwManager.getMetadataStorage().getIgnoreLegacyWarning(account.getId());
       return showLegacyAccountWarning;
    }
 
@@ -188,9 +188,15 @@ public class RecordRowBuilder {
       if (account.isArchived()) {
          return false;
       }
-      Balance balance = account.getBalance();
-      boolean showBackupMissingWarning = (account instanceof Bip44Account) &&
-            mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
+
+      boolean showBackupMissingWarning = false;
+      if (account instanceof Bip44Account){
+         showBackupMissingWarning = mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
+      }else if (account instanceof SingleAddressAccount) {
+         MetadataStorage.BackupState backupState = mbwManager.getMetadataStorage().getSingleKeyBackupState(account.getId());
+         showBackupMissingWarning = (backupState != MetadataStorage.BackupState.VERIFIED) && (backupState != MetadataStorage.BackupState.IGNORED);
+      }
+
       return showBackupMissingWarning;
    }
 

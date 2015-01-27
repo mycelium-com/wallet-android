@@ -41,6 +41,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -92,8 +94,8 @@ public class VerifyBackupActivity extends Activity {
 
    private boolean hasPrivateKeyOnClipboard() {
       String clipboardString = Utils.getClipboardString(this);
-      Optional<Record> record = Record.fromString(clipboardString, _mbwManager.getNetwork());
-      return record.isPresent() && record.get().hasPrivateKey();
+      Optional<InMemoryPrivateKey> pk = InMemoryPrivateKey.fromBase58String(clipboardString, _mbwManager.getNetwork());
+      return pk.isPresent();
    }
 
    @Override
@@ -135,40 +137,43 @@ public class VerifyBackupActivity extends Activity {
       int num = 0;
       for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         boolean needsBackup =
-               account instanceof SingleAddressAccount
-                     && account.canSpend();
-         if (needsBackup) {
-            num++;
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getSingleKeyBackupState(accountid);
+
+         if (backupState!= MetadataStorage.BackupState.IGNORED) {
+            boolean needsBackup = account instanceof SingleAddressAccount
+                  && account.canSpend()
+                  && backupState != MetadataStorage.BackupState.VERIFIED;
+            if (needsBackup) {
+               num++;
+            }
          }
       }
       return num;
    }
 
    private void verifyClipboardPrivateKey(String keyString) {
-      Optional<Record> record = Record.fromString(keyString, _mbwManager.getNetwork());
-      if (record.isPresent()) {
-         verify(record.get());
+      Optional<InMemoryPrivateKey> pk = InMemoryPrivateKey.fromBase58String(keyString, _mbwManager.getNetwork());
+      if (pk.isPresent()) {
+         verify(pk.get());
          return;
       }
 
       ShowDialogMessage(R.string.unrecognized_private_key_format, false);
    }
 
-   private void verify(Record record) {
-      if (!record.hasPrivateKey()) {
-         ShowDialogMessage(R.string.unrecognized_private_key_format, false);
-         return;
-      }
+   private void verify(InMemoryPrivateKey pk) {
+
       // Figure out the account ID
-      UUID account = SingleAddressAccount.calculateId(record.address);
+      Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork());
+      UUID account = SingleAddressAccount.calculateId(address);
 
       // Check whether regular wallet contains that account
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account);
 
       if (success) {
+         _mbwManager.getMetadataStorage().setSingleKeyBackupState(account, MetadataStorage.BackupState.VERIFIED);
          updateUi();
-         String message = getResources().getString(R.string.verify_backup_ok, record.address.toMultiLineString());
+         String message = getResources().getString(R.string.verify_backup_ok, address.toMultiLineString());
          ShowDialogMessage(message, false);
       } else {
          ShowDialogMessage(R.string.verify_backup_no_such_record, false);

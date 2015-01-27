@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -43,6 +44,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -66,6 +68,7 @@ import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
+import de.cketti.library.changelog.ChangeLog;
 
 import java.util.UUID;
 
@@ -106,7 +109,13 @@ public class ModernMain extends ActionBarActivity {
       bar.selectTab(mBalanceTab);
       _toaster = new Toaster(this);
 
+      ChangeLog cl = new DarkThemeChangeLog(this);
+      if (cl.isFirstRun()) {
+         cl.getLogDialog().show();
+      }
+
    }
+
 
    @Override
    protected void onResume() {

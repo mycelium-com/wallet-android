@@ -34,16 +34,13 @@
 
 package com.mycelium.wallet;
 
-import android.util.Log;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.lt.api.LtApi;
-import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.lt.api.LtApiClient.Logger;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
-import com.mycelium.wapi.api.*;
+import com.mycelium.net.TorHttpsEndpoint;
+
 
 public class MbwProdEnvironment extends MbwEnvironment {
    /**
@@ -53,39 +50,28 @@ public class MbwProdEnvironment extends MbwEnvironment {
    private static final String myceliumThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
 
 
-   /**
-    * Local Trader API for prodnet
-    */
-   private static final LtApiClient.HttpsEndpoint prodnetLocalTraderDefaultEndpoint = new LtApiClient.HttpsEndpoint(
-         "https://lt2.mycelium.com/ltprodnet/", myceliumThumbprint);
-   private static final LtApiClient.HttpsEndpoint prodnetLocalTraderFailoverEndpoint = new LtApiClient.HttpsEndpoint(
-         "https://lt1.mycelium.com/ltprodnet/", myceliumThumbprint);
-
-   private static final LtApiClient prodnetLocalTraderApi = new LtApiClient(prodnetLocalTraderDefaultEndpoint,
-         prodnetLocalTraderFailoverEndpoint, new Logger() {
-
-            @Override
-            public void logError(String message, Exception e) {
-               Log.e("", message, e);
-            }
-       @Override
-       public void logError(String message) {
-           Log.e("", message);
-       }       
-   });
-   
    public MbwProdEnvironment(String brand){
       super(brand);
    }
-   
+
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;
    }
 
+
+   /**
+    * Local Trader API for prodnet
+    */
+   private static final ServerEndpoints prodnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
+         new HttpsEndpoint("https://lt2.mycelium.com/ltprodnet", myceliumThumbprint),
+         new HttpsEndpoint("https://lt1.mycelium.com/ltprodnet", myceliumThumbprint),
+         new TorHttpsEndpoint("https://7c7yicf4e3brohwi.onion/ltprodnet", myceliumThumbprint),
+   }, 0);
+
    @Override
-   public LtApi getLocalTraderApi() {
-      return prodnetLocalTraderApi;
+   public ServerEndpoints getLtEndpoints() {
+      return  prodnetLtEndpoints;
    }
 
 
@@ -93,17 +79,17 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * Wapi
     */
    private static final HttpEndpoint[] prodnetWapiEndpoints = new HttpEndpoint[] {
-         // node2
+         // mws 2,6,7
          new HttpsEndpoint("https://mws2.mycelium.com/wapi", myceliumThumbprint),
-         new HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),
-
-         // node6
          new HttpsEndpoint("https://mws6.mycelium.com/wapi", myceliumThumbprint),
-         new HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),
-
-         // node7
          new HttpsEndpoint("https://mws7.mycelium.com/wapi", myceliumThumbprint),
-         new HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint)
+
+         // Also try to connect to the nodes via a hardcoded IP, in case the DNS has some problems
+         new HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),   // mws2
+         new HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),  // mws6
+         new HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint),     // mws7
+
+         new TorHttpsEndpoint("https://vtuao7psnrsot4tb.onion/wapi", myceliumThumbprint)     // tor hidden service
    };
 
    private static final ServerEndpoints prodnetWapiServerEndpoints = new ServerEndpoints(prodnetWapiEndpoints);

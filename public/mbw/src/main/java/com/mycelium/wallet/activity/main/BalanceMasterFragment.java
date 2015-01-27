@@ -45,9 +45,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.event.TorState;
+import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
+   private  TextView tvTor;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,6 +77,38 @@ public class BalanceMasterFragment extends Fragment {
          // Ignore
          //todo insert uncaught error handler
       }
+
+
+      if (MbwManager.getInstance(activity).getTorManager() != null) {
+         tvTor = (TextView) activity.findViewById(R.id.tvTorState);
+         tvTor.setVisibility(View.VISIBLE);
+         showTorState(MbwManager.getInstance(activity).getTorManager().getInitState());
+      }
+
+      MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
       super.onResume();
    }
+
+   @Override
+   public void onPause() {
+      MbwManager.getInstance(this.getActivity()).getEventBus().unregister(this);
+      super.onPause();
+   }
+
+   @Subscribe
+   public void onTorState(TorState torState){
+      showTorState(torState.percentage);
+   }
+
+   private void showTorState(int percentage) {
+      if (percentage==0) {
+         tvTor.setText("");
+      } else if (percentage==100){
+         tvTor.setText(String.format("Tor ok"));
+      } else {
+         tvTor.setText(String.format("Tor init: %d%%", percentage));
+      }
+   }
+
+
 }

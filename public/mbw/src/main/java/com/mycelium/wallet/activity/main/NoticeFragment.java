@@ -58,6 +58,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -65,7 +66,7 @@ import java.util.List;
 public class NoticeFragment extends Fragment {
 
    private enum Notice {
-      BACKUP_MISSING, MOVE_LEGACY_FUNDS, RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE
+      BACKUP_MISSING, SINGLEKEY_BACKUP_MISSING, MOVE_LEGACY_FUNDS, RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE
    }
 
    private MbwManager _mbwManager;
@@ -136,6 +137,18 @@ public class NoticeFragment extends Fragment {
          }
       }
 
+      // Then check if there are some SingleAddressAccounts with funds on it
+      for (WalletAccount account : accounts){
+         if (account instanceof SingleAddressAccount){
+            if (meta.getSingleKeyBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
+               Balance balance = account.getBalance();
+               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0){
+                  return Notice.SINGLEKEY_BACKUP_MISSING;
+               }
+            }
+         }
+      }
+
       // Second check whether to warn about legacy accounts with funds
       for (WalletAccount account : accounts) {
          if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
@@ -157,6 +170,9 @@ public class NoticeFragment extends Fragment {
                break;
             case BACKUP_MISSING:
                showBackupWarning();
+               break;
+            case SINGLEKEY_BACKUP_MISSING:
+               showSingleKeyBackupWarning();
                break;
             case MOVE_LEGACY_FUNDS:
                showMoveLegacyFundsWarning();
@@ -226,6 +242,13 @@ public class NoticeFragment extends Fragment {
       Utils.pinProtectedWordlistBackup(getActivity());
    }
 
+   private void showSingleKeyBackupWarning() {
+      if (!isAdded()) {
+         return;
+      }
+      Utils.pinProtectedBackup(getActivity());
+   }
+
    private void showMoveLegacyFundsWarning() {
       if (!isAdded()) {
          return;
@@ -266,7 +289,6 @@ public class NoticeFragment extends Fragment {
             }
 
          });
-
       }
    }
 
@@ -279,7 +301,7 @@ public class NoticeFragment extends Fragment {
       _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
 
       // Only show the "Secure My Funds" button when necessary
-      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.BACKUP_MISSING ? View.VISIBLE : View.GONE);
+      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.BACKUP_MISSING || _notice == Notice.SINGLEKEY_BACKUP_MISSING ? View.VISIBLE : View.GONE);
 
       // Only show the heartbleed warning when necessary
       _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);

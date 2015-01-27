@@ -1,63 +1,130 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignLeft="@+id/btCopyToClipboard"
-    android:layout_alignTop="@+id/tvTitle" >
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
 
     <LinearLayout
-        android:id="@+id/llRoot"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="0dp" >
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/private_key"
-            android:textSize="30sp" />
-
-        <View
+            android:id="@+id/llRoot"
             android:layout_width="fill_parent"
-            android:layout_height="5dp" />
-
-        <com.mycelium.wallet.activity.util.QrImageView
-            android:id="@+id/ivQrCode"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:background="@color/white"
-            android:contentDescription="@string/an_icon"
-            android:longClickable="false"
-            android:maxHeight="@dimen/large_qrcode"
-            android:maxWidth="@dimen/large_qrcode"
-            android:minHeight="@dimen/large_qrcode"
-            android:minWidth="@dimen/large_qrcode" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="0dp" >
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tap_qr_code_desc"
-            android:textColor="@color/grey"
-            android:textSize="12sp" />
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/export"
+                android:textSize="30sp" />
 
         <View
-            android:layout_width="fill_parent"
-            android:layout_height="5dp" />
+                android:layout_width="fill_parent"
+                android:layout_height="15dp" />
+
+        <TextView
+                android:id="@+id/tvShow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_public_or_private_data"/>
+
+        <Switch
+                android:id="@+id/swSelectData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOn="@string/show_private_data"
+                android:textOff="@string/show_public_data"/>
+        <TextView
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textSize="12sp"
+                android:gravity="center"
+                />
+
+        <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="260dp"
+                android:layout_height="260dp"
+                android:orientation="vertical">
+
+            <LinearLayout
+                    android:id="@+id/llPrivKeyWarning"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_height="match_parent"
+                    android:longClickable="true"
+                    android:visibility="gone"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Warning"
+                        android:textColor="@color/buttonredcolor"
+                        android:textStyle="bold"
+                        android:paddingBottom="10dp"
+                        android:textSize="20sp"/>
+
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Only copy this key in a secure environment.\nAnyone who has access to it gains control over all current and in the future available bitcoin for this account.\n\nLong-press here to show the \nQR-Code "/>
+            </LinearLayout>
+
+            <com.mycelium.wallet.activity.util.QrImageView
+                    android:id="@+id/ivQrCode"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="5dp"
+                    android:background="@color/white"
+                    android:contentDescription="@string/an_icon"
+                    android:longClickable="false"
+                    android:maxHeight="@dimen/large_qrcode"
+                    android:maxWidth="@dimen/large_qrcode"
+                    android:minHeight="@dimen/large_qrcode"
+                    android:minWidth="@dimen/large_qrcode" />
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/tvQrTapHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tap_qr_code_desc"
+                android:textColor="@color/grey"
+                android:textSize="10sp"/>
+
+
+        <TextView
+                android:id="@+id/tvShowData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:typeface="monospace"
+                android:gravity="center"/>
 
         <Button
-            android:id="@+id/btCopyToClipboard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="@string/copy_private_key_to_clipboard" />
+                android:id="@+id/btCopyToClipboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/copy_to_clipboard"
+                />
     </LinearLayout>
 
 </ScrollView>

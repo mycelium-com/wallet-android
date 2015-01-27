@@ -16,7 +16,7 @@
 }
 
 -dontwarn android.support.**
-
+-dontwarn org.apache.xmlrpc.**
 
 -optimizationpasses 6
 

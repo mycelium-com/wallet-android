@@ -7,7 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class HttpEndpoint {
-   public final String baseUrlString;
+   private final String baseUrlString;
 
    public HttpEndpoint(String baseUrlString) {
       this.baseUrlString = baseUrlString;
@@ -15,18 +15,30 @@ public class HttpEndpoint {
 
    @Override
    public String toString() {
+      return getBaseUrl();
+   }
+
+   public String getBaseUrl(){
       return baseUrlString;
    }
 
    public URI getUri(String basePath, String function) throws IOException {
       try {
-         URI uri = new URI(this.baseUrlString + basePath + '/' + function);
+         URI uri = new URI(this.getBaseUrl() + basePath + '/' + function);
          return uri;
       } catch (URISyntaxException e) {
          throw new RuntimeException(e);
       }
    }
 
+   public URI getUri(String function) throws IOException {
+      try {
+         URI uri = new URI(this.getBaseUrl() + '/' + function);
+         return uri;
+      } catch (URISyntaxException e) {
+         throw new RuntimeException(e);
+      }
+   }
 
    public OkHttpClient getClient(){
       return new OkHttpClient();

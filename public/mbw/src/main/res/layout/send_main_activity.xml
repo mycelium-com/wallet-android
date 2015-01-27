@@ -277,16 +277,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/miner_fee_title"
+                    android:layout_gravity="center"
                     android:textSize="24sp" />
 
-                <!-- Fee Amount -->
+                <!-- Fee toggle button, Fee amount in BTC -->
 
-                <TextView
-                    android:id="@+id/tvFee"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
+                <Button
+                        android:id="@+id/btFeeLvl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/MyceliumSlimButton"
+                        android:paddingTop="3sp"
+                        android:paddingBottom="3sp"
+                        android:paddingLeft="5sp"
+                        android:paddingRight="5sp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="fee, x.xx mBTC"
+                        android:textSize="16sp"
+                         />
 
                 <!-- Fiat Fee -->
 

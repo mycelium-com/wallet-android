@@ -1,5 +1,5 @@
 ext {
-    guavaArtifact = 'com.google.guava:guava-jdk5:14.0.1'
+    guavaArtifact = 'com.google.guava:guava:18.0'
     androidBuildArtifact = 'com.android.tools.build:gradle:1.0.+'
     slf4jVersion = '1.7.2'
     androidSdkBuildVersion = "21.1.1"

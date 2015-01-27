@@ -34,12 +34,14 @@
 
 package com.mycelium.net;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class ServerEndpoints {
+
    final private ArrayList<HttpEndpoint> endpoints;
    private int currentEndpoint;
    private ServerEndpointType allowedEndpointTypes = ServerEndpointType.ONLY_HTTPS;
@@ -48,9 +50,15 @@ public class ServerEndpoints {
    public ServerEndpoints(HttpEndpoint endpoints[]) {
       this.endpoints = Lists.newArrayList(endpoints);
       currentEndpoint = new Random().nextInt(this.endpoints.size());
-
       // ensure correct kind of endpoint
       switchToNextEndpoint();
+   }
+
+   public ServerEndpoints(HttpEndpoint endpoints[], int initialEndpoint) {
+      this.endpoints = Lists.newArrayList(endpoints);
+
+      Preconditions.checkElementIndex(initialEndpoint, endpoints.length);
+      currentEndpoint = initialEndpoint;
    }
 
    public HttpEndpoint getCurrentEndpoint(){
@@ -61,7 +69,7 @@ public class ServerEndpoints {
       return currentEndpoint;
    }
 
-   public HttpEndpoint switchToNextEndpoint(){
+   public synchronized HttpEndpoint switchToNextEndpoint(){
       HttpEndpoint selectedEndpoint;
       int cnt=0;
       do{
@@ -77,5 +85,18 @@ public class ServerEndpoints {
       }while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
 
       return selectedEndpoint;
+   }
+
+   public void setAllowedEndpointTypes(ServerEndpointType types){
+      allowedEndpointTypes=types;
+      switchToNextEndpoint();
+   }
+
+   public void setTorManager(TorManager torManager){
+      for (HttpEndpoint e : endpoints){
+         if (e instanceof TorHttpsEndpoint){
+            ((TorHttpsEndpoint) e).setTorManager(torManager);
+         }
+      }
    }
 }

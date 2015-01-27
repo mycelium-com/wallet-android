@@ -95,7 +95,6 @@
   <string name="edit">Editar</string>
   <string name="delete">Apagar</string>
   <string name="payment_request">Pedir pagamento</string>
-  <string name="export_single_private_key_warning">Está prestes a exportar a chave privada que controla todas as bitcoins dos endereços seleccionados.\n\nQualquer pessoa que ganhe acesso a esta chave pode tomar posse de de todas as bitcoins que esta controla.\n\nDeseja continuar?</string>
   <string name="export_to_clipboard_warning">Aviso: Exportar a chave privada para a área de transferência irá expô-la a todas as outras aplicações do seu dispositivo.\n\nNota: Não basta copiar a chave privada para a área de transferência, têm também de a salvar num local seguro.\n\nDeseja continuar?</string>
   <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
   <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\r\nDeseja apaga-la?</string>
@@ -110,10 +109,7 @@
   <string name="cold_storage_title">Gastar a partir do Armazenamento Frio</string>
   <string name="cold_storage_desc">Está prestes a gastar a partir de uma chave privada em Armazenamento Frio. Esta pode ser uma cópia de segurança em papel de uma chave privada obtida numa ATM Bitcoin. São suportados diversos formatos.\n\nUma vez que a transacção seja enviada, todos os vestígios da chave privada serão eliminados da memória.</string>
   <string name="manual_entry">Entrada manual</string>
-  <string name="active_name">Ativo</string>
-  <string name="active_name_empty">Ativo (Vazio)</string>
   <string name="archive_name">Arquivado</string>
-  <string name="archive_name_empty">Arquivado (Vazio)</string>
   <string name="activate_action">Ativar</string>
   <string name="archive_action">Arquivar</string>
   <string name="archived">Arquivado</string>

@@ -50,10 +50,12 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -254,6 +256,19 @@ public class TransactionHistoryFragment extends Fragment {
          TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
          tvAmount.setText(_mbwManager.getBtcValueString(record.value));
          tvAmount.setTextColor(color);
+
+         // Set fiat value
+         TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
+         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
+         if (!_mbwManager.hasFiatCurrency() || rate == null || rate.price == null) {
+            tvFiat.setVisibility(View.GONE);
+         } else {
+            tvFiat.setVisibility(View.VISIBLE);
+            String currency = _mbwManager.getFiatCurrency();
+            String converted = Utils.getFiatValueAsString(record.value, rate.price);
+            tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+            tvFiat.setTextColor(color);
+         }
 
          TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
          String label = _storage.getLabelByTransaction(record.txid);

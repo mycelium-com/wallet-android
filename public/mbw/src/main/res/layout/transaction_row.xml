@@ -63,6 +63,14 @@
                 android:layout_weight="1" >
         </View>
 
+        <TextView
+                android:text="placeholderAmountInFiat"
+                android:id="@+id/tvFiatAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" >
+        </TextView>
+
     </LinearLayout>
 
 </LinearLayout>

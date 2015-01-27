@@ -61,6 +61,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -78,6 +79,7 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -310,6 +312,12 @@ public class Utils {
    public static String[] stringChopper(String string, int chopLength) {
       return Iterables.toArray(Splitter.fixedLength(chopLength).split(string), String.class);
    }
+
+   public static String stringChopper(String string, int chopLength, String joiner) {
+      String[] parts = Iterables.toArray(Splitter.fixedLength(chopLength).split(string), String.class);
+      return Joiner.on(joiner).join(parts);
+   }
+
 
    public static Double getFiatValue(long satoshis, Double oneBtcInFiat) {
       if (oneBtcInFiat == null) {
@@ -570,13 +578,14 @@ public class Utils {
       alertDialog.show();
    }
 
-   public static void exportSelectedPrivateKey(final Activity parent) {
+   public static void exportSelectedAccount(final Activity parent) {
       WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
-      if (!account.canSpend() || !(account instanceof SingleAddressAccount)) {
+      if (!(account instanceof ExportableAccount)) {
          return;
       }
+
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-      builder.setMessage(R.string.export_single_private_key_warning).setCancelable(true)
+      builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();

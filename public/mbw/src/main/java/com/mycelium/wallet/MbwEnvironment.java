@@ -37,7 +37,6 @@ package com.mycelium.wallet;
 import android.content.Context;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.lt.api.LtApi;
 import com.mycelium.net.ServerEndpoints;
 
 public abstract class MbwEnvironment {
@@ -70,8 +69,6 @@ public abstract class MbwEnvironment {
    }
 
    public abstract NetworkParameters getNetwork();
-
-   public abstract LtApi getLocalTraderApi();
-   
+   public abstract ServerEndpoints getLtEndpoints();
    public abstract ServerEndpoints getWapiEndpoints();
 }

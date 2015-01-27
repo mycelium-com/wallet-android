@@ -35,12 +35,15 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.*;
@@ -50,10 +53,17 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.event.*;
+import com.mycelium.wapi.api.WapiConst;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.squareup.otto.Subscribe;
+import com.subgraph.orchid.TorClient;
+
+import java.io.IOException;
 
 public class BalanceFragment extends Fragment {
 
@@ -99,6 +109,7 @@ public class BalanceFragment extends Fragment {
       _root.findViewById(R.id.btSend).setOnClickListener(sendClickListener);
       _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
       _root.findViewById(R.id.btScan).setOnClickListener(scanClickListener);
+      _root.findViewById(R.id.btCurrency).setOnClickListener(cycleCurrencyClickListener);
       updateUi();
       super.onResume();
    }
@@ -129,6 +140,15 @@ public class BalanceFragment extends Fragment {
       }
    };
 
+   OnClickListener cycleCurrencyClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+         _mbwManager.getNextCurrency(_mbwManager.getFiatCurrency(), false);
+         _exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate();
+         updateUi();
+      }
+   };
+
    @Override
    public void onPause() {
       _mbwManager.getEventBus().unregister(this);
@@ -156,8 +176,8 @@ public class BalanceFragment extends Fragment {
       updateUiKnownBalance(balance);
 
       // Set BTC rate
-      if (_exchangeRate == null) {
-         // No rate, will probably get one soon
+      if (!_mbwManager.hasFiatCurrency() || _exchangeRate == null) {
+         // No rate or no fiat set
          _root.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
       } else if (_exchangeRate.price == null) {
          // We have no price, exchange not available
@@ -180,6 +200,13 @@ public class BalanceFragment extends Fragment {
 
       // Set balance fiat value
       setFiatValue(R.id.tvFiat, balance.getSpendableBalance(), false);
+      Button btCurrency = (Button) _root.findViewById(R.id.btCurrency);
+      btCurrency.setText(_mbwManager.getFiatCurrency());
+      if (!_mbwManager.hasFiatCurrency() || _exchangeRate == null || _exchangeRate.price == null) {
+         btCurrency.setVisibility(View.GONE);
+      } else {
+         btCurrency.setVisibility(View.VISIBLE);
+      }
 
       // Show/Hide Receiving
       // todo de-duplicate code
@@ -211,7 +238,7 @@ public class BalanceFragment extends Fragment {
 
    private void setFiatValue(int textViewResourceId, long satoshis, boolean hideOnZeroBalance) {
       TextView tv = (TextView) _root.findViewById(textViewResourceId);
-      if (_exchangeRate == null || _exchangeRate.price == null || (hideOnZeroBalance && satoshis == 0)) {
+      if (!_mbwManager.hasFiatCurrency() || _exchangeRate == null || _exchangeRate.price == null || (hideOnZeroBalance && satoshis == 0)) {
          tv.setVisibility(View.GONE);
       } else {
          tv.setVisibility(View.VISIBLE);

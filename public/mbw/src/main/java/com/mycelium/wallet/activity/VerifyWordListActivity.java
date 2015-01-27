@@ -134,7 +134,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
    }
 
    private void setVerified() {
-      _mbwManager.getMetadataStorage().setMasterKeyBackupState(MetadataStorage.BackupState.VERIFIED);
+      _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
 
       if (!_mbwManager.isPinProtected()) {
          AlertDialog.Builder builder = new AlertDialog.Builder(this);

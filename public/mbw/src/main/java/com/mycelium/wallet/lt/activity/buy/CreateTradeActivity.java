@@ -137,7 +137,7 @@ public class CreateTradeActivity extends Activity implements NumberEntryListener
    }
 
    @Override
-   public void onEntryChanged(String entry) {
+   public void onEntryChanged(String entry, boolean wasSet) {
       updateUi();
    }
 

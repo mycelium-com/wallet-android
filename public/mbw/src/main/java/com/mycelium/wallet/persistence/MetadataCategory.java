@@ -34,12 +34,14 @@
 
 package com.mycelium.wallet.persistence;
 
-public class KeyCategory{
-   public final String key;
+public class MetadataCategory {
    public final String category;
 
-   public KeyCategory(String Key, String Category) {
-      key = Key;
-      category = Category;
+   public MetadataCategory(String category) {
+      this.category = category;
+   }
+
+   public MetadataKeyCategory of(String key){
+      return new MetadataKeyCategory(key, category);
    }
 }

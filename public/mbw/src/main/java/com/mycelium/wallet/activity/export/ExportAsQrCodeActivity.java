@@ -41,23 +41,27 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class ExportAsQrCodeActivity extends Activity {
 
-   public static final int SCANNER_RESULT_CODE = 0;
 
    private MbwManager _mbwManager;
+   private WalletAccount account;
+   private Switch swSelectData;
+   private boolean hasWarningAccepted = false;
 
    /** Called when the activity is first created. */
    @Override
@@ -70,31 +74,117 @@ public class ExportAsQrCodeActivity extends Activity {
 
       // Get base58 encoded private key
       _mbwManager = MbwManager.getInstance(getApplication());
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      if (!(account instanceof SingleAddressAccount)) {
+      account = _mbwManager.getSelectedAccount();
+      if (!(account instanceof ExportableAccount)) {
          return;
       }
 
-      InMemoryPrivateKey privateKey;
-      try {
-         privateKey = ((SingleAddressAccount) account).getPrivateKey(AesKeyCipher.defaultKeyCipher());
-      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-         throw new RuntimeException(invalidKeyCipher);
-      }
-      final String base58 = privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork());
 
+      // hide the priv/pub switch, if this is a watch-only account
+      swSelectData = (Switch) findViewById(R.id.swSelectData);
+      if (((ExportableAccount) account).containsPrivateData()) {
+         swSelectData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+               updateData();
+            }
+         });
+      }else{
+         swSelectData.setVisibility(View.GONE);
+         findViewById(R.id.tvShow).setVisibility(View.GONE);
+      }
+
+      findViewById(R.id.llPrivKeyWarning).setOnLongClickListener(new View.OnLongClickListener() {
+         @Override
+         public boolean onLongClick(View view) {
+            hasWarningAccepted = true;
+            updateData();
+            return true;
+         }
+      });
+
+
+      updateData();
+   }
+
+   private void updateData() {
+      if (isPrivateDataSelected()){
+         showPrivateData();
+      }else{
+         showPublicData();
+      }
+   }
+
+   private boolean isPrivateDataSelected() {
+      if (((ExportableAccount) account).containsPrivateData()) {
+         return swSelectData.isChecked();
+      }else {
+         return false;
+      }
+   }
+
+   private void setWarningVisability(boolean showWarning){
+      if (showWarning) {
+         findViewById(R.id.llPrivKeyWarning).setVisibility(View.VISIBLE);
+         findViewById(R.id.ivQrCode).setVisibility(View.GONE);
+         findViewById(R.id.tvShowData).setVisibility(View.GONE);
+         findViewById(R.id.btCopyToClipboard).setVisibility(View.GONE);
+         findViewById(R.id.tvQrTapHint).setVisibility(View.GONE);
+      } else {
+         findViewById(R.id.llPrivKeyWarning).setVisibility(View.GONE);
+         findViewById(R.id.ivQrCode).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvShowData).setVisibility(View.VISIBLE);
+         findViewById(R.id.btCopyToClipboard).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvQrTapHint).setVisibility(View.VISIBLE);
+      }
+   }
+
+   private void showPrivateData(){
+
+      if (hasWarningAccepted) {
+         setWarningVisability(false);
+         try {
+            String privateData = ((ExportableAccount) account).getPrivateData(AesKeyCipher.defaultKeyCipher());
+            showData(privateData);
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+         }
+      }else{
+         setWarningVisability(true);
+      }
+      ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_privkey));
+
+   }
+
+   private void showPublicData(){
+      setWarningVisability(false);
+      String publicData = ((ExportableAccount) account).getPublicData();
+      showData(publicData);
+      ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_pubkey));
+
+   }
+
+   private void showData(final String data){
       // Set QR code
       QrImageView iv = (QrImageView) findViewById(R.id.ivQrCode);
-      iv.setQrCode(base58);
+      iv.setQrCode(data);
 
+      // split the date in fragments with 8chars and a newline after three parts
+      String fragmentedData = "";
+      int cnt=0;
+      for (String part : Utils.stringChopper(data, 8)){
+         cnt++;
+         fragmentedData += part + (cnt%3==0 ? "\n":" ");
+      }
+
+      ((TextView)findViewById(R.id.tvShowData)).setText(fragmentedData);
       findViewById(R.id.btCopyToClipboard).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
-            exportToClipboard(base58);
+            exportToClipboard(data);
          }
       });
-
    }
 
    @Override
@@ -105,20 +195,25 @@ public class ExportAsQrCodeActivity extends Activity {
       super.onPause();
    }
 
-   private void exportToClipboard(final String base58PrivateKey) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      builder.setMessage(R.string.export_to_clipboard_warning).setCancelable(false)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  Utils.setClipboardString(base58PrivateKey, ExportAsQrCodeActivity.this);
-                  Toast.makeText(ExportAsQrCodeActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-                  dialog.dismiss();
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-               }
-            });
-      AlertDialog alertDialog = builder.create();
-      alertDialog.show();
+   private void exportToClipboard(final String data) {
+      if (isPrivateDataSelected()) {
+         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         builder.setMessage(R.string.export_to_clipboard_warning).setCancelable(false)
+               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                     Utils.setClipboardString(data, ExportAsQrCodeActivity.this);
+                     Toast.makeText(ExportAsQrCodeActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                     dialog.dismiss();
+                  }
+               }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+         });
+         AlertDialog alertDialog = builder.create();
+         alertDialog.show();
+      }else{
+         Utils.setClipboardString(data, ExportAsQrCodeActivity.this);
+         Toast.makeText(ExportAsQrCodeActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+      }
    }
 }

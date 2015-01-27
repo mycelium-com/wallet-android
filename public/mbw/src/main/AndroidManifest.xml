@@ -124,6 +124,8 @@
         <activity android:name=".activity.AdditionalBackupWarningActivity" />
         <activity android:name=".activity.modern.HDSigningActivity" />
         <activity android:name=".activity.BipSsImportActivity"/>
+        <activity android:name=".activity.CreateKeyActivity"/>
+        <activity android:name=".activity.ConnectionLogsActivity"/>
     </application>
 
 </manifest>

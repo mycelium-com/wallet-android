@@ -95,7 +95,6 @@
   <string name="edit">Ændre</string>
   <string name="delete">Slet</string>
   <string name="payment_request">Betalings Forespørgelse</string>
-  <string name="export_single_private_key_warning">Du er ved at eksportere den private nøgle som styrer alle Bitcoins for den valgte adresse.\n\nAlle som får adgang til nøglen kan komme i besiddelse af de Bitcoins som den indeholder.\n\nVil du fortsætte?</string>
   <string name="export_to_clipboard_warning">Advarsel: Eksportering af den private nøgle til Udklipsholderen vil gøre den tilgængelig for andre apps.\n\nNote: Det er ikke nok at gemme den private nøgle til udklipsholderen, du skal også indsætte den et sikkert sted.\n\nVil du fortsætte?</string>
   <string name="found_clipboard_private_key_title">Privat Nøgle Fundet i Udklipsholderen</string>
   <string name="found_clipboard_private_keys_message">Udklipsholderen indeholder en privat nøgle.\r\nVil du slette den?</string>
@@ -111,10 +110,7 @@
   <string name="cold_storage_title">Brug fra Cold Storage</string>
   <string name="cold_storage_desc">Du er ved at spendere fra en privat nøgle fra cold storage. Dette kan være en backup af en privat nøgle eller en slip fra en Bitcoin automat. Flere formater er supporteret.\n\nNår transaktionen er sendt vil ethvert spor af den private nøgle være slettet fra hukommelsen.</string>
   <string name="manual_entry">Indtast manuelt</string>
-  <string name="active_name">Aktiv</string>
-  <string name="active_name_empty">Aktiv (Tom)</string>
   <string name="archive_name">Arkiverede</string>
-  <string name="archive_name_empty">Arkiverede (Tom)</string>
   <string name="activate_action">Aktiver</string>
   <string name="archive_action">Arkiv</string>
   <string name="archived">Arkiveret</string>

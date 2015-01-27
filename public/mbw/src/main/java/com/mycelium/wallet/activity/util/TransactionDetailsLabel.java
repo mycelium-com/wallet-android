@@ -62,8 +62,7 @@ public class TransactionDetailsLabel extends GenericLinkLabel {
 
    @Override
    protected String getFormattedLinkText() {
-      String[] chunks = Utils.stringChopper(transaction.hash.toString(), 4);
-      return Joiner.on(" ").join(chunks);
+      return Utils.stringChopper(transaction.hash.toString(), 4, " ");
    }
 
    @Override

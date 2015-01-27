@@ -95,7 +95,6 @@
   <string name="edit">עריכה</string>
   <string name="delete">מחיקה</string>
   <string name="payment_request">בקשת תשלום</string>
-  <string name="export_single_private_key_warning">הינך עומד\ת לייצא את המפתח הפרטי השולט על כל הביטקוינים שברשות הכתובת שנבחרה.\n\nכל מי שישיג גישה למפתח זה יוכל לקחת את הביטקוינים עליהם המפתח שולט.\n\nהאם ברצונך להמשיך?</string>
   <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
   <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
   <string name="found_clipboard_private_keys_message">הלוח (clipboard) מכיל מפתח פרטי.\r\nהאם ברצונך למחוק אותו?</string>
@@ -111,10 +110,7 @@
   <string name="cold_storage_title">ניצול מתוך אחסון קר</string>
   <string name="cold_storage_desc">הינך עומד\ת לנצל כספים מתוך מפתח הנמצא באחסון קר. מפתח זה יכול להיות מפתח פרטי מתוך ארנק נייר או תגית מפתח פרטי מכספומת ביטקוין. מספר תבניות נתמכות.\n\nברגע שהטרנזקציה תישלח כל זכר מהמפתח הפרטי ימחק מהזיכרון.</string>
   <string name="manual_entry">הזנה ידנית</string>
-  <string name="active_name">פעיל</string>
-  <string name="active_name_empty">פעיל (ריק)</string>
   <string name="archive_name">ארכיון</string>
-  <string name="archive_name_empty">ארכיון (ריק)</string>
   <string name="activate_action">הפעל</string>
   <string name="archive_action">ארכיון</string>
   <string name="archived">הועבר לארכיון</string>

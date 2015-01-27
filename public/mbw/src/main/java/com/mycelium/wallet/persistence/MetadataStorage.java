@@ -45,27 +45,29 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MetadataStorage extends GenericMetadataStorage {
-   public static final String ADDRESSLABEL_CATEGORY = "addresslabel";
-   public static final String ACCOUNTLABEL_CATEGORY = "al";
-   public static final String TRANSACTION_LABEL_CATEGORY = "tl";
-   private static final KeyCategory SEED_BACKUPSTATE = new KeyCategory("seed", "backupstate");
-   private static final KeyCategory PIN_RESET_BLOCKHEIGHT = new KeyCategory("pin", "reset_blockheight");
-   private static final KeyCategory PIN_BLOCKHEIGHT = new KeyCategory("pin", "blockheight");
+   public static final MetadataCategory ADDRESSLABEL_CATEGORY = new MetadataCategory("addresslabel");
+   public static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
+   public static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
+   public static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
+   public static final MetadataCategory SINGLE_KEY_BACKUPSTATE = new MetadataCategory("single_key_bs");
+   private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
+   private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
+   private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
 
    public MetadataStorage(Context context) {
       super(context);
    }
 
    public void storeTransactionLabel(Sha256Hash txid, String label) {
-      storeKeyCategoryValueEntry(txid.toString(), TRANSACTION_LABEL_CATEGORY, label);
+      storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), label);
    }
 
    public String getLabelByTransaction(Sha256Hash txid) {
-      return getKeyCategoryValueEntry(txid.toString(), TRANSACTION_LABEL_CATEGORY, "");
+      return getKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), "");
    }
 
    public String getLabelByAccount(UUID account) {
-      return getKeyCategoryValueEntry(account.toString(), ACCOUNTLABEL_CATEGORY, "");
+      return getKeyCategoryValueEntry(ACCOUNTLABEL_CATEGORY.of(account.toString()), "");
    }
 
    public Optional<UUID> getAccountByLabel(String label) {
@@ -79,7 +81,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public void storeAccountLabel(UUID account, String label) {
-      storeKeyCategoryValueEntry(account.toString(), ACCOUNTLABEL_CATEGORY, label);
+      storeKeyCategoryValueEntry(ACCOUNTLABEL_CATEGORY.of(account.toString()), label);
    }
 
    public void deleteAccountMetadata(UUID account){
@@ -98,7 +100,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public String getLabelByAddress(Address address) {
-      return getKeyCategoryValueEntry(address.toString(), ADDRESSLABEL_CATEGORY, "");
+      return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "");
    }
 
    public void deleteAddressMetadata(Address address) {
@@ -117,15 +119,15 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public void storeAddressLabel(Address address, String label) {
-      storeKeyCategoryValueEntry(address.toString(), ADDRESSLABEL_CATEGORY, label);
+      storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), label);
    }
 
-   public void setIgnoreBackupWarning(UUID account, Boolean ignore){
-      storeKeyCategoryValueEntry(account.toString(), "ibw", ignore ? "1" : "0");
+   public void setIgnoreLegacyWarning(UUID account, Boolean ignore){
+      storeKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), ignore ? "1" : "0");
    }
 
-   public Boolean getIgnoreBackupWarning(UUID account){
-      return  "1".equals(getKeyCategoryValueEntry(account.toString(), "ibw", "0"));
+   public Boolean getIgnoreLegacyWarning(UUID account){
+      return  "1".equals(getKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), "0"));
    }
 
    public boolean firstMasterseedBackupFinished(){
@@ -136,6 +138,21 @@ public class MetadataStorage extends GenericMetadataStorage {
       return BackupState.fromString(
             getKeyCategoryValueEntry(SEED_BACKUPSTATE, BackupState.UNKNOWN.toString())
       );
+   }
+
+   public BackupState getSingleKeyBackupState(UUID accountId) {
+      return BackupState.fromString(
+            getKeyCategoryValueEntry(SINGLE_KEY_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
+      );
+   }
+
+   public void setSingleKeyBackupState(UUID accountId, BackupState state) {
+      storeKeyCategoryValueEntry(SINGLE_KEY_BACKUPSTATE.of(accountId.toString()), state.toString());
+   }
+
+
+   public void deleteSingleKeyBackupState(UUID accountId) {
+      deleteByKeyCategory(SINGLE_KEY_BACKUPSTATE.of(accountId.toString()));
    }
 
    public void deleteMasterKeyBackupAgeMs(){
@@ -151,7 +168,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       }
    }
 
-   public void setMasterKeyBackupState(BackupState state) {
+   public void setMasterSeedBackupState(BackupState state) {
       storeKeyCategoryValueEntry(SEED_BACKUPSTATE, state.toString());
 
       // if this is the first verified backup, remember the date

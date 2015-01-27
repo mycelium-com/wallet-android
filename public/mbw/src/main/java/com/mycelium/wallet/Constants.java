@@ -62,6 +62,7 @@ public class Constants {
    public static final String PIN_SETTING_RESETTABLE = "PinResettable";
    public static final String PROXY_SETTING = "proxy";
    public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
+   public static final String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    public static final String DEFAULT_CURRENCY = "USD";
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
    public static final String MINER_FEE_SETTING = "MinerFeeSetting";
@@ -74,14 +75,15 @@ public class Constants {
    public static final String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
    public static final String LANGUAGE_SETTING = "user_language";
    public static final String IGNORED_VERSIONS = "ignored_versions";
+   public static final String TOR_MODE = "tor_mode";
+
    public static final String LAST_UPDATE_CHECK = "last_update_check";
 
    public static final String TAG = "MyceliumWallet";
-
    // Brands
    public static final String BRAND_MYCELIUM = "mycelium";
+
    public static final String BRAND_BITS_OF_GOLD = "bog";
-   
    // Local Trader constants
    public static final String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
    public static final String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";
@@ -101,13 +103,14 @@ public class Constants {
    public static final String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
    public static final String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
    public static final String LOCAL_TRADER_HELP_URL = "http://www.mycelium.com/lt/help.html";
+
    public static final String LOCAL_TRADER_MAP_URL = "http://www.mycelium.com/lt/m";
 
    public static final String IGNORE_NEW_API = "NewApi";
 
    public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
-
    public static final String PRODNET_DONATION_ADDRESS = "13YxhmcAyr9W1frumWr3trXLAj2hSHWBmo";
+
    public static final String TESTNET_DONATION_ADDRESS = "mtjVQkh6kZbixqwLPMinWievE5jWSHdovP";
 
    public static final int BITCOIN_BLOCKS_PER_DAY = (24 * 60) / 10;
@@ -117,7 +120,6 @@ public class Constants {
 
    // Minimum age of the PIN in blocks, until you can reset the PIN
    public static final int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
-
    // Force user to read the warnings about additional backups
    public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
 }

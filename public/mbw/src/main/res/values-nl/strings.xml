@@ -111,7 +111,6 @@
   <string name="edit">Bewerken</string>
   <string name="delete">Wissen</string>
   <string name="payment_request">Verzoek om betaling</string>
-  <string name="export_single_private_key_warning">U staat op het punt om de  private key die alle Bitcoins van het geselecteerde adres beheert te exporteren.\n\nIedereen die toegang tot deze sleutel krijgt kan bezit van uw Bitcoins overnemen.\n\nWilt u doorgaan?</string>
   <string name="backup_all_warning">U moet een back-up maken van de master seed van uw portefeuille. \nEen back-up van uw master seed stelt u in staat uw tegoeden te herstellen als het apparaat verloren of beschadigd zou raken.\n\nWilt u dit nu doen?</string>
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
@@ -129,10 +128,7 @@
   <string name="cold_storage_desc">U staat op het punt om uit te geven van een private key in koude opslag. Dit zou een private key op papier of een private key ticket van een Bitcoin geldautomaat kunnen zijn. Verschillende typen indelingen zijn ondersteund.\n\nZodra de transactie is verstuurd zal elk spoor van de private key worden gewist uit het geheugen.</string>
   <string name="keep_account_address">Verwijder alleen de private key en behoudt als alleen-lezen account</string>
   <string name="manual_entry">Handmatige invoer</string>
-  <string name="active_name">Actief</string>
-  <string name="active_name_empty">Actief (leeg)</string>
   <string name="archive_name">Archief</string>
-  <string name="archive_name_empty">Archief (leeg)</string>
   <string name="activate_action">Activeren</string>
   <string name="archive_action">Archiveren</string>
   <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\r\n\r\nGearchiveerde accounts kunnen later weer geactiveerd worden. \r\n\r\nWilt u dit account archiveren?</string>

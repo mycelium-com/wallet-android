@@ -59,14 +59,12 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
+import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
@@ -327,20 +325,41 @@ public class AccountsFragment extends Fragment {
          getView().findViewById(R.id.svRecords).setVisibility(View.VISIBLE);
          getView().findViewById(R.id.llLocked).setVisibility(View.GONE);
 
-         List<WalletAccount> activeRecords = Utils.sortAccounts(walletManager.getActiveAccounts(), _storage);
+
+         List<WalletAccount> activeHdAccounts = walletManager.getActiveHdAccounts();
+         List<WalletAccount> activeOtherAccounts = walletManager.getActiveOtherAccounts();
+
+
+
+         List<WalletAccount> activeHdRecords = Utils.sortAccounts(activeHdAccounts, _storage);
+         List<WalletAccount> activeOtherRecords = Utils.sortAccounts(activeOtherAccounts, _storage);
          List<WalletAccount> archivedRecords = Utils.sortAccounts(walletManager.getArchivedAccounts(), _storage);
 
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-         LinearLayout active = createAccountViewList(activeRecords.isEmpty() ? R.string.active_name_empty : R.string.active_name,
-               activeRecords, selectedAccount, true);
-         llRecords.addView(active);
-         if (activeRecords.size() > 1) {
-            LinearLayout activeSum = createActiveAccountBalanceSumView(activeRecords);
+
+         String activeTitle = getString(R.string.active_hd_accounts_name) + (activeHdRecords.isEmpty() ? " " + getString(R.string.active_accounts_empty) : "");
+         LinearLayout activeHdAccountsView = createAccountViewList(activeTitle, activeHdRecords, selectedAccount);
+         llRecords.addView(activeHdAccountsView);
+
+         if (activeHdRecords.size() > 1) {
+            LinearLayout activeSum = createActiveAccountBalanceSumView(activeHdRecords);
             llRecords.addView(activeSum);
          }
-         LinearLayout archived = createAccountViewList(archivedRecords.isEmpty() ? R.string.archive_name_empty : R.string.archive_name,
-               archivedRecords, selectedAccount, false);
-         llRecords.addView(archived);
+
+         if (!activeOtherRecords.isEmpty()) {
+            LinearLayout activeOtherAccountsView = createAccountViewList(getString(R.string.active_other_accounts_name), activeOtherRecords, selectedAccount);
+            llRecords.addView(activeOtherAccountsView);
+
+            if (activeOtherRecords.size() > 1) {
+               LinearLayout activeOtherSum = createActiveAccountBalanceSumView(activeOtherRecords);
+               llRecords.addView(activeOtherSum);
+            }
+         }
+
+         if (archivedRecords.size() > 0) {
+            LinearLayout archived = createAccountViewList(getString(R.string.archive_name), archivedRecords, selectedAccount);
+            llRecords.addView(archived);
+         }
       }
    }
 
@@ -373,23 +392,13 @@ public class AccountsFragment extends Fragment {
       return outer;
    }
 
-   private LinearLayout createAccountViewList(int titleResource, List<WalletAccount> accounts, WalletAccount selectedAccount,
-                                              boolean addButton) {
+   private LinearLayout createAccountViewList(String title, List<WalletAccount> accounts, WalletAccount selectedAccount) {
       LinearLayout outer = new LinearLayout(getActivity());
       outer.setOrientation(LinearLayout.VERTICAL);
       outer.setLayoutParams(_outerLayoutParameters);
 
       // Add title
-      if (addButton) {
-         // Add both a title and an "+" button
-         LinearLayout titleLayout = new LinearLayout(getActivity());
-         titleLayout.setOrientation(LinearLayout.HORIZONTAL);
-         titleLayout.setLayoutParams(_innerLayoutParameters);
-         titleLayout.addView(createTitle(titleResource));
-         outer.addView(titleLayout);
-      } else {
-         outer.addView(createTitle(titleResource));
-      }
+      outer.addView(createTitle(title));
 
       if (accounts.isEmpty()) {
          return outer;
@@ -421,11 +430,11 @@ public class AccountsFragment extends Fragment {
       return outer;
    }
 
-   private TextView createTitle(int stringResourceId) {
+   private TextView createTitle(String title) {
       TextView tv = new TextView(getActivity());
       tv.setLayoutParams(_titleLayoutParameters);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
-      tv.setText(stringResourceId);
+      tv.setText(title);
       tv.setGravity(Gravity.LEFT);
 
       tv.setTextAppearance(getActivity(), R.style.GenericText);
@@ -485,11 +494,12 @@ public class AccountsFragment extends Fragment {
       final List<Integer> menus = Lists.newArrayList();
       menus.add(R.menu.record_options_menu);
 
-      if (account instanceof Bip44Account) {
+      if (account instanceof Bip44Account || account instanceof SingleAddressAccount) {
          menus.add(R.menu.record_options_menu_backup);
       }
 
       if (account instanceof SingleAddressAccount) {
+         menus.add(R.menu.record_options_menu_backup_verify);
          menus.add(R.menu.record_options_menu_delete);
       }
 
@@ -503,8 +513,8 @@ public class AccountsFragment extends Fragment {
       if (account.isArchived()) {
          menus.add(R.menu.record_options_menu_archive);
       }
-      if (account.isActive() && account.canSpend() && account instanceof SingleAddressAccount) {
-         menus.add(R.menu.record_options_menu_privkey);
+      if (account.isActive() && account.canSpend() && account instanceof ExportableAccount) {
+         menus.add(R.menu.record_options_menu_export);
       }
 
       if (account.isActive() && account instanceof Bip44Account) {
@@ -579,6 +589,9 @@ public class AccountsFragment extends Fragment {
             } else if (id == R.id.miMakeBackup) {
                makeBackup();
                return true;
+            } else if (id == R.id.miSingleKeyBackupVerify) {
+               verifySingleKeyBackup();
+               return true;
             } else if (id == R.id.miRescan) {
                rescan();
                return true;
@@ -608,6 +621,17 @@ public class AccountsFragment extends Fragment {
          update();
       }
 
+
+   private void verifySingleKeyBackup(){
+      if (!AccountsFragment.this.isAdded()) {
+         return;
+      }
+
+      if (_focusedAccount instanceof SingleAddressAccount) {
+         //start legacy backup verification
+         VerifyBackupActivity.callMe(getActivity());
+      }
+   }
 
    private void makeBackup() {
       if (!AccountsFragment.this.isAdded()) {
@@ -754,13 +778,14 @@ public class AccountsFragment extends Fragment {
             confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                public void onClick(DialogInterface arg0, int arg1) {
-                  _mbwManager.getMetadataStorage().setIgnoreBackupWarning(_focusedAccount.getId(), true);
+                  _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(_focusedAccount.getId(), true);
                   _mbwManager.getEventBus().post(new AccountChanged(_focusedAccount.getId()));
                }
             });
             confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
                public void onClick(DialogInterface arg0, int arg1) {
+                  _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(_focusedAccount.getId(), false);
+                  _mbwManager.getEventBus().post(new AccountChanged(_focusedAccount.getId()));
                }
             });
             confirmDialog.show();
@@ -781,7 +806,7 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            Utils.exportSelectedPrivateKey(AccountsFragment.this.getActivity());
+            Utils.exportSelectedAccount(AccountsFragment.this.getActivity());
          }
 
       });
@@ -887,20 +912,27 @@ public class AccountsFragment extends Fragment {
          return;
       }
       if (_focusedAccount instanceof Bip44Account) {
-         Bip44Account account = (Bip44Account) _focusedAccount;
+         final Bip44Account account = (Bip44Account) _focusedAccount;
          if (account.hasHadActivity()) {
             //this account is used, we don't allow hiding it
             _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
             return;
          }
-         _mbwManager.getWalletManager(false).removeUnusedBip44Account();
-         //in case user had labeled the account, delete the stored name
-         _storage.deleteAccountMetadata(account.getId());
-         //setselected also broadcasts AccountChanged event, which will cause an ui update
-         _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-         //we dont want to show the context menu for the automatically selected account
-         _focusedAccount = null;
-         finishCurrentActionMode();
+
+         _mbwManager.runPinProtectedFunction(this.getActivity(), new Runnable() {
+            @Override
+            public void run() {
+               _mbwManager.getWalletManager(false).removeUnusedBip44Account();
+               //in case user had labeled the account, delete the stored name
+               _storage.deleteAccountMetadata(account.getId());
+               //setselected also broadcasts AccountChanged event, which will cause an ui update
+               _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+               //we dont want to show the context menu for the automatically selected account
+               _focusedAccount = null;
+               finishCurrentActionMode();
+            }
+         });
+
       }
    }
 

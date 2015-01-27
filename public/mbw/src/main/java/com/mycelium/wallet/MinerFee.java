@@ -65,6 +65,14 @@ public enum MinerFee {
       }
    }
 
+   //simply returns the next fee in order of declaration, starts with the first after reaching the last
+   //useful for cycling through them in sneding for example
+   public MinerFee getNext() {
+      return this.ordinal() < MinerFee.values().length - 1
+            ? MinerFee.values()[this.ordinal() + 1]
+            : MinerFee.values()[0];
+   }
+
    public static String getMinerFeeName(MinerFee minerFee, Context context) {
       if (minerFee == ECONOMIC) {
          return context.getString(R.string.miner_fee_economic_name);

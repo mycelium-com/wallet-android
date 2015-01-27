@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog>
+    <release version="2.2.0" versioncode="22000">
+        <change>Accounts-tab: Split list into "HD" and "Other"</change>
+        <change>Fiat-values in transaction-history</change>
+        <change>Create new single-key accounts (advanced option)</change>
+        <change>Select miner-fee directly in send-dialog</change>
+        <change>Option to show the connection-logs in about-dialog</change>
+        <change>Add bitfinex as price-source</change>
+        <change>Option to export xPub/xPriv key of HD-Accounts</change>
+        <change>Show NFC icon, if NFC is available</change>
+        <change>Show PIN reset hint after wrong PIN entry</change>
+        <change>Select multiple Fiat currencies</change>
+        <change>Tor - new option to connect to the backend via hidden-services (improves privacy and availability)</change>
+        <change>Show changes after upgrade</change>
+        <change>[bug] Fix wrong locale for some LT-messages</change>
+        <change>[bug] Google-Geocoder JSON response changed</change>
+        <change>[bug] Fix number entry in send-dialog, [GitHub:146]</change>
+    </release>
+</changelog>

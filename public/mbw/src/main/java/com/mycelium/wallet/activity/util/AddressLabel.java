@@ -62,8 +62,7 @@ public class AddressLabel extends GenericLinkLabel {
 
    @Override
    protected String getFormattedLinkText() {
-      String[] chunks = Utils.stringChopper(address.toString(), 12);
-      return Joiner.on("\n").join(chunks);
+      return Utils.stringChopper(address.toString(), 12, "\n");
    }
 
    @Override

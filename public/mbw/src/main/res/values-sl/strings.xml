@@ -111,7 +111,6 @@
   <string name="edit">Uredi</string>
   <string name="delete">Izbriši</string>
   <string name="payment_request">Zahtevek za plačilo</string>
-  <string name="export_single_private_key_warning">Izvozili boste zasebni ključ, ki omogoča dostop do vseh bitcoinov na tem naslovu.\n\nKdorkoli pridobi dostop do tega ključa, bo lahko potrošil vaše novce.\n\nŽelite nadaljevati?</string>
   <string name="backup_all_warning">Napraviti morate rezervno kopijo glavnega semena vaše denarnice.\nRezervna kopija glavnega semena vam bo omogočila obnovo vaših sredstev, če se ta naprava izgubi ali poškoduje.\n\nŽelite napraviti rezervno kopijo zdaj?</string>
   <string name="backup_legacy_warning">Napravili boste rezervno kopijo računov s posamičnimi naslovi v vaši denarnici.\nTa rezervna kopija ne bo vsebovala vašega glavnega semena, zato iz nje ne bo mogoče obnoviti vaših HD-računov!\n\nŽelite nadaljevati?</string>
   <string name="export_to_clipboard_warning">Opozorilo: če zasebni ključ kopirate na odložišče, lahko do njega dostopajo vse aplikacije na vašem sistemu.\n\nPozor: Za rezervno kopiranje ni dovolj, da ključ le kopirate na odložišče; potem ga morate še prilepiti na varno mesto.\n\nŽelite nadaljevati?</string>
@@ -130,10 +129,7 @@
   <string name="cold_storage_desc">Poslali boste novce z zasebnega naslova v hladni hrambi. Slednja je lahko papirna rezervna kopija ali natisnjen zasebni ključ iz novcomata. Podpiramo več različnih formatov.\n\nPo tem ko bo nakazilo poslano, bo vsaka sled zasebnega ključa izbrisana iz pomnilnika te naprave.</string>
   <string name="keep_account_address">Izbriši le zasebni ključ in ohrani račun samo za branje</string>
   <string name="manual_entry">Ročni vnos</string>
-  <string name="active_name">Aktivni</string>
-  <string name="active_name_empty">Aktivni (prazno)</string>
   <string name="archive_name">Arhivirani</string>
-  <string name="archive_name_empty">Arhivirani (prazno)</string>
   <string name="activate_action">Aktiviraj</string>
   <string name="archive_action">Arhiviraj</string>
   <string name="question_archive_account">Na arhiviranih računih se ne spremljajo transakcije, na njih ne morete videti stanja in prejemnega naslov ter z njimi na noben način ne morete delati.\r\n\r\nArhivirane račune je vedno mogoče ponovno aktivirati.\r\n\r\nŽelite sedaj arhivirati ta račun?</string>

@@ -286,6 +286,25 @@ public class WalletManager {
    }
 
    /**
+    * Get the active HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+    *
+    * @return the list of accounts
+    */
+   public List<WalletAccount> getActiveHdAccounts() {
+      return filterAndConvert(Predicates.and(MAIN_SEED_HD_ACCOUNT, Predicates.not(IS_ARCHIVE)));
+   }
+
+   /**
+    * Get the active none-HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+    *
+    * @return the list of accounts
+    */
+   public List<WalletAccount> getActiveOtherAccounts() {
+      return filterAndConvert(Predicates.not(Predicates.or(MAIN_SEED_HD_ACCOUNT, IS_ARCHIVE)));
+   }
+
+
+   /**
     * Get archived accounts managed by the wallet manager
     *
     * @return the archived accounts managed by the wallet manager
@@ -582,6 +601,14 @@ public class WalletManager {
       @Override
       public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
          return input.getValue().isActive() && input.getValue().canSpend();
+      }
+   };
+
+   private static final Predicate<Map.Entry<UUID, AbstractAccount>> MAIN_SEED_HD_ACCOUNT = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+      @Override
+      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+         // todo: if relevant also check if this account is derived from the main-masterseed
+         return input.getValue() instanceof Bip44Account;
       }
    };
 

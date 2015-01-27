@@ -52,7 +52,9 @@ import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -88,8 +90,7 @@ public class SettingsActivity extends PreferenceActivity {
    private static final int GET_CURRENCY_RESULT_CODE = 0;
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
-         String currency = _mbwManager.getFiatCurrency();
-         SetLocalCurrencyActivity.callMeForResult(SettingsActivity.this, currency, GET_CURRENCY_RESULT_CODE);
+         SetLocalCurrencyActivity.callMe(SettingsActivity.this);
          return true;
       }
    };
@@ -119,6 +120,12 @@ public class SettingsActivity extends PreferenceActivity {
    private final OnPreferenceClickListener legacyBackupClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          Utils.pinProtectedBackup(SettingsActivity.this);
+         return true;
+      }
+   };
+   private final OnPreferenceClickListener legacyBackupVerifyClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         VerifyBackupActivity.callMe(SettingsActivity.this);
          return true;
       }
    };
@@ -295,6 +302,10 @@ public class SettingsActivity extends PreferenceActivity {
       Preference legacyBackup = Preconditions.checkNotNull(findPreference("legacyBackup"));
       legacyBackup.setOnPreferenceClickListener(legacyBackupClickListener);
 
+      // Legacy backup function
+      Preference legacyBackupVerify = Preconditions.checkNotNull(findPreference("legacyBackupVerify"));
+      legacyBackupVerify.setOnPreferenceClickListener(legacyBackupVerifyClickListener);
+
       // Local Trader
       CheckBoxPreference ltDisable = (CheckBoxPreference) findPreference("ltDisable");
       ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
@@ -310,15 +321,30 @@ public class SettingsActivity extends PreferenceActivity {
       _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
 
       // Socks Proxy
-      EditTextPreference proxy = Preconditions.checkNotNull((EditTextPreference) findPreference("proxy"));
-      proxy.setTitle(getSocksProxyTitle());
+      final ListPreference useTor = Preconditions.checkNotNull((ListPreference) findPreference("useTor"));
+      useTor.setTitle(getUseTorTitle());
 
-      proxy.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+      useTor.setEntries(new String[]{
+            getString(R.string.use_https),
+            getString(R.string.use_internal_tor),
+            getString(R.string.use_external_tor),
+//            getString(R.string.both),
+      });
+
+      useTor.setEntryValues(new String[]{
+            ServerEndpointType.Types.ONLY_HTTPS.toString(),
+            ServerEndpointType.Types.ONLY_TOR_INTERNAL.toString(),
+            ServerEndpointType.Types.ONLY_TOR_EXTERNAL.toString(),
+      //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
+      });
+
+      useTor.setValue(_mbwManager.getTorMode().toString());
+
+      useTor.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            String value = (String) newValue;
-            _mbwManager.setProxy(value);
-            getSocksProxyTitle();
+            _mbwManager.setTorMode( ServerEndpointType.Types.valueOf( (String) newValue) );
+            useTor.setTitle(getUseTorTitle());
             return true;
          }
       });
@@ -420,19 +446,30 @@ public class SettingsActivity extends PreferenceActivity {
       _ltMilesKilometers.setEnabled(!ltDisabled);
    }
 
-   private String getSocksProxyTitle() {
-      String host = System.getProperty(MbwManager.PROXY_HOST);
-      String port = System.getProperty(MbwManager.PROXY_PORT);
-      if (Strings.isNullOrEmpty(host) || Strings.isNullOrEmpty(port)) {
-         return getResources().getString(R.string.pref_socks_proxy_not_enabled);
+   private String getUseTorTitle() {
+      if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_HTTPS) {
+         return getResources().getString(R.string.useTorOnlyHttps);
+      } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR_INTERNAL) {
+         return getResources().getString(R.string.useTorOnlyInternalTor);
+      } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR_EXTERNAL) {
+         return getResources().getString(R.string.useTorOnlyExternalTor);
       } else {
-         return getResources().getString(R.string.pref_socks_proxy_enabled);
+         return getResources().getString(R.string.useTorBoth);
       }
    }
 
    private String localCurrencyTitle() {
-      return getResources().getString(R.string.pref_local_currency_with_currency,
-            CurrencyCode.fromShortString(_mbwManager.getFiatCurrency()).getShortString());
+      if (_mbwManager.hasFiatCurrency()) {
+         String currency = _mbwManager.getFiatCurrency();
+         if (_mbwManager.getCurrencyList().size() > 1) {
+            //multiple selected, add ...
+            currency = currency + "...";
+         }
+         return getResources().getString(R.string.pref_local_currency_with_currency, currency);
+      } else {
+         //nothing selected
+         return getResources().getString(R.string.pref_no_fiat_selected);
+      }
    }
 
    private String exchangeSourceTitle() {
@@ -471,16 +508,6 @@ public class SettingsActivity extends PreferenceActivity {
          _dialog.dismiss();
       }
       super.onDestroy();
-   }
-
-
-   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == GET_CURRENCY_RESULT_CODE && resultCode == RESULT_OK) {
-         String currency = Preconditions.checkNotNull(intent
-               .getStringExtra(SetLocalCurrencyActivity.CURRENCY_RESULT_NAME));
-         _mbwManager.setFiatCurrency(currency);
-         _localCurrency.setTitle(localCurrencyTitle());
-      }
    }
 
    private class SubscribeToServerResponse extends LocalTraderEventSubscriber {

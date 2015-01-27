@@ -36,8 +36,6 @@ package com.mycelium.wallet.activity.send;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 import android.annotation.SuppressLint;
@@ -61,26 +59,30 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.squareup.otto.Subscribe;
 
 
 public class GetSendingAmountActivity extends Activity implements NumberEntryListener {
 
    private WalletAccount _account;
-   private Double _oneBtcInFiat; // May be null
+   private Double _oneBtcInFiat;
    private NumberEntry _numberEntry;
    private Toast _toast;
-   private boolean _enterFiatAmount;
-   private boolean _isColdStorage;
+   private String _selectedCurrency;
+   private String _enteredCurrency;
+   private BigDecimal _enteredAmount;
+   private long _satoshisToSend;
    private MbwManager _mbwManager;
    private long _maxSpendableAmount;
+   private long _kbMinerFee;
 
-   public static void callMe(Activity currentActivity, int requestCode, UUID account,
-         Double oneBtcInFiat, Long amountToSend, boolean isColdStorage) {
+   public static void callMe(Activity currentActivity, int requestCode, UUID account, Long amountToSend, Long kbMinerFee, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, GetSendingAmountActivity.class);
       intent.putExtra("account", account);
-      intent.putExtra("oneBtcInFiat", oneBtcInFiat);
       intent.putExtra("amountToSend", amountToSend);
+      intent.putExtra("kbMinerFee", kbMinerFee);
       intent.putExtra("isColdStorage", isColdStorage);
       currentActivity.startActivityForResult(intent, requestCode);
    }
@@ -94,22 +96,23 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       _toast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
       _mbwManager = MbwManager.getInstance(getApplication());
 
-      _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
+      boolean isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
 
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
-      _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+      _account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountId);
 
       // Calculate the maximum amount that can be spent where we send everything we got to another address
-      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_mbwManager.getMinerFee().kbMinerFee);
+      _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra("kbMinerFee"));
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
 
-      // May be null
-      _oneBtcInFiat =  (Double) getIntent().getSerializableExtra("oneBtcInFiat");
       Long amount = (Long) getIntent().getSerializableExtra("amountToSend");
+      _selectedCurrency = "BTC";
 
       // Load saved state
       if (savedInstanceState != null) {
          amount = (Long) savedInstanceState.getSerializable("amountToSend");
+         //todo
       }
 
       ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_account.getBalance()));
@@ -117,8 +120,10 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       // Set amount
       String amountString;
       if (amount != null) {
+         _satoshisToSend = amount;
          amountString = CoinUtil.valueString(amount, _mbwManager.getBitcoinDenomination(), false);
       } else {
+         _satoshisToSend = 0;
          amountString = "";
       }
       TextView tvAmount = (TextView) findViewById(R.id.tvAmount);
@@ -131,7 +136,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       // switch currency
       Button btCurrency = (Button) findViewById(R.id.btCurrency);
       btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
-      btCurrency.setEnabled(_oneBtcInFiat != null);
+      btCurrency.setEnabled(_mbwManager.getExchangeRateManager().getExchangeRatePrice() != null);
       btCurrency.setOnClickListener(switchCurrencyListener);
       findViewById(R.id.btRight).setOnClickListener(switchCurrencyListener);
 
@@ -155,7 +160,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
       public void onClick(View arg0) {
          // Return the number of satoshis to send
          Intent result = new Intent();
-         result.putExtra("amountToSend", getSatoshisToSend());
+         result.putExtra("amountToSend", _satoshisToSend);
          setResult(RESULT_OK, result);
          GetSendingAmountActivity.this.finish();
       }
@@ -171,18 +176,13 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
    private String getBalanceString(com.mycelium.wapi.model.Balance balance) {
       String balanceString = _mbwManager.getBtcValueString(balance.getSpendableBalance());
-      String balanceText = getResources().getString(R.string.max_btc, balanceString);
-      return balanceText;
+      return getResources().getString(R.string.max_btc, balanceString);
    }
 
    private final OnClickListener switchCurrencyListener = new OnClickListener() {
 
       @Override
       public void onClick(View arg0) {
-         if (_oneBtcInFiat == null) {
-            // We cannot switch to fiat as we do not know the exchange rate
-            return;
-         }
          switchCurrency();
       }
    };
@@ -209,17 +209,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          return null;
       }
       String number = content.trim();
-      if (_enterFiatAmount) {
-         number = Utils.truncateAndConvertDecimalString(number, 2);
-         if (number == null) {
-            return null;
-         }
-         BigDecimal value = new BigDecimal(number);
-         if (value.compareTo(BigDecimal.ZERO) < 1) {
-            return null;
-         }
-         return value;
-      } else {
+      if (_selectedCurrency.equals("BTC")) {
          number = Utils
                .truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
          if (number == null) {
@@ -230,54 +220,72 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
             return null;
          }
          return value;
+      } else {
+         number = Utils.truncateAndConvertDecimalString(number, 2);
+         if (number == null) {
+            return null;
+         }
+         BigDecimal value = new BigDecimal(number);
+         if (value.compareTo(BigDecimal.ZERO) < 1) {
+            return null;
+         }
+         return value;
       }
    }
 
-   private void switchCurrency() {
-      int newDecimalPlaces;
-      BigDecimal newAmount;
-      if (_enterFiatAmount) {
-         // We are switching from Fiat to BTC
+   private void switchToBtc() {
+      _selectedCurrency = "BTC";
+      updateUI();
+   }
 
+
+   private void switchCurrency() {
+      _selectedCurrency = _mbwManager.getNextCurrency(_selectedCurrency, true);
+
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      //if the price is not available, switch on -> no point in showing it
+      if (_oneBtcInFiat == null) {
+         _mbwManager.getExchangeRateManager().requestRefresh();
+         switchCurrency();
+         return;
+      }
+      updateUI();
+   }
+
+   private void updateUI() {
+      //update buttons and views
+      if (isBtc()) {
          // Set BTC button
          Button btCurrency = (Button) findViewById(R.id.btCurrency);
          btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
-
          // Set BTC balance
          ((TextView) findViewById(R.id.tvMaxAmount)).setText(getBalanceString(_account.getBalance()));
-
-         newDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-         Long satoshis = getSatoshisToSend();
-         if (satoshis == null) {
-            newAmount = null;
-         } else {
-            newAmount = BigDecimal.valueOf(satoshis).divide(BigDecimal.TEN.pow(newDecimalPlaces));
-         }
       } else {
-         // We are switching from BTC to Fiat
-
          // Set Fiat button
          Button btCurrency = (Button) findViewById(R.id.btCurrency);
-         btCurrency.setText(_mbwManager.getFiatCurrency());
-
+         btCurrency.setText(_selectedCurrency);
          // Set Fiat balance
          String fiatBalance = Utils.getFiatValueAsString(_account.getBalance().getSpendableBalance(), _oneBtcInFiat);
-         String balanceString = getResources().getString(R.string.max_fiat, fiatBalance, _mbwManager.getFiatCurrency());
+         String balanceString = getResources().getString(R.string.max_fiat, fiatBalance, _selectedCurrency);
          ((TextView) findViewById(R.id.tvMaxAmount)).setText(balanceString);
-
-         newDecimalPlaces = 2;
-         Long fiatCents = getFiatCentsToSend();
-         if (fiatCents == null) {
-            newAmount = null;
-         } else {
-            newAmount = BigDecimal.valueOf(fiatCents).divide(BigDecimal.TEN.pow(newDecimalPlaces));
-         }
       }
-      // Note: Do the boolean switch before updating numberEntry, as there is
-      // feedback from numberEntry back to ourselves
-      _enterFiatAmount = !_enterFiatAmount;
+      //update amount
+      int newDecimalPlaces;
+      BigDecimal newAmount;
+      if (isBtc()) {
+         //just good ol bitcoins
+         newDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+         newAmount = BigDecimal.valueOf(_satoshisToSend).divide(BigDecimal.TEN.pow(newDecimalPlaces));
+      } else if (_selectedCurrency.equals(_enteredCurrency)) {
+         //take what was typed in
+         newDecimalPlaces = 2;
+         newAmount = _enteredAmount;
+      } else {
+         //convert to that currency
+         newDecimalPlaces = 2;
+         newAmount = BigDecimal.valueOf(Utils.getFiatValue(_satoshisToSend, _oneBtcInFiat));
+      }
       _numberEntry.setEntry(newAmount, newDecimalPlaces);
-
       // Check whether we can show the paste button
       findViewById(R.id.btPaste).setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
    }
@@ -285,41 +293,67 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("amountToSend", getSatoshisToSend());
+      savedInstanceState.putSerializable("amountToSend", _satoshisToSend);
+      //todo
    }
 
    @Override
    protected void onResume() {
+      _mbwManager.getEventBus().register(this);
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      if (_oneBtcInFiat == null) {
+         _mbwManager.getExchangeRateManager().requestRefresh();
+      }
+      findViewById(R.id.btCurrency).setEnabled(_mbwManager.hasFiatCurrency() && _oneBtcInFiat != null);
       findViewById(R.id.btPaste).setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
       super.onResume();
    }
 
    @Override
-   public void onEntryChanged(String entry) {
+   protected void onPause() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onPause();
+   }
+
+   @Override
+   public void onEntryChanged(String entry, boolean wasSet) {
+      if (!wasSet) {
+         BigDecimal value = _numberEntry.getEntryAsBigDecimal();
+         _enteredAmount = value;
+         _enteredCurrency = _selectedCurrency;
+         if (isBtc()) {
+            int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+            _satoshisToSend = value.movePointRight(decimals).longValue();
+         } else {
+            _satoshisToSend = Utils.getSatoshis(value, _oneBtcInFiat);
+         }
+         // enable/disable Max button
+         findViewById(R.id.btMax).setEnabled(_maxSpendableAmount != _satoshisToSend);
+      }
       updateAmounts(entry);
       checkTransaction();
+   }
+
+   private boolean isBtc() {
+      return _selectedCurrency.equals("BTC");
    }
 
    private void updateAmounts(String amountText) {
       ((TextView) findViewById(R.id.tvAmount)).setText(amountText);
       TextView tvAlternateAmount = ((TextView) findViewById(R.id.tvAlternateAmount));
-      Long satoshis = getSatoshisToSend();
-
-      // enable/disable Max button
-      findViewById(R.id.btMax).setEnabled(satoshis == null || _maxSpendableAmount != satoshis);
 
       // Set alternate amount if we can
-      if (satoshis == null || _oneBtcInFiat == null) {
+      if (!_mbwManager.hasFiatCurrency() || _oneBtcInFiat == null || isBtc()) {
          tvAlternateAmount.setText("");
       } else {
-         if (_enterFiatAmount) {
-            // Show BTC as alternate amount
-            tvAlternateAmount.setText(_mbwManager.getBtcValueString(satoshis));
-         } else {
+         if (isBtc()) {
             // Show Fiat as alternate amount
-            String converted = Utils.getFiatValueAsString(satoshis, _oneBtcInFiat);
+            String converted = Utils.getFiatValueAsString(_satoshisToSend, _oneBtcInFiat);
             String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
             tvAlternateAmount.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+         } else {
+            // Show BTC as alternate amount
+            tvAlternateAmount.setText(_mbwManager.getBtcValueString(_satoshisToSend));
          }
       }
    }
@@ -330,12 +364,13 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          _toast.setText(msg);
          _toast.show();
       } else {
-         if (_enterFiatAmount) {
-            switchCurrency();
-         }
+         if (!isBtc()) switchToBtc();
          int newDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          BigDecimal newAmount = BigDecimal.valueOf(_maxSpendableAmount).divide(BigDecimal.TEN.pow(newDecimalPlaces));
          _numberEntry.setEntry(newAmount, newDecimalPlaces);
+         _enteredAmount = BigDecimal.valueOf(_maxSpendableAmount);
+         _satoshisToSend = _maxSpendableAmount;
+         _enteredCurrency = "BTC";
       }
    }
 
@@ -352,7 +387,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    private AmountValidation checkSendAmount(long satoshis) {
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
-         _account.createUnsignedTransaction(Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
+         _account.createUnsignedTransaction(Arrays.asList(receiver), _kbMinerFee);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
       } catch (InsufficientFundsException e) {
@@ -362,8 +397,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
    }
 
    private void checkTransaction() {
-      Long satoshis = getSatoshisToSend();
-      if (satoshis == null) {
+      if (_satoshisToSend == 0) {
          // Nothing entered
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
          findViewById(R.id.btOk).setEnabled(false);
@@ -372,7 +406,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
 
       // Check whether we have sufficient funds, and whether the output is too
       // small
-      AmountValidation result = checkSendAmount(satoshis);
+      AmountValidation result = checkSendAmount(_satoshisToSend);
 
       if (result == AmountValidation.Ok) {
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
@@ -380,7 +414,7 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.red));
          if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
-            if (_account.getBalance().getSpendableBalance() < satoshis) {
+            if (_account.getBalance().getSpendableBalance() < _satoshisToSend) {
                // We do not have enough funds for sending the requested amount
                String msg = getResources().getString(R.string.insufficient_funds);
                _toast.setText(msg);
@@ -397,39 +431,15 @@ public class GetSendingAmountActivity extends Activity implements NumberEntryLis
          }
       }
       // Enable/disable Next button
-      findViewById(R.id.btOk).setEnabled(result == AmountValidation.Ok && satoshis > 0);
+      findViewById(R.id.btOk).setEnabled(result == AmountValidation.Ok && _satoshisToSend > 0);
    }
 
-   // todo de-duplicate code
-   private Long getFiatCentsToSend() {
-      Double fiatAmount;
-      BigDecimal entry = _numberEntry.getEntryAsBigDecimal();
-      if (entry == null) {
-         return null;
-      }
-      if (_enterFiatAmount) {
-         fiatAmount = entry.doubleValue();
-      } else {
-         int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-         Long satoshis = entry.movePointRight(decimals).longValue();
-         fiatAmount = Utils.getFiatValue(satoshis, _oneBtcInFiat);
-      }
-      Double fiatCents = fiatAmount * 100;
-      return fiatCents.longValue();
-   }
-
-   private Long getSatoshisToSend() {
-      BigDecimal entry = _numberEntry.getEntryAsBigDecimal();
-      if (entry == null) {
-         return null;
-      }
-      if (_enterFiatAmount) {
-         return Utils.getSatoshis(entry, _oneBtcInFiat);
-      } else {
-         int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-         Long satoshis = entry.movePointRight(decimals).longValue();
-         return satoshis;
+   @Subscribe
+   public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
+      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      findViewById(R.id.btCurrency).setEnabled(_oneBtcInFiat != null);
+      if (_oneBtcInFiat != null) {
+         updateAmounts(_numberEntry.getEntry());
       }
    }
-
 }

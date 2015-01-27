@@ -95,7 +95,6 @@
   <string name="edit">Sửa</string>
   <string name="delete">Xóa</string>
   <string name="payment_request">Yêu cầu thanh toán</string>
-  <string name="export_single_private_key_warning">Bạn sắp xuất ra một private key đang kiểm soát số bitcoins của địa chỉ đó\n\nBất kì ai có được private key này cũng sẽ có thể khống chế được số bitcoins nó đang kiểm soát.\n\nBạn có muốn tiếp tục không?</string>
   <string name="export_to_clipboard_warning">Chú ý: Xuất private key ra bộ nhớ clipboard khiến tất cả các ứng dụng khác trong máy của bạn có thể thấy được nó.\n\nGhi chú: Copy private key của bạn vào clipboard là chưa đủ, bạn còn phải paste nó vào một nơi an toàn.\n\nBạn có muốn tiếp tục không?</string>
   <string name="found_clipboard_private_key_title">Private Key được phát hiện trong bộ nhớ clipboard</string>
   <string name="found_clipboard_private_keys_message">Bộ nhớ clipboard đang chứa một private key.\r\nBạn có muốn xóa nó không?</string>
@@ -111,10 +110,7 @@
   <string name="cold_storage_title">Chi Tiêu Lưu Trữ Lạnh</string>
   <string name="cold_storage_desc">Bạn chuẩn bị chi tiêu từ một private key trong kho trữ lạnh. Đây có thể là một private key được viết lên giấy hoặc một tờ private key từ máy Bitcoin ATM. Nhiều định dạng khác nhau được hỗ trợ.\n\nMột khi giao dịch đã được gửi đi, toàn bộ manh mối về private key đó sẽ được xóa khỏi bộ nhớ.</string>
   <string name="manual_entry">Nhập Tay</string>
-  <string name="active_name">Hoạt động</string>
-  <string name="active_name_empty">Hoạt động (Rỗng)</string>
   <string name="archive_name">Lưu Trữ</string>
-  <string name="archive_name_empty">Lưu trữ (Trống)</string>
   <string name="activate_action">Kích hoạt</string>
   <string name="archive_action">Lưu trữ</string>
   <string name="archived">Đã lưu trữ</string>

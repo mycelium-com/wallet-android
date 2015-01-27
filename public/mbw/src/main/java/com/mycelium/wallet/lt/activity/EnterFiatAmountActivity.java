@@ -126,7 +126,7 @@ public class EnterFiatAmountActivity extends Activity implements NumberEntryList
    }
 
    @Override
-   public void onEntryChanged(String entry) {
+   public void onEntryChanged(String entry, boolean wasSet) {
       updateUi();
    }
 

@@ -48,6 +48,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
@@ -86,6 +87,15 @@ public class AddAdvancedAccountActivity extends Activity {
          }
 
       });
+
+
+      findViewById(R.id.btGenerateNewSingleKey).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Intent intent = new Intent(activity, CreateKeyActivity.class);
+            startActivityForResult(intent, CREATE_RESULT_CODE);
+         }
+      });
    }
 
    @Override
@@ -116,6 +126,8 @@ public class AddAdvancedAccountActivity extends Activity {
                try {
                   account = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().key, AesKeyCipher.defaultKeyCipher());
                   _mbwManager.getEventBus().post(new AccountChanged(account));
+                  // We imported this key from somewhere else - so we guess, that there exists an backup
+                  _mbwManager.getMetadataStorage().setSingleKeyBackupState(account, MetadataStorage.BackupState.IGNORED);
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                   throw new RuntimeException(invalidKeyCipher);
                }
@@ -136,7 +148,9 @@ public class AddAdvancedAccountActivity extends Activity {
             ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
             if (type == ScanActivity.ResultType.PRIVATE_KEY) {
                InMemoryPrivateKey key = ScanActivity.getPrivateKey(intent);
-               returnAccount(key);
+
+               // We imported this key from somewhere else - so we guess, that there exists an backup
+               returnAccount(key, MetadataStorage.BackupState.IGNORED);
             } else if (type == ScanActivity.ResultType.ADDRESS) {
                Address address = ScanActivity.getAddress(intent);
                returnAccount(address);
@@ -150,7 +164,9 @@ public class AddAdvancedAccountActivity extends Activity {
          String base58Key = intent.getStringExtra("base58key");
          Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
          if (key.isPresent()) {
-            returnAccount(key.get());
+
+            // This is a new key - there is no existing backup
+            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
@@ -159,10 +175,16 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
-   private void returnAccount(InMemoryPrivateKey key) {
+   private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
       try {
          acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+
+         // Dont show a legacy-account warning for freshly generated or imported keys
+         _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
+
+         _mbwManager.getMetadataStorage().setSingleKeyBackupState(acc, backupState);
+
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }

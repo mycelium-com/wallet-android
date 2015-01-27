@@ -77,21 +77,27 @@
             android:key="advancedSettings"
             android:title="@string/pref_advanced_settings" >
 
-        <EditTextPreference
+        <ListPreference
                 android:inputType="text"
-                android:key="proxy"
+                android:key="useTor"
                 android:layout="@layout/preference_layout"
-                android:summary="@string/pref_socks_proxy_summary"
-                android:title="@string/pref_socks_proxy" />
+                android:summary="@string/useTorDescription"
+                android:title="@string/useTor" />
     </PreferenceCategory>
 
     <PreferenceCategory
-            android:key="legacy">
+            android:key="legacy"
+            android:title="@string/pref_legacy_backup_title">
         <Preference
                 android:key="legacyBackup"
                 android:layout="@layout/preference_layout"
                 android:summary="@string/pref_legacy_backup_summary"
                 android:title="@string/pref_legacy_backup_title" />
+        <Preference
+                android:key="legacyBackupVerify"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/pref_legacy_backup_verify_summary"
+                android:title="@string/pref_legacy_backup_verify_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

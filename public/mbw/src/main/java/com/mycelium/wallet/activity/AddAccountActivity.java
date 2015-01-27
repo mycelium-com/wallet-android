@@ -49,6 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -81,6 +82,13 @@ public class AddAccountActivity extends Activity {
 
       findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
       findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
+
+      if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED){
+         findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
+      }else{
+         findViewById(R.id.tvInfoBackup).setVisibility(View.GONE);
+      }
+
       _progress = new ProgressDialog(this);
    }
 

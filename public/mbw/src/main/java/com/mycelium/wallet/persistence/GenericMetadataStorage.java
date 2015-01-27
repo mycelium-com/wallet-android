@@ -39,10 +39,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.inputmethodservice.KeyboardView;
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.Sha256Hash;
 
 
 import java.util.*;
@@ -89,7 +86,7 @@ public class GenericMetadataStorage {
       _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");
    }
 
-   protected void storeKeyCategoryValueEntry(final KeyCategory keyCategory, final String value){
+   protected void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
       storeKeyCategoryValueEntry(keyCategory.key, keyCategory.category, value);
    }
 
@@ -113,11 +110,11 @@ public class GenericMetadataStorage {
       }
    }
 
-   protected String getKeyCategoryValueEntry(final KeyCategory keyCategory, final String defaultValue){
+   protected String getKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String defaultValue){
       return getKeyCategoryValueEntry(keyCategory.key, keyCategory.category, defaultValue);
    }
 
-   protected Optional<String> getKeyCategoryValueEntry(final KeyCategory keyCategory){
+   protected Optional<String> getKeyCategoryValueEntry(final MetadataKeyCategory keyCategory){
       return getKeyCategoryValueEntry(keyCategory.key, keyCategory.category);
    }
 
@@ -136,7 +133,7 @@ public class GenericMetadataStorage {
       }
    }
 
-   protected void deleteByKeyCategory(final KeyCategory keyCategory){
+   protected void deleteByKeyCategory(final MetadataKeyCategory keyCategory){
       deleteByKeyCategory(keyCategory.key, keyCategory.category);
    }
 
@@ -148,6 +145,9 @@ public class GenericMetadataStorage {
       _db.delete(TABLE_KEY_VALUE_STORE, "key = ?", new String[]{key});
    }
 
+   protected Map<String, String> getKeysAndValuesByCategory(final MetadataCategory category){
+      return getKeysAndValuesByCategory(category.category);
+   }
 
    protected Map<String, String> getKeysAndValuesByCategory(final String category){
       Cursor cursor = null;
@@ -157,12 +157,16 @@ public class GenericMetadataStorage {
          while (cursor.moveToNext()) {
             entries.put(cursor.getString(0), cursor.getString(1));
          }
-         return entries;
       } finally {
          if (cursor != null) {
             cursor.close();
          }
+         return entries;
       }
+   }
+
+   protected Optional<String> getFirstKeyForCategoryValue(final MetadataCategory category, final String value){
+      return getFirstKeyForCategoryValue(category.category, value);
    }
 
    protected Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
@@ -172,11 +176,11 @@ public class GenericMetadataStorage {
          if (cursor.moveToNext()) {
             return Optional.of(cursor.getString(0));
          }
-         return Optional.absent();
       } finally {
          if (cursor != null) {
             cursor.close();
          }
+         return Optional.absent();
       }
    }
 

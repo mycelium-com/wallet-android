@@ -111,7 +111,6 @@
   <string name="edit">Modifica</string>
   <string name="delete">Elimina</string>
   <string name="payment_request">Richiesta di pagamento</string>
-  <string name="export_single_private_key_warning">Stai per esportare la chiave privata che controlla tutti i bitcoin dell\'indirizzo selezionato.\n\nChiunque ottenga l\'accesso a questa chiave può entrare in possesso dei bitcoin che controlla.\n\nDesideri continuare?</string>
   <string name="backup_all_warning">Si consiglia di eseguire un backup del master seed del portafogli.\nUn backup del master seed ti permette di ripristinare i tuoi fondi nel caso il tuo dispositivo vada smarrito o danneggiato..\n\nDesideri farlo ora?</string>
   <string name="export_to_clipboard_warning">Attenzione: esportando la chiave privata negli appunti la renderà esposta a tutte le altre applicazioni installate sul tuo dispositivo.\n\nNota: non basta memorizzare la chiave privata negli appunti, dovrai incollarla in un posto sicuro.\n\nDesideri continuare?</string>
   <string name="found_clipboard_private_key_title">Chiave privata trovata negli appunti</string>
@@ -129,10 +128,7 @@
   <string name="cold_storage_desc">Stai per inviare bitcoin da una chiave privata in cold storage. Potrebbe trattarsi di un backup stampato di una chiave privata o di un tagliando di un ATM Bitcoin. Sono supportati vari formati.\n\nUna volta eseguita la transazione ogni traccia della chiave privata sarà rimossa dalla memoria.</string>
   <string name="keep_account_address">Elimina la chiave privata e conserva l\'account in sola lettura</string>
   <string name="manual_entry">Inserisci manualmente</string>
-  <string name="active_name">Attive</string>
-  <string name="active_name_empty">Attive (vuoto)</string>
   <string name="archive_name">Archiviate</string>
-  <string name="archive_name_empty">Archiviate (vuoto)</string>
   <string name="activate_action">Attiva</string>
   <string name="archive_action">Archivia</string>
   <string name="question_archive_account">Gli account archiviati non sono monitorati, non sarà possibile vedere il saldo o l\'indirizzo di ricezione, nè utilizzarli in alcuna maniera.\r\n\r\nGli account archiviati possono sempre essere riattivati.\r\n\r\nDesideri archiviare questo account?</string>

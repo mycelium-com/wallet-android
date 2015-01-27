@@ -50,6 +50,8 @@ public class Bip44AccountKeyManager {
    private static final int BIP44_TESTNET_COIN_TYPE = 0x80000001;
    private int _accountIndex;
    private final SecureKeyValueStore _secureKeyValueStore;
+
+
    private HdKeyNode _publicAccountRoot;
    private HdKeyNode _publicExternalChainRoot;
    private HdKeyNode _publicChangeChainRoot;
@@ -224,5 +226,16 @@ public class Bip44AccountKeyManager {
       }
    }
 
+   public HdKeyNode getPublicAccountRoot() {
+      return _publicAccountRoot;
+   }
 
+   public HdKeyNode getPrivateAccountRoot(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      try {
+         HdKeyNode hdKeyNode = HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getEncryptedValue(getAccountNodeId(_network, _accountIndex), cipher));
+         return hdKeyNode;
+      } catch (ByteReader.InsufficientBytesException e) {
+         throw new RuntimeException(e);
+      }
+   }
 }

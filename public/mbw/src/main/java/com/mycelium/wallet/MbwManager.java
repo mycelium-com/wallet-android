@@ -36,10 +36,14 @@ package com.mycelium.wallet;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -47,6 +51,7 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.*;
@@ -56,12 +61,18 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
+import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.net.ServerEndpointType;
+import com.mycelium.net.TorManager;
+import com.mycelium.net.TorManagerOrbot;
+import com.mycelium.net.TorManagerOrchid;
 import com.mycelium.wallet.activity.modern.ExploreHelper;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.event.TorState;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -72,10 +83,12 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
-
+import com.subgraph.orchid.AndroidTorConfig;
+import com.subgraph.orchid.Tor;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 
 public class MbwManager {
 
@@ -100,6 +113,9 @@ public class MbwManager {
 
    private final Bus _eventBus;
    private final WapiClient _wapi;
+
+   private final LtApiClient _ltApi;
+   private Handler torHandler;
    private NetworkConnectionWatcher _connectionWatcher;
    private Context _applicationContext;
    private int _displayWidth;
@@ -113,6 +129,7 @@ public class MbwManager {
    private Denomination _bitcoinDenomination;
    private MinerFee _minerFee;
    private String _fiatCurrency;
+   private List<String> _currencies;
    private boolean _enableContinuousFocus;
    private boolean _keyManagementLocked;
    private boolean _isBitidEnabled;
@@ -129,15 +146,31 @@ public class MbwManager {
    private WalletManager _tempWalletManager;
    private final RandomSource _randomSource;
    private final EventTranslator _eventTranslator;
+   private ServerEndpointType.Types _torMode;
+   private TorManager _torManager;
 
+   private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.determineEnvironment(_applicationContext);
       String version = VersionManager.determineVersion(_applicationContext);
 
-      _wapi = initWapi();
+      // Preferences
+      SharedPreferences preferences = getPreferences();
+      // setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
+      // Initialize proxy early, to enable error reporting during startup..
 
+      _eventBus = new Bus();
+
+      // init tor - if needed
+      try {
+         setTorMode(ServerEndpointType.Types.valueOf(preferences.getString(Constants.TOR_MODE, "")));
+      }catch (IllegalArgumentException ex){
+         setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
+      }
+
+      _wapi = initWapi();
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, version, _wapi);
 
       if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.GINGERBREAD) {
@@ -145,24 +178,19 @@ public class MbwManager {
          System.setProperty("http.keepAlive", "false");
       }
 
-      _eventBus = new Bus();
       _randomSource = new AndroidRandomSource();
 
-      // Preferences
-      SharedPreferences preferences = getPreferences();
-      setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
-      // Initialize proxy early, to enable error reporting during startup..
 
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-     
+
       _asyncApi = new AndroidAsyncApi(_wapi, _eventBus);
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
       // Local Trader
       TradeSessionDb tradeSessionDb = new TradeSessionDb(_applicationContext);
-      _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb,
-            _environment.getLocalTraderApi(), this);
+      _ltApi = initLt();
+      _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb, getLtApi(), this);
 
       _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
 
@@ -172,6 +200,15 @@ public class MbwManager {
       );
 
       _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
+      _currencies = new ArrayList<String>();
+      Set<String> set = preferences.getStringSet(Constants.SELECTED_CURRENCIES, null);
+      if (set == null) {
+         //if there is no list take the one currency we have - if its not empty
+         if (hasFiatCurrency()) _currencies.add(getFiatCurrency());
+      } else {
+         //else take all dem currencies, yeah
+         _currencies.addAll(set);
+      }
       _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
             Denomination.mBTC.toString()));
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
@@ -212,26 +249,89 @@ public class MbwManager {
       _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
       _tempWalletManager.addObserver(_eventTranslator);
 
+
+
+   }
+
+   private LtApiClient initLt() {
+      return new LtApiClient(_environment.getLtEndpoints(), new LtApiClient.Logger() {
+         @Override
+         public void logError(String message, Exception e) {
+            Log.e("", message, e);
+            retainLog(Level.SEVERE, message);
+         }
+
+         @Override
+         public void logError(String message) {
+            Log.e("", message);
+            retainLog(Level.SEVERE, message);
+         }
+
+         @Override
+         public void logInfo(String message) {
+            Log.i("", message);
+            retainLog(Level.INFO, message);
+         }
+      });
+   }
+
+   private synchronized void retainLog(Level level, String message){
+      _wapiLogs.add(new LogEntry(message, level, new Date()));
    }
 
    private WapiClient initWapi() {
       return new WapiClient(_environment.getWapiEndpoints(), new WapiLogger() {
+
+
          @Override
          public void logError(String message) {
             Log.e("Wapi", message);
+            retainLog(Level.SEVERE, message);
          }
 
          @Override
          public void logError(String message, Exception e) {
             Log.e("Wapi", message, e);
+            retainLog(Level.SEVERE, message);
          }
 
          @Override
          public void logInfo(String message) {
             Log.i("Wapi", message);
+            retainLog(Level.INFO, message);
          }
       });
    }
+
+   private void initTor() {
+      torHandler = new Handler(Looper.getMainLooper());
+
+      if (_torMode == ServerEndpointType.Types.ONLY_TOR_INTERNAL){
+         this._torManager = new TorManagerOrchid(new AndroidTorConfig(Tor.createConfig(), _applicationContext));
+      }else if (_torMode == ServerEndpointType.Types.ONLY_TOR_EXTERNAL){
+         this._torManager = new TorManagerOrbot();
+      }else{
+         throw new IllegalArgumentException();
+      }
+
+      _torManager.setStateListener(new TorManager.TorState() {
+         @Override
+         public void onStateChange(String status, final int percentage) {
+            Log.i("Tor init", status + ", " + String.valueOf(percentage));
+            retainLog(Level.INFO, "Tor: " + status + ", " + String.valueOf(percentage));
+            torHandler.post(new Runnable() {
+               @Override
+               public void run() {
+                  _eventBus.post(new TorState(percentage));
+               }
+            });
+         }
+      });
+
+      _environment.getWapiEndpoints().setTorManager(this._torManager);
+      _environment.getLtEndpoints().setTorManager(this._torManager);
+   }
+
 
 
    private void migrateOldKeys() {
@@ -391,6 +491,10 @@ public class MbwManager {
       return _fiatCurrency;
    }
 
+   public boolean hasFiatCurrency() {
+      return !_fiatCurrency.equals("");
+   }
+
    public void setFiatCurrency(String currency) {
       _fiatCurrency = currency;
       SharedPreferences.Editor editor = getEditor();
@@ -400,6 +504,52 @@ public class MbwManager {
 
    private SharedPreferences getPreferences() {
       return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+   }
+
+
+   public List<String> getCurrencyList() {
+      return new ArrayList<String>(_currencies);
+   }
+
+   public void setCurrencyList(List<String> currencies) {
+
+      //if we de-selected our current active currency, we switch it
+      if (!currencies.contains(getFiatCurrency())) {
+         if (currencies.isEmpty()) {
+            //no fiat
+            setFiatCurrency("");
+         } else {
+            setFiatCurrency(currencies.get(0));
+         }
+      }
+
+      _currencies = currencies;
+
+      SharedPreferences.Editor editor = getEditor();
+      editor.putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<String>(currencies));
+      editor.commit();
+      _exchangeRateManager.requestRefresh();
+   }
+
+   //todo: make nicer
+   public String getNextCurrency(String currency, boolean includeBitcoin) {
+      List<String> currencies = getCurrencyList();
+      //just to be sure we dont cycle through a single one
+      if (!includeBitcoin && currencies.size() <= 1) return currency;
+      //we add BTC, even if we dont want it, so we know where to hop to if we are on btc
+      currencies.add("BTC");
+      int index = currencies.indexOf(currency);
+      index++; //hop one forward
+      if (index >= currencies.size()) index -= currencies.size(); //wrap around
+      String newCurrency = currencies.get(index);
+
+      //if its bitcoin and we dont want bitcoin, hop one further
+      if (newCurrency.equals("BTC") && !includeBitcoin) {
+         return getNextCurrency(newCurrency, false);
+      }
+      //else we have found the one - if its not bitcoin, we set as selected fiat
+      if (!newCurrency.equals("BTC")) setFiatCurrency(newCurrency);
+      return newCurrency;
    }
 
    private SharedPreferences.Editor getEditor() {
@@ -460,7 +610,7 @@ public class MbwManager {
    }
 
    public void showClearPinDialog(final Context context, final Optional<Runnable> afterDialogClosed) {
-      this.runPinProtectedFunction(context, new ClearPinDialog(context, true) , new Runnable() {
+      this.runPinProtectedFunction(context, new ClearPinDialog(context, true), new Runnable() {
          @Override
          public void run() {
             MbwManager.this.savePin(Pin.CLEAR_PIN);
@@ -542,22 +692,44 @@ public class MbwManager {
       }
    }
 
-   public void runPinProtectedFunction(final Context context, PinDialog pinDialog, final Runnable fun) {
+   protected void runPinProtectedFunction(final Context context, PinDialog pinDialog, final Runnable fun) {
       if (isPinProtected()) {
          pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
             @Override
-            public void pinEntered(PinDialog dialog, Pin pin) {
+            public void pinEntered(final PinDialog pinDialog, Pin pin) {
                if (pin.equals(getPin())) {
-                  dialog.dismiss();
+                  pinDialog.dismiss();
 
                   // as soon as you enter the correct pin once, abort the reset-pin-procedure
                   MbwManager.this.getMetadataStorage().clearResetPinStartBlockheight();
 
                   fun.run();
                } else {
-                  Toast.makeText(context, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
-                  vibrate(500);
-                  dialog.dismiss();
+                  if (_pin.isResettable()) {
+                     // Show hint, that this pin is resettable
+                     AlertDialog d = new AlertDialog.Builder(context)
+                           .setTitle(R.string.pin_invalid_pin)
+                           .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                              @Override
+                              public void onClick(DialogInterface dialogInterface, int i) {
+                                 pinDialog.dismiss();
+                              }
+                           })
+                           .setNeutralButton(context.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
+                              @Override
+                              public void onClick(DialogInterface dialogInterface, int i) {
+                                 pinDialog.dismiss();
+                                 MbwManager.this.showClearPinDialog(context, Optional.<Runnable>absent());
+                              }
+                           })
+                           .setMessage(context.getString(R.string.wrong_pin_message))
+                           .show();
+                  }else {
+                     // This pin is not resettable, you are out of luck
+                     Toast.makeText(context, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
+                     vibrate(500);
+                     pinDialog.dismiss();
+                  }
                }
             }
          });
@@ -736,6 +908,27 @@ public class MbwManager {
       editor.commit();
    }
 
+   public void setTorMode(ServerEndpointType.Types torMode){
+      this._torMode = torMode;
+      SharedPreferences.Editor editor = getEditor();
+      editor.putString(Constants.TOR_MODE, torMode.toString());
+      editor.commit();
+
+      ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
+      if (serverEndpointType.mightUseTor()){
+         initTor();
+      }else{
+         if (_torManager != null) _torManager.stopClient();
+      }
+
+      _environment.getWapiEndpoints().setAllowedEndpointTypes(serverEndpointType);
+      _environment.getLtEndpoints().setAllowedEndpointTypes(serverEndpointType);
+   }
+
+   public ServerEndpointType.Types getTorMode(){
+      return _torMode;
+   }
+
    public VersionManager getVersionManager() {
       return _versionManager;
    }
@@ -856,4 +1049,17 @@ public class MbwManager {
    public WapiClient getWapi() {
       return _wapi;
    }
+
+   public EvictingQueue<LogEntry> getWapiLogs() {
+      return _wapiLogs;
+   }
+
+   public TorManager getTorManager() {
+      return _torManager;
+   }
+
+   public LtApiClient getLtApi() {
+      return _ltApi;
+   }
+
 }

@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     compile project(':public:bitlib')
+    compile project(':public:orchid')
 
     compile guavaArtifact
     compile 'com.squareup:otto:1.3.4'

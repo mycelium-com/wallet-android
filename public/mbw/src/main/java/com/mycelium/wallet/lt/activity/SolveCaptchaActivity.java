@@ -234,7 +234,7 @@ public class SolveCaptchaActivity extends Activity implements NumberEntryListene
    }
 
    @Override
-   public void onEntryChanged(String entry) {
+   public void onEntryChanged(String entry, boolean wasSet) {
       updateUi();
    }
 
