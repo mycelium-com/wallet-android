@@ -53,7 +53,7 @@ public final class RGBLuminanceSource extends LuminanceSource {
           // Image is already greyscale, so pick any channel.
           luminances[offset + x] = (byte) r;
         } else {
-          // Calculate luminance cheaply, favoring green.
+          // Calculate luminance cheaply, favouring green.
           luminances[offset + x] = (byte) ((r + g + g + b) >> 2);
         }
       }
