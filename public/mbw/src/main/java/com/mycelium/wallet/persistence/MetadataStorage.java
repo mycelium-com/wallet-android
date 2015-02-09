@@ -36,6 +36,7 @@ package com.mycelium.wallet.persistence;
 
 import android.content.Context;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -59,7 +60,12 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public void storeTransactionLabel(Sha256Hash txid, String label) {
-      storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), label);
+      if (!Strings.isNullOrEmpty(label)) {
+         storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), label);
+      } else {
+         // remove the transaction label
+         deleteByKeyCategory(TRANSACTION_LABEL_CATEGORY.of(txid.toString()));
+      }
    }
 
    public String getLabelByTransaction(Sha256Hash txid) {
@@ -81,7 +87,9 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public void storeAccountLabel(UUID account, String label) {
-      storeKeyCategoryValueEntry(ACCOUNTLABEL_CATEGORY.of(account.toString()), label);
+      if (!Strings.isNullOrEmpty(label)) {
+         storeKeyCategoryValueEntry(ACCOUNTLABEL_CATEGORY.of(account.toString()), label);
+      }
    }
 
    public void deleteAccountMetadata(UUID account){
@@ -119,7 +127,9 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public void storeAddressLabel(Address address, String label) {
-      storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), label);
+      if (!Strings.isNullOrEmpty(label)) {
+         storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), label);
+      }
    }
 
    public void setIgnoreLegacyWarning(UUID account, Boolean ignore){

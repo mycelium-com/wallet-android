@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -44,7 +43,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,7 +51,6 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.event.*;
-import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -155,6 +152,7 @@ public class ModernMain extends ActionBarActivity {
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       MenuInflater inflater = getMenuInflater();
+      inflater.inflate(R.menu.transaction_history_options_global, menu);
       inflater.inflate(R.menu.main_activity_options_menu, menu);
       addEnglishSetting(menu.findItem(R.id.miSettings));
       inflater.inflate(R.menu.refresh, menu);
@@ -197,6 +195,9 @@ public class ModernMain extends ActionBarActivity {
       refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
       refreshItem.setVisible(isBalance | isHistory);
       setRefreshAnimation();
+
+      Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistory);
+
       final boolean isAddressBook = tabIdx == 3;
       Preconditions.checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
 
@@ -240,6 +241,9 @@ public class ModernMain extends ActionBarActivity {
       } else if (itemId == R.id.miAbout) {
          Intent intent = new Intent(this, AboutActivity.class);
          startActivity(intent);
+      } else if (itemId == R.id.miRescanTransactions) {
+         _mbwManager.getSelectedAccount().dropCachedData();
+         _mbwManager.getWalletManager(false).startSynchronization();
       }
       return super.onOptionsItemSelected(item);
    }

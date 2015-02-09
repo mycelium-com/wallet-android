@@ -51,29 +51,31 @@ public class ExchangeRateManager {
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
 
    public interface Observer {
-
       public void refreshingExchangeRatesSucceeded();
-
       public void refreshingExchangeRatesFailed();
    }
 
    private final Context _applicationContext;
    private final Wapi _api;
-   private final MbwManager _mbwManager;
+
+   private volatile List<String> _fiatCurrencies;
    private Map<String, QueryExchangeRatesResponse> _latestRates;
-   private String _currentRateName;
    private long _latestRatesTime;
    private volatile Fetcher _fetcher;
    private final Object _requestLock;
    private final List<Observer> _subscribers;
+   private String _currentExchangeSourceName;
 
-   public ExchangeRateManager(Context applicationContext, Wapi api, MbwManager manager) {
+   public ExchangeRateManager(Context applicationContext, Wapi api, List<String> fiatCurrencies) {
       _applicationContext = applicationContext;
       _api = api;
-      _mbwManager = manager;
+      //copy to prevent changes by caller
+      _fiatCurrencies = new ArrayList<String>(fiatCurrencies);
+
       _latestRates = null;
       _latestRatesTime = 0;
-      _currentRateName = getPreferences().getString("currentRateName", null);
+      _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
+
       _requestLock = new Object();
       _subscribers = new LinkedList<Observer>();
       _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
@@ -89,10 +91,13 @@ public class ExchangeRateManager {
 
    private class Fetcher implements Runnable {
       public void run() {
-
          try {
             List<QueryExchangeRatesResponse> responses = new ArrayList<QueryExchangeRatesResponse>();
-            for (String currency : _mbwManager.getCurrencyList()) {
+            List<String> selectedCurrencies;
+            synchronized (_requestLock) {
+               selectedCurrencies = new ArrayList<String>(_fiatCurrencies);
+            }
+            for (String currency : selectedCurrencies) {
                responses.add(_api.queryExchangeRates(new QueryExchangeRatesRequest(Wapi.VERSION, currency)).getResult());
             }
             synchronized (_requestLock) {
@@ -122,6 +127,13 @@ public class ExchangeRateManager {
       }
    }
 
+   // only refresh if last refresh is old
+   public void requestOptionalRefresh(){
+      if (System.currentTimeMillis() - _latestRatesTime > (MAX_RATE_AGE_MS/2) ){
+         requestRefresh();
+      }
+   }
+
    public void requestRefresh() {
       synchronized (_requestLock) {
          // Only start fetching if we are not already on it
@@ -141,11 +153,11 @@ public class ExchangeRateManager {
       }
       _latestRatesTime = System.currentTimeMillis();
 
-      if (_currentRateName == null) {
+      if (_currentExchangeSourceName == null) {
          // This only happens the first time the wallet picks up exchange rates.
          // We will default to the first one in the list
          if (latestRates.size() > 0 && latestRates.get(0).exchangeRates.length > 0) {
-            _currentRateName = latestRates.get(0).exchangeRates[0].name;
+            _currentExchangeSourceName = latestRates.get(0).exchangeRates[0].name;
          }
       }
    }
@@ -154,15 +166,15 @@ public class ExchangeRateManager {
     * Get the name of the current exchange rate. May be null the first time the
     * app is running
     */
-   public String getCurrentRateName() {
-      return _currentRateName;
+   public String getCurrentExchangeSourceName() {
+      return _currentExchangeSourceName;
    }
 
    /**
     * Get the names of the currently available exchange rates. May be empty the
     * first time the app is running
     */
-   public List<String> getExchangeRateNames() {
+   public List<String> getExchangeSourceNames() {
       List<String> result = new LinkedList<String>();
       //check whether we have any rates
       if (_latestRates.isEmpty()) return result;
@@ -175,55 +187,43 @@ public class ExchangeRateManager {
       return result;
    }
 
-   public synchronized void setCurrentRateName(String name) {
-      _currentRateName = name;
-      getEditor().putString("currentRateName", _currentRateName).commit();
+   public synchronized void setCurrentExchangeSourceName(String name) {
+      _currentExchangeSourceName = name;
+      getEditor().putString("currentRateName", _currentExchangeSourceName).commit();
    }
 
-   /**
-    * Get the exchange rate price for the currently selected currency.
-    * <p/>
-    * Returns null if the current rate is too old or for a different currency.
-    * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
-    */
-   public synchronized Double getExchangeRatePrice() {
-      ExchangeRate rate = getExchangeRate();
-      return rate == null ? null : rate.price;
-   }
 
    /**
-    * Get the exchange rate for the currently selected currency.
+    * Get the exchange rate for the specified currency.
     * <p/>
-    * Returns null if the current rate is too old or for a different currency.
+    * Returns null if the current rate is too old
     * In that the case the caller could choose to call refreshRates() and listen
     * for callbacks. If a rate is returned the contained price may be null if
     * the currently chosen exchange source is not available.
     */
-   public synchronized ExchangeRate getExchangeRate() {
-      if (!_mbwManager.hasFiatCurrency()) return null;
-      String currency = _mbwManager.getFiatCurrency();
+   public synchronized ExchangeRate getExchangeRate(String currency) {
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
          return null;
       }
       if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
          //rate is too old, source seems to not be available
          //we return a rate with null price to indicate there is something wrong with the exchange rate source
-         return ExchangeRate.missingRate(_currentRateName, System.currentTimeMillis(),  currency);
+         return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
       }
       for (ExchangeRate r : _latestRates.get(currency).exchangeRates) {
-         if (r.name.equals(_currentRateName)) {
+         if (r.name.equals(_currentExchangeSourceName)) {
             //if the price is 0, obviously something went wrong
             if (r.price.equals(Double.valueOf(0))) {
                //we return an exchange rate with null price -> indicating missing rate
-               return ExchangeRate.missingRate(_currentRateName, System.currentTimeMillis(),  currency);
+               return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
             //everything is fine, return the rate
             return r;
          }
       }
-      if (_currentRateName != null) {
+      if (_currentExchangeSourceName != null) {
          // We end up here if the exchange is no longer on the list
-         return ExchangeRate.missingRate(_currentRateName, System.currentTimeMillis(),  currency);
+         return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
       }
       return null;
    }
@@ -236,4 +236,13 @@ public class ExchangeRateManager {
       return _applicationContext.getSharedPreferences(EXCHANGE_DATA, Activity.MODE_PRIVATE);
    }
 
+   // set for which fiat currencies we should get fx rates for
+   public void setCurrencyList(List<String> currencies) {
+
+      synchronized (_requestLock) {
+         _fiatCurrencies = currencies;
+      }
+
+      requestRefresh();
+   }
 }

@@ -184,6 +184,20 @@ public class Address implements Serializable, Comparable<Address> {
       return _address;
    }
 
+   public String getShortAddress() {
+      return this.getShortAddress(6);
+   }
+
+   public String getShortAddress(int showChars) {
+      StringBuilder sb = new StringBuilder();
+      String addressString = this.toString();
+      sb.append(addressString.substring(0, showChars));
+      sb.append("...");
+      sb.append(addressString.substring(addressString.length() - showChars));
+      return sb.toString();
+   }
+
+
    @Override
    public int hashCode() {
       return ((_bytes[16] & 0xFF) << 0) | ((_bytes[17] & 0xFF) << 8) | ((_bytes[18] & 0xFF) << 16)

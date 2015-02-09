@@ -119,7 +119,7 @@ public class SendInitializationActivity extends Activity {
       _slowNetworkHandler.postDelayed(showSlowNetwork, 6000);
 
       // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
-      if (_mbwManager.getExchangeRateManager().getExchangeRatePrice() == null) {
+      if (_mbwManager.getCurrencySwitcher().getExchangeRatePrice() == null) {
          _mbwManager.getExchangeRateManager().requestRefresh();
       }
 

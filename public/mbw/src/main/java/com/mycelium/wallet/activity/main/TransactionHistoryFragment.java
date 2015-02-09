@@ -47,19 +47,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
+import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
+
 
 import java.text.DateFormat;
 import java.util.*;
@@ -70,6 +75,7 @@ public class TransactionHistoryFragment extends Fragment {
    private MetadataStorage _storage;
    private View _root;
    private ActionMode currentActionMode;
+   private volatile Map<Address, String> _addressBook;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,6 +87,9 @@ public class TransactionHistoryFragment extends Fragment {
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(true);
       super.onCreate(savedInstanceState);
+
+      // cache the addressbook for faster lookup
+      cacheAddressBook();
    }
 
    @Override
@@ -108,6 +117,26 @@ public class TransactionHistoryFragment extends Fragment {
    @Subscribe
    public void syncStopped(SyncStopped event) {
       updateTransactionHistory();
+   }
+
+   @Subscribe
+   public void exchangeRateChanged(ExchangeRatesRefreshed event) {
+      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+   }
+
+   @Subscribe
+   public void fiatCurrencyChanged(SelectedCurrencyChanged event) {
+      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+   }
+
+   @Subscribe
+   public void addressBookEntryChanged(AddressBookChanged event) {
+      cacheAddressBook();
+      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+   }
+
+   private void cacheAddressBook() {
+      _addressBook = _mbwManager.getMetadataStorage().getAllAddressLabels();
    }
 
    private void doShowDetails(TransactionSummary selected) {
@@ -173,6 +202,7 @@ public class TransactionHistoryFragment extends Fragment {
          Locale locale = getResources().getConfiguration().locale;
          _dayFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
          _hourFormat = android.text.format.DateFormat.getTimeFormat(_context);
+
       }
 
       @Override
@@ -207,8 +237,12 @@ public class TransactionHistoryFragment extends Fragment {
                   @SuppressWarnings("deprecation")
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     //we do not allow do put addresses into the addresbook from transactions at the moment
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(false);
+                     //we only allow address book entries for outgoing transactions
+                     if (record.destinationAddress.isPresent()){
+                        Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(true);
+                     }else {
+                        Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(false);
+                     }
                      currentActionMode = actionMode;
                      view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
                      return true;
@@ -224,6 +258,8 @@ public class TransactionHistoryFragment extends Fragment {
                      } else if (itemId == R.id.miSetLabel) {
                         setTransactionLabel(record);
                         finishActionMode();
+                     } else if (itemId == R.id.miAddToAddressBook) {
+                        EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), record.destinationAddress.get(), "", addressLabelChanged);
                      }
                      return false;
                   }
@@ -259,38 +295,76 @@ public class TransactionHistoryFragment extends Fragment {
 
          // Set fiat value
          TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
-         ExchangeRate rate = _mbwManager.getExchangeRateManager().getExchangeRate();
-         if (!_mbwManager.hasFiatCurrency() || rate == null || rate.price == null) {
+         Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+         if (!_mbwManager.hasFiatCurrency() || rate == null) {
             tvFiat.setVisibility(View.GONE);
          } else {
             tvFiat.setVisibility(View.VISIBLE);
             String currency = _mbwManager.getFiatCurrency();
-            String converted = Utils.getFiatValueAsString(record.value, rate.price);
+            String converted = Utils.getFiatValueAsString(record.value, rate);
             tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
             tvFiat.setTextColor(color);
          }
 
+
+
+         // Show destination address and address label, if this address is in our address book
+         TextView tvAddressLabel = (TextView)rowView.findViewById(R.id.tvAddressLabel);
+         TextView tvDestAddress = (TextView)rowView.findViewById(R.id.tvDestAddress);
+
+         if (record.destinationAddress.isPresent() && _addressBook.containsKey(record.destinationAddress.get())) {
+            tvDestAddress.setText(record.destinationAddress.get().getShortAddress());
+            tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix), _addressBook.get(record.destinationAddress.get())));
+            tvDestAddress.setVisibility(View.VISIBLE);
+            tvAddressLabel.setVisibility(View.VISIBLE);
+         }else {
+            tvDestAddress.setVisibility(View.GONE);
+            tvAddressLabel.setVisibility(View.GONE);
+         }
+
+         // Show confirmations indicator
+         int confirmations = record.confirmations;
+         TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);
+         if (record.isOutgoing) {
+            // Outgoing, not broadcasted
+            tcdConfirmations.setNeedsBroadcast();
+         } else {
+            tcdConfirmations.setConfirmations(confirmations);
+         }
+
+         // Show label or confirmations
          TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
          String label = _storage.getLabelByTransaction(record.txid);
          if (label.length() == 0) {
-            tvLabel.setVisibility(View.GONE);
+            // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
+            String confirmationsText;
+            if (record.isOutgoing) {
+               confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
+            } else {
+               if (confirmations > 6){
+                  confirmationsText = _context.getResources().getString(R.string.confirmed);
+               } else {
+                  confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
+               }
+            }
+            tvLabel.setText(confirmationsText);
          } else {
             tvLabel.setText(label);
-            tvLabel.setVisibility(View.VISIBLE);
          }
 
-         // Set confirmations
-         int confirmations = record.confirmations;
-         TextView tvConfirmations = (TextView) rowView.findViewById(R.id.tvConfirmations);
-         if (record.isOutgoing) {
-            tvConfirmations.setText(_context.getResources().getString(R.string.transaction_not_broadcasted_info));
-         } else {
-            tvConfirmations.setText(_context.getResources().getString(R.string.confirmations, confirmations));
-         }
+
          rowView.setTag(record);
          return rowView;
       }
    }
+
+   private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {
+      @Override
+      public void OnAddressLabelChanged(Address address, String label) {
+         _mbwManager.getEventBus().post(new AddressBookChanged());
+         updateTransactionHistory();
+      }
+   };
 
    private void setTransactionLabel(TransactionSummary record) {
       EnterAddressLabelUtil.enterTransactionLabel(getActivity(), record.txid, _storage, transactionLabelChanged);

@@ -27,6 +27,7 @@ dependencies {
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.google.android.gms:play-services-base:6.5.+'
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
+    compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
@@ -63,8 +64,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 21010
-        versionName '2.1.0'
+        versionCode 22002
+        versionName '2.2.0-BETA2'
     }
 
     signingConfigs {

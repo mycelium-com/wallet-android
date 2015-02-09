@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/llContainer"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingLeft="3dp"
+              android:paddingRight="3dp"
+              android:clickable="true">
+
+
+    <TextView
+        tools:text="1.5"
+        android:id="@+id/tvValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            tools:text="mBtc"
+            android:id="@+id/tvCurrency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:paddingRight="10dp"
+            android:textSize="22sp"
+            android:typeface="monospace" />
+
+        <ImageView
+            android:id="@+id/ivSwitchable"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_alignBottom="@+id/tvCurrency"
+            android:layout_alignRight="@+id/tvCurrency"
+            android:layout_marginBottom="3dp"
+            android:background="@drawable/triangle_se"/>
+    </RelativeLayout>
+
+</LinearLayout>

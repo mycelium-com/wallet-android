@@ -816,9 +816,12 @@ public abstract class AbstractAccount implements WalletAccount {
 
    protected TransactionSummary transform(Transaction tx, int time, int height, int blockChainHeight) {
       long value = 0;
+      Address destAddress = null;
       for (TransactionOutput output : tx.outputs) {
          if (isMine(output.script)) {
             value += output.value;
+         }else{
+            destAddress = output.script.getAddress(_network);
          }
       }
 
@@ -845,9 +848,15 @@ public abstract class AbstractAccount implements WalletAccount {
          confirmations = Math.max(0, blockChainHeight - height + 1);
       }
 
-      boolean isOutgoing = _backing.isOutgoingTransaction(tx.getHash());
+      // only track a destinationAddress if it is an outgoing transaction (i.e. send money to someone)
+      // to prevent the user that he tries to return money to an address he got bitcoin from.
+      if (value >= 0){
+         destAddress = null;
+      }
 
-      return new TransactionSummary(tx.getHash(), value, time, height, confirmations, isOutgoing);
+      boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getHash());
+
+      return new TransactionSummary(tx.getHash(), value, time, height, confirmations, isQueuedOutgoing, com.google.common.base.Optional.fromNullable(destAddress));
    }
 
    @Override
@@ -975,6 +984,13 @@ public abstract class AbstractAccount implements WalletAccount {
          throw new RuntimeException("Unable to find private key for address " + address.toString());
       }
 
+   }
+
+
+   @Override
+   public TransactionSummary getTransactionSummary(Sha256Hash txid){
+      TransactionEx tx = _backing.getTransaction(txid);
+      return transform(tx, tx.height);
    }
 
    @Override

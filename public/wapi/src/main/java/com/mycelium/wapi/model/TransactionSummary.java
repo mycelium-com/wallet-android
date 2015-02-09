@@ -16,7 +16,10 @@
 
 package com.mycelium.wapi.model;
 
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+
 
 public class TransactionSummary implements Comparable<TransactionSummary> {
    public final Sha256Hash txid;
@@ -25,14 +28,16 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
    public final int height;
    public final int confirmations;
    public final boolean isOutgoing;
+   public final Optional<Address> destinationAddress;
 
-   public TransactionSummary(Sha256Hash txid, long value, long time, int height, int confirmations, boolean isOutgoing) {
+   public TransactionSummary(Sha256Hash txid, long value, long time, int height, int confirmations, boolean isOutgoing, Optional<Address> destinationAddress) {
       this.txid = txid;
       this.value = value;
       this.time = time;
       this.height = height;
       this.confirmations = confirmations;
       this.isOutgoing = isOutgoing;
+      this.destinationAddress = destinationAddress;
    }
 
    @Override

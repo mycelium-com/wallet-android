@@ -54,11 +54,13 @@ import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.api.AsyncTask;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
@@ -251,7 +253,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         GetSendingAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(), _amountToSend, _fee.kbMinerFee, _isColdStorage);
+         GetAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(), _amountToSend, _fee.kbMinerFee, _isColdStorage);
       }
    };
 
@@ -466,7 +468,7 @@ public class SendMainActivity extends Activity {
       _mbwManager.getEventBus().register(this);
 
       // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
-      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      _oneBtcInFiat = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       if (_oneBtcInFiat == null) {
          _mbwManager.getExchangeRateManager().requestRefresh();
       }
@@ -558,7 +560,7 @@ public class SendMainActivity extends Activity {
          _receivingAddress = address;
       } else if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
-         _amountToSend = Preconditions.checkNotNull((Long) intent.getSerializableExtra("amountToSend"));
+         _amountToSend = Preconditions.checkNotNull((Long) intent.getSerializableExtra("amount"));
       } else {
          // We didn't like what we got, bail
       }
@@ -591,7 +593,13 @@ public class SendMainActivity extends Activity {
 
    @Subscribe
    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
-      _oneBtcInFiat = _mbwManager.getExchangeRateManager().getExchangeRatePrice();
+      _oneBtcInFiat = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+      updateUi();
+   }
+
+   @Subscribe
+   public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
+      _oneBtcInFiat = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       updateUi();
    }
 

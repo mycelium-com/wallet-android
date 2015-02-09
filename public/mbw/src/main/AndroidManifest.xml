@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet" >
 
-    <!--basics-->
+    <!-- basics -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -13,9 +13,9 @@
 
     <!-- sending a NFC payment request -->
     <uses-permission android:name="android.permission.NFC" />
-    <!--scanning qr codes-->
+    <!-- scanning qr codes -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!--location for local trader-->
+    <!-- location for local trader -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature
@@ -49,8 +49,8 @@
 
         <!-- hack - hardcode to be able to support froyo -->
         <meta-data
-                android:name="com.google.android.gms.version"
-                android:value="@integer/google_play_services_version"/>
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name=".activity.modern.ModernMain"
@@ -69,7 +69,6 @@
         <activity android:name=".activity.export.VerifyBackupActivity" />
         <activity android:name=".activity.export.DecryptBip38PrivateKeyActivity" />
         <activity android:name=".activity.send.GetSpendingRecordActivity" />
-        <activity android:name=".activity.send.GetSendingAmountActivity" />
         <activity android:name=".activity.modern.UnspentOutputsActivity" />
         <activity android:name=".activity.send.InstantWalletActivity" >
 
@@ -86,7 +85,6 @@
         <activity android:name=".activity.send.SendMainActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignAndBroadcastTransactionActivity" />
-        <activity android:name=".activity.receive.GetReceivingAmountActivity" />
         <activity android:name=".activity.receive.ReceiveCoinsActivity" />
         <activity
             android:name="com.google.zxing.client.android.CaptureActivity"
@@ -123,9 +121,10 @@
         <activity android:name=".activity.VerifyWordListActivity" />
         <activity android:name=".activity.AdditionalBackupWarningActivity" />
         <activity android:name=".activity.modern.HDSigningActivity" />
-        <activity android:name=".activity.BipSsImportActivity"/>
-        <activity android:name=".activity.CreateKeyActivity"/>
-        <activity android:name=".activity.ConnectionLogsActivity"/>
+        <activity android:name=".activity.BipSsImportActivity" />
+        <activity android:name=".activity.CreateKeyActivity" />
+        <activity android:name=".activity.ConnectionLogsActivity" />
+        <activity android:name=".activity.GetAmountActivity" />
     </application>
 
 </manifest>

@@ -32,52 +32,81 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.net;
+package com.mycelium.wallet.activity.util;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
+import android.content.Context;
+import android.os.Parcelable;
+import android.util.AttributeSet;
+import android.widget.ImageView;
+import com.mycelium.wallet.R;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 
-public class ServerEndpointType {
-   private ArrayList<Class> allowedEndpoints;
+public class TransactionConfirmationsDisplay extends ImageView{
 
-   public enum Types{
-      ALL, HTTPS_AND_TOR, ONLY_HTTPS, ONLY_TOR_EXTERNAL
+   public static final int MAX_CONFIRMATIONS = 6;
+
+
+   public TransactionConfirmationsDisplay(Context context) {
+      super(context);
+      setConfirmations(0);
    }
 
-   public static ServerEndpointType ALL = new ServerEndpointType(new Class[]{HttpEndpoint.class, HttpsEndpoint.class, TorHttpsEndpoint.class });
-   public static ServerEndpointType HTTPS_AND_TOR = new ServerEndpointType(new Class[]{HttpsEndpoint.class, TorHttpsEndpoint.class});
-   public static ServerEndpointType ONLY_HTTPS = new ServerEndpointType(new Class[]{HttpsEndpoint.class});
-   public static ServerEndpointType ONLY_TOR = new ServerEndpointType(new Class[]{TorHttpsEndpoint.class});
+   public TransactionConfirmationsDisplay(Context context, AttributeSet attrs) {
+      super(context, attrs);
+      setConfirmations(0);
+   }
 
-   public static ServerEndpointType fromType(Types type){
-      if (type == Types.ALL) {
-         return ALL;
-      }else if (type == Types.HTTPS_AND_TOR){
-         return HTTPS_AND_TOR;
-      }else if (type == Types.ONLY_TOR_EXTERNAL){
-         return ONLY_TOR;
-      }else {
-         return ONLY_HTTPS;
+   public TransactionConfirmationsDisplay(Context context, AttributeSet attrs, int defStyle) {
+      super(context, attrs, defStyle);
+      setConfirmations(0);
+   }
+
+   public void setNeedsBroadcast(){
+
+      try {
+         Class res = R.drawable.class;
+         Field field = res.getField("pie_send");
+         int drawableId = field.getInt(null);
+         setImageResource(drawableId);
+      } catch (NoSuchFieldException e) {
+         throw new RuntimeException("drawable not found, pie_send");
+      } catch (IllegalAccessException e) {
+         throw new RuntimeException("drawable not found, pie_send");
       }
+
    }
 
+   public void setConfirmations(int number){
 
-   public ServerEndpointType(Class allowedEndpoints[]) {
-      this.allowedEndpoints = Lists.newArrayList(allowedEndpoints);
-   }
+      if (number > MAX_CONFIRMATIONS){
+         number = MAX_CONFIRMATIONS;
+      }else if (number < 0){
+         number = 0;
+      }
 
-   public boolean mightUseTor(){
-      return allowedEndpoints.contains(TorHttpsEndpoint.class);
-   }
+      try {
+         Class res = R.drawable.class;
+         Field field = res.getField("pie_" + number);
+         int drawableId = field.getInt(null);
+         setImageResource(drawableId);
+      } catch (NoSuchFieldException e) {
+         throw new RuntimeException("drawable not found, " + number);
+      } catch (IllegalAccessException e) {
+         throw new RuntimeException("drawable not found, " + number);
+      }
 
-   public boolean isValid(Class endpointType){
-      return allowedEndpoints.contains(endpointType);
-   }
-
-   @Override
-   public String toString() {
-      return Joiner.on(", ").join(allowedEndpoints);
    }
 }
+
+/*
+generate pie graphics:
+
+http://jsfiddle.net/a02gw5xf/2/
+
+convert all.png -fuzz 2% -trim +repage trim1.png  #white
+convert all.png -fuzz 2% -trim +repage trim.png   #black
+
+for i in {0..6}; do; echo $i; convert trim.png -repage 0x0 -crop "0x22+0+$(($i*24))" -fuzz 4% -transparent black  pie_$i.png; done;
+
+ */

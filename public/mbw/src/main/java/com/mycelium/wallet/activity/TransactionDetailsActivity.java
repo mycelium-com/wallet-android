@@ -52,8 +52,10 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionSummary;
 
 public class TransactionDetailsActivity extends Activity {
 
@@ -61,6 +63,7 @@ public class TransactionDetailsActivity extends Activity {
    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
    private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
    private TransactionDetails _tx;
+   private TransactionSummary _txs;
    private int _white_color;
    private MbwManager _mbwManager;
    private String _transactionInfoTemplate;
@@ -80,6 +83,7 @@ public class TransactionDetailsActivity extends Activity {
 
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
+      _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
       updateUi();
    }
@@ -91,12 +95,23 @@ public class TransactionDetailsActivity extends Activity {
 
 
       // Set Confirmed
+      int confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
       String confirmed;
       if (_tx.height > 0) {
          confirmed = getResources().getString(R.string.confirmed_in_block, _tx.height);
       } else {
          confirmed = getResources().getString(R.string.no);
       }
+
+      // check if tx is in outgoing queue
+      TransactionConfirmationsDisplay confirmationsDisplay = (TransactionConfirmationsDisplay) findViewById(R.id.tcdConfirmations);
+      if (_txs!=null && _txs.isOutgoing){
+         confirmationsDisplay.setNeedsBroadcast();
+         confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
+      }else {
+         confirmationsDisplay.setConfirmations(confirmations);
+      }
+
       ((TextView) findViewById(R.id.tvConfirmed)).setText(confirmed);
 
       // Set Date & Time

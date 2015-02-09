@@ -20,6 +20,7 @@
     <color name="darkdarkgrey">#222</color>
     <color name="grey">#888</color>
     <color name="lightgrey">#bbb</color>
+    <color name="lightgrey_transparent">#77555555</color>
     <color name="white">#fff</color>
     <color name="yellow">#ff0</color>
     <color name="darkyellow">#880</color>

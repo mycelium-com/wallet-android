@@ -341,7 +341,9 @@ public class AccountsFragment extends Fragment {
          LinearLayout activeHdAccountsView = createAccountViewList(activeTitle, activeHdRecords, selectedAccount);
          llRecords.addView(activeHdAccountsView);
 
-         if (activeHdRecords.size() > 1) {
+         // show HD-total also if there is only one account, so that it is clear that
+         // the total below for the "other accounts" is not the complete total
+         if (activeHdRecords.size() > 0) {
             LinearLayout activeSum = createActiveAccountBalanceSumView(activeHdRecords);
             llRecords.addView(activeSum);
          }
@@ -378,7 +380,6 @@ public class AccountsFragment extends Fragment {
       long balanceSum = 0;
       for (WalletAccount account : accounts) {
          balanceSum += account.getBalance().getSpendableBalance();
-
       }
 
       // Add item

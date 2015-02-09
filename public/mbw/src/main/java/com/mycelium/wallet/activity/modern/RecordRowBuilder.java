@@ -43,6 +43,7 @@ import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -117,7 +118,7 @@ public class RecordRowBuilder {
             displayAddress = walletAccount.getReceivingAddress().toMultiLineString();
          } else {
             // Display address in short form
-            displayAddress = getShortAddress(walletAccount.getReceivingAddress().toString());
+            displayAddress = walletAccount.getReceivingAddress().getShortAddress();
          }
       }
 
@@ -166,9 +167,10 @@ public class RecordRowBuilder {
 
    public View buildTotalView(LinearLayout parent, long balanceSum) {
       View rowView = inflater.inflate(R.layout.record_row_total, parent, false);
-      String balanceString = mbwManager.getBtcValueString(balanceSum);
-      TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
-      tvBalance.setText(balanceString);
+      ToggleableCurrencyDisplay tcdBalance = ((ToggleableCurrencyDisplay) rowView.findViewById(R.id.tcdBalance));
+      tcdBalance.setEventBus(mbwManager.getEventBus());
+      tcdBalance.setCurrencySwitcher(mbwManager.getCurrencySwitcher());
+      tcdBalance.setValue(balanceSum);
       return rowView;
    }
 
@@ -192,7 +194,7 @@ public class RecordRowBuilder {
       boolean showBackupMissingWarning = false;
       if (account instanceof Bip44Account){
          showBackupMissingWarning = mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
-      }else if (account instanceof SingleAddressAccount) {
+      }else if (account instanceof SingleAddressAccount && account.canSpend()) {
          MetadataStorage.BackupState backupState = mbwManager.getMetadataStorage().getSingleKeyBackupState(account.getId());
          showBackupMissingWarning = (backupState != MetadataStorage.BackupState.VERIFIED) && (backupState != MetadataStorage.BackupState.IGNORED);
       }
@@ -200,12 +202,6 @@ public class RecordRowBuilder {
       return showBackupMissingWarning;
    }
 
-   private static String getShortAddress(String addressString) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(addressString.substring(0, 6));
-      sb.append("...");
-      sb.append(addressString.substring(addressString.length() - 6));
-      return sb.toString();
-   }
+
 
 }

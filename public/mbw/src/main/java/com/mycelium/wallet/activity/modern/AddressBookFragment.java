@@ -266,7 +266,6 @@ public class AddressBookFragment extends Fragment {
    }
 
    final Runnable pinProtectedDeleteEntry = new Runnable() {
-
       @Override
       public void run() {
          doDeleteEntry();
@@ -281,7 +280,7 @@ public class AddressBookFragment extends Fragment {
                   dialog.cancel();
                   _mbwManager.getMetadataStorage().deleteAddressMetadata(mSelectedAddress);
                   finishActionMode();
-                  updateUi();
+                  _mbwManager.getEventBus().post(new AddressBookChanged());
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
@@ -389,11 +388,10 @@ public class AddressBookFragment extends Fragment {
    }
 
    private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
-
       @Override
       public void OnAddressLabelChanged(Address address, String label) {
          finishActionMode();
-         updateUi();
+         _mbwManager.getEventBus().post(new AddressBookChanged());
       }
    };
 

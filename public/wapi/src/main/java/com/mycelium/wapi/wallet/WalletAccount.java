@@ -97,6 +97,8 @@ public interface WalletAccount {
     */
    List<TransactionSummary> getTransactionHistory(int offset, int limit);
 
+   TransactionSummary getTransactionSummary(Sha256Hash txid);
+
    /**
     * Get the details of a transaction that originated from this account
     *

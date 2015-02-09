@@ -43,7 +43,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -65,14 +64,10 @@ import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
-import com.mycelium.net.TorManagerOrchid;
 import com.mycelium.wallet.activity.modern.ExploreHelper;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
-import com.mycelium.wallet.event.EventTranslator;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SelectedAccountChanged;
-import com.mycelium.wallet.event.TorState;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -83,8 +78,7 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
-import com.subgraph.orchid.AndroidTorConfig;
-import com.subgraph.orchid.Tor;
+import com.squareup.otto.Subscribe;
 
 import java.io.*;
 import java.util.*;
@@ -103,6 +97,7 @@ public class MbwManager {
     * 0x424944 = "BID"
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
+   private final CurrencySwitcher _currencySwitcher;
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
@@ -118,22 +113,16 @@ public class MbwManager {
    private Handler torHandler;
    private NetworkConnectionWatcher _connectionWatcher;
    private Context _applicationContext;
-   private int _displayWidth;
-   private int _displayHeight;
    private AndroidAsyncApi _asyncApi;
    private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
-   private final String _btcValueFormatString;
    private Pin _pin;
-   private Denomination _bitcoinDenomination;
+
    private MinerFee _minerFee;
-   private String _fiatCurrency;
-   private List<String> _currencies;
    private boolean _enableContinuousFocus;
    private boolean _keyManagementLocked;
    private boolean _isBitidEnabled;
-   private int _mainViewFragmentIndex;
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
    private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
    private MbwEnvironment _environment;
@@ -162,6 +151,7 @@ public class MbwManager {
       // Initialize proxy early, to enable error reporting during startup..
 
       _eventBus = new Bus();
+      _eventBus.register(this);
 
       // init tor - if needed
       try {
@@ -180,7 +170,6 @@ public class MbwManager {
 
       _randomSource = new AndroidRandomSource();
 
-
       _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
 
       _asyncApi = new AndroidAsyncApi(_wapi, _eventBus);
@@ -192,44 +181,45 @@ public class MbwManager {
       _ltApi = initLt();
       _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb, getLtApi(), this);
 
-      _btcValueFormatString = _applicationContext.getResources().getString(R.string.btc_value_string);
-
       _pin = new Pin(
             preferences.getString(Constants.PIN_SETTING, ""),
             preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
       );
 
-      _fiatCurrency = preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY);
-      _currencies = new ArrayList<String>();
-      Set<String> set = preferences.getStringSet(Constants.SELECTED_CURRENCIES, null);
-      if (set == null) {
-         //if there is no list take the one currency we have - if its not empty
-         if (hasFiatCurrency()) _currencies.add(getFiatCurrency());
-      } else {
-         //else take all dem currencies, yeah
-         _currencies.addAll(set);
-      }
-      _bitcoinDenomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,
-            Denomination.mBTC.toString()));
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
-      _mainViewFragmentIndex = preferences.getInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, 0);
 
       // Get the display metrics of this device
       DisplayMetrics dm = new DisplayMetrics();
       WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
       windowManager.getDefaultDisplay().getMetrics(dm);
-      _displayWidth = dm.widthPixels;
-      _displayHeight = dm.heightPixels;
 
       _addressBookManager = new AddressBookManager(_applicationContext);
       _storage = new MetadataStorage(_applicationContext);
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
-      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, this);
 
+      Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
+      ArrayList<String> fiatCurrencies = new ArrayList<String>();
+      if (currencyList == null) {
+         //if there is no list take the default currency
+         fiatCurrencies.add(Constants.DEFAULT_CURRENCY);
+      } else {
+         //else take all dem currencies, yeah
+         fiatCurrencies.addAll(currencyList);
+      }
+
+      _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, fiatCurrencies);
+
+      _currencySwitcher = new CurrencySwitcher(
+            _applicationContext,
+            _exchangeRateManager,
+            fiatCurrencies,
+            getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
+            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,Denomination.mBTC.toString()))
+            );
 
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
       ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -306,9 +296,7 @@ public class MbwManager {
    private void initTor() {
       torHandler = new Handler(Looper.getMainLooper());
 
-      if (_torMode == ServerEndpointType.Types.ONLY_TOR_INTERNAL){
-         this._torManager = new TorManagerOrchid(new AndroidTorConfig(Tor.createConfig(), _applicationContext));
-      }else if (_torMode == ServerEndpointType.Types.ONLY_TOR_EXTERNAL){
+      if (_torMode == ServerEndpointType.Types.ONLY_TOR_EXTERNAL){
          this._torManager = new TorManagerOrbot();
       }else{
          throw new IllegalArgumentException();
@@ -475,89 +463,52 @@ public class MbwManager {
       return walletManager;
    }
 
-   public int getDisplayWidth() {
-      return _displayWidth;
-   }
-
-   public NetworkConnectionWatcher getNetworkConnectionWatcher() {
-      return _connectionWatcher;
-   }
-
-   public int getDisplayHeight() {
-      return _displayHeight;
-   }
-
    public String getFiatCurrency() {
-      return _fiatCurrency;
+      return _currencySwitcher.getCurrentFiatCurrency();
    }
 
    public boolean hasFiatCurrency() {
-      return !_fiatCurrency.equals("");
-   }
-
-   public void setFiatCurrency(String currency) {
-      _fiatCurrency = currency;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.FIAT_CURRENCY_SETTING, _fiatCurrency);
-      editor.commit();
+      return _currencySwitcher.hasFiatCurrencyExchangeRate();
    }
 
    private SharedPreferences getPreferences() {
       return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
    }
 
-
    public List<String> getCurrencyList() {
-      return new ArrayList<String>(_currencies);
+      return _currencySwitcher.getCurrencyList();
    }
 
    public void setCurrencyList(List<String> currencies) {
-
-      //if we de-selected our current active currency, we switch it
-      if (!currencies.contains(getFiatCurrency())) {
-         if (currencies.isEmpty()) {
-            //no fiat
-            setFiatCurrency("");
-         } else {
-            setFiatCurrency(currencies.get(0));
-         }
-      }
-
-      _currencies = currencies;
+      _exchangeRateManager.setCurrencyList(currencies);
+      _currencySwitcher.setCurrencyList(currencies);
 
       SharedPreferences.Editor editor = getEditor();
       editor.putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<String>(currencies));
       editor.commit();
-      _exchangeRateManager.requestRefresh();
    }
 
-   //todo: make nicer
-   public String getNextCurrency(String currency, boolean includeBitcoin) {
+   public boolean nextCurrencyReady() {
       List<String> currencies = getCurrencyList();
-      //just to be sure we dont cycle through a single one
-      if (!includeBitcoin && currencies.size() <= 1) return currency;
-      //we add BTC, even if we dont want it, so we know where to hop to if we are on btc
-      currencies.add("BTC");
-      int index = currencies.indexOf(currency);
+      if (currencies.isEmpty()) return false;
+      int index = currencies.indexOf(getFiatCurrency());
+      Preconditions.checkState(index >= 0);
       index++; //hop one forward
       if (index >= currencies.size()) index -= currencies.size(); //wrap around
       String newCurrency = currencies.get(index);
-
-      //if its bitcoin and we dont want bitcoin, hop one further
-      if (newCurrency.equals("BTC") && !includeBitcoin) {
-         return getNextCurrency(newCurrency, false);
+      if (_exchangeRateManager.getExchangeRate(newCurrency) == null) {
+         _exchangeRateManager.requestRefresh();
+         return false;
       }
-      //else we have found the one - if its not bitcoin, we set as selected fiat
-      if (!newCurrency.equals("BTC")) setFiatCurrency(newCurrency);
-      return newCurrency;
+      return true;
+   }
+
+   public String getNextCurrency(boolean includeBitcoin) {
+      return _currencySwitcher.getNextCurrency(includeBitcoin);
    }
 
    private SharedPreferences.Editor getEditor() {
       return getPreferences().edit();
-   }
-
-   public AndroidAsyncApi getAsyncApi() {
-      return _asyncApi;
    }
 
    public LocalTraderManager getLocalTraderManager() {
@@ -566,6 +517,10 @@ public class MbwManager {
 
    public ExchangeRateManager getExchangeRateManager() {
       return _exchangeRateManager;
+   }
+
+   public CurrencySwitcher getCurrencySwitcher() {
+      return _currencySwitcher;
    }
 
    public AddressBookManager getAddressBookManager() {
@@ -659,7 +614,6 @@ public class MbwManager {
             _dialog.show();
          }
       });
-
    }
 
    public void savePin(Pin pin) {
@@ -775,22 +729,16 @@ public class MbwManager {
    }
 
    public CoinUtil.Denomination getBitcoinDenomination() {
-      return _bitcoinDenomination;
+      return _currencySwitcher.getBitcoinDenomination();
    }
 
    public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
-      _bitcoinDenomination = denomination;
-      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, _bitcoinDenomination.toString()).commit();
+      _currencySwitcher.setBitcoinDenomination(denomination);
+      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).commit();
    }
 
    public String getBtcValueString(long satoshis) {
-      return getBtcValueString(satoshis, _btcValueFormatString);
-   }
-
-   private String getBtcValueString(long satoshis, String formatString) {
-      Denomination d = getBitcoinDenomination();
-      String valueString = CoinUtil.valueString(satoshis, d, true);
-      return String.format(formatString, valueString, d.getUnicodeName());
+      return _currencySwitcher.getBtcValueString(satoshis);
    }
 
    public boolean isKeyManagementLocked() {
@@ -832,15 +780,6 @@ public class MbwManager {
    private void noProxy() {
       System.clearProperty(PROXY_HOST);
       System.clearProperty(PROXY_PORT);
-   }
-
-   public int getMainViewFragmentIndex() {
-      return _mainViewFragmentIndex;
-   }
-
-   public void setMainViewFragmentIndex(int index) {
-      _mainViewFragmentIndex = index;
-      getEditor().putInt(Constants.MAIN_VIEW_FRAGMENT_INDEX_SETTING, _mainViewFragmentIndex).commit();
    }
 
    public MrdExport.V1.EncryptionParameters getCachedEncryptionParameters() {
@@ -895,7 +834,6 @@ public class MbwManager {
          _httpErrorCollector.reportErrorToServer(msg);
       }
    }
-
 
    public String getLanguage() {
       return _language;
@@ -1045,7 +983,6 @@ public class MbwManager {
       return _randomSource;
    }
 
-
    public WapiClient getWapi() {
       return _wapi;
    }
@@ -1060,6 +997,14 @@ public class MbwManager {
 
    public LtApiClient getLtApi() {
       return _ltApi;
+   }
+
+   @Subscribe
+   public void onSelectedCurrencyChanged(SelectedCurrencyChanged event){
+      SharedPreferences.Editor editor = getEditor();
+      editor.putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency());
+      editor.commit();
+
    }
 
 }

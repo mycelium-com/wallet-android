@@ -111,8 +111,8 @@
   <string name="edit">編集</string>
   <string name="delete">削除</string>
   <string name="payment_request">支払い請求</string>
-  <string name="export_single_private_key_warning">このアドレスの秘密鍵をエクスポートしようとしています。\n\n秘密鍵を手に入れた者はこのアドレスのビットコインの送金権を手に入れますので大事に保管して下さい。\n\n続けますか？</string>
   <string name="backup_all_warning">ウォレットのマスターシードをバックアップしましょう。\nマスターシードのバックアップがあれば、デバイスをなくしたり損傷した場合でも、お金を復元できます。\n\n今すぐ行いますか？</string>
+  <string name="backup_legacy_warning">あなたのウォレットにある単一アドレスのアカウントのみがバックアップされます。\nこのバックアップにはマスターシードが含まれていないため、HDアカウントの復元はできません！\n\nご了承の上、続けますか？</string>
   <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
   <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
   <string name="found_clipboard_private_keys_message">クリップボードに秘密鍵がコピーされています。\r\nクリップボードから削除しますか？</string>
@@ -129,10 +129,7 @@
   <string name="cold_storage_desc">今より紙などに書かれた秘密鍵をスキャンしてその場でビットコインを送金しようとしています。ペーパーウォレットやビットコインATMのレシートなどのフォーマットが読み取り可能です。\n\n送金の取引を完了した後、端末のメモリから秘密鍵を安全削除しますのでご注意下さい。</string>
   <string name="keep_account_address">秘密鍵のみを消去し、読み取り専用のアカウントとして保存</string>
   <string name="manual_entry">手入力</string>
-  <string name="active_name">有効</string>
-  <string name="active_name_empty">有効 (空)</string>
   <string name="archive_name">アーカイブ</string>
-  <string name="archive_name_empty">アーカイブ (空)</string>
   <string name="activate_action">有効にする</string>
   <string name="archive_action">アドレスをアーカイブへ</string>
   <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\r\n\r\nアーカイブされたアカウントは再度アクティブにすることができます。\r\n\r\nこのアカウントをアーカイブしますか？</string>
@@ -186,6 +183,7 @@
   <string name="verify_backup_message_text_1">ビットコインを管理する際、正しくバックアップを行うことは不可欠です。\nバックアップが確認されていない一つまたは複数のビットコインの秘密鍵またはマスターシードがあります。\n\nバックアップを行うために、バックアップオプションを選択してください。</string>
   <string name="verify_backup_message_text_2">次にバックアップのオプションを確認し、バックアップを確認して下さい。</string>
   <string name="encrypted_pdf_backup_title">暗号化されたPDFバックアップ</string>
+  <string name="encrypted_pdf_backup_description">暗号化された秘密キーをPDF文書でバックアップしようとしています。\nPDF文書はEメールやドロップボックスなどのファイル共有アプリをダウンロードすることで安全に共有することができます。これはキーが暗号化されているからです。</string>
   <string name="encrypted_pdf_backup_password_description_1">これはバックアップを暗号化するために使われているランダムなチェックサムのパスワードです。</string>
   <string name="encrypted_pdf_backup_password_description_2">このバックアップに対してパスワードを閲覧できる唯一の機会になります。\n次回のバックアップでは異なるパスワードが使われます。\n書き留めて保管して下さい!</string>
   <string name="encrypted_pdf_backup_stretching">暗号キーを準備しています&#8230;</string>
@@ -283,6 +281,7 @@
   <string name="lt_create_order_choose_maximum">最大取引額を選択します。</string>
   <string name="lt_create_order_description">ご注文のオプションの説明:</string>
   <string name="lt_create_order_description_too_long">説明が長すぎます</string>
+  <string name="lt_create_order_description_hint">私と取引をする理由&#8230;</string>
   <string name="lt_ad_type_sell_btc_label">ビットコインを売却</string>
   <string name="lt_ad_type_buy_btc_label">ビットコインを購入</string>
   <string name="lt_ad_created">広告が作成されました</string>
@@ -491,17 +490,14 @@
   <string name="seed_already_configured">インポートできません：マスターシードは既に設定されています</string>
   <string name="backup_words_title">マスターシードのバックアップ</string>
   <string name="verify_words_title">マスターシードの確認</string>
-  <string name="wordlist_backup_description">【重要】\n\nマスターシードのバックアップをするところです。\n\nバックアッ
-プを取るとき、誰かがちょっとあなたの電話を取って、バックアップをもう一つ
-取ることで今後のあなたの資金を操作しないために、必ず暗証番号を設定して下
-さい。\n\nリストのワードがひとつずつ見られます。紙とペンを使い、それらを
-書き留めておいて下さい。そして安全な場所に保管して下さい。</string>
+  <string name="wordlist_backup_description">【重要】\n\nマスターシードのバックアップをこれから行います。\n\nバックアップを取ったあと、暗証番号を設定することを強くおすすめします。暗証番号を設定しないと、一瞬だけあなたの携帯を持った者は誰でもこのバックアップフレーズが見られ、あなたのビットコインを盗むことができます。\n\nリストのワードがひとつずつ表示されます。紙とボールペンを使ってそれらを書き留めておいて安全な場所に保管して下さい。</string>
   <string name="next_word_button">次の単語</string>
   <string name="start_with_first_word_button">最初のワード</string>
   <string name="cick_button_to_show_word">下のボタンをタップしてスタート</string>
   <string name="wordlist_verify_description">すべてが正しくバックアップされているかを確認するため、今メモしたワードを一つずつ入力してください。</string>
   <string name="verify_word_wrong">入力したワードは間違っています。再試行してください。</string>
-  <string name="verify_wordlist_success">あなたのワードリストのバックアップ完了が確認されました。バックアップを安全な場所に保管しておいて下さい、あなたの資金の安全性はそれにかかっています！\n\nもし暗証番を設定していなかったのなら、今がそうする時です。\n暗証番号の設定は、設定メニューですることができます。</string>
+  <string name="verify_wordlist_success">あなたの単語リストバックアップが正常に確認されました。ウォレットの全残高がそれだけで復元できるため、安全な場所にそのバックアップを保管して下さい。\n\n暗証番号の設定はしていません！\n直ちに設定して下さい。\n\n暗証番号の設定は、設定メニューから行うことができます。</string>
+  <string name="verify_wordlist_success_pin_already_set">あなたの単語リストバックアップが正常に確認されました。ウォレットの全残高がそれだけで復元できるため、安全な場所にそのバックアップを保管して下さい。</string>
   <string name="note_down_password_title">パスワードをメモしておいて下さい</string>
   <string name="title_wrong_password">パスワードが間違っています。再試行してください。</string>
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
@@ -514,4 +510,52 @@
   <string name="button_continue">続ける</string>
   <string name="butto_show_release_notes">詳細へ</string>
   <string name="word_does_not_exist_in_wordlist">あなたが入力したワードは、ワードリストにはありません。</string>
+  <string name="pref_legacy_backup_title">従来のバックアップ</string>
+  <string name="pref_legacy_backup_summary">単一アドレスアカウントが含まれる従来のバックアップを作成します。</string>
+  <string name="error_no_browser">あなたの端末のブラウザーアプリが見つかりませんので、指定のサイトに移動できません。</string>
+  <string name="transaction_label_title">取引ラベル</string>
+  <string name="no_spending_records">あなたのアカウントの内、送金可能なアカウントがありません。\n\n送金を行うには、秘密鍵が含まれたアカウントが最低限1つ無いといけません。現在、有効なHDアカウントや単一アドレスアカウントで秘密鍵の含まれたアカウントがありません。送金を行いたい場合、新規アカウントの作成、若しくは秘密鍵の含まれたアカウントの復元を行って下さい。</string>
+  <string name="donation_transaction_label">Myceliumへの寄付</string>
+  <string name="select_key_for_signing">署名に使うキーを選択します</string>
+  <string name="playstore_link_label">Playストアへのリンク</string>
+  <string name="hide_unused_account_menu">アカウントを削除</string>
+  <string name="dont_allow_hiding_used_notification">使用履歴のあるアカウントは隠すことができませんが、アーカイブにすることはできます。</string>
+  <string name="pref_miner_fee_title">手数料 (%1$s)</string>
+  <string name="pref_miner_fee_summary">取引のデータの大きさ1000バイトごとに、 %1$s の手数料がかかります。</string>
+  <string name="miner_fee_economic_name">節約</string>
+  <string name="miner_fee_normal_name">普通</string>
+  <string name="miner_fee_priority_name">優先度</string>
+  <string name="miner_fee_economic_desc">警告: 節約の手数料スケジュールが実験的なものであり、ずっと確認されない取引になる可能性があります。ご了承の上、ご利用下さい。</string>
+  <string name="miner_fee_normal_desc">通常の手数料スケジュールでは次のいくつかのブロックの内に取引が確認されることを期待できます。</string>
+  <string name="miner_fee_priority_desc">優先手数料スケジュールでは1つまたは2つのブロック以内に取引が確認されることを期待できます。</string>
+  <string name="backup_menu_entry">バックアップを作成</string>
+  <string name="lt_copied_to_clipboard">チャットのメッセージはクリップボードにコピーされました。</string>
+  <string name="total_balance_title">合計:</string>
+  <string name="additional_backup_words_title">追加のマスターシードバックアップ</string>
+  <string name="wordlist_additional_backup_not_possible_pin_too_new">申し訳ありません、追加のバックアップは現在できません。\nあなたの暗証番号が最近更新されました。\n\nあなたのウォレットのセキュリティーを考慮し、暗証番号が更新された場合、しばらくの間はマスターシードのバックアップをできないようにします。\n\nお手数ですが、%1$d ブロックが確認されるまでお待ち下さい。 ( おおよそ %2$s )</string>
+  <string name="wordlist_additional_backup_not_possible_no_pin">申し訳ありません、追加のバックアップは現在できません。\nあなたは暗証番号を設定していません。\n\nあなたのウォレットのセキュリティーを考慮し、暗証番号が更新された場合、しばらくの間はマスターシードのバックアップをできないようにします。\n\nお手数ですが、設定メニューにて暗証番号の設定を行って下さい。</string>
+  <string name="wordlist_additional_backup_description">警告：追加のバックアップが必要ということは良くないことを意味することが一般的です。\n\nもうすでにマスターシードのバックアップは取ってあるはずですので、追加のバックアップは元のバックアップの紛失などを意味することが多いです。元のバックアップを紛失してしまった場合、直ちに新規ウォレット(新規アカウントではなく！)を作成し、現ウォレットの全アカウントから新ウォレットに全残高を送金して下さい。\n\n\n現在のウォレットは全てのバックアップが他人に手渡っていないことを100％確信した場合のみ継続してお使い下さい。</string>
+  <string name="wordlist_start_with_additional_wordlist_backup">了解しました。</string>
+  <string name="pin_pad_clear">CLR</string>
+  <string name="pin_pad_backspace">DEL</string>
+  <string name="pin_resettable_pin_info">暗証番号を忘れてしまった場合は %s の待機期間後にリセットすることができます。</string>
+  <string name="pin_unresettable_pin_info">暗証番号を忘れてしまった場合はバックアップから復元する他、選択肢はありません。</string>
+  <string name="pin_forgotten_button">暗証番号を忘れた</string>
+  <string name="pin_forgotten_reset_pin_dialog_title">暗証番号リセット</string>
+  <string name="pin_forgotten_reset_pin_dialog_content">セキュリティーの関係上、%1$s の待機期間を経た後にのみ暗証番号がリセットされます。\n\nそれでも暗証番号リセットの実行を行いますか？</string>
+  <string name="pin_forgotten_reset_wait_button_text">%s 待って下さい</string>
+  <string name="pin_forgotten_abort_pin_reset">暗証番号のリセット実行中です。まだ %1$s の待機期間が残されています。\n\n暗証番号リセットを中止しますか？</string>
+  <string name="pin_reset_in_progress_alert">暗証番号のリセットを実行中</string>
+  <string name="error_invalid_sss_share">スキャンしたシェアが不正なフォーマットです。</string>
+  <string name="importing_secret_shares_title">シェアを結合中</string>
+  <string name="sss_incompatible_shares_warning">インポートしたシェアはマッチしません。</string>
+  <string name="sss_one_more_share_needed">残り1シェアが必要です。</string>
+  <string name="sss_unrecognized_share_warning">シェア内容が確認できませんでした</string>
+  <string name="sss_more_shares_needed">残り %1$s シェアが必要です。</string>
+  <string name="sss_share_number_scanned">シェアの %1$s 番をスキャンしました。</string>
+  <string name="lt_delete_account">トレーダーのアカウントを削除します。</string>
+  <string name="lt_delete_trade_history">この取引を削除します。</string>
+  <string name="lt_confirm_delete_history">この取引の情報を端末から削除しますか。</string>
+  <string name="lt_confirm_delete_trader_message">あなたのローカルトレーダーのアカウントを削除しますか。すべての取引情報および評価は完全に削除されるので、回復することはできません。</string>
+  <string name="rescan_account_menu_item">アカウントの再スキャンします。</string>
 </resources>

@@ -113,7 +113,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="edit">Bearbeiten</string>
   <string name="delete">Löschen</string>
   <string name="payment_request">Zahlungsaufforderung</string>
-  <string name="export_single_private_key_warning">Sie exportieren nun den privaten Schlüssel, der alle Bitcoins dieser Adresse kontrolliert.\n\nJeder der Zugriff auf diesen Schlüssel hat, kann die Bitcoins unter dessen Kontrolle versenden.\n\nWollen Sie fortfahren?</string>
   <string name="backup_all_warning">Sie sollten das Master Seed Ihrer Wallet sichern. \nMit dem Backup des Master Seeds können Sie Ihre Bitcoins wiederherstellen, sollte Ihr Gerät verloren gehen oder beschädigt werden.\n\nMöchten Sie dies jetzt tun?</string>
   <string name="backup_legacy_warning">Sie erstellen das Backup für die Konten mit einer einzelnen Adresse in Ihrer Wallet.\nDieses Backup ist ohne Ihre Master Seed, keines Ihrer HD Konten kann so wiederhergestellt werden!\n\nMöchten Sie fortfahren?</string>
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
@@ -132,10 +131,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cold_storage_desc">Sie geben nun von einem privaten Schlüssel aus einem Offline-Wallet Bitcoins aus.Das kann ein Ausdruck des privaten Schlüssels auf Papier oder der Beleg eines Bitcoin-Bankomat sein.Mehrere Formate werden unterstützt.\n\nSobald die Transaktion gesendet wurde, wird der private Schlüssel aus dem Speicher gelöscht.</string>
   <string name="keep_account_address">Nur den privaten Schlüssel löschen und dieses Konto weiterhin beobachten</string>
   <string name="manual_entry">Manuell eingeben</string>
-  <string name="active_name">Aktiv</string>
-  <string name="active_name_empty">Aktiv (leer)</string>
   <string name="archive_name">Archiviert</string>
-  <string name="archive_name_empty">Archiv (leer)</string>
   <string name="activate_action">Aktivieren</string>
   <string name="archive_action">Archivieren</string>
   <string name="question_archive_account">Archivierte Konten werden nicht überwacht. Sie können weder Guthaben noch Ihre Empfangsadresse nicht sehen und nicht mit diesem Konto arbeiten.\r\n\r\nArchivierte Konten können jederzeit wieder aktiviert werden.\r\n\r\nMöchten Sie dieses Konto archivieren ?</string>
@@ -549,6 +545,16 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="pin_forgotten_reset_wait_button_text">%s warten</string>
   <string name="pin_forgotten_abort_pin_reset">Der PIN-Rücksetz Vorgang ist aktiviert. Es dauert noch zirka %1$s bis der PIN entfernt wird.\n\nWollen Sie diesen Vorgang abbrechen?</string>
   <string name="pin_reset_in_progress_alert">PIN-Schutz wird entfernt</string>
+  <string name="error_invalid_sss_share">Der Teil, den Sie gescannt haben, ist in einem ungültigen Format.</string>
+  <string name="importing_secret_shares_title">Die Teile werden zusammengefügt</string>
+  <string name="sss_incompatible_shares_warning">Die Teile, die Sie importiert haben, sind nicht kompatibel.</string>
+  <string name="sss_one_more_share_needed">Sie benötigen einen weiteren Teil</string>
+  <string name="sss_unrecognized_share_warning">Der Inhalt dieses Teils wurde nicht erkannt</string>
+  <string name="sss_more_shares_needed">Sie benötigen %1$s mehr Teile.</string>
+  <string name="sss_share_number_scanned">Sie haben Teil Nummer %1$s gescannt.</string>
   <string name="lt_delete_account">Händler Identität löschen</string>
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
+  <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
+  <string name="lt_confirm_delete_trader_message">Wollen Sie Ihre Local Trader-Identität löschen? Alle Handelsinformationen und Bewertungen werden dauerhaft entfernt und können nicht wiederhergestellt werden.</string>
+  <string name="rescan_account_menu_item">Das Konto erneut einlesen</string>
 </resources>

@@ -86,7 +86,7 @@ public class AboutActivity extends Activity {
          @Override
          public void onClick(View view) {
             ChangeLog cl = new DarkThemeChangeLog(AboutActivity.this);
-            cl.getLogDialog().show();
+            cl.getFullLogDialog().show();
          }
       });
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release version="2.2.0" versioncode="22000">
+        <change>Show "Rescan Account" menu in transaction-history</change>
         <change>Accounts-tab: Split list into "HD" and "Other"</change>
         <change>Fiat-values in transaction-history</change>
         <change>Create new single-key accounts (advanced option)</change>

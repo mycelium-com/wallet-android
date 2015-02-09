@@ -58,7 +58,7 @@
     <string name="private_key">Private Key</string>
     <string name="your_bitcoin_address">Your Bitcoin address:</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
-    <string name="approximate_fiat_value">~%1$s %2$s</string>
+    <string name="approximate_fiat_value">%2$s %1$s</string>
     <string name="no_server_connection">No Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
@@ -117,7 +117,7 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="payment_request">Payment Request</string>
-    <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to this keys can either take possession of the bitcoin it controls or gain information that might subvert you privacy.\n\nDo you want to continue?</string>
+    <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to this keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
     <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds if your device is lost or damaged.\n\nDo you want to do this now?</string>
     <string name="backup_legacy_warning">You will back up the single address accounts in your wallet. \nThis backup will not contain your master seed, none of your HD accounts can be restored from it!\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
@@ -595,9 +595,9 @@
     <string name="show_private_data">private</string>
     <string name="show_public_data">public</string>
     <string name="export_warning_pubkey">Warning: whoever knows this code knows all your transactions and balance for this account, but won\'t be able to spend bitcoin with it</string>
-    <string name="export_warning_privkey">Warning: whoever knows this code can spend all you current and future bitcoin from this account</string>
+    <string name="export_warning_privkey">Warning: whoever knows this code can spend all your current and future bitcoin from this account</string>
     <string name="reset_pin_button">Reset Pin</string>
-    <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset the it.</string>
+    <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset it.</string>
     <string name="pref_no_fiat_selected">No fiat currency selected</string>
     <string name="useTor">Use tor-network</string>
     <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.\nNo external are Apps needed.</string>
@@ -607,11 +607,11 @@
     <string name="useTorBoth">Use tor-Network (both)</string>
     <string name="last_log_entries">Last log entries</string>
     <string name="use_https">Use https</string>
-    <string name="use_internal_tor">Use internal tor</string>
     <string name="use_external_tor">Use external tor (Orbot)</string>
     <string name="both">Both</string>
     <string name="button_changelog">Changelog</string>
     <string name="hint_type_to_filter">start typing to filter list</string>
     <string name="info_add_account_keep_backup_secure">Info: All accounts are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your accounts with it.</string>
     <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your accounts are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
+    <string name="transaction_to_address_prefix">To: %s</string>
 </resources>

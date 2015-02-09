@@ -59,6 +59,7 @@ import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 
 //todo HD for the future: keep receiving slots for 20 addresses. assign a name
@@ -249,7 +250,7 @@ public class ReceiveCoinsActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         GetReceivingAmountActivity.callMe(ReceiveCoinsActivity.this, _amount, GET_AMOUNT_RESULT_CODE);
+         GetAmountActivity.callMe(ReceiveCoinsActivity.this, _amount, GET_AMOUNT_RESULT_CODE);
       }
    };
 

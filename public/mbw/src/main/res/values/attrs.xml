@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ToggleableCurrencyDisplay">
+        <attr name="fiatOnly" format="boolean"/>
+        <attr name="hideOnNoExchangeRate" format="boolean"/>
+        <attr name="textSize" format="dimension"/>
+        <attr name="textColor" format="color"/>
+    </declare-styleable>
+</resources>

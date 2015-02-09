@@ -151,17 +151,17 @@ public class GenericMetadataStorage {
 
    protected Map<String, String> getKeysAndValuesByCategory(final String category){
       Cursor cursor = null;
-      Map<String, String> entries = new HashMap<String, String>();
       try {
+         Map<String, String> entries = new HashMap<String, String>();
          cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key", "value"}, " category = ?", new String[]{category}, null, null, null, null);
          while (cursor.moveToNext()) {
             entries.put(cursor.getString(0), cursor.getString(1));
          }
+         return entries;
       } finally {
          if (cursor != null) {
             cursor.close();
          }
-         return entries;
       }
    }
 
@@ -176,11 +176,11 @@ public class GenericMetadataStorage {
          if (cursor.moveToNext()) {
             return Optional.of(cursor.getString(0));
          }
+         return Optional.absent();
       } finally {
          if (cursor != null) {
             cursor.close();
          }
-         return Optional.absent();
       }
    }
 

@@ -111,7 +111,6 @@
   <string name="edit">Edytuj</string>
   <string name="delete">Usuń</string>
   <string name="payment_request">Zarządzaj płatnościami</string>
-  <string name="export_single_private_key_warning">Zamierzasz wyeksportować klucz prywatny, który kontroluje wszystkie Bitcoiny z wybranych adresów.\n\n Ktokolwiek uzyska dostęp do tego klucza może przejąć twoje środki.\n\n Czy chcesz kontynuować?</string>
   <string name="backup_all_warning">Powinieneś zrobić kopie zapasową swojego Master Seed.\nKopia zapasowa pozwoli ci odzyskać swoje środki jeśli urządzenie ulegnie zgubieniu lub zniszczeniu.\n\nChcesz to zrobić teraz?</string>
   <string name="backup_legacy_warning">Zaraz wykonasz kopię zapasową pojedynczego adresu w swoim portfelu.\nTa kopia nie obejmuje Twojego Master Seed, żadne z Twoich kont HD nie będzie przywrócone!\n\nChcesz kontyuować?</string>
   <string name="export_to_clipboard_warning">UWAGA: Eksportowanie klucza prywatnego do schowka może zostać przechwycone przez inne aplikacje na Twoim urządzeniu.\n\nNote: Skopiowanie do schowka nie wystarcza, musisz jeszcze wkleić zawartość w bezpieczne miejsce.\n\n Czy chcesz kontynuować?</string>
@@ -130,10 +129,7 @@
   <string name="cold_storage_desc">Zamierzasz wydać BTC używając klucza prywatnego do portfela offline. Może to być klucz prywatny z papierowej kopii zapasowej lub rachunek z bankomatu BTC\n\n Po wykonaniu transakcji wszelkie dane klucza zostaną usunięte z pamięci.</string>
   <string name="keep_account_address">Skasuj klucz prywatny i pozostaw konto tylko do odczytu</string>
   <string name="manual_entry">Ręczny wpis</string>
-  <string name="active_name">Aktywny</string>
-  <string name="active_name_empty">Aktywny (pusty)</string>
   <string name="archive_name">Zarchiwizowane</string>
-  <string name="archive_name_empty">Zarchiwizowane (puste)</string>
   <string name="activate_action">Aktywuj</string>
   <string name="archive_action">Archiwizacja</string>
   <string name="archived">Zarchiwizowane</string>

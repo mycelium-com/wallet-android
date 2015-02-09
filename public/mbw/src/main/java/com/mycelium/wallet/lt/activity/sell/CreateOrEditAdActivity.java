@@ -378,7 +378,7 @@ public class CreateOrEditAdActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         _currency = _mbwManager.getNextCurrency(_currency, false);
+         _currency = _mbwManager.getNextCurrency(false);
          fetchNewPrice();
          updateUi();
       }

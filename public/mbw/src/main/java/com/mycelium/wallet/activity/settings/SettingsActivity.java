@@ -60,7 +60,6 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
@@ -241,12 +240,12 @@ public class SettingsActivity extends PreferenceActivity {
       // Exchange Source
       _exchangeSource = (ListPreference) findPreference("exchange_source");
       ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
-      CharSequence[] exchangeNames = exchangeManager.getExchangeRateNames().toArray(new String[]{});
+      CharSequence[] exchangeNames = exchangeManager.getExchangeSourceNames().toArray(new String[]{});
       _exchangeSource.setEntries(exchangeNames);
       if (exchangeNames.length == 0) {
          _exchangeSource.setEnabled(false);
       } else {
-         String currentName = exchangeManager.getCurrentRateName();
+         String currentName = exchangeManager.getCurrentExchangeSourceName();
          if (currentName == null) {
             currentName = "";
          }
@@ -260,7 +259,7 @@ public class SettingsActivity extends PreferenceActivity {
 
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            _mbwManager.getExchangeRateManager().setCurrentRateName(newValue.toString());
+            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(newValue.toString());
             _exchangeSource.setTitle(exchangeSourceTitle());
             return true;
          }
@@ -326,14 +325,12 @@ public class SettingsActivity extends PreferenceActivity {
 
       useTor.setEntries(new String[]{
             getString(R.string.use_https),
-            getString(R.string.use_internal_tor),
             getString(R.string.use_external_tor),
 //            getString(R.string.both),
       });
 
       useTor.setEntryValues(new String[]{
             ServerEndpointType.Types.ONLY_HTTPS.toString(),
-            ServerEndpointType.Types.ONLY_TOR_INTERNAL.toString(),
             ServerEndpointType.Types.ONLY_TOR_EXTERNAL.toString(),
       //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
       });
@@ -449,8 +446,6 @@ public class SettingsActivity extends PreferenceActivity {
    private String getUseTorTitle() {
       if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_HTTPS) {
          return getResources().getString(R.string.useTorOnlyHttps);
-      } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR_INTERNAL) {
-         return getResources().getString(R.string.useTorOnlyInternalTor);
       } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR_EXTERNAL) {
          return getResources().getString(R.string.useTorOnlyExternalTor);
       } else {
@@ -473,7 +468,7 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private String exchangeSourceTitle() {
-      String name = _mbwManager.getExchangeRateManager().getCurrentRateName();
+      String name = _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName();
       if (name == null) {
          name = "";
       }
