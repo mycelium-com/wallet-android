@@ -52,16 +52,17 @@ import com.squareup.otto.Subscribe;
 
 
 public class ToggleableCurrencyDisplay extends LinearLayout {
-   private Bus eventBus = null;
-   private CurrencySwitcher currencySwitcher;
+   protected Bus eventBus = null;
+   protected CurrencySwitcher currencySwitcher;
 
-   private TextView tvCurrency;
-   private TextView tvValue;
-   private LinearLayout llContainer;
+   protected TextView tvCurrency;
+   protected TextView tvValue;
+   protected LinearLayout llContainer;
 
-   private long satoshis;
-   private boolean fiatOnly = false;
-   private boolean hideOnNoExchangeRate = false;
+   protected long satoshis;
+   protected boolean fiatOnly = false;
+   protected boolean hideOnNoExchangeRate = false;
+   private int precision = -1;
 
    public ToggleableCurrencyDisplay(Context context, AttributeSet attrs) {
       super(context, attrs);
@@ -82,7 +83,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    void parseXML(Context context, AttributeSet attrs){
       TypedArray a = context.obtainStyledAttributes(attrs,
-            R.styleable.ToggleableCurrencyDisplay);
+            R.styleable.ToggleableCurrencyButton);
 
       final int N = a.getIndexCount();
       for (int i = 0; i < N; ++i)
@@ -90,24 +91,26 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          int attr = a.getIndex(i);
          switch (attr)
          {
-            case R.styleable.ToggleableCurrencyDisplay_fiatOnly:
+            case R.styleable.ToggleableCurrencyButton_fiatOnly:
                fiatOnly = a.getBoolean(attr, false);
                break;
-            case R.styleable.ToggleableCurrencyDisplay_textSize:
+            case R.styleable.ToggleableCurrencyButton_textSize:
                setTextSize(a.getDimensionPixelSize(attr, 12));
                break;
-            case R.styleable.ToggleableCurrencyDisplay_textColor:
+            case R.styleable.ToggleableCurrencyButton_textColor:
                setTextColor(a.getColor(attr, R.color.lightgrey));
                break;
-            case R.styleable.ToggleableCurrencyDisplay_hideOnNoExchangeRate:
+            case R.styleable.ToggleableCurrencyButton_hideOnNoExchangeRate:
                hideOnNoExchangeRate = a.getBoolean(attr, false);
+            case R.styleable.ToggleableCurrencyButton_precision:
+               precision = a.getInteger(attr, -1);
          }
       }
       a.recycle();
 
    }
 
-   void init(Context context){
+   protected void init(Context context){
       LayoutInflater mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
       View view;
@@ -116,13 +119,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       tvCurrency = (TextView) view.findViewById(R.id.tvCurrency);
       tvValue = (TextView) view.findViewById(R.id.tvValue);
       llContainer = (LinearLayout) view.findViewById(R.id.llContainer);
-
-      llContainer.setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            switchToNextCurrency();
-         }
-      });
    }
 
    private void setTextSize(int size){
@@ -135,42 +131,45 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       tvValue.setTextColor(color);
    }
 
-   private void updateUi(){
+   protected void updateUi(){
       Preconditions.checkNotNull(currencySwitcher);
-
-      int cntCurrencies = (fiatOnly ? currencySwitcher.getFiatCurrenciesCount() : currencySwitcher.getCurrenciesCount() );
-      if (cntCurrencies == 1){
-         // there is only one currency to show - dont show a triangle hinting that the user can toggle
-         findViewById(R.id.ivSwitchable).setVisibility(INVISIBLE);
-      } else {
-         // there are more than one fiat-currency
-         findViewById(R.id.ivSwitchable).setVisibility(VISIBLE);
-      }
 
       if (fiatOnly) {
          showFiat();
       } else {
-         if (!currencySwitcher.hasFiatCurrencyExchangeRate()) {
+         // Switch to BTC if no fiat fx rate is available
+         if (!currencySwitcher.isFiatExchangeRateAvailable()) {
             currencySwitcher.setCurrency(CurrencySwitcher.BTC);
          }
 
-         if (currencySwitcher.getCurrentCurrency().equals(CurrencySwitcher.BTC)){
-            llContainer.setVisibility(VISIBLE);
-            tvValue.setText(currencySwitcher.getBtcValueString(satoshis, false));
-            tvCurrency.setText(currencySwitcher.getBitcoinDenomination().getUnicodeName());
+         llContainer.setVisibility(VISIBLE);
+         String formattedValue;
+         if (precision>=0){
+            formattedValue = currencySwitcher.getFormattedValue(satoshis, false, precision);
          }else {
-            showFiat();
+            formattedValue = currencySwitcher.getFormattedValue(satoshis, false);
          }
+
+         tvValue.setText(formattedValue);
+         tvCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
       }
    }
 
    private void showFiat() {
       if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()){
+         // hide everything
          llContainer.setVisibility(GONE);
       } else {
          llContainer.setVisibility(VISIBLE);
          tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
-         tvValue.setText(currencySwitcher.getFormattedFiatValue(satoshis, false));
+         String formattedFiatValue;
+         if (precision >= 0){
+            formattedFiatValue = currencySwitcher.getFormattedFiatValue(satoshis, false, precision);
+         } else {
+            formattedFiatValue = currencySwitcher.getFormattedFiatValue(satoshis, false);
+         }
+
+         tvValue.setText(formattedFiatValue);
       }
    }
 
@@ -189,16 +188,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    public void setValue(long satoshis){
       this.satoshis = satoshis;
       updateUi();
-   }
-
-   public void switchToNextCurrency(){
-      String nextCurrency = Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
-      if (eventBus != null){
-         // update UI via event bus, also inform other parts of the app about the change
-         eventBus.post(new SelectedCurrencyChanged());
-      } else {
-         updateUi();
-      }
    }
 
    @Subscribe

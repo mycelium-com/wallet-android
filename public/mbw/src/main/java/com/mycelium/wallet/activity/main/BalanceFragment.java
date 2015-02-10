@@ -49,7 +49,7 @@ import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
+import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -61,7 +61,7 @@ public class BalanceFragment extends Fragment {
    private View _root;
    private Double _exchangeRatePrice;
    private Toaster _toaster;
-   private ToggleableCurrencyDisplay _tcdFiatDisplay;
+   private ToggleableCurrencyButton _tcdFiatDisplay;
 
 
    @Override
@@ -102,7 +102,7 @@ public class BalanceFragment extends Fragment {
       _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
       _root.findViewById(R.id.btScan).setOnClickListener(scanClickListener);
 
-      _tcdFiatDisplay = (ToggleableCurrencyDisplay) _root.findViewById(R.id.tcdFiatDisplay);
+      _tcdFiatDisplay = (ToggleableCurrencyButton) _root.findViewById(R.id.tcdFiatDisplay);
       _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
       _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
 

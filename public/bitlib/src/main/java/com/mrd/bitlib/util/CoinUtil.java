@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.HashMap;
 
 /**
  * Utility for turning an amount of satoshis into a user friendly string. 1
@@ -147,6 +148,35 @@ public class CoinUtil {
       } else {
          return COIN_FORMAT.format(d);
       }
+   }
+
+   /**
+    * Get the given value in satoshis as a string on the form "10.12345" using
+    * the specified denomination.
+    * <p>
+    * This method only returns necessary decimal points to tell the exact value.
+    * If you wish to display all digits use
+    * {@link CoinUtil#fullValueString(long, Denomination)}
+    *
+    * @param value
+    *           The number of satoshis
+    * @param denomination
+    *           The denomination to use
+    * @param precision
+    *           max number of digits after the comma
+    * @return The given value in satoshis as a string on the form "10.12345".
+    */
+   private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+   public static String valueString(long value, Denomination denomination, int precision) {
+      BigDecimal d = BigDecimal.valueOf(value);
+      d = d.divide(denomination.getOneUnitInSatoshis());
+
+      if (!formatCache.containsKey(precision)){
+         DecimalFormat coinFormat = (DecimalFormat) COIN_FORMAT.clone();
+         coinFormat.setMaximumFractionDigits(precision);
+         formatCache.put(precision, coinFormat);
+      }
+      return formatCache.get(precision).format(d);
    }
 
    /**

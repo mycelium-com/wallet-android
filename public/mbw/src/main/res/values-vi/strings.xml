@@ -202,7 +202,6 @@
   <string name="lt_edit_button">Sửa</string>
   <string name="lt_localization_not_available">Tính năng này yêu cầu thiết bị của bạn có khả cho biết vị trí hiện tại. Có vẻ như thiết bị của bạn hiện tại không làm điều đó. Hãy bật dịch vụ định vị trong phần cài đặt thiết bị của bạn.</string>
   <string name="lt_create_account_title">Tạo tài khoản giao dịch</string>
-  <string name="lt_use_button">Sử dụng</string>
   <string name="lt_create_account_name_desc">Nhập tên nick của bạn:</string>
   <string name="lt_create_account_name_hint">Tên</string>
   <string name="lt_error_account_name_taken">Tên mà bạn chọn đã được dùng. Hãy chọn tên khác</string>

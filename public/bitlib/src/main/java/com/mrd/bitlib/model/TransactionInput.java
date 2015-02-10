@@ -32,11 +32,19 @@ public class TransactionInput implements Serializable {
       private static final long serialVersionUID = 1L;
 
       public TransactionInputParsingException(byte[] script) {
-         super("Unable to parse transaction input: " + HexUtils.toHex(script));
+         this(script, null);
+      }
+
+      public TransactionInputParsingException(byte[] script, Exception e) {
+         super("Unable to parse transaction input: " + HexUtils.toHex(script), e);
       }
 
       public TransactionInputParsingException(String message) {
-         super(message);
+         this(message, null);
+      }
+
+      public TransactionInputParsingException(String message, Exception e) {
+         super(message, e );
       }
    }
 
@@ -63,7 +71,7 @@ public class TransactionInput implements Serializable {
             try {
                inscript = ScriptInput.fromScriptBytes(script);
             } catch (ScriptParsingException e) {
-               throw new TransactionInputParsingException(e.getMessage());
+               throw new TransactionInputParsingException(e.getMessage(), e);
             }
          }
          return new TransactionInput(outPoint, inscript, sequence);

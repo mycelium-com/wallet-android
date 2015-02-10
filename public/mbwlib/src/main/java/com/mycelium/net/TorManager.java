@@ -26,12 +26,11 @@ public abstract class TorManager {
    }
 
    protected void setInitState(String msg, int initState){
-      lastInitState = initState;
-      if (stateListener != null) {
+   if (stateListener != null && lastInitState != initState) {
          // post fake percentage to show progress
          stateListener.onStateChange(msg, initState);
       }
-
+      lastInitState = initState;
    }
 
    public abstract void stopClient();

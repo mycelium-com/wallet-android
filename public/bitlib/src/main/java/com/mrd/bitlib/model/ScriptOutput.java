@@ -33,8 +33,8 @@ public abstract class ScriptOutput extends Script {
          return new ScriptOutputStandard(chunks, scriptBytes);
       } else if (ScriptOutputPubkey.isScriptOutputPubkey(chunks)) {
          return new ScriptOutputPubkey(chunks, scriptBytes);
-      } else if (ScriptOutputMultisig.isScriptOutputMultisig(chunks)) {
-         return new ScriptOutputMultisig(chunks, scriptBytes);
+      } else if (ScriptOutputP2SH.isScriptOutputP2SH(chunks)) {
+         return new ScriptOutputP2SH(chunks, scriptBytes);
       } else if (ScriptOutputMsg.isScriptOutputMsg(chunks)) {
          return new ScriptOutputMsg(chunks, scriptBytes);
       } else {

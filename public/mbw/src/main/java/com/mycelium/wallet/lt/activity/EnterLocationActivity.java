@@ -167,7 +167,11 @@ public class EnterLocationActivity extends Activity {
 
       @Override
       public AddressDescription getItem(int index) {
-         return new AddressDescription(resultList.get(index));
+         if (index < resultList.size() ) {
+            return new AddressDescription(resultList.get(index));
+         }else{
+            return null;
+         }
       }
 
       @Override

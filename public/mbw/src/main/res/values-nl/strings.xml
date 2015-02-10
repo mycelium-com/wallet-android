@@ -247,7 +247,6 @@
   <string name="lt_localization_not_available">Voor deze functie moet uw toestel uw huidige locatie weten. Het lijkt erop dat uw toestel dit momenteel niet doet. Probeer bij instellingen Locatie Services in te schakelen.</string>
   <string name="lt_create_account_title">Trader account aanmaken</string>
   <string name="lt_create_account_address_desc">U gebruikt lokale handelaar voor de eerste keer en dient een paar gegevens in te voeren.\n\nKies het account dat u wenst te gebruiken als uw lokale handelaar identiteit:</string>
-  <string name="lt_use_button">Selecteer</string>
   <string name="lt_create_account_name_desc">Kies een Local Trader alias:</string>
   <string name="lt_create_account_name_hint">naam</string>
   <string name="lt_error_account_name_taken">De door u gekozen naam is reeds in  gebruik. Kies een andere naam</string>

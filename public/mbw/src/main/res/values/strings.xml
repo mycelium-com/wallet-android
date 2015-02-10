@@ -20,7 +20,6 @@
     <string name="enter_wordlist">Enter Word List</string>
     <string name="hd_account">Add HD Account</string>
     <string name="close">Close</string>
-    <string name="btc_value_string">%1$s %2$s</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
     <string name="an_icon">an icon</string>
@@ -270,7 +269,7 @@
     <string name="lt_localization_not_available">This feature requires your device to be able to tell its current location. It seems that your device cannot do that. Try enabling location services in your device settings.</string>
     <string name="lt_create_account_title">Creating Trader Account</string>
     <string name="lt_create_account_address_desc">You are using Local Trader for the first time and need to enter a few details.\n\nChoose the account you wish to use for your Local Trader identity:</string>
-    <string name="lt_use_button">Use</string>
+    <string name="use_button">Use</string>
     <string name="lt_create_account_name_desc">Enter your trader nick name:</string>
     <string name="lt_create_account_name_hint">name</string>
     <string name="lt_error_account_name_taken">The name you chose is already taken. Please choose another name</string>
@@ -582,13 +581,12 @@
     <string name="lt_delete_trade_history">Delete This Trade</string>
     <string name="lt_confirm_delete_history">Do you want to delete the information for this trade from your phone?</string>
     <string name="lt_confirm_delete_trader_message">Do you want to delete your local trader identity? All trade information and ratings will be permanently removed and can not be recovered.</string>
-    <string name="rescan_account_menu_item">Rescan Account</string>
+    <string name="rescan_account_menu_item">Reload Account</string>
     <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to make a separate legacy-backup for them.</string>
     <string name="new_random_key_desc">Generate new random key</string>
     <string name="generate_new_key">Generate</string>
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
     <string name="shuffle">Shuffle</string>
-    <string name="use">Use</string>
     <string name="toast_warning_low_fee">might take longer to confirm</string>
     <string name="select_local_currencies">Select your currencies</string>
     <string name="show_public_or_private_data">Show</string>
@@ -600,7 +598,7 @@
     <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset it.</string>
     <string name="pref_no_fiat_selected">No fiat currency selected</string>
     <string name="useTor">Use tor-network</string>
-    <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.\nNo external are Apps needed.</string>
+    <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.\nNo external Apps are needed.</string>
     <string name="useTorOnlyInternalTor">Use tor-Network (internal tor)</string>
     <string name="useTorOnlyExternalTor">Use tor-Network (external tor)</string>
     <string name="useTorOnlyHttps">Use tor-Network (only https)</string>
@@ -614,4 +612,14 @@
     <string name="info_add_account_keep_backup_secure">Info: All accounts are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your accounts with it.</string>
     <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your accounts are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
     <string name="transaction_to_address_prefix">To: %s</string>
+    <string name="tor_state_init">Tor init</string>
+
+    <!-- from libNetCipher -->
+    <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
+    <string name="install_orbot_">Install Orbot?</string>
+    <string name="you_must_have_orbot">You must have Orbot installed and activated to proxy traffic through it. Would you like to install it from Google Play?</string>
+    <string name="start_orbot_">Start Orbot?</string>
+    <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot doesn\'t appear to be running. Would you like to start it up and connect to Tor?</string>
+
+
 </resources>

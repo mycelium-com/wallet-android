@@ -60,7 +60,7 @@ public class Transaction implements Serializable {
                inputs[i] = TransactionInput.fromByteReader(reader);
             } catch (TransactionInputParsingException e) {
                throw new TransactionParsingException("Unable to parse tranaction input at index " + i + ": "
-                     + e.getMessage());
+                     + e.getMessage(), e);
             }
          }
          int numOutputs = (int) reader.getCompactInt();

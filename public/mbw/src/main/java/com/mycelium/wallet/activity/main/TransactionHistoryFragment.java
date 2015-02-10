@@ -80,6 +80,15 @@ public class TransactionHistoryFragment extends Fragment {
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
+
+      _root.findViewById(R.id.btRescan).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            _mbwManager.getSelectedAccount().dropCachedData();
+            _mbwManager.getWalletManager(false).startSynchronization();
+         }
+      });
+
       return _root;
    }
 
@@ -94,9 +103,11 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Override
    public void onAttach(Activity activity) {
+      super.onAttach(activity);
       _mbwManager = MbwManager.getInstance(activity);
       _storage = _mbwManager.getMetadataStorage();
-      super.onAttach(activity);
+
+
    }
 
    @Override
@@ -160,10 +171,10 @@ public class TransactionHistoryFragment extends Fragment {
       }
       List<TransactionSummary> history = account.getTransactionHistory(0, 20);
       if (history.isEmpty()) {
-         _root.findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
+         _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
       } else {
-         _root.findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
+         _root.findViewById(R.id.llNoRecords).setVisibility(View.GONE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
          Wrapper wrapper = new Wrapper(getActivity(), history);
          ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);

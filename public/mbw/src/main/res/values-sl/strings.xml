@@ -252,7 +252,6 @@
   <string name="lt_localization_not_available">Za delovanje te funkcije mora vaša naprava znati zaznati svojo lokacijo. Kaže, da to trenutno ni mogoče. Poskusite omogočiti lokacijske storitve v nastavitvah naprave.</string>
   <string name="lt_create_account_title">Ustvarjam račun za trgovca</string>
   <string name="lt_create_account_address_desc">Ker prvič uporabljate Krajevno trgovanje, morate vnesti nekaj podrobnosti.\n\nIzberite račun, ki ga želite uporabljati za svojo istovetnost v krajevnem trgovanju:</string>
-  <string name="lt_use_button">Uporabi</string>
   <string name="lt_create_account_name_desc">Vnesite svoj vzdevek trgovca:</string>
   <string name="lt_create_account_name_hint">ime</string>
   <string name="lt_error_account_name_taken">Ime, ki ste ga izbrali, je že zasedeno. Prosimo, izberite drugo ime.</string>

@@ -334,6 +334,22 @@ public class Utils {
       return FIAT_FORMAT.format(converted);
    }
 
+   private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+   public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
+
+      Double converted = getFiatValue(satoshis, oneBtcInFiat);
+      if (converted == null) {
+         return null;
+      }
+
+      if (!formatCache.containsKey(precision)){
+         DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
+         fiatFormat.setMaximumIntegerDigits(precision);
+         formatCache.put(precision, fiatFormat);
+      }
+      return formatCache.get(precision).format(converted);
+   }
+
    private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100L);
    private static final BigDecimal BTC_IN_SATOSHIS = BigDecimal.valueOf(Constants.ONE_BTC_IN_SATOSHIS);
 

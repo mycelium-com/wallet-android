@@ -19,16 +19,29 @@
              android:minWidth="@dimen/abc_action_bar_default_height"
              android:minHeight="@dimen/abc_action_bar_default_height"
              android:maxHeight="@dimen/abc_action_bar_default_height"
-             android:maxWidth="@dimen/abc_action_bar_default_height"
-    >
-  <ProgressBar android:minWidth="@dimen/abc_action_bar_title_text_size"
-               android:minHeight="@dimen/abc_action_bar_title_text_size"
-               android:maxHeight="@dimen/abc_action_bar_title_text_size"
-               android:maxWidth="@dimen/abc_action_bar_title_text_size"
+             android:maxWidth="@dimen/abc_action_bar_default_height">
 
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_gravity="center"
-               style="?indeterminateProgressStyle"/>
+    <RelativeLayout
+        android:layout_width="@dimen/abc_action_bar_default_height"
+        android:layout_height="@dimen/abc_action_bar_default_height">
 
+        <ImageView
+            android:id="@+id/ivTorIcon"
+            android:layout_width="@dimen/abc_action_bar_progress_bar_size"
+            android:layout_height="@dimen/abc_action_bar_progress_bar_size"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/tor"/>
+
+        <ProgressBar
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:padding="4dp"
+            android:layout_width="@dimen/abc_action_bar_progress_bar_size"
+            android:layout_height="@dimen/abc_action_bar_progress_bar_size"
+            android:layout_gravity="center"
+
+            style="?indeterminateProgressStyle"/>
+
+    </RelativeLayout>
 </FrameLayout>

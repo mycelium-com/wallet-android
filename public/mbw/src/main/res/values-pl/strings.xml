@@ -219,7 +219,6 @@
   <string name="lt_edit_button">Edytuj</string>
   <string name="lt_localization_not_available">Ta opcja wymaga podania twojej lokalizacji. Włącz udostępnianie lokalizacji w ustawieniach urządzenia, gdyż ta opcja jest obecnie wyłączona.</string>
   <string name="lt_create_account_title">Tworzenie Konta Handlowca</string>
-  <string name="lt_use_button">Użyj</string>
   <string name="lt_create_account_name_desc">Wpisz swój pseudonim handlowca:</string>
   <string name="lt_create_account_name_hint">Nazwa</string>
   <string name="lt_error_account_name_taken">Wybrana nazwa jest już zajęta. Proszę wybrać inną nazwę</string>

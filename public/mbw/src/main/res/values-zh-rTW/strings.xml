@@ -252,7 +252,6 @@
   <string name="lt_localization_not_available">此功能需要您的設備允許告知當前位置。看來您的設備無法做到這一點。請嘗試在您的設備設置中啟用定位服務。</string>
   <string name="lt_create_account_title">創建交易帳戶</string>
   <string name="lt_create_account_address_desc">您第一次使用本地交易，需要輸入幾個信息.\n\n請選擇一個帳戶來創建您的本地交易身份：</string>
-  <string name="lt_use_button">使用</string>
   <string name="lt_create_account_name_desc">輸入您交易員暱稱：</string>
   <string name="lt_create_account_name_hint">名稱</string>
   <string name="lt_error_account_name_taken">您選擇的暱稱已被使用。請選擇另一個暱稱</string>

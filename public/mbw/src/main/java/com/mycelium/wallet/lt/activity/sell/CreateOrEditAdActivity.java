@@ -455,7 +455,7 @@ public class CreateOrEditAdActivity extends Activity {
    private String getBtcPriceString(int fiatTraded, long satoshis, String currency) {
       double oneBtcPrice = (double) fiatTraded * Constants.ONE_BTC_IN_SATOSHIS / (double) satoshis;
       String price = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, oneBtcPrice);
-      return this.getResources().getString(R.string.btc_value_string, price, currency);
+      return price + " " + currency;
    }
 
    private void fetchNewPrice() {

@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release version="2.2.0" versioncode="22000">
-        <change>Show "Rescan Account" menu in transaction-history</change>
-        <change>Accounts-tab: Split list into "HD" and "Other"</change>
-        <change>Fiat-values in transaction-history</change>
+        <change>Transactions tab: UI-Changes, show confirmations with pie-chart</change>
+        <change>Transactions tab: Add address to address book</change>
+        <change>Transactions tab: Show fiat-values</change>
+        <change>Transactions tab: Show "Reload Account" button, if list is empty</change>
+        <change>Transactions tab: Show "Reload Account" menu in transaction-history</change>
+        <change>Accounts tab: Split list into "HD" and "Other"</change>
+        <change>Accounts tab: Show totals for each account type</change>
+        <change>Accounts tab: Totals in Fiat or Bitcoin</change>
         <change>Create new single-key accounts (advanced option)</change>
         <change>Select miner-fee directly in send-dialog</change>
         <change>Option to show the connection-logs in about-dialog</change>

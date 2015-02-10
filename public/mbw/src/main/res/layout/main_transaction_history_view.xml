@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent" >
 
     <!-- Transaction History -->
 
@@ -12,14 +12,31 @@
         android:divider="@color/darkgrey"
         android:dividerHeight="1dp" />
 
-    <TextView
-        android:id="@+id/tvNoRecords"
+    <LinearLayout
+        android:id="@+id/llNoRecords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="@string/no_transaction_records"
-        android:textSize="20sp"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="10dp"
+            android:gravity="center"
+            android:text="@string/no_transaction_records"
+            android:textSize="20sp"
+            />
+
+        <Button
+            android:id="@+id/btRescan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
+            android:text="@string/rescan_account_menu_item"
+            />
+    </LinearLayout>
 
 </FrameLayout>

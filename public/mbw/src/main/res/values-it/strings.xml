@@ -250,7 +250,6 @@
   <string name="lt_localization_not_available">Questa funzionalità richiede che il tuo dispositivo sia in grado indicare la posizione corrente. Sembra che il tuo dispositivo non possa farlo. Prova ad attivare i servizi di localizzazione dalle impostazioni del tuo dispositivo.</string>
   <string name="lt_create_account_title">Creazione account</string>
   <string name="lt_create_account_address_desc">Stai usando Local Trader per la prima volta, è necessario inserire alcuni dettagli.\n\nScegli l\'account che desideri collegare alla tua identità in Local Trader:</string>
-  <string name="lt_use_button">Usa</string>
   <string name="lt_create_account_name_desc">Inserisci il tuo nickname:</string>
   <string name="lt_create_account_name_hint">nome</string>
   <string name="lt_error_account_name_taken">Il nome che hai scelto è già in uso. Si prega di scegliere un altro nome</string>

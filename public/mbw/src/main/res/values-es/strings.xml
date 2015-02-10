@@ -198,7 +198,6 @@
   <string name="alert_button">Alerta</string>
   <string name="lt_buy_button">Comprar</string>
   <string name="lt_edit_button">Editar</string>
-  <string name="lt_use_button">Usar</string>
   <string name="lt_create_account_name_hint">nombre</string>
   <string name="lt_create_button">Crear</string>
   <string name="lt_buy_bitcoin_tab">Comprar Bitcoin</string>

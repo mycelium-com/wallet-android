@@ -296,7 +296,7 @@ public class MbwManager {
    private void initTor() {
       torHandler = new Handler(Looper.getMainLooper());
 
-      if (_torMode == ServerEndpointType.Types.ONLY_TOR_EXTERNAL){
+      if (_torMode == ServerEndpointType.Types.ONLY_TOR){
          this._torManager = new TorManagerOrbot();
       }else{
          throw new IllegalArgumentException();
@@ -310,7 +310,7 @@ public class MbwManager {
             torHandler.post(new Runnable() {
                @Override
                public void run() {
-                  _eventBus.post(new TorState(percentage));
+                  _eventBus.post(new TorStateChanged(percentage));
                }
             });
          }
@@ -468,7 +468,7 @@ public class MbwManager {
    }
 
    public boolean hasFiatCurrency() {
-      return _currencySwitcher.hasFiatCurrencyExchangeRate();
+      return !getCurrencyList().isEmpty();
    }
 
    private SharedPreferences getPreferences() {

@@ -23,7 +23,7 @@
             android:textSize="24sp" />
 
 
-        <com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay
+        <com.mycelium.wallet.activity.util.ToggleableCurrencyButton
             android:id="@+id/tcdFiatDisplay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

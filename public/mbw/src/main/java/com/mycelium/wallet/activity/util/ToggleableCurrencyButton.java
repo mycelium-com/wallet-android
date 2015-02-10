@@ -32,86 +32,88 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.main;
+package com.mycelium.wallet.activity.util;
 
-import android.app.Activity;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.google.common.base.Preconditions;
-import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.event.TorStateChanged;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-public class BalanceMasterFragment extends Fragment {
-   private  TextView tvTor;
 
-   @Override
-   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      setHasOptionsMenu(true);
-      return Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
+public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
+
+   public ToggleableCurrencyButton(Context context, AttributeSet attrs) {
+      super(context, attrs);
+   }
+
+   public ToggleableCurrencyButton(Context context, AttributeSet attrs, int defStyle) {
+      super(context, attrs, defStyle);
+   }
+
+   public ToggleableCurrencyButton(Context context) {
+      super(context);
    }
 
    @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+   protected void init(Context context){
+      super.init(context);
+
+      llContainer.setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            switchToNextCurrency();
+         }
+      });
    }
 
+
    @Override
-   public void onResume() {
-      Activity activity = getActivity();
-      // Set beta build
-      PackageInfo pInfo;
-      try {
-         pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
-         ((TextView) activity.findViewById(R.id.tvBuildText)).setText(getResources().getString(R.string.build_text,
-               pInfo.versionName));
-      } catch (NameNotFoundException e) {
-         // Ignore
-         //todo insert uncaught error handler
+   protected void updateUi(){
+      super.updateUi();
+
+      int cntCurrencies = (fiatOnly ? currencySwitcher.getFiatCurrenciesCount() : currencySwitcher.getCurrenciesCount() );
+      if (cntCurrencies == 1){
+         // there is only one currency to show - dont show a triangle hinting that the user can toggle
+         findViewById(R.id.ivSwitchable).setVisibility(INVISIBLE);
+      } else {
+         // there are more than one fiat-currency
+         findViewById(R.id.ivSwitchable).setVisibility(VISIBLE);
       }
 
-      MbwManager mbwManager = MbwManager.getInstance(activity);
-      tvTor = (TextView) activity.findViewById(R.id.tvTorState);
-      if (mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbwManager.getTorManager() != null) {
-         tvTor.setVisibility(View.VISIBLE);
-         showTorState(mbwManager.getTorManager().getInitState());
-      }else{
-         tvTor.setVisibility(View.GONE);
-      }
-
-      MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
-      super.onResume();
    }
 
+
+   public void switchToNextCurrency(){
+      String nextCurrency = Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
+      if (eventBus != null){
+         // update UI via event bus, also inform other parts of the app about the change
+         eventBus.post(new SelectedCurrencyChanged());
+      } else {
+         updateUi();
+      }
+   }
+
+
+   @Subscribe
    @Override
-   public void onPause() {
-      MbwManager.getInstance(this.getActivity()).getEventBus().unregister(this);
-      super.onPause();
+   public void onExchangeRateChange(ExchangeRatesRefreshed event){
+      updateUi();
    }
 
    @Subscribe
-   public void onTorState(TorStateChanged torState){
-      showTorState(torState.percentage);
+   @Override
+   public void onSelectedCurrencyChange(SelectedCurrencyChanged event){
+      updateUi();
    }
-
-   private void showTorState(int percentage) {
-      if (percentage==0) {
-         tvTor.setText("");
-      } else if (percentage==100){
-         tvTor.setText("");
-      } else {
-         tvTor.setText(getString(R.string.tor_state_init));
-      }
-   }
-
-
 }

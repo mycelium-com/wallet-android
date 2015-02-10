@@ -87,7 +87,7 @@ public class Address implements Serializable, Comparable<Address> {
       return new Address(bytes);
    }
 
-   public static Address fromMultisigBytes(byte[] bytes, NetworkParameters network) {
+   public static Address fromP2SHBytes(byte[] bytes, NetworkParameters network) {
       if (bytes.length != 20) {
          return null;
       }

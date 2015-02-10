@@ -45,7 +45,6 @@ import java.util.List;
 public class CurrencySwitcher {
    public static final String BTC="BTC";
 
-   private final String btcValueFormatString;
    private final ExchangeRateManager exchangeRateManager;
 
    private Context applicationContext;
@@ -77,8 +76,6 @@ public class CurrencySwitcher {
       }else {
          this.currentFiatCurrency = currentCurrency;
       }
-
-      btcValueFormatString = applicationContext.getResources().getString(R.string.btc_value_string);
    }
 
    public void setCurrency(final String fiatCurrency){
@@ -95,6 +92,17 @@ public class CurrencySwitcher {
    public String getCurrentCurrency(){
       return currentCurrency;
    }
+
+   public String getCurrentCurrencyIncludingDenomination(){
+
+      if (currentCurrency.equals(BTC)){
+         // use denomination only for btc
+         return bitcoinDenomination.getUnicodeName();
+      }else {
+         return currentCurrency;
+      }
+   }
+
 
 
 
@@ -172,14 +180,25 @@ public class CurrencySwitcher {
       CoinUtil.Denomination d = getBitcoinDenomination();
       String valueString = CoinUtil.valueString(satoshis, d, true);
       if (includeUnit) {
-         return String.format(btcValueFormatString, valueString, d.getUnicodeName());
+         return valueString + " " + d.getUnicodeName();
       }else{
          return valueString;
       }
    }
 
+   public String getBtcValueString(long satoshis, boolean includeUnit, int precision) {
+      CoinUtil.Denomination d = getBitcoinDenomination();
+      String valueString = CoinUtil.valueString(satoshis, d, precision);
+      if (includeUnit) {
+         return valueString + " " + d.getUnicodeName();
+      }else{
+         return valueString;
+      }
+   }
+
+
    public boolean isFiatExchangeRateAvailable(){
-      if (currentFiatCurrency == ""){
+      if (Strings.isNullOrEmpty(currentFiatCurrency)){
          // we dont even have a fiat currency...
          return false;
       }
@@ -191,7 +210,7 @@ public class CurrencySwitcher {
 
    public String getFormattedFiatValue(long satoshis, boolean includeCurrencyCode){
 
-      if (currentFiatCurrency == ""){
+      if (Strings.isNullOrEmpty(currentFiatCurrency)){
          return "";
       }
 
@@ -214,16 +233,46 @@ public class CurrencySwitcher {
       }
    }
 
+   public String getFormattedFiatValue(long satoshis, boolean includeCurrencyCode, int precision){
 
-   public boolean hasFiatCurrencyExchangeRate(){
       if (Strings.isNullOrEmpty(currentFiatCurrency)){
-         return false;
+         return "";
       }
 
-      // todo check age,...
-      return exchangeRateManager.getExchangeRate(currentFiatCurrency) != null;
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(getCurrentFiatCurrency());
+      if (rate == null){
+         //todo
+         return "";
+      }else {
+         if (rate.price != null) {
+            String fiatValueAsString = Utils.getFiatValueAsString(satoshis, rate.price, precision);
+            if (includeCurrencyCode) {
+               return fiatValueAsString + " " + currentFiatCurrency;
+            } else {
+               return fiatValueAsString;
+            }
+         } else {
+            // no valid price available
+            return "";
+         }
+      }
    }
 
+   public String getFormattedValue(long satoshis, boolean includeCurrencyCode){
+      if (currentCurrency.equals(BTC)){
+         return getBtcValueString(satoshis, includeCurrencyCode);
+      }else{
+         return getFormattedFiatValue(satoshis, includeCurrencyCode);
+      }
+   }
+
+   public String getFormattedValue(long satoshis, boolean includeCurrencyCode, int precision){
+      if (currentCurrency.equals(BTC)){
+         return getBtcValueString(satoshis, includeCurrencyCode, precision);
+      }else{
+         return getFormattedFiatValue(satoshis, includeCurrencyCode, precision);
+      }
+   }
 
    /**
     * Get the exchange rate price for the currently selected currency.
@@ -235,8 +284,4 @@ public class CurrencySwitcher {
       ExchangeRate rate = exchangeRateManager.getExchangeRate(currentFiatCurrency);
       return rate == null ? null : rate.price;
    }
-
-
-
-
 }

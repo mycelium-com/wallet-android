@@ -62,6 +62,7 @@ import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import java.util.List;
 import java.util.Locale;
@@ -331,7 +332,7 @@ public class SettingsActivity extends PreferenceActivity {
 
       useTor.setEntryValues(new String[]{
             ServerEndpointType.Types.ONLY_HTTPS.toString(),
-            ServerEndpointType.Types.ONLY_TOR_EXTERNAL.toString(),
+            ServerEndpointType.Types.ONLY_TOR.toString(),
       //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
       });
 
@@ -340,6 +341,12 @@ public class SettingsActivity extends PreferenceActivity {
       useTor.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if (newValue.equals(ServerEndpointType.Types.ONLY_TOR.toString())){
+               OrbotHelper obh = new OrbotHelper(SettingsActivity.this);
+               if (!obh.isOrbotInstalled()){
+                  obh.promptToInstall(SettingsActivity.this);
+               }
+            }
             _mbwManager.setTorMode( ServerEndpointType.Types.valueOf( (String) newValue) );
             useTor.setTitle(getUseTorTitle());
             return true;
@@ -353,6 +360,7 @@ public class SettingsActivity extends PreferenceActivity {
    protected void onResume() {
       setupLocalTraderSettings();
       showOrHideLegacyBackup();
+      _localCurrency.setTitle(localCurrencyTitle());
       super.onResume();
    }
 
@@ -446,7 +454,7 @@ public class SettingsActivity extends PreferenceActivity {
    private String getUseTorTitle() {
       if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_HTTPS) {
          return getResources().getString(R.string.useTorOnlyHttps);
-      } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR_EXTERNAL) {
+      } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR) {
          return getResources().getString(R.string.useTorOnlyExternalTor);
       } else {
          return getResources().getString(R.string.useTorBoth);

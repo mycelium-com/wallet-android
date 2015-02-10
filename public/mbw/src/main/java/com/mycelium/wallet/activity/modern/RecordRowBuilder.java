@@ -43,7 +43,7 @@ import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
+import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -167,7 +167,7 @@ public class RecordRowBuilder {
 
    public View buildTotalView(LinearLayout parent, long balanceSum) {
       View rowView = inflater.inflate(R.layout.record_row_total, parent, false);
-      ToggleableCurrencyDisplay tcdBalance = ((ToggleableCurrencyDisplay) rowView.findViewById(R.id.tcdBalance));
+      ToggleableCurrencyButton tcdBalance = ((ToggleableCurrencyButton) rowView.findViewById(R.id.tcdBalance));
       tcdBalance.setEventBus(mbwManager.getEventBus());
       tcdBalance.setCurrencySwitcher(mbwManager.getCurrencySwitcher());
       tcdBalance.setValue(balanceSum);

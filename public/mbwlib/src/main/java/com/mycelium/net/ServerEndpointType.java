@@ -43,20 +43,21 @@ public class ServerEndpointType {
    private ArrayList<Class> allowedEndpoints;
 
    public enum Types{
-      ALL, HTTPS_AND_TOR, ONLY_HTTPS, ONLY_TOR_EXTERNAL
+      ALL, HTTPS_AND_TOR, ONLY_HTTPS, ONLY_TOR
    }
 
-   public static ServerEndpointType ALL = new ServerEndpointType(new Class[]{HttpEndpoint.class, HttpsEndpoint.class, TorHttpsEndpoint.class });
-   public static ServerEndpointType HTTPS_AND_TOR = new ServerEndpointType(new Class[]{HttpsEndpoint.class, TorHttpsEndpoint.class});
+   //public static ServerEndpointType ALL = new ServerEndpointType(new Class[]{HttpEndpoint.class, HttpsEndpoint.class, TorHttpsEndpoint.class });
+   //public static ServerEndpointType HTTPS_AND_TOR = new ServerEndpointType(new Class[]{HttpsEndpoint.class, TorHttpsEndpoint.class});
    public static ServerEndpointType ONLY_HTTPS = new ServerEndpointType(new Class[]{HttpsEndpoint.class});
    public static ServerEndpointType ONLY_TOR = new ServerEndpointType(new Class[]{TorHttpsEndpoint.class});
 
    public static ServerEndpointType fromType(Types type){
-      if (type == Types.ALL) {
+      /*if (type == Types.ALL) {
          return ALL;
       }else if (type == Types.HTTPS_AND_TOR){
          return HTTPS_AND_TOR;
-      }else if (type == Types.ONLY_TOR_EXTERNAL){
+      }else*/
+      if (type == Types.ONLY_TOR){
          return ONLY_TOR;
       }else {
          return ONLY_HTTPS;

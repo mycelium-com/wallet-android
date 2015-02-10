@@ -210,7 +210,7 @@ public class StandardTransactionBuilder {
    private static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
       ScriptOutput script;
       if (sendTo.isMultisig(network)) {
-         script = new ScriptOutputMultisig(sendTo.getTypeSpecificBytes());
+         script = new ScriptOutputP2SH(sendTo.getTypeSpecificBytes());
       } else {
          script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
       }

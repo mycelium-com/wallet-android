@@ -27,6 +27,8 @@ public class ScriptInput extends Script {
          return new ScriptInputStandard(chunks, scriptBytes);
       } else if (ScriptInputPubKey.isScriptInputPubKey(chunks)) {
          return new ScriptInputPubKey(chunks, scriptBytes);
+      } else if (ScriptInputP2SHMultisig.isScriptInputP2SHMultisig(chunks)) {
+         return new ScriptInputP2SHMultisig(chunks, scriptBytes);
       } else {
          return new ScriptInput(scriptBytes);
       }
@@ -41,6 +43,10 @@ public class ScriptInput extends Script {
     */
    public static ScriptInput fromOutputScript(ScriptOutput output) {
       return new ScriptInput(output._scriptBytes);
+   }
+
+   public static ScriptInput fromP2SHOutputBytes(byte[] script) {
+      return new ScriptInput(script);
    }
 
    protected ScriptInput(byte[] scriptBytes) {

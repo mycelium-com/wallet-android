@@ -90,7 +90,7 @@
 
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="@string/use" />
+            android:text="@string/use_button" />
 
         <View
             android:layout_width="0dp"

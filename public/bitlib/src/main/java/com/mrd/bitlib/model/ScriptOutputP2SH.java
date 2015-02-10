@@ -18,17 +18,17 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
-public class ScriptOutputMultisig extends ScriptOutput implements Serializable {
+public class ScriptOutputP2SH extends ScriptOutput implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   protected ScriptOutputMultisig(byte[][] chunks, byte[] scriptBytes) {
+   protected ScriptOutputP2SH(byte[][] chunks, byte[] scriptBytes) {
       super(scriptBytes);
-      _multisigAddressBytes = chunks[1];
+      _p2shAddressBytes = chunks[1];
    }
 
-   private byte[] _multisigAddressBytes;
+   private byte[] _p2shAddressBytes;
 
-   protected static boolean isScriptOutputMultisig(byte[][] chunks) {
+   protected static boolean isScriptOutputP2SH(byte[][] chunks) {
       if (chunks.length != 3) {
          return false;
       }
@@ -44,24 +44,24 @@ public class ScriptOutputMultisig extends ScriptOutput implements Serializable {
       return true;
    }
 
-   public ScriptOutputMultisig(byte[] addressBytes) {
+   public ScriptOutputP2SH(byte[] addressBytes) {
       super(scriptEncodeChunks(new byte[][] { { (byte) OP_HASH160 }, addressBytes, { (byte) OP_EQUAL } }));
-      _multisigAddressBytes = addressBytes;
+      _p2shAddressBytes = addressBytes;
    }
 
    /**
-    * Get the raw multisig address that this output is for.
+    * Get the raw p2sh address that this output is for.
     * 
-    * @return The raw multisig address that this output is for.
+    * @return The raw p2sh address that this output is for.
     */
-   public byte[] getMultisigAddressBytes() {
-      return _multisigAddressBytes;
+   public byte[] getP2SHAddressBytes() {
+      return _p2shAddressBytes;
    }
 
    @Override
    public Address getAddress(NetworkParameters network) {
-      byte[] addressBytes = getMultisigAddressBytes();
-      return Address.fromMultisigBytes(addressBytes, network);
+      byte[] addressBytes = getP2SHAddressBytes();
+      return Address.fromP2SHBytes(addressBytes, network);
    }
 
 }

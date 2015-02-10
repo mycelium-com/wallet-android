@@ -46,9 +46,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -66,6 +69,7 @@ import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import de.cketti.library.changelog.ChangeLog;
+import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import java.util.UUID;
 
@@ -107,10 +111,21 @@ public class ModernMain extends ActionBarActivity {
       _toaster = new Toaster(this);
 
       ChangeLog cl = new DarkThemeChangeLog(this);
-      if (cl.isFirstRun()) {
+      if (cl.isFirstRun() && cl.getChangeLog(false).size() > 0) {
          cl.getLogDialog().show();
       }
 
+      checkTorState();
+
+   }
+
+   private void checkTorState() {
+      if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR){
+         OrbotHelper obh = new OrbotHelper(this);
+         if (!obh.isOrbotRunning()){
+            obh.requestOrbotStart(this);
+         }
+      }
    }
 
 
@@ -290,7 +305,20 @@ public class ModernMain extends ActionBarActivity {
    public void setRefreshAnimation() {
       if (refreshItem != null) {
          if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING) {
-            MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
+            MenuItem menuItem = MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
+            ImageView ivTorIcon = (ImageView) menuItem.getActionView().findViewById(R.id.ivTorIcon);
+
+            if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
+               ivTorIcon.setVisibility(View.VISIBLE);
+               if (_mbwManager.getTorManager().getInitState()==100) {
+                  ivTorIcon.setImageResource(R.drawable.tor);
+               }else{
+                  ivTorIcon.setImageResource(R.drawable.tor_gray);
+               }
+            }else{
+               ivTorIcon.setVisibility(View.GONE);
+            }
+
          } else {
             MenuItemCompat.setActionView(refreshItem, null);
          }
@@ -304,6 +332,11 @@ public class ModernMain extends ActionBarActivity {
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
+      setRefreshAnimation();
+   }
+
+   @Subscribe
+   public void torState(TorStateChanged event) {
       setRefreshAnimation();
    }
 

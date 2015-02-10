@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:textSize="22sp" />
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView
@@ -26,7 +26,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:paddingRight="10dp"
             android:textSize="22sp"
             android:typeface="monospace" />
 
@@ -34,10 +33,10 @@
             android:id="@+id/ivSwitchable"
             android:layout_width="8dp"
             android:layout_height="8dp"
-            android:layout_alignBottom="@+id/tvCurrency"
-            android:layout_alignRight="@+id/tvCurrency"
-            android:layout_marginBottom="3dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"
             android:background="@drawable/triangle_se"/>
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

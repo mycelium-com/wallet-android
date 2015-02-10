@@ -39,6 +39,7 @@
         android:label="@string/app_name"
         android:theme="@style/MyceliumModern" >
 
+
         <!-- Service for Google Cloud Messaging -->
         <service android:name=".lt.notification.GcmIntentService" />
         <service

@@ -35,10 +35,9 @@
 
 package com.mycelium.wallet.event;
 
-public class TorState {
+public class TorStateChanged {
    public final int percentage;
-
-   public TorState(int percentage) {
+   public TorStateChanged(int percentage) {
       this.percentage = percentage;
    }
 }

@@ -54,6 +54,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -61,6 +62,7 @@ import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
@@ -337,35 +339,32 @@ public class AccountsFragment extends Fragment {
 
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
 
+         Long spendableBalance = 0L;
          String activeTitle = getString(R.string.active_hd_accounts_name) + (activeHdRecords.isEmpty() ? " " + getString(R.string.active_accounts_empty) : "");
-         LinearLayout activeHdAccountsView = createAccountViewList(activeTitle, activeHdRecords, selectedAccount);
+         LinearLayout activeHdAccountsView = createAccountViewList(activeTitle, activeHdRecords, selectedAccount, getSpendableBalance(activeHdAccounts));
          llRecords.addView(activeHdAccountsView);
 
-         // show HD-total also if there is only one account, so that it is clear that
-         // the total below for the "other accounts" is not the complete total
-         if (activeHdRecords.size() > 0) {
-            LinearLayout activeSum = createActiveAccountBalanceSumView(activeHdRecords);
-            llRecords.addView(activeSum);
-         }
+         spendableBalance = getSpendableBalance(activeHdAccounts);
 
          if (!activeOtherRecords.isEmpty()) {
-            LinearLayout activeOtherAccountsView = createAccountViewList(getString(R.string.active_other_accounts_name), activeOtherRecords, selectedAccount);
+            LinearLayout activeOtherAccountsView = createAccountViewList(getString(R.string.active_other_accounts_name), activeOtherRecords, selectedAccount, getSpendableBalance(activeOtherAccounts));
             llRecords.addView(activeOtherAccountsView);
 
-            if (activeOtherRecords.size() > 1) {
-               LinearLayout activeOtherSum = createActiveAccountBalanceSumView(activeOtherRecords);
-               llRecords.addView(activeOtherSum);
-            }
+            spendableBalance += getSpendableBalance(activeOtherAccounts);
+
+            // only show a totals row, if both account type exits
+            LinearLayout activeOtherSum = createActiveAccountBalanceSumView(spendableBalance);
+            llRecords.addView(activeOtherSum);
          }
 
          if (archivedRecords.size() > 0) {
-            LinearLayout archived = createAccountViewList(getString(R.string.archive_name), archivedRecords, selectedAccount);
+            LinearLayout archived = createAccountViewList(getString(R.string.archive_name), archivedRecords, selectedAccount, null);
             llRecords.addView(archived);
          }
       }
    }
 
-   private LinearLayout createActiveAccountBalanceSumView(List<WalletAccount> accounts) {
+   private LinearLayout createActiveAccountBalanceSumView(Long spendableBalance) {
       LinearLayout outer = new LinearLayout(getActivity());
       outer.setOrientation(LinearLayout.VERTICAL);
       outer.setLayoutParams(_outerLayoutParameters);
@@ -377,13 +376,9 @@ public class AccountsFragment extends Fragment {
 
       // Add records
       RecordRowBuilder builder = new RecordRowBuilder(_mbwManager, getResources(), _layoutInflater);
-      long balanceSum = 0;
-      for (WalletAccount account : accounts) {
-         balanceSum += account.getBalance().getSpendableBalance();
-      }
 
       // Add item
-      View item = builder.buildTotalView(outer, balanceSum);
+      View item = builder.buildTotalView(outer, spendableBalance);
       inner.addView(item);
 
       // Add separator
@@ -393,13 +388,21 @@ public class AccountsFragment extends Fragment {
       return outer;
    }
 
-   private LinearLayout createAccountViewList(String title, List<WalletAccount> accounts, WalletAccount selectedAccount) {
+   private long getSpendableBalance(List<WalletAccount> accounts) {
+      long balanceSum = 0;
+      for (WalletAccount account : accounts) {
+         balanceSum += account.getBalance().getSpendableBalance();
+      }
+      return balanceSum;
+   }
+
+   private LinearLayout createAccountViewList(String title, List<WalletAccount> accounts, WalletAccount selectedAccount, Long spendableBalance) {
       LinearLayout outer = new LinearLayout(getActivity());
       outer.setOrientation(LinearLayout.VERTICAL);
       outer.setLayoutParams(_outerLayoutParameters);
 
       // Add title
-      outer.addView(createTitle(title));
+      createTitle(outer, title, spendableBalance);
 
       if (accounts.isEmpty()) {
          return outer;
@@ -431,15 +434,22 @@ public class AccountsFragment extends Fragment {
       return outer;
    }
 
-   private TextView createTitle(String title) {
-      TextView tv = new TextView(getActivity());
-      tv.setLayoutParams(_titleLayoutParameters);
-      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
-      tv.setText(title);
-      tv.setGravity(Gravity.LEFT);
+   private TextView createTitle(ViewGroup root, String title, Long balance) {
+      View view = _layoutInflater.inflate(R.layout.accounts_title_view, root, true);
+      TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
+      tvTitle.setText(title);
 
-      tv.setTextAppearance(getActivity(), R.style.GenericText);
-      return tv;
+      ToggleableCurrencyDisplay tvBalance = (ToggleableCurrencyDisplay) view.findViewById(R.id.tvBalance);
+      if (balance != null) {
+         CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+         tvBalance.setEventBus(_mbwManager.getEventBus());
+         tvBalance.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
+         tvBalance.setValue(balance);
+      }else{
+         tvBalance.setVisibility(View.GONE);
+      }
+
+      return tvTitle;
    }
 
    private View createSeparator() {

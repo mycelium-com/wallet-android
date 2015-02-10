@@ -232,7 +232,6 @@
   <string name="lt_edit_button">Редактировать</string>
   <string name="lt_localization_not_available">Эта функция требует возможности определения вашим  устройством своего положения. Похоже, ваше устройство  не может сделать это. Попробуйте включить функции определения местоположения в настройках вашего устройства.</string>
   <string name="lt_create_account_title">Создание счета трейдера</string>
-  <string name="lt_use_button">Использовать</string>
   <string name="lt_create_account_name_desc">Введите ваше имя трейдера:</string>
   <string name="lt_create_account_name_hint">имя</string>
   <string name="lt_error_account_name_taken">Выбранное имя уже занято. Пожалуйста, выберите другое имя</string>

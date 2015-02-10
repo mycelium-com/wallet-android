@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.HexUtils;
@@ -41,6 +42,7 @@ public abstract class Script implements Serializable {
    }
 
    public static final int OP_FALSE = 0;
+   public static final int OP_0 = OP_FALSE;
    public static final int OP_PUSHDATA1 = 76;
    public static final int OP_PUSHDATA2 = 77;
    public static final int OP_PUSHDATA4 = 78;
@@ -48,6 +50,19 @@ public abstract class Script implements Serializable {
    public static final int OP_TRUE = 81;
    public static final int OP_2 = 82;
    public static final int OP_3 = 83;
+   public static final int OP_4 = 84;
+   public static final int OP_5 = 85;
+   public static final int OP_6 = 86;
+   public static final int OP_7 = 87;
+   public static final int OP_8 = 88;
+   public static final int OP_9 = 89;
+   public static final int OP_10 = 90;
+   public static final int OP_11 = 91;
+   public static final int OP_12 = 92;
+   public static final int OP_13 = 93;
+   public static final int OP_14 = 94;
+   public static final int OP_15 = 95;
+   public static final int OP_16 = 96;
    public static final int OP_NOP = 97;
    public static final int OP_IF = 99;
    public static final int OP_VERIFY = 105;
@@ -78,6 +93,19 @@ public abstract class Script implements Serializable {
       OP_CODE_MAP.put(OP_TRUE, "OP_TRUE");
       OP_CODE_MAP.put(OP_2, "OP_2");
       OP_CODE_MAP.put(OP_3, "OP_3");
+      OP_CODE_MAP.put(OP_4, "OP_4");
+      OP_CODE_MAP.put(OP_5, "OP_5");
+      OP_CODE_MAP.put(OP_6, "OP_6");
+      OP_CODE_MAP.put(OP_7, "OP_7");
+      OP_CODE_MAP.put(OP_8, "OP_8");
+      OP_CODE_MAP.put(OP_9, "OP_3");
+      OP_CODE_MAP.put(OP_10, "OP_10");
+      OP_CODE_MAP.put(OP_11, "OP_11");
+      OP_CODE_MAP.put(OP_12, "OP_12");
+      OP_CODE_MAP.put(OP_13, "OP_13");
+      OP_CODE_MAP.put(OP_14, "OP_14");
+      OP_CODE_MAP.put(OP_15, "OP_15");
+      OP_CODE_MAP.put(OP_16, "OP_16");
       OP_CODE_MAP.put(OP_NOP, "OP_NOP");
       OP_CODE_MAP.put(OP_IF, "OP_IF");
       OP_CODE_MAP.put(OP_VERIFY, "OP_VERIFY");
@@ -97,6 +125,7 @@ public abstract class Script implements Serializable {
       OP_CODE_MAP.put(OP_NOP1, "OP_NOP1");
       OP_CODE_MAP.put(OP_NOP2, "OP_NOP2");
    }
+
    protected byte[] _scriptBytes;
    private boolean _isCoinbase;
 
@@ -116,10 +145,20 @@ public abstract class Script implements Serializable {
       return chunk.length == 1 && (((int) chunk[0]) & 0xFF) == op;
    }
 
+   public static int opToIntValue(byte[] chunk) {
+      Preconditions.checkState(chunk.length == 1);
+      int opCode = ((int) chunk[0]) & 0xFF;
+      if (opCode > 80 && opCode < 97) {
+         return opCode - 80;
+      }
+      //not within range
+      return -1;
+   }
+
    protected static final byte[][] chunksFromScriptBytes(byte[] script) throws ScriptParsingException {
       try {
          ByteReader reader = new ByteReader(script);
-         int numChunks = countChuks(reader);
+         int numChunks = countChunks(reader);
          if (numChunks == -1) {
             throw new ScriptParsingException(script);
          }
@@ -160,7 +199,7 @@ public abstract class Script implements Serializable {
       }
    }
 
-   private static int countChuks(ByteReader reader) throws InsufficientBytesException {
+   private static int countChunks(ByteReader reader) throws InsufficientBytesException {
       int chunks = 0;
       while (reader.available() > 0) {
 
