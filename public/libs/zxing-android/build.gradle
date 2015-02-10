@@ -12,7 +12,7 @@ buildscript {
 
 
 dependencies {
-    compile project(':public:zxing-core')
+    compile project(':public:libs:zxing-core')
 }
 
 android {
