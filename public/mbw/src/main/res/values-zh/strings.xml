@@ -429,8 +429,6 @@
   <string name="signed_message_share">共享比特币签名的信息</string>
   <string name="signing_inprogress">信息签名......</string>
   <string name="geocode_error">地理编码器错误: %s \n 请稍后再试。</string>
-  <string name="donate_button">捐赠</string>
-  <string name="donate_description">Mycelium比特币钱包是一个伟大的钱包。\n\n感谢您对我们的支持并恳请您为我们捐赠.\n\n任何金额！</string>
   <string name="fetching_info">正在从服务器读取信息</string>
   <string name="email_notification_setting_explanation">设置您的电子邮件地址用来接收自当地交易正的通知</string>
   <string name="amount_changed">发送的数量已基于QR 码进行更新</string>
@@ -511,7 +509,6 @@
   <string name="error_no_browser">无法导航到网站，在手机上没有找到浏览器</string>
   <string name="transaction_label_title">交易标签</string>
   <string name="no_spending_records">您没有任何可以用于消费的帐户。\n\n 如果想要消费的话，您需要一个含私人密匙的帐户。目前没有已激活含私人钥匙的HD帐户或单个地址帐户。请激活或导入含私钥的帐户用于消费。</string>
-  <string name="donation_transaction_label">对Mycelium捐赠</string>
   <string name="select_key_for_signing">选择签名密钥</string>
   <string name="playstore_link_label">Playstore 链接</string>
   <string name="hide_unused_account_menu">删除帐户</string>

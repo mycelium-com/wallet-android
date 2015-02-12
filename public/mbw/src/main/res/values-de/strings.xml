@@ -436,8 +436,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="signed_message_share">Teile Bitcoin signierte Nachricht</string>
   <string name="signing_inprogress">Signiere Nachricht&#8230;</string>
   <string name="geocode_error">Geocoderfehlermeldung:%s \nBitte versuchen Sie es später noch einmal.</string>
-  <string name="donate_button">Spenden</string>
-  <string name="donate_description">Mycelium Bitcoin Wallet ist eine großartige Wallet und kann kostenlos verwendet werden.\n\nWir freuen uns, wenn Sie uns mit Ihrer Spende dabei unterstützen, die Wallet noch besser zu machen.\n\nJeder Betrag zählt!</string>
   <string name="fetching_info">Informationen werden vom Server abgerufen</string>
   <string name="email_notification_setting_explanation">Geben Sie Ihre e-Mail-Adresse ein, um Benachrichtigungen von Local Trader zu erhalten</string>
   <string name="amount_changed">Der zu sendende Betrag wurde mittels QR Code aktualisiert</string>
@@ -519,7 +517,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="error_no_browser">Seite nicht erreichbar, auf dem Handy wurde kein Browser gefunden</string>
   <string name="transaction_label_title">Transaktionsbezeichnung</string>
   <string name="no_spending_records">Sie haben kein Konto, von dem aus Sie Bitcoins ausgeben können.\n\nUm Bitcoins ausgeben zu können benötigen Sie ein Konto mit einem privaten Schlüssel. Derzeit verfügen Sie weder über aktive HD Konten noch über Konten mit einer einzelnen Adresse mit einem privaten Schlüssel. Aktivieren oder importieren Sie ein Konto mit einem privaten Schlüssel um Bitcoins ausgeben zu können.</string>
-  <string name="donation_transaction_label">Spende an Mycelium</string>
   <string name="select_key_for_signing">Schlüssel zum Signieren auswählen</string>
   <string name="playstore_link_label">Link zu Playstore</string>
   <string name="hide_unused_account_menu">Konto löschen</string>
@@ -561,7 +558,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
   <string name="lt_confirm_delete_trader_message">Wollen Sie Ihre Local Trader-Identität löschen? Alle Handelsinformationen und Bewertungen werden dauerhaft entfernt und können nicht wiederhergestellt werden.</string>
-  <string name="rescan_account_menu_item">Das Konto erneut einlesen</string>
   <string name="add_advanced_account_warning">Warnung:\n Diese Schlüssel sind nicht Teil Ihres Master-Seed-Backup. Sie müssen ein separates Legacy Backup von ihnen machen.</string>
   <string name="new_random_key_desc">Einen neuen zufälligen Schlüssel generieren</string>
   <string name="generate_new_key">Generieren</string>

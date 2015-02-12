@@ -372,6 +372,4 @@
   <string name="signed_message_share">Chia sẻ thông điệp Bitcoin đã ký</string>
   <string name="signing_inprogress">Đang ký thông điệp&#8230;</string>
   <string name="geocode_error">Lỗi từ geocoder: %s \n xin vui lòng thử lại sau.</string>
-  <string name="donate_button">Ủng hộ</string>
-  <string name="donate_description">Mycelium là một chiếc ví tuyệt vời và bạn có thể sử dụng nó miễn phí.\n\nXin hãy giúp đỡ nỗ lực phát triển của chúng tôi bằng cách ủng hộ một số tiền nhỏ.\n\nBao nhiêu cũng được!</string>
 </resources>

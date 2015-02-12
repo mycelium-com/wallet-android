@@ -73,6 +73,7 @@ public class Constants {
    public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
    public static final String MYCELIUM_2_RELEASE_NOTES_URL = "http://mycelium.com/wallet/whats_new_in_20.html";
    public static final String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
+   public static final String DIRECT_APK_URL = "https://mycelium.com/download";
    public static final String LANGUAGE_SETTING = "user_language";
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String TOR_MODE = "tor_mode";

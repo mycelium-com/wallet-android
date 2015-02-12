@@ -430,8 +430,6 @@
   <string name="signed_message_share">ビットコイン署名付きのメッセージを共有する</string>
   <string name="signing_inprogress">メッセージに署名しています...</string>
   <string name="geocode_error">ジオコーダからのエラー: %s \n もう一度やり直してください。</string>
-  <string name="donate_button">寄付</string>
-  <string name="donate_description">Myceliumは優れたウォレットで無料で使用することができます。\n\n皆さんの寄付で私たちの開発活動をサポートして下さい。\n\nどんな額でも結構です!</string>
   <string name="fetching_info">サーバーから情報を取得中</string>
   <string name="email_notification_setting_explanation">ローカルトレーダーから通知を受信するためEメールアドレスを設定してください</string>
   <string name="amount_changed">QRコードから送信するお金が更新されました</string>
@@ -514,7 +512,6 @@
   <string name="error_no_browser">あなたの端末のブラウザーアプリが見つかりませんので、指定のサイトに移動できません。</string>
   <string name="transaction_label_title">取引ラベル</string>
   <string name="no_spending_records">あなたのアカウントの内、送金可能なアカウントがありません。\n\n送金を行うには、秘密鍵が含まれたアカウントが最低限1つ無いといけません。現在、有効なHDアカウントや単一アドレスアカウントで秘密鍵の含まれたアカウントがありません。送金を行いたい場合、新規アカウントの作成、若しくは秘密鍵の含まれたアカウントの復元を行って下さい。</string>
-  <string name="donation_transaction_label">Myceliumへの寄付</string>
   <string name="select_key_for_signing">署名に使うキーを選択します</string>
   <string name="playstore_link_label">Playストアへのリンク</string>
   <string name="hide_unused_account_menu">アカウントを削除</string>
@@ -556,5 +553,4 @@
   <string name="lt_delete_trade_history">この取引を削除します。</string>
   <string name="lt_confirm_delete_history">この取引の情報を端末から削除しますか。</string>
   <string name="lt_confirm_delete_trader_message">あなたのローカルトレーダーのアカウントを削除しますか。すべての取引情報および評価は完全に削除されるので、回復することはできません。</string>
-  <string name="rescan_account_menu_item">アカウントの再スキャンします。</string>
 </resources>

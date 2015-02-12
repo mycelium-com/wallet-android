@@ -427,8 +427,6 @@
   <string name="signed_message_share">共享比特幣簽名的信息</string>
   <string name="signing_inprogress">信息簽名。 。 。</string>
   <string name="geocode_error">地理編碼器錯誤: %s \n 請稍後再試。</string>
-  <string name="donate_button">捐贈</string>
-  <string name="donate_description">Mycelium比特幣錢包是一個偉大的錢包。 \n\n感謝您對我們的支持並懇請您為我們捐贈.\n\n任何金額！</string>
   <string name="fetching_info">正在從服務器讀取信息</string>
   <string name="email_notification_setting_explanation">設置您的電子郵件地址用來接收自當地交易正的通知</string>
   <string name="amount_changed">發送的數量已基於QR 碼進行更新</string>
@@ -509,7 +507,6 @@
   <string name="error_no_browser">無法導航到網站，在手機上沒有找到瀏覽器</string>
   <string name="transaction_label_title">交易標籤</string>
   <string name="no_spending_records">您沒有任何可以用於消費的帳戶。 \n\n 如果想要消費的話，您需要一個含私人密匙的帳戶。目前沒有已激活含私人鑰匙的HD帳戶或單個地址帳戶。請激活或導入含私鑰的帳戶用於消費。</string>
-  <string name="donation_transaction_label">對Mycelium捐贈</string>
   <string name="select_key_for_signing">選擇簽名密鑰</string>
   <string name="playstore_link_label">Playstore 鏈接</string>
   <string name="hide_unused_account_menu">帳戶刪除</string>

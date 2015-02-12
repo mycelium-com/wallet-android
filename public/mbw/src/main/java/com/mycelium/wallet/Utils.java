@@ -344,7 +344,7 @@ public class Utils {
 
       if (!formatCache.containsKey(precision)){
          DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-         fiatFormat.setMaximumIntegerDigits(precision);
+         fiatFormat.setMaximumFractionDigits(precision);
          formatCache.put(precision, fiatFormat);
       }
       return formatCache.get(precision).format(converted);

@@ -66,7 +66,14 @@ public class MbwProdEnvironment extends MbwEnvironment {
    private static final ServerEndpoints prodnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
          new HttpsEndpoint("https://lt2.mycelium.com/ltprodnet", myceliumThumbprint),
          new HttpsEndpoint("https://lt1.mycelium.com/ltprodnet", myceliumThumbprint),
+
+         new HttpsEndpoint("https://88.198.9.165/ltprodnet", myceliumThumbprint),
+         new HttpsEndpoint("https://88.198.17.7/ltprodnet", myceliumThumbprint),
+
          new TorHttpsEndpoint("https://7c7yicf4e3brohwi.onion/ltprodnet", myceliumThumbprint),
+         new TorHttpsEndpoint("https://wmywc6g3mknihpq2.onion/ltprodnet", myceliumThumbprint),
+         new TorHttpsEndpoint("https://lodffvexeb72vf2f.onion/ltprodnet", myceliumThumbprint),
+         new TorHttpsEndpoint("https://az5zxxebeule5hmn.onion/ltprodnet", myceliumThumbprint),
    }, 0);
 
    @Override
@@ -89,7 +96,10 @@ public class MbwProdEnvironment extends MbwEnvironment {
          new HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),  // mws6
          new HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint),     // mws7
 
-         new TorHttpsEndpoint("https://vtuao7psnrsot4tb.onion/wapi", myceliumThumbprint)     // tor hidden service
+         new TorHttpsEndpoint("https://vtuao7psnrsot4tb.onion/wapi", myceliumThumbprint),     // tor hidden services
+         new TorHttpsEndpoint("https://n76y5k3le2zi73bw.onion/wapi", myceliumThumbprint),
+         new TorHttpsEndpoint("https://slacef5ylu6op7zc.onion/wapi", myceliumThumbprint),
+         new TorHttpsEndpoint("https://rztvro6qgydmujfv.onion/wapi", myceliumThumbprint),
    };
 
    private static final ServerEndpoints prodnetWapiServerEndpoints = new ServerEndpoints(prodnetWapiEndpoints);

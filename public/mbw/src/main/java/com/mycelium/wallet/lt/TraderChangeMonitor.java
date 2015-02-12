@@ -110,7 +110,7 @@ public class TraderChangeMonitor {
 
       public void cancel() {
          if (!_isCancelled) {
-            Log.i(TAG, "CAncelling monitor");
+            Log.i(TAG, "Cancelling monitor");
             _isCancelled = true;
             // Stop long polling from the server side by making an API call in a
             // separate thread

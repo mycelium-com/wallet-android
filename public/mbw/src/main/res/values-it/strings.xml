@@ -427,8 +427,6 @@
   <string name="signed_message_share">Condividi il messaggio Bitcoin firmato</string>
   <string name="signing_inprogress">Convalida del messaggio&#8230;</string>
   <string name="geocode_error">Errore da geocoder: %s \n riprova più tardi.</string>
-  <string name="donate_button">Dona</string>
-  <string name="donate_description">Mycelium è un ottimo portafoglio e potete usarlo gratuitamente.\n\nAiuta il nostro sforzo nel svilupparlo facendo una donazione.\n\nQualsiasi importo conta!</string>
   <string name="fetching_info">Recupero informazioni dal server</string>
   <string name="email_notification_setting_explanation">Imposta un indirizzo email per ricevere le notifiche da Local Trader</string>
   <string name="amount_changed">L\'importo da inviare è stato aggiornato dal codice QR</string>
@@ -503,7 +501,6 @@
   <string name="butto_show_release_notes">Mostra dettagli</string>
   <string name="word_does_not_exist_in_wordlist">La parola che hai digitato non è presente nella lista di parole</string>
   <string name="transaction_label_title">Etichetta della transazione</string>
-  <string name="donation_transaction_label">Donazione a Mycelium</string>
   <string name="hide_unused_account_menu">Elimina l\'account</string>
   <string name="pref_miner_fee_title">Compenso per minatore (%1$s)</string>
   <string name="miner_fee_economic_name">Economica</string>

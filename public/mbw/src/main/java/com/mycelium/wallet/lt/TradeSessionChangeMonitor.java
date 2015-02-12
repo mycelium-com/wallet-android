@@ -44,7 +44,7 @@ import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.model.TradeSession;
 
 public class TradeSessionChangeMonitor {
-   private static final String TAG = "TradeSessionChangeMonitor";
+   private static final String TAG = "TradeSesChangeMon";
 
    public static abstract class Listener {
       private final Handler _handler;

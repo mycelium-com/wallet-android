@@ -406,8 +406,6 @@
   <string name="signed_message_share">Поделиться сообщением с биткойн-подписью</string>
   <string name="signing_inprogress">Сообщение подписывается&#8230;</string>
   <string name="geocode_error">Ошибка геокодера: %s \n повторите попытку позже.</string>
-  <string name="donate_button">Пожертвовать</string>
-  <string name="donate_description">Mycelium Wallet  создан для  вас  и вы можете использовать его совершенно бесплатно.\n\nВы можете помочь  нам в  наших  усилиях по его совершенствованию и развитию, сделав пожертвование.\n\n Спасибо за любую сумму!</string>
   <string name="fetching_info">Получение информации с сервера</string>
   <string name="email_notification_setting_explanation">Задайте ваш адрес электронной почты для получения уведомлений из Local Trader</string>
   <string name="amount_changed">сумма Отправить была обновлена  QR-кодом</string>

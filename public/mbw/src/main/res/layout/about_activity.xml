@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent">
+            android:orientation="vertical"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent">
 
     <LinearLayout
         android:orientation="vertical"
@@ -12,171 +12,195 @@
         android:gravity="center">
 
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/buttonspacing"
-        android:layout_gravity="left">
-        <!--<android.support.v7.widget.GridLayout-->
-
-
         <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/buttonspacing"
+            android:layout_gravity="left">
+            <!--<android.support.v7.widget.GridLayout-->
+
+
+            <LinearLayout
                 android:layout_marginTop="@dimen/buttonspacing"
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-            <TextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/version_label"
                     android:width="@dimen/about_caption_size" />
 
-            <TextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.99"
-                    android:id="@+id/tvVersionNumber"
-                    tools:ignore="HardcodedText" />
-        </LinearLayout>
+                    tools:text="0.99"
+                    android:id="@+id/tvVersionNumber"/>
+            </LinearLayout>
 
-        <LinearLayout
+            <LinearLayout
                 android:layout_marginTop="5dp"
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-            <TextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:width="@dimen/about_caption_size" />
 
-            <Button
+                <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/check_update"
                     android:id="@+id/bt_check_update"
-                     />
-        </LinearLayout>
+                    />
+            </LinearLayout>
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/buttonspacing">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/source_repo_label"
-                android:width="@dimen/about_caption_size" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/source_url"
-                android:id="@+id/tvSourceUrl"/>
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/buttonspacing">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/authors_label"
-                android:width="@dimen/about_caption_size" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/authors"
-                android:singleLine="false" />
-        </LinearLayout>
-
-        <LinearLayout
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:width="@dimen/about_caption_size" />
-
-            <Button
-                    android:id="@+id/btDonate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/donate_button"/>
-        </LinearLayout>
-            
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/buttonspacing">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/homepage_label"
-                android:width="@dimen/about_caption_size" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/homepage_url"
-                android:id="@+id/tvHomepageUrl"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/buttonspacing">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/contact_email_label"
-                android:width="@dimen/about_caption_size" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/contact_email"
-                android:id="@+id/tvContactEmail"/>
-        </LinearLayout>
-
-        <LinearLayout
+            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/buttonspacing">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/source_repo_label"
+                    android:width="@dimen/about_caption_size" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/source_url"
+                    android:id="@+id/tvSourceUrl"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/buttonspacing">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/authors_label"
+                    android:width="@dimen/about_caption_size" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/authors"
+                    android:singleLine="false" />
+            </LinearLayout>
+
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/company_header"
+                android:layout_marginTop="@dimen/buttonspacing"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/company"
+                android:singleLine="false"
+                android:paddingTop="@dimen/button_padding"
+                android:paddingLeft="@dimen/about_caption_size"/>
+
+            <LinearLayout
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:width="@dimen/about_caption_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/buttonspacing">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/homepage_label"
+                    android:width="@dimen/about_caption_size" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/homepage_url"
+                    android:id="@+id/tvHomepageUrl"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/buttonspacing">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/contact_email_label"
+                    android:width="@dimen/about_caption_size" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/contact_email"
+                    android:id="@+id/tvContactEmail"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/buttonspacing">
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/playstore_link_label"
                     android:width="@dimen/about_caption_size" />
 
-            <com.mycelium.wallet.activity.util.QrImageView
+                <com.mycelium.wallet.activity.util.QrImageView
                     android:id="@+id/ivPlaystoreQR"
                     android:layout_width="@dimen/small_qrcode"
                     android:layout_height="@dimen/small_qrcode"
                     android:contentDescription="@string/an_icon"
                     android:longClickable="false" />
-        </LinearLayout>
+            </LinearLayout>
 
-</LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/buttonspacing">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/direct_apk_link_label"
+                    android:width="@dimen/about_caption_size" />
+
+                <com.mycelium.wallet.activity.util.QrImageView
+                    android:id="@+id/ivDirectApkQR"
+                    android:layout_width="@dimen/small_qrcode"
+                    android:layout_height="@dimen/small_qrcode"
+                    android:contentDescription="@string/an_icon"
+                    android:longClickable="false" />
+            </LinearLayout>
+        </LinearLayout>
 
         <Button
             android:layout_marginTop="@dimen/buttonspacing"

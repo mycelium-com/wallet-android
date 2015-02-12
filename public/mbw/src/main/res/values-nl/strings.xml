@@ -54,6 +54,7 @@
   <string name="private_key">Private Key</string>
   <string name="your_bitcoin_address">Uw Bitcoin adres:</string>
   <string name="bitcoin_address_title">Bitcoin adres</string>
+  <string name="approximate_fiat_value">%2$s %1$s</string>
   <string name="no_server_connection">Geen verbinding met Server</string>
   <string name="no_network_connection">Geen netwerkverbinding</string>
   <string name="invalid_bitcoin_uri">Ongeldige Bitcoin URI</string>
@@ -128,7 +129,10 @@
   <string name="cold_storage_desc">U staat op het punt om uit te geven van een private key in koude opslag. Dit zou een private key op papier of een private key ticket van een Bitcoin geldautomaat kunnen zijn. Verschillende typen indelingen zijn ondersteund.\n\nZodra de transactie is verstuurd zal elk spoor van de private key worden gewist uit het geheugen.</string>
   <string name="keep_account_address">Verwijder alleen de private key en behoudt als alleen-lezen account</string>
   <string name="manual_entry">Handmatige invoer</string>
+  <string name="active_hd_accounts_name">Mijn HD-Accounts</string>
+  <string name="active_other_accounts_name">Andere Accounts</string>
   <string name="archive_name">Archief</string>
+  <string name="active_accounts_empty">(Leeg)</string>
   <string name="activate_action">Activeren</string>
   <string name="archive_action">Archiveren</string>
   <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\r\n\r\nGearchiveerde accounts kunnen later weer geactiveerd worden. \r\n\r\nWilt u dit account archiveren?</string>
@@ -273,6 +277,7 @@
   <string name="lt_create_order_choose_maximum">Kies het maximumbedrag dat u wilt verhandelen:</string>
   <string name="lt_create_order_description">Optionele beschrijving van uw order:</string>
   <string name="lt_create_order_description_too_long">De beschrijving is te lang</string>
+  <string name="lt_create_order_description_hint">Handel met mij omdat&#8230;</string>
   <string name="lt_ad_type_sell_btc_label">Bitcoin Verkopen</string>
   <string name="lt_ad_type_buy_btc_label">Bitcoin Kopen</string>
   <string name="lt_ad_created">Advertentie gemaakt</string>
@@ -424,8 +429,6 @@
   <string name="signed_message_share">Deel Bitcoin ondertekend bericht</string>
   <string name="signing_inprogress">Bezig met ondertekenen bericht&#8230;</string>
   <string name="geocode_error">Fout van geocoder: %s\n Probeer later nog eens.</string>
-  <string name="donate_button">Doneren</string>
-  <string name="donate_description">Mycelium is een geweldige Bitcoin portefeuille en is helemaal gratis om te gebruiken.\n\nU kunt ons helpen door een donatie te maken.\n\nElk bedrag telt!</string>
   <string name="fetching_info">Info ophalen van de server</string>
   <string name="email_notification_setting_explanation">Instellen van uw e-mailadres voor het ontvangen van lokale handelaar meldingen</string>
   <string name="amount_changed">Te verzenden bedrag werd bijgewerkt vanuit QR code</string>
@@ -498,8 +501,13 @@
   <string name="button_continue">Doorgaan</string>
   <string name="butto_show_release_notes">Details tonen</string>
   <string name="word_does_not_exist_in_wordlist">Het woord dat u heeft ingevoerd bestaat niet in de woordenlijst</string>
+  <string name="pref_legacy_backup_title">Oudere back-up</string>
+  <string name="pref_legacy_backup_summary">Maak een oudere (legacy) back-up, die uw één-adres accounts bevat.</string>
+  <string name="pref_legacy_backup_verify_title">Oudere back-ups verifiëren</string>
+  <string name="pref_legacy_backup_verify_summary">Een bestaande oudere back-up verifiëren</string>
+  <string name="error_no_browser">Kan niet navigeren naar website, geen browser gevonden op telefoon</string>
   <string name="transaction_label_title">Transactie label</string>
-  <string name="donation_transaction_label">Donatie aan Mycelium</string>
+  <string name="select_key_for_signing">Selecteer sleutel voor het ondertekenen</string>
   <string name="hide_unused_account_menu">Account verwijderen</string>
   <string name="dont_allow_hiding_used_notification">U kunt een gebruikt account niet verbergen, maar u kunt het archiveren</string>
   <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
@@ -515,4 +523,5 @@
   <string name="pin_forgotten_button">Ik ben de PIN vergeten</string>
   <string name="pin_forgotten_reset_pin_dialog_title">Pincode opnieuw instellen</string>
   <string name="pin_forgotten_reset_wait_button_text">%s wachten</string>
+  <string name="sss_one_more_share_needed">U heeft 1 extra aandeel nodig</string>
 </resources>

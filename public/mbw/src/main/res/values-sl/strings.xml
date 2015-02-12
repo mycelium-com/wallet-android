@@ -427,8 +427,6 @@
   <string name="signed_message_share">Deli podpisano sporočilo</string>
   <string name="signing_inprogress">Podpisujem sporočilo&#8230;</string>
   <string name="geocode_error">Napaka pri pridobivanju lokacijskih podatkov: %s \nProsimo, poskusite spet kasneje.</string>
-  <string name="donate_button">Daruj</string>
-  <string name="donate_description">Mycelium je odlična denarnica, ki jo lahko uporabljate brezplačno.\n\nProsimo, podprite nas pri njenem razvoju z donacijo.\n\nVsak znesek, še tako majhen, šteje!</string>
   <string name="fetching_info">Prenašam podatke s strežnika</string>
   <string name="email_notification_setting_explanation">Nastavite svoj e-naslov za prejemanje obvestil Krajevnega trgovanja</string>
   <string name="amount_changed">Znesek za nakazilo je bil spremenjen na vrednost iz QR-kode</string>
@@ -509,7 +507,6 @@
   <string name="error_no_browser">Prikaz spletne strani ni mogoč, na napravi ne najdem brskalnika</string>
   <string name="transaction_label_title">Oznaka nakazila</string>
   <string name="no_spending_records">Trenutno v denarnici ni nobenega računa, s katerega bi bilo mogoče plačevanje.\n\nČe želite plačevati, potrebujete račun, ki vsebuje zasebni ključ. Trenutno ni nobenega aktivnega HD-računa ali računa s posamičnim zasebnim ključem. Prosimo, aktivirajte ali uvozite račun z zasebnim ključem, če želite plačevati.</string>
-  <string name="donation_transaction_label">Darujte Myceliumu</string>
   <string name="select_key_for_signing">Izberite ključ za podpis</string>
   <string name="playstore_link_label">Povezava na Play Store</string>
   <string name="hide_unused_account_menu">Izbriši račun</string>

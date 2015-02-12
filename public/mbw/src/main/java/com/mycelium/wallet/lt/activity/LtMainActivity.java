@@ -199,11 +199,8 @@ public class LtMainActivity extends ActionBarActivity {
 
    @Override
    protected void onResume() {
-      checkGooglePlayServices();
       //showWelcomeMessage();
       // _ltManager.enableNotifications(false);
-      _ltManager.subscribe(ltSubscriber);
-      _ltManager.startMonitoringTrader();
       if (_ltManager.hasLocalTraderAccount()) {
          _ltManager.makeRequest(new GetTraderInfo());
       }
@@ -211,10 +208,23 @@ public class LtMainActivity extends ActionBarActivity {
    }
 
    @Override
-   protected void onPause() {
+   protected void onStart() {
+      checkGooglePlayServices();
+      _ltManager.subscribe(ltSubscriber);
+      _ltManager.startMonitoringTrader();
+      super.onStart();
+   }
+
+   @Override
+   protected void onStop() {
       _ltManager.stopMonitoringTrader();
       _ltManager.unsubscribe(ltSubscriber);
       // _ltManager.enableNotifications(true);
+      super.onStop();
+   }
+
+   @Override
+   protected void onPause() {
       super.onPause();
    }
 
