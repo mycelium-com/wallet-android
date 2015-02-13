@@ -63,8 +63,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionCode 21010
-        versionName '2.1.0'
+        versionCode 21011
+        versionName '2.1.1'
     }
 
     signingConfigs {

@@ -100,8 +100,6 @@ public class AboutActivity extends Activity {
          }
       });
 
-      findViewById(R.id.btDonate).setOnClickListener(donateClickListener);
-
       setLinkTo((TextView) findViewById(R.id.tvSourceUrl), R.string.source_url);
       setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
@@ -122,25 +120,6 @@ public class AboutActivity extends Activity {
          }
       });
    }
-
-   OnClickListener donateClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-         Utils.showSimpleMessageDialog(AboutActivity.this, R.string.donate_description, new Runnable() {
-            
-            @Override
-            public void run() {
-               MbwManager mbwManager = MbwManager.getInstance(AboutActivity.this);
-               NetworkParameters network = mbwManager.getNetwork();
-               Address address = network.isProdnet() ? Address.fromString(Constants.PRODNET_DONATION_ADDRESS) :Address.fromString(Constants.TESTNET_DONATION_ADDRESS);
-               WalletAccount account = mbwManager.getSelectedAccount();
-               BitcoinUri uri = new BitcoinUri(address, null, getString(R.string.donation_transaction_label));
-               SendInitializationActivity.callMe(AboutActivity.this, account.getId(), uri, false);
-            }
-         });
-      }
-   };
 
    private void showVersionInfo(VersionManager versionManager, VersionInfoResponse response) {
       if (versionManager.isSameVersion(response.versionNumber)) {

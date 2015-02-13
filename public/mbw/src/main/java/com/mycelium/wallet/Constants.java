@@ -107,9 +107,6 @@ public class Constants {
 
    public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
 
-   public static final String PRODNET_DONATION_ADDRESS = "13YxhmcAyr9W1frumWr3trXLAj2hSHWBmo";
-   public static final String TESTNET_DONATION_ADDRESS = "mtjVQkh6kZbixqwLPMinWievE5jWSHdovP";
-
    public static final int BITCOIN_BLOCKS_PER_DAY = (24 * 60) / 10;
 
    // Minimum age of the PIN in blocks, so that we allow a second wordlist backup
