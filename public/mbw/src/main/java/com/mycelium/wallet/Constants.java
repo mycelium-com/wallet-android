@@ -101,7 +101,4 @@ public class Constants {
 
    public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
 
-   public static final String PRODNET_DONATION_ADDRESS = "13YxhmcAyr9W1frumWr3trXLAj2hSHWBmo";
-   public static final String TESTNET_DONATION_ADDRESS = "mtjVQkh6kZbixqwLPMinWievE5jWSHdovP";
-
 }

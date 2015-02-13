@@ -110,12 +110,6 @@
                     android:layout_height="wrap_content"
                     android:width="@dimen/about_caption_size" />
 
-            <Button
-                    android:id="@+id/btDonate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/donate_button"/>
         </LinearLayout>
             
         <LinearLayout
