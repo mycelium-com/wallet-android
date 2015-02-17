@@ -61,6 +61,6 @@ public abstract class Node3Test {
       }
    };
 
-   protected final WapiClient api = new WapiClient(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), log);
+   protected final WapiClient api = new WapiClient(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), log, "test");
 
 }

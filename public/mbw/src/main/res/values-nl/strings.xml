@@ -390,7 +390,6 @@
   <string name="lt_confirm_abort">Omdat beide partijen deze transactie reeds hebben goedgekeurd is dit slecht voor uw beoordeling.\nWenst u deze transactie af te breken?\"</string>
   <string name="lt_enter_location_tite">Voer locatie in</string>
   <string name="lt_location_hint">Stad of adres invoeren</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Welkom! \n\nMet Mycelium lokale handelaar kunt u Bitcoins verhandelen door te zoeken naar handelaars in uw omgeving zonder dat u een derde partij met uw geld hoeft toe te vertrouwen.\n\nTot 1 September 2014, zal de vergoeding voor deze functionaliteit 0.2% van de transactie bedragen, deze kosten worden toegevoegd aan de transactie  prijs.</string>
   <string name="lt_how_to_trade_menu">Hoe te handelen</string>
   <string name="lt_going_to_website">Gaan naar %1$s</string>
   <string name="lt_buy_sell_button">Bitcoins Kopen / Verkopen</string>

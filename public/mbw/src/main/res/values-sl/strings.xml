@@ -390,7 +390,6 @@
   <string name="lt_confirm_abort">Ker sta tako vi kot nasprotna stranka sprejela posel, se vam lahko zaradi preklica posla zniža trgovalna ocena.\nSte prepričani, da želite preklicati ta posel?</string>
   <string name="lt_enter_location_tite">Vnesite kraj</string>
   <string name="lt_location_hint">Vnesite mesto ali naslov</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Dobrodošli!\n\nMyceliumovo krajevno trgovanje vam omogoča menjati bitcoine za gotovino z drugimi uporabniki v vašem kraju, ne da bi morali svoja sredstva zaupati posredniku. Vsi posli se izvedejo neposredno in v živo.\n\nDo 1. septembra 2014 bo provizija za krajevno trgovanje 0,2 %; ta provizija se prišteje prodajni ceni.</string>
   <string name="lt_how_to_trade_menu">Kako trgovati</string>
   <string name="lt_going_to_website">Preusmerjam na %1$s</string>
   <string name="lt_buy_sell_button">Kupi / prodaj novce</string>

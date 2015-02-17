@@ -34,6 +34,9 @@ public interface Wapi {
    public final static int ERROR_CODE_INVALID_ARGUMENT = 5;
    public final static int ERROR_CODE_INTERNAL_SERVER_ERROR = 99;
 
+   public final static String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
+
+
    public final static int MAX_TRANSACTION_INVENTORY_LIMIT = 1000;
    /**
     * Get the logger configured for this {@link Wapi}

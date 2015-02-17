@@ -102,11 +102,22 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
    }
 
    private void askForWordNumber() {
-      View checkBoxView = View.inflate(this, R.layout.wordlist_checkboxes, null);
+      final View checkBoxView = View.inflate(this, R.layout.wordlist_checkboxes, null);
       final CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkboxWordlistPassword);
       final RadioButton words12 = (RadioButton) checkBoxView.findViewById(R.id.wordlist12);
       final RadioButton words18 = (RadioButton) checkBoxView.findViewById(R.id.wordlist18);
       final RadioButton words24 = (RadioButton) checkBoxView.findViewById(R.id.wordlist24);
+
+      checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+         @Override
+         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            if (b) {
+               checkBoxView.findViewById(R.id.tvPasswordInfo).setVisibility(View.VISIBLE);
+            } else {
+               checkBoxView.findViewById(R.id.tvPasswordInfo).setVisibility(View.GONE);
+            }
+         }
+      });
 
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle(R.string.import_words_title);

@@ -338,7 +338,6 @@
   <string name="lt_confirm_abort">Vì cả 2 bên đều chấp nhận thoả thuận này mà đánh giá về bạn có thể bị ảnh hưởng.\nBạn có muốn huỷ giao dịch này không?\"</string>
   <string name="lt_enter_location_tite">Nhập vị trí</string>
   <string name="lt_location_hint">Nhập thành phố hoặc địa chỉ</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">XIN CHÀO!\n\nChương trình Mycelium Giao dịch Địa phương giúp bạn trao đổi giữa tiền và Bitcoin giữa các thương nhân trong khu vực mà không cần đến sự tin tưởng vào bất kỳ sàn giao dịch nào nắm giữ tiền của bạn. Tất cả giao dịch đều được thực hiện giữa người với người.\n\nCho đến ngày 1/9/2014, tất cả phí giao dịch qua chương trình này đều là 0.2%. Chi phí này sẽ được tính vào tổng số tiền giao dịch.</string>
   <string name="lt_how_to_trade_menu">Làm sao để giao dịch</string>
   <string name="lt_going_to_website">Đang đi tới %1$s</string>
   <string name="lt_buy_sell_button">Mua / Bán Bitcoin</string>

@@ -369,7 +369,6 @@
   <string name="lt_confirm_abort">Так как  вы оба  приняли сделку, ваши рейтинги могут получить понизиться. \nDo вы хотите отказаться от этой сделки?</string>
   <string name="lt_enter_location_tite">Введите местоположение</string>
   <string name="lt_location_hint">Введите город или адрес</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Добро пожаловать! \n\nMycelium Local Trader позволяет вам покупать и продавать биткойн за наличные деньги в вашем районе, без вас доверить ваши деньги биржам. Все сделки выполняются непосредственно от человека к человеку.\n\nДо 1-го сентября 2014 года комиссия за торговлю через систему Mycelium Local Trader составляет 0.2%, которая будет добавляться к цене.</string>
   <string name="lt_how_to_trade_menu">Как торговать</string>
   <string name="lt_going_to_website">Переход на %1$s</string>
   <string name="lt_buy_sell_button">Купить / Продать Bitcoin</string>

@@ -97,7 +97,7 @@ public class CmdLineWallet {
       };
 
       ServerEndpoints serverEndpoints = new ServerEndpoints(new HttpEndpoint[]{endpoint});
-      WapiClient wapi = new WapiClient(serverEndpoints, logger);
+      WapiClient wapi = new WapiClient(serverEndpoints, logger, "sample");
 
       AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
@@ -230,7 +230,7 @@ public class CmdLineWallet {
       };
 
       ServerEndpoints serverEndpoints = new ServerEndpoints(new HttpEndpoint[]{endpoint});
-      WapiClient wapi = new WapiClient(serverEndpoints, logger);
+      WapiClient wapi = new WapiClient(serverEndpoints, logger, "sample");
 
       AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 

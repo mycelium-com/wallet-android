@@ -40,6 +40,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
@@ -270,6 +272,18 @@ public class MbwManager {
    }
 
    private WapiClient initWapi() {
+      String version;
+      try {
+         PackageInfo packageInfo = _applicationContext.getPackageManager().getPackageInfo(_applicationContext.getPackageName(), 0);
+         if (packageInfo != null){
+            version = String.valueOf(packageInfo.versionCode);
+         } else {
+            version="na";
+         }
+      } catch (PackageManager.NameNotFoundException e) {
+         version="na";
+      }
+
       return new WapiClient(_environment.getWapiEndpoints(), new WapiLogger() {
 
 
@@ -290,7 +304,7 @@ public class MbwManager {
             Log.i("Wapi", message);
             retainLog(Level.INFO, message);
          }
-      });
+      }, version);
    }
 
    private void initTor() {

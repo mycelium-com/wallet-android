@@ -411,7 +411,6 @@
     <string name="lt_confirm_abort">Because both of you accepted the deal your ratings may get a penalty.\nDo you wish to abort this trade?</string>
     <string name="lt_enter_location_tite">Enter Location</string>
     <string name="lt_location_hint">Enter city or address</string>
-    <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">WELCOME!\n\nMycelium Local Trader lets you trade cash for bitcoins by finding traders in your local area, without you having to trust an exchange provider with your money. All trades are done directly in person.\n\nUntil September 1st, 2014, the fee for trading through the Local Trader system will be 0.2%, which will be added to the total sale price.</string>
     <string name="lt_how_to_trade_menu">How to Trade</string>
     <string name="lt_going_to_website">Going to %1$s</string>
     <string name="lt_buy_sell_button">Buy / Sell Bitcoin</string>
@@ -500,6 +499,7 @@
     <string name="wordlist_length_12">12 words</string>
     <string name="wordlist_length_18">18 words</string>
     <string name="wordlist_length_24">24 words</string>
+    <string name="recover_seed_password_info">Only select this option if you understand what it means.\nA normal Mycelium backup never includes a password - this is not your PIN.</string>
     <string name="import_wordlist_questions">Please select the length of the word list to restore and indicate whether it is protected by a password.</string>
     <string name="type_password_title">Enter Your Password</string>
     <string name="clipboard_not_available">Clipboard Content Not Valid</string>
@@ -598,9 +598,8 @@
     <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset it.</string>
     <string name="pref_no_fiat_selected">No fiat currency selected</string>
     <string name="useTor">Use tor-network</string>
-    <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.\nNo external Apps are needed.</string>
-    <string name="useTorOnlyInternalTor">Use tor-Network (internal tor)</string>
-    <string name="useTorOnlyExternalTor">Use tor-Network (external tor)</string>
+    <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.</string>
+    <string name="useTorOnlyExternalTor">Use tor-network (external tor)</string>
     <string name="useTorOnlyHttps">Use tor-Network (only https)</string>
     <string name="useTorBoth">Use tor-Network (both)</string>
     <string name="last_log_entries">Last log entries</string>

@@ -44,14 +44,16 @@ public class WapiClient implements Wapi {
    private static final int SHORT_TIMEOUT_MS = 4000;
 
 
-
    private ObjectMapper _objectMapper;
    private WapiLogger _logger;
 
    private ServerEndpoints _serverEndpoints;
+   private String versionCode;
 
-   public WapiClient(ServerEndpoints serverEndpoints, WapiLogger logger) {
+   public WapiClient(ServerEndpoints serverEndpoints, WapiLogger logger, String versionCode) {
       _serverEndpoints = serverEndpoints;
+      this.versionCode = versionCode;
+
       // Choose a random endpoint to use
       _objectMapper = new ObjectMapper();
       // We ignore properties that do not map onto the version of the class we
@@ -137,6 +139,7 @@ public class WapiClient implements Wapi {
             // build request
             final String toSend = getPostBody(request);
             Request rq = new Request.Builder()
+                  .addHeader(MYCELIUM_VERSION_HEADER, versionCode)
                   .post(RequestBody.create(MediaType.parse("application/json"), toSend))
                   .url(serverEndpoint.getUri(WapiConst.WAPI_BASE_PATH, function).toString())
                   .build();

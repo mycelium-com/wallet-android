@@ -329,7 +329,6 @@
   <string name="lt_confirm_stop">Chciałbyś zakączyć tę transkcję?</string>
   <string name="lt_enter_location_tite">Wpisz lokalizacje</string>
   <string name="lt_location_hint">Wpisz miasto lub adres</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Cześć!\n\nMycelium Local Trader pozwoli Ci handlować gotówką za bitcoiny poprzez znajdowanie zainteresowanych w Twojej okolicy. Nie musisz ufać giełdzie i powierzać jej swoim pieniędzy. Wszystkie transakcje są przeprowadzana osobiście.\n\nDo września 2014, opłata transakcyjna w systemie Local Trader będzie wynosiła 0.2% i będzie dodana do ostatecznej ceny sprzedaży.</string>
   <string name="lt_how_to_trade_menu">Jak handlować</string>
   <string name="lt_going_to_website">idź do %1$s</string>
   <string name="lt_buy_sell_button">Kup / Sprzedaj Bitcoiny</string>

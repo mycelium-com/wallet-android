@@ -390,7 +390,6 @@
   <string name="lt_confirm_abort">因為您和賣方都接受了交易，您的匯率可能低點。 \n您要中止這個交易嗎?\"</string>
   <string name="lt_enter_location_tite">輸入位置</string>
   <string name="lt_location_hint">輸入城市或位址</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">歡迎您! \n\nMycelium 本地交易系統讓你在你所在的地方尋找個人以現金交易比特幣，無需您提供現金和信任於交易所。所有的交易都直接交易.\n\n 2014 年9 月1 日前，通過本地交易系統交易的費用將是0.2%，交易費用將被添加到總賣價格里。</string>
   <string name="lt_how_to_trade_menu">如何交易</string>
   <string name="lt_going_to_website">去到 %1$s</string>
   <string name="lt_buy_sell_button">買/賣比特幣</string>

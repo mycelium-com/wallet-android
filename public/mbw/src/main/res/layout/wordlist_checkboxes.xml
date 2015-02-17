@@ -50,6 +50,16 @@
                 android:layout_marginRight="10dp"
                 android:text="@string/checkbox_wordlist_password"/>
 
-
+        <TextView
+                android:id="@+id/tvPasswordInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:visibility="gone"
+                android:text="@string/recover_seed_password_info"
+                />
     </LinearLayout>
 </ScrollView>

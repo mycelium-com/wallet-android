@@ -397,7 +397,6 @@
   <string name="lt_confirm_abort">Parce que vous avez accepté une entente ensemble, vos cotes peuvent souffrir par une pénalité.\nDésirez vous abandonner cet échange?</string>
   <string name="lt_enter_location_tite">Inscrire l\'emplacement</string>
   <string name="lt_location_hint">Inscrire la ville ou une adresse</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Bienvenue!\n\nMycelium Échangeur Local vous permet d\'échanger vos espèces en bitcoins avec des gens de votre région, sans le besoin d\'un fournisseur d\'échange. Toutes les transactions se font en personne.\n\nJusqu\'au 1er septembre 2014, les frais d\'échange avec Échangeur Local sera de 0,2 %, qui sera ajouté au prix de vente.</string>
   <string name="lt_how_to_trade_menu">Comment échanger</string>
   <string name="lt_going_to_website">Enroute vers %1$s</string>
   <string name="lt_buy_sell_button">Achat / Vente  BTC</string>
@@ -574,7 +573,6 @@
   <string name="wrong_pin_message">NIP erroné. \n\n Si vous avez oublié votre NIP, vous pouvez le réinitialiser.</string>
   <string name="pref_no_fiat_selected">Aucune devise sélectionné</string>
   <string name="useTor">Utiliser le réseau Tor</string>
-  <string name="useTorOnlyInternalTor">Utiliser le réseau Tor (tor interne)</string>
   <string name="useTorOnlyExternalTor">Utiliser le réseau Tor (tor externe)</string>
   <string name="useTorOnlyHttps">Utiliser le réseau Tor (https seulement)</string>
   <string name="useTorBoth">Utiliser le réseau Tor (les deux)</string>

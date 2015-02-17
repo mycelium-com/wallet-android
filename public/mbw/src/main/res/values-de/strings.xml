@@ -54,6 +54,7 @@
   <string name="private_key">Privater Schlüssel</string>
   <string name="your_bitcoin_address">Ihre Bitcoin-Adresse</string>
   <string name="bitcoin_address_title">Bitcoin-Adresse</string>
+  <string name="approximate_fiat_value">%2$s %1$s</string>
   <string name="no_server_connection">Keine Serververbindung</string>
   <string name="no_network_connection">Keine Netzwerkverbindung</string>
   <string name="invalid_bitcoin_uri">Ungültige Bitcoin-URI</string>
@@ -237,6 +238,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="version_label">Version</string>
   <string name="authors_label">Entwickelt von</string>
   <string name="homepage_label">Homepage</string>
+  <string name="homepage_url">https://mycelium.com</string>
+  <string name="company">Megion Research &amp; Development GmbH</string>
+  <string name="company_header">Diese App wird Ihnen kostenlos zur Verfügung gestellt von:</string>
   <string name="contact_email_label">Feedback</string>
   <string name="cancelled">Abgebrochen</string>
   <string name="help_menu">Hilfe</string>
@@ -258,6 +262,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_localization_not_available">Dieses Feature den aktuellen Standort. Es scheint, dass Ihr Gerät das nicht kann. Versuchen Sie die Ortungsdienste in den Geräteeinstellungen von zu aktivieren.</string>
   <string name="lt_create_account_title">Händler Identität erstellen</string>
   <string name="lt_create_account_address_desc">Sie verwenden Local Trader zum ersten Mal und müssen ein paar Details eingeben.\n\nWählen Sie das Konto, das Sie für Ihre Local Trader Identität verwenden möchten:</string>
+  <string name="use_button">Verwenden</string>
   <string name="lt_create_account_name_desc">Geben Sie Ihren Händler-Nickname ein:</string>
   <string name="lt_create_account_name_hint">Name</string>
   <string name="lt_error_account_name_taken">Dieser Name ist schon vergeben. Bitte wählen Sie einen anderen Namen</string>
@@ -397,7 +402,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_confirm_abort">Sie haben beide dieses Geschäft akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_enter_location_tite">Standort eingeben</string>
   <string name="lt_location_hint">Stadt oder Adresse eingeben</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">Hallo!\n\nMit Mycelium Local Trader können Sie direkt bei Händlern in Ihrer Umgebung Cash gegen Bitcoins tauschen. Der Umweg über eine Handelsplattform entfällt. Alle Geschäfte werden direkt und persönlich abgewickelt.\n\nBis zum 1. September 2014 beträgt die Provision auf alle Geschäfte, die über Mycelium Local Trader abgewickelt werden 0.2%.Die Provision wird auf den Gesamtverkaufspreis aufgeschlagen.</string>
   <string name="lt_how_to_trade_menu">Wie es funktioniert</string>
   <string name="lt_going_to_website">Gehen Sie zu %1$s</string>
   <string name="lt_buy_sell_button">Bitcoin Kaufen/Verkaufen</string>
@@ -519,6 +523,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="no_spending_records">Sie haben kein Konto, von dem aus Sie Bitcoins ausgeben können.\n\nUm Bitcoins ausgeben zu können benötigen Sie ein Konto mit einem privaten Schlüssel. Derzeit verfügen Sie weder über aktive HD Konten noch über Konten mit einer einzelnen Adresse mit einem privaten Schlüssel. Aktivieren oder importieren Sie ein Konto mit einem privaten Schlüssel um Bitcoins ausgeben zu können.</string>
   <string name="select_key_for_signing">Schlüssel zum Signieren auswählen</string>
   <string name="playstore_link_label">Link zu Playstore</string>
+  <string name="direct_apk_link_label">Direkter\nDownload</string>
   <string name="hide_unused_account_menu">Konto löschen</string>
   <string name="dont_allow_hiding_used_notification">Sie können ein verwendetes Konto nicht ausblenden, aber Sie können es archivieren</string>
   <string name="pref_miner_fee_title">Miner-Gebühr (%1$s)</string>
@@ -558,6 +563,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
   <string name="lt_confirm_delete_trader_message">Wollen Sie Ihre Local Trader-Identität löschen? Alle Handelsinformationen und Bewertungen werden dauerhaft entfernt und können nicht wiederhergestellt werden.</string>
+  <string name="rescan_account_menu_item">Konto erneut laden</string>
   <string name="add_advanced_account_warning">Warnung:\n Diese Schlüssel sind nicht Teil Ihres Master-Seed-Backup. Sie müssen ein separates Legacy Backup von ihnen machen.</string>
   <string name="new_random_key_desc">Einen neuen zufälligen Schlüssel generieren</string>
   <string name="generate_new_key">Generieren</string>
@@ -574,8 +580,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="wrong_pin_message">Sie haben eine falsche Pin eingegeben.\n\n Wenn Sie Ihre Pin vergessen haben, können Sie sie zurücksetzen.</string>
   <string name="pref_no_fiat_selected">Keine Fiat Währung ausgewählt</string>
   <string name="useTor">Tor-Netzwerk verwenden</string>
-  <string name="useTorDescription">Nutzen Sie das Tor-Netzwerk um mit den Backend Servern zu kommunizieren.\nDas erhöht Ihre Privatsphäre und kann um restriktive Firewalls herumleiten. Eventuell kann aber die Performance der App darunter leiden.\nEs sind keine externen Apps nötig.</string>
-  <string name="useTorOnlyInternalTor">Tor-Netzwerk verwenden (internes Tor)</string>
   <string name="useTorOnlyExternalTor">Tor-Netzwerk verwenden (externes Tor)</string>
   <string name="useTorOnlyHttps">Tor-Netzwerk verwenden (nur https)</string>
   <string name="useTorBoth">Tor-Netzwerk verwenden (beides)</string>
@@ -588,4 +592,10 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="info_add_account_keep_backup_secure">Info: Alle ihre Konten werden von ihrem Master Seed abgeleitet - wenn Sie Ihr 12-Wörter-Backup sichern, können Sie alle Ihre Konten wiederherstellen.</string>
   <string name="warning_add_account_no_backup">Warnung: Sie haben kein bestätigtes Backup Ihres Master Seed. Alle Ihre Konten werden daraus abgeleitet. Ihre Konten sind nur sicher und wiederherstellbar, wenn Sie ein gültiges und sicheres Backup haben.</string>
   <string name="transaction_to_address_prefix">An: %s</string>
+  <string name="tor_state_init">Tor init</string>
+  <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
+  <string name="install_orbot_">Orbot installieren?</string>
+  <string name="you_must_have_orbot">Orbot muss installiert und als Proxy aktiv sein. Möchten Sie die App mittels Google Play installieren?</string>
+  <string name="start_orbot_">Orbot starten?</string>
+  <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot scheint nicht ausgeführt zu werden. Möchten Sie die App starten und mit Tor verbinden?</string>
 </resources>

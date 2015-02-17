@@ -388,7 +388,6 @@
   <string name="lt_confirm_abort">Visto che entrambi avete accettato l\'affare il tuo punteggio potrebbe subire una penalità.\nVuoi interrompere questo scambio?\"</string>
   <string name="lt_enter_location_tite">Immettere la posizione</string>
   <string name="lt_location_hint">Inserisci la città o l\'indirizzo</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">SALVE!\n\nMycelium Local Trader consente di scambiare contanti con bitcoin trovando trader nella tua zona, senza dover aver affidare i tuoi soldi ad un servizio di cambiavalute. Tutti gli scambi sono effettuati direttamente in persona.\n\nFino al 1° di Settembre 2014, la commissione per lo scambio tramite Local Trader sarà dello 0.2%, somma che verrà aggiunta al prezzo di vendita finale.</string>
   <string name="lt_how_to_trade_menu">Come scambiare</string>
   <string name="lt_going_to_website">Apertura di %1$s</string>
   <string name="lt_buy_sell_button">Compra / Vendi Bitcoin</string>

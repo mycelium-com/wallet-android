@@ -54,6 +54,7 @@
   <string name="private_key">秘密鍵</string>
   <string name="your_bitcoin_address">あなたのビットコインアドレス：</string>
   <string name="bitcoin_address_title">ビットコインアドレス</string>
+  <string name="approximate_fiat_value">%2$s %1$s</string>
   <string name="no_server_connection">Myceliumサーバーへ接続できませんでした。</string>
   <string name="no_network_connection">インターネットに接続されていません。</string>
   <string name="invalid_bitcoin_uri">ビットコインURIが無効です</string>
@@ -68,7 +69,7 @@
   <string name="enter_address_label_title">アドレスラベルを入力</string>
   <string name="enter_transaction_label_title">取引ラベルを入力してください</string>
   <string name="set_label">ラベルをつける</string>
-  <string name="show_details">詳細を表示</string>
+  <string name="show_details">詳細へ</string>
   <string name="transaction_details">取引の詳細</string>
   <string name="hash"> ハッシュ</string>
   <string name="confirmed">確認済み</string>
@@ -129,7 +130,9 @@
   <string name="cold_storage_desc">今より紙などに書かれた秘密鍵をスキャンしてその場でビットコインを送金しようとしています。ペーパーウォレットやビットコインATMのレシートなどのフォーマットが読み取り可能です。\n\n送金の取引を完了した後、端末のメモリから秘密鍵を安全削除しますのでご注意下さい。</string>
   <string name="keep_account_address">秘密鍵のみを消去し、読み取り専用のアカウントとして保存</string>
   <string name="manual_entry">手入力</string>
+  <string name="active_hd_accounts_name">私の階層的決定性アカウント</string>
   <string name="archive_name">アーカイブ</string>
+  <string name="active_accounts_empty">（真空）</string>
   <string name="activate_action">有効にする</string>
   <string name="archive_action">アドレスをアーカイブへ</string>
   <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\r\n\r\nアーカイブされたアカウントは再度アクティブにすることができます。\r\n\r\nこのアカウントをアーカイブしますか？</string>
@@ -233,6 +236,8 @@
   <string name="version_label">バージョン</string>
   <string name="authors_label">によって開発されました。</string>
   <string name="homepage_label">ホームページ</string>
+  <string name="homepage_url">https://mycelium.com</string>
+  <string name="company">Megion Research &amp; Development GmbH</string>
   <string name="contact_email_label">ご意見/ご要望</string>
   <string name="cancelled">キャンセルされました。</string>
   <string name="help_menu">ヘルプ</string>
@@ -254,6 +259,7 @@
   <string name="lt_localization_not_available">この機能は、現在の場所を伝えることができるようにお使いのデバイスが必要です。それは、お使いのデバイスではそれができないようです。デバイス設定で位置情報サービスを有効にしてみてください。</string>
   <string name="lt_create_account_title">トレーダーのアカウントを作成</string>
   <string name="lt_create_account_address_desc">ローカルトレーダーの初めて使用のため、詳細をいくつか入力する必要があります。\n\nローカルトレーダーに使用したいアカウントを選択してください：</string>
+  <string name="use_button">使う</string>
   <string name="lt_create_account_name_desc">トレーダーニックネームを入力：</string>
   <string name="lt_create_account_name_hint">名前</string>
   <string name="lt_error_account_name_taken">選択した名前は既に使用されています。別の名前を選択してください。</string>
@@ -393,7 +399,6 @@
   <string name="lt_confirm_abort">両者が条件を受け入れたため、指定されたレーティングにペナルティがかかる可能性があります。\nこの取引を中止しますか？</string>
   <string name="lt_enter_location_tite">場所を入力</string>
   <string name="lt_location_hint">都市または住所を入力します。</string>
-  <string name="lt_welcome_message" tools:ignore="StringFormatInvalid">ようこそ!\n\nMyceliumローカルトレーダーを使えば、両替所に頼ることなく、お近くのエリアで現金とビットコインの交換が可能になります。 全ての取引は直接行われます。\n\n2014年9月1日までは、ローカルトレーダーシステムの手数料は0.2％で、合計額に追加されます。</string>
   <string name="lt_how_to_trade_menu">取引の仕方</string>
   <string name="lt_going_to_website">%1$sへ</string>
   <string name="lt_buy_sell_button">ビットコインの購入/売却</string>
@@ -507,8 +512,8 @@
   <string name="button_continue">続ける</string>
   <string name="butto_show_release_notes">詳細へ</string>
   <string name="word_does_not_exist_in_wordlist">あなたが入力したワードは、ワードリストにはありません。</string>
-  <string name="pref_legacy_backup_title">従来のバックアップ</string>
-  <string name="pref_legacy_backup_summary">単一アドレスアカウントが含まれる従来のバックアップを作成します。</string>
+  <string name="pref_legacy_backup_title">レガシー・バックアップ</string>
+  <string name="pref_legacy_backup_summary">単一アドレスアカウントが含まれるレガシー・バックアップを作成します。</string>
   <string name="error_no_browser">あなたの端末のブラウザーアプリが見つかりませんので、指定のサイトに移動できません。</string>
   <string name="transaction_label_title">取引ラベル</string>
   <string name="no_spending_records">あなたのアカウントの内、送金可能なアカウントがありません。\n\n送金を行うには、秘密鍵が含まれたアカウントが最低限1つ無いといけません。現在、有効なHDアカウントや単一アドレスアカウントで秘密鍵の含まれたアカウントがありません。送金を行いたい場合、新規アカウントの作成、若しくは秘密鍵の含まれたアカウントの復元を行って下さい。</string>
@@ -553,4 +558,10 @@
   <string name="lt_delete_trade_history">この取引を削除します。</string>
   <string name="lt_confirm_delete_history">この取引の情報を端末から削除しますか。</string>
   <string name="lt_confirm_delete_trader_message">あなたのローカルトレーダーのアカウントを削除しますか。すべての取引情報および評価は完全に削除されるので、回復することはできません。</string>
+  <string name="show_public_or_private_data">表示</string>
+  <string name="reset_pin_button">暗証番号リセット</string>
+  <string name="button_changelog">更新履歴</string>
+  <string name="transaction_to_address_prefix">宛先: %s</string>
+  <string name="tor_state_init">Tor イニット</string>
+  <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
 </resources>
