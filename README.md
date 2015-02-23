@@ -81,7 +81,7 @@ More features:
  - Sources available for review:  https://github.com/mycelium-com/wallet
  - Multiple private keys
  - Multiple Bitcoin denominations: BTC, mBTC, and uBTC
- - View your balance in multiple fiat currencies: USD, AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NZD, PLN, RUB, SEK, SGD, THB
+ - View your balance in 160+ fiat currencies
  - Send and receive by specifying an amount in Fiat and switch between fiat and BTC while entering the amount
  - Address book for commonly used addresses
  - Transaction history with detailed transaction details.
