@@ -36,6 +36,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    private final Map<UUID, InMemoryAccountBacking> _backings;
    private final Map<UUID, Bip44AccountContext> _bip44Contexts;
    private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts;
+   private int maxSubId = 0;
 
    public InMemoryWalletManagerBacking() {
       _values = new HashMap<String, byte[]>();
@@ -123,17 +124,47 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    }
 
    @Override
+   public byte[] getValue(byte[] id, int subId) {
+      if (subId > maxSubId) {
+         throw new RuntimeException("subId does not exist");
+      }
+      return _values.get(idToString(id, subId));
+   }
+
+   @Override
    public void setValue(byte[] id, byte[] plaintextValue) {
       _values.put(idToString(id), plaintextValue);
    }
 
    @Override
+   public void setValue(byte[] key, int subId, byte[] plaintextValue) {
+      if (subId > maxSubId){
+         maxSubId = subId;
+      }
+      _values.put(idToString(key, subId), plaintextValue);
+   }
+
+   @Override
+   public int getMaxSubId() {
+      return  maxSubId;
+   }
+
+   @Override
    public void deleteValue(byte[] id) {
-      _values.remove(id);
+      _values.remove(idToString(id));
+   }
+
+   @Override
+   public void deleteSubStorageId(int subId) {
+      throw new UnsupportedOperationException();
    }
 
    private String idToString(byte[] id) {
       return HexUtils.toHex(id);
+   }
+
+   private String idToString(byte[] id, int subId) {
+      return "sub" + subId + "." + HexUtils.toHex(id);
    }
 
    private class InMemoryAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {

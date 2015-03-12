@@ -53,6 +53,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -274,9 +275,9 @@ public class ModernMain extends ActionBarActivity {
          startActivity(running);
       } else if (requestCode == GENERIC_SCAN_REQUEST) {
          if (resultCode == RESULT_OK) {
-            ScanActivity.ResultType type = (ScanActivity.ResultType) data.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
-            if (type == ScanActivity.ResultType.ACCOUNT) {
-               UUID accountid = ScanActivity.getAccount(data);
+            StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+            if (type == StringHandlerActivity.ResultType.ACCOUNT) {
+               UUID accountid = StringHandlerActivity.getAccount(data);
                WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
                //we are returning from seed import, so this has to be the first hd account
                Preconditions.checkState(account instanceof Bip44Account);

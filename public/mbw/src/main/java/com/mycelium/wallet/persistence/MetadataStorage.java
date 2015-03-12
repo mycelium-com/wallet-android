@@ -50,7 +50,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    public static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
    public static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
    public static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
-   public static final MetadataCategory SINGLE_KEY_BACKUPSTATE = new MetadataCategory("single_key_bs");
+   public static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
@@ -92,6 +92,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       }
    }
 
+   // Removes all metadata (account label,...) from the database
    public void deleteAccountMetadata(UUID account){
       deleteAllByKey(account.toString());
    }
@@ -150,19 +151,19 @@ public class MetadataStorage extends GenericMetadataStorage {
       );
    }
 
-   public BackupState getSingleKeyBackupState(UUID accountId) {
+   public BackupState getOtherAccountBackupState(UUID accountId) {
       return BackupState.fromString(
-            getKeyCategoryValueEntry(SINGLE_KEY_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
+            getKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
       );
    }
 
-   public void setSingleKeyBackupState(UUID accountId, BackupState state) {
-      storeKeyCategoryValueEntry(SINGLE_KEY_BACKUPSTATE.of(accountId.toString()), state.toString());
+   public void setOtherAccountBackupState(UUID accountId, BackupState state) {
+      storeKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), state.toString());
    }
 
 
-   public void deleteSingleKeyBackupState(UUID accountId) {
-      deleteByKeyCategory(SINGLE_KEY_BACKUPSTATE.of(accountId.toString()));
+   public void deleteOtherAccountBackupState(UUID accountId) {
+      deleteByKeyCategory(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()));
    }
 
    public void deleteMasterKeyBackupAgeMs(){

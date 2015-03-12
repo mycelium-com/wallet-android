@@ -148,7 +148,7 @@ public class Bip44AccountTest {
 
       Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
 
-      WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, new FakeWapi());
+      WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, new FakeWapi(), null);
 
       walletManager.configureBip32MasterSeed(masterSeed, cipher);
 

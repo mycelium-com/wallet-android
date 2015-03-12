@@ -91,19 +91,32 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
       if (!Script.isOP(scriptChunks[scriptChunks.length - 1], OP_CHECKMULTISIG)) {
          return false;
       }
+      //first and second last chunk must have length 1, because they should be m and n values
+      if (scriptChunks[0].length != 1 || scriptChunks[scriptChunks.length - 2].length != 1) {
+         return false;
+      }
       //check for the m and n values
-      int m = Script.opToIntValue(scriptChunks[0]);
-      int n = Script.opToIntValue(scriptChunks[scriptChunks.length - 2]);
-      if (n < 1 || n > 16) {
+      try {
+         int m = Script.opToIntValue(scriptChunks[0]);
+         int n = Script.opToIntValue(scriptChunks[scriptChunks.length - 2]);
+
+         if (n < 1 || n > 16) {
+            return false;
+         }
+         if (m > n || m < 1 || m > 16) {
+            return false;
+         }
+         //check that number of pubkeys matches n
+         if (n != scriptChunks.length - 3) {
+            return false;
+         }
+
+      }catch(IllegalStateException ex){
+         //should hopefully not happen, since we check length before evaluating m and n
+         //but its better to not risk BQS stopping in case something weird happens
          return false;
       }
-      if (m > n || m < 1 || m > 16) {
-         return false;
-      }
-      //check that number of pubkeys matches n
-      if (n != scriptChunks.length - 3) {
-         return false;
-      }
+
 
       return true;
    }

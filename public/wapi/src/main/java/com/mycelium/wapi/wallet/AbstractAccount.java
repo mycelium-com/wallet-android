@@ -49,7 +49,7 @@ import java.util.*;
 
 public abstract class AbstractAccount implements WalletAccount {
    public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
-   private static final int COINBASE_MIN_CONFIRMATIONS = 120;
+   protected static final int COINBASE_MIN_CONFIRMATIONS = 120;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 100;
 
    public interface EventHandler {

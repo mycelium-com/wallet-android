@@ -49,13 +49,13 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.UUID;
 
 public class ColdStorageSummaryActivity extends Activity {
 
+   private static final int SEND_MAIN_REQUEST_CODE = 1;
    private MbwManager _mbwManager;
    private WalletAccount _account;
 
@@ -150,10 +150,10 @@ public class ColdStorageSummaryActivity extends Activity {
          if (balance.getSpendableBalance() > 0) {
             btSend.setEnabled(true);
             btSend.setOnClickListener(new OnClickListener() {
-
                @Override
                public void onClick(View arg0) {
-                  SendMainActivity.callMe(ColdStorageSummaryActivity.this, _account.getId(), true);
+                  Intent intent = SendMainActivity.getIntent(ColdStorageSummaryActivity.this, _account.getId(), true);
+                  ColdStorageSummaryActivity.this.startActivityForResult(intent, SEND_MAIN_REQUEST_CODE);
                   finish();
                }
             });
@@ -163,8 +163,17 @@ public class ColdStorageSummaryActivity extends Activity {
       } else {
          btSend.setVisibility(View.GONE);
       }
+   }
 
-
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == SEND_MAIN_REQUEST_CODE) {
+         _mbwManager.forgetColdStorageWalletManager();
+         setResult(resultCode, data);
+         finish();
+      } else {
+         super.onActivityResult(requestCode, resultCode, data);
+      }
    }
 
    @Override

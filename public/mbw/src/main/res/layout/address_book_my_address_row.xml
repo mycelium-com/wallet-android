@@ -1,21 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal"
-    android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="8dp" >
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:minHeight="?android:attr/listPreferredItemHeight"
+              android:orientation="horizontal"
+              android:paddingBottom="8dp"
+              android:paddingLeft="8dp"
+              android:paddingRight="8dp"
+              android:paddingTop="8dp">
+
+    <FrameLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:layout_marginRight="5dp">
+        <ImageView
+                android:id="@+id/ivIcon"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                android:contentDescription="@string/an_icon"
+                tools:src="@drawable/singlekey_grey" >
+        </ImageView>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tvName"
-
+        android:layout_gravity="center_vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="100"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        tools:text="Addressbook entry"/>
 
     <TextView
         android:id="@+id/tvAddress"
@@ -24,7 +42,8 @@
         android:layout_gravity="right"
         android:layout_weight="0"
         android:paddingLeft="6dip"
+        tools:text="1A1zP1eP5Q\nGefi2DMPTfTL\n5SLmv7DivfNa"
         android:textSize="18sp"
-        android:typeface="monospace" />
+        android:typeface="monospace"/>
 
 </LinearLayout>

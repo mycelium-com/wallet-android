@@ -46,56 +46,58 @@ import com.mycelium.wallet.activity.util.Pin;
 
 import java.util.ArrayList;
 
-//todo maybe convert to Fragment, if AndroidMinVersion increased
 public class PinDialog extends Dialog {
 
-   private final Button btn_back;
-   private final Button btn_clear;
+   protected Button btnBack;
+   protected Button btnClear;
 
    public interface OnPinEntered {
       void pinEntered(PinDialog dialog, Pin pin);
    }
 
-   private ArrayList<Button> _btn = new ArrayList<Button>(10);
-   private ArrayList<TextView> _disp = new ArrayList<TextView>(6);
-   protected String _enteredPin;
+   protected ArrayList<Button> buttons = new ArrayList<Button>(10);
+   protected ArrayList<TextView> disps = new ArrayList<TextView>(6);
+   protected String enteredPin;
 
-   protected OnPinEntered _onPinValid = null;
-   private boolean _hidden;
+   protected OnPinEntered onPinValid = null;
+   private boolean hidden;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
-      this._onPinValid = _onPinValid;
+      this.onPinValid = _onPinValid;
    }
 
 
    public PinDialog(Context context, boolean hidden) {
       super(context);
-      setLayout();
-      _hidden = hidden;
-      _disp.add( (TextView) findViewById(R.id.pin_char_1));
-      _disp.add( (TextView) findViewById(R.id.pin_char_2));
-      _disp.add( (TextView) findViewById(R.id.pin_char_3));
-      _disp.add( (TextView) findViewById(R.id.pin_char_4));
-      _disp.add( (TextView) findViewById(R.id.pin_char_5));
-      _disp.add( (TextView) findViewById(R.id.pin_char_6));
-      _btn.add( ((Button) findViewById(R.id.pin_button0)));
-      _btn.add( ((Button) findViewById(R.id.pin_button1)));
-      _btn.add( ((Button) findViewById(R.id.pin_button2)));
-      _btn.add( ((Button) findViewById(R.id.pin_button3)));
-      _btn.add( ((Button) findViewById(R.id.pin_button4)));
-      _btn.add( ((Button) findViewById(R.id.pin_button5)));
-      _btn.add( ((Button) findViewById(R.id.pin_button6)));
-      _btn.add( ((Button) findViewById(R.id.pin_button7)));
-      _btn.add( ((Button) findViewById(R.id.pin_button8)));
-      _btn.add( ((Button) findViewById(R.id.pin_button9)));
+      this.hidden = hidden;
+      loadLayout();
+      initPinPad();
+      enteredPin = "";
+      this.setTitle(R.string.pin_enter_pin);
+   }
 
-      btn_clear = (Button) findViewById(R.id.pin_clr);
-      btn_back = (Button) findViewById(R.id.pin_back);
+   protected void initPinPad() {
+      disps.add((TextView) findViewById(R.id.pin_char_1));
+      disps.add((TextView) findViewById(R.id.pin_char_2));
+      disps.add((TextView) findViewById(R.id.pin_char_3));
+      disps.add((TextView) findViewById(R.id.pin_char_4));
+      disps.add((TextView) findViewById(R.id.pin_char_5));
+      disps.add((TextView) findViewById(R.id.pin_char_6));
+      buttons.add( ((Button) findViewById(R.id.pin_button0)));
+      buttons.add( ((Button) findViewById(R.id.pin_button1)));
+      buttons.add( ((Button) findViewById(R.id.pin_button2)));
+      buttons.add( ((Button) findViewById(R.id.pin_button3)));
+      buttons.add( ((Button) findViewById(R.id.pin_button4)));
+      buttons.add( ((Button) findViewById(R.id.pin_button5)));
+      buttons.add( ((Button) findViewById(R.id.pin_button6)));
+      buttons.add( ((Button) findViewById(R.id.pin_button7)));
+      buttons.add( ((Button) findViewById(R.id.pin_button8)));
+      buttons.add( ((Button) findViewById(R.id.pin_button9)));
 
-      _enteredPin = "";
-
+      btnClear = (Button) findViewById(R.id.pin_clr);
+      btnBack = (Button) findViewById(R.id.pin_back);
       int cnt=0;
-      for (Button b : _btn) {
+      for (Button b : buttons) {
          final int akCnt = cnt;
          b.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,91 +108,92 @@ public class PinDialog extends Dialog {
          cnt++;
       }
 
-      btn_back.setOnClickListener(new View.OnClickListener() {
+      btnBack.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
             removeLastDigit();
          }
       });
 
-      btn_clear.setOnClickListener(new View.OnClickListener() {
+      btnClear.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
             clearDigits();
          }
       });
-
-      this.setTitle(R.string.pin_enter_pin);
    }
 
-   protected void setLayout() {
+   protected void loadLayout() {
       setContentView(R.layout.enter_pin_dialog);
    }
 
-   private void addDigit(String c) {
-      _enteredPin = _enteredPin + c;
+   protected void addDigit(String c) {
+      enteredPin = enteredPin + c;
       updatePinDisplay();
    }
 
-   private void updatePinDisplay(){
+   protected void updatePinDisplay(){
       int cnt = 0;
-      for (TextView t : _disp) {
-         t.setText(getPinDigitAsString(_enteredPin, cnt));
+      for (TextView t : disps) {
+         t.setText(getPinDigitAsString(enteredPin, cnt));
          cnt++;
       }
       checkPin();
    }
 
-   private String getPinDigitAsString(String pin, int index) {
+   protected String getPinDigitAsString(String pin, int index) {
       if (pin.length() > index) {
-         return _hidden ? "*" : pin.substring(index, index + 1);
+         return hidden ? "*" : pin.substring(index, index + 1);
       } else {
          return " ";
       }
    }
 
-   private void clearDigits() {
-      _enteredPin = "";
-      for (TextView t : _disp) {
+   protected void clearDigits() {
+      enteredPin = "";
+      for (TextView t : disps) {
          t.setText("");
       }
    }
 
-   private void removeLastDigit(){
-      if (!Strings.isNullOrEmpty(_enteredPin)){
-         _enteredPin = _enteredPin.substring(0, _enteredPin.length() - 1);
+   protected void removeLastDigit(){
+      if (!Strings.isNullOrEmpty(enteredPin)){
+         enteredPin = enteredPin.substring(0, enteredPin.length() - 1);
       }
       updatePinDisplay();
    }
 
-   private void enableButtons(boolean enabled) {
-      for (Button b : _btn) {
+   protected void enableButtons(boolean enabled) {
+      for (Button b : buttons) {
          b.setEnabled(enabled);
       }
    }
 
-   private void checkPin() {
-      if (_enteredPin.length() >= 6) {
-         enableButtons(false);
-         delayhandler.sendMessage(delayhandler.obtainMessage());
+   protected void checkPin() {
+      if (enteredPin.length() >= 6) {
+         acceptPin();
       }
    }
 
+   protected void acceptPin() {
+      enableButtons(false);
+      delayHandler.sendMessage(delayHandler.obtainMessage());
+   }
 
 
    /**
     * Trick to make the last digit update before the dialog is disabled
     */
-  final Handler delayhandler = new Handler() {
+  final Handler delayHandler = new Handler() {
       public void handleMessage(Message msg) {
-         if (_onPinValid != null) _onPinValid.pinEntered(PinDialog.this, getPin());
+         if (onPinValid != null) onPinValid.pinEntered(PinDialog.this, getPin());
          enableButtons(true);
          clearDigits();
       }
    };
 
    protected Pin getPin() {
-      return new Pin(_enteredPin);
+      return new Pin(enteredPin);
    }
 
 

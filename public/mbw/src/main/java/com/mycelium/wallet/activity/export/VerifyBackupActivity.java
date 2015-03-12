@@ -45,6 +45,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -74,7 +75,7 @@ public class VerifyBackupActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, ScanRequest.verifySeedOrKey());
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, StringHandleConfig.verifySeedOrKey());
          }
 
       });
@@ -137,7 +138,7 @@ public class VerifyBackupActivity extends Activity {
       int num = 0;
       for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getSingleKeyBackupState(accountid);
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
             boolean needsBackup = account instanceof SingleAddressAccount
@@ -171,7 +172,7 @@ public class VerifyBackupActivity extends Activity {
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account);
 
       if (success) {
-         _mbwManager.getMetadataStorage().setSingleKeyBackupState(account, MetadataStorage.BackupState.VERIFIED);
+         _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
          updateUi();
          String message = getResources().getString(R.string.verify_backup_ok, address.toMultiLineString());
          ShowDialogMessage(message, false);
@@ -196,7 +197,7 @@ public class VerifyBackupActivity extends Activity {
             ShowDialogMessage(message, false);
             updateUi();
          } else {
-            String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+            String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
             if (error != null) {
                ShowDialogMessage(error, false);
             }

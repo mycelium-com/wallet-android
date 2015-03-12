@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium 比特幣錢包</string>
   <string name="add_account_title">添加新的帳戶</string>
-  <string name="add_single_account_title">添加單一位址帳戶</string>
   <string name="import_seed_title">導入主種子</string>
   <string name="import_words_title">輸入單詞列表</string>
   <string name="add_account_desc">Mycelium支持HD帳戶和單一地址帳戶。所有HD帳戶都創建於​​相同的主種子。第一次您創建HD帳戶時，需要對您的主種子進行配置。</string>
   <string name="add_single_acc_info">若要基於私人密鑰或只讀的地址添加單一地址帳戶，請單擊下面的高級按鈕。</string>
-  <string name="scan_desc">請掃描比特幣地址或密匙。</string>
   <string name="scan_seed">從Mycelium備份中掃描主種子</string>
   <string name="use_acc_first">你只能有一個未使用的HD帳戶。</string>
   <string name="clipboard_desc">使用剪貼板的比特幣地址或密匙</string>
@@ -52,7 +50,6 @@
   <string name="copy_private_key_to_clipboard">複製密鑰到剪貼板</string>
   <string name="copied_to_clipboard">複製完成</string>
   <string name="private_key">密鑰</string>
-  <string name="your_bitcoin_address">你的比特幣地址：</string>
   <string name="bitcoin_address_title">比特幣地址</string>
   <string name="no_server_connection">服务器连接失败</string>
   <string name="no_network_connection">網絡連接失敗</string>
@@ -111,7 +108,6 @@
   <string name="edit">編輯</string>
   <string name="delete">刪除</string>
   <string name="payment_request">付款請求</string>
-  <string name="backup_all_warning">您應該備份錢包的主種子。 \n如果您的設備丟失或者損壞，你可以從備份中恢復您的資金.\n\n您想要現在這樣做嗎？</string>
   <string name="backup_legacy_warning">你將在你錢包中備份單地址帳戶。 \n 這份備份將不會包含您主的種子，您的HD帳戶不可以從它恢復！ \n\n 您希望繼續嗎？</string>
   <string name="export_to_clipboard_warning">警告：將導出密鑰到剪貼板將公開給您的手機\n\n注意：您必須粘貼它到安全的地方\n\n您要繼續嗎</string>
   <string name="found_clipboard_private_key_title">密钥在剪贴板上</string>
@@ -126,7 +122,6 @@
   <string name="get_private_key">從哪裡獲得密鑰：</string>
   <string name="cold_storage">冷庫</string>
   <string name="cold_storage_title">冷庫花費</string>
-  <string name="cold_storage_desc">您將要從冷庫中的密鑰花費。支持多種格式，如備份文件和從比特幣取款機的密鑰\n\n發送了交易以後，密鑰會被刪除</string>
   <string name="keep_account_address">只刪除私鑰並保留它作為一個只讀帳戶</string>
   <string name="manual_entry">手動輸入</string>
   <string name="archive_name">存檔了</string>
@@ -162,10 +157,6 @@
   <string name="delete_account_title">刪除帳戶嗎？</string>
   <string name="delete_account_message">你想要刪除該帳戶嗎？</string>
   <string name="confirm_delete_pk_title">您確定嗎</string>
-  <string name="confirm_delete_pk_with_balance">這不能被撤銷！\n\n密鑰的地址：\n%1$s\n\n它包含 %2$s\n\n您想要刪除它嗎</string>
-  <string name="confirm_delete_pk_with_balance_with_label">這不能被撤銷！\n\n密鑰的標籤：\n%1$s\n\n它包含 %2$s\n\n您想要刪除它嗎</string>
-  <string name="confirm_delete_pk_without_balance">這不能被撤銷！\n\n密鑰的地址：\n%1$s\n\n您想要刪除它嗎</string>
-  <string name="confirm_delete_pk_without_balance_with_label">這不能被撤銷！\n\n密鑰的標籤：\n%1$s\n\n密鑰的地址：\n%2$s\n\n您想要刪除它嗎</string>
   <string name="verify_private_key_backup">驗證備份</string>
   <string name="verify_backup_dialog_title">驗證密鑰備份</string>
   <string name="verify_backup_desc">密鑰備份對於管理您的比特幣是至管重要的。 \n\n驗證您的備份會確保您的備份正確，這樣您不會因為手機的損壞或丟失而失去您的比特幣資金。</string>
@@ -365,7 +356,6 @@
   <string name="lt_selling_details">你正在銷售 %1$s</string>
   <string name="lt_no_trader_account_desc">沒有本地交易賬戶與此錢包相關聯。 \n\n交易帳戶直接與您的一個比特幣地址綁定，不需要密碼，沒有障礙。 \n\n需要現在創建一個嗎？</string>
   <string name="lt_trader_name_label">交易員名稱</string>
-  <string name="lt_trader_address_label">地址綁定帳戶</string>
   <string name="lt_trader_email_address_label">電子郵件地址</string>
   <string name="lt_trader_age_label">交易者帳戶年齡</string>
   <string name="lt_trader_last_activity">最後一次活動</string>
@@ -472,7 +462,6 @@
   <string name="wordlist_length_24">24 個單詞</string>
   <string name="import_wordlist_questions">請選擇單詞列表長度進行恢復，並標明它是否被密碼保護。</string>
   <string name="type_password_title">輸入您的密碼</string>
-  <string name="clipboard_not_available">剪貼簿內容無效</string>
   <string name="no_android_wallet_backup">沒有發現轉出</string>
   <string name="unable_to_get_clipboard">無法獲取當前剪貼簿內容</string>
   <string name="unable_to_clear_clipboard">無法清除剪貼簿</string>

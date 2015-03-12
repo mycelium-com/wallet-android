@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_account_title">Agregar una cuenta nueva</string>
-  <string name="add_single_account_title">Agregar una dirección única</string>
   <string name="import_seed_title">Importar Master Seed</string>
   <string name="import_words_title">Inserte lista de palabras</string>
   <string name="add_account_desc">Mycelium soporta cuentas HD y direcciones simples.Todas las cuentas HD son creadas, basadas en la misma Masster Seed. La primera vez que la creas, tu Master Seed será configurado.</string>
   <string name="add_single_acc_info">Para agregar una Dirección de Cuenta Única basada en una clave privada o en una dirección de solo lectura, por favor haga click en el botón Avanzado, aquí debajo.</string>
-  <string name="scan_desc">Escanear una dirección Bitcoin o una clave privada.</string>
   <string name="scan_seed">Escanear Master Seed desde el Respaldo de Mycelium</string>
   <string name="use_acc_first">Solo puede haber una Cuenta HD sin usar.</string>
   <string name="clipboard_desc">Importar una dirección Bitcoin o una clave privada desde el portapapeles.</string>
@@ -46,7 +44,6 @@
   <string name="copy_private_key_to_clipboard">Copiar la clave Privada en el Portapapeles</string>
   <string name="copied_to_clipboard">Copiado en el portapapeles</string>
   <string name="private_key">Clave Privada</string>
-  <string name="your_bitcoin_address">Su dirección Bitcoin:</string>
   <string name="bitcoin_address_title">Dirección Bitcoin</string>
   <string name="no_server_connection">Sin conexión con el servidor</string>
   <string name="no_network_connection">Sin conexión de red</string>
@@ -116,7 +113,6 @@
   <string name="get_private_key">Obtener clave privada de:</string>
   <string name="cold_storage">Almacenamiento en Frío</string>
   <string name="cold_storage_title">Gastos del \"Almacenamiento en Frío\"</string>
-  <string name="cold_storage_desc">Está a punto de pagar con una clave privada del \"Almacenamiento en Frío\" (almacenamiento offline de tus Bitcoins). Podría tratarse de una copia de seguridad de una clave privada en papel o de una hoja de una clave privada de un cajero automático de Bitcoins. Se aceptan diversos formatos.\n\nUna vez se envíe la transacción, se eliminará de la memoria toda huella de la clave privada.</string>
   <string name="manual_entry">Entrada manual</string>
   <string name="archive_name">Archivado</string>
   <string name="activate_action">Activar</string>
@@ -136,10 +132,6 @@
   <string name="tap_to_refresh">Pulsar para actualizar</string>
   <string name="using_address_from_clipboard">Utilizando una dirección del portapapeles</string>
   <string name="confirm_delete_pk_title">¿Estás seguro?</string>
-  <string name="confirm_delete_pk_with_balance">¡Esto no se puede deshacer!\n\nDirección de la clave privada:\n%1$s\n\nContiene %2$s\n\n¿Desea borrarla?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">¡Esto no se puede deshacer! \n\nEtiqueta de clave privada:\n%1$s\n\nDirección de clave privada:\n%2$s\n\n contiene %3$s\n\n¿Desea borrarla?</string>
-  <string name="confirm_delete_pk_without_balance">¡Esto no se puede deshacer!\n\nDirección de clave privada:\n%1$s\n\n¿Desea borrarla?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">¡Esto no se puede deshacer! \n\nEtiqueta de clave privada:\n%1$s\n\nDirección de clave privada:\n%2$s\n\n¿Desea borrarla?</string>
   <string name="verify_private_key_backup">Comprobar copia de seguridad</string>
   <string name="verify_backup_dialog_title">Verificar copia de seguridad de la clave privada</string>
   <string name="verify_backup_clipboard_desc">Compruebe la copia de seguridad de la clave privada tomando la clave privada del portapapeles.</string>

@@ -80,24 +80,7 @@ public class TradeActivityUtil {
       return true;
    }
 
-   public static Transaction createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
-      Preconditions.checkNotNull(ts.buyerAddress);
-      WalletAccount acc = mbwManager.getSelectedAccount();
-
-      // Create unsigned transaction
-      UnsignedTransaction unsigned = createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, mbwManager.getMinerFee().kbMinerFee);
-      Transaction tx;
-      try {
-         tx = acc.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
-         // don't broadcast the transaction, let local trader do that for us
-      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-         throw new RuntimeException(invalidKeyCipher);
-      }
-      return tx;
-   }
-
-   private static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
+   public static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
          Address buyerAddress, Address feeAddress, WalletAccount acc, long minerFeeToUse) {
       Preconditions.checkArgument(satoshisForBuyer > TransactionUtils.MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);

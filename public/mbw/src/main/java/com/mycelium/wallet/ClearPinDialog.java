@@ -59,7 +59,7 @@ public class ClearPinDialog extends PinDialog {
                @Override
                public void onClick(View v) {
                   mbwManager.savePin(Pin.CLEAR_PIN);
-                  if (_onPinValid != null) _onPinValid.pinEntered(ClearPinDialog.this, Pin.CLEAR_PIN );
+                  if (onPinValid != null) onPinValid.pinEntered(ClearPinDialog.this, Pin.CLEAR_PIN );
                }
             });
          }else if (resetPinRemainingBlocksCount.isPresent()){
@@ -114,7 +114,7 @@ public class ClearPinDialog extends PinDialog {
    }
 
    @Override
-   protected void setLayout() {
+   protected void loadLayout() {
       setContentView(R.layout.enter_clear_pin_dialog);
    }
 }

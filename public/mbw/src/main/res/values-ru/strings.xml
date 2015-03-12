@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_account_title">Добавить новый счет</string>
-  <string name="add_single_account_title">Добавить счет  с  одним  адресом</string>
   <string name="import_seed_title">Импортировть Master Seed</string>
   <string name="import_words_title">Введите список слов</string>
   <string name="add_account_desc">Mycelium поддерживает HD счета и счета  с одним адресом. Все HD счета создаются  на основе мастер семян. Во время создания HD счета в первый раз ваш Master Seed будет создан .</string>
   <string name="add_single_acc_info">Чтобы добавить счет одного адреса  на основе приватного ключа или только для чтения адреса, пожалуйста, нажмите кнопку Дополнительно.</string>
-  <string name="scan_desc">Сканировать биткойн адрес или приватный ключ.</string>
   <string name="scan_seed">Сканировать Master Seed  из резервной копии Mycelium</string>
   <string name="use_acc_first">Вы можете иметь только один неиспользуемый HD счет.</string>
   <string name="clipboard_desc">Импортировать биткойн адрес или приватный ключ из буфера обмена данными (clipboard).</string>
@@ -52,7 +50,6 @@
   <string name="copy_private_key_to_clipboard">Скопировать  приватный ключ в буфер обмена</string>
   <string name="copied_to_clipboard">Скопирован в буфер обмена</string>
   <string name="private_key">Приватный  ключ</string>
-  <string name="your_bitcoin_address">Ваш  биткойн адрес :</string>
   <string name="bitcoin_address_title">Биткойн адрес</string>
   <string name="no_server_connection">Нет соединения с  сервером</string>
   <string name="no_network_connection">Отсутствует сетевое подключение</string>
@@ -124,7 +121,6 @@
   <string name="get_private_key">Получить приватный ключ:</string>
   <string name="cold_storage">\"Холодное хранилище\"</string>
   <string name="cold_storage_title">Расходование из  \"холодного хранилища\"</string>
-  <string name="cold_storage_desc">Вы собираетесь тратить с  приватного ключа,  находящимся в  \"холодном хранилище\" -  этот термин  применяется для  способа  хранения  биткойнов офлайн. Это может быть резервная копия приватного ключа  на бумаге или чек из  Биткойн терминала.  Поддерживается несколько форматов.\n\nПо завершении транзакции все следы приватного ключа будут удалены из памяти.</string>
   <string name="manual_entry">Ручной ввод</string>
   <string name="archive_name">Архивированные</string>
   <string name="activate_action">Активировать</string>
@@ -152,10 +148,6 @@
   <string name="delete_account_title">Удалить аккаунт?</string>
   <string name="delete_account_message">Вы хотите удалить этот счет?</string>
   <string name="confirm_delete_pk_title">Вы уверены?</string>
-  <string name="confirm_delete_pk_with_balance">Операция необратима!\n\nПриватный ключ:\n%1$s\n\nНа нем %2$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Операция необратима!\n\nПриватный ключ:\n%1$s\n\nИмя ключа:\n%2$s\n\nНа нем %3$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_without_balance">Это не может быть отменено! \n\nПриватный  ключ:\n%1$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Операция необратима!\n\nИмя ключа:\n%1$s\n\nПриватный  ключ:\n%2$s\n\nВы хотите удалить его?</string>
   <string name="verify_private_key_backup">Проверить резервную копию</string>
   <string name="verify_backup_dialog_title">Проверить резервную копию приватного ключа</string>
   <string name="verify_backup_clipboard_desc">Проверьте резервную копию приватного ключа, получив его из буфера обмена.</string>
@@ -344,7 +336,6 @@
   <string name="lt_selling_details">Вы продаете %1$s</string>
   <string name="lt_no_trader_account_desc">Учетной  записи в Local Trader, ассоциированной с  этим  кошельком,  не существует.\n\n Учетная запись связана напрямую с одним из ваших биткойн адресов, без паролей и другой возни.\n\nСоздать учетную запись?</string>
   <string name="lt_trader_name_label">Имя трейдера</string>
-  <string name="lt_trader_address_label">Имя пользователя связано с  адресом</string>
   <string name="lt_trader_email_address_label">Адрес электронной почты</string>
   <string name="lt_trader_age_label">Время существования трейдера</string>
   <string name="lt_trader_last_activity">Последняя активность</string>

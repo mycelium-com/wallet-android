@@ -53,13 +53,24 @@ import android.database.sqlite.SQLiteQuery;
 
 public class SQLiteQueryWithBlobs {
 
-   private static class BlobIndex {
-      public byte[] blob;
+   private static class GenericIndex<T> {
+      public T value;
       public int index;
 
-      public BlobIndex(byte[] blob, int index) {
-         this.blob = blob;
+      public GenericIndex(T blob, int index) {
+         this.value = blob;
          this.index = index;
+      }
+   }
+   private static class BlobIndex  extends  GenericIndex<byte[]>{
+      public BlobIndex(byte[] blob, int index) {
+         super(blob, index);
+      }
+   }
+
+   private static class LongIndex  extends  GenericIndex<Long>{
+      public LongIndex(Long blob, int index) {
+         super(blob, index);
       }
    }
 
@@ -69,7 +80,10 @@ public class SQLiteQueryWithBlobs {
       @Override
       public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
          for (BlobIndex blobIndex : _blobIndex) {
-            query.bindBlob(blobIndex.index, blobIndex.blob);
+            query.bindBlob(blobIndex.index, blobIndex.value);
+         }
+         for (LongIndex longIndex : _longIndex) {
+            query.bindLong(longIndex.index, longIndex.value);
          }
          return new SQLiteCursor(db, masterQuery, editTable, query);
       }
@@ -78,16 +92,21 @@ public class SQLiteQueryWithBlobs {
 
    private SQLiteDatabase _db;
    private List<BlobIndex> _blobIndex;
+   private List<LongIndex> _longIndex;
    MyCursorFactory _cursorFactory;
 
    public SQLiteQueryWithBlobs(SQLiteDatabase db) {
       _db = db;
       _blobIndex = new LinkedList<BlobIndex>();
+      _longIndex = new LinkedList<LongIndex>();
       _cursorFactory = new MyCursorFactory();
    }
 
    public void bindBlob(int index, byte[] blob) {
       _blobIndex.add(new BlobIndex(blob, index));
+   }
+   public void bindLong(int index, Long value) {
+      _longIndex.add(new LongIndex(value, index));
    }
 
    public Cursor query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs,

@@ -19,9 +19,11 @@ dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
     compile project(':public:libs:zxing-android')
     compile project(':public:wapi')
+    compile project(':public:trezor')
     compile project(':public:lt-api')
     compile project(':public:mbwlib')
 
+    compile guavaArtifact
     compile 'com.squareup:otto:1.3.4'
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
@@ -38,11 +40,6 @@ android {
         jumboMode true
     }
 
-    lintOptions{
-        disable 'InvalidPackage'
-        //todo configure lint.xml for okio InvalidPackage
-    }
-
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
@@ -57,15 +54,12 @@ android {
     }
 
 
-    compileSdkVersion 19
+
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 19
-
-        versionCode 22006
-        versionName '2.2.0'
+        versionCode 23000
+        versionName '2.3.0-BETA1'
     }
 
     signingConfigs {
@@ -111,20 +105,37 @@ android {
 
     productFlavors {
         bitsofgold {
+            compileSdkVersion 19
+            targetSdkVersion 19
+            minSdkVersion 14
+
             applicationId 'il.co.bitsofgold.wallet'
             versionName = defaultConfig.versionName + '-BOG'
             signingConfig signingConfigs.release
         }
         prodnet {
+            compileSdkVersion 19
+            targetSdkVersion 19
+            minSdkVersion 14
+
             applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }
         dev {
+            // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
+            compileSdkVersion 19
+            targetSdkVersion 19
+            minSdkVersion 14
+
             applicationId 'com.mycelium.devwallet'
             signingConfig signingConfigs.debug
         }
         testnet {
+            compileSdkVersion 19
+            targetSdkVersion 19
+            minSdkVersion 14
+
             applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.testnetplay

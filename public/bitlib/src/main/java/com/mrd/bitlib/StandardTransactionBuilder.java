@@ -87,6 +87,14 @@ public class StandardTransactionBuilder {
       private SigningRequest[] _signingRequests;
       private NetworkParameters _network;
 
+      public TransactionOutput[] getOutputs(){
+         return _outputs;
+      }
+
+      public UnspentTransactionOutput[] getFundingOutputs(){
+         return _funding;
+      }
+
       private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
                                   IPublicKeyRing keyRing, NetworkParameters network) {
          _network = network;

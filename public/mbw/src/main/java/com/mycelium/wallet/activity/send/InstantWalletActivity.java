@@ -42,29 +42,21 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.trezor.activity.InstantTrezorActivity;
 
 import java.util.UUID;
 
 public class InstantWalletActivity extends Activity {
 
-   public static final int SCAN_RESULT_CODE = 0;
-
-   private Long _amountToSend;
-   private Address _receivingAddress;
+   public static final int REQUEST_SCAN = 0;
+   private static final int REQUEST_TREZOR = 1;
 
    public static void callMe(Activity currentActivity) {
-      callMe(currentActivity, null, null);
-   }
-
-   public static void callMe(Activity currentActivity, Long amountToSend, Address receivingAddress) {
       Intent intent = new Intent(currentActivity, InstantWalletActivity.class);
-      intent.putExtra("amountToSend", amountToSend);
-      intent.putExtra("receivingAddress", receivingAddress);
       currentActivity.startActivity(intent);
    }
 
@@ -76,58 +68,69 @@ public class InstantWalletActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.instant_wallet_activity);
 
-      // Get intent parameters
-      // May be null
-      _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
-      // May be null
-      _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
 
-      final Optional<Record> record = getRecordFromClipboard();
-      if (!record.isPresent() || !record.get().hasPrivateKey()) {
-         findViewById(R.id.btClipboard).setEnabled(false);
-      } else {
-         findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View arg0) {
-               UUID account = MbwManager.getInstance(InstantWalletActivity.this).createOnTheFlyAccount(record.get().key);
-               BitcoinUri uri = new BitcoinUri(_receivingAddress, _amountToSend, null);
-               SendInitializationActivity.callMe(InstantWalletActivity.this, account, uri, true);
-               InstantWalletActivity.this.finish();
-            }
-         });
-      }
+      findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View arg0) {
+            StringHandlerActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN,
+                  StringHandleConfig.spendFromColdStorage(),
+                  Utils.getClipboardString(InstantWalletActivity.this));
+         }
+      });
 
       findViewById(R.id.btScan).setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
-            ScanActivity.callMe(InstantWalletActivity.this, SCAN_RESULT_CODE, ScanRequest.spendFromColdStorage());
+            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, StringHandleConfig.spendFromColdStorage());
          }
       });
 
+      findViewById(R.id.btTrezor).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View arg0) {
+            InstantTrezorActivity.callMe(InstantWalletActivity.this, REQUEST_TREZOR);
+         }
+      });
    }
 
-   private Optional<Record> getRecordFromClipboard() {
-      String content = Utils.getClipboardString(InstantWalletActivity.this);
-      if (content.length() == 0) {
-         return Optional.absent();
+   @Override
+   protected void onResume() {
+      super.onResume();
+      StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
+            StringHandleConfig.spendFromColdStorage(),
+            Utils.getClipboardString(InstantWalletActivity.this),
+            MbwManager.getInstance(this).getNetwork());
+
+      if (canHandle == StringHandlerActivity.ParseAbility.NO) {
+         findViewById(R.id.btClipboard).setEnabled(false);
+      } else {
+         findViewById(R.id.btClipboard).setEnabled(true);
       }
-      NetworkParameters network = MbwManager.getInstance(this).getNetwork();
-      return Record.fromString(content, network);
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCAN_RESULT_CODE) {
+      if (requestCode == REQUEST_SCAN) {
          if (resultCode == RESULT_OK) {
             // We don't call finish() here, so that this activity stays on the back stack.
             // So the user can click back and scan the next cold storage.
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }
+      } else if (requestCode == REQUEST_TREZOR){
+         if (resultCode == RESULT_OK) {
+            finish();
+         }
       } else {
          throw new IllegalStateException("unknown return codes after scanning... " + requestCode + " " + resultCode);
       }
    }
 
+   @Override
+   public void finish() {
+      // drop and create a new TempWalletManager so that no sensitive data remains in memory
+      MbwManager.getInstance(this).forgetColdStorageWalletManager();
+      super.finish();
+   }
 }

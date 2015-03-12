@@ -40,14 +40,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.Toast;
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
-import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -62,9 +61,11 @@ public class AddAdvancedAccountActivity extends Activity {
    }
 
    public static final String RESULT_KEY = "account";
+
    private static final int SCAN_RESULT_CODE = 0;
    private static final int CREATE_RESULT_CODE = 1;
-   private Toaster _toaster;
+   private static final int TREZOR_RESULT_CODE = 2;
+   private static final int CLIPBOARD_RESULT_CODE = 3;
    private MbwManager _mbwManager;
 
    private NetworkParameters _network;
@@ -77,17 +78,15 @@ public class AddAdvancedAccountActivity extends Activity {
       final Activity activity = AddAdvancedAccountActivity.this;
       _mbwManager = MbwManager.getInstance(this);
       _network = _mbwManager.getNetwork();
-      _toaster = new Toaster(this);
 
       findViewById(R.id.btScan).setOnClickListener(new View.OnClickListener() {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(activity, SCAN_RESULT_CODE, ScanRequest.returnKeyOrAddress());
+            ScanActivity.callMe(activity, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrHdNode());
          }
 
       });
-
 
       findViewById(R.id.btGenerateNewSingleKey).setOnClickListener(new View.OnClickListener() {
          @Override
@@ -96,13 +95,27 @@ public class AddAdvancedAccountActivity extends Activity {
             startActivityForResult(intent, CREATE_RESULT_CODE);
          }
       });
+
+      findViewById(R.id.btTrezor).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            TrezorAccountImportActivity.callMe(activity, TREZOR_RESULT_CODE);
+         }
+      });
+
    }
 
    @Override
    public void onResume() {
       super.onResume();
 
-      boolean canImportFromClipboard = Record.isRecord(Utils.getClipboardString(this), _network);
+      StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
+            StringHandleConfig.returnKeyOrAddressOrHdNode(),
+            Utils.getClipboardString(AddAdvancedAccountActivity.this),
+            MbwManager.getInstance(this).getNetwork());
+
+      boolean canImportFromClipboard = (canHandle != StringHandlerActivity.ParseAbility.NO);
+
       Button clip = (Button) findViewById(R.id.btClipboard);
       clip.setEnabled(canImportFromClipboard);
       if (canImportFromClipboard) {
@@ -114,46 +127,37 @@ public class AddAdvancedAccountActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            Optional<Record> record = Record.fromString(Utils.getClipboardString(AddAdvancedAccountActivity.this), _network);
-            if (!record.isPresent()) {
-               Toast.makeText(AddAdvancedAccountActivity.this, R.string.unrecognized_format, Toast.LENGTH_LONG).show();
-               return;
-            }
-            // If the record has a private key delete the contents of the clipboard
-            UUID account;
-            if (record.get().hasPrivateKey()) {
-               Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-               try {
-                  account = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().key, AesKeyCipher.defaultKeyCipher());
-                  _mbwManager.getEventBus().post(new AccountChanged(account));
-                  // We imported this key from somewhere else - so we guess, that there exists an backup
-                  _mbwManager.getMetadataStorage().setSingleKeyBackupState(account, MetadataStorage.BackupState.IGNORED);
-               } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                  throw new RuntimeException(invalidKeyCipher);
-               }
-            } else {
-               account = _mbwManager.getWalletManager(false).createSingleAddressAccount(record.get().address);
-               _mbwManager.getEventBus().post(new AccountChanged(account));
-            }
-            finishOk(account);
+            StringHandlerActivity.callMe(AddAdvancedAccountActivity.this, CLIPBOARD_RESULT_CODE,
+                  StringHandleConfig.returnKeyOrAddressOrHdNode(),
+                  Utils.getClipboardString(AddAdvancedAccountActivity.this));
          }
       });
-
    }
 
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == SCAN_RESULT_CODE) {
+      if (requestCode == SCAN_RESULT_CODE || requestCode == CLIPBOARD_RESULT_CODE) {
          if (resultCode == Activity.RESULT_OK) {
-            ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
-            if (type == ScanActivity.ResultType.PRIVATE_KEY) {
-               InMemoryPrivateKey key = ScanActivity.getPrivateKey(intent);
+            boolean fromClipboard = (requestCode == CLIPBOARD_RESULT_CODE);
+
+            StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+            if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
+               InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+               if (fromClipboard) {
+                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+               }
 
                // We imported this key from somewhere else - so we guess, that there exists an backup
                returnAccount(key, MetadataStorage.BackupState.IGNORED);
-            } else if (type == ScanActivity.ResultType.ADDRESS) {
-               Address address = ScanActivity.getAddress(intent);
+            } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
+               Address address = StringHandlerActivity.getAddress(intent);
                returnAccount(address);
+            } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
+               HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+               if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
+                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+               }
+               returnAccount(hdKeyNode);
             } else {
                throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
             }
@@ -164,12 +168,14 @@ public class AddAdvancedAccountActivity extends Activity {
          String base58Key = intent.getStringExtra("base58key");
          Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
          if (key.isPresent()) {
-
             // This is a new key - there is no existing backup
             returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
+      } else if (requestCode == TREZOR_RESULT_CODE && resultCode == Activity.RESULT_OK){
+         // already added to the WalletManager - just return the new account
+         finishOk((UUID)intent.getSerializableExtra("account"));
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
@@ -183,11 +189,18 @@ public class AddAdvancedAccountActivity extends Activity {
          // Dont show a legacy-account warning for freshly generated or imported keys
          _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
 
-         _mbwManager.getMetadataStorage().setSingleKeyBackupState(acc, backupState);
+         _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
 
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }
+      finishOk(acc);
+   }
+
+   private void returnAccount(HdKeyNode hdKeyNode){
+      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
+      // set BackupState as ignored - we currently have no option to backup xPrivs after all
+      _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc);
    }
 

@@ -76,13 +76,13 @@ public class NewPinDialog extends PinDialog {
    }
 
    @Override
-   protected void setLayout() {
+   protected void loadLayout() {
       setContentView(R.layout.enter_new_pin_dialog);
    }
 
    @Override
    protected Pin getPin() {
-      return new Pin(_enteredPin, isResettable());
+      return new Pin(enteredPin, isResettable());
    }
 
    public boolean isResettable(){

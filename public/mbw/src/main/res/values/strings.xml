@@ -4,12 +4,12 @@
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
     <string name="add_account_title">Add New Account</string>
-    <string name="add_single_account_title">Add Single Address Account</string>
+    <string name="add_unrelated_account_title">Add Unrelated Account</string>
     <string name="import_seed_title">Import Master Seed</string>
     <string name="import_words_title">Enter Word List</string>
-    <string name="add_account_desc">Mycelium supports HD Accounts and Single Address Accounts. All HD Accounts are created based on the same Master Seed. The first time you create one, your Master Seed will get configured.</string>
+    <string name="add_account_desc">Mycelium supports HD Accounts and Single Address Accounts. All created HD Accounts are based on the same Master Seed.</string>
     <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
-    <string name="scan_desc">Scan Bitcoin address or private key.</string>
+    <string name="scan_desc">Scan Bitcoin address, private key or HD-Account.</string>
     <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
     <string name="use_acc_first">You can only have one unused HD Account.</string>
     <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
@@ -55,7 +55,6 @@
     <string name="copy_private_key_to_clipboard">Copy Private Key to Clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="private_key">Private Key</string>
-    <string name="your_bitcoin_address">Your Bitcoin address:</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="approximate_fiat_value">%2$s %1$s</string>
     <string name="no_server_connection">No Server Connection</string>
@@ -116,8 +115,8 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="payment_request">Payment Request</string>
-    <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to this keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
-    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds if your device is lost or damaged.\n\nDo you want to do this now?</string>
+    <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to these keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
+    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
     <string name="backup_legacy_warning">You will back up the single address accounts in your wallet. \nThis backup will not contain your master seed, none of your HD accounts can be restored from it!\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
@@ -133,7 +132,7 @@
     <string name="get_private_key">Get private key from:</string>
     <string name="cold_storage">Cold Storage</string>
     <string name="cold_storage_title">Cold Storage Spending</string>
-    <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Several formats are supported.\n\nOnce the transaction has been sent every trace of the private key will be erased from memory.</string>
+    <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Following Formats are supported:\nPrivate Key, Master Seed, xPriv Key\n\nOnce the transaction has been sent every trace of it will be erased from the internal memory.</string>
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
@@ -174,10 +173,10 @@
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message">Do you want to delete this account?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
-    <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nPrivate key address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\nPrivate key label:\n%1$s\n\nPrivate key address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_without_balance">This cannot be undone!\n\nPrivate key address:\n%1$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nPrivate key label:\n%1$s\n\nPrivate key address:\n%2$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\nAccount label:\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_without_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nAccount label:\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</string>
     <string name="verify_private_key_backup">Verify Backup</string>
     <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
     <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
@@ -386,7 +385,7 @@
     <string name="lt_selling_details">You are selling %1$s</string>
     <string name="lt_no_trader_account_desc">There is no Local Trader account associated with this wallet.\n\nA trader account is linked directly to one of your bitcoin addresses, no passwords, no hassle.\n\nCreate one now?</string>
     <string name="lt_trader_name_label">Trader Name</string>
-    <string name="lt_trader_address_label">Account Tied to Address</string>
+    <string name="lt_trader_address_label">Local Trader ID</string>
     <string name="lt_trader_email_address_label">Email Address</string>
     <string name="lt_trader_age_label">Trader Account Age</string>
     <string name="lt_trader_last_activity">Last Activity</string>
@@ -431,6 +430,7 @@
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <string name="contains_keys">Contains %1$s private keys.</string>
+    <string name="contains_addresses">Contains %1$s addresses.</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -493,6 +493,7 @@
     <string name="no_unspent_outputs_description">This page shows on which addresses the funds in the selected account are located. There are currently no funds to display.</string>
     <string name="warning_words_import">Warning: Do not put your words into the clipboard, other apps could read them and obtain your money.</string>
     <string name="account_contains_one_key_info">Contains one private key.</string>
+    <string name="account_contains_one_address_info">Contains one address.</string>
     <string name="verify_backup_ok_message">The backup was successfully verified.</string>
     <string name="wordlist_import_invalid_checksum">The checksum of your word list is invalid, please make sure you entered all words correctly.</string>
     <string name="checkbox_wordlist_password">I have a password</string>
@@ -502,7 +503,7 @@
     <string name="recover_seed_password_info">Only select this option if you understand what it means.\nA normal Mycelium backup never includes a password - this is not your PIN.</string>
     <string name="import_wordlist_questions">Please select the length of the word list to restore and indicate whether it is protected by a password.</string>
     <string name="type_password_title">Enter Your Password</string>
-    <string name="clipboard_not_available">Clipboard Content Not Valid</string>
+    <string name="clipboard_not_available">Clipboard not valid</string>
     <string name="no_android_wallet_backup">No Export Found</string>
     <string name="unable_to_get_clipboard">Unable to get the current clipboard content</string>
     <string name="unable_to_clear_clipboard">Unable to clear the clipboard</string>
@@ -582,12 +583,37 @@
     <string name="lt_confirm_delete_history">Do you want to delete the information for this trade from your phone?</string>
     <string name="lt_confirm_delete_trader_message">Do you want to delete your local trader identity? All trade information and ratings will be permanently removed and can not be recovered.</string>
     <string name="rescan_account_menu_item">Reload Account</string>
-    <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to make a separate legacy-backup for them.</string>
+    <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to ensure that you have a separate backup of them.</string>
     <string name="new_random_key_desc">Generate new random key</string>
     <string name="generate_new_key">Generate</string>
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
     <string name="shuffle">Shuffle</string>
     <string name="toast_warning_low_fee">might take longer to confirm</string>
+    <string name="searching_for_trezor_status">Searching for Trezor…</string>
+    <string name="account_number">Account %d</string>
+    <string name="account_found">%s found</string>
+    <string name="trezor_initial_status">Please connect your Trezor</string>
+    <string name="trezor_scanning_status">Trezor okay - scanning Accounts</string>
+    <string name="account_balance_sending_amount">(sending %s)</string>
+    <string name="trezor_cold_storage_header">Trezor Cold Storage</string>
+    <string name="connect_your_trezor_info">This only works if your phone supports USB-OTG (on-the-go).\n\nTo connect the Trezor you need a USB-OTG-adapter or cable. Attach the Trezor with its own USB-Cable on the client-side and connect the host-side with your phone.</string>
+    <string name="select_trezor_account_to_spend_from">Select account to spend from</string>
+    <string name="trezor_passphrase_description">Enter optional passphrase</string>
+    <string name="trezor_show_passphrase">Show passphrase</string>
+    <string name="trezor">Trezor</string>
+    <string name="trezor_import_account">Import a Trezor-HD-Account</string>
+    <string name="trezor_import_account_caption">Import Account</string>
+    <string name="trezor_name">Trezor:</string>
+    <string name="trezor_select_account_to_import">Select account to import</string>
+    <string name="trezor_verify_transaction_on_trezor">Verify and confirm the\ntransaction on your Trezor</string>
+    <string name="trezor_amount">Amount:</string>
+    <string name="trezor_to">To:</string>
+    <string name="trezor_fee">Fee:</string>
+    <string name="trezor_total">Total:</string>
+    <string name="trezor_please_plug_in">Please plugin your trezor</string>
+    <string name="trezor_next_unused_account_info">This option will import the next unused account from this trezor. It will only show up in MyTrezor if you send funds to it.</string>
+    <string name="trezor_next_unused_account_button">Import next unused account…</string>
+
     <string name="select_local_currencies">Select your currencies</string>
     <string name="show_public_or_private_data">Show</string>
     <string name="show_private_data">private</string>
@@ -608,8 +634,8 @@
     <string name="both">Both</string>
     <string name="button_changelog">Changelog</string>
     <string name="hint_type_to_filter">start typing to filter list</string>
-    <string name="info_add_account_keep_backup_secure">Info: All accounts are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your accounts with it.</string>
-    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your accounts are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
+    <string name="info_add_account_keep_backup_secure">Info: All HD accounts are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your HD accounts with it.</string>
+    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your HD accounts are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="tor_state_init">Tor init</string>
 
@@ -619,6 +645,11 @@
     <string name="you_must_have_orbot">You must have Orbot installed and activated to proxy traffic through it. Would you like to install it from Google Play?</string>
     <string name="start_orbot_">Start Orbot?</string>
     <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot doesn\'t appear to be running. Would you like to start it up and connect to Tor?</string>
-
+    <string name="account_prefix_imported">Imported</string>
+    <string name="retrieving_pubkey_address">Retrieving next unused address…</string>
+    <string name="instant_masterseed_initializing">Initializing…</string>
+    <string name="instant_masterseed_title">Spend from Masterseed</string>
+    <string name="hd_account_selector_no_account_found">No active accounts found.</string>
+    <string name="masterseed_optional_passphrase_hint">This passphrase allows you to derive different accounts from the same master seed.\nIf you are not sure what this means, leave it empty.</string>
 
 </resources>

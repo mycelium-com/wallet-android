@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Portfel Bitcoin Mycelium</string>
   <string name="add_account_title">Dodaj nowe konto</string>
-  <string name="add_single_account_title">Dodać jeden adres konta</string>
   <string name="import_seed_title">Zaimportuj Master Seed</string>
   <string name="import_words_title">Wprowadź listę słów</string>
   <string name="add_account_desc">Mycelium wspiera konta HD oraz konta z pojedynczymi adresami. Wszystkie konta HD są tworzone na tym samym Master Seed. Jeśli pierwszy raz stworzysz konto, Twój Master Seed zostanie zmieniony.</string>
   <string name="add_single_acc_info">Jeśli chcesz dodać Konto z pojedynczym adresem z kluczem prywatnym lub publicznym kliknij przycisk Zaawansowane.</string>
-  <string name="scan_desc">Skanuj adres bitcoin lub klucz prywatny.</string>
   <string name="scan_seed">Zeskanuj Master Seed z kopii zapasowej Mycelium</string>
   <string name="use_acc_first">Możesz mieć tylko jedno nieużywane konto HD.</string>
   <string name="clipboard_desc">Zaimportuj adres BTC albo klucz prywatny ze schowka.</string>
@@ -52,7 +50,6 @@
   <string name="copy_private_key_to_clipboard">Skopiuj klucz prywatny klucz do schowka</string>
   <string name="copied_to_clipboard">Skopiowane do schowka</string>
   <string name="private_key">Klucz prywatny</string>
-  <string name="your_bitcoin_address">Adres Bitcoin:</string>
   <string name="bitcoin_address_title">Adres Bitcoin</string>
   <string name="no_server_connection">Brak połączenia z serwerem</string>
   <string name="no_network_connection">Nie ma połączenia sieciowego</string>
@@ -111,7 +108,6 @@
   <string name="edit">Edytuj</string>
   <string name="delete">Usuń</string>
   <string name="payment_request">Zarządzaj płatnościami</string>
-  <string name="backup_all_warning">Powinieneś zrobić kopie zapasową swojego Master Seed.\nKopia zapasowa pozwoli ci odzyskać swoje środki jeśli urządzenie ulegnie zgubieniu lub zniszczeniu.\n\nChcesz to zrobić teraz?</string>
   <string name="backup_legacy_warning">Zaraz wykonasz kopię zapasową pojedynczego adresu w swoim portfelu.\nTa kopia nie obejmuje Twojego Master Seed, żadne z Twoich kont HD nie będzie przywrócone!\n\nChcesz kontyuować?</string>
   <string name="export_to_clipboard_warning">UWAGA: Eksportowanie klucza prywatnego do schowka może zostać przechwycone przez inne aplikacje na Twoim urządzeniu.\n\nNote: Skopiowanie do schowka nie wystarcza, musisz jeszcze wkleić zawartość w bezpieczne miejsce.\n\n Czy chcesz kontynuować?</string>
   <string name="found_clipboard_private_key_title">Znaleziono klucz prywatny w schowku</string>
@@ -126,7 +122,6 @@
   <string name="get_private_key">Uzyskaj klucz prywatny z:</string>
   <string name="cold_storage">Portfel offline</string>
   <string name="cold_storage_title">Wydawanie z portfela offline</string>
-  <string name="cold_storage_desc">Zamierzasz wydać BTC używając klucza prywatnego do portfela offline. Może to być klucz prywatny z papierowej kopii zapasowej lub rachunek z bankomatu BTC\n\n Po wykonaniu transakcji wszelkie dane klucza zostaną usunięte z pamięci.</string>
   <string name="keep_account_address">Skasuj klucz prywatny i pozostaw konto tylko do odczytu</string>
   <string name="manual_entry">Ręczny wpis</string>
   <string name="archive_name">Zarchiwizowane</string>
@@ -147,10 +142,6 @@
   <string name="tap_to_refresh">Dotknij, aby odświeżyć</string>
   <string name="using_address_from_clipboard">Używam adres ze schowka</string>
   <string name="confirm_delete_pk_title">Czy na pewno?</string>
-  <string name="confirm_delete_pk_with_balance">Tej operacji nie można cofnąć!\n\n Adres klucza prywatnego:\n%1$s\n\n zawiera %2$s\n\n Czy chcesz go usunąć?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Tej operacji nie można cofnąć!\n\n Etykieta klucza prywatnego:\n%1$s\n\n Adres klucza prywatnego:\n%2$s\n\n Zawiera %3$s\n\n Czy chcesz go usunąć?</string>
-  <string name="confirm_delete_pk_without_balance">Tej operacji nie można cofnąć!\n\n Adres klucza prywatnego:\n%1$s\n\n Czy chcesz go usunąć?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Tego nie można cofnąć! \n\n klucz prywatny etykieta:\n%1$s\n\n klucz adresu:\n%2$s\n\n Do chcesz go usunąć?</string>
   <string name="verify_private_key_backup">Sprawdź  kopie zapasowa</string>
   <string name="verify_backup_dialog_title">Sprawdź klucz prywatny kopii zapasowej</string>
   <string name="verify_backup_clipboard_desc">Zweryfikuj kopie zapasowa klucza prywatnego kopiując klucz prywatny ze schowka.</string>
@@ -307,7 +298,6 @@
   <string name="lt_selling_details">sprzedajesz%1$s</string>
   <string name="lt_no_trader_account_desc">Żadne konto Local Trader nie jest powiązane z tym portfelem.\n\nKonto zostanie automaczynie połączone z Twoim adresm Bitcoin bez żadnych haseł.\n\n Chcesz stworzyć teraz?</string>
   <string name="lt_trader_name_label">Imie</string>
-  <string name="lt_trader_address_label">Konto powiązane z adresem</string>
   <string name="lt_trader_age_label">Konto stworzone</string>
   <string name="lt_successful_sells_label">Udana sprzedaż</string>
   <string name="lt_aborted_sells_label">przerwana sprzedaż</string>

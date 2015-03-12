@@ -57,6 +57,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    private BitcoinUri _uri;
    private MbwManager _mbwManager;
+   private boolean _showAccounts = false;
 
    public static void callMeWithResult(Activity currentActivity, BitcoinUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
@@ -74,10 +75,40 @@ public class GetSpendingRecordActivity extends Activity {
 
       // Get intent parameters
       _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
+
+      if (savedInstanceState != null){
+         _showAccounts = savedInstanceState.getBoolean("showAccounts");
+      }
+
+      // if the app is in Locked-Mode, just pass the active account along and finish
+      if (!_showAccounts && _mbwManager.isKeyManagementLocked()){
+         if (_mbwManager.getSelectedAccount().canSpend()) {
+            // if the current locked account canSpend, use this and go directly to sending
+            SendInitializationActivity.callMe(GetSpendingRecordActivity.this, _mbwManager.getSelectedAccount().getId(), _uri, false);
+            GetSpendingRecordActivity.this.finish();
+         } else {
+            // if this is a watch-only account, request the PIN to show the accounts
+            _mbwManager.runPinProtectedFunction(this, new Runnable() {
+               @Override
+               public void run() {
+                  _showAccounts = true;
+                  update();
+               }
+            });
+         }
+      } else {
+         _showAccounts = true;
+      }
+   }
+
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      super.onSaveInstanceState(outState);
+      outState.putBoolean("showAccounts", _showAccounts);
    }
 
    class RecordClicked implements OnItemClickListener {
-
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
          if (v.getTag() == null || !(v.getTag() instanceof WalletAccount)) {
@@ -106,7 +137,7 @@ public class GetSpendingRecordActivity extends Activity {
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
       //if we have no accounts to show, just display the info text
-      if (spendingAccounts.isEmpty()) {
+      if (!_showAccounts || spendingAccounts.isEmpty()) {
          listView.setVisibility(View.GONE);
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {

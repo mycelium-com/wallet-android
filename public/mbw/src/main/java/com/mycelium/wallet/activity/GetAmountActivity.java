@@ -67,6 +67,11 @@ import com.squareup.otto.Subscribe;
 
 public class GetAmountActivity extends Activity implements NumberEntryListener {
 
+   public static final String AMOUNT = "amount";
+   public static final String ENTEREDAMOUNT = "enteredamount";
+   public static final String SELECTEDCURRENCY = "selectedcurrency";
+   public static final String ENTEREDCURRENCY = "enteredcurrency";
+   public static final String ONEBTCINFIAT = "onebtcinfiat";
    private boolean isSendMode;
 
    private WalletAccount _account;
@@ -102,7 +107,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.get_amount_activity); //todo
+      setContentView(R.layout.get_amount_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
 
       initNumberEntry(savedInstanceState);
@@ -112,8 +117,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          initSendMode();
       }
 
-      checkEntry();
       initListeners();
+      updateUI();
+      checkEntry();
    }
 
    private void initSendMode() {
@@ -158,8 +164,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       _selectedCurrency = "BTC";
       // Load saved state
       if (savedInstanceState != null) {
-         amount = (Long) savedInstanceState.getSerializable("amount");
-         //todo restore currency etc
+         amount = (Long) savedInstanceState.getSerializable(AMOUNT);
+         _selectedCurrency = savedInstanceState.getString(SELECTEDCURRENCY);
+         _enteredAmount = (BigDecimal) savedInstanceState.getSerializable(ENTEREDAMOUNT);
+         _enteredCurrency = savedInstanceState.getString(ENTEREDCURRENCY);
+         _oneBtcInFiat = (Double) savedInstanceState.getSerializable(ONEBTCINFIAT);
       }
       // Set amount
       String amountString;
@@ -217,6 +226,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (clipboardValue == null) {
             return;
          }
+         setEnteredAmount(clipboardValue);
          _numberEntry.setEntry(clipboardValue, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
       }
    };
@@ -319,8 +329,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("amount", _satoshis);
-      //todo save currency etc
+      savedInstanceState.putSerializable(AMOUNT, _satoshis);
+      savedInstanceState.putSerializable(ENTEREDAMOUNT, _enteredAmount);
+      savedInstanceState.putString(SELECTEDCURRENCY, _selectedCurrency);
+      savedInstanceState.putString(ENTEREDCURRENCY, _enteredCurrency);
+      savedInstanceState.putSerializable(ONEBTCINFIAT, _oneBtcInFiat);
    }
 
    @Override
@@ -345,21 +358,25 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public void onEntryChanged(String entry, boolean wasSet) {
       if (!wasSet) {
          BigDecimal value = _numberEntry.getEntryAsBigDecimal();
-         _enteredAmount = value;
-         _enteredCurrency = _selectedCurrency;
-         if (isBtc()) {
-            int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-            _satoshis = value.movePointRight(decimals).longValue();
-         } else {
-            _satoshis = Utils.getSatoshis(value, _oneBtcInFiat);
-         }
-         if (isSendMode) {
-            // enable/disable Max button
-            findViewById(R.id.btMax).setEnabled(_maxSpendableAmount != _satoshis);
-         }
+         setEnteredAmount(value);
       }
       updateAmounts(entry);
       checkEntry();
+   }
+
+   private void setEnteredAmount(BigDecimal value) {
+      _enteredAmount = value;
+      _enteredCurrency = _selectedCurrency;
+      if (isBtc()) {
+         int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+         _satoshis = value.movePointRight(decimals).longValue();
+      } else {
+         _satoshis = Utils.getSatoshis(value, _oneBtcInFiat);
+      }
+      if (isSendMode) {
+         // enable/disable Max button
+         findViewById(R.id.btMax).setEnabled(_maxSpendableAmount != _satoshis);
+      }
    }
 
    private boolean isBtc() {

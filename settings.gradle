@@ -1,1 +1,3 @@
-include "public:bitlib", "public:lt-api", "public:mbw", "public:libs:zxing-android", "public:libs:zxing-core", "public:backuputil", "public:wapi", "public:mbwlib", "public:orchid"
+include "public:mbw"
+include "public:bitlib", "public:lt-api", "public:backuputil", "public:wapi", "public:mbwlib", "public:trezor"
+include "public:libs:zxing-android", "public:libs:zxing-core"

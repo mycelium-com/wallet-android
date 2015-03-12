@@ -58,6 +58,7 @@ import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
@@ -74,10 +75,12 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
+import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -109,6 +112,7 @@ public class MbwManager {
    }
 
    private final Bus _eventBus;
+   private final TrezorManager _trezorManager;
    private final WapiClient _wapi;
 
    private final LtApiClient _ltApi;
@@ -231,18 +235,20 @@ public class MbwManager {
             ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
             : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
+      _trezorManager = new TrezorManager(_applicationContext, getNetwork());
       _walletManager = createWalletManager(_applicationContext, _environment);
       _eventTranslator = new EventTranslator(new Handler(), _eventBus);
       _walletManager.addObserver(_eventTranslator);
       _exchangeRateManager.subscribe(_eventTranslator);
       migrateOldKeys();
+      createTempWalletManager();
 
+   }
+
+   private void createTempWalletManager() {
       //for managing temp accounts created through scanning
       _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
       _tempWalletManager.addObserver(_eventTranslator);
-
-
-
    }
 
    private LtApiClient initLt() {
@@ -452,7 +458,8 @@ public class MbwManager {
             new AndroidRandomSource());
 
       // Create and return wallet manager
-      return new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi);
+      return new WalletManager(secureKeyValueStore,
+            backing, environment.getNetwork(), _wapi, getTrezorManager());
    }
 
    /**
@@ -471,8 +478,9 @@ public class MbwManager {
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
 
       // Create and return wallet manager
-      WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(),
-            _wapi);
+      WalletManager walletManager = new WalletManager(secureKeyValueStore,
+            backing, environment.getNetwork(), _wapi, null);
+
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
@@ -914,9 +922,9 @@ public class MbwManager {
       return accountId;
    }
 
+
    public void forgetColdStorageWalletManager() {
-      _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
-      _tempWalletManager.addObserver(_eventTranslator);
+      createTempWalletManager();
    }
 
    public WalletAccount getSelectedAccount() {
@@ -955,7 +963,7 @@ public class MbwManager {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException();
          }
-      } else if (account instanceof Bip44Account) {
+      } else if (account instanceof Bip44Account && ((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // For BIP44 accounts we derive a private key from the BIP32 hierarchy
          try {
             Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(cipher);
@@ -995,6 +1003,10 @@ public class MbwManager {
 
    public RandomSource getRandomSource() {
       return _randomSource;
+   }
+
+   public TrezorManager getTrezorManager() {
+      return _trezorManager;
    }
 
    public WapiClient getWapi() {

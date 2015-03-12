@@ -42,7 +42,6 @@ import android.view.View;
 import android.view.Window;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -186,7 +185,9 @@ public class SendInitializationActivity extends Activity {
       if (_isColdStorage) {
          ColdStorageSummaryActivity.callMe(this, _account.getId());
       } else {
-         SendMainActivity.callMe(this, _account.getId(), _uri, false);
+         Intent intent = SendMainActivity.getIntent(this, _account.getId(), _uri, false);
+         intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+         this.startActivity(intent);
       }
       finish();
    }

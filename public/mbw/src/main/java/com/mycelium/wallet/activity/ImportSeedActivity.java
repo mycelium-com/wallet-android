@@ -41,7 +41,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.ScanRequest;
+import com.mycelium.wallet.StringHandleConfig;
 
 import java.util.UUID;
 
@@ -67,7 +67,7 @@ public class ImportSeedActivity extends ActionBarActivity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(activity, SCAN_SEED_CODE, ScanRequest.importMasterSeed());
+            ScanActivity.callMe(activity, SCAN_SEED_CODE, StringHandleConfig.importMasterSeed());
          }
 
       });
@@ -85,7 +85,7 @@ public class ImportSeedActivity extends ActionBarActivity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_SEED_CODE) {
          if (resultCode == Activity.RESULT_OK) {
-            UUID acc = ScanActivity.getAccount(intent);
+            UUID acc = StringHandlerActivity.getAccount(intent);
             finishOk(acc);
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);

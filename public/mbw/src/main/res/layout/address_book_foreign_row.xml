@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal"
-    android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="8dp" >
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:minHeight="?android:attr/listPreferredItemHeight"
+              android:orientation="horizontal"
+              android:padding="8dp">
 
     <TextView
         android:id="@+id/tvName"
-
+        android:layout_gravity="center_vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="100"
+        tools:text="Addressbook entry"
         android:textSize="20sp"/>
 
     <TextView
@@ -25,6 +24,7 @@
         android:layout_weight="0"
         android:paddingLeft="6dip"
         android:textSize="18sp"
+        tools:text="1A1zP1eP5Q\nGefi2DMPTfTL\n5SLmv7DivfNa"
         android:typeface="monospace" />
 
 </LinearLayout>

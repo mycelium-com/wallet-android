@@ -18,6 +18,7 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.HexUtils;
 
 /**
@@ -33,6 +34,8 @@ public class NetworkParameters implements Serializable {
 
    private final String _blockchain_explorer_transaction;
    private final String _blockchain_explorer_address;
+
+   private final HdKeyPath _bip44_coin_type;
 
    private static byte[] PRODNET_GENESIS_BLOCK;
 
@@ -85,6 +88,7 @@ public class NetworkParameters implements Serializable {
          _packetMagicBytes = new byte[] { (byte) 0xf9, (byte) 0xbe, (byte) 0xb4, (byte) 0xd9 };
          _blockchain_explorer_address = "https://blockchain.info/address/";
          _blockchain_explorer_transaction = "https://blockchain.info/tx/";
+         _bip44_coin_type = HdKeyPath.BIP44_PRODNET;
       } else {
          _standardAddressHeader = 0x6F;
          _multisigAddressHeader = 0xC4;
@@ -97,6 +101,7 @@ public class NetworkParameters implements Serializable {
          _packetMagicBytes = new byte[] { (byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07 };
          _blockchain_explorer_address = "http://tbtc.blockr.io/address/info/";
          _blockchain_explorer_transaction = "http://tbtc.blockr.io/tx/info/";
+         _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
       }
    }
 
@@ -149,6 +154,11 @@ public class NetworkParameters implements Serializable {
       return this.equals(NetworkParameters.testNetwork);
    }
 
+   // used for Trezor coin_name
+   public String getCoinName(){
+      return isProdnet() ? "Bitcoin" : "Testnet";
+   }
+
    @Override
    public boolean equals(Object obj) {
       if (!(obj instanceof NetworkParameters)) {
@@ -170,6 +180,11 @@ public class NetworkParameters implements Serializable {
    public String getBlockchainExplorerAddress() {
       return _blockchain_explorer_address;
    }
+
+   public HdKeyPath getBip44CoinType() {
+      return _bip44_coin_type;
+   }
+
 }
 
 

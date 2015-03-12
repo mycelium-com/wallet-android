@@ -6,14 +6,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.primitives.UnsignedInteger;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class HdKeyPath {
+public class HdKeyPath implements Serializable {
 
    public static final String HARDENED_MARKER = "'";
    private final HdKeyPath parent;
+
    protected final UnsignedInteger index;
    private final boolean hardened;
 
@@ -151,4 +153,9 @@ public class HdKeyPath {
       result = 31 * result + (hardened ? 1 : 0);
       return result;
    }
+
+   public int getLastIndex() {
+      return getValue();
+   }
+
 }

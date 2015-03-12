@@ -18,6 +18,7 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
 import com.mrd.bitlib.util.ByteReader;
@@ -50,6 +51,16 @@ public class Transaction implements Serializable {
    private Sha256Hash _hash;
    private Sha256Hash _unmalleableHash;
 
+   public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction){
+      TransactionInput input[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
+      int idx=0;
+      for(UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()){
+         // todo: input vs output script?!
+         input[idx++]=new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
+      }
+      return new Transaction(1, input, unsignedTransaction.getOutputs(),0);
+   }
+
    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {
       try {
          int version = reader.getIntLE();
@@ -59,7 +70,10 @@ public class Transaction implements Serializable {
             try {
                inputs[i] = TransactionInput.fromByteReader(reader);
             } catch (TransactionInputParsingException e) {
-               throw new TransactionParsingException("Unable to parse tranaction input at index " + i + ": "
+               throw new TransactionParsingException("Unable to parse transaction input at index " + i + ": "
+                     + e.getMessage(), e);
+            } catch (IllegalStateException e) {
+               throw new TransactionParsingException("ISE - Unable to parse transaction input at index " + i + ": "
                      + e.getMessage(), e);
             }
          }
@@ -69,7 +83,7 @@ public class Transaction implements Serializable {
             try {
                outputs[i] = TransactionOutput.fromByteReader(reader);
             } catch (TransactionOutputParsingException e) {
-               throw new TransactionParsingException("Unable to parse tranaction output at index " + i + ": "
+               throw new TransactionParsingException("Unable to parse transaction output at index " + i + ": "
                      + e.getMessage());
             }
          }

@@ -1,0 +1,79 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context="com.mycelium.wallet.activity.InstantMasterseedActivity">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/instant_masterseed_title"
+                android:textSize="24sp"
+                android:id="@+id/tvCaption"/>
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10sp"
+                android:id="@+id/llStatus"
+                >
+            <ProgressBar
+                    android:id="@+id/pbProgress"
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"/>
+
+            <TextView android:id="@+id/txtStatus"
+                      android:text="@string/instant_masterseed_initializing"
+                      android:layout_gravity="center_vertical"
+                      android:paddingLeft="10sp"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
+        <LinearLayout
+                android:id="@+id/llSelectAccount"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+            <TextView
+                    android:id="@+id/tvSelectAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:text="@string/select_trezor_account_to_spend_from"
+                    android:paddingTop="20sp"
+                    />
+
+            <ListView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/lvAccounts" >
+            </ListView>
+
+            <TextView
+                    android:id="@+id/tvNoAccounts"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:text="@string/hd_account_selector_no_account_found"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

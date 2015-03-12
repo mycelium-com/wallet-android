@@ -140,7 +140,7 @@ public class NoticeFragment extends Fragment {
       // Then check if there are some SingleAddressAccounts with funds on it
       for (WalletAccount account : accounts){
          if (account instanceof SingleAddressAccount && account.canSpend()){
-            if (meta.getSingleKeyBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
+            if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
                Balance balance = account.getBalance();
                if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0){
                   return Notice.SINGLEKEY_BACKUP_MISSING;

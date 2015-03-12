@@ -93,6 +93,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       return _keyStore.isValidEncryptionKey(cipher);
    }
 
+   @Override
+   public boolean isDerivedFromInternalMasterseed() {
+      return false;
+   }
+
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
       _context = new SingleAddressAccountContext(_context.getId(), _context.getAddress(), isArchived, 0);

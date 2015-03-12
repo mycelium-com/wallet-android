@@ -29,6 +29,7 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiConst.Function;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.squareup.okhttp.*;
 
 

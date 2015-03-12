@@ -45,12 +45,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.BitUtils;
-import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -60,9 +56,9 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
-import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -121,6 +117,10 @@ public class CreateTrader2Activity extends Activity {
          if (!account.canSpend()) {
             continue;
          }
+         if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
+            continue;
+         }
+
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(accountId);
          if (name.length() == 0) {
             name = createDefaultName(account);

@@ -121,7 +121,7 @@ public class TraderInfoFragment extends Fragment {
       _adapter.add(new InfoItem(getString(R.string.lt_trader_name_label), pti.nickname));
 
       // Show trader address
-      _adapter.add(new InfoItem(getString(R.string.lt_trader_address_label), pti.address.toMultiLineString()));
+      _adapter.add(new InfoItem(getString(R.string.lt_trader_address_label), pti.address.getShortAddress()));
 
       // (PrivateInfo) eMail Address
       if (ti != null) {

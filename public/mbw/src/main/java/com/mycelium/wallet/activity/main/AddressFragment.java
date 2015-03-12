@@ -34,13 +34,14 @@
 
 package com.mycelium.wallet.activity.main;
 
-import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
@@ -111,12 +112,24 @@ public class AddressFragment extends Fragment {
       Address address = getAddress();
       // Show name of bitcoin address according to address book
       TextView tvAddressTitle = (TextView) _root.findViewById(R.id.tvAddressLabel);
+      ImageView ivAccountType = (ImageView) _root.findViewById(R.id.ivAccountType);
+
       String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
       if (name.length() == 0) {
          tvAddressTitle.setVisibility(View.GONE);
+         ivAccountType.setVisibility(View.GONE);
       } else {
          tvAddressTitle.setVisibility(View.VISIBLE);
          tvAddressTitle.setText(name);
+
+         // show account type icon next to the name
+         Drawable drawableForAccount = Utils.getDrawableForAccount(_mbwManager.getSelectedAccount(), getResources());
+         if (drawableForAccount == null){
+            ivAccountType.setVisibility(View.GONE);
+         }else {
+            ivAccountType.setImageDrawable(drawableForAccount);
+            ivAccountType.setVisibility(View.VISIBLE);
+         }
       }
 
       // Set address

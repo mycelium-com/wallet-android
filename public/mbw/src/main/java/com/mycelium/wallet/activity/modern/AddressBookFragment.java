@@ -42,7 +42,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
@@ -51,23 +53,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.AddressBookManager;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.AddressBookManager.Entry;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.ScanRequest;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
@@ -149,7 +145,8 @@ public class AddressBookFragment extends Fragment {
       List<Entry> entries = new ArrayList<Entry>();
       for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-         entries.add(new Entry(account.getReceivingAddress(), name));
+         Drawable drawableForAccount = Utils.getDrawableForAccount(account, getResources());
+         entries.add(new AddressBookManager.IconEntry(account.getReceivingAddress(), name, drawableForAccount));
       }
       if (entries.isEmpty()) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
@@ -293,8 +290,11 @@ public class AddressBookFragment extends Fragment {
 
    private class AddressBookAdapter extends ArrayAdapter<Entry> {
 
-      public AddressBookAdapter(Context context, int textViewResourceId, List<Entry> entries) {
-         super(context, textViewResourceId, entries);
+      private int resource;
+
+      public AddressBookAdapter(Context context,@LayoutRes int resource, List<Entry> entries) {
+         super(context, resource, entries);
+         this.resource = resource;
       }
 
       @Override
@@ -303,15 +303,27 @@ public class AddressBookFragment extends Fragment {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.address_book_row, null));
+            v = Preconditions.checkNotNull(vi.inflate(resource, null));
          }
-         TextView tvName = (TextView) v.findViewById(R.id.address_book_name);
-         TextView tvAddress = (TextView) v.findViewById(R.id.address_book_address);
+         TextView tvName = (TextView) v.findViewById(R.id.tvName);
+         TextView tvAddress = (TextView) v.findViewById(R.id.tvAddress);
          Entry e = getItem(position);
          tvName.setText(e.getName());
          String text = e.getAddress().toMultiLineString();
          tvAddress.setText(text);
          v.setTag(e.getAddress());
+
+         ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+         if (e instanceof AddressBookManager.IconEntry){
+            Drawable icon = ((AddressBookManager.IconEntry) e).getIcon();
+            if (icon == null){
+               ivIcon.setVisibility(View.INVISIBLE);
+            } else {
+               ivIcon.setImageDrawable(icon);
+               ivIcon.setVisibility(View.VISIBLE);
+            }
+         }
+
          return v;
       }
    }
@@ -327,7 +339,7 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               ScanRequest request = ScanRequest.getAddressBookScanRequest();
+               StringHandleConfig request = StringHandleConfig.getAddressBookScanRequest();
                ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
@@ -367,19 +379,19 @@ public class AddressBookFragment extends Fragment {
          if (intent == null) {
             return; // user pressed back
          }
-         String error = intent.getStringExtra(ScanActivity.RESULT_ERROR);
+         String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
          if (error != null) {
             Toast.makeText(this.getActivity(), error, Toast.LENGTH_LONG).show();
          }
          return;
       }
-      ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
-      if (type == ScanActivity.ResultType.PRIVATE_KEY) {
+      StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+      if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
          Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
          return;
       }
-      Preconditions.checkState(type == ScanActivity.ResultType.ADDRESS);
-      Address address = ScanActivity.getAddress(intent);
+      Preconditions.checkState(type == StringHandlerActivity.ResultType.ADDRESS);
+      Address address = StringHandlerActivity.getAddress(intent);
       addFromAddress(address);
    }
 

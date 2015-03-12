@@ -72,6 +72,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
@@ -89,11 +90,14 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.*;
+import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class TradeActivity extends Activity {
 
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
    protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
+   private static final int SIGN_TX_REQUEST_CODE = 3;
 
    public static void callMe(Activity currentActivity, TradeSession tradeSession) {
       if (tradeSession.isOpen && tradeSession.isBuyer && tradeSession.buyerAddress == null) {
@@ -158,7 +162,7 @@ public class TradeActivity extends Activity {
       _etMessage.setOnEditorActionListener(editActionListener);
       _btSendMessage.setOnClickListener(sendMessageClickListener);
       _btAccept.setOnClickListener(acceptClickListener);
-      _btAbort.setOnClickListener(abortorStopOrDeleteClickListener);
+      _btAbort.setOnClickListener(abortOrStopOrDeleteClickListener);
       _btCashReceived.setOnClickListener(cashReceivedClickListener);
       _updateSound = RingtoneManager
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
@@ -278,20 +282,25 @@ public class TradeActivity extends Activity {
 
          @Override
          public void run() {
-            Transaction tx = TradeActivityUtil.createSignedTransaction(_tradeSession, _mbwManager);
-            if (tx == null) {
-               Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
-               return;
-            }
-            disableButtons();
-            _dingOnUpdates = false;
-            _ltManager.makeRequest(new ReleaseBtc(_tradeSession.id, HexUtils.toHex(tx.toBytes())));
+            createSignedTransaction(_tradeSession, _mbwManager);
          }
 
       });
    }
 
-   OnClickListener abortorStopOrDeleteClickListener = new OnClickListener() {
+   private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
+      Preconditions.checkNotNull(ts.buyerAddress);
+      WalletAccount acc = mbwManager.getSelectedAccount();
+
+      // Create unsigned transaction
+      StandardTransactionBuilder.UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
+            ts.buyerAddress, ts.feeAddress, acc, mbwManager.getMinerFee().kbMinerFee);
+
+      TrezorSignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);
+   }
+
+
+   OnClickListener abortOrStopOrDeleteClickListener = new OnClickListener() {
 
       @Override
       public void onClick(View arg0) {
@@ -749,6 +758,18 @@ public class TradeActivity extends Activity {
             disableButtons();
             _dingOnUpdates = false;
             _ltManager.makeRequest(new RequestMarketRateRefresh(_tradeSession.id));
+         }
+      } else if (requestCode == SIGN_TX_REQUEST_CODE) {
+         if (resultCode == RESULT_OK){
+            Transaction tx = (Transaction)intent.getSerializableExtra("signedTx");
+            if (tx == null) {
+               Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
+               return;
+            }
+            disableButtons();
+            _dingOnUpdates = false;
+            // send signed tx to server - it will check it and handle the broadcast
+            _ltManager.makeRequest(new ReleaseBtc(_tradeSession.id, HexUtils.toHex(tx.toBytes())));
          }
       }
    }

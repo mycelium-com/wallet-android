@@ -1,0 +1,50 @@
+apply plugin: 'android-library'
+//apply plugin: 'android'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath androidBuildArtifact
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.google.protobuf:protobuf-java:2.5.0'
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion androidSdkBuildVersion
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 12
+        targetSdkVersion 19
+    }
+
+    lintOptions {
+        xmlReport false
+        quiet false
+        showAll true
+    }
+
+}

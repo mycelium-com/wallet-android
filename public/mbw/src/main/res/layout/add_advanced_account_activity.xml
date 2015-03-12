@@ -4,107 +4,99 @@
             android:layout_height="fill_parent">
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical" >
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical" >
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/add_single_account_title"
-            android:textSize="24sp" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/add_unrelated_account_title"
+                android:textSize="24sp" />
 
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="20dp" >
-        </View>
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/add_advanced_account_warning"/>
 
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="20dp" >
-        </View>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/scan_desc" />
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="5dp" >
-        </View>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="@string/scan_desc" />
 
         <Button
-            android:id="@+id/btScan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp"
-            android:text="@string/scan" />
+                android:id="@+id/btScan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/scan" />
 
 
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="20dp" >
-        </View>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/clipboard_desc" />
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="5dp" >
-        </View>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/clipboard_desc" />
 
         <Button
-            android:id="@+id/btClipboard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp"
-            android:text="@string/clipboard" />
+                android:id="@+id/btClipboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/clipboard" />
 
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="20dp" >
-        </View>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/new_random_key_desc" />
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="5dp" >
-        </View>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/trezor_import_account" />
 
         <Button
-            android:id="@+id/btGenerateNewSingleKey"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp"
-            android:text="@string/generate_new_key" />
+                android:id="@+id/btTrezor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/trezor" />
+
+        <TextView
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/new_random_key_desc" />
+
+        <Button
+                android:id="@+id/btGenerateNewSingleKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/generate_new_key" />
     </LinearLayout>
 
 </ScrollView>

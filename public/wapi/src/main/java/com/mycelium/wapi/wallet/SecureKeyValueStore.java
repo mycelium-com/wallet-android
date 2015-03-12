@@ -18,6 +18,8 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteWriter;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 
 /**
@@ -37,10 +39,13 @@ public class SecureKeyValueStore {
    private static final byte PLAIN_PREFIX = 1;
    private static final byte CIPHER_PREFIX = 2;
 
-   private SecureKeyValueStoreBacking _backing;
+   protected final SecureKeyValueStoreBacking _backing;
+   private final RandomSource _randomSource;
+   public static final byte[] SUB_STORAGE_ID_BASE = new byte[]{0x73, 0x75, 0x62, 0x69, 0x64};
 
    public SecureKeyValueStore(SecureKeyValueStoreBacking backing, RandomSource randomSource) {
       _backing = backing;
+      this._randomSource = randomSource;
       // Initialize key encryption key if necessary
       if (getEncryptedKeyEncryptionKey() == null) {
          byte[] kek = new byte[AesKeyCipher.AES_KEY_BYTE_LENGTH];
@@ -61,7 +66,7 @@ public class SecureKeyValueStore {
       if (id.length == 0) {
          throw new RuntimeException("IDs cannot have zero length");
       }
-      return _backing.getValue(getRealId(id, false));
+      return getValue(getRealId(id, false));
    }
 
    /**
@@ -76,7 +81,7 @@ public class SecureKeyValueStore {
       if (id.length == 0) {
          throw new RuntimeException("IDs cannot have zero length");
       }
-      _backing.setValue(getRealId(id, false), plaintextValue);
+      setValue(getRealId(id, false), plaintextValue);
    }
 
    /**
@@ -126,7 +131,7 @@ public class SecureKeyValueStore {
     * @return true iff a value is defined for the specified ID
     */
    public boolean hasCiphertextValue(byte[] id) {
-      return _backing.getValue(getRealId(id, true)) != null;
+      return getValue(getRealId(id, true)) != null;
    }
 
    /**
@@ -142,7 +147,7 @@ public class SecureKeyValueStore {
          throw new RuntimeException("IDs cannot have zero length");
       }
       AesKeyCipher kekCipher = getKeyEncryptionKey(userCipher); // may throw InvalidKeyCipher
-      byte[] encryptedValue = _backing.getValue(getRealId(id, true));
+      byte[] encryptedValue = getValue(getRealId(id, true));
       if (encryptedValue == null) {
          return null;
       }
@@ -163,7 +168,7 @@ public class SecureKeyValueStore {
       }
       AesKeyCipher kekCipher = getKeyEncryptionKey(userCipher); // may throw InvalidKeyCipher
       byte[] encryptedValue = kekCipher.encrypt(plaintextValue);
-      _backing.setValue(getRealId(id, true), encryptedValue);
+      setValue(getRealId(id, true), encryptedValue);
    }
 
    public void deleteEncryptedValue(byte[] id, KeyCipher userCipher) throws InvalidKeyCipher {
@@ -177,20 +182,47 @@ public class SecureKeyValueStore {
    }
 
    private byte[] getEncryptedKeyEncryptionKey() {
+      // access the backing directly, so that we always get the same root KEK (even if we call this function
+      // from a SecureSubKeyValueStore
       return _backing.getValue(KEK_ID);
    }
 
    private void storeEncryptedKeyEncryptionKey(byte[] encryptedKek) {
+      // access the backing directly, so that we always set the same root KEK (even if we call this function
+      // from a SecureSubKeyValueStore
       _backing.setValue(KEK_ID, encryptedKek);
    }
 
 
-   private byte[] getRealId(byte[] id, boolean isEncrypted) {
+   protected byte[] getRealId(byte[] id, boolean isEncrypted) {
       byte[] realId = new byte[id.length + 1];
       realId[0] = isEncrypted ? CIPHER_PREFIX : PLAIN_PREFIX;
       System.arraycopy(id, 0, realId, 1, id.length);
       return realId;
    }
 
+   public SecureSubKeyValueStore getSubKeyStore(int forSubId){
+      return new SecureSubKeyValueStore(_backing, _randomSource, forSubId);
+   }
+
+   public synchronized SecureSubKeyValueStore createNewSubKeyStore(){
+      int maxSubId = _backing.getMaxSubId();
+
+      SecureSubKeyValueStore subKeyValueStore = new SecureSubKeyValueStore(_backing, _randomSource, maxSubId + 1);
+
+      // make a default entry to reserve this subId - this constant id does not start with 1 or 2 - so it is safe
+      // that it wont collide with any other entry
+      subKeyValueStore.setValue(SUB_STORAGE_ID_BASE,new byte[]{1});
+
+      return subKeyValueStore;
+   }
+
+   protected synchronized byte[] getValue(byte[] realId){
+      return _backing.getValue(realId);
+   }
+
+   protected synchronized void setValue(byte[] realId, byte[] value){
+      _backing.setValue(realId, value);
+   }
 
 }

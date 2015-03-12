@@ -1,0 +1,150 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context="com.mycelium.wallet.trezor.activity.TrezorAccountSelectorActivity">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/trezor_cold_storage_header"
+                android:textSize="24sp"
+                android:id="@+id/tvCaption"/>
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10sp"
+                android:id="@+id/llStatus"
+                >
+            <ProgressBar
+                    android:id="@+id/pbProgress"
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"/>
+
+            <TextView android:id="@+id/txtStatus"
+                      android:text="@string/trezor_initial_status"
+                      android:layout_gravity="center_vertical"
+                      android:paddingLeft="10sp"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/llTrezorInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trezor_name"/>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/tvTrezorName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Name"/>
+                <TextView
+                        android:id="@+id/tvTrezorSerial"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightgrey"
+                        tools:text="Serial, Version"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/tvWaitForTrezor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="30sp"
+                tools:visibility="gone"
+                android:text="@string/connect_your_trezor_info"
+                />
+
+        <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                tools:visibility="gone"
+                >
+            <ImageView
+                    android:id="@+id/ivConnectTrezor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/connect_trezor"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="Trezor-Logo"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+                android:id="@+id/llSelectAccount"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+            <TextView
+                    android:id="@+id/tvSelectAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:text="@string/select_trezor_account_to_spend_from"
+                    android:paddingTop="20sp"
+                    />
+
+            <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+            <ListView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_above="@+id/btNextAccount"
+                    android:id="@+id/lvAccounts" >
+            </ListView>
+            <TextView
+                    android:id="@+id/tvNoAccounts"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:text="@string/hd_account_selector_no_account_found"/>
+            <Button
+                    android:id="@+id/btNextAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/trezor_next_unused_account_button"
+                    android:enabled="false"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone"
+                    android:layout_alignParentBottom="true"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

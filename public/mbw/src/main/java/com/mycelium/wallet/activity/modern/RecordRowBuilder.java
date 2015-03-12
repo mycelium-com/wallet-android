@@ -35,9 +35,11 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
@@ -48,6 +50,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class RecordRowBuilder {
@@ -78,15 +81,14 @@ public class RecordRowBuilder {
       }
 
       // Show/hide key icon
-      if (!walletAccount.canSpend()) {
-         rowView.findViewById(R.id.ivKey).setVisibility(View.INVISIBLE);
-         rowView.findViewById(R.id.ivMultipleKeys).setVisibility(View.INVISIBLE);
-      } else if (walletAccount instanceof Bip44Account) {
-         rowView.findViewById(R.id.ivKey).setVisibility(View.INVISIBLE);
-         rowView.findViewById(R.id.ivMultipleKeys).setVisibility(View.VISIBLE);
+      ImageView icon = (ImageView) rowView.findViewById(R.id.ivIcon);
+
+      Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, resources);
+      if (drawableForAccount == null) {
+         icon.setVisibility(View.INVISIBLE);
       } else {
-         rowView.findViewById(R.id.ivKey).setVisibility(View.VISIBLE);
-         rowView.findViewById(R.id.ivMultipleKeys).setVisibility(View.INVISIBLE);
+         icon.setVisibility(View.VISIBLE);
+         icon.setImageDrawable(drawableForAccount);
       }
 
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
@@ -101,8 +103,15 @@ public class RecordRowBuilder {
       }
 
       String displayAddress;
-      if (walletAccount instanceof Bip44Account) {
-         if (walletAccount.isActive()) {
+      if (walletAccount.isActive()) {
+         if (walletAccount instanceof Bip44PubOnlyAccount) {
+            int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
+            if (numKeys > 1) {
+               displayAddress = resources.getString(R.string.contains_addresses, numKeys);
+            } else {
+               displayAddress = resources.getString(R.string.account_contains_one_address_info);
+            }
+         } else if (walletAccount instanceof Bip44Account) {
             int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
             if (numKeys > 1) {
                displayAddress = resources.getString(R.string.contains_keys, numKeys);
@@ -110,16 +119,16 @@ public class RecordRowBuilder {
                displayAddress = resources.getString(R.string.account_contains_one_key_info);
             }
          } else {
-            displayAddress = ""; //dont show key count of archived accs
+            if (name.length() == 0) {
+               // Display address in it's full glory, chopping it into three
+               displayAddress = walletAccount.getReceivingAddress().toMultiLineString();
+            } else {
+               // Display address in short form
+               displayAddress = walletAccount.getReceivingAddress().getShortAddress();
+            }
          }
       } else {
-         if (name.length() == 0 && walletAccount.isActive()) {
-            // Display address in it's full glory, chopping it into three
-            displayAddress = walletAccount.getReceivingAddress().toMultiLineString();
-         } else {
-            // Display address in short form
-            displayAddress = walletAccount.getReceivingAddress().getShortAddress();
-         }
+         displayAddress = ""; //dont show key count of archived accs
       }
 
 
@@ -192,11 +201,13 @@ public class RecordRowBuilder {
       }
 
       boolean showBackupMissingWarning = false;
-      if (account instanceof Bip44Account){
-         showBackupMissingWarning = mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
-      }else if (account instanceof SingleAddressAccount && account.canSpend()) {
-         MetadataStorage.BackupState backupState = mbwManager.getMetadataStorage().getSingleKeyBackupState(account.getId());
-         showBackupMissingWarning = (backupState != MetadataStorage.BackupState.VERIFIED) && (backupState != MetadataStorage.BackupState.IGNORED);
+      if (account.canSpend()) {
+         if (account.isDerivedFromInternalMasterseed()) {
+            showBackupMissingWarning = mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
+         } else {
+            MetadataStorage.BackupState backupState = mbwManager.getMetadataStorage().getOtherAccountBackupState(account.getId());
+            showBackupMissingWarning = (backupState != MetadataStorage.BackupState.VERIFIED) && (backupState != MetadataStorage.BackupState.IGNORED);
+         }
       }
 
       return showBackupMissingWarning;

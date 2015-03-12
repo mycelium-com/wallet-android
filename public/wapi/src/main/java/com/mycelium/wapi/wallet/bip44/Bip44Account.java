@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet.bip44;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -125,10 +126,14 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return _keyManager.isValidEncryptionKey(cipher);
    }
 
+   @Override
+   public boolean isDerivedFromInternalMasterseed() {
+      return (getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED);
+   }
+
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
-      _context = new Bip44AccountContext(_context.getId(), _context.getAccountIndex(), isArchived);
-      _context.persist(_backing);
+      initContext(isArchived);
       _externalAddresses.clear();
       _internalAddresses.clear();
       _currentReceivingAddress = null;
@@ -138,6 +143,12 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          _cachedBalance = calculateLocalBalance();
       }
    }
+
+   protected void initContext(boolean isArchived) {
+      _context = new Bip44AccountContext(_context.getId(), _context.getAccountIndex(), isArchived, _context.getAccountType(), _context.getAccountSubId());
+      _context.persist(_backing);
+   }
+
 
    /**
     * Figure out whether this account has ever had any activity.
@@ -480,10 +491,20 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return _context.getLastExternalIndexWithActivity() + 2 + _context.getLastInternalIndexWithActivity() + 1;
    }
 
+   public Optional<Integer[]> getAddressId(Address address){
+      if (_externalAddresses.containsKey(address)){
+         return Optional.of(new Integer[]{0, _externalAddresses.get(address) });
+      }else if (_internalAddresses.containsKey(address)){
+         return Optional.of(new Integer[]{1, _internalAddresses.get(address) });
+      }
+      return Optional.absent();
+   }
+
+   @Override
    public boolean canSpend() {
-      // For now we do not support read-only Bip44 accounts
       return true;
    }
+
 
    @Override
    public int getBlockChainHeight() {
@@ -521,5 +542,16 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    @Override
    public boolean containsPrivateData() {
       return canSpend();
+   }
+
+
+   public int getAccountType(){
+      return _context.getAccountType();
+   }
+
+   // deletes everything account related from the backing
+   // this method is only allowed for accounts that use a SubValueKeystore
+   public void clearBacking() {
+      _keyManager.deleteSubKeyStore();
    }
 }

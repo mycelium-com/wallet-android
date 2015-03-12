@@ -250,6 +250,16 @@ public class Address implements Serializable, Comparable<Address> {
       return sb.toString();
    }
 
+   public String toDoubleLineString() {
+      StringBuilder sb = new StringBuilder();
+      String address = toString();
+      int splitIndex = address.length() / 2;
+      sb.append(address.substring(0, splitIndex)).append("\r\n");
+      sb.append(address.substring(splitIndex));
+      return sb.toString();
+   }
+
+
    public NetworkParameters getNetwork() {
       if (matchesNetwork(NetworkParameters.productionNetwork, getVersion())) return NetworkParameters.productionNetwork;
       if (matchesNetwork(NetworkParameters.testNetwork, getVersion())) return NetworkParameters.testNetwork;

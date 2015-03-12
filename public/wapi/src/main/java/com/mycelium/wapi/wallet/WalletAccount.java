@@ -226,11 +226,18 @@ public interface WalletAccount {
 
 
    /**
+    * Returns true, if this account is based on the internal masterseed.
+    */
+   boolean isDerivedFromInternalMasterseed();
+
+
+   /**
     * Get the summary list of unspent transaction outputs for this account.
     *
     * @return the summary list of unspent transaction outputs for this account.
     */
    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
+
 
    /**
     * Class representing a receiver of funds

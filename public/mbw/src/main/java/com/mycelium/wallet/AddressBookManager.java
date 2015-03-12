@@ -35,28 +35,21 @@
 package com.mycelium.wallet;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import android.content.Context;
 
+import android.graphics.drawable.Drawable;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.event.AddressBookChanged;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.squareup.otto.Bus;
 
 public class AddressBookManager {
    private static final String ADDRESS_BOOK_FILE_NAME = "address-book.txt";
@@ -100,6 +93,19 @@ public class AddressBookManager {
          return _address.equals(other._address) && _name.equals(other._name);
       }
 
+   }
+
+   public static class IconEntry extends Entry{
+      private Drawable _icon;
+
+      public IconEntry(Address address, String name, Drawable icon) {
+         super(address, name);
+         this._icon = icon;
+      }
+
+      public Drawable getIcon() {
+         return _icon;
+      }
    }
 
    private Context _applicationContext;

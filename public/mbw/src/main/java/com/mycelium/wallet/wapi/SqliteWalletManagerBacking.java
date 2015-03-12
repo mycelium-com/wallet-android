@@ -63,33 +63,62 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    private static final String LOG_TAG = "SqliteAccountBacking";
    private static final String TABLE_KV = "kv";
+   public static final int DEFAULT_SUB_ID = 0;
 
    private class OpenHelper extends SQLiteOpenHelper {
 
       private static final String DATABASE_NAME = "walletbacking.db";
-      private static final int DATABASE_VERSION = 2;
+      private static final int DATABASE_VERSION = 3;
 
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+         for (UUID account : getAccountIds(getWritableDatabase())) {
+            new SqliteAccountBacking(account, getWritableDatabase()).upgradeTables();
+         }
       }
 
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id STRING PRIMARY KEY, address BLOB, addressstring STRING, archived INTEGER, blockheight INTEGER);");
-         db.execSQL("CREATE TABLE bip44 (id STRING PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery);");
-         db.execSQL("CREATE TABLE kv (k BLOB PRIMARY KEY, v BLOB, checksum BLOB);");
+         db.execSQL("CREATE TABLE bip44 (id STRING PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery, accountType INTEGER, accountSubId INTEGER);");
+         db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+         /*
+          * If table layout for account backing changes, alter the tables accordingly
          for (UUID account : getAccountIds(db)) {
             new SqliteAccountBacking(account, db).upgradeTables();
          }
-         if (oldVersion==1 && newVersion>=2){
-            db.execSQL("ALTER TABLE kv ADD COLUMN checksum BLOB");
+         */
+
+
+         db.beginTransaction();
+         try {
+            if (oldVersion<=1){
+               db.execSQL("ALTER TABLE kv ADD COLUMN checksum BLOB");
+            }
+            if (oldVersion<=2){
+               // add column to the secure kv table to indicate sub-stores
+               // use a temporary table to migrate the table, as sqlite does not allow to change primary keys constraints
+               db.execSQL("CREATE TABLE kv_new (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
+               db.execSQL("INSERT INTO kv_new SELECT k, v, checksum, 0 FROM kv");
+               db.execSQL("ALTER TABLE kv RENAME TO kv_old");
+               db.execSQL("ALTER TABLE kv_new RENAME TO kv");
+               db.execSQL("DROP TABLE kv_old");
+
+               // add column to store what account type it is
+               db.execSQL("ALTER TABLE bip44 ADD COLUMN accountType INTEGER DEFAULT 0");
+               db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
+            }
+            db.setTransactionSuccessful();
+         }finally {
+            db.endTransaction();
          }
       }
-
    }
 
    private SQLiteDatabase _database;
@@ -102,19 +131,24 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    private final SQLiteStatement _deleteBip44Account;
    private final SQLiteStatement _insertOrReplaceKeyValue;
    private final SQLiteStatement _deleteKeyValue;
+   private final SQLiteStatement _deleteSubId;
+   private final SQLiteStatement _getMaxSubId;
+
 
    public SqliteWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?)");
+      _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?,?)");
       _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
-      _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=? WHERE id=?");
+      _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
-      _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?)");
+      _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
+      _getMaxSubId = _database.compileStatement("SELECT max(subId) FROM KV");
       _deleteKeyValue = _database.compileStatement("DELETE FROM kv WHERE k = ?");
+      _deleteSubId = _database.compileStatement("DELETE FROM kv WHERE subId = ?");
       _backings = new HashMap<UUID, SqliteAccountBacking>();
       for (UUID id : getAccountIds(_database)) {
          _backings.put(id, new SqliteAccountBacking(id, _database));
@@ -185,8 +219,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "bip44", new String[]{"id", "accountIndex", "archived", "blockheight", "lastExternalIndexWithActivity", "lastInternalIndexWithActivity", "firstMonitoredInternalIndex", "lastDiscovery"}, null, null,
-               null, null, "accountIndex", null);
+         cursor = blobQuery.query(
+               false, "bip44",
+               new String[]{"id", "accountIndex", "archived", "blockheight",
+                     "lastExternalIndexWithActivity", "lastInternalIndexWithActivity",
+                     "firstMonitoredInternalIndex", "lastDiscovery", "accountType", "accountSubId"},
+               null, null, null, null, "accountIndex", null);
+
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             int accountIndex = cursor.getInt(1);
@@ -196,7 +235,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             int lastInternalIndexWithActivity = cursor.getInt(5);
             int firstMonitoredInternalIndex = cursor.getInt(6);
             long lastDiscovery = cursor.getLong(7);
-            list.add(new Bip44AccountContext(id, accountIndex, isArchived, blockHeight, lastExternalIndexWithActivity, lastInternalIndexWithActivity, firstMonitoredInternalIndex, lastDiscovery));
+            int accountType = cursor.getInt(8);
+            int accountSubId = (int)cursor.getLong(9);
+
+            list.add(new Bip44AccountContext(id, accountIndex, isArchived, blockHeight, lastExternalIndexWithActivity,
+                  lastInternalIndexWithActivity, firstMonitoredInternalIndex, lastDiscovery, accountType, accountSubId));
          }
          return list;
       } finally {
@@ -219,7 +262,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             _backings.put(context.getId(), backing);
          }
 
-         // Crete context
+         // Create context
          _insertOrReplaceBip44Account.bindBlob(1, SQLiteQueryWithBlobs.uuidToBytes(context.getId()));
          _insertOrReplaceBip44Account.bindLong(2, context.getAccountIndex());
          _insertOrReplaceBip44Account.bindLong(3, context.isArchived() ? 1 : 0);
@@ -228,6 +271,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceBip44Account.bindLong(6, context.getLastInternalIndexWithActivity());
          _insertOrReplaceBip44Account.bindLong(7, context.getFirstMonitoredInternalIndex());
          _insertOrReplaceBip44Account.bindLong(8, context.getLastDiscovery());
+         _insertOrReplaceBip44Account.bindLong(9, context.getAccountType());
+         _insertOrReplaceBip44Account.bindLong(10, context.getAccountSubId());
          _insertOrReplaceBip44Account.executeInsert();
 
          _database.setTransactionSuccessful();
@@ -238,14 +283,17 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
 
    private void updateBip44AccountContext(Bip44AccountContext context) {
-      //"UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=? WHERE id=?"
+      //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
+
       _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
       _updateBip44Account.bindLong(2, context.getBlockHeight());
       _updateBip44Account.bindLong(3, context.getLastExternalIndexWithActivity());
       _updateBip44Account.bindLong(4, context.getLastInternalIndexWithActivity());
       _updateBip44Account.bindLong(5, context.getFirstMonitoredInternalIndex());
       _updateBip44Account.bindLong(6, context.getLastDiscovery());
-      _updateBip44Account.bindBlob(7, SQLiteQueryWithBlobs.uuidToBytes(context.getId()));
+      _updateBip44Account.bindLong(7, context.getAccountType());
+      _updateBip44Account.bindLong(8, context.getAccountSubId());
+      _updateBip44Account.bindBlob(9, SQLiteQueryWithBlobs.uuidToBytes(context.getId()));
       _updateBip44Account.execute();
    }
 
@@ -362,11 +410,17 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    @Override
    public byte[] getValue(byte[] id) {
+      return getValue(id, DEFAULT_SUB_ID);
+   }
+
+   @Override
+   public byte[] getValue(byte[] id, int subId) {
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
          blobQuery.bindBlob(1, id);
-         cursor = blobQuery.query(false, TABLE_KV, new String[]{"v", "checksum"}, "k = ?", null, null, null,
+         blobQuery.bindLong(2, (long) subId);
+         cursor = blobQuery.query(false, TABLE_KV, new String[]{"v", "checksum"}, "k = ? and subId = ?", null, null, null,
                null, null);
          if (cursor.moveToNext()) {
             byte[] retVal = cursor.getBlob(0);
@@ -391,12 +445,25 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    @Override
    public void setValue(byte[] key, byte[] value) {
+      setValue(key, DEFAULT_SUB_ID, value);
+   }
+
+   @Override
+   public int getMaxSubId() {
+      return (int)_getMaxSubId.simpleQueryForLong();
+   }
+
+   @Override
+   public void setValue(byte[] key, int subId, byte[] value) {
       _insertOrReplaceKeyValue.bindBlob(1, key);
       SQLiteQueryWithBlobs.bindBlobWithNull(_insertOrReplaceKeyValue, 2, value);
       _insertOrReplaceKeyValue.bindBlob(3, calcChecksum(key, value));
+      _insertOrReplaceKeyValue.bindLong(4, subId);
 
       _insertOrReplaceKeyValue.executeInsert();
    }
+
+
 
    private byte[] calcChecksum(byte[] key, byte[] value){
       byte toHash[] = BitUtils.concatenate(key, value);
@@ -408,6 +475,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    public void deleteValue(byte[] id) {
       _deleteKeyValue.bindBlob(1, id);
       _deleteKeyValue.execute();
+   }
+
+   @Override
+   public void deleteSubStorageId(int subId) {
+      _deleteSubId.bindLong(1, subId);
+      _deleteSubId.execute();
    }
 
    private static void createAccountBackingTables(UUID id, SQLiteDatabase db) {

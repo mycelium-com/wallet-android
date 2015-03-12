@@ -178,6 +178,7 @@ public class TransactionHistoryFragment extends Fragment {
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
          Wrapper wrapper = new Wrapper(getActivity(), history);
          ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
+         ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
       }
    }
 
@@ -307,6 +308,7 @@ public class TransactionHistoryFragment extends Fragment {
          // Set fiat value
          TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
          Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+         if (rate == null) _mbwManager.getExchangeRateManager().requestRefresh();
          if (!_mbwManager.hasFiatCurrency() || rate == null) {
             tvFiat.setVisibility(View.GONE);
          } else {

@@ -44,7 +44,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
-import android.text.format.DateFormat;
 import android.util.TypedValue;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -68,10 +67,10 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -181,14 +180,16 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setTitle(R.string.delete_account_title);
       deleteDialog.setMessage(R.string.delete_account_message);
 
-      if (accountToDelete.canSpend()) { // add checkbox only if private key is present
+      // add checkbox only for SingleAddressAccounts and only if a private key is present
+      final boolean hasPrivateData = accountToDelete instanceof ExportableAccount && ((ExportableAccount) accountToDelete).containsPrivateData();
+      if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
       }
 
       deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface arg0, int arg1) {
-            if (accountToDelete.canSpend()) {
+            if (hasPrivateData) {
                Long satoshis = getPotentialBalance(accountToDelete);
                AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
                confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
@@ -229,7 +230,7 @@ public class AccountsFragment extends Fragment {
                         }
                      } else {
                         try {
-                           walletManager.deleteSingleAddressAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                           walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                            _storage.deleteAccountMetadata(accountToDelete.getId());
                         } catch (KeyCipher.InvalidKeyCipher e) {
                            throw new RuntimeException(e);
@@ -248,8 +249,9 @@ public class AccountsFragment extends Fragment {
                });
                confirmDeleteDialog.show();
             } else {
+               // account has no private data - dont make a fuzz about it and just delete it
                try {
-                  walletManager.deleteSingleAddressAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                  walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                   _storage.deleteAccountMetadata(accountToDelete.getId());
                } catch (KeyCipher.InvalidKeyCipher e) {
                   throw new RuntimeException(e);
@@ -289,19 +291,12 @@ public class AccountsFragment extends Fragment {
       if (account == null || !isAdded()) {
          return;
       }
-      String defaultName;
-      if (account instanceof SingleAddressAccount) {
-         // Determine a default name from the current date but in such a way that
-         // it does not collide with any name we have already by adding a counter
-         // to the name if necessary
-         String baseName = DateFormat.getMediumDateFormat(this.getActivity()).format(new Date());
-         defaultName = baseName;
-         int num = 1;
-         while (_storage.getAccountByLabel(defaultName).isPresent()) {
-            defaultName = baseName + " (" + num++ + ')';
-         }
-      } else {
-         defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+      String baseName = Utils.getNameForNewAccount(account, getActivity());
+      //append counter if name already in use
+      String defaultName = baseName;
+      int num = 1;
+      while (_storage.getAccountByLabel(defaultName).isPresent()) {
+         defaultName = baseName + " (" + num++ + ')';
       }
       //we just put the default name into storage first, if there is none
       //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
@@ -328,9 +323,8 @@ public class AccountsFragment extends Fragment {
          getView().findViewById(R.id.llLocked).setVisibility(View.GONE);
 
 
-         List<WalletAccount> activeHdAccounts = walletManager.getActiveHdAccounts();
+         List<WalletAccount> activeHdAccounts = walletManager.getActiveMasterseedAccounts();
          List<WalletAccount> activeOtherAccounts = walletManager.getActiveOtherAccounts();
-
 
 
          List<WalletAccount> activeHdRecords = Utils.sortAccounts(activeHdAccounts, _storage);
@@ -505,30 +499,35 @@ public class AccountsFragment extends Fragment {
       final List<Integer> menus = Lists.newArrayList();
       menus.add(R.menu.record_options_menu);
 
-      if (account instanceof Bip44Account || account instanceof SingleAddressAccount) {
+      if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
          menus.add(R.menu.record_options_menu_backup);
       }
 
       if (account instanceof SingleAddressAccount) {
          menus.add(R.menu.record_options_menu_backup_verify);
+      }
+
+      if (!account.isDerivedFromInternalMasterseed()) {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend()) {
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
       if (account.isActive()) {
          menus.add(R.menu.record_options_menu_active);
       }
+
       if (account.isArchived()) {
          menus.add(R.menu.record_options_menu_archive);
       }
-      if (account.isActive() && account.canSpend() && account instanceof ExportableAccount) {
+
+      if (account.isActive() && account instanceof ExportableAccount) {
          menus.add(R.menu.record_options_menu_export);
       }
 
-      if (account.isActive() && account instanceof Bip44Account) {
+      if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)) {
          if (!((Bip44Account) account).hasHadActivity()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);

@@ -45,7 +45,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.ScanRequest;
+import com.mycelium.wallet.StringHandleConfig;
 
 public class BipSsImportActivity extends Activity {
 
@@ -111,16 +111,16 @@ public class BipSsImportActivity extends Activity {
    OnClickListener scanClickListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
-         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, ScanRequest.getShare());
+         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, StringHandleConfig.getShare());
       }
    };
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_OK == resultCode) {
          if (REQUEST_SHARE_CODE == requestCode) {
-            ScanActivity.ResultType type = (ScanActivity.ResultType) intent.getSerializableExtra(ScanActivity.RESULT_TYPE_KEY);
-            if (type == ScanActivity.ResultType.SHARE) {
-               BipSss.Share share = ScanActivity.getShare(intent);
+            StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+            if (type == StringHandlerActivity.ResultType.SHARE) {
+               BipSss.Share share = StringHandlerActivity.getShare(intent);
                shares.add(share);
             }
          }

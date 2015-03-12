@@ -29,10 +29,33 @@
             android:paddingRight="10dp"
             android:text="@string/add_account_desc" />
 
+        <TextView
+                android:id="@+id/tvInfoBackup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="15dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/info_add_account_keep_backup_secure" />
+
+        <TextView
+                android:id="@+id/tvWarningNoBackup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="15dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:textColor="@color/red"
+                android:text="@string/warning_add_account_no_backup" />
+
         <View
             android:layout_width="wrap_content"
             android:layout_height="25dp" >
         </View>
+
+
 
         <Button
             android:id="@+id/btHdCreate"
@@ -43,26 +66,6 @@
             android:paddingRight="30dp"
             android:text="@string/hd_account" />
 
-
-        <TextView
-                android:id="@+id/tvWarningNoBackup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingTop="15dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/warning_add_account_no_backup" />
-
-        <TextView
-                android:id="@+id/tvInfoBackup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingTop="15dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/info_add_account_keep_backup_secure" />
 
         <View
             android:layout_width="wrap_content"

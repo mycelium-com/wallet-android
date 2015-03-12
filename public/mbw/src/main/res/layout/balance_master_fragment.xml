@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
     <ScrollView
@@ -16,13 +17,13 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 class="com.mycelium.wallet.activity.main.AddressFragment"
-                />
+                tools:layout="@layout/address_view"/>
 
             <fragment
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 class="com.mycelium.wallet.activity.main.BalanceFragment"
-                />
+                tools:layout="@layout/main_balance_view"/>
 
             <View
                 android:layout_width="fill_parent"
@@ -32,7 +33,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 class="com.mycelium.wallet.activity.main.NoticeFragment"
-                />
+                tools:layout="@layout/backup_verification_warning_dialog"/>
 
 
             <View
@@ -43,7 +44,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 class="com.mycelium.wallet.activity.main.LocalTraderFragment"
-                    />
+                tools:layout="@layout/main_lt_fragment"/>
 
         </LinearLayout>
     </ScrollView>

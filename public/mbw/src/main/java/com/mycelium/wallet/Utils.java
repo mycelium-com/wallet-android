@@ -41,12 +41,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.text.ClipboardManager;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -82,6 +85,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.PrettyTime;
 
@@ -678,4 +683,34 @@ public class Utils {
       return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
+   public static Drawable getDrawableForAccount(WalletAccount walletAccount, Resources resources) {
+      // Watch only
+      if (!walletAccount.canSpend()){
+         return null;
+      }
+
+      //trezor account
+      if (walletAccount instanceof Bip44AccountExternalSignature) {
+         return resources.getDrawable(R.drawable.trezor_icon_only);
+      }
+      //regular HD account
+      if (walletAccount instanceof Bip44Account) {
+         return  resources.getDrawable(R.drawable.multikeys_grey);
+      }
+
+      //single key account
+      return resources.getDrawable(R.drawable.singlekey_grey);
+   }
+
+   public static String getNameForNewAccount(WalletAccount account, Context context) {
+      if (account instanceof Bip44AccountExternalSignature) {
+         return MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault() + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
+      } else if (account instanceof Bip44PubOnlyAccount) {
+         return context.getString(R.string.account_prefix_imported);
+      } else if (account instanceof Bip44Account) {
+         return context.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+      } else {
+         return DateFormat.getMediumDateFormat(context).format(new Date());
+      }
+   }
 }

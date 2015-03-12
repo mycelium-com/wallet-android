@@ -21,12 +21,14 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.HdDerivedAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SecureSubKeyValueStore;
 
 import java.util.UUID;
 
@@ -45,25 +47,32 @@ import java.util.UUID;
  */
 public class Bip44AccountKeyManager {
 
-   private static final int BIP44_PURPOSE = 0x8000002c;
-   private static final int BIP44_PRODNET_COIN_TYPE = 0x80000000;
-   private static final int BIP44_TESTNET_COIN_TYPE = 0x80000001;
-   private int _accountIndex;
-   private final SecureKeyValueStore _secureKeyValueStore;
+   protected static final int BIP44_PURPOSE = 0x8000002c;
+   protected static final int BIP44_PRODNET_COIN_TYPE = 0x80000000;
+   protected static final int BIP44_TESTNET_COIN_TYPE = 0x80000001;
+   protected int _accountIndex;
+   protected final SecureKeyValueStore _secureKeyValueStore;
 
 
-   private HdKeyNode _publicAccountRoot;
-   private HdKeyNode _publicExternalChainRoot;
-   private HdKeyNode _publicChangeChainRoot;
-   private NetworkParameters _network;
+   protected HdKeyNode _publicAccountRoot;
+   protected HdKeyNode _publicExternalChainRoot;
+   protected HdKeyNode _publicChangeChainRoot;
+   protected NetworkParameters _network;
 
 
    public static Bip44AccountKeyManager createNew(HdKeyNode bip32Root, NetworkParameters network, int accountIndex, SecureKeyValueStore secureKeyValueStore, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       HdKeyNode bip44Root = bip32Root.createChildNode(BIP44_PURPOSE);
       HdKeyNode coinTypeRoot = bip44Root.createChildNode(network.isProdnet() ? BIP44_PRODNET_COIN_TYPE : BIP44_TESTNET_COIN_TYPE);
 
-      // Create the account root. Store the private node encrypted and the public node in plain text
+      // Create the account root.
       HdKeyNode accountRoot = coinTypeRoot.createChildNode(accountIndex | 0x80000000);
+
+      return createFromAccountRoot(accountRoot, network, accountIndex, secureKeyValueStore, cipher);
+   }
+
+   public static Bip44AccountKeyManager createFromAccountRoot(HdKeyNode accountRoot, NetworkParameters network, int accountIndex, SecureKeyValueStore secureKeyValueStore, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+
+      // Store the account root (xPub and xPriv) key
       secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex), accountRoot.toCustomByteFormat(), cipher);
       secureKeyValueStore.storePlaintextValue(getAccountNodeId(network, accountIndex), accountRoot.getPublicNode().toCustomByteFormat());
 
@@ -79,6 +88,9 @@ public class Bip44AccountKeyManager {
       return new Bip44AccountKeyManager(accountIndex, network, secureKeyValueStore);
    }
 
+   protected Bip44AccountKeyManager(SecureKeyValueStore secureKeyValueStore) {
+      _secureKeyValueStore = secureKeyValueStore;
+   }
 
    public Bip44AccountKeyManager(int accountIndex, NetworkParameters network, SecureKeyValueStore secureKeyValueStore) {
       _accountIndex = accountIndex;
@@ -104,10 +116,7 @@ public class Bip44AccountKeyManager {
    }
 
    public UUID getAccountId() {
-      // Create a UUID from the byte indexes 8-15 and 16-23 of the account public key
-      byte[] publicKeyBytes = _publicAccountRoot.getPublicKey().getPublicKeyBytes();
-      return new UUID(BitUtils.uint64ToLong(publicKeyBytes, 8), BitUtils.uint64ToLong(
-            publicKeyBytes, 16));
+      return _publicAccountRoot.getUuid();
    }
 
    public boolean isValidEncryptionKey(KeyCipher userCipher) {
@@ -151,18 +160,19 @@ public class Bip44AccountKeyManager {
       return publicLeafNode.getPublicKey();
    }
 
-   public Address getAddress(boolean isChangeChain, int index) {
+   public HdDerivedAddress getAddress(boolean isChangeChain, int index) {
       // See if we have it in the store
       byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false);
       byte[] addressNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
       if (addressNodeBytes != null) {
          // We have it already, no need to calculate it
-         return bytesToAddress(addressNodeBytes);
+         HdDerivedAddress adr = bytesToAddress(addressNodeBytes, id);
+         return adr;
       }
 
       // We don't have it, need to calculate it from the public key
       PublicKey publicKey = getPublicKey(isChangeChain, index);
-      Address address = publicKey.toAddress(_network);
+      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network), id);
 
       // Store it for next time
       _secureKeyValueStore.storePlaintextValue(id, addressToBytes(address));
@@ -212,7 +222,7 @@ public class Bip44AccountKeyManager {
       return writer.toBytes();
    }
 
-   private static Address bytesToAddress(byte[] bytes) {
+   private static HdDerivedAddress bytesToAddress(byte[] bytes, byte[] pathId) {
       try {
          ByteReader reader = new ByteReader(bytes);
          // Address bytes
@@ -220,7 +230,7 @@ public class Bip44AccountKeyManager {
          // Read length encoded string
          String addressString = null;
          addressString = new String(reader.getBytes((int) reader.get()));
-         return new Address(addressBytes, addressString);
+         return new HdDerivedAddress(addressBytes, addressString, pathId);
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }
@@ -236,6 +246,14 @@ public class Bip44AccountKeyManager {
          return hdKeyNode;
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
+      }
+   }
+
+   public void deleteSubKeyStore(){
+      if (_secureKeyValueStore instanceof SecureSubKeyValueStore){
+         ((SecureSubKeyValueStore) _secureKeyValueStore).deleteAllData();
+      } else {
+         throw new RuntimeException("this is not a SubKeyValueStore");
       }
    }
 }

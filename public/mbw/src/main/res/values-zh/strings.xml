@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium 比特币钱包</string>
   <string name="add_account_title">添加新帐户</string>
-  <string name="add_single_account_title">添加单一地址帐户</string>
   <string name="import_seed_title">导入主种子</string>
   <string name="import_words_title">输入单词列表</string>
   <string name="add_account_desc">Mycelium支持HD帐户和单一地址帐户。所有HD帐户都创建于相同的主种子。第一次您创建HD帐户时，需要对您的主种子进行配置。</string>
   <string name="add_single_acc_info">若要基于私人密钥或只读的地址添加单一地址帐户，请单击下面的高级按钮。</string>
-  <string name="scan_desc">请扫描比特币地址或密匙。</string>
   <string name="scan_seed">从Mycelium备份中扫描主种子</string>
   <string name="use_acc_first">你只能有一个未使用的HD帐户。</string>
   <string name="clipboard_desc">导入剪贴板的比特币地址或密匙</string>
@@ -52,7 +50,6 @@
   <string name="copy_private_key_to_clipboard">复制密钥到剪贴板</string>
   <string name="copied_to_clipboard">复制成功</string>
   <string name="private_key">密钥</string>
-  <string name="your_bitcoin_address">你的比特币地址：</string>
   <string name="bitcoin_address_title">比特币地址</string>
   <string name="no_server_connection">服务器连接失败</string>
   <string name="no_network_connection">网络连接失败</string>
@@ -111,7 +108,6 @@
   <string name="edit">编辑</string>
   <string name="delete">删除</string>
   <string name="payment_request">付款请求</string>
-  <string name="backup_all_warning">您应该备份钱包的主种子。 \n如果您的设备丢失或者损坏，你可以从备份中恢复您的资金.\n\n您想要现在这样做吗？</string>
   <string name="backup_legacy_warning">你将在你钱包中备份单地址帐户。\n 这份备份将不会包含您主的种子，您的HD帐户不可以从它恢复 ！\n\n 您希望继续吗？</string>
   <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
   <string name="found_clipboard_private_key_title">密钥在剪贴板上</string>
@@ -126,7 +122,6 @@
   <string name="get_private_key">从哪里获得密钥：</string>
   <string name="cold_storage">冷库</string>
   <string name="cold_storage_title">冷库花费</string>
-  <string name="cold_storage_desc">您将要从冷库中的密钥花费。支持多种格式，如备份文件和从比特币取款机的密钥\n\n发送了交易以后，密钥会被删除</string>
   <string name="keep_account_address">只删除私钥并保留它作为一个只读帐户</string>
   <string name="manual_entry">手动输入</string>
   <string name="archive_name">存档了</string>
@@ -162,10 +157,6 @@
   <string name="delete_account_title">删除帐户吗？</string>
   <string name="delete_account_message">你想要删除该帐户吗？</string>
   <string name="confirm_delete_pk_title">您确定吗</string>
-  <string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n密钥的地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗</string>
-  <string name="confirm_delete_pk_with_balance_with_label">这不能被撤销!\n\n密钥的标签:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗</string>
-  <string name="confirm_delete_pk_without_balance">这不能被撤销!\n\n密钥的地址:\n%1$s\n\n您想要删除它吗</string>
-  <string name="confirm_delete_pk_without_balance_with_label">这不能被撤销!\n\n密钥的标签:\n%1$s\n\n密钥的地址:\n%2$s\n\n您想要删除它吗</string>
   <string name="verify_private_key_backup">验证备份</string>
   <string name="verify_backup_dialog_title">验证密钥备份</string>
   <string name="verify_backup_desc">密钥备份对于管理您的比特币是至管重要的。\n\n验证您的备份会确保您的备份正确，这样您不会因为手机的损坏或丢失而失去您的比特币资金。</string>
@@ -365,7 +356,6 @@
   <string name="lt_selling_details">您将销售 %1$s</string>
   <string name="lt_no_trader_account_desc">没有本地交易账户与此钱包相关联。\n\n交易帐户直接与您的一个比特币地址绑定，不需要密码，没有障碍。\n\n需要现在创建一个吗？</string>
   <string name="lt_trader_name_label">交易者名称</string>
-  <string name="lt_trader_address_label">地址绑定的帐户</string>
   <string name="lt_trader_email_address_label">电子邮件地址</string>
   <string name="lt_trader_age_label">交易者帐户年龄</string>
   <string name="lt_trader_last_activity">最后一次活动</string>
@@ -474,7 +464,6 @@
   <string name="wordlist_length_24">24 个单词</string>
   <string name="import_wordlist_questions">请选择单词列表长度进行恢复，并标明它是否被密码保护。</string>
   <string name="type_password_title">输入您的密码</string>
-  <string name="clipboard_not_available">剪贴板内容无效</string>
   <string name="no_android_wallet_backup">没有发现转出</string>
   <string name="unable_to_get_clipboard">无法获取当前剪贴板的内容</string>
   <string name="unable_to_clear_clipboard">无法清空剪贴板</string>

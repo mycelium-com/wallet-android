@@ -30,9 +30,8 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountKeyManager;
+import com.mycelium.wapi.wallet.bip44.*;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
@@ -128,6 +127,10 @@ public class WalletManager {
    private Wapi _wapi;
    private WapiLogger _logger;
    private boolean _synchronizeTransactionHistory;
+   private final ExternalSignatureProvider _signatureProvider;
+
+   public AccountScanManager accountScanManager;
+
 
    /**
     * Create a new wallet manager instance
@@ -137,11 +140,12 @@ public class WalletManager {
     * @param wapi    the Wapi instance to use
     */
    public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                        NetworkParameters network, Wapi wapi) {
+                        NetworkParameters network, Wapi wapi, ExternalSignatureProvider signatureProvider) {
       _secureKeyValueStore = secureKeyValueStore;
       _backing = backing;
       _network = network;
       _wapi = wapi;
+      _signatureProvider = signatureProvider;
       _logger = _wapi.getLogger();
       _allAccounts = new HashMap<UUID, AbstractAccount>();
       _bip44Accounts = new ArrayList<Bip44Account>();
@@ -214,6 +218,116 @@ public class WalletManager {
       return id;
    }
 
+
+   /**
+    * Create a new Bp44 account using a accountRoot or xPrivKey (unrelated to the Masterseed)
+    *
+    * @param hdKeyNode the xPub/xPriv to use
+    * @return the ID of the new account
+    */
+   public UUID createUnrelatedBip44Account(HdKeyNode hdKeyNode) {
+      final int accountIndex = 0;  // use any index for this account, as we dont know and we dont care
+      final Bip44AccountKeyManager keyManager;
+
+      // get a subKeyStorage, to ensure that the data for this key does not get mixed up
+      // with other derived or imported keys.
+      SecureSubKeyValueStore secureStorage = getSecureStorage().createNewSubKeyStore();
+
+      if (hdKeyNode.isPrivateHdKeyNode()){
+         try {
+            keyManager = Bip44AccountKeyManager.createFromAccountRoot(hdKeyNode, _network, accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher());
+         } catch (InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+         }
+      }else {
+         keyManager = Bip44PubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode, _network, accountIndex, secureStorage);
+      }
+
+      final UUID id = keyManager.getAccountId();
+
+      synchronized (_allAccounts){
+         // check if it already exists
+         if (_allAccounts.containsKey(id)) {
+            return id;
+         }
+         _backing.beginTransaction();
+         try {
+
+            // Generate the context for the account
+            Bip44AccountContext context;
+            if (hdKeyNode.isPrivateHdKeyNode()) {
+               context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
+                     Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId());
+            } else {
+               context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
+                     Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId());
+            }
+            _backing.createBip44AccountContext(context);
+
+            // Get the backing for the new account
+            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
+            Preconditions.checkNotNull(accountBacking);
+
+            // Create actual account
+            Bip44Account account;
+            if (hdKeyNode.isPrivateHdKeyNode()) {
+               account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
+            } else {
+               account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
+            }
+
+            // Finally persist context and add account
+            context.persist(accountBacking);
+            _backing.setTransactionSuccessful();
+            addAccount(account);
+            _bip44Accounts.add(account);
+            return id;
+         } finally {
+            _backing.endTransaction();
+         }
+
+      }
+   }
+
+
+   public UUID createExternalSignatureAccount(HdKeyNode hdKeyNode, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
+      SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();
+      Bip44AccountKeyManager keyManager = Bip44PubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode, _network, accountIndex, newSubKeyStore);
+      final UUID id = keyManager.getAccountId();
+
+      synchronized (_allAccounts) {
+         _backing.beginTransaction();
+         try {
+
+            // check if it already exists
+            if (_allAccounts.containsKey(id)) {
+               return id;
+            }
+
+            // Generate the context for the account
+            Bip44AccountContext context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
+                  Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG, newSubKeyStore.getSubId());
+            _backing.createBip44AccountContext(context);
+
+            // Get the backing for the new account
+            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
+            Preconditions.checkNotNull(accountBacking);
+
+            // Create actual account
+            Bip44Account account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, externalSignatureProvider);
+
+            // Finally persist context and add account
+            context.persist(accountBacking);
+            _backing.setTransactionSuccessful();
+            addAccount(account);
+            _bip44Accounts.add(account);
+            return account.getId();
+         } finally {
+            _backing.endTransaction();
+         }
+      }
+   }
+
    /**
     * Create a new account using a single private key and address
     *
@@ -234,21 +348,29 @@ public class WalletManager {
    /**
     * Delete an account that uses a single address
     * <p/>
-    * This method cannot be used for deleting HD accounts.
+    * This method cannot be used for deleting Masterseed-based HD accounts.
     *
     * @param id the ID of the account to delete.
     */
-   public void deleteSingleAddressAccount(UUID id, KeyCipher cipher) throws InvalidKeyCipher {
+   public void deleteUnrelatedAccount(UUID id, KeyCipher cipher) throws InvalidKeyCipher {
       synchronized (_allAccounts) {
          AbstractAccount account = _allAccounts.get(id);
-         if (!(account instanceof SingleAddressAccount)) {
-            return;
-         }
-         SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
-         singleAddressAccount.forgetPrivateKey(cipher);
          account.setEventHandler(null);
-         _backing.deleteSingleAddressAccountContext(id);
-         _allAccounts.remove(id);
+         if (account instanceof SingleAddressAccount) {
+            SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
+            singleAddressAccount.forgetPrivateKey(cipher);
+            _backing.deleteSingleAddressAccountContext(id);
+            _allAccounts.remove(id);
+         } else if (account instanceof Bip44Account) {
+            Bip44Account hdAccount = (Bip44Account) account;
+            if (hdAccount.isDerivedFromInternalMasterseed()){
+               throw new RuntimeException("cant delete masterseed based accounts");
+            }
+            hdAccount.clearBacking();
+            _bip44Accounts.remove(hdAccount);
+            _backing.deleteBip44AccountContext(id);
+            _allAccounts.remove(id);
+         }
       }
    }
 
@@ -290,7 +412,7 @@ public class WalletManager {
     *
     * @return the list of accounts
     */
-   public List<WalletAccount> getActiveHdAccounts() {
+   public List<WalletAccount> getActiveMasterseedAccounts() {
       return filterAndConvert(Predicates.and(MAIN_SEED_HD_ACCOUNT, Predicates.not(IS_ARCHIVE)));
    }
 
@@ -454,10 +576,34 @@ public class WalletManager {
       _logger.logInfo("Loading BIP44 accounts");
       List<Bip44AccountContext> contexts = _backing.loadBip44AccountContexts();
       for (Bip44AccountContext context : contexts) {
-         Bip44AccountKeyManager keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, _secureKeyValueStore);
+         Bip44AccountKeyManager keyManager;
+         Bip44Account account;
+
          Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
          Preconditions.checkNotNull(accountBacking);
-         Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
+
+         if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+            // Normal account - derived from masterseed
+            keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, _secureKeyValueStore);
+            account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB) {
+            // Imported xPub-based account
+            SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+            keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
+            account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV) {
+            // Imported xPriv-based account
+            SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+            keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
+            account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG){
+            SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+            keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
+            account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, _signatureProvider);
+         } else {
+            throw new IllegalArgumentException("Unknown account type " + context.getAccountType());
+         }
+
          addAccount(account);
          _bip44Accounts.add(account);
       }
@@ -552,7 +698,7 @@ public class WalletManager {
    /**
     * Determine whether the wallet manager has a master seed configured
     *
-    * @return true iff a master seed has been configured for this wallet manager
+    * @return true if a master seed has been configured for this wallet manager
     */
    public boolean hasBip32MasterSeed() {
       return _secureKeyValueStore.hasCiphertextValue(MASTER_SEED_ID);
@@ -608,7 +754,8 @@ public class WalletManager {
       @Override
       public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
          // todo: if relevant also check if this account is derived from the main-masterseed
-         return input.getValue() instanceof Bip44Account;
+         return input.getValue() instanceof Bip44Account &&
+               input.getValue().isDerivedFromInternalMasterseed();
       }
    };
 
@@ -703,4 +850,7 @@ public class WalletManager {
    }
 
 
+   public SecureKeyValueStore getSecureStorage(){
+      return _secureKeyValueStore;
+   }
 }

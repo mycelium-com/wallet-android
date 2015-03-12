@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_account_title">Aggiungi nuovo Account</string>
-  <string name="add_single_account_title">Aggiungi un account con indirizzo unico</string>
   <string name="import_seed_title">Importa Master Seed</string>
   <string name="import_words_title">Inserisci wordlist</string>
   <string name="add_account_desc">Mycelium supporta sia account HD (Hierarchical Deterministic) che a singolo indirizzo. Tutti gli account HD sono creati partendo dallo stesso Master Seed. La prima volta che ne crei uno, il tuo Master Seed verrà configurato.</string>
   <string name="add_single_acc_info">Per aggiungere un account a singolo indirizzo basato su una chiave privata o un indirizzo in sola lettura, clicca sul pulsante \"Avanzate\" qui sotto.</string>
-  <string name="scan_desc">Scandisci un indirizzo bitcoin o una chiave privata.</string>
   <string name="scan_seed">Scandisci il Master Seed da un backup di Mycelium</string>
   <string name="use_acc_first">Puoi avere un solo account HD non in uso.</string>
   <string name="clipboard_desc">Importa un indirizzo bitcoin o una chiave privata dagli appunti.</string>
@@ -52,7 +50,6 @@
   <string name="copy_private_key_to_clipboard">Copia la chiave privata negli appunti</string>
   <string name="copied_to_clipboard">Copiato negli appunti</string>
   <string name="private_key">Chiave privata</string>
-  <string name="your_bitcoin_address">Il tuo indirizzo bitcoin:</string>
   <string name="bitcoin_address_title">Indirizzo bitcoin</string>
   <string name="no_server_connection">Nessuna connessione al server</string>
   <string name="no_network_connection">Nessuna connessione di rete</string>
@@ -111,7 +108,6 @@
   <string name="edit">Modifica</string>
   <string name="delete">Elimina</string>
   <string name="payment_request">Richiesta di pagamento</string>
-  <string name="backup_all_warning">Si consiglia di eseguire un backup del master seed del portafogli.\nUn backup del master seed ti permette di ripristinare i tuoi fondi nel caso il tuo dispositivo vada smarrito o danneggiato..\n\nDesideri farlo ora?</string>
   <string name="export_to_clipboard_warning">Attenzione: esportando la chiave privata negli appunti la renderà esposta a tutte le altre applicazioni installate sul tuo dispositivo.\n\nNota: non basta memorizzare la chiave privata negli appunti, dovrai incollarla in un posto sicuro.\n\nDesideri continuare?</string>
   <string name="found_clipboard_private_key_title">Chiave privata trovata negli appunti</string>
   <string name="found_clipboard_private_keys_message">Chiave privata trovata negli appunti.\r\nDesideri rimuoverla?</string>
@@ -125,7 +121,6 @@
   <string name="get_private_key">Importa la chiave privata da:</string>
   <string name="cold_storage">Cold storage</string>
   <string name="cold_storage_title">Spendi da cold storage</string>
-  <string name="cold_storage_desc">Stai per inviare bitcoin da una chiave privata in cold storage. Potrebbe trattarsi di un backup stampato di una chiave privata o di un tagliando di un ATM Bitcoin. Sono supportati vari formati.\n\nUna volta eseguita la transazione ogni traccia della chiave privata sarà rimossa dalla memoria.</string>
   <string name="keep_account_address">Elimina la chiave privata e conserva l\'account in sola lettura</string>
   <string name="manual_entry">Inserisci manualmente</string>
   <string name="archive_name">Archiviate</string>
@@ -161,10 +156,6 @@
   <string name="delete_account_title">Elimina l\'account?</string>
   <string name="delete_account_message">Desideri eliminare questo account?</string>
   <string name="confirm_delete_pk_title">Confermi?</string>
-  <string name="confirm_delete_pk_with_balance">Questa azione non potrà essere annullata!\n\nLa chiave privata dell\'indirizzo:\n%1$s\n\nIt contiene %2$s\n\nDesideri eliminarla?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Questa azione non potrà essere annullata!\n\nEtichetta della chiave privata:\n%1$s\n\nL\'indirizzo della chiave privata:\n%2$s\n\nIt contiene %3$s\n\nDesideri eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance">L\'azione non potrà essere annullata!\n\nIndirizzo della chiave privata:\n%1$s\n\nDesideri eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">L\'azione non potrà essere annullata!\n\nEtichetta della chiave privata:\n%1$s\n\nIndirizzo della chiave privata:\n%2$s\n\nDesideri eliminarla?</string>
   <string name="verify_private_key_backup">Verifica del backup</string>
   <string name="verify_backup_dialog_title">Verifica backup della chiave privata</string>
   <string name="verify_backup_desc">Un corretto backup della chiave privata è basilare per la gestione dei tuoi fondi in Bitcoin.\n\nVerificando il backup ti accerti che questo sia funzionante e, quindi, che i tuoi fondi non vadano persi nel caso il tuo dispositivo vada smarrito o danneggiato.</string>
@@ -363,7 +354,6 @@
   <string name="lt_selling_details">Stai vendendo %1$s</string>
   <string name="lt_no_trader_account_desc">Questo portafogli non ha un account Local Trader associato.\n\nUn account di trading è collegato direttamente ad un indirizzo Bitcoin, nessuna password, nessuna scocciatura.\n\nCrearne uno ora?</string>
   <string name="lt_trader_name_label">Nome del trader</string>
-  <string name="lt_trader_address_label">Account collegato all\'indirizzo</string>
   <string name="lt_trader_email_address_label">Indirizzo email</string>
   <string name="lt_trader_age_label">Età dell\'account del commerciante</string>
   <string name="lt_trader_last_activity">Ultima attività</string>
@@ -472,7 +462,6 @@
   <string name="wordlist_length_24">24 parole</string>
   <string name="import_wordlist_questions">Seleziona la lunghezza della wordlist da ripristinare e specifica se è protetta da password.</string>
   <string name="type_password_title">Inserisci la tua Password</string>
-  <string name="clipboard_not_available">Contenuto degli appunti non valido</string>
   <string name="no_android_wallet_backup">Non è stato trovato alcun backup</string>
   <string name="unable_to_get_clipboard">Impossibile ottenere il contenuto della clipboard</string>
   <string name="unable_to_clear_clipboard">Impossibile cancellare gli appunti</string>

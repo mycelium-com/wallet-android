@@ -41,121 +41,70 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
-public class SignAndBroadcastTransactionActivity extends Activity {
-   private MbwManager _mbwManager;
-   private WalletAccount _account;
-   private boolean _isColdStorage;
+public class BroadcastTransactionActivity extends Activity {
+   protected MbwManager _mbwManager;
+   protected WalletAccount _account;
+   protected boolean _isColdStorage;
    private String _transactionLabel;
-   private StandardTransactionBuilder.UnsignedTransaction _unsigned;
    private Transaction _transaction;
-   private AsyncTask<Void, Integer, Transaction> _signingTask;
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
    private WalletAccount.BroadcastResult _broadcastResult;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, String transactionLabel) {
-      Intent intent = new Intent(currentActivity, SignAndBroadcastTransactionActivity.class);
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, Transaction signed, String transactionLabel, int requestCode) {
+      Intent intent = new Intent(currentActivity, BroadcastTransactionActivity.class);
       intent.putExtra("account", account);
       intent.putExtra("isColdStorage", isColdStorage);
-      intent.putExtra("unsigned", unsigned);
+      intent.putExtra("signed", signed);
       intent.putExtra("transactionLabel", transactionLabel);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-      currentActivity.startActivity(intent);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+      currentActivity.startActivityForResult(intent, requestCode);
    }
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.sign_and_broadcast_transaction_activity);
+      setContentView(R.layout.broadcast_transaction_activity);
+
       _mbwManager = MbwManager.getInstance(getApplication());
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _unsigned = Preconditions.checkNotNull((StandardTransactionBuilder.UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
+      _transaction = (Transaction) Preconditions.checkNotNull(getIntent().getSerializableExtra("signed"));
 
       //May be null
       _transactionLabel = getIntent().getStringExtra("transactionLabel");
 
-      // Load state
-      if (savedInstanceState != null) {
-         // May be null
-         _transaction = (Transaction) savedInstanceState.getSerializable("transaction");
-      }
-
    }
 
    @Override
-   protected void onSaveInstanceState(Bundle outState) {
-      if (_transaction != null) {
-         outState.putSerializable("transaction", _transaction);
-      }
-      super.onSaveInstanceState(outState);
+   protected void onStart() {
+      super.onStart();
    }
 
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
 
-      ensureProgress();
-      super.onResume();
-   }
-
-   private void ensureProgress() {
-      if (_transaction == null) {
-         ((TextView) findViewById(R.id.tvTitle)).setText(R.string.signing_transaction);
-         if (_signingTask == null) {
-            _signingTask = startSigningTask();
-         }
-      } else if (_broadcastResult == null) {
-         ((TextView) findViewById(R.id.tvTitle)).setText(R.string.broadcasting_transaction);
-         if (_broadcastingTask == null) {
-            _broadcastingTask = startBroadcastingTask();
-         }
-      } else {
-         showResult();
+      if (_broadcastingTask == null) {
+         _broadcastingTask = startBroadcastingTask();
       }
-
+      super.onResume();
+      overridePendingTransition(0, 0);
    }
 
-   private AsyncTask<Void, Integer, Transaction> startSigningTask() {
-      // Sign transaction in the background
-      AsyncTask<Void, Integer, Transaction> task = new AsyncTask<Void, Integer, Transaction>() {
-
-         @Override
-         protected Transaction doInBackground(Void... args) {
-            try {
-               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               throw new RuntimeException(invalidKeyCipher);
-            }
-         }
-
-         @Override
-         protected void onPostExecute(Transaction transaction) {
-            _transaction = transaction;
-            ensureProgress();
-         }
-      };
-
-      task.execute();
-      return task;
-   }
 
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> startBroadcastingTask() {
       // Broadcast the transaction in the background
@@ -169,7 +118,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          @Override
          protected void onPostExecute(WalletAccount.BroadcastResult result) {
             _broadcastResult = result;
-            ensureProgress();
+            showResult();
          }
       };
 
@@ -183,7 +132,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_message, new Runnable() {
             @Override
             public void run() {
-               SignAndBroadcastTransactionActivity.this.finish();
+               BroadcastTransactionActivity.this.finish();
             }
          });
       } else if (_broadcastResult == WalletAccount.BroadcastResult.NO_SERVER_CONNECTION) {
@@ -192,7 +141,8 @@ public class SignAndBroadcastTransactionActivity extends Activity {
             Utils.showSimpleMessageDialog(this, R.string.transaction_not_sent, new Runnable() {
                @Override
                public void run() {
-                  SignAndBroadcastTransactionActivity.this.finish();
+                  BroadcastTransactionActivity.this.setResult(RESULT_CANCELED);
+                  BroadcastTransactionActivity.this.finish();
                }
             });
          } else {
@@ -205,17 +155,16 @@ public class SignAndBroadcastTransactionActivity extends Activity {
 
                public void onClick(DialogInterface arg0, int arg1) {
                   _account.queueTransaction(_transaction);
-                  //store the transaction label if there is one
-                  if (_transactionLabel != null) {
-                     _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getHash(), _transactionLabel);
-                  }
-                  SignAndBroadcastTransactionActivity.this.finish();
+                  setResultOkay();
+
+                  BroadcastTransactionActivity.this.finish();
                }
             });
             queueDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
                public void onClick(DialogInterface arg0, int arg1) {
-                  SignAndBroadcastTransactionActivity.this.finish();
+                  setResult(RESULT_CANCELED);
+                  BroadcastTransactionActivity.this.finish();
                }
             });
             queueDialog.show();
@@ -226,22 +175,23 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          Toast.makeText(this, getResources().getString(R.string.transaction_sent),
                Toast.LENGTH_LONG).show();
 
-         //store the transaction label if there is one
-         if (_transactionLabel != null) {
-            _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getHash(), _transactionLabel);
-         }
-
-         // Include the transaction hash in the response
-         Intent result = new Intent();
-         result.putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, _transaction.getHash().toString());
-         setResult(RESULT_OK, result);
-         Toast.makeText(this, getResources().getString(R.string.transaction_sent),
-               Toast.LENGTH_LONG).show();
-
+         setResultOkay();
          finish();
       } else {
          throw new RuntimeException();
       }
+   }
+
+   private void setResultOkay() {
+      //store the transaction label if there is one
+      if (_transactionLabel != null) {
+         _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getHash(), _transactionLabel);
+      }
+
+      // Include the transaction hash in the response
+      Intent result = new Intent();
+      result.putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, _transaction.getHash().toString());
+      setResult(RESULT_OK, result);
    }
 
    @Override
@@ -252,8 +202,14 @@ public class SignAndBroadcastTransactionActivity extends Activity {
 
    @Override
    protected void onDestroy() {
-      _mbwManager.forgetColdStorageWalletManager();
+      if (_broadcastingTask != null){
+         _broadcastingTask.cancel(true);
+      }
       super.onDestroy();
+   }
+
+   protected void clearTempWalletManager() {
+      _mbwManager.forgetColdStorageWalletManager();
    }
 
    @Subscribe

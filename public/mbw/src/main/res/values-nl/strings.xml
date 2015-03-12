@@ -3,12 +3,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_account_title">Nieuw account toevoegen</string>
-  <string name="add_single_account_title">Één adres als account toevoegen</string>
+  <string name="add_unrelated_account_title">Niet-verbonden Account toevoegen</string>
   <string name="import_seed_title">Importeer Master Seed</string>
   <string name="import_words_title">Voer woordenlijst in</string>
   <string name="add_account_desc">Mycelium ondersteunt HD en één adres rekeningen. Alle HD-Accounts zijn gemaakt op basis van de dezelfde Master Seed. De eerste keer dat u er een zal aanmaken, zal uw Master Seed worden geconfigureerd.</string>
   <string name="add_single_acc_info">Om een één adres Account op basis van een privé sleutel of een alleen-lezen adres toe te voegen, klikt u op de \'Geavanceerd\' knop hieronder.</string>
-  <string name="scan_desc">Scan een Bitcoin adres of private key.</string>
   <string name="scan_seed">Scan de Master Seed van de Mycelium back-up</string>
   <string name="use_acc_first">U kunt slechts één ongebruikt HD-Account hebben.</string>
   <string name="clipboard_desc">Importeer een Bitcoin adres of private key vanaf het klembord.</string>
@@ -52,7 +51,6 @@
   <string name="copy_private_key_to_clipboard">Private key naar het klembord kopiëren</string>
   <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
   <string name="private_key">Private Key</string>
-  <string name="your_bitcoin_address">Uw Bitcoin adres:</string>
   <string name="bitcoin_address_title">Bitcoin adres</string>
   <string name="approximate_fiat_value">%2$s %1$s</string>
   <string name="no_server_connection">Geen verbinding met Server</string>
@@ -112,7 +110,6 @@
   <string name="edit">Bewerken</string>
   <string name="delete">Wissen</string>
   <string name="payment_request">Verzoek om betaling</string>
-  <string name="backup_all_warning">U moet een back-up maken van de master seed van uw portefeuille. \nEen back-up van uw master seed stelt u in staat uw tegoeden te herstellen als het apparaat verloren of beschadigd zou raken.\n\nWilt u dit nu doen?</string>
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
   <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\r\nWilt u deze verwijderen?</string>
@@ -126,7 +123,6 @@
   <string name="get_private_key">Kopieer private key van:</string>
   <string name="cold_storage">Koude opslag</string>
   <string name="cold_storage_title">Bitcoins uit de koude opslag uitgeven</string>
-  <string name="cold_storage_desc">U staat op het punt om uit te geven van een private key in koude opslag. Dit zou een private key op papier of een private key ticket van een Bitcoin geldautomaat kunnen zijn. Verschillende typen indelingen zijn ondersteund.\n\nZodra de transactie is verstuurd zal elk spoor van de private key worden gewist uit het geheugen.</string>
   <string name="keep_account_address">Verwijder alleen de private key en behoudt als alleen-lezen account</string>
   <string name="manual_entry">Handmatige invoer</string>
   <string name="active_hd_accounts_name">Mijn HD-Accounts</string>
@@ -165,10 +161,6 @@
   <string name="delete_account_title">Account verwijderen?</string>
   <string name="delete_account_message">Wilt u dit account verwijderen?</string>
   <string name="confirm_delete_pk_title">Weet u het zeker?</string>
-  <string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan worden gemaakt!\n\nPrivate key adres:\n%1$s\n\nbevat %2$s\n\nWilt u deze verwijderen?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Dit kan niet ongedaan worden gemaakt!\nPrivate key label:\n%1$s\n\nPrivate key adres:\n%2$s\n\nSaldo %3$s\n\nWilt u deze verwijderen?</string>
-  <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan worden gemaakt!\n\nPrivate key adres:\n%1$s\n\nWilt u deze verwijderen?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Dit kan niet ongedaan worden gemaakt!\n\nPrivate key label:\n%1$s\n\nPrivate key adres:\n%2$s\n\nWilt u deze verwijderen?</string>
   <string name="verify_private_key_backup">Back-up verifiëren</string>
   <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
   <string name="verify_backup_desc">Een goede back-up van uw private keys is een belangrijk onderdeel van het beheren van uw Bitcoin tegoeden.\n\nDoor uw back-up te verifiëren kunt u controlen of deze werkt zodat dat u geen geld verliest als u uw Android apparaat verliest of als het beschadigd raakt.</string>
@@ -365,7 +357,6 @@
   <string name="lt_selling_details">U verkoopt %1$s</string>
   <string name="lt_no_trader_account_desc">Er is geen lokale handelaar account gekoppeld aan deze wallet.\n\nEen handelaar account is rechtstreeks gekoppeld aan één van uw Bitcoin adressen, geen wachtwoorden, geen gedoe.\n\nNu eentje aanmaken?</string>
   <string name="lt_trader_name_label">Handelaar naam</string>
-  <string name="lt_trader_address_label">Account gekoppeld aan adres</string>
   <string name="lt_trader_email_address_label">E-mailadres</string>
   <string name="lt_trader_age_label">Handelaars account leeftijd</string>
   <string name="lt_trader_last_activity">Laatste activiteit</string>
@@ -472,7 +463,6 @@
   <string name="wordlist_length_24">24 woorden</string>
   <string name="import_wordlist_questions">Selecteer de lengte van de woordenlijst die u wenst te herstellen en geef aan of deze beveiligd is met een wachtwoord.</string>
   <string name="type_password_title">Voer uw wachtwoord in</string>
-  <string name="clipboard_not_available">De inhoud van het Klembord is niet geldig</string>
   <string name="no_android_wallet_backup">Export niet gevonden</string>
   <string name="unable_to_get_clipboard">Niet in staat om de huidige inhoud van het Klembord te lezen</string>
   <string name="unable_to_clear_clipboard">Het klembord kan niet gewist worden</string>
@@ -523,4 +513,20 @@
   <string name="pin_forgotten_reset_pin_dialog_title">Pincode opnieuw instellen</string>
   <string name="pin_forgotten_reset_wait_button_text">%s wachten</string>
   <string name="sss_one_more_share_needed">U heeft 1 extra aandeel nodig</string>
+  <string name="generate_new_key">Genereer</string>
+  <string name="new_bitcoin_address_created">Een nieuwe private key is gegenereerd met het volgende Bitcoin adres:</string>
+  <string name="shuffle">Opnieuw</string>
+  <string name="trezor_initial_status">Sluit uw Trezor aan</string>
+  <string name="trezor_scanning_status">Trezor oke - scannen van Accounts</string>
+  <string name="account_balance_sending_amount">(verzending van %s)</string>
+  <string name="trezor_cold_storage_header">Trezor Koude Opslag</string>
+  <string name="trezor_show_passphrase">Toon passphrase</string>
+  <string name="trezor">Trezor</string>
+  <string name="trezor_import_account">Importeer een Trezor-HD-account</string>
+  <string name="trezor_import_account_caption">Account importeren</string>
+  <string name="trezor_name">Trezor:</string>
+  <string name="trezor_select_account_to_import">Selecteer het te importeren account</string>
+  <string name="trezor_verify_transaction_on_trezor">Verifieer en bevestig de\ntransactie op uw Trezor</string>
+  <string name="trezor_amount">Bedrag:</string>
+  <string name="trezor_to">Aan:</string>
 </resources>

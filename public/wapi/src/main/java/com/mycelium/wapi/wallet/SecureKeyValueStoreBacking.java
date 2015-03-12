@@ -28,6 +28,8 @@ public interface SecureKeyValueStoreBacking {
     */
    byte[] getValue(byte[] id);
 
+   byte[] getValue(byte[] id, int subId);
+
    /**
     * Store the plaintext value for a given ID.
     * <p/>
@@ -38,6 +40,10 @@ public interface SecureKeyValueStoreBacking {
     */
    void setValue(byte[] id, byte[] plaintextValue);
 
+   int getMaxSubId();
+
+   void setValue(byte[] key, int subId, byte[] value);
+
    /**
     * Delete the plaintext value for a given ID.
     *
@@ -46,4 +52,10 @@ public interface SecureKeyValueStoreBacking {
    void deleteValue(byte[] id);
 
 
+   /**
+    * Deletes all associated entries for this subId
+    *
+    * @param subId the subId to delete
+    */
+   void deleteSubStorageId(int subId);
 }

@@ -3,12 +3,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium Bitcoin Wallet</string>
   <string name="add_account_title">Neues Konto hinzufügen</string>
-  <string name="add_single_account_title">Konto mit einer einzelner Adresse hinzufügen</string>
   <string name="import_seed_title">Master Seed importieren</string>
   <string name="import_words_title">Wortliste eingeben</string>
   <string name="add_account_desc">Mycelium unterstützt HD-Konten und Konten mit einzelnen Adressen. Alle HD-Konten werden basierend auf der gleichen Master Seed erstellt. Wenn Sie das erste HD-Konto erstellen, wird Ihre Master Seed konfiguriert.</string>
   <string name="add_single_acc_info">Um ein Konto mit einem einzelnen privaten Schlüssel oder einer einzelnen Adresse hinzuzufügen, tippen Sie bitte auf die Schaltfläche \"Erweitert\" weiter unten.</string>
-  <string name="scan_desc">Bitcoin-Adresse oder privaten Schlüssel scannen</string>
   <string name="scan_seed">Scannen Sie den Master Seed des Mycelium Backups</string>
   <string name="use_acc_first">Sie können nur ein nicht verwendetes HD-Konto haben.</string>
   <string name="clipboard_desc">Bitcoin-Adresse oder privaten Schlüssel aus der Zwischenablage importieren</string>
@@ -52,7 +50,6 @@
   <string name="copy_private_key_to_clipboard">Privaten Schlüssel in die Zwischenablage kopieren</string>
   <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
   <string name="private_key">Privater Schlüssel</string>
-  <string name="your_bitcoin_address">Ihre Bitcoin-Adresse</string>
   <string name="bitcoin_address_title">Bitcoin-Adresse</string>
   <string name="approximate_fiat_value">%2$s %1$s</string>
   <string name="no_server_connection">Keine Serververbindung</string>
@@ -115,7 +112,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="delete">Löschen</string>
   <string name="payment_request">Zahlungsaufforderung</string>
   <string name="export_account_data_warning">Sie sind dabei sensible Daten des gewählten Kontos zu exportieren.\n\nJeder der Zugriff zu diesen Schlüsseln hat, kann in den Besitz ihrer Bitcoins kommen, oder ihre Privatsphäre untergraben.\n\nWollen Sie fortfahren?</string>
-  <string name="backup_all_warning">Sie sollten das Master Seed Ihrer Wallet sichern. \nMit dem Backup des Master Seeds können Sie Ihre Bitcoins wiederherstellen, sollte Ihr Gerät verloren gehen oder beschädigt werden.\n\nMöchten Sie dies jetzt tun?</string>
   <string name="backup_legacy_warning">Sie erstellen das Backup für die Konten mit einer einzelnen Adresse in Ihrer Wallet.\nDieses Backup ist ohne Ihre Master Seed, keines Ihrer HD Konten kann so wiederhergestellt werden!\n\nMöchten Sie fortfahren?</string>
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
   <string name="found_clipboard_private_key_title">Privater Schlüssel in der Zwischenablage gefunden</string>
@@ -130,7 +126,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="get_private_key">Privaten Schlüssel importieren</string>
   <string name="cold_storage">Offline-Wallet</string>
   <string name="cold_storage_title">Bitcoins aus der Offline-Wallet ausgeben</string>
-  <string name="cold_storage_desc">Sie geben nun von einem privaten Schlüssel aus einem Offline-Wallet Bitcoins aus.Das kann ein Ausdruck des privaten Schlüssels auf Papier oder der Beleg eines Bitcoin-Bankomat sein.Mehrere Formate werden unterstützt.\n\nSobald die Transaktion gesendet wurde, wird der private Schlüssel aus dem Speicher gelöscht.</string>
   <string name="keep_account_address">Nur den privaten Schlüssel löschen und dieses Konto weiterhin beobachten</string>
   <string name="manual_entry">Manuell eingeben</string>
   <string name="active_hd_accounts_name">Meine HD Konten</string>
@@ -169,10 +164,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="delete_account_title">Konto löschen?</string>
   <string name="delete_account_message">Wollen Sie dieses Konto löschen?</string>
   <string name="confirm_delete_pk_title">Sind Sie sicher?</string>
-  <string name="confirm_delete_pk_with_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAdresse des privaten Schlüssels:\n%1$s\n\nEnthält%2$s\n\nMöchten Sie löschen?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Diese Aktion kann nicht rückgängig gemacht werden!\n\nBezeichnung privater Schlüssel:\n%1$s\n\nAdresse privater Schlüssel:\n%2$s\n\nEnthält%3$s\n\nMöchten Sie tatsächlich löschen?</string>
-  <string name="confirm_delete_pk_without_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAdresse des privaten Schlüssels:\n%1$s\n\nMöchten Sie löschen?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Diese Aktion kann nicht rückgängig gemacht werden!\n\nBezeichnung privater Schlüssel:\n%1$s\n\nAdresse privater Schlüssel:\n%2$s\n\nMöchten Sie tatsächlich löschen?</string>
   <string name="verify_private_key_backup">Backup prüfen</string>
   <string name="verify_backup_dialog_title">Backup der privaten Schlüssel überprüfen</string>
   <string name="verify_backup_desc">Ein korrektes Backup ist eine wichtige Grundlage beim Umgang mit Ihren Bitcoins. \n\nMit der Verifizierung Ihres Backups stellen Sie sicher, dass Sie Ihre Bitcoins wiederherstellen können, sollte Ihr Gerät verloren gehen oder beschädigt werden.</string>
@@ -377,7 +368,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_selling_details">Sie verkaufen %1$s</string>
   <string name="lt_no_trader_account_desc">Mit diesem Wallet ist kein Local Trader Account verbunden.\n\nEin Trader Account ist direkt mit einer Ihrer Bitcoin-Adressen verbunden, keine Passwörter, kein Ärger.\n\nJetzt einen Account anlegen?</string>
   <string name="lt_trader_name_label">Händlername</string>
-  <string name="lt_trader_address_label">Account mit dieser Adresse verknüpft</string>
+  <string name="lt_trader_address_label">Händler-ID</string>
   <string name="lt_trader_email_address_label">E-Mail-Adresse</string>
   <string name="lt_trader_age_label">Alter des Trader Accounts</string>
   <string name="lt_trader_last_activity">Letzte Aktivität</string>
@@ -484,9 +475,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="wordlist_length_12">12 Wörter</string>
   <string name="wordlist_length_18">18 Wörter</string>
   <string name="wordlist_length_24">24 Wörter</string>
+  <string name="recover_seed_password_info">Wählen Sie diese Option nur, wenn Sie verstehen, was sie bedeutet. \n Ein normales Mycelium Backup enthält niemals ein Passwort - dies ist nicht Ihre PIN.</string>
   <string name="import_wordlist_questions">Bitte wählen Sie die Länge der zu importierenden Wortliste um anzugeben, ob sie mittels Kennwort geschützt ist.</string>
   <string name="type_password_title">Geben Sie Ihr Passwort ein</string>
-  <string name="clipboard_not_available">Inhalt der Zwischenablage nicht gültig</string>
   <string name="no_android_wallet_backup">Export wurde nicht gefunden</string>
   <string name="unable_to_get_clipboard">Der aktuelle Inhalt der Zwischenablage konnte nicht abgerufen werden</string>
   <string name="unable_to_clear_clipboard">Der Inhalt der Zwischenablage konnte nicht gelöscht werden</string>
@@ -564,7 +555,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
   <string name="lt_confirm_delete_trader_message">Wollen Sie Ihre Local Trader-Identität löschen? Alle Handelsinformationen und Bewertungen werden dauerhaft entfernt und können nicht wiederhergestellt werden.</string>
   <string name="rescan_account_menu_item">Konto erneut laden</string>
-  <string name="add_advanced_account_warning">Warnung:\n Diese Schlüssel sind nicht Teil Ihres Master-Seed-Backup. Sie müssen ein separates Legacy Backup von ihnen machen.</string>
   <string name="new_random_key_desc">Einen neuen zufälligen Schlüssel generieren</string>
   <string name="generate_new_key">Generieren</string>
   <string name="new_bitcoin_address_created">Es wurde ein neuer privater Schlüssel generiert, welcher folgende Bitcoin Adresse erzeugt:</string>
@@ -580,6 +570,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="wrong_pin_message">Sie haben eine falsche Pin eingegeben.\n\n Wenn Sie Ihre Pin vergessen haben, können Sie sie zurücksetzen.</string>
   <string name="pref_no_fiat_selected">Keine Fiat Währung ausgewählt</string>
   <string name="useTor">Tor-Netzwerk verwenden</string>
+  <string name="useTorDescription">Verwenden Sie das Tor-Netzwerk, um mit den Backend-Servern zu kommunizieren. \n Dies verbessert Ihre Privatsphäre und kann u.U. restriktive Firewalls umgehen. Aber es kann die Ausführung dieser App verlangsamen.</string>
   <string name="useTorOnlyExternalTor">Tor-Netzwerk verwenden (externes Tor)</string>
   <string name="useTorOnlyHttps">Tor-Netzwerk verwenden (nur https)</string>
   <string name="useTorBoth">Tor-Netzwerk verwenden (beides)</string>

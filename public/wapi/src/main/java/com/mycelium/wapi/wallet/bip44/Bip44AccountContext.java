@@ -24,6 +24,11 @@ import java.util.UUID;
  * The abstract context of an account
  */
 public class Bip44AccountContext {
+   public static final int ACCOUNT_TYPE_FROM_MASTERSEED = 0;
+   public static final int ACCOUNT_TYPE_UNRELATED_X_PRIV = 1;
+   public static final int ACCOUNT_TYPE_UNRELATED_X_PUB = 2;
+   public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG = 3;
+
    private UUID id;
    private int accountIndex;
    private boolean isArchived;
@@ -34,20 +39,27 @@ public class Bip44AccountContext {
    private long lastDiscovery;
    protected boolean isDirty;
 
+   final private int accountSubId;
+   final private int accountType;
+
    public Bip44AccountContext(Bip44AccountContext context) {
       this(context.getId(), context.getAccountIndex(),
             context.isArchived(), context.getBlockHeight(), context.getLastExternalIndexWithActivity(),
             context.getLastInternalIndexWithActivity(), context.getFirstMonitoredInternalIndex(),
-            context.getLastDiscovery());
+            context.getLastDiscovery(), context.getAccountType(), context.getAccountSubId());
    }
 
    public Bip44AccountContext(UUID id, int accountIndex, boolean isArchived) {
-      this(id, accountIndex, isArchived, 0, -1, -1, 0, 0);
+      this(id, accountIndex, isArchived, 0, -1, -1, 0, 0, ACCOUNT_TYPE_FROM_MASTERSEED, 0);
+   }
+
+   public Bip44AccountContext(UUID id, int accountIndex, boolean isArchived, int accountType, int accountSubId) {
+      this(id, accountIndex, isArchived, 0, -1, -1, 0, 0, accountType, accountSubId);
    }
 
    public Bip44AccountContext(UUID id, int accountIndex, boolean isArchived, int blockHeight,
                               int lastExternalIndexWithActivity, int lastInternalIndexWithActivity,
-                              int firstMonitoredInternalIndex, long lastDiscovery) {
+                              int firstMonitoredInternalIndex, long lastDiscovery, int accountType, int accountSubId) {
       this.id = id;
       this.accountIndex = accountIndex;
       this.isArchived = isArchived;
@@ -55,6 +67,10 @@ public class Bip44AccountContext {
       this.lastExternalIndexWithActivity = lastExternalIndexWithActivity;
       this.lastInternalIndexWithActivity = lastInternalIndexWithActivity;
       this.firstMonitoredInternalIndex = firstMonitoredInternalIndex;
+      this.lastDiscovery = lastDiscovery;
+      this.accountType = accountType;
+      this.accountSubId = accountSubId;
+
       isDirty = false;
    }
 
@@ -162,4 +178,11 @@ public class Bip44AccountContext {
       isDirty = false;
    }
 
+   public int getAccountSubId() {
+      return accountSubId;
+   }
+
+   public int getAccountType() {
+      return accountType;
+   }
 }

@@ -41,6 +41,7 @@ public class FallBackGeocoder extends Geocoder {
 
    private final MbwManager mbwManager;
    private Geocoder effectiveGeocoder;
+   private final Object geocoderLock = new Object();
 
    public FallBackGeocoder(MbwManager mbwManager) {
       this.mbwManager = mbwManager;
@@ -49,44 +50,47 @@ public class FallBackGeocoder extends Geocoder {
 
    @Override
    public GeocodeResponse query(String address, int maxResults) throws RemoteGeocodeException {
-      try {
-         return effectiveGeocoder.query(address, maxResults);
-      } catch (final RemoteGeocodeException ex){
-         if (fallback()){
+      synchronized (geocoderLock) {
+         try {
             return effectiveGeocoder.query(address, maxResults);
-         }else {
-            throw ex;
-         }
-      } catch (final RuntimeException ex){
-         if (fallback()){
-            return effectiveGeocoder.query(address, maxResults);
-         }else {
-            throw ex;
+         } catch (final RemoteGeocodeException ex) {
+            if (fallback()) {
+               return effectiveGeocoder.query(address, maxResults);
+            } else {
+               throw ex;
+            }
+         } catch (final RuntimeException ex) {
+            if (fallback()) {
+               return effectiveGeocoder.query(address, maxResults);
+            } else {
+               throw ex;
+            }
          }
       }
    }
 
    @Override
    public GeocodeResponse getFromLocation(double latitude, double longitude) throws RemoteGeocodeException {
-      try {
-         return effectiveGeocoder.getFromLocation(latitude, longitude);
-      } catch (final RemoteGeocodeException ex){
-         if (fallback()){
+      synchronized (geocoderLock) {
+         try {
             return effectiveGeocoder.getFromLocation(latitude, longitude);
-         }else {
-            throw ex;
-         }
-      } catch (final RuntimeException ex){
-         if (fallback()){
-            return effectiveGeocoder.getFromLocation(latitude, longitude);
-         }else {
-            throw ex;
+         } catch (final RemoteGeocodeException ex) {
+            if (fallback()) {
+               return effectiveGeocoder.getFromLocation(latitude, longitude);
+            } else {
+               throw ex;
+            }
+         } catch (final RuntimeException ex) {
+            if (fallback()) {
+               return effectiveGeocoder.getFromLocation(latitude, longitude);
+            } else {
+               throw ex;
+            }
          }
       }
    }
 
-   // if we increase our language level, use multi exception catch --^
-   private synchronized boolean fallback(){
+   private boolean fallback(){
       if (effectiveGeocoder instanceof GoogleMapsGeocoder){
          // The local geocoder failed - switch to our own BackendGeocoder and try again
          // Also keep the BackendGeocoder as default for the lifecycle of this
