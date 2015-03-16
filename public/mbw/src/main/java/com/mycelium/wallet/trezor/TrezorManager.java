@@ -67,9 +67,9 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
    private Trezor _trezor = null;
    private TrezorMessage.Features features;
-   public AccountStatus currentAccountState=AccountStatus.unknown;
-   public Status currentState=Status.unableToScan;
-   protected Events handler=null;
+
+   // keep an own events handler as we provide more events than AbstractAccountSM
+   protected Events trezorEventsHandler =null;
 
    public TrezorManager(Context context, NetworkParameters network){
       super(context, network);
@@ -99,7 +99,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
    @Override
    public void setEventHandler(AccountScanManager.Events handler){
       if (handler instanceof Events) {
-         this.handler = (Events) handler;
+         this.trezorEventsHandler = (Events) handler;
       }
       // pass handler down to superclass, and also use own handler, because we have some
       // additional events
@@ -266,7 +266,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
                if (toSignWith != null) {
                   Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
                   if (addId.isPresent()) {
-                     setAddressN(txInputBuilder, forAccount.getAccountIndex(), addId.get());
+                     new InputAddressSetter(txInputBuilder).setAddressN(forAccount.getAccountIndex(), addId.get());
                   }
                } else {
                   Log.w("trezor", "no address found for signing InputIDX " + txRequestDetailsType.getRequestIndex());
@@ -315,7 +315,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
                if (addId.isPresent() && addId.get()[0] == 1) {
                   // If it is one of our internal change addresses, add the HD-PathID
                   // so that trezor knows, this is the change txout and can calculate the value of the tx correctly
-                  setAddressN(txOutput, forAccount.getAccountIndex(), addId.get());
+                  new OutputAddressSetter(txOutput).setAddressN(forAccount.getAccountIndex(), addId.get());
                }
 
                txType = TrezorType.TransactionType.newBuilder()
@@ -350,22 +350,6 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          return TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
       } else {
          throw new RuntimeException("unknown script type");
-      }
-   }
-
-   private void setAddressN(TrezorType.TxOutputType.Builder txOutput, Integer forAccount, Integer[] addId) {
-      // build the full bip32 path
-      Integer[] address_path = new Integer[]{44 | 0x80000000, getNetwork().getBip44CoinType().getLastIndex() | PRIME_DERIVATION_FLAG, forAccount | PRIME_DERIVATION_FLAG, addId[0], addId[1]};
-      for (Integer b : address_path) {
-         txOutput.addAddressN(b);
-      }
-   }
-
-   private void setAddressN(TrezorType.TxInputType.Builder txInputBuilder, Integer forAccount, Integer[] addId) {
-      // build the full bip32 path
-      Integer[] address_path = new Integer[]{44 | 0x80000000, getNetwork().getBip44CoinType().getLastIndex() | PRIME_DERIVATION_FLAG, forAccount | PRIME_DERIVATION_FLAG, addId[0], addId[1]};
-      for (Integer b : address_path) {
-         txInputBuilder.addAddressN(b);
       }
    }
 
@@ -408,8 +392,8 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
    private Message filterMessages(final Message msg){
       if (msg instanceof TrezorMessage.ButtonRequest) {
-         if (handler != null) {
-            handler.onButtonRequest();
+         if (trezorEventsHandler != null) {
+            trezorEventsHandler.onButtonRequest();
          }
 
          TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
@@ -417,8 +401,8 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          return filterMessages(getTrezor().send(txButtonAck));
 
       }else if (msg instanceof TrezorMessage.PinMatrixRequest) {
-         if (handler != null) {
-            String pin = Preconditions.checkNotNull(this.handler.onPinMatrixRequest());
+         if (trezorEventsHandler != null) {
+            String pin = Preconditions.checkNotNull(this.trezorEventsHandler.onPinMatrixRequest());
 
             TrezorMessage.PinMatrixAck txPinAck = TrezorMessage.PinMatrixAck.newBuilder()
                   .setPin(pin)
@@ -431,7 +415,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
             throw new RuntimeException("No PinMatrix callback function set");
          }
       } else if (msg instanceof TrezorMessage.PassphraseRequest) {
-         if (handler != null){
+         if (trezorEventsHandler != null){
 
             // get the user to enter a passphrase
             Optional<String> passphrase = waitForPassphrase();
@@ -465,9 +449,45 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
       return  msg;
    }
 
-
    public TrezorMessage.Features getFeatures() {
       return features;
+   }
+
+   private abstract class AddressSetter{
+      public abstract void addAddressN(Integer addressPath);
+
+      public void setAddressN(Integer accountNumber, Integer[] addId) {
+         // build the full bip32 path
+         Integer[] addressPath = new Integer[]{44 | PRIME_DERIVATION_FLAG, getNetwork().getBip44CoinType().getLastIndex() | PRIME_DERIVATION_FLAG, accountNumber | PRIME_DERIVATION_FLAG, addId[0], addId[1]};
+         for (Integer b : addressPath) {
+            this.addAddressN(b);
+         }
+      }
+   }
+
+   private class OutputAddressSetter extends AddressSetter   {
+      final private TrezorType.TxOutputType.Builder txOutput;
+
+      private OutputAddressSetter(TrezorType.TxOutputType.Builder txOutput) {
+         this.txOutput = txOutput;
+      }
+
+      @Override
+      public void addAddressN(Integer addressPath) {
+         txOutput.addAddressN(addressPath);
+      }
+   }
+   private class InputAddressSetter extends AddressSetter   {
+      final private TrezorType.TxInputType.Builder txInput;
+
+      private InputAddressSetter(TrezorType.TxInputType.Builder txInput) {
+         this.txInput = txInput;
+      }
+
+      @Override
+      public void addAddressN(Integer addressPath) {
+         txInput.addAddressN(addressPath);
+      }
    }
 
 }

@@ -60,6 +60,7 @@ public class Constants {
    public static final String SETTINGS_NAME = "settings";
    public static final String PIN_SETTING = "PIN";
    public static final String PIN_SETTING_RESETTABLE = "PinResettable";
+   public static final String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
    public static final String PROXY_SETTING = "proxy";
    public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
    public static final String SELECTED_CURRENCIES = "selectedFiatCurrencies";

@@ -45,6 +45,8 @@ import android.widget.Button;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
 
+import java.util.Locale;
+
 public class UsKeyboardFragment extends Fragment {
 
    private UsKeyboardListener _listener;
@@ -133,7 +135,7 @@ public class UsKeyboardFragment extends Fragment {
             return;
          }
          Button b = (Button) view;
-         _listener.onCharacterKeyClicked(b.getText().toString().toLowerCase().charAt(0));
+         _listener.onCharacterKeyClicked(b.getText().toString().toLowerCase(Locale.US).charAt(0));
       }
    };
 

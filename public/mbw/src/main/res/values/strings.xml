@@ -100,6 +100,8 @@
     <string name="pref_socks_proxy_enabled">Socks Proxy (Enabled)</string>
     <string name="pref_socks_proxy_not_enabled">Socks Proxy (Not enabled)</string>
     <string name="pref_socks_proxy_summary">Communicate through restrictive firewalls or through Tor using Orbot. Enter a host name and port, e.g. \'localhost:9050\'</string>
+    <string name="pref_pin_require_on_startup_summary">To improve your privacy</string>
+    <string name="pref_pin_require_on_startup">Require PIN on start</string>
     <string name="settings">Settings</string>
     <string name="pin_backup_first">You cannot set a PIN before you have made a backup of your master seed.</string>
     <string name="pin_invalid_pin">Invalid PIN code</string>
@@ -556,7 +558,7 @@
     <string name="backup_menu_entry">Create Backup</string>
     <string name="lt_copied_to_clipboard">Chat message was copied to clipboard</string>
     <string name="total_balance_title">Total:</string>
-    <string name="additional_backup_words_title">Additional Masterseed Backup</string>
+    <string name="additional_backup_words_title">Additional master seed Backup</string>
     <string name="wordlist_additional_backup_not_possible_pin_too_new">Sorry, an additional backup is currently not possible.\nYour PIN was recently changed.\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed shortly after setting a new PIN.\n\n You have to wait for at least %1$d blocks (~ %2$s)</string>
     <string name="wordlist_additional_backup_not_possible_no_pin">Sorry, an additional backup is currently not possible.\nYou haven\'t set a PIN\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed without having set a PIN-Code.\n\nPlease go to Settings and configure a PIN.</string>
     <string name="wordlist_additional_backup_description">WARNING - an additional backup is risky.\n\nYou already have exported your master seed before. If you have lost the old backup and you are not sure who might have access to it, it is very dangerous to continue to use this master seed.\n\n\nOnly keep using this master seed if you are sure all backups are safe!</string>
@@ -648,7 +650,7 @@
     <string name="account_prefix_imported">Imported</string>
     <string name="retrieving_pubkey_address">Retrieving next unused address…</string>
     <string name="instant_masterseed_initializing">Initializing…</string>
-    <string name="instant_masterseed_title">Spend from Masterseed</string>
+    <string name="instant_masterseed_title">Spend from master seed</string>
     <string name="hd_account_selector_no_account_found">No active accounts found.</string>
     <string name="masterseed_optional_passphrase_hint">This passphrase allows you to derive different accounts from the same master seed.\nIf you are not sure what this means, leave it empty.</string>
 

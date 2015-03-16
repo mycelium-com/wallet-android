@@ -57,8 +57,8 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
    protected LinkedBlockingQueue<Optional<String>> passphraseSyncQueue = new LinkedBlockingQueue<Optional<String>>(1);
    protected Handler mainThreadHandler;
 
-   public AccountStatus currentAccountState= AccountStatus.unknown;
-   public Status currentState= Status.unableToScan;
+   public volatile AccountStatus currentAccountState = AccountStatus.unknown;
+   public volatile Status currentState = Status.unableToScan;
 
    public AbstractAccountScanManager(Context context, NetworkParameters network){
       _context = context;
@@ -180,8 +180,8 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
       }
    }
 
-   protected void setState(final Status state, final AccountStatus accountState) {
-      if (this.handler != null && currentAccountState != accountState && currentState != state) {
+   protected synchronized void setState(final Status state, final AccountStatus accountState) {
+      if (this.handler != null) {
          mainThreadHandler.post(new Runnable() {
             @Override
             public void run() {

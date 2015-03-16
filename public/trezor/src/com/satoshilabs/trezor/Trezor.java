@@ -198,11 +198,13 @@ public class Trezor {
 			byte[] buffer = new byte[64];
 			buffer[0] = (byte)'?';
 			data.get(buffer, 1, 63);
+			/*
 			String s = "chunk:";
 			for (int j = 0; j < 64; j++) {
 				s += String.format(" %02x", buffer[j]);
 			}
 			Log.i("Trezor.messageWrite()", s);
+			*/
 			request.queue(ByteBuffer.wrap(buffer), 64);
 			conn.requestWait();
 		}
@@ -212,7 +214,6 @@ public class Trezor {
 	private Message parseMessageFromBytes(MessageType type, byte[] data) {
 		Message msg = null;
 		Log.i("TrezorParseMessage", String.format("Parsing %s (%d bytes):", type, data.length));
-		String s = "data:";
 		try {
 			if (type.getNumber() == MessageType.MessageType_Success_VALUE) msg = Success.parseFrom(data);
 			if (type.getNumber() == MessageType.MessageType_Failure_VALUE) msg = Failure.parseFrom(data);

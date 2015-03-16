@@ -74,7 +74,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
          for (UUID account : getAccountIds(getWritableDatabase())) {
-            new SqliteAccountBacking(account, getWritableDatabase()).upgradeTables();
+            // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
+            // uses the "IF NOT EXISTS" switch
+            createAccountBackingTables(account, getWritableDatabase());
+            // test without deleting tables
+            //new SqliteAccountBacking(account, getWritableDatabase()).upgradeTables();
          }
       }
 
@@ -88,13 +92,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-         /*
-          * If table layout for account backing changes, alter the tables accordingly
          for (UUID account : getAccountIds(db)) {
-            new SqliteAccountBacking(account, db).upgradeTables();
+            // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
+            // uses the "IF NOT EXISTS" switch
+            createAccountBackingTables(account, getWritableDatabase());
+            // test without deleting tables
+            //new SqliteAccountBacking(account, db).upgradeTables();
          }
-         */
-
 
          db.beginTransaction();
          try {

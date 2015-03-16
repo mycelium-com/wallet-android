@@ -60,6 +60,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class StringHandleConfig implements Serializable {
@@ -432,7 +433,7 @@ public class StringHandleConfig implements Serializable {
       SEND {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUri> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
@@ -454,7 +455,7 @@ public class StringHandleConfig implements Serializable {
       RETURN {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUri> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
@@ -473,7 +474,7 @@ public class StringHandleConfig implements Serializable {
       CHECK_BALANCE {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUri> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
@@ -496,7 +497,7 @@ public class StringHandleConfig implements Serializable {
       RETURN_ADDRESS {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase().startsWith("bitcoin")) return false;
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUri> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
@@ -531,7 +532,7 @@ public class StringHandleConfig implements Serializable {
             if (!MbwManager.getInstance(handlerActivity).isBitidEnabled()) {
                return false;
             }
-            if (!content.toLowerCase().startsWith("bitid:")) {
+            if (!content.toLowerCase(Locale.US).startsWith("bitid:")) {
                return false;
             }
             Optional<BitIDSignRequest> request = BitIDSignRequest.parse(Uri.parse(content));
@@ -556,7 +557,7 @@ public class StringHandleConfig implements Serializable {
       OPEN_BROWSER {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase().startsWith("http")) {
+            if (!content.toLowerCase(Locale.US).startsWith("http")) {
                return false;
             }
             Uri uri = (Uri.parse(content));

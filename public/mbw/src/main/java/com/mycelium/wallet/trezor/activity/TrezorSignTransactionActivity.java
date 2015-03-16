@@ -106,6 +106,9 @@ public class TrezorSignTransactionActivity
             }
          });
          pin.show();
+
+         // update the UI, as the state might have changed
+         updateUi();
          return true;
       }
    });

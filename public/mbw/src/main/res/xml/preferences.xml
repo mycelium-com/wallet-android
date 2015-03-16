@@ -39,6 +39,11 @@
                 android:layout="@layout/preference_layout"
                 android:summary="@string/pref_set_pin_summary"
                 android:title="@string/pref_set_pin" />
+        <CheckBoxPreference
+                android:key="requirePinOnStartup"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/pref_pin_require_on_startup_summary"
+                android:title="@string/pref_pin_require_on_startup" />
     </PreferenceCategory>
 
     <!-- Local Trader Settings -->

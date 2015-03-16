@@ -58,7 +58,6 @@ import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
@@ -103,6 +102,7 @@ public class MbwManager {
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
    private final CurrencySwitcher _currencySwitcher;
+   private Date lastSuccessfullPin;
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
@@ -124,6 +124,7 @@ public class MbwManager {
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
    private Pin _pin;
+   private boolean _pinRequiredOnStartup;
 
    private MinerFee _minerFee;
    private boolean _enableContinuousFocus;
@@ -191,6 +192,7 @@ public class MbwManager {
             preferences.getString(Constants.PIN_SETTING, ""),
             preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
       );
+      _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
 
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
@@ -660,7 +662,16 @@ public class MbwManager {
    }
 
    public void runPinProtectedFunction(final Context context, final Runnable fun) {
-      if (isPinProtected()) {
+
+      // if last Pin entry was 1sec ago, dont ask for it again.
+      // to prevent if there are two pin protected functions cascaded
+      // like startup-pin request and account-choose-pin request if opened by a bitcoin url
+      boolean lastPinAgeOkay = false;
+      if (lastSuccessfullPin != null){
+         lastPinAgeOkay = (new Date().getTime() - lastSuccessfullPin.getTime()) < 1 * 1000;
+      }
+
+      if (isPinProtected() && !lastPinAgeOkay) {
          PinDialog d = new PinDialog(context, true);
          runPinProtectedFunction(context, d, fun);
       }else{
@@ -678,6 +689,7 @@ public class MbwManager {
 
                   // as soon as you enter the correct pin once, abort the reset-pin-procedure
                   MbwManager.this.getMetadataStorage().clearResetPinStartBlockheight();
+                  MbwManager.this.lastSuccessfullPin = new Date();
 
                   fun.run();
                } else {
@@ -698,6 +710,7 @@ public class MbwManager {
                                  MbwManager.this.showClearPinDialog(context, Optional.<Runnable>absent());
                               }
                            })
+
                            .setMessage(context.getString(R.string.wrong_pin_message))
                            .show();
                   }else {
@@ -1033,4 +1046,15 @@ public class MbwManager {
 
    }
 
+   public boolean getPinRequiredOnStartup(){
+      return this._pinRequiredOnStartup;
+   }
+
+   public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
+      SharedPreferences.Editor editor = getEditor();
+      editor.putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup);
+      editor.commit();
+
+      this._pinRequiredOnStartup = _pinRequiredOnStartup;
+   }
 }

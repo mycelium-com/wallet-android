@@ -44,6 +44,7 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -51,7 +52,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
@@ -233,6 +233,29 @@ public class StartupActivity extends Activity {
 
       @Override
       public void run() {
+         if (_mbwManager.getPinRequiredOnStartup()) {
+
+            // set a click handler to the background, so that
+            // if the PIN-Pad closes, you can reopen it by touching the background
+            getWindow().getDecorView().findViewById(android.R.id.content).setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                  delayedFinish.run();
+               }
+            });
+
+            _mbwManager.runPinProtectedFunction(StartupActivity.this, new Runnable() {
+               @Override
+               public void run() {
+                  start();
+               }
+            });
+         } else {
+            start();
+         }
+      }
+
+      private void start(){
          // Check whether we should handle this intent in a special way if it
          // has a bitcoin URI in it
          if (handleIntent()) {
@@ -245,6 +268,7 @@ public class StartupActivity extends Activity {
             normalStartup();
          }
       }
+
    };
 
    private void warnUserOnClipboardKeys() {

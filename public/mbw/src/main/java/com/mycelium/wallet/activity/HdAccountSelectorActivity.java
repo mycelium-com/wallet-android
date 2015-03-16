@@ -143,14 +143,16 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
    }
 
    @Override
-   public void onAccountFound(AbstractAccountScanManager.HdKeyNodeWrapper account) {
+   public synchronized void onAccountFound(AbstractAccountScanManager.HdKeyNodeWrapper account) {
       HdAccountWrapper acc = new HdAccountWrapper();
       acc.id = account.accountId;
       acc.accountIndex = account.accountIndex;
       acc.name = String.format(getString(R.string.account_number), account.accountIndex + 1);
       acc.xPub = account.accountRoot;
-      accountsAdapter.add(acc);
-      updateUi();
+      if (!accounts.contains(acc)) {
+         accountsAdapter.add(acc);
+         updateUi();
+      }
    }
 
    protected void updateUi() {
@@ -218,6 +220,23 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
       public int accountIndex;
       public HdKeyNode xPub;
       public String name;
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+
+         HdAccountWrapper that = (HdAccountWrapper) o;
+
+         if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+         return true;
+      }
+
+      @Override
+      public int hashCode() {
+         return id != null ? id.hashCode() : 0;
+      }
    }
 
    protected class AccountsAdapter extends ArrayAdapter<HdAccountWrapper>{

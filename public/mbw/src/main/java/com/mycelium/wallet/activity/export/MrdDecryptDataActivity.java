@@ -70,6 +70,8 @@ import com.mycelium.wallet.service.ServiceTaskStatusEx.State;
 import com.mycelium.wallet.service.TaskExecutionServiceController;
 import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionServiceCallback;
 
+import java.util.Locale;
+
 public class MrdDecryptDataActivity extends Activity implements TaskExecutionServiceCallback {
 
    public static final CharMatcher LETTERS = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'));
@@ -79,7 +81,7 @@ public class MrdDecryptDataActivity extends Activity implements TaskExecutionSer
       @Override
       public String apply(String input) {
          String onlyLetters = LETTERS.retainFrom(input);
-         return JOIN_SPACE.join(SPLIT_3.split(onlyLetters)).toUpperCase();
+         return JOIN_SPACE.join(SPLIT_3.split(onlyLetters)).toUpperCase(Locale.US);
       }
    };
    public static final int PASSLENGTH_WITHSPACES = 21;
