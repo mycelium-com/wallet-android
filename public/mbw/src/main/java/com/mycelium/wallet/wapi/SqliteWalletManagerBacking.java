@@ -73,12 +73,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       public OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
+         // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
+         // uses the "IF NOT EXISTS" switch
          for (UUID account : getAccountIds(getWritableDatabase())) {
-            // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
-            // uses the "IF NOT EXISTS" switch
             createAccountBackingTables(account, getWritableDatabase());
-            // test without deleting tables
-            //new SqliteAccountBacking(account, getWritableDatabase()).upgradeTables();
          }
       }
 
@@ -91,15 +89,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-         for (UUID account : getAccountIds(db)) {
-            // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
-            // uses the "IF NOT EXISTS" switch
-            createAccountBackingTables(account, getWritableDatabase());
-            // test without deleting tables
-            //new SqliteAccountBacking(account, db).upgradeTables();
-         }
-
          db.beginTransaction();
          try {
             if (oldVersion<=1){
