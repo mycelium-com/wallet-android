@@ -58,8 +58,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 23002
-        versionName '2.3.0-BETA2'
+        versionCode 23003
+        versionName '2.3.0-BETA3'
     }
 
     signingConfigs {
