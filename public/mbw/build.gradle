@@ -21,6 +21,7 @@ dependencies {
     compile project(':public:coinapult')
     compile project(':public:wapi')
     compile project(':public:trezor')
+    compile project(':public:btchip')
     compile project(':public:lt-api')
     compile project(':public:mbwlib')
 

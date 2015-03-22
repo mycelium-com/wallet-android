@@ -626,6 +626,27 @@
     <string name="trezor_new_firmware_description">A new trezor firmware is available.\nPlease use MyTrezor.com on a PC to update your trezor.</string>
     <string name="trezor_unnamed">(unnamed)</string>
 
+    <string name="ledger_initial_status">Please connect your Ledger Wallet</string>
+    <string name="ledger_scanning_status">Ledger Wallet okay - scanning Accounts</string>
+    <string name="ledger_cold_storage_header">Ledger Wallet</string>
+    <string name="connect_your_ledger_info">This only works if your phone supports USB-OTG (on-the-go).\n\nTo connect the Ledger Wallet you need a USB-OTG-adapter or cable. Plug the Ledger Wallet on the client-side and connect the host-side with your phone.</string>
+    <string name="select_ledger_account_to_spend_from">Select account to spend from</string>
+    <string name="ledger_import_account">Import a Ledger HD-Account</string>
+    <string name="ledger_import_account_caption">Import Account</string>
+    <string name="ledger_select_account_to_import">Select account to import</string>
+    <string name="ledger_amount">Amount:</string>
+    <string name="ledger_to">To:</string>
+    <string name="ledger_fee">Fee:</string>
+    <string name="ledger_total">Total:</string>
+    <string name="ledger_please_plug_in">Please plug in your Ledger Wallet</string>
+    <string name="ledger">Ledger</string>
+    <string name="ledger_next_unused_account_info">This option will import the next unused account from this Ledger Wallet</string>
+    <string name="ledger_next_unused_account_button">Import next unused account…</string>
+    <string name="ledger_powercycle">Disconnect your Ledger Wallet, connect it in another application / computer to read the keyboard second factor, then connect it again to continue</string>
+    <string name="ledger_enter_pin">Enter Ledger Wallet PIN</string>
+    <string name="ledger_enter_transaction_pin">Enter Ledger Wallet 2FA</string>
+    <string name="ledger_please_wait">Please wait ...</string>
+
     <string name="select_local_currencies">Select your currencies</string>
     <string name="show_public_or_private_data">Show</string>
     <string name="show_private_data">private</string>

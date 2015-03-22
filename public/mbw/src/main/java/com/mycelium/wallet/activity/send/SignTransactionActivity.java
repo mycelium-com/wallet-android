@@ -44,10 +44,12 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
@@ -65,7 +67,11 @@ public class SignTransactionActivity extends Activity {
 
       Intent intent;
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-         intent = new Intent(currentActivity, TrezorSignTransactionActivity.class);
+    	 if (((Bip44AccountExternalSignature)walletAccount).getBIP44AccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 intent = new Intent(currentActivity, LedgerSignTransactionActivity.class);
+    	 }else {
+    		 intent = new Intent(currentActivity, TrezorSignTransactionActivity.class); 
+    	 }         
       }else{
          intent = new Intent(currentActivity, SignTransactionActivity.class);
       }

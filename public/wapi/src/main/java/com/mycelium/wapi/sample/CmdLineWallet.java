@@ -104,7 +104,7 @@ public class CmdLineWallet {
 
       WalletManagerBacking backing1 = new InMemoryWalletManagerBacking();
       SecureKeyValueStore secureKeyValueStore1 = new SecureKeyValueStore(backing1, _randomSource);
-      final WalletManager wallet1 = new WalletManager(secureKeyValueStore1, backing1, network, wapi, null);
+      final WalletManager wallet1 = new WalletManager(secureKeyValueStore1, backing1, network, wapi, null, null);
 
       try {
          Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"salmon", "army", "unique", "urge", "robot", "view", "vote", "milk", "once", "mansion", "type", "unable"}, null);
@@ -118,7 +118,7 @@ public class CmdLineWallet {
 
       WalletManagerBacking backing2 = new InMemoryWalletManagerBacking();
       SecureKeyValueStore secureKeyValueStore2 = new SecureKeyValueStore(backing2, _randomSource);
-      final WalletManager wallet2 = new WalletManager(secureKeyValueStore2, backing2, network, wapi, null);
+      final WalletManager wallet2 = new WalletManager(secureKeyValueStore2, backing2, network, wapi, null, null);
 
       try {
          Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"erosion", "intact", "atom", "water", "clap", "chef", "wool", "section", "busy", "elevator", "weekend", "diary"}, null);
@@ -239,7 +239,7 @@ public class CmdLineWallet {
 
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, _randomSource);
       // Create wallet
-      WalletManager wallet = new WalletManager(secureKeyValueStore, backing, network, wapi, null);
+      WalletManager wallet = new WalletManager(secureKeyValueStore, backing, network, wapi, null, null);
 
       // Add a single key account
       createSingleKeyAccountFromStringSeed(wallet, "some random string", cipher, network, wapi, logger);

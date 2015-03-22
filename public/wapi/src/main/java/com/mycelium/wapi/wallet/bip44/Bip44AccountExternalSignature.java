@@ -12,7 +12,7 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
 
    public Bip44AccountExternalSignature(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, ExternalSignatureProvider trezorManager) {
       super(context, keyManager, network, backing, wapi);
-      _sigProvider = trezorManager;
+      _sigProvider = trezorManager;      
    }
 
    @Override
@@ -36,5 +36,9 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    @Override
    public boolean containsPrivateData() {
       return false;
+   }
+   
+   public int getBIP44AccountType() {
+	   return _sigProvider.getBIP44AccountType();
    }
 }

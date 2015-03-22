@@ -75,6 +75,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.ledger.LedgerManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
@@ -126,6 +127,7 @@ public class MbwManager {
 
    private final Bus _eventBus;
    private final TrezorManager _trezorManager;
+   private final LedgerManager _ledgerManager;
    private final WapiClient _wapi;
 
    private final LtApiClient _ltApi;
@@ -250,6 +252,7 @@ public class MbwManager {
             : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
       _trezorManager = new TrezorManager(_applicationContext, getNetwork());
+      _ledgerManager = new LedgerManager(_applicationContext, getNetwork());
       _walletManager = createWalletManager(_applicationContext, _environment);
       _eventTranslator = new EventTranslator(new Handler(), _eventBus);
       _walletManager.addObserver(_eventTranslator);
@@ -506,7 +509,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       return new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, getTrezorManager());
+            backing, environment.getNetwork(), _wapi, getTrezorManager(), getLedgerManager());
    }
 
    /**
@@ -526,7 +529,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, null);
+            backing, environment.getNetwork(), _wapi, null, null);
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
@@ -1122,6 +1125,10 @@ public class MbwManager {
 
    public TrezorManager getTrezorManager() {
       return _trezorManager;
+   }
+   
+   public LedgerManager getLedgerManager() {
+	   return _ledgerManager;
    }
 
    public WapiClient getWapi() {
