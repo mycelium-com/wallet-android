@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013, 2014 Megion Research and Development GmbH
  *
@@ -549,6 +548,9 @@ public class SendMainActivity extends Activity {
             }
 
          }
+
+         _transactionStatus = tryCreateUnsignedTransaction();
+         updateUi();
       } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
          String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_NAME));
@@ -559,25 +561,32 @@ public class SendMainActivity extends Activity {
             return;
          }
          _receivingAddress = address;
+
+         _transactionStatus = tryCreateUnsignedTransaction();
+         updateUi();
       } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
          Address address = Preconditions.checkNotNull((Address) intent
                .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
          _receivingAddress = address;
+
+         _transactionStatus = tryCreateUnsignedTransaction();
+         updateUi();
       } else if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser
          _amountToSend = Preconditions.checkNotNull((Long) intent.getSerializableExtra("amount"));
+         _transactionStatus = tryCreateUnsignedTransaction();
+         updateUi();
       } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE){
          if (resultCode == RESULT_OK) {
             Transaction tx = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-            broadcastTx(tx);
+            BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, tx, _transactionLabel, BROADCAST_REQUEST_CODE);
          }
       } else if (requestCode == BROADCAST_REQUEST_CODE){
+         this.setResult(resultCode);
          finish();
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
-      _transactionStatus = tryCreateUnsignedTransaction();
-      updateUi();
    }
 
    private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
@@ -587,9 +596,6 @@ public class SendMainActivity extends Activity {
       _mbwManager.getWalletManager(true).startSynchronization();
    }
 
-   private void broadcastTx(Transaction tx) {
-      BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, tx, _transactionLabel, BROADCAST_REQUEST_CODE);
-   }
 
    private BitcoinUri getUriFromClipboard() {
       String content = Utils.getClipboardString(SendMainActivity.this);

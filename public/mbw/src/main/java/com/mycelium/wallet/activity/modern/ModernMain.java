@@ -274,19 +274,7 @@ public class ModernMain extends ActionBarActivity {
          finish();
          startActivity(running);
       } else if (requestCode == GENERIC_SCAN_REQUEST) {
-         if (resultCode == RESULT_OK) {
-            StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-            if (type == StringHandlerActivity.ResultType.ACCOUNT) {
-               UUID accountid = StringHandlerActivity.getAccount(data);
-               WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-               //we are returning from seed import, so this has to be the first hd account
-               Preconditions.checkState(account instanceof Bip44Account);
-               String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
-               //store the default name for the account
-               _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
-               getSupportActionBar().selectTab(mAccountsTab);
-            }
-         } else {
+         if (resultCode != RESULT_OK) {
             //report to user in case of error
             //if no scan handlers match successfully, this is the last resort to display an error msg
             ScanActivity.toastScanError(resultCode, data, this);

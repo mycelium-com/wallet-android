@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
+import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -93,6 +94,11 @@ public class LocalTraderFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
+         if (!_mbwManager.getSelectedAccount().canSpend()){
+            Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
+            return;
+         }
+
          LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
          boolean newActivity = ltManager.hasLocalTraderAccount() && ltManager.needsTraderSynchronization();
          LtMainActivity.callMe(getActivity(), newActivity ? LtMainActivity.TAB_TYPE.ACTIVE_TRADES

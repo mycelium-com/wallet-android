@@ -8,6 +8,7 @@
   <string name="import_words_title">Vnesite niz besed</string>
   <string name="add_account_desc">Mycelium podpira dve vrsti računov: HD-račune in posamične račune. Posamičen račun vsebuje samo en naslov, HD-račun pa več naslovov. Vsi HD-računi se ustvarijo iz istega glavnega semena. Glavno seme se nastavi, ko ustvarite prvi HD-račun.</string>
   <string name="add_single_acc_info">Če želite dodati posamični račun z zasebnim ključem ali naslovom, izberite Napredno spodaj.</string>
+  <string name="scan_desc">Prečitajte bitcoin naslov, zasebni ključ ali HD-račun.</string>
   <string name="scan_seed">Prečitaj glavno seme iz rezervne kopije</string>
   <string name="use_acc_first">Imate lahko le en neuporabljen HD-račun.</string>
   <string name="clipboard_desc">Uvozi bitcoin naslov ali zasebni ključ z odložišča.</string>
@@ -96,6 +97,8 @@
   <string name="pref_socks_proxy_enabled">Posredovalni strežnik za SOCKS (vključen)</string>
   <string name="pref_socks_proxy_not_enabled">Posredovalni strežnik za SOCKS (izključen)</string>
   <string name="pref_socks_proxy_summary">Vključi komunikacijo skozi omejite požarnega zidu ali skoz Tor z uporabo Orbota. Vnesite gostiteljsko ime in vrata, npr. \'localhost:9050\'</string>
+  <string name="pref_pin_require_on_startup_summary">Za višjo stopnjo zasebnosti</string>
+  <string name="pref_pin_require_on_startup">Zahtevaj PIN pri zagonu</string>
   <string name="settings">Nastavitve</string>
   <string name="pin_backup_first">PIN-kode ne morete nastaviti, dokler ne naredite varnostne kopije glavnega semena.</string>
   <string name="pin_invalid_pin">Neveljavna PIN-koda</string>
@@ -111,6 +114,7 @@
   <string name="delete">Izbriši</string>
   <string name="payment_request">Zahtevek za plačilo</string>
   <string name="export_account_data_warning">Izvozili boste občutljive podatke izbranega računa.\n\nVsakdo, ki dobi dostop do teh ključev, si lahko prilasti bitcoine na njih ali pridobi podatke, ki bi lahko ogrozili vašo zasebnost.\n\nŽelite nadaljevati?</string>
+  <string name="backup_all_warning">Napraviti morate rezervno kopijo glavnega semena.\nRezervna kopija glavnega semena vam omogoča obnovitev sredstev na vaših HD-računih, če se vaša naprava izgubi, poškoduje ali drugače odtuji.\n\nŽelite to storiti zdaj?</string>
   <string name="backup_legacy_warning">Napravili boste rezervno kopijo računov s posamičnimi naslovi v vaši denarnici.\nTa rezervna kopija ne bo vsebovala vašega glavnega semena, zato iz nje ne bo mogoče obnoviti vaših HD-računov!\n\nŽelite nadaljevati?</string>
   <string name="export_to_clipboard_warning">Opozorilo: če zasebni ključ kopirate na odložišče, lahko do njega dostopajo vse aplikacije na vašem sistemu.\n\nPozor: Za rezervno kopiranje ni dovolj, da ključ le kopirate na odložišče; potem ga morate še prilepiti na varno mesto.\n\nŽelite nadaljevati?</string>
   <string name="found_clipboard_private_key_title">Zasebni ključ najden na odložišču</string>
@@ -125,6 +129,7 @@
   <string name="get_private_key">Pridobi zasebni ključ iz:</string>
   <string name="cold_storage">Hladna hramba</string>
   <string name="cold_storage_title">Trošenje hladno hranjenih novcev</string>
+  <string name="cold_storage_desc">Poslali boste sredstva iz zasebnega ključa v hladni hrambi. To je lahko npr. papirna kopija zasebnih ključev ali izpisek zasebnega ključa iz bitcoinomata.\nPodprti so naslednji formati:\nZasebni ključ, glavno seme, ključ xPriv\n\nPo tem ko bo nakazilo poslano v omrežje, bo iz pomnilnika izbrisana vsaka sled o njem.</string>
   <string name="keep_account_address">Izbriši le zasebni ključ in ohrani račun samo za branje</string>
   <string name="manual_entry">Ročni vnos</string>
   <string name="active_hd_accounts_name">Moji HD-računi</string>
@@ -163,6 +168,10 @@
   <string name="delete_account_title">Izbrišem račun?</string>
   <string name="delete_account_message">Želite izbrisati ta račun?</string>
   <string name="confirm_delete_pk_title">Ste prepričani?</string>
+  <string name="confirm_delete_pk_with_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nVsebuje %2$s\n\nSte prepričani, da ga želite izbrisati?</string>
+  <string name="confirm_delete_pk_with_balance_with_label">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nOznaka računa:\n%1$s\n\nTrenutni naslov:\n%2$s\n\nVsebuje %3$s\n\nSte prepričani, da ga želite izbrisati?</string>
+  <string name="confirm_delete_pk_without_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nSte prepričani, da ga želite izbrisati?</string>
+  <string name="confirm_delete_pk_without_balance_with_label">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nOznaka računa:\n%1$s\n\nTrenutni naslov:\n%2$s\n\nSte prepričani, da ga želite izbrisati?</string>
   <string name="verify_private_key_backup">Preveri rezervno kopijo</string>
   <string name="verify_backup_dialog_title">Preveri rezervno kopijo zasebnih ključev</string>
   <string name="verify_backup_desc">Pravilna rezervna kopija je temelj varnega ravnanja z novci.\n\nS preverjenjem rezervne kopije lahko preprečite, da bi izgubili novce, če se naprava, na kateri imate denarnico, izgubi ali poškoduje.</string>
@@ -477,6 +486,7 @@
   <string name="recover_seed_password_info">Izberite to možnost le, če razumete, kaj pomeni.\nObičajna rezervna kopija v Myceliumu nikoli ne vsebuje gesla - to ni vaša PIN-koda.</string>
   <string name="import_wordlist_questions">Prosimo, izberite dolžino niza besed, ki ga želite uporabiti, in označite, ali je niz zaščiten z geslom.</string>
   <string name="type_password_title">Vnesite svoje geslo</string>
+  <string name="clipboard_not_available">Odložišče ni na voljo ali veljavno.</string>
   <string name="no_android_wallet_backup">Ne najdem izvoženih podatkov</string>
   <string name="unable_to_get_clipboard">Ne morem do vsebine odložišča</string>
   <string name="unable_to_clear_clipboard">Ne morem izprazniti odložišča</string>
@@ -555,18 +565,22 @@
   <string name="lt_confirm_delete_history">Želite izbrisati podatke o tem poslu s svojega telefona?</string>
   <string name="lt_confirm_delete_trader_message">Želite izbrisati svojo identiteto za trgovanje? Vsi podatki o trgovanju in ocene bodo trajno izbrisani in jih ne bo mogoče pridobiti nazaj.</string>
   <string name="rescan_account_menu_item">Ponovno naloži račun</string>
+  <string name="add_advanced_account_warning">Opozorilo:\nTi ključi ne bodo vključeni v rezervni kopiji vašega glavnega semena. Poskrbeti morate, da imate ločeno rezervno kopijo teh ključev.</string>
   <string name="new_random_key_desc">Ustvari nov slučajen ključ</string>
   <string name="generate_new_key">Ustvari</string>
   <string name="new_bitcoin_address_created">Ustvarjen je bil nov slučajen zasebni ključ s tem naslovom:</string>
   <string name="shuffle">Premešaj</string>
   <string name="toast_warning_low_fee">Potrditev transakcije lahko traja dlje.</string>
+  <string name="searching_for_trezor_status">Iščem Trezor&#8230;</string>
   <string name="account_number">Račun %d</string>
   <string name="account_found">%s najden</string>
   <string name="trezor_initial_status">Prosimo, priklopite svoj Trezor</string>
-  <string name="trezor_scanning_status">Trezor OK - pregleduje račune</string>
+  <string name="trezor_scanning_status">Trezor OK - pregledujem račune</string>
   <string name="account_balance_sending_amount">(pošiljam %s)</string>
   <string name="trezor_cold_storage_header">Trezor - hladna hramba</string>
+  <string name="connect_your_trezor_info">To deluje le, če vaša naprava podpira USB-OTG (on-the-go).\n\nZa priklop Trezorja potrebujete kabel ali adapter USB-OTG; nanj na odjemalsko stran priklopite Trezor z lastnim kablom, na gostiteljsko stran pa svojo napravo.</string>
   <string name="select_trezor_account_to_spend_from">Izberite račun za plačilo</string>
+  <string name="trezor_passphrase_description">Vnesite neobvezno geslo</string>
   <string name="trezor_show_passphrase">Prikaži geslo</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Uvozi Trezorjev HD-račun</string>
@@ -579,6 +593,8 @@
   <string name="trezor_fee">Prispevek:</string>
   <string name="trezor_total">Skupaj:</string>
   <string name="trezor_please_plug_in">Prosimo, priklopite svoj Trezor</string>
+  <string name="trezor_next_unused_account_info">Ta izbira bo uvozila prvi nerabljen račun iz Trezorja. Ta račun se bo prikazala v storitvi MyTrezor le, če nanj naložite sredstva.</string>
+  <string name="trezor_next_unused_account_button">Uvozi naslednji nerabljen račun&#8230;</string>
   <string name="select_local_currencies">Izberite valute</string>
   <string name="show_public_or_private_data">Prikaži</string>
   <string name="show_private_data">zasebno</string>
@@ -603,10 +619,15 @@
   <string name="warning_add_account_no_backup">Opozorilo: rezervne kopije svojega glavnega semena niste potrdili. Vsi vaši HD-računi so izpeljani iz nje. Ti računi so varni in obnovljivi le, če hranite varno in preverjeno rezervno kopijo.</string>
   <string name="transaction_to_address_prefix">Za: %s</string>
   <string name="tor_state_init">TOR: inicializacija</string>
-  <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
   <string name="install_orbot_">Namesti Orbot?</string>
   <string name="you_must_have_orbot">Nameščen mora biti Orbot in promet mora biti usmerjen skozen. Želite namestiti Orbot z Google Play?</string>
   <string name="start_orbot_">Poženem Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Kaže, da Orbot ne teče. Ga želite pognati in se povezati v TOR?</string>
   <string name="account_prefix_imported">Uvožen</string>
+  <string name="retrieving_pubkey_address">Pridobivam naslednji nerabljen naslov&#8230;</string>
+  <string name="instant_masterseed_initializing">Inicializacija&#8230;</string>
+  <string name="instant_masterseed_title">Pošiljanje iz glavnega semena</string>
+  <string name="hd_account_selector_no_account_found">Ni aktivnih računov.</string>
+  <string name="masterseed_optional_passphrase_hint">To geslo vam omogoča izpeljavo različnih računov iz istega glavnega semena.\nČe niste prepričani, kaj to pomeni, ga pustite praznega.</string>
+  <string name="tx_details_num_confirmations">Potrditve</string>
 </resources>

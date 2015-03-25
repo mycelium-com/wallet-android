@@ -74,7 +74,6 @@ public class ScanActivity extends Activity {
    }
 
    public static final int SCANNER_RESULT_CODE = 0;
-   public static final int HANDLER_RESULT_CODE = 1;
 
    private boolean _hasLaunchedScanner;
    private int _preferredOrientation;
@@ -189,13 +188,6 @@ public class ScanActivity extends Activity {
          return;
       }
 
-      if (HANDLER_RESULT_CODE == requestCode) {
-         //result from handler - we just pass it on
-         setResult(resultCode, intent);
-         finish();
-         return;
-      }
-
       //since it was not the handler, it can only be the scanner
       Preconditions.checkState(SCANNER_RESULT_CODE == requestCode);
 
@@ -214,7 +206,13 @@ public class ScanActivity extends Activity {
       // Get rid of any UTF-8 BOM marker. Those should not be present, but might have slipped in nonetheless,
       if (content.length() != 0 && content.charAt(0) == '\uFEFF') content = content.substring(1);
 
-      StringHandlerActivity.callMe(this, HANDLER_RESULT_CODE, _stringHandleConfig, content);
+      // Call the stringHandler activity and pass its result to our caller
+      Intent handlerIntent = StringHandlerActivity.getIntent(this, _stringHandleConfig, content);
+      handlerIntent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      this.startActivity(handlerIntent);
+
+      // we are done here...
+      this.finish();
    }
 
    private boolean isQRCode(Intent intent) {

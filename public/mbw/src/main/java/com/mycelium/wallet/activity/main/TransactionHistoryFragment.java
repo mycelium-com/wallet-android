@@ -218,7 +218,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
 
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      public View getView(final int position, View convertView, ViewGroup parent) {
          // Only inflate a new view if we are not reusing an old one
          View rowView = convertView;
          if (rowView == null) {
@@ -243,20 +243,18 @@ public class TransactionHistoryFragment extends Fragment {
                   @Override
                   public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                      actionMode.getMenuInflater().inflate(R.menu.transaction_history_context_menu, menu);
+                     //we only allow address book entries for outgoing transactions
+                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
+                     currentActionMode = actionMode;
+                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                      return true;
                   }
 
-                  @SuppressWarnings("deprecation")
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     //we only allow address book entries for outgoing transactions
-                     if (record.destinationAddress.isPresent()){
-                        Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(true);
-                     }else {
-                        Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(false);
-                     }
+                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
                      currentActionMode = actionMode;
-                     view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
+                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                      return true;
                   }
 
@@ -276,10 +274,9 @@ public class TransactionHistoryFragment extends Fragment {
                      return false;
                   }
 
-                  @SuppressWarnings("deprecation")
                   @Override
                   public void onDestroyActionMode(ActionMode actionMode) {
-                     view.setBackgroundDrawable(null);
+                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, false);
                      currentActionMode = null;
                   }
                });
@@ -393,6 +390,7 @@ public class TransactionHistoryFragment extends Fragment {
 
    private class Wrapper extends EndlessAdapter {
       private List<TransactionSummary> _toAdd;
+      private final Object _toAddLock = new Object();
       private int lastOffset;
       private int chunkSize;
 
@@ -412,7 +410,7 @@ public class TransactionHistoryFragment extends Fragment {
       @Override
       protected boolean cacheInBackground() {
          WalletAccount acc = _mbwManager.getSelectedAccount();
-         synchronized (_toAdd) {
+         synchronized (_toAddLock) {
             lastOffset += chunkSize;
             _toAdd = acc.getTransactionHistory(lastOffset, chunkSize);
          }
@@ -421,7 +419,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected void appendCachedData() {
-         synchronized (_toAdd) {
+         synchronized (_toAddLock) {
             TransactionHistoryAdapter a = (TransactionHistoryAdapter) getWrappedAdapter();
             for (TransactionSummary item : _toAdd) {
                a.add(item);

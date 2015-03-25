@@ -411,6 +411,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
   <string name="contains_keys">Enthält %1$s private Schlüssel.</string>
+  <string name="contains_addresses">Enthält %1$s Adressen.</string>
   <string name="archiving_account_title">Konto archivieren</string>
   <string name="new_version_exists">Ein Update ist verfügbar</string>
   <string name="check_update">Nach Updates suchen</string>
@@ -469,6 +470,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="no_unspent_outputs_description">Diese Seite zeigt, auf welchen Adressen des ausgewählten Kontos Bitcoins verfügbar sind. Derzeit gibt es keine Bitcoins anzuzeigen.</string>
   <string name="warning_words_import">Warnung: Kopieren Sie Ihre Worte nicht in die Zwischenablage, andere Applikationen könnten sie mitlesen und so Ihre Bitcoins entwenden.</string>
   <string name="account_contains_one_key_info">Enthält einen privaten Schlüssel.</string>
+  <string name="account_contains_one_address_info">Enthält eine Adresse.</string>
   <string name="verify_backup_ok_message">Das Backup wurde erfolgreich überprüft.</string>
   <string name="wordlist_import_invalid_checksum">Die Prüfsumme Ihrer Wortliste ist ungültig, bitte stellen Sie sicher, dass Sie alle Wörter korrekt eingegeben haben.</string>
   <string name="checkbox_wordlist_password">Ich habe ein Passwort</string>
@@ -560,6 +562,18 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="new_bitcoin_address_created">Es wurde ein neuer privater Schlüssel generiert, welcher folgende Bitcoin Adresse erzeugt:</string>
   <string name="shuffle">Mischen</string>
   <string name="toast_warning_low_fee">Bestätigung kann länger dauern</string>
+  <string name="searching_for_trezor_status">Suche den Trezor&#8230;</string>
+  <string name="account_number">Konto %d</string>
+  <string name="account_found">%s gefunden</string>
+  <string name="account_balance_sending_amount">(sende %s)</string>
+  <string name="trezor">Trezor</string>
+  <string name="trezor_import_account">Ein Trezor-HD-Konto importieren</string>
+  <string name="trezor_import_account_caption">Konto importieren</string>
+  <string name="trezor_name">Trezor:</string>
+  <string name="trezor_amount">Betrag:</string>
+  <string name="trezor_to">An:</string>
+  <string name="trezor_fee">Gebühr:</string>
+  <string name="trezor_total">Gesamtsumme:</string>
   <string name="select_local_currencies">Wählen Sie Ihre Währungen</string>
   <string name="show_public_or_private_data">Anzeigen</string>
   <string name="show_private_data">privat</string>
@@ -584,9 +598,12 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_add_account_no_backup">Warnung: Sie haben kein bestätigtes Backup Ihres Master Seed. Alle Ihre Konten werden daraus abgeleitet. Ihre Konten sind nur sicher und wiederherstellbar, wenn Sie ein gültiges und sicheres Backup haben.</string>
   <string name="transaction_to_address_prefix">An: %s</string>
   <string name="tor_state_init">Tor init</string>
-  <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
   <string name="install_orbot_">Orbot installieren?</string>
   <string name="you_must_have_orbot">Orbot muss installiert und als Proxy aktiv sein. Möchten Sie die App mittels Google Play installieren?</string>
   <string name="start_orbot_">Orbot starten?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot scheint nicht ausgeführt zu werden. Möchten Sie die App starten und mit Tor verbinden?</string>
+  <string name="account_prefix_imported">Importiert</string>
+  <string name="retrieving_pubkey_address">Rufe die nächste ungenutzte Adresse ab&#8230;</string>
+  <string name="hd_account_selector_no_account_found">Es wurden keine aktive Konten gefunden.</string>
+  <string name="tx_details_num_confirmations">Bestätigungen</string>
 </resources>

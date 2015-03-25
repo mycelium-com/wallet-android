@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:scrollbars="vertical">
@@ -21,7 +22,6 @@
         <TableLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:shrinkColumns="1" >
 
             <!-- Hash -->
@@ -62,26 +62,52 @@
                         android:text="@string/confirmed"
                         android:textSize="18sp" />
 
+                <TextView
+                        android:id="@+id/tvConfirmed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="4dp"
+                        tools:text="in Block #123456"
+                        android:textSize="18sp" />
+
+
+            </TableRow>
+
+            <!-- Confirmations -->
+
+            <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dip" >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tx_details_num_confirmations"
+                        android:paddingRight="4dp"
+                        android:textSize="18sp" />
+
+
                 <LinearLayout android:layout_width="wrap_content"
                               android:layout_height="wrap_content"
                               android:orientation="horizontal">
 
                     <TextView
-                            android:id="@+id/tvConfirmed"
+                            android:id="@+id/tvConfirmations"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingLeft="4dp"
+                            tools:text="5"
                             android:textSize="18sp" />
-
                     <com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay
                             android:id="@+id/tcdConfirmations"
                             android:layout_width="wrap_content"
                             android:layout_gravity="center"
-                            android:paddingLeft="10dp"
+                            android:paddingLeft="5dp"
                             android:layout_height="wrap_content"/>
                 </LinearLayout>
 
             </TableRow>
+
 
             <!-- Date -->
 

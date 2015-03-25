@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:gravity="center"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+        >
 
     <ScrollView
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/llKeyBoard"
+            android:layout_height="wrap_content">
 
         <LinearLayout
                 android:layout_width="fill_parent"
@@ -21,12 +22,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/import_words_title"
+                    android:paddingBottom="5dp"
                     android:textSize="24sp"/>
 
-            <View
-                    android:layout_width="1dp"
-                    android:layout_height="5dp">
-            </View>
 
             <TextView
                     android:id="@+id/tvHint"
@@ -34,12 +32,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="@color/lightgrey"
+                    android:paddingBottom="5dp"
                     android:gravity="center"/>
 
-            <View
-                    android:layout_width="1dp"
-                    android:layout_height="5dp">
-            </View>
             <!-- Current word -->
             <TextView
                     android:id="@+id/tvWord"
@@ -48,11 +43,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:paddingBottom="5dp"
                     android:textSize="18sp"/>
-            <View
-                    android:layout_width="1dp"
-                    android:layout_height="5dp">
-            </View>
 
             <!-- Wordlist -->
             <TextView
@@ -60,12 +52,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:paddingBottom="5dp"
                     android:gravity="center"/>
-
-            <View
-                    android:layout_width="1dp"
-                    android:layout_height="5dp">
-            </View>
 
 
             <TextView
@@ -75,12 +63,9 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:text="@string/wordlist_import_invalid_checksum"
+                    android:paddingBottom="5dp"
                     android:visibility="gone"/>
 
-            <View
-                    android:layout_width="1dp"
-                    android:layout_height="5dp">
-            </View>
 
             <Button
                     android:id="@+id/btDeleteLastWord"
@@ -97,23 +82,26 @@
 
     </ScrollView>
 
-    <View
-            android:layout_width="1dp"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-    </View>
-    <fragment
-            android:id="@+id/wordAutoCompleter"
+    <LinearLayout
+            android:id="@+id/llKeyBoard"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            class="com.mycelium.wallet.activity.WordAutoCompleterFragment"
-            tools:layout="@layout/word_auto_completer_fragment"/>
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true"
+            >
+        <fragment
+                android:id="@+id/wordAutoCompleter"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                class="com.mycelium.wallet.activity.WordAutoCompleterFragment"
+                tools:layout="@layout/word_auto_completer_fragment"/>
 
-    <fragment
-            android:id="@+id/usKeyboard"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            class="com.mycelium.wallet.activity.UsKeyboardFragment"
-            tools:layout="@layout/us_keyboard_fragment"/>
+        <fragment
+                android:id="@+id/usKeyboard"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                class="com.mycelium.wallet.activity.UsKeyboardFragment"
+                tools:layout="@layout/us_keyboard_fragment"/>
 
-</LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

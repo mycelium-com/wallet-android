@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.export;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -123,18 +124,20 @@ public class ExportAsQrCodeActivity extends Activity {
       }
    }
 
-   private void setWarningVisability(boolean showWarning){
+   private void setWarningVisibility(boolean showWarning){
       if (showWarning) {
          findViewById(R.id.llPrivKeyWarning).setVisibility(View.VISIBLE);
          findViewById(R.id.ivQrCode).setVisibility(View.GONE);
          findViewById(R.id.tvShowData).setVisibility(View.GONE);
          findViewById(R.id.btCopyToClipboard).setVisibility(View.GONE);
+         findViewById(R.id.btShare).setVisibility(View.GONE);
          findViewById(R.id.tvQrTapHint).setVisibility(View.GONE);
       } else {
          findViewById(R.id.llPrivKeyWarning).setVisibility(View.GONE);
          findViewById(R.id.ivQrCode).setVisibility(View.VISIBLE);
          findViewById(R.id.tvShowData).setVisibility(View.VISIBLE);
          findViewById(R.id.btCopyToClipboard).setVisibility(View.VISIBLE);
+         findViewById(R.id.btShare).setVisibility(View.VISIBLE);
          findViewById(R.id.tvQrTapHint).setVisibility(View.VISIBLE);
       }
    }
@@ -142,7 +145,7 @@ public class ExportAsQrCodeActivity extends Activity {
    private void showPrivateData(){
 
       if (hasWarningAccepted) {
-         setWarningVisability(false);
+         setWarningVisibility(false);
          try {
             String privateData = ((ExportableAccount) account).getPrivateData(AesKeyCipher.defaultKeyCipher());
             showData(privateData);
@@ -150,14 +153,14 @@ public class ExportAsQrCodeActivity extends Activity {
             throw new RuntimeException(invalidKeyCipher);
          }
       }else{
-         setWarningVisability(true);
+         setWarningVisibility(true);
       }
       ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_privkey));
 
    }
 
    private void showPublicData(){
-      setWarningVisability(false);
+      setWarningVisibility(false);
       String publicData = ((ExportableAccount) account).getPublicData();
       showData(publicData);
       ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_pubkey));
@@ -183,6 +186,13 @@ public class ExportAsQrCodeActivity extends Activity {
          @Override
          public void onClick(View arg0) {
             exportToClipboard(data);
+         }
+      });
+      findViewById(R.id.btShare).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View arg0) {
+            shareData(data);
          }
       });
    }
@@ -215,5 +225,34 @@ public class ExportAsQrCodeActivity extends Activity {
          Utils.setClipboardString(data, ExportAsQrCodeActivity.this);
          Toast.makeText(ExportAsQrCodeActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
       }
+   }
+
+   public void shareData(final String data) {
+      if (isPrivateDataSelected()) {
+         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         builder.setMessage(R.string.export_share_warning).setCancelable(false)
+               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                     Intent s = new Intent(android.content.Intent.ACTION_SEND);
+                     s.setType("text/plain");
+                     s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.xpriv_title));
+                     s.putExtra(Intent.EXTRA_TEXT, data);
+                     startActivity(Intent.createChooser(s, getResources().getString(R.string.share_xpriv)));
+                     dialog.dismiss();
+                  }
+               }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+         });
+         AlertDialog alertDialog = builder.create();
+         alertDialog.show();
+      }else{
+         Intent s = new Intent(android.content.Intent.ACTION_SEND);
+         s.setType("text/plain");
+         s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.xpub_title));
+         s.putExtra(Intent.EXTRA_TEXT, data);
+         startActivity(Intent.createChooser(s, getResources().getString(R.string.share_xpub)));
+      }
+
    }
 }

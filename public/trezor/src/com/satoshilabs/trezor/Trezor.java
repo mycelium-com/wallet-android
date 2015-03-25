@@ -131,6 +131,9 @@ public class Trezor {
       final UsbDevice trezorDevice = getTrezorDevice(context);
       final Intent intent = new Intent(ACTION_USB_PERMISSION);
 
+      // clear the token-queue - under some circumstances it might happen that the requestPermission
+      // callback already returned but this functions wasn't waiting anymore
+      gotRights.clear();
       usbManager.requestPermission(trezorDevice, PendingIntent.getBroadcast(context, 0, intent, 0));
 
 

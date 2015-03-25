@@ -68,6 +68,11 @@ public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
       WalletAccount account = mbwManager.getSelectedAccount();
+
+      if (!account.canSpend()) {
+         // this is a watch-only account
+         return false;
+      }
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
       WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {

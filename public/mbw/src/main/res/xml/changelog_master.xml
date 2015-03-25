@@ -3,15 +3,18 @@
     <release version="2.3.0" versioncode="23000">
         <change>Allow direct spending from offline master-seed</change>
         <change>Add xPriv/xPub import feature</change>
+        <change>Add xPriv/xPub share feature</change>
         <change>Add Trezor support (cold-spending and Trezor-based accounts)</change>
         <change>Allow scanning xPub keys for sending and balance check</change>
         <change>Allow cold-spending from xPriv keys</change>
         <change>New setting: require pin on startup</change>
+        <change>Show number of confirmations in transaction details</change>
         <change>Translations updated (Thanks to all our translators!)</change>
         <change>[bug] unify import from QR-Code and clipboard</change>
         <change>[bug] enabling OK button after pasting amount from clipboard</change>
         <change>[bug] fixing cut-off transaction labels in history</change>
         <change>[bug] correctly showing entered amount after screen rotation</change>
+        <change>[bug] correctly showing selection when scrolling i transaction history</change>
     </release>
     <release version="2.2.0" versioncode="22000">
         <change>Transactions tab: UI-Changes, show confirmations with pie-chart</change>

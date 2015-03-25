@@ -75,18 +75,11 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_ACCOUNT_KEY = "account";
 
-   public static void callMe(Activity currentActivity, int requestCode, StringHandleConfig stringHandleConfig, String contentString) {
+   public static Intent getIntent(Context currentActivity, StringHandleConfig stringHandleConfig, String contentString) {
       Intent intent = new Intent(currentActivity, StringHandlerActivity.class);
       intent.putExtra(CONFIG, stringHandleConfig);
       intent.putExtra(CONTENT, contentString);
-      currentActivity.startActivityForResult(intent, requestCode);
-   }
-
-   public static void callMe(Fragment currentFragment, int requestCode, StringHandleConfig stringHandleConfig, String contentString) {
-      Intent intent = new Intent(currentFragment.getActivity(), StringHandlerActivity.class);
-      intent.putExtra(CONFIG, stringHandleConfig);
-      intent.putExtra(CONTENT, contentString);
-      currentFragment.startActivityForResult(intent, requestCode);
+      return intent;
    }
 
    public static ParseAbility canHandle(StringHandleConfig stringHandleConfig, String contentString, NetworkParameters network) {

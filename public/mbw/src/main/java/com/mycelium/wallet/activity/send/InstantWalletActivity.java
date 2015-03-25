@@ -73,9 +73,10 @@ public class InstantWalletActivity extends Activity {
       findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View arg0) {
-            StringHandlerActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN,
+            Intent intent = StringHandlerActivity.getIntent(InstantWalletActivity.this,
                   StringHandleConfig.spendFromColdStorage(),
                   Utils.getClipboardString(InstantWalletActivity.this));
+            InstantWalletActivity.this.startActivityForResult(intent, REQUEST_SCAN);
          }
       });
 

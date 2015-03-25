@@ -3,10 +3,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <string name="app_name">Mycelium ビットコインウォレット</string>
   <string name="add_account_title">新しいアカウントを追加</string>
+  <string name="add_unrelated_account_title">関連性のないアカウントを追加する</string>
   <string name="import_seed_title">マスターシードをインポート</string>
   <string name="import_words_title">ワードリストを入力</string>
   <string name="add_account_desc">MyceliumはHDアカウントとシングルアドレスアカウントをサポートしています。すべてのHDアカウントは同じマスターシードに基づいて作成されます。最初に一つ作成すると、あなたのマスターシードが設定されます。</string>
   <string name="add_single_acc_info">秘密鍵または読み取り専用アドレスに元にシングルアドレスアカウントを追加するには、下の詳細ボタンをクリックしてください。</string>
+  <string name="scan_desc">ビットコインアドレス、秘密鍵、または階層的決定性アカウントをスキャンする。</string>
   <string name="scan_seed">Myceliumのバックアップからマスターシードをスキャン</string>
   <string name="use_acc_first">未使用の階層的決定性アカウントのみ使用できます。</string>
   <string name="clipboard_desc">クリップボードからビットコインアドレスまたは秘密キーをインポート</string>
@@ -95,6 +97,8 @@
   <string name="pref_socks_proxy_enabled">SOCKS プロキシ (有効)</string>
   <string name="pref_socks_proxy_not_enabled">SOCKS プロキシ (無効)</string>
   <string name="pref_socks_proxy_summary">通信規制の厳しいファイアウォール経由の場合、もしくはOrbotをご利用のTor接続の場合、ホスト名とポート番号を入力。例： \'localhost:9050\'</string>
+  <string name="pref_pin_require_on_startup_summary">プライバシー向上のため</string>
+  <string name="pref_pin_require_on_startup">スタートにはＰＩＮナンバーが必要です</string>
   <string name="settings">設定</string>
   <string name="pin_backup_first">マスターシードのバックアップを作成する前に、暗証番号は設定できません。</string>
   <string name="pin_invalid_pin">暗証番号が違います。</string>
@@ -110,6 +114,7 @@
   <string name="delete">削除</string>
   <string name="payment_request">支払い請求</string>
   <string name="export_account_data_warning">あなたは選択したアカウントから、極秘データをエクスポートしようとしています。\n\nこのキーにアクセスできた人は誰でも、ビットコインの所有権を得てコントロールしたり、あなたのプライバシーを崩壊させるような情報を入手できます。\n\nこのまま続けますか？</string>
+  <string name="backup_all_warning">ウオレットのマスター・シードをバックアップして下さい。\nマスター・シードをバックアップすることで、もしデバイスを失くしたり壊しても、あなたの階層的決定性アカウントにある資産を復元することができます。\n\n今、そうしますか？</string>
   <string name="backup_legacy_warning">あなたのウォレットにある単一アドレスのアカウントのみがバックアップされます。\nこのバックアップにはマスターシードが含まれていないため、HDアカウントの復元はできません！\n\nご了承の上、続けますか？</string>
   <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
   <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
@@ -124,6 +129,7 @@
   <string name="get_private_key">秘密鍵インポート：</string>
   <string name="cold_storage">紙ウォレットから送金</string>
   <string name="cold_storage_title">紙ウォレットから送金</string>
+  <string name="cold_storage_desc">中断中の秘密鍵から、資金を使用することができます。これは紙面の秘密鍵か、ビットコインのＡＴＭ伝票になります。以下の形式が可能です：\n秘密鍵、マスター・シード、xPriv Key\n\n一度取引が送信されると、すべての痕跡は内臓メモリーから消去されます。</string>
   <string name="keep_account_address">秘密鍵のみを消去し、読み取り専用のアカウントとして保存</string>
   <string name="manual_entry">手入力</string>
   <string name="active_hd_accounts_name">私の階層的決定性アカウント</string>
@@ -162,6 +168,10 @@
   <string name="delete_account_title">アカウントを削除しますか？</string>
   <string name="delete_account_message">このアカウントを削除しますか？</string>
   <string name="confirm_delete_pk_title">一度削除されたものはバックアップされてなければ復元できませんが、本当に宜しいですか？</string>
+  <string name="confirm_delete_pk_with_balance">これは取り消しができません！\n\n現在のアドレス：\n%1$s\n\n含まれているのは %2$s\n\n削除しますか？</string>
+  <string name="confirm_delete_pk_with_balance_with_label">これは取り消しができません！\n\n\アカウントのラベル：\n%1$s\n\n現在のアドレス：\n%2$s\n\n含まれているのは %3$s\n\n削除しますか？</string>
+  <string name="confirm_delete_pk_without_balance">これは取り消しができません！\n\n\現在のアドレス：\n%1$s\n\n削除しますか？</string>
+  <string name="confirm_delete_pk_without_balance_with_label">これは取り消しができません！\n\n\アカウントのラベル：\n%1$s\n\n現在のアドレス：\n%2$s\n\n削除しますか？</string>
   <string name="verify_private_key_backup">バックアップの確認</string>
   <string name="verify_backup_dialog_title">秘密キーのバックアップを確認します</string>
   <string name="verify_backup_desc">ビットコインを管理する際、正しくバックアップを行うことは不可欠です。\n\nバックアップを確認することで、バックアップが正常に作動していることを確かめ、Androidデバイスがなくなったり、損傷した場合でもお金を失うことがありません。</string>
@@ -231,6 +241,7 @@
   <string name="homepage_label">ホームページ</string>
   <string name="homepage_url">https://mycelium.com</string>
   <string name="company">Megion Research &amp; Development GmbH</string>
+  <string name="company_header">このアプリはこちらから無料で提供されます：</string>
   <string name="contact_email_label">ご意見/ご要望</string>
   <string name="cancelled">キャンセルされました。</string>
   <string name="help_menu">ヘルプ</string>
@@ -367,6 +378,7 @@
   <string name="lt_selling_details">%1$sを売却しています</string>
   <string name="lt_no_trader_account_desc">このウォレットにひもづいたローカルトレーダーは存在しません。\n\nトレーダーアカウントはビットコインのアドレスに直接リンクされ、パスワードや面倒な作業は不要です。\n\n今すぐ作成しますか？</string>
   <string name="lt_trader_name_label">トレーダーの名前</string>
+  <string name="lt_trader_address_label">ローカルトレーダーID</string>
   <string name="lt_trader_email_address_label">メール アドレス</string>
   <string name="lt_trader_age_label">トレーダーアカウント年数</string>
   <string name="lt_trader_last_activity">最後のアクティビティ</string>
@@ -409,6 +421,7 @@
   <string name="cs_private_key_description">次のビットコインアドレスを秘密キーを使用しています：</string>
   <string name="cs_address_description">ビットコインアドレスが完了しました。残高を閲覧できますが、そこから支出することはできません。</string>
   <string name="contains_keys">%1$sの秘密鍵が入っています。</string>
+  <string name="contains_addresses">%1$s 個のアドレスを含みます。</string>
   <string name="archiving_account_title">アカウントをアーカイブ中</string>
   <string name="new_version_exists">新しいバージョンが利用可能</string>
   <string name="check_update">アップデートを確認</string>
@@ -465,6 +478,7 @@
   <string name="no_unspent_outputs_description">このページは、選択したアカウントにおいてどのアドレスにお金が入っているかを示しています。表示するお金はありません。</string>
   <string name="warning_words_import">警告：クリップボードにあなたのワードを入力させないでください。他のアプリがこれらを読み取って、あなたのお金を入手できてしまいます。</string>
   <string name="account_contains_one_key_info">秘密鍵が一つ入っています。</string>
+  <string name="account_contains_one_address_info">１個のアドレスを含みます。</string>
   <string name="verify_backup_ok_message">バックアップの確認に成功しました。</string>
   <string name="wordlist_import_invalid_checksum">ワードリストのチェックサムは無効です。すべてのワードが正しいかご確認下さい。</string>
   <string name="checkbox_wordlist_password">パスワードがあります</string>
@@ -474,6 +488,7 @@
   <string name="recover_seed_password_info">意味がわからなければ、この選択はしないで下さい。\n通常のMyceliumバックアップはパスワードは決して含みません。これはピンナンバーではありません。</string>
   <string name="import_wordlist_questions">復元するためワードリストの長さを選択し、パスワードによって保護されるかどうかを決定してください。</string>
   <string name="type_password_title">パスワードを入力してください</string>
+  <string name="clipboard_not_available">クリップボードは無効です。</string>
   <string name="no_android_wallet_backup">エクスポートが見つかりませんでした</string>
   <string name="unable_to_get_clipboard">現在のクリップボードコンテンツを入手できません</string>
   <string name="unable_to_clear_clipboard">クリップボードを消去できません</string>
@@ -554,19 +569,36 @@
   <string name="lt_confirm_delete_history">この取引の情報を端末から削除しますか。</string>
   <string name="lt_confirm_delete_trader_message">あなたのローカルトレーダーのアカウントを削除しますか。すべての取引情報および評価は完全に削除されるので、回復することはできません。</string>
   <string name="rescan_account_menu_item">アカウントの再読込</string>
+  <string name="add_advanced_account_warning">警告：\nこれらのキーは、マスター・シード・バックアップには含まれません。それらは必ず別にバックアップするようにして下さい。</string>
   <string name="new_random_key_desc">新しいランダムキーを作成</string>
   <string name="generate_new_key">作成</string>
   <string name="new_bitcoin_address_created">新しいランダム秘密鍵、以下のビットコインのアドレスで作成されました。</string>
   <string name="shuffle">シャッフル</string>
   <string name="toast_warning_low_fee">確認に時間がかかるかもしれません</string>
+  <string name="searching_for_trezor_status">Trezorを検索中&#8230;</string>
   <string name="account_number">アカウント %d</string>
+  <string name="account_found">%s 見つかりました。</string>
+  <string name="trezor_initial_status">Trezorに接続して下さい。</string>
+  <string name="trezor_scanning_status">TrezorはＯＫです － アカウントをスキャン</string>
   <string name="account_balance_sending_amount">（%s を送金）</string>
+  <string name="trezor_cold_storage_header">Trezorを使用してコールド・ストレージ</string>
+  <string name="connect_your_trezor_info">これは、あなたの電話がUSB-OTG (on-the-go)を動作させられる場合のみ有効です。\n\n Trezorに接続するにはUSB-OTGのアダプターまたはケーブルが必要です。Trezorをクライエント側でお手持ちのUSBケーブルにつなげ、電話でホスト側に接続して下さい。</string>
+  <string name="select_trezor_account_to_spend_from">資金を使用するアカウントを選択</string>
+  <string name="trezor_passphrase_description">オプションの暗証フレーズを入力</string>
+  <string name="trezor_show_passphrase">暗証フレーズ</string>
   <string name="trezor">Trezor</string>
+  <string name="trezor_import_account">Trezor階層的決定性アカウントをインポート</string>
+  <string name="trezor_import_account_caption">アカウントをインポート</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="trezor_select_account_to_import">インポートするアカウントを選択</string>
+  <string name="trezor_verify_transaction_on_trezor">Trezor にある取引を\n検証して確認</string>
   <string name="trezor_amount">金額：</string>
   <string name="trezor_to">宛先:</string>
   <string name="trezor_fee">採掘者への手数料:</string>
   <string name="trezor_total">合計:</string>
+  <string name="trezor_please_plug_in">Trezorに差し込んで下さい。</string>
+  <string name="trezor_next_unused_account_info">このオプションはこのTrezorから次の未使用アカウントをインポートします。そこに送金した場合、MyTrezorでのみ見られます。</string>
+  <string name="trezor_next_unused_account_button">次の未使用アカウントをインポート中&#8230;</string>
   <string name="select_local_currencies">通貨を選択して下さい</string>
   <string name="show_public_or_private_data">表示</string>
   <string name="show_private_data">プライベート</string>
@@ -591,9 +623,16 @@
   <string name="warning_add_account_no_backup">警告： あなたのマスターシードには確認されたバックアップがありません。あなたのすべてのアカウントはそれから生成されます。もし有効で安全なバックアップがあれば、それらアカウントの安全が守られ復元可能です。</string>
   <string name="transaction_to_address_prefix">宛先: %s</string>
   <string name="tor_state_init">Tor イニット</string>
-  <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
   <string name="install_orbot_">Orbotをインストールしますか？</string>
   <string name="you_must_have_orbot">あなたはOrbotをインストールし、プロキシートラフィックに動作させなければなりません。Google Playからインストールしますか？</string>
   <string name="start_orbot_">Orbotをスタートしますか？</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbotが活動しているように見えません。スタートさせてTorに接続させますか？</string>
+  <string name="account_prefix_imported">インポートしました</string>
+  <string name="retrieving_pubkey_address">次の未使用アドレスを回収中&#8230;</string>
+  <string name="instant_masterseed_initializing">初期化中&#8230;</string>
+  <string name="instant_masterseed_title">マスター・シードから資金を使用</string>
+  <string name="hd_account_selector_no_account_found">有効なアカウントが見つかりませんでした。</string>
+  <string name="masterseed_optional_passphrase_hint">この暗証フレーズは同じマスター・シードから違うアカウントの抽出ができます。\nもし意味がわからなければ、空欄のままにしておいて下さい。</string>
+  <string name="tx_details_num_confirmations">確認</string>
+  <string name="lt_warning_watch_only_account">このアカウントは監視限定です。別のアカウントを選択して下さい。</string>
 </resources>

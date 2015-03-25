@@ -127,9 +127,13 @@ public class AddAdvancedAccountActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            StringHandlerActivity.callMe(AddAdvancedAccountActivity.this, CLIPBOARD_RESULT_CODE,
+            Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
                   StringHandleConfig.returnKeyOrAddressOrHdNode(),
                   Utils.getClipboardString(AddAdvancedAccountActivity.this));
+
+            AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
+
+
          }
       });
    }

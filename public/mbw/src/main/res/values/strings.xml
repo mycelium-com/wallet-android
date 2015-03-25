@@ -642,16 +642,25 @@
     <string name="tor_state_init">Tor init</string>
 
     <!-- from libNetCipher -->
-    <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
     <string name="install_orbot_">Install Orbot?</string>
     <string name="you_must_have_orbot">You must have Orbot installed and activated to proxy traffic through it. Would you like to install it from Google Play?</string>
     <string name="start_orbot_">Start Orbot?</string>
     <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot doesn\'t appear to be running. Would you like to start it up and connect to Tor?</string>
+    <!--/ from libNetCipher -->
+
     <string name="account_prefix_imported">Imported</string>
     <string name="retrieving_pubkey_address">Retrieving next unused address…</string>
     <string name="instant_masterseed_initializing">Initializing…</string>
     <string name="instant_masterseed_title">Spend from master seed</string>
     <string name="hd_account_selector_no_account_found">No active accounts found.</string>
     <string name="masterseed_optional_passphrase_hint">This passphrase allows you to derive different accounts from the same master seed.\nIf you are not sure what this means, leave it empty.</string>
+    <string name="tx_details_num_confirmations">Confirmations</string>
+    <string name="lt_warning_watch_only_account">Current account is watch-only - select different account.</string>
+    <string name="xpriv_title">Extended private key</string>
+    <string name="share_xpriv">Share extended private key</string>
+    <string name="export_share_warning">Warning: You are about to share your private account data. Whoever gets hold of it can access all current and future funds in your account. Do you want to continue?</string>
+    <string name="xpub_title">Extended public key</string>
+    <string name="share_xpub">Share extended public key</string>
+    <string name="share_account_data">Share Account Data</string>
 
 </resources>

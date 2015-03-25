@@ -369,7 +369,6 @@ public class StringHandleConfig implements Serializable {
             Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), null, address.get(), false);
             intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
             handlerActivity.startActivity(intent);
-
             handlerActivity.finishOk();
             return true;
          }
@@ -442,6 +441,7 @@ public class StringHandleConfig implements Serializable {
                Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), uri.get(), false);
                intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
                handlerActivity.startActivity(intent);
+               handlerActivity.finishOk();
             }
             return true;
          }
