@@ -47,12 +47,14 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.activity.send.PopActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -72,6 +74,7 @@ public class StringHandleConfig implements Serializable {
       request.addressAction = AddressAction.RETURN;
       request.bitcoinUriAction = BitcoinUriAction.RETURN;
       request.hdNodeAction = HdNodeAction.RETURN;
+      request.popAction = PopAction.RETURN;
       return request;
    }
 
@@ -725,6 +728,34 @@ public class StringHandleConfig implements Serializable {
       }
    }
 
+   public enum PopAction implements Action {
+
+      RETURN {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            PopRequest popRequest;
+            try {
+               popRequest = new PopRequest(content);
+            } catch (IllegalArgumentException e) {
+               handlerActivity.finishError(R.string.invalid_pop_uri, content);
+               return false;
+            }
+
+            Intent intent = new Intent(handlerActivity, PopActivity.class);
+            intent.putExtra("popRequest", popRequest);
+            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            handlerActivity.startActivity(intent);
+            handlerActivity.finishOk();
+            return true;
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return content.startsWith("btcpop:");
+         }
+      }
+   }
+
    public Action privateKeyAction = Action.NONE;
    public Action bitcoinUriAction = Action.NONE;
    public Action addressAction = Action.NONE;
@@ -734,9 +765,10 @@ public class StringHandleConfig implements Serializable {
    public Action sssShareAction = Action.NONE;
    public Action hdNodeAction = Action.NONE;
    public Action wordListAction = Action.NONE;
+   public Action popAction = Action.NONE;
 
    public List<Action> getAllActions() {
-      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
+      return ImmutableList.of(popAction, privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
    }
 
 }

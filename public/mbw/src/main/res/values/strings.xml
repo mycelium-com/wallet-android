@@ -662,5 +662,6 @@
     <string name="xpub_title">Extended public key</string>
     <string name="share_xpub">Share extended public key</string>
     <string name="share_account_data">Share Account Data</string>
+    <string name="invalid_pop_uri">Invalid pop request URI</string>
 
 </resources>
