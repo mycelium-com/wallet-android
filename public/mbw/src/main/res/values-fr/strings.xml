@@ -633,4 +633,10 @@
   <string name="masterseed_optional_passphrase_hint">Ces mots de passe permettent de dériver différents comptes à partir de la même master seed.\nSi vous n\'êtes pas sûr de ce que ceci signifie, laissez-les vide.</string>
   <string name="tx_details_num_confirmations">Confirmations</string>
   <string name="lt_warning_watch_only_account">Le compte actuel est en mode lecture - sélectionnez un compte différent.</string>
+  <string name="xpriv_title">Clé privée étendue</string>
+  <string name="share_xpriv">Partager la clé privée étendue</string>
+  <string name="export_share_warning">Attention : Vous êtes sur le point de partager vos données de compte qui sont privées. Toute personne qui met la main sur elles peut accéder à tous les fonds actuels et futurs dans votre compte. Voulez-vous continuer ?</string>
+  <string name="xpub_title">Clé publique étendue</string>
+  <string name="share_xpub">Partager la clé publique étendue</string>
+  <string name="share_account_data">Partager des données de compte</string>
 </resources>
