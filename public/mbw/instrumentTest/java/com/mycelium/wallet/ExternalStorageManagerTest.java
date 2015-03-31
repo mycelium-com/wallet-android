@@ -56,7 +56,7 @@ public class ExternalStorageManagerTest extends AndroidTestCase {
       fos.write("Test".getBytes());
       fos.close();
       assertTrue(deleteMe.exists());
-      new ExternalStorageManager(getContext()).overwriteDelete(deleteMe);
+//      new ExternalStorageManager(getContext()).overwriteDelete(deleteMe);
       assertFalse(deleteMe.exists());
 
    }

@@ -132,6 +132,8 @@
         <activity android:name="com.mycelium.wallet.activity.ConnectionLogsActivity" />
         <activity android:name="com.mycelium.wallet.activity.GetAmountActivity" />
         <activity android:name="com.mycelium.wallet.activity.StringHandlerActivity" />
+
+        <activity android:name="com.mycelium.wallet.activity.send.PopActivity" />
     </application>
 
 </manifest>

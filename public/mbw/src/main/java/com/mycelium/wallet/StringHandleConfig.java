@@ -74,7 +74,7 @@ public class StringHandleConfig implements Serializable {
       request.addressAction = AddressAction.RETURN;
       request.bitcoinUriAction = BitcoinUriAction.RETURN;
       request.hdNodeAction = HdNodeAction.RETURN;
-      request.popAction = PopAction.RETURN;
+      request.popAction = PopAction.SEND;
       return request;
    }
 
@@ -126,6 +126,7 @@ public class StringHandleConfig implements Serializable {
       request.sssShareAction = SssShareAction.START_COMBINING;
       request.wordListAction = WordListAction.COLD_SPENDING;
       request.hdNodeAction = HdNodeAction.SEND_PUB_SPEND_PRIV;
+      request.popAction = PopAction.SEND;
       //at the moment, we just support wordlist backups
       //request.masterSeedAction = MasterSeedAction.IMPORT;
       return request;
@@ -730,9 +731,12 @@ public class StringHandleConfig implements Serializable {
 
    public enum PopAction implements Action {
 
-      RETURN {
+      SEND {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!isBtcpopURI(content)) {
+               return false;
+            }
             PopRequest popRequest;
             try {
                popRequest = new PopRequest(content);
@@ -751,6 +755,10 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
+            return isBtcpopURI(content);
+         }
+
+         private boolean isBtcpopURI(String content) {
             return content.startsWith("btcpop:");
          }
       }

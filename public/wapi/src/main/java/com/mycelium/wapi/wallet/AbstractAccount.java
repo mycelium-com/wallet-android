@@ -45,6 +45,8 @@ import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public abstract class AbstractAccount implements WalletAccount {
@@ -1043,6 +1045,54 @@ public abstract class AbstractAccount implements WalletAccount {
       }
 
       return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
+   }
+
+   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, long nonce) {
+      checkNotArchived();
+
+      try {
+         TransactionEx txExToProve = _backing.getTransaction(txid);
+         Transaction txToProve = Transaction.fromByteReader(new ByteReader(txExToProve.binary));
+
+         TransactionOutput output = createOutput(txid, nonce, 0);
+
+         List<UnspentTransactionOutput> funding = new ArrayList<UnspentTransactionOutput>(txToProve.inputs.length);
+         for (TransactionInput input : txToProve.inputs) {
+            TransactionEx inTxEx = _backing.getTransaction(input.outPoint.hash);
+            Transaction inTx = Transaction.fromByteReader(new ByteReader(inTxEx.binary));
+            UnspentTransactionOutput unspentOutput = new UnspentTransactionOutput(input.outPoint, inTxEx.height,
+                    inTx.outputs[input.outPoint.index].value,
+                    inTx.outputs[input.outPoint.index].script);
+            funding.add(unspentOutput);
+         }
+
+         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+
+         UnsignedTransaction unsignedTransaction = stb.createUnsignedPop(Collections.singletonList(output), funding, new PublicKeyRing(), _network);
+         return unsignedTransaction;
+      } catch (TransactionParsingException e) {
+         throw new RuntimeException("Cannot parse transaction", e);
+      }
+   }
+
+   private TransactionOutput createOutput(Sha256Hash txidToProve, long nonce, long amount) {
+
+      byte[] scriptBytes = new byte[41];
+      scriptBytes[0] = Script.OP_RETURN;
+
+      ByteBuffer byteBuffer = ByteBuffer.allocate(41);
+      byteBuffer.put((byte)Script.OP_RETURN);
+      try {
+         byteBuffer.put("PoP".getBytes("US-ASCII"));
+      } catch (UnsupportedEncodingException e) {
+         throw new RuntimeException("Unsupported encoding US_ASCII", e);
+      }
+
+      byteBuffer.put(txidToProve.getBytes());
+      byteBuffer.putLong(nonce);
+      ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
+      TransactionOutput output = new TransactionOutput(amount, scriptOutput);
+      return output;
    }
 
 }
