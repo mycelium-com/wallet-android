@@ -35,16 +35,21 @@
 package com.mycelium.wallet.trezor.activity;
 
 import android.app.Fragment;
+import android.os.Handler;
+import android.os.Message;
 import android.view.*;
 import android.widget.*;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
+import com.google.common.base.Strings;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
 import com.mycelium.wallet.activity.MasterseedPasswordDialog;
+import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+
+import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorActivity implements TrezorManager.Events, MasterseedPasswordSetter {
 
@@ -114,10 +119,36 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
          // Show the label and version of the connected Trezor
          findViewById(R.id.llTrezorInfo).setVisibility(View.VISIBLE);
          TrezorManager trezor = (TrezorManager) masterseedScanManager;
-         ((TextView)findViewById(R.id.tvTrezorName)).setText(trezor.getFeatures().getLabel());
 
-         String version = String.format("%s, V%d.%d", trezor.getFeatures().getDeviceId(), trezor.getFeatures().getMajorVersion(), trezor.getFeatures().getMinorVersion());
-         ((TextView)findViewById(R.id.tvTrezorSerial)).setText(version);
+         if (trezor.getFeatures() != null && !Strings.isNullOrEmpty(trezor.getFeatures().getLabel())) {
+            ((TextView) findViewById(R.id.tvTrezorName)).setText(trezor.getFeatures().getLabel());
+         }else {
+            ((TextView) findViewById(R.id.tvTrezorName)).setText(getString(R.string.trezor_unnamed));
+         }
+
+         String version;
+         TextView tvTrezorSerial = (TextView) findViewById(R.id.tvTrezorSerial);
+         if (trezor.isMostRecentVersion()) {
+            if (trezor.getFeatures() != null) {
+               version = String.format("%s, V%d.%d.%d",
+                     trezor.getFeatures().getDeviceId(),
+                     trezor.getFeatures().getMajorVersion(),
+                     trezor.getFeatures().getMinorVersion(),
+                     trezor.getFeatures().getPatchVersion());
+            } else {
+               version = "";
+            }
+         }else{
+            version = getString(R.string.trezor_new_firmware);
+            tvTrezorSerial.setTextColor(getResources().getColor(R.color.semidarkgreen));
+            tvTrezorSerial.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                  Utils.showSimpleMessageDialog(TrezorAccountSelectorActivity.this, getString(R.string.trezor_new_firmware_description));
+               }
+            });
+         }
+         tvTrezorSerial.setText(version);
       }
 
       accountsAdapter.notifyDataSetChanged();
@@ -126,10 +157,39 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
    @Override
    public void onButtonRequest() {   }
 
+   final private LinkedBlockingQueue<String> trezorPinResponse = new LinkedBlockingQueue<String>(1);
+
+   final Handler trezorPinHandler = new Handler(new Handler.Callback() {
+      @Override
+      public boolean handleMessage(Message message) {
+         TrezorPinDialog pin = new TrezorPinDialog(TrezorAccountSelectorActivity.this, true);
+         pin.setOnPinValid(new PinDialog.OnPinEntered(){
+            @Override
+            public void pinEntered(PinDialog dialog, Pin pin) {
+               trezorPinResponse.add(pin.getPin());
+               dialog.dismiss();
+            }
+         });
+         pin.show();
+
+         // update the UI, as the state might have changed
+         updateUi();
+         return true;
+      }
+   });
+
    @Override
    public String onPinMatrixRequest() {
-      // PIN should never requested here - only for signing.
-      throw new RuntimeException("Unexpected PIN Request");
+      // open the pin-entry dialog on the UI-Thread
+      trezorPinHandler.sendEmptyMessage(0);
+
+      try {
+         // this call blocks until the users has entered the pin and it got added to the Queue
+         String pin = trezorPinResponse.take();
+         return pin;
+      } catch (InterruptedException e) {
+         return "";
+      }
    }
 
    @Override

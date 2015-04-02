@@ -383,14 +383,18 @@ public class StartupActivity extends Activity {
          delayedFinish.run();
          return;
       }
+
       // double-check result data, in case some downstream code messes up.
-      if (requestCode != REQUEST_FROM_URI) {
-         setResult(RESULT_CANCELED);
-      } else if (resultCode == RESULT_OK) {
-         Bundle extras = Preconditions.checkNotNull(data.getExtras());
-         Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
-         Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
-         setResult(RESULT_OK, data);
+      if (requestCode == REQUEST_FROM_URI) {
+         if (resultCode == RESULT_OK) {
+            Bundle extras = Preconditions.checkNotNull(data.getExtras());
+            Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
+            Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
+            // return the tx hash to our external caller, if he cares...
+            setResult(RESULT_OK, data);
+         } else {
+            setResult(RESULT_CANCELED);
+         }
       } else {
          setResult(RESULT_CANCELED);
       }

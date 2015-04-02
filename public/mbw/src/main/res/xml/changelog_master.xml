@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.3.1" versioncode="23100">
+        <change>Trezor: Fix PIN entry for new 1.3.3 firmware</change>
+    </release>
     <release version="2.3.0" versioncode="23000">
         <change>Allow direct spending from offline master-seed</change>
         <change>Add xPriv/xPub import feature</change>
@@ -14,7 +17,7 @@
         <change>[bug] enabling OK button after pasting amount from clipboard</change>
         <change>[bug] fixing cut-off transaction labels in history</change>
         <change>[bug] correctly showing entered amount after screen rotation</change>
-        <change>[bug] correctly showing selection when scrolling i transaction history</change>
+        <change>[bug] correctly showing selection when scrolling in transaction history</change>
     </release>
     <release version="2.2.0" versioncode="22000">
         <change>Transactions tab: UI-Changes, show confirmations with pie-chart</change>

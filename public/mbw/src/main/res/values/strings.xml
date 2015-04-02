@@ -615,6 +615,9 @@
     <string name="trezor_please_plug_in">Please plugin your trezor</string>
     <string name="trezor_next_unused_account_info">This option will import the next unused account from this trezor. It will only show up in MyTrezor if you send funds to it.</string>
     <string name="trezor_next_unused_account_button">Import next unused account…</string>
+    <string name="trezor_new_firmware">A new trezor firmware is available…</string>
+    <string name="trezor_new_firmware_description">A new trezor firmware is available.\nPlease use MyTrezor.com on a PC to update your trezor.</string>
+    <string name="trezor_unnamed">(unnamed)</string>
 
     <string name="select_local_currencies">Select your currencies</string>
     <string name="show_public_or_private_data">Show</string>

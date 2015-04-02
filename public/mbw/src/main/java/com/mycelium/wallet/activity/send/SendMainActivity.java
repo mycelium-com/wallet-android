@@ -582,7 +582,8 @@ public class SendMainActivity extends Activity {
             BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, tx, _transactionLabel, BROADCAST_REQUEST_CODE);
          }
       } else if (requestCode == BROADCAST_REQUEST_CODE){
-         this.setResult(resultCode);
+         // return result from broadcast
+         this.setResult(resultCode, intent);
          finish();
       } else {
          super.onActivityResult(requestCode, resultCode, intent);

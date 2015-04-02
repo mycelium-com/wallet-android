@@ -62,6 +62,10 @@ import com.satoshilabs.trezor.protobuf.TrezorType;
 import java.util.UUID;
 
 public class TrezorManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
+   private static final int MOST_RECENT_VERSION_MAJOR = 1;
+   private static final int MOST_RECENT_VERSION_MINOR = 3;
+   private static final int MOST_RECENT_VERSION_PATCH = 3;
+
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
    private static final String DEFAULT_LABEL = "Trezor";
 
@@ -87,6 +91,18 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          return features.getLabel();
       }
       return DEFAULT_LABEL;
+   }
+
+   public boolean isMostRecentVersion() {
+      if (features != null){
+         if (features.getMajorVersion() < MOST_RECENT_VERSION_MAJOR) { return false; }
+         if (features.getMinorVersion() < MOST_RECENT_VERSION_MINOR) { return false; }
+         if (features.getPatchVersion() < MOST_RECENT_VERSION_PATCH) { return false; }
+         return true;
+      }else{
+         // we dont know...
+         return true;
+      }
    }
 
 

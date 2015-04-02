@@ -63,15 +63,14 @@ public class TrezorSignTransactionActivity
 
    private static final String PASSPHRASE_FRAGMENT_TAG = "pass";
    private final TrezorManager trezorManager = MbwManager.getInstance(this).getTrezorManager();
-   private LinkedBlockingQueue<String> trezorPinResponse;
-   private boolean _showTx;
+
+   // Syncing Queue for the Trezor and UI Thread on PIN-entry
+   final private LinkedBlockingQueue<String> trezorPinResponse = new LinkedBlockingQueue<String>(1);
+   private boolean showTx;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-
-      // Syncing Queue for the Trezor and UI Thread on PIN-entry
-      trezorPinResponse = new LinkedBlockingQueue<String>(1);
    }
 
    @Override
@@ -173,7 +172,7 @@ public class TrezorSignTransactionActivity
          findViewById(R.id.tvPluginTrezor).setVisibility(View.VISIBLE);
       }
 
-      if (_showTx){
+      if (showTx){
          findViewById(R.id.ivConnectTrezor).setVisibility(View.GONE);
          findViewById(R.id.llShowTx).setVisibility(View.VISIBLE);
 
@@ -209,7 +208,7 @@ public class TrezorSignTransactionActivity
    final Handler buttonHandler = new Handler(new Handler.Callback()  {
       @Override
       public boolean handleMessage(Message message) {
-         _showTx = true;
+         showTx = true;
          updateUi();
          return true;
       }
