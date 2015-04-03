@@ -719,7 +719,14 @@ public class Utils {
 
       //trezor account
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-         return resources.getDrawable(R.drawable.trezor_icon_only);
+    	 int accountType = ((Bip44AccountExternalSignature)walletAccount).getAccountType();
+    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 return resources.getDrawable(R.drawable.ledger_icon);
+    	 }
+    	 else {
+    		 return resources.getDrawable(R.drawable.trezor_icon_only);
+    	 }
+         
       }
       //regular HD account
       if (walletAccount instanceof Bip44Account) {
