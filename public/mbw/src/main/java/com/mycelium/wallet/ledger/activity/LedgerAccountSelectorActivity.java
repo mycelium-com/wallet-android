@@ -50,7 +50,8 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
 
 	   @Override
 	   protected void updateUi() {
-	      if (masterseedScanManager.currentState != AccountScanManager.Status.initializing) {
+	      if ((masterseedScanManager.currentState != AccountScanManager.Status.initializing) &&
+	    	  (masterseedScanManager.currentState != AccountScanManager.Status.unableToScan)) {
 	         findViewById(R.id.tvWaitForLedger).setVisibility(View.GONE);
 	         findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);
 	         txtStatus.setText(getString(R.string.ledger_scanning_status));

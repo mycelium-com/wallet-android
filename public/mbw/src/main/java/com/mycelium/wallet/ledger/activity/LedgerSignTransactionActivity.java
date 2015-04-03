@@ -89,7 +89,8 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 	   }
 	   
 	   private void updateUi(){
-	      if (ledgerManager.currentState != AccountScanManager.Status.unableToScan){
+	      if ((ledgerManager.currentState != AccountScanManager.Status.unableToScan) &&
+	    	  (ledgerManager.currentState != AccountScanManager.Status.initializing)) {
 	         findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);	         
 	      } else {
 	         findViewById(R.id.ivConnectLedger).setVisibility(View.VISIBLE);
