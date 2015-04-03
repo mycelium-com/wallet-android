@@ -48,6 +48,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
 	private static final int PAUSE_RESCAN = 4000;
 	private static final int SW_PIN_NEEDED = 0x6982;
 	
+	private static final byte ACTIVATE_ALT_2FA[] = { (byte)0xE0, (byte)0x26, (byte)0x01, (byte)0x00, (byte)0x01, (byte)0x01 };
+	
 	public interface Events extends AccountScanManager.Events {
 		public String onPinRequest();
 		public String onUserConfirmationRequest(BTChipDongle.BTChipOutput output);
@@ -201,6 +203,12 @@ public class LedgerManager extends AbstractAccountScanManager implements
 		if (getTransport().connect(_context)) {
 			getTransport().getTransport().setDebug(true);
 			dongle = new BTChipDongle(getTransport().getTransport());
+			// Try to activate the Security Card (until done in the Ledger Wallet application)
+			try {
+				getTransport().getTransport().exchange(ACTIVATE_ALT_2FA);
+			}
+			catch(Exception e) {				
+			}
 		}
 		return (dongle != null);
 	}
