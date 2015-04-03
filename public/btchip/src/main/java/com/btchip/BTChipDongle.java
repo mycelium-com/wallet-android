@@ -236,6 +236,7 @@ public class BTChipDongle implements BTChipConstants {
 				
 		public BTChipOutputKeycard(byte[] value, UserConfirmation userConfirmation, byte[] keycardIndexes) {
 			super(value, userConfirmation);
+			this.keycardIndexes = keycardIndexes;
 		}
 		
 		public byte[] getKeycardIndexes() {

@@ -1,5 +1,6 @@
 package com.mycelium.wallet.ledger.activity;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -10,7 +11,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.btchip.BTChipDongle.BTChipOutput;
+import com.btchip.BTChipDongle.BTChipOutputKeycard;
 import com.btchip.BTChipDongle.UserConfirmation;
+import com.btchip.utils.Dump;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
@@ -19,6 +22,7 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.ledger.LedgerManager;
+import com.mycelium.wallet.LedgerPin2FADialog;
 import com.mycelium.wallet.LedgerPinDialog;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
@@ -38,6 +42,8 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 	
 	private static final int PAUSE_DELAY = 500;
 	private static final String MESSAGE_TITLE_ID = "titleId";
+	private static final String MESSAGE_ADDRESS = "address";
+	private static final String MESSAGE_KEYCARD_INDEXES = "indexes";
 	
 	   @Override
 	   public void onCreate(Bundle savedInstanceState) {
@@ -153,6 +159,15 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 		return message;
 	}
 	
+	private Message formatMessage(int titleId, String address, byte[] keycardIndexes) {
+		Message message = new Message();
+		Bundle bundle = new Bundle();
+		bundle.putInt(MESSAGE_TITLE_ID, titleId);
+		bundle.putString(MESSAGE_ADDRESS, address);
+		bundle.putByteArray(MESSAGE_KEYCARD_INDEXES, keycardIndexes);
+		message.setData(bundle);
+		return message;
+	}
 
 	   final Handler ledgerPinHandler = new Handler(new Handler.Callback() {
 		      @Override
@@ -170,7 +185,25 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 		         return true;
 		      }
 		   });
-	
+
+	   final Handler ledger2FAHandler = new Handler(new Handler.Callback() {
+		      @Override
+		      public boolean handleMessage(Message message) {
+		    	 Bundle messageData = message.getData();
+		         LedgerPin2FADialog pin = new LedgerPin2FADialog(LedgerSignTransactionActivity.this, messageData.getString(MESSAGE_ADDRESS), messageData.getByteArray(MESSAGE_KEYCARD_INDEXES), true);
+		         pin.setTitle(messageData.getInt(MESSAGE_TITLE_ID));
+		         pin.setOnPinValid(new LedgerPin2FADialog.OnPinEntered(){
+		            @Override
+		            public void pinEntered(LedgerPin2FADialog dialog, Pin pin) {
+		               ledgerPinResponse.add(pin.getPin());
+		               dialog.dismiss();
+		            }
+		         });
+		         pin.show();
+		         return true;
+		      }
+		   });
+	   
 	
 	@Override
 	public String onPinRequest() {
@@ -216,7 +249,45 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 		if (output.getUserConfirmation().equals(UserConfirmation.KEYBOARD)) {
 			return onUserConfirmationRequestKeyboard();
 		}
+		else
+		if (output.getUserConfirmation().equals(UserConfirmation.KEYCARD) ||
+				output.getUserConfirmation().equals(UserConfirmation.KEYCARD_SCREEN)) {
+			return onUserConfirmationRequest2FA(output);
+		}
 		return "";
+	}
+	
+	private String onUserConfirmationRequest2FA(BTChipOutput outputParam) {
+		BTChipOutputKeycard output = (BTChipOutputKeycard)outputParam;
+        ArrayList<String> toAddresses = new ArrayList<String>(1);
+        for (TransactionOutput o : _unsigned.getOutputs()){
+           Address toAddress;
+           toAddress = o.script.getAddress(_mbwManager.getNetwork());
+           Optional<Integer[]> addressId = ((Bip44Account) _account).getAddressId(toAddress);
+
+           if (! (addressId.isPresent() && addressId.get()[0]==1) ){
+              // this output goes to a foreign address (addressId[0]==1 means its internal change)
+              toAddresses.add(toAddress.toString());
+           }
+        }
+        ledger2FAHandler.sendMessage(formatMessage(R.string.ledger_enter_2fa_pin, toAddresses.get(0), output.getKeycardIndexes()));
+	    try {
+	    	// this call blocks until the users has entered the pin and it got added to the Queue
+	    	String pin = ledgerPinResponse.take();
+	    	// 2fa expects a binary PIN, hence ugly hack
+	    	try {
+	    		byte[] binaryPin = new byte[pin.length()];
+	    		for (int i=0; i<pin.length(); i++) {
+	    			binaryPin[i] = (byte)Integer.parseInt(pin.substring(i, i + 1), 16);
+	    		}
+	    		pin = new String(binaryPin, "ISO-8859-1");
+	    	}
+	    	catch(UnsupportedEncodingException e) {	    		
+	    	}
+	    	return pin;
+	    } catch (InterruptedException e) {
+	    	return "";
+	    }						
 	}
 	
 	private String onUserConfirmationRequestKeyboard() {
