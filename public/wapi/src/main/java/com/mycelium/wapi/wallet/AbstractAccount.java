@@ -1089,7 +1089,10 @@ public abstract class AbstractAccount implements WalletAccount {
       }
 
       byteBuffer.put(txidToProve.getBytes());
-      byteBuffer.putLong(nonce);
+
+      ByteBuffer nonceBuffer = ByteBuffer.allocate(8);
+      nonceBuffer.putLong(nonce);
+      byteBuffer.put(nonceBuffer.array(), 3, 5);
       ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
       TransactionOutput output = new TransactionOutput(amount, scriptOutput);
       return output;

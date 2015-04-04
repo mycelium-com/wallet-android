@@ -35,7 +35,11 @@
 package com.mycelium.wallet.activity.send;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -112,6 +116,11 @@ public class PopActivity extends Activity {
       // Get history ordered by block heigh descending
       List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
       TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
+      if (matchingTransaction == null) {
+         Toast.makeText(this, "No matching transaction for pop request: " + popRequest, Toast.LENGTH_LONG).show();
+         finish();
+         return;
+      }
       txidToProve = matchingTransaction.txid;
 
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
@@ -192,77 +201,84 @@ public class PopActivity extends Activity {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE){
          if (resultCode == RESULT_OK) {
             Transaction pop = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-            sendPop(pop);
+            ConnectivityManager connMgr = (ConnectivityManager)
+                    getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+               new SendPopTask().execute(pop);
+            } else {
+               Toast.makeText(this, "No network available", Toast.LENGTH_LONG).show();
+            }
          }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
    }
 
-   private void sendPop(Transaction tx) {
+   private class SendPopTask extends AsyncTask<Transaction, Void, String> {
+      @Override
+      protected String doInBackground(Transaction... pop) {
+
+         // params comes from the execute() call: params[0] is the url.
+         return sendPop(pop[0]);
+      }
+      // onPostExecute displays the results of the AsyncTask.
+      @Override
+      protected void onPostExecute(String result) {
+         Toast.makeText(PopActivity.this, result, Toast.LENGTH_LONG).show();
+         finish();
+      }
+   }
+
+   private String sendPop(Transaction tx) {
       URL url;
       try {
          url = new URL(popRequest.getUrl());
       } catch (MalformedURLException e) {
-         Toast.makeText(this, "Invalid Url: " + popRequest.getUrl(), Toast.LENGTH_LONG).show();
-         finish();
-         return;
+         return "Invalid Url: " + popRequest.getUrl();
       }
       HttpURLConnection urlConnection;
       try {
          urlConnection = (HttpURLConnection) url.openConnection();
       } catch (IOException e) {
-         Toast.makeText(this, "Cannot connect to " + url + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-         finish();
-         return;
+         return "Cannot connect to " + url + ": " + e.getMessage();
       }
       try {
          urlConnection.setDoOutput(true);
          byte[] bytes = tx.toBytes();
-         urlConnection.setFixedLengthStreamingMode(bytes.length);
+     //    urlConnection.setFixedLengthStreamingMode(bytes.length);
          OutputStream out = null;
          try {
             out = new BufferedOutputStream(urlConnection.getOutputStream());
          } catch (IOException e) {
-            Toast.makeText(this, "Cannot get OutputStream on " + url + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Cannot get OutputStream on " + url + ": " + e.getMessage();
          }
          try {
             out.write(bytes);
+            out.close();
          } catch (IOException e) {
-            Toast.makeText(this, "Cannot write to " + url + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Cannot write to " + url + ": " + e.getMessage();
          }
          try {
             int responseCode = urlConnection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-               Toast.makeText(this, "Got response code: " + responseCode, Toast.LENGTH_LONG).show();
-               finish();
-               return;
+               return "Got response code: " + responseCode;
             }
          } catch (IOException e) {
-            Toast.makeText(this, "Cannot get response code: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Cannot get response code: " + e.getMessage();
          }
 
          InputStream in = null;
          try {
             in = new BufferedInputStream(urlConnection.getInputStream());
          } catch (IOException e) {
-            Toast.makeText(this, "Cannot get InputStream on " + url + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Cannot get InputStream on " + url + ": " + e.getMessage();
          }
          InputStreamReader inputStreamReader = null;
          try {
             inputStreamReader = new InputStreamReader(in, "US-ASCII");
          } catch (UnsupportedEncodingException e) {
-            Toast.makeText(this, "Unknown encoding 'US-ASCII':" + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Unknown encoding 'US-ASCII':" + e.getMessage();
          }
 
          BufferedReader bufReader = new BufferedReader(inputStreamReader);
@@ -277,18 +293,12 @@ public class PopActivity extends Activity {
                line = bufReader.readLine();
             }
          } catch (IOException e) {
-            Toast.makeText(this, "Could not read reply: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Could not read reply: " + e.getMessage();
          }
          if ("valid".equals(reply.toString())) {
-            Toast.makeText(this, "Success!", Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Success!";
          } else {
-            Toast.makeText(this, "Fail!:\n" + reply, Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            return "Fail!:\n" + reply;
          }
       } finally {
          urlConnection.disconnect();

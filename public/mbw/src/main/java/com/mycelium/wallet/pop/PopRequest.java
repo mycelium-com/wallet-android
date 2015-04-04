@@ -104,4 +104,8 @@ public class PopRequest implements Serializable {
     public String getUrl() {
         return url;
     }
+
+    public String toString() {
+        return "txid=" + getTxid() + ", text=" + getText() + ", amount=" + getAmountSatoshis();
+    }
 }
