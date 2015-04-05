@@ -65,6 +65,7 @@ public class PopRequest implements Serializable {
                 text = value;
             } else if ("amount".equals(key)) {
                 if (value != null) {
+                    // Expect mount in BTC as in BIP0021
                     amountSatoshis = new BigDecimal(value).movePointRight(8).toBigIntegerExact().longValue();
                     if (amountSatoshis < 0) {
                         throw new IllegalArgumentException("Negative amount not allowed");

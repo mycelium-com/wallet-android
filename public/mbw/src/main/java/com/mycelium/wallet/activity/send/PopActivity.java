@@ -123,9 +123,7 @@ public class PopActivity extends Activity {
       }
       txidToProve = matchingTransaction.txid;
 
-      MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-      String label = metadataStorage.getLabelByTransaction(txidToProve);
-      updateUi(matchingTransaction.txid.toString(), matchingTransaction.value, label);
+      updateUi(matchingTransaction);
    }
 
    private TransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<TransactionSummary> transactions) {
@@ -134,9 +132,11 @@ public class PopActivity extends Activity {
          if (popRequest.getTxid() != null && !transactionSummary.txid.equals(popRequest.getTxid())) {
             continue;
          }
-         if (popRequest.getAmountSatoshis() != null &&
-                 transactionSummary.value != popRequest.getAmountSatoshis().longValue()) {
-            continue;
+         Long amountSatoshis = popRequest.getAmountSatoshis();
+         if (amountSatoshis != null) {
+            if (amountSatoshis != getPaymentAmountSatoshis(transactionSummary)) {
+               continue;
+            }
          }
          if (popRequest.getText() != null) {
             String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
@@ -154,12 +154,45 @@ public class PopActivity extends Activity {
       textView.setText(value);
    }
 
-   private void updateUi(String txid, long amountSatoshis, String label) {
+
+
+   private long getFee(TransactionDetails tx) {
+      long inputs = sum(tx.inputs);
+      long outputs = sum(tx.outputs);
+      return inputs - outputs;
+   }
+
+   private long sum(TransactionDetails.Item[] items) {
+      long sum = 0;
+      for (TransactionDetails.Item item : items) {
+         sum += item.value;
+      }
+      return sum;
+   }
+
+   private void updateUi(TransactionSummary transactionSummary) {
+      MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
+      String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
 
       setText(R.id.pop_recipient_host, popRequest.getUrl());
-      setText(R.id.pop_transaction_id, txid);
-      setText(R.id.pop_transaction_amount, CoinUtil.fullValueString(amountSatoshis));
+      setText(R.id.pop_transaction_id, transactionSummary.txid.toString());
+
+      long amountSatoshis = getPaymentAmountSatoshis(transactionSummary);
+
+      String value =_mbwManager.getBtcValueString(amountSatoshis);
+
+      setText(R.id.pop_transaction_amount, value);
       setText(R.id.pop_transaction_label, label);
+   }
+
+   private long getPaymentAmountSatoshis(TransactionSummary transactionSummary) {
+      long amountSatoshis = transactionSummary.value;
+      if (amountSatoshis < 0) {
+         amountSatoshis = -amountSatoshis;
+      }
+      TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transactionSummary.txid);
+      amountSatoshis -= getFee(transactionDetails);
+      return amountSatoshis;
    }
 
    @Override

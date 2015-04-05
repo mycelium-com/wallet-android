@@ -8,31 +8,41 @@
     <LinearLayout android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent">
-        <TextView android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:text="@string/pop_send_pop_to"/>
         <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/pop_recipient_host"/>
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/pop_transaction_info"/>
-
+                android:layout_gravity="center"
+                android:textSize="30sp"
+                android:text="@string/pop_send_pop_to" />
 
         <TextView
+                android:id="@+id/pop_recipient_host"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/pop_transaction_id"/>
+                android:paddingTop="20dp" />
+
         <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/pop_transaction_id"/>
+                android:layout_gravity="center"
+                android:paddingTop="20dp"
+                android:textSize="30sp"
+                android:text="@string/pop_transaction_info" />
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:text="@string/pop_transaction_label"/>
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pop_transaction_label"/>
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
                 android:text="@string/pop_transaction_amount"/>
         <TextView
                 android:layout_width="match_parent"
@@ -42,11 +52,13 @@
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/pop_transaction_label"/>
+                android:paddingTop="20dp"
+                android:text="@string/pop_transaction_id"/>
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/pop_transaction_label"/>
+                android:id="@+id/pop_transaction_id"/>
+
         <Button
                 android:id="@+id/btSend"
                 android:layout_width="wrap_content"

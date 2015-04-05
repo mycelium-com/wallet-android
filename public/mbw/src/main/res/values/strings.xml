@@ -665,7 +665,7 @@
     <string name="invalid_pop_uri">Invalid pop request URI</string>
     <string name="pop_send_pop_to">Send Proof of Payment to</string>
     <string name="pop_transaction_info">Transaction information</string>
-    <string name="pop_transaction_id">Identifier</string>
+    <string name="pop_transaction_id">Hash</string>
     <string name="pop_transaction_amount">Amount</string>
     <string name="pop_transaction_label">Label</string>
     <string name="pop_no_transaction_selected">No transaction selected</string>
