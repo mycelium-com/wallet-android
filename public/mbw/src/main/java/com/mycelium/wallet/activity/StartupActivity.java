@@ -53,6 +53,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.activity.send.PopActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.BitcoinUri;
@@ -63,6 +64,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -315,6 +317,8 @@ public class StartupActivity extends Activity {
             handleBitcoinUri(intentUri);
          } else if ("bitid".equals(scheme)) {
             handleBitIdUri(intentUri);
+         } else if ("btcpop".equals(scheme)) {
+            handlePopUri(intentUri);
          }
         return true;
       }
@@ -334,6 +338,14 @@ public class StartupActivity extends Activity {
       bitIdIntent.putExtra("request", bitid.get());
       startActivity(bitIdIntent);
 
+      finish();
+   }
+
+   private void handlePopUri(Uri intentUri) {
+      Intent popIntent = new Intent(this, PopActivity.class);
+      PopRequest popRequest = new PopRequest(intentUri.toString());
+      popIntent.putExtra("popRequest", popRequest);
+      startActivity(popIntent);
       finish();
    }
 
