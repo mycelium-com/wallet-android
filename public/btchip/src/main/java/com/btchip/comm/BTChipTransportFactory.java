@@ -19,16 +19,12 @@
 
 package com.btchip.comm;
 
-import java.util.concurrent.Future;
-
 import android.content.Context;
 
-import com.btchip.BTChipException;
-
-public interface BTChipTransport {
+public interface BTChipTransportFactory {
 	
-	public Future<byte[]> exchange(byte[] command) throws BTChipException;
-	public void close() throws BTChipException;
-	public void setDebug(boolean debugFlag);	
+	public BTChipTransport getTransport();
+	public boolean isPluggedIn();
+	public boolean connect(final Context context);
 
 }

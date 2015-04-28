@@ -278,6 +278,7 @@ public class BTChipDongle implements BTChipConstants {
 		
 	private BTChipTransport transport;
 	private int lastSW;
+	private boolean supportScreen;
 	
 	private static final int OK[] = { SW_OK };
 	private static final byte DUMMY[] = { 0 };
@@ -285,9 +286,24 @@ public class BTChipDongle implements BTChipConstants {
 	public BTChipDongle(BTChipTransport transport) {
 		this.transport = transport;
 	}
+	
+	public BTChipDongle(BTChipTransport transport, boolean supportScreen) {
+		this.transport = transport;
+		this.supportScreen = supportScreen;
+	}
+	
+	public boolean hasScreenSupport() {
+		return supportScreen;
+	}
 		
 	private byte[] exchange(byte[] apdu) throws BTChipException {
-		byte[] response = transport.exchange(apdu);
+		byte[] response;
+		try {
+			response = transport.exchange(apdu).get();
+		}
+		catch(Exception e) {
+			throw new BTChipException("I/O error", e);
+		}
 		if (response.length < 2) {
 			throw new BTChipException("Truncated response");
 		}
@@ -415,6 +431,10 @@ public class BTChipDongle implements BTChipConstants {
 		// Locktime
 		byte[] response = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_GET_TRUSTED_INPUT, (byte)0x80, (byte)0x00, transaction.getLockTime(), OK);		
 		return new BTChipInput(response, true);
+	}
+	
+	public BTChipInput createInput(byte[] value, boolean trusted) {
+		return new BTChipInput(value, trusted);
 	}
 	
 	public void startUntrustedTransction(boolean newTransaction, long inputIndex, BTChipInput usedInputList[], byte[] redeemScript) throws BTChipException {
@@ -555,7 +575,6 @@ public class BTChipDongle implements BTChipConstants {
 	
 	public void setKeymapEncoding(byte[] keymapEncoding) throws BTChipException {
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
-		data.write(keymapEncoding.length);
 		BufferUtils.writeBuffer(data, keymapEncoding);
 		exchangeApdu(BTCHIP_CLA, BTCHIP_INS_SET_KEYMAP, (byte)0x00, (byte)0x00, data.toByteArray(), OK);		
 	}
@@ -610,7 +629,11 @@ public class BTChipDongle implements BTChipConstants {
 			data.write(0);
 		}
 		byte[] response = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_SETUP, (byte)0x00, (byte)0x00, data.toByteArray(), OK);
-		setKeymapEncoding(keymapEncoding);
+		if (keymapEncoding != null) {
+			setKeymapEncoding(keymapEncoding);
+		}
 		return (response[0] == (byte)0x01);
 	}
+	
+	
 }

@@ -6,13 +6,17 @@ import java.util.UUID;
 import java.util.Vector;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.btchip.BTChipDongle;
 import com.btchip.BTChipException;
 import com.btchip.BitcoinTransaction;
+import com.btchip.comm.BTChipTransportFactory;
 import com.btchip.comm.android.BTChipTransportAndroid;
 import com.btchip.utils.KeyUtils;
 import com.google.common.base.Optional;
+import com.ledger.tbase.comm.LedgerTransportTEEProxy;
+import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -41,14 +45,17 @@ import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 public class LedgerManager extends AbstractAccountScanManager implements
 		ExternalSignatureProvider {
 	
-	private BTChipTransportAndroid transport;
+	private BTChipTransportFactory transportFactory;
 	private BTChipDongle dongle;
 	protected Events handler=null;
 	
 	private static final int PAUSE_RESCAN = 4000;
 	private static final int SW_PIN_NEEDED = 0x6982;
+	private static final int SW_CONDITIONS_NOT_SATISFIED = 0x6985;
 	
 	private static final byte ACTIVATE_ALT_2FA[] = { (byte)0xE0, (byte)0x26, (byte)0x01, (byte)0x00, (byte)0x01, (byte)0x01 };
+	
+	private static final String DUMMY_PIN = "0000";
 	
 	public interface Events extends AccountScanManager.Events {
 		public String onPinRequest();
@@ -69,11 +76,27 @@ public class LedgerManager extends AbstractAccountScanManager implements
 		super.setEventHandler(handler);
 	}
 	
-	private BTChipTransportAndroid getTransport() {
-		if (transport == null) {
-			transport = new BTChipTransportAndroid(_context);
+	public void setTransportFactory(BTChipTransportFactory transportFactory) {
+		this.transportFactory = transportFactory;
+	}
+	
+	public BTChipTransportFactory getTransport() {
+		// Simple demo mode 
+		// If the device has the Trustlet, use it. Otherwise revert to the usual transport
+		// For the full integration, bind this to accounts
+		if (transportFactory == null) {
+			transportFactory = new LedgerTransportTEEProxyFactory(_context);
+			LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy)transportFactory.getTransport();
+			byte[] nvm = proxy.loadNVM("nvm.bin");
+			if (nvm != null) {
+				proxy.setNVM(nvm);
+			}
+			if (!proxy.init()) {
+				transportFactory = new BTChipTransportAndroid(_context);
+			}
+			Log.d("LedgerManager", "Using transport " + transportFactory.getClass());
 		}
-		return transport;
+		return transportFactory;
 	}
 	
 	@Override
@@ -143,6 +166,21 @@ public class LedgerManager extends AbstractAccountScanManager implements
 			}
 			catch(BTChipException e) {
 				if (e.getSW() == SW_PIN_NEEDED) {
+					if (dongle.hasScreenSupport()) {
+						// PIN request is prompted on screen
+						dongle.verifyPin(DUMMY_PIN.getBytes());
+						if (getTransport().getTransport() instanceof LedgerTransportTEEProxy) {
+							// Poor man counter
+							LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy)getTransport().getTransport();
+							try {
+								proxy.writeNVM("nvm.bin", proxy.requestNVM().get());
+							}
+							catch(Exception e1) {								
+							}
+						}
+						dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.script.getScriptBytes());
+					}
+					else
 					if (handler != null) {
 						String pin = handler.onPinRequest();
 						dongle.verifyPin(pin.getBytes());
@@ -154,8 +192,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
 				}
 			}
 			outputData = dongle.finalizeInput(outputAddress, amount, fees, changePath);
-			// Check pin
-			if ((i == 0) && (handler != null)) {
+			// Check OTP confirmation
+			if ((i == 0) && (handler != null) && outputData.isConfirmationNeeded()) {
 				txpin = handler.onUserConfirmationRequest(outputData);
 				initialize();
 				dongle.startUntrustedTransction(false, i, inputs, currentInput.script.getScriptBytes());
@@ -203,11 +241,13 @@ public class LedgerManager extends AbstractAccountScanManager implements
 		if (getTransport().connect(_context)) {
 			getTransport().getTransport().setDebug(true);
 			dongle = new BTChipDongle(getTransport().getTransport());
-			// Try to activate the Security Card (until done in the Ledger Wallet application)
-			try {
-				getTransport().getTransport().exchange(ACTIVATE_ALT_2FA);
-			}
-			catch(Exception e) {				
+			if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
+				// Try to activate the Security Card (until done in the Ledger Wallet application)
+				try {
+					getTransport().getTransport().exchange(ACTIVATE_ALT_2FA);
+				}
+				catch(Exception e) {				
+				}
 			}
 		}
 		return (dongle != null);
@@ -232,14 +272,56 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
 	@Override
 	public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex) {
+		boolean isTEE = getTransport().getTransport() instanceof LedgerTransportTEEProxy; 
 		String keyPath = "44'/" + getNetwork().getBip44CoinType().getLastIndex() + "'/" + accountIndex + "'";
 		try {
 			BTChipDongle.BTChipPublicKey publicKey = null;
 			try {
-				publicKey = dongle.getWalletPublicKey(keyPath);
+				publicKey = dongle.getWalletPublicKey(keyPath);				
 			}
 			catch(BTChipException e) {
+				if (isTEE && (e.getSW() == SW_CONDITIONS_NOT_SATISFIED)) {
+					LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy)getTransport().getTransport();
+					// Not setup ? We can do it on the fly
+					byte header, headerP2SH;
+        			dongle.setup(new BTChipDongle.OperationMode[] { BTChipDongle.OperationMode.WALLET}, 
+        					new BTChipDongle.Feature[] { BTChipDongle.Feature.RFC6979 }, // TEE doesn't need NO_2FA_P2SH
+        					getNetwork().getStandardAddressHeader(), 
+        					getNetwork().getMultisigAddressHeader(), 
+        					new byte[4], null,
+        					null, 
+        					null, null);        			
+					try {
+						proxy.writeNVM("nvm.bin", proxy.requestNVM().get());
+					}
+					catch(Exception e1) {								
+					}
+        			dongle.verifyPin(DUMMY_PIN.getBytes());
+					try {
+						proxy.writeNVM("nvm.bin", proxy.requestNVM().get());
+					}
+					catch(Exception e1) {								
+					}
+					publicKey = dongle.getWalletPublicKey(keyPath);
+				}
+				else
 				if (e.getSW() == SW_PIN_NEEDED) {
+					//if (dongle.hasScreenSupport()) {
+					if (isTEE) {
+						// PIN request is prompted on screen
+						dongle.verifyPin(DUMMY_PIN.getBytes());
+						if (isTEE) {
+							// Poor man counter
+							LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy)getTransport().getTransport();
+							try {
+								proxy.writeNVM("nvm.bin", proxy.requestNVM().get());
+							}
+							catch(Exception e1) {								
+							}
+						}						
+						publicKey = dongle.getWalletPublicKey(keyPath);
+					}
+					else
 					if (handler != null) {
 						String pin = handler.onPinRequest();
 						dongle.verifyPin(pin.getBytes());

@@ -36,8 +36,9 @@ import android.hardware.usb.UsbManager;
 import android.util.Log;
 
 import com.btchip.comm.BTChipTransport;
+import com.btchip.comm.BTChipTransportFactory;
 
-public class BTChipTransportAndroid {
+public class BTChipTransportAndroid implements BTChipTransportFactory {
 	
 	private UsbManager usbManager;
 	private BTChipTransport transport;
@@ -71,14 +72,17 @@ public class BTChipTransportAndroid {
 		usbManager = (UsbManager)context.getSystemService(Context.USB_SERVICE);
 	}
 	
+	@Override
 	public boolean isPluggedIn() {
 		return getDevice(usbManager) != null;
 	}
 	
+	@Override
 	public BTChipTransport getTransport() {
 		return transport;
 	}
 	
+	@Override
 	public boolean connect(final Context context) {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_USB_PERMISSION);

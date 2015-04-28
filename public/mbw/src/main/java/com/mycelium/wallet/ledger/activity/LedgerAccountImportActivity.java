@@ -107,22 +107,34 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 		            Utils.showSimpleMessageDialog(LedgerAccountImportActivity.this, getString(R.string.ledger_next_unused_account_info), new Runnable() {
 		               @Override
 		               public void run() {
+		            	   
+		            	  // The TEE calls are asynchronous, and simulate a blocking call
+		            	  // To avoid locking up the UI thread, a new one is started
+		            	   
+		            	  new Thread() {
+		            		  public void run() {		            			  
+				                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getAccountPubKeyNode(accounts.size());
 
-		                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getAccountPubKeyNode(accounts.size());
+				                  MbwManager mbwManager = MbwManager.getInstance(LedgerAccountImportActivity.this);
 
-		                  MbwManager mbwManager = MbwManager.getInstance(LedgerAccountImportActivity.this);
+				                  if (nextAccount.isPresent()) {
+				                     final UUID acc = mbwManager.getWalletManager(false)
+				                           .createExternalSignatureAccount(nextAccount.get(), (LedgerManager) masterseedScanManager, accounts.size());
 
-		                  if (nextAccount.isPresent()) {
-		                     UUID acc = mbwManager.getWalletManager(false)
-		                           .createExternalSignatureAccount(nextAccount.get(), (LedgerManager) masterseedScanManager, accounts.size());
+				                     mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
 
-		                     mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
-
-		                     Intent result = new Intent();
-		                     result.putExtra("account", acc);
-		                     setResult(RESULT_OK, result);
-		                     finish();
-		                  }
+				                     runOnUiThread(new Runnable() {
+				                    	 public void run() {
+						                     Intent result = new Intent();
+						                     result.putExtra("account", acc);
+						                     setResult(RESULT_OK, result);
+						                     finish();				                    		 
+				                    	 }
+				                     });
+				                  }
+		            			  
+		            		  }
+		            	  }.start();
 
 		               }
 		            });

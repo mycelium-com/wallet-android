@@ -19,12 +19,15 @@
 
 package com.btchip.comm.android;
 
+import java.util.concurrent.Future;
+
 import android.nfc.tech.IsoDep;
 import android.util.Log;
 
 import com.btchip.BTChipException;
 import com.btchip.comm.BTChipTransport;
 import com.btchip.utils.Dump;
+import com.btchip.utils.FutureUtils;
 
 public class BTChipTransportAndroidNFC implements BTChipTransport {
 	
@@ -45,7 +48,7 @@ public class BTChipTransportAndroidNFC implements BTChipTransport {
 	
 
 	@Override
-	public byte[] exchange(byte[] command) throws BTChipException {
+	public Future<byte[]> exchange(byte[] command) throws BTChipException {
 		try {
 			if (!card.isConnected()) {
 				card.connect();
@@ -63,7 +66,7 @@ public class BTChipTransportAndroidNFC implements BTChipTransport {
 			if (debug) {
 				Log.d(BTChipTransportAndroid.LOG_STRING, "<= " + Dump.dump(response));
 			}
-			return response;			
+			return FutureUtils.getDummyFuture(response);			
 		}
 		catch(Exception e) {
 			try {

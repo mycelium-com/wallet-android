@@ -21,6 +21,7 @@ package com.btchip.comm.android;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 import android.util.Log;
 import android.hardware.usb.UsbDeviceConnection;
@@ -32,6 +33,7 @@ import com.btchip.BTChipException;
 import com.btchip.comm.BTChipTransport;
 import com.btchip.comm.LedgerHelper;
 import com.btchip.utils.Dump;
+import com.btchip.utils.FutureUtils;
 
 public class BTChipTransportAndroidHID implements BTChipTransport {
 
@@ -59,7 +61,7 @@ public class BTChipTransportAndroidHID implements BTChipTransport {
 	}
 
 	@Override
-	public byte[] exchange(byte[] command) throws BTChipException {
+	public Future<byte[]> exchange(byte[] command) throws BTChipException {
 		ByteArrayOutputStream response = new ByteArrayOutputStream();
 		byte[] responseData = null;
 		int offset = 0;
@@ -127,7 +129,7 @@ public class BTChipTransportAndroidHID implements BTChipTransport {
 		if (debug) {
 			Log.d(BTChipTransportAndroid.LOG_STRING, "<= " + Dump.dump(responseData));
 		}
-		return responseData;				
+		return FutureUtils.getDummyFuture(responseData);				
 	}
 
 	@Override
