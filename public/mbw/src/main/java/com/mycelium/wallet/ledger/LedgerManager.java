@@ -166,7 +166,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
 			}
 			catch(BTChipException e) {
 				if (e.getSW() == SW_PIN_NEEDED) {
-					if (dongle.hasScreenSupport()) {
+					boolean isTEE = getTransport().getTransport() instanceof LedgerTransportTEEProxy;
+					if (isTEE) {
+					//if (dongle.hasScreenSupport()) {
 						// PIN request is prompted on screen
 						dongle.verifyPin(DUMMY_PIN.getBytes());
 						if (getTransport().getTransport() instanceof LedgerTransportTEEProxy) {
