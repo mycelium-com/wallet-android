@@ -21,7 +21,6 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
@@ -1054,8 +1053,8 @@ public abstract class AbstractAccount implements WalletAccount {
          TransactionEx txExToProve = _backing.getTransaction(txid);
          Transaction txToProve = Transaction.fromByteReader(new ByteReader(txExToProve.binary));
 
-         TransactionOutput output = createOutput(txid, nonce, 0);
 
+         long inputValue = 0L;
          List<UnspentTransactionOutput> funding = new ArrayList<UnspentTransactionOutput>(txToProve.inputs.length);
          for (TransactionInput input : txToProve.inputs) {
             TransactionEx inTxEx = _backing.getTransaction(input.outPoint.hash);
@@ -1063,19 +1062,48 @@ public abstract class AbstractAccount implements WalletAccount {
             UnspentTransactionOutput unspentOutput = new UnspentTransactionOutput(input.outPoint, inTxEx.height,
                     inTx.outputs[input.outPoint.index].value,
                     inTx.outputs[input.outPoint.index].script);
+            inputValue += unspentOutput.value;
             funding.add(unspentOutput);
          }
 
+         TransactionOutput popOutput = createPopOutput(txid, nonce, 0);
+         List<TransactionOutput> outputs = copyOutputs(popOutput, txToProve, inputValue);
+
          StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
 
-         UnsignedTransaction unsignedTransaction = stb.createUnsignedPop(Collections.singletonList(output), funding, new PublicKeyRing(), _network);
+         UnsignedTransaction unsignedTransaction = stb.createUnsignedPop(outputs, funding, new PublicKeyRing(), _network);
          return unsignedTransaction;
       } catch (TransactionParsingException e) {
          throw new RuntimeException("Cannot parse transaction", e);
       }
    }
 
-   private TransactionOutput createOutput(Sha256Hash txidToProve, long nonce, long amount) {
+   private List<TransactionOutput> copyOutputs(TransactionOutput popOutput, Transaction txToProve, long inputValue) {
+      List<TransactionOutput> result = new ArrayList<TransactionOutput>(txToProve.outputs.length + 1);
+      result.add(popOutput);
+      long outputValue = 0L;
+      // If the PoP appears on the bitcoin p2p network, it is important that it does not change the intent of the orignial payment (the
+      // tx we are proving). Therefore we add the outputs exactly as is in the original payment. Since there
+      // can only be one OP_RETURN output in a transaction, those are discarded since we already added one. Its value
+      // will be added to the pop output.
+      for (TransactionOutput output : txToProve.outputs) {
+         // Actually, an OP_RETURN could appear anywhere in the script, but I'll
+         // skip that for now.
+         if (output.script.getScriptBytes()[0] == Script.OP_RETURN) {
+            popOutput.value += output.value;
+         } else {
+            result.add(output);
+         }
+         outputValue += output.value;
+      }
+
+      // Move the tx fee from miner to OP_RETURN output. This is to minimize incentives for miner to include
+      // the PoP in a block, should it for some reason appear on the bitcoin p2p network.
+      popOutput.value += (inputValue - outputValue);
+      return result;
+   }
+
+   private TransactionOutput createPopOutput(Sha256Hash txidToProve, long nonce, long amount) {
 
       byte[] scriptBytes = new byte[41];
       scriptBytes[0] = Script.OP_RETURN;
