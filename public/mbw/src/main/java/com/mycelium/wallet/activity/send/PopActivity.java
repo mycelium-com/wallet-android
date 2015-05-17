@@ -46,33 +46,16 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.Script;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.ScriptOutputStandard;
-import com.mrd.bitlib.model.ScriptOutputStrange;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.StringHandlerActivity;
-import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -85,11 +68,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharsetDecoder;
-import java.util.Collections;
 import java.util.List;
 
 public class PopActivity extends Activity {
@@ -138,9 +116,9 @@ public class PopActivity extends Activity {
                continue;
             }
          }
-         if (popRequest.getText() != null) {
+         if (popRequest.getLabel() != null) {
             String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
-            if (!popRequest.getText().equals(label)) {
+            if (!popRequest.getLabel().equals(label)) {
                continue;
             }
          }
@@ -174,7 +152,7 @@ public class PopActivity extends Activity {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
       String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
 
-      setText(R.id.pop_recipient_host, popRequest.getUrl());
+      setText(R.id.pop_recipient_host, popRequest.getP());
       setText(R.id.pop_transaction_id, transactionSummary.txid.toString());
 
       long amountSatoshis = getPaymentAmountSatoshis(transactionSummary);
@@ -213,7 +191,7 @@ public class PopActivity extends Activity {
       }
       WalletAccount account = _mbwManager.getSelectedAccount();
 
-      final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getNonce());
+      final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
 
       _mbwManager.runPinProtectedFunction(PopActivity.this, new Runnable() {
 
@@ -266,9 +244,9 @@ public class PopActivity extends Activity {
    private String sendPop(Transaction tx) {
       URL url;
       try {
-         url = new URL(popRequest.getUrl());
+         url = new URL(popRequest.getP());
       } catch (MalformedURLException e) {
-         return "Invalid Url: " + popRequest.getUrl();
+         return "Invalid Url: " + popRequest.getP();
       }
       HttpURLConnection urlConnection;
       try {

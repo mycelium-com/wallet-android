@@ -1,20 +1,22 @@
 package com.mycelium.wallet.pop;
 
-import com.mrd.bitlib.util.CoinUtil;
+import com.google.bitcoinj.Base58;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class PopRequest implements Serializable {
-    private Long nonce;
+    private Long n;
     private Long amountSatoshis;
-    private String text;
+    private String label;
+    private String message;
     private Sha256Hash txid;
-    private String url;
+    private String p;
+    private String r;
 
     public PopRequest(String input) {
         if (!input.startsWith("btcpop:?")) {
@@ -41,28 +43,37 @@ public class PopRequest implements Serializable {
             String key = paramPair[0];
             String value = null;
             if (paramPair.length == 2) {
-                try {
-                    value = URLDecoder.decode(paramPair[1], "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException("UTF-8 not supported!");
-                }
+                value = PopEncodeDecode.popURIDecode(paramPair[1]);
             }
-
-            if ("nonce".equals(key)) {
+            if ("n".equals(key)) {
                 if (value == null) {
                     throw new IllegalArgumentException("Nonce must not be empty");
                 }
-                nonce = Long.parseLong(value);
-                if (nonce < 0) {
+
+                byte[] decodedNonce = Base58.decode(value);
+                if (decodedNonce == null) {
+                    throw new IllegalArgumentException("Can't Base58 decode value " + value);
+                }
+                byte[] longBytes = new byte[8];
+                System.arraycopy(decodedNonce, 0, longBytes, 8-decodedNonce.length, decodedNonce.length);
+                n = ByteBuffer.wrap(longBytes).getLong();
+                if (n < 0) {
                     throw new IllegalArgumentException("Negative nonce not allowed");
                 }
             } else if ("p".equals(key)) {
                 if (value == null) {
                     throw new IllegalArgumentException("Pop URL must not be empty");
                 }
-                url = value;
-            } else if ("text".equals(key)) {
-                text = value;
+                p = value;
+            } else if ("r".equals(key)) {
+                if (value == null) {
+                    throw new IllegalArgumentException("r must not be empty");
+                }
+                r = value;
+            } else if ("label".equals(key)) {
+                label = value;
+            } else if ("message".equals(key)) {
+                message = value;
             } else if ("amount".equals(key)) {
                 if (value != null) {
                     // Expect mount in BTC as in BIP0021
@@ -70,43 +81,47 @@ public class PopRequest implements Serializable {
                     if (amountSatoshis < 0) {
                         throw new IllegalArgumentException("Negative amount not allowed");
                     }
+                    if (amountSatoshis > 2100000000000000L) {
+                        throw new IllegalArgumentException("Too high amount: " + amountSatoshis);
+                    }
                 }
             } else if ("txid".equals(key)) {
-                if (value != null && value.length() != 64) {
-                    throw new IllegalArgumentException("Wrong length of txid. Expected 64: " + value);
+                if (value == null) {
+                    continue;
                 }
-                txid = Sha256Hash.fromString(value);
+                byte[] bytes = Base58.decode(value);
+                if (bytes == null) {
+                    throw new IllegalArgumentException("Can't Base58 decode value " + value);
+                }
+                txid = Sha256Hash.of(bytes);
             }
         }
-        if (url == null) {
-            throw new IllegalArgumentException("Pop URL must be set");
-        }
-        if (nonce == null) {
-            throw new IllegalArgumentException("Nonce must be set");
+        if (r == null && (p == null || n == null)) {
+            throw new IllegalArgumentException("p and n must be set if r is unset");
         }
     }
 
-    public Long getNonce() {
-        return nonce;
+    public Long getN() {
+        return n;
     }
 
     public Long getAmountSatoshis() {
         return amountSatoshis;
     }
 
-    public String getText() {
-        return text;
+    public String getLabel() {
+        return label;
     }
 
     public Sha256Hash getTxid() {
         return txid;
     }
 
-    public String getUrl() {
-        return url;
+    public String getP() {
+        return p;
     }
 
     public String toString() {
-        return "txid=" + getTxid() + ", text=" + getText() + ", amount=" + getAmountSatoshis();
+        return "txid=" + getTxid() + ", label=" + getLabel() + ", amount=" + getAmountSatoshis();
     }
 }
