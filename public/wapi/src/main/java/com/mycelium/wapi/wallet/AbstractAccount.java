@@ -1105,22 +1105,16 @@ public abstract class AbstractAccount implements WalletAccount {
 
    private TransactionOutput createPopOutput(Sha256Hash txidToProve, long nonce, long amount) {
 
-      byte[] scriptBytes = new byte[41];
-      scriptBytes[0] = Script.OP_RETURN;
-
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
       byteBuffer.put((byte)Script.OP_RETURN);
-      try {
-         byteBuffer.put("PoP".getBytes("US-ASCII"));
-      } catch (UnsupportedEncodingException e) {
-         throw new RuntimeException("Unsupported encoding US_ASCII", e);
-      }
 
-      byteBuffer.put(txidToProve.getBytes());
+      byteBuffer.putShort((short)1); // version 1
+
+      byteBuffer.put(txidToProve.getBytes()); // txid
 
       ByteBuffer nonceBuffer = ByteBuffer.allocate(8);
       nonceBuffer.putLong(nonce);
-      byteBuffer.put(nonceBuffer.array(), 3, 5);
+      byteBuffer.put(nonceBuffer.array(), 2, 6); // nonce
       ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
       TransactionOutput output = new TransactionOutput(amount, scriptOutput);
       return output;
