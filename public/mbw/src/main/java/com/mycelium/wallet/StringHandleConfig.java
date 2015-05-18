@@ -46,13 +46,16 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
+import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.external.cashila.activity.BcdCodedSepaData;
+import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wallet.activity.InstantMasterseedActivity;
+import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -123,6 +126,10 @@ public class StringHandleConfig implements Serializable {
       request.sssShareAction = SssShareAction.START_COMBINING;
       request.wordListAction = WordListAction.COLD_SPENDING;
       request.hdNodeAction = HdNodeAction.SEND_PUB_SPEND_PRIV;
+
+      //not supported so far, as this data lacks address informations
+      //request.bcdSepaCodeAction = SepaAction.INIT_SEND;
+
       //at the moment, we just support wordlist backups
       //request.masterSeedAction = MasterSeedAction.IMPORT;
       return request;
@@ -266,6 +273,41 @@ public class StringHandleConfig implements Serializable {
          return getPrivateKey(network, content).isPresent();
       }
    }
+
+   public enum SepaAction implements Action {
+      INIT_SEND {
+         @Override
+         public boolean handle(final StringHandlerActivity handlerActivity, final String content) {
+            try {
+               final BcdCodedSepaData bcdCode = BcdCodedSepaData.fromString(content);
+               if (bcdCode == null){
+                  return false;
+               }
+
+               MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
+               mbwManager.getVersionManager().showFeatureWarningIfNeeded(handlerActivity, Feature.CASHILA, true, new Runnable() {
+                  @Override
+                  public void run() {
+                     Intent intent = CashilaPaymentsActivity.getIntent(handlerActivity, bcdCode);
+                     intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                     handlerActivity.startActivity(intent);
+                     handlerActivity.finishOk();
+                  }
+               });
+
+
+               return true;
+            } catch (HdKeyNode.KeyGenerationException ex) {
+               return false;
+            }
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return BcdCodedSepaData.fromString(content) != null;
+         }
+      }
+   };
 
    public enum HdNodeAction implements Action {
       RETURN {
@@ -734,9 +776,10 @@ public class StringHandleConfig implements Serializable {
    public Action sssShareAction = Action.NONE;
    public Action hdNodeAction = Action.NONE;
    public Action wordListAction = Action.NONE;
+   public Action bcdSepaCodeAction = Action.NONE;
 
    public List<Action> getAllActions() {
-      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
+      return ImmutableList.of(privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction, bcdSepaCodeAction);
    }
 
 }

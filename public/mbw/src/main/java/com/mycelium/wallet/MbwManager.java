@@ -52,16 +52,16 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.BitUtils;
-import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.bitlib.util.*;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
-import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
@@ -69,6 +69,8 @@ import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.wallet.activity.modern.ExploreHelper;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
+import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -101,6 +103,13 @@ public class MbwManager {
     * 0x424944 = "BID"
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
+
+   /**
+    * The index proposed for bit id as per https://github.com/bitid/bitid/blob/master/BIP_draft.md
+    * Including hardened marker
+    */
+   private static final int BITID_BIP_INDEX = 0xb11e | HdKeyNode.HARDENED_MARKER;
+
    private final CurrencySwitcher _currencySwitcher;
    private Date lastSuccessfullPin;
 
@@ -117,9 +126,7 @@ public class MbwManager {
 
    private final LtApiClient _ltApi;
    private Handler torHandler;
-   private NetworkConnectionWatcher _connectionWatcher;
    private Context _applicationContext;
-   private AndroidAsyncApi _asyncApi;
    private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
@@ -146,6 +153,7 @@ public class MbwManager {
    private TorManager _torManager;
 
    private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
+   private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -177,9 +185,6 @@ public class MbwManager {
 
       _randomSource = new AndroidRandomSource();
 
-      _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-
-      _asyncApi = new AndroidAsyncApi(_wapi, _eventBus);
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
@@ -207,7 +212,7 @@ public class MbwManager {
       _storage = new MetadataStorage(_applicationContext);
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-      _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
+      _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
       ArrayList<String> fiatCurrencies = new ArrayList<String>();
@@ -245,6 +250,7 @@ public class MbwManager {
       migrateOldKeys();
       createTempWalletManager();
 
+      _versionManager.initBackgroundVersionChecker();
    }
 
    private void createTempWalletManager() {
@@ -661,8 +667,18 @@ public class MbwManager {
       getMetadataStorage().setLastPinSetBlockheight(blockHeight);
    }
 
-   public void runPinProtectedFunction(final Context context, final Runnable fun) {
+   // returns the PinDialog or null, if no pin was needed
+   public PinDialog runPinProtectedFunction(final Context context, final Runnable fun, boolean cancelable) {
+      return runPinProtectedFunctionInternal(context, fun, cancelable);
+   }
 
+   // returns the PinDialog or null, if no pin was needed
+   public PinDialog runPinProtectedFunction(final Context context, final Runnable fun) {
+      return runPinProtectedFunctionInternal(context, fun, true);
+   }
+
+   // returns the PinDialog or null, if no pin was needed
+   private PinDialog runPinProtectedFunctionInternal(Context context, Runnable fun, boolean cancelable) {
       // if last Pin entry was 1sec ago, dont ask for it again.
       // to prevent if there are two pin protected functions cascaded
       // like startup-pin request and account-choose-pin request if opened by a bitcoin url
@@ -672,12 +688,15 @@ public class MbwManager {
       }
 
       if (isPinProtected() && !lastPinAgeOkay) {
-         PinDialog d = new PinDialog(context, true);
+         PinDialog d = new PinDialog(context, true, cancelable);
          runPinProtectedFunction(context, d, fun);
+         return d;
       }else{
          fun.run();
+         return null;
       }
    }
+
 
    protected void runPinProtectedFunction(final Context context, PinDialog pinDialog, final Runnable fun) {
       if (isPinProtected()) {
@@ -874,6 +893,10 @@ public class MbwManager {
       return _language;
    }
 
+   public Locale getLocale() {
+      return new Locale(_language);
+   }
+
    public void setLanguage(String _language) {
       this._language = _language;
       SharedPreferences.Editor editor = getEditor();
@@ -983,10 +1006,19 @@ public class MbwManager {
             int accountIndex = ((Bip44Account) account).getAccountIndex();
             return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, website);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException();
+            throw new RuntimeException(invalidKeyCipher);
          }
       } else {
          throw new RuntimeException("Invalid account type");
+      }
+   }
+
+   public InMemoryPrivateKey getBitIdKeyForWebsite(String website) {
+      try {
+         IdentityAccountKeyManager identity = _walletManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher());
+         return identity.getPrivateKeyForWebsite(website, AesKeyCipher.defaultKeyCipher());
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
       }
    }
 
@@ -1008,6 +1040,10 @@ public class MbwManager {
       // Hash the seed and create a new private key from that which uses compressed public keys
       byte[] sitePrivateKeyBytes = HashUtils.doubleSha256(sitePrivateKeySeed).getBytes();
       return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
+   }
+
+   public boolean isWalletPaired(ExternalService service) {
+         return getMetadataStorage().isPairedService(service.getHost(getNetwork()));
    }
 
    public MetadataStorage getMetadataStorage() {
@@ -1056,5 +1092,9 @@ public class MbwManager {
       editor.commit();
 
       this._pinRequiredOnStartup = _pinRequiredOnStartup;
+   }
+
+   public Cache<String, Object> getBackgroundObjectsCache() {
+      return _semiPersistingBackgroundObjects;
    }
 }

@@ -39,20 +39,19 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.squareup.otto.Subscribe;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 public class BitIDAuthenticationActivity extends ActionBarActivity  {
 
@@ -127,7 +126,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       DialogInterface.OnClickListener yesListen = new DialogInterface.OnClickListener() {
          @Override
          public void onClick(DialogInterface dialog, int which) {
-            signAndSend(true);
+            signAndSend(false);
             dialog.dismiss();
          }
       };
@@ -146,24 +145,41 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    }
 
    @Subscribe
-   public void onTaskCompleted(BitIDResponse response) {
+   public void onTaskCompleted(BitIdResponse response) {
       progress.dismiss();
-      if (BitIDResponse.ResponseStatus.NOCONNECTION == response.status) {
+      if (BitIdResponse.ResponseStatus.NOCONNECTION == response.status) {
          Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_noconnection, Toast.LENGTH_LONG).show();
-      } else if (BitIDResponse.ResponseStatus.TIMEOUT == response.status) {
+      } else if (BitIdResponse.ResponseStatus.TIMEOUT == response.status) {
          Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_timeout, Toast.LENGTH_LONG).show();
-      } else if (BitIDResponse.ResponseStatus.SSLPROBLEM == response.status) {
+      } else if (BitIdResponse.ResponseStatus.SSLPROBLEM == response.status) {
          showDialog(response.message);
-      } else if (BitIDResponse.ResponseStatus.SUCCESS == response.status) {
+      } else if (BitIdResponse.ResponseStatus.SUCCESS == response.status) {
+         setPairedServiceMarker();
          showLoggedIn();
-      } else if (BitIDResponse.ResponseStatus.ERROR == response.status) {
+      } else if (BitIdResponse.ResponseStatus.ERROR == response.status) {
          handleError(response);
       } else {
          throw new RuntimeException("Invalid Status in BitIDResponse - this should not be possible.");
       }
    }
 
-   private void handleError(BitIDResponse response) {
+   private void setPairedServiceMarker() {
+      MbwManager manager = MbwManager.getInstance(this);
+      MetadataStorage storage = manager.getMetadataStorage();
+      String serviceName = request.getHost();
+      //set a paired marker if the host is in the list of external services
+      for (ExternalService service : ExternalService.values()) {
+         if (service.getHost(manager.getNetwork()).equals(serviceName)) {
+            //the service is in the list -> lets check if its already paired
+            if (storage.isPairedService(serviceName)) return; //its paired, we are done
+            storage.setPairedService(serviceName, true); //it wasnt paired, we set the marker
+            service.showWelcomeMessage(this); //show the welcome message and third party warning
+            return; //no need to check the other services
+         }
+      }
+   }
+
+   private void handleError(BitIdResponse response) {
       String message = response.message;
       int code = response.code;
       String userInfo;
@@ -200,8 +216,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
 
    private void signAndSend(boolean enforceSslCorrectness) {
       MbwManager manager = MbwManager.getInstance(this);
-      WalletAccount account = manager.getSelectedAccount();
-      InMemoryPrivateKey key = manager.obtainPrivateKeyForAccount(account, request.getHost(), AesKeyCipher.defaultKeyCipher());
+      InMemoryPrivateKey key = manager.getBitIdKeyForWebsite(request.getWebsite());
       Address address = key.getPublicKey().toAddress(manager.getNetwork());
       progress.setCancelable(false);
       progress.setMessage(getString(R.string.bitid_processing));
@@ -209,7 +224,11 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       progress.show();
       errorView.setVisibility(View.INVISIBLE);
       try {
-         new BitIdAsyncTask(request, enforceSslCorrectness, key, address, getEventBus()).execute();
+         new BitIdAsyncTask(
+               new BitIdAuthenticator(request, enforceSslCorrectness, key, address),
+               getEventBus()
+         ).execute();
+
       } catch (Exception e) {
          throw new RuntimeException(e);
       }

@@ -18,6 +18,8 @@ package com.mrd.bitlib.util;
 
 import com.mrd.bitlib.model.CompactInt;
 
+import java.io.UnsupportedEncodingException;
+
 final public class ByteWriter {
 
    private byte[] _buf;
@@ -128,6 +130,15 @@ final public class ByteWriter {
       byte[] bytes = s.getBytes();
       putIntLE(bytes.length);
       putBytes(bytes);
+   }
+
+   public void putRawStringUtf8(String s) {
+      try {
+         byte[] bytes = s.getBytes("UTF-8");
+         putBytes(bytes);
+      } catch (UnsupportedEncodingException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public byte[] toBytes() {

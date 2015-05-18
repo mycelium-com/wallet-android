@@ -599,6 +599,9 @@
   <string name="trezor_please_plug_in">Trezorに差し込んで下さい。</string>
   <string name="trezor_next_unused_account_info">このオプションはこのTrezorから次の未使用アカウントをインポートします。そこに送金した場合、MyTrezorでのみ見られます。</string>
   <string name="trezor_next_unused_account_button">次の未使用アカウントをインポート中&#8230;</string>
+  <string name="trezor_new_firmware">Trezor の新しいファームウェアが利用可能...</string>
+  <string name="trezor_new_firmware_description">新しい Trezor のファームウェアが利用可能です。\nMyTrezor.com を使用して PC 上で Trezor のファームウェア更新を行って下さい。</string>
+  <string name="trezor_unnamed">(ななし)</string>
   <string name="select_local_currencies">通貨を選択して下さい</string>
   <string name="show_public_or_private_data">表示</string>
   <string name="show_private_data">プライベート</string>
@@ -635,4 +638,10 @@
   <string name="masterseed_optional_passphrase_hint">この暗証フレーズは同じマスター・シードから違うアカウントの抽出ができます。\nもし意味がわからなければ、空欄のままにしておいて下さい。</string>
   <string name="tx_details_num_confirmations">確認</string>
   <string name="lt_warning_watch_only_account">このアカウントは監視限定です。別のアカウントを選択して下さい。</string>
+  <string name="xpriv_title">拡張秘密鍵</string>
+  <string name="share_xpriv">拡張秘密鍵を共有</string>
+  <string name="export_share_warning">警告: アカウントデータの重要な情報を共有しようとしています。この情報を手に入れた人は今までとこれからの当アカウントの全てのビットコインを操作することができます。続行しますか？</string>
+  <string name="xpub_title">拡張公開鍵</string>
+  <string name="share_xpub">拡張公開鍵を共有</string>
+  <string name="share_account_data">アカウントデータを共有</string>
 </resources>

@@ -4,7 +4,14 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.api.response.FeatureWarning;
+import com.mycelium.wapi.api.response.VersionInfoExResponse;
+import com.mycelium.wapi.api.response.WarningKind;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class WalletVersion {
@@ -71,6 +78,19 @@ public class WalletVersion {
          }
       }
       return clientVersion;
+   }
+
+   public static VersionInfoExResponse responseVersionEx(String branch, String version){
+
+      // todo: add different warnings depending on branch/version
+      if (branch.equals("android") && version.startsWith("1.1.1")) {
+         //List<FeatureWarning> warnings = new ArrayList<FeatureWarning>();
+         //warnings.add(new FeatureWarning(Feature.MAIN_SCREEN, WarningKind.WARN, "Warning", URI.create("https://mycelium.com")));
+         //return new VersionInfoExResponse("2.3.2", "", URI.create("https://mycelium.com/bitcoinwallet"), warnings);
+      }
+
+      // return null -> no important update or warnings available for this branch/version
+      return null;
    }
 
    @Override

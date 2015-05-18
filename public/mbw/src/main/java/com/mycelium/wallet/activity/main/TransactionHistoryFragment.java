@@ -35,7 +35,9 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,6 +55,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.event.AddressBookChanged;
@@ -64,7 +67,6 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
-
 
 import java.text.DateFormat;
 import java.util.*;
@@ -132,18 +134,22 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Subscribe
    public void exchangeRateChanged(ExchangeRatesRefreshed event) {
+      refreshList();
+   }
+
+   private void refreshList() {
       ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
    }
 
    @Subscribe
    public void fiatCurrencyChanged(SelectedCurrencyChanged event) {
-      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+      refreshList();
    }
 
    @Subscribe
    public void addressBookEntryChanged(AddressBookChanged event) {
       cacheAddressBook();
-      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+      refreshList();
    }
 
    private void cacheAddressBook() {
@@ -178,7 +184,7 @@ public class TransactionHistoryFragment extends Fragment {
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
          Wrapper wrapper = new Wrapper(getActivity(), history);
          ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
-         ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+         refreshList();
       }
    }
 
@@ -244,20 +250,24 @@ public class TransactionHistoryFragment extends Fragment {
                   public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                      actionMode.getMenuInflater().inflate(R.menu.transaction_history_context_menu, menu);
                      //we only allow address book entries for outgoing transactions
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
-                     currentActionMode = actionMode;
-                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                     updateActionBar(actionMode, menu);
                      return true;
                   }
 
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
-                     currentActionMode = actionMode;
-                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                     updateActionBar(actionMode, menu);
                      return true;
                   }
 
+                  private void updateActionBar(ActionMode actionMode, Menu menu) {
+                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.isOutgoing);
+                     currentActionMode = actionMode;
+                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                  }
+
+                  
                   @Override
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                      final int itemId = menuItem.getItemId();
@@ -270,6 +280,30 @@ public class TransactionHistoryFragment extends Fragment {
                         finishActionMode();
                      } else if (itemId == R.id.miAddToAddressBook) {
                         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), record.destinationAddress.get(), "", addressLabelChanged);
+                     } else if (itemId == R.id.miCancelTransaction) {
+                        new AlertDialog.Builder(getActivity())
+                              .setTitle(_context.getString(R.string.remove_queued_transaction_title))
+                              .setMessage(_context.getString(R.string.remove_queued_transaction))
+                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    boolean okay = _mbwManager.getSelectedAccount().cancelQueuedTransaction(record.txid);
+                                    dialog.dismiss();
+                                    updateTransactionHistory();
+                                    if (okay) {
+                                       Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
+                                    } else {
+                                       new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
+                                    }
+                                 }
+                              })
+                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .create().show();
                      }
                      return false;
                   }

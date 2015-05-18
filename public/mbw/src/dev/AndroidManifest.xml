@@ -3,9 +3,9 @@
     package="com.mycelium.wallet">
 
     <!--  Note that the permission below depends on the package and must be changed for each build target -->
-    <permission android:name="com.mycelium.devwallet.permission.C2D_MESSAGE"
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE"
                 android:protectionLevel="signature" />
-    <uses-permission android:name="com.mycelium.devwallet.permission.C2D_MESSAGE" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
 
     <application>
 
@@ -16,14 +16,14 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <!--  Note that the below must match the package name -->
-                <category android:name="com.mycelium.devwallet" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
         <!--file provider to enable secure intent sharing for encrypted backups-->
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.mycelium.devwallet.files"
+            android:authorities="${applicationId}.files"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -51,6 +51,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    public static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
    public static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
    public static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
+   public static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
@@ -164,6 +165,14 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void deleteOtherAccountBackupState(UUID accountId) {
       deleteByKeyCategory(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()));
+   }
+
+   public boolean isPairedService(String serviceName) {
+      return Boolean.valueOf(getKeyCategoryValueEntry(PAIRED_SERVICES_CATEGORY.of(serviceName), "false"));
+   }
+
+   public void setPairedService(String serviceName, boolean paired) {
+      storeKeyCategoryValueEntry(PAIRED_SERVICES_CATEGORY.of(serviceName), Boolean.toString(paired));
    }
 
    public void deleteMasterKeyBackupAgeMs(){

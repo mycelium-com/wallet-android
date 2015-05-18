@@ -94,6 +94,12 @@
         <item name="android:textColor">@color/button_text_color</item>
     </style>
 
+    <style name="MyceliumNumPadButtonFn" parent="android:style/Widget.Button">
+        <item name="android:background">@drawable/btn_blue_light_slim</item>
+        <item name="android:textColor">@color/button_text_color</item>
+
+    </style>
+
     <style name="MyceliumSlimButtonFn" parent="MyceliumSlimButton">
         <item name="android:background">@drawable/btn_blue_light_slim</item>
     </style>

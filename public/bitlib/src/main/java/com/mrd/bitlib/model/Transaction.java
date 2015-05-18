@@ -16,16 +16,16 @@
 
 package com.mrd.bitlib.model;
 
-import java.io.Serializable;
-
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
 import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
+
+import java.io.Serializable;
 
 public class Transaction implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -59,6 +59,10 @@ public class Transaction implements Serializable {
          input[idx++]=new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
       }
       return new Transaction(1, input, unsignedTransaction.getOutputs(),0);
+   }
+
+   public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
+      return fromByteReader(new ByteReader(transaction));
    }
 
    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {

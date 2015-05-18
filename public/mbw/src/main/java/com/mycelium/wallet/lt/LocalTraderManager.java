@@ -56,7 +56,6 @@ import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.lt.location.Geocoder;
-import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
@@ -299,8 +298,8 @@ public class LocalTraderManager {
             handleErrors(null, LtApi.ERROR_CODE_TRADER_DOES_NOT_EXIST);
             return false;
          }
-         String sigHashSessionId = ApiUtils.generateUuidHashSignature(privateKey, _session.id,
-               new AndroidRandomSource());
+         String sigHashSessionId = ApiUtils.generateUuidHashSignature(privateKey, _session.id
+         );
          try {
             // Login
             LoginParameters params = new LoginParameters(getLocalTraderAddress(), sigHashSessionId);

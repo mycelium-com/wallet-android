@@ -136,6 +136,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="1"
+            style="@style/MyceliumNumPadButtonFn"
 
             android:text="@string/dot"
             android:textSize="30sp" />
@@ -156,6 +157,8 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="1"
+            style="@style/MyceliumNumPadButtonFn"
+
 
             android:text="@string/del"
             android:textSize="30sp" />

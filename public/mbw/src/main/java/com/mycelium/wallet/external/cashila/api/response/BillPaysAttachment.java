@@ -32,12 +32,12 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.bitid;
+package com.mycelium.wallet.external.cashila.api.response;
 
+import java.io.Serializable;
 
-public class BitIDResponse {
-   public enum ResponseStatus {NONE, SSLPROBLEM, TIMEOUT, NOCONNECTION, SUCCESS, ERROR}
-   public ResponseStatus status = ResponseStatus.NONE;
-   public int code = 0;
-   public String message = "";
+public class BillPaysAttachment implements Serializable {
+   public String name;
+   public String mimeType;
+   public String url;
 }

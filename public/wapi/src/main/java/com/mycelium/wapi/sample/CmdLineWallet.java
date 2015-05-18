@@ -28,11 +28,11 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
@@ -149,7 +149,7 @@ public class CmdLineWallet {
                receivers.add(new Receiver(address, 10000 * (1 + new Random().nextInt(100))));
                try {
                   UnsignedTransaction unsigned = myAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
-                  Transaction transaction = myAccount.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), _randomSource);
+                  Transaction transaction = myAccount.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher());
                   myAccount.broadcastTransaction(transaction);
                   wallet.startSynchronization();
                } catch (OutputTooSmallException e) {
@@ -421,7 +421,7 @@ public class CmdLineWallet {
 
       print("fee: " + unsigned.calculateFee());
 
-      Transaction tx = account.signTransaction(unsigned, cipher, _randomSource);
+      Transaction tx = account.signTransaction(unsigned, cipher);
       account.broadcastTransaction(tx);
       print("Transaction " + tx.getHash().toString() + " queued");
    }

@@ -49,6 +49,10 @@ public class TrezorPinDialog extends PinDialog {
       this.onPinValid = _onPinValid;
    }
 
+   public TrezorPinDialog(Context context, boolean hidden) {
+      super(context, hidden, true);
+   }
+
    @Override
    protected void loadLayout() {
       setContentView(R.layout.enter_trezor_pin_dialog);
@@ -86,7 +90,7 @@ public class TrezorPinDialog extends PinDialog {
                addDigit(String.valueOf(akCnt + 1));
             }
          });
-         b.setText(Character.toString((char)0x2022));  // unicode "bullet"
+         b.setText("\u2022");  // unicode "bullet"
          cnt++;
       }
 
@@ -106,13 +110,11 @@ public class TrezorPinDialog extends PinDialog {
       });
    }
 
-   public TrezorPinDialog(Context context, boolean hidden) {
-      super(context, hidden);
-   }
+
 
    @Override
    protected void updatePinDisplay(){
-      pinDisp.setText(Strings.repeat("* ", enteredPin.length()));
+      pinDisp.setText(Strings.repeat("\u25CF  ", enteredPin.length())); // Unicode Character 'BLACK CIRCLE'
       checkPin();
    }
 

@@ -47,22 +47,17 @@ import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
-import com.mycelium.wallet.bitid.BitIDSignRequest;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
+import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -80,6 +75,7 @@ public class StartupActivity extends Activity {
    private boolean _hasClipboardExportedPrivateKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
+   private PinDialog _pinDialog;
    private ProgressDialog _progress;
 
    @Override
@@ -96,6 +92,9 @@ public class StartupActivity extends Activity {
    @Override
    public void onPause() {
       _progress.dismiss();
+      if (_pinDialog != null){
+         _pinDialog.dismiss();
+      }
       super.onPause();
    }
 
@@ -113,7 +112,7 @@ public class StartupActivity extends Activity {
       public void run() {
          long startTime = System.currentTimeMillis();
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-         
+
          //in case this is a fresh startup, import backup or create new seed
          if (_mbwManager.getWalletManager(false).getAccountIds().isEmpty()) {
             initMasterSeed();
@@ -244,12 +243,15 @@ public class StartupActivity extends Activity {
                }
             });
 
-            _mbwManager.runPinProtectedFunction(StartupActivity.this, new Runnable() {
+            Runnable start = new Runnable() {
                @Override
                public void run() {
                   start();
                }
-            });
+            };
+
+            // set the pin dialog to not cancelable
+            _pinDialog = _mbwManager.runPinProtectedFunction(StartupActivity.this, start, false);
          } else {
             start();
          }
@@ -270,6 +272,8 @@ public class StartupActivity extends Activity {
       }
 
    };
+
+
 
    private void warnUserOnClipboardKeys() {
       AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -316,7 +320,7 @@ public class StartupActivity extends Activity {
          } else if ("bitid".equals(scheme)) {
             handleBitIdUri(intentUri);
          }
-        return true;
+         return true;
       }
       return false;
    }

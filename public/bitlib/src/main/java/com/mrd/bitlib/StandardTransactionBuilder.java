@@ -22,7 +22,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.BitcoinSigner;
+import com.mrd.bitlib.crypto.IPrivateKeyRing;
+import com.mrd.bitlib.crypto.IPublicKeyRing;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.CoinUtil;
@@ -226,8 +229,7 @@ public class StandardTransactionBuilder {
       return output;
    }
 
-   public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing,
-                                                 RandomSource randomSource) {
+   public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing) {
       List<byte[]> signatures = new LinkedList<byte[]>();
       for (SigningRequest request : requests) {
          BitcoinSigner signer = keyRing.findSignerByPublicKey(request.publicKey);
@@ -236,7 +238,7 @@ public class StandardTransactionBuilder {
             // keys for
             throw new RuntimeException("Private key not found");
          }
-         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign, randomSource);
+         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign);
          signatures.add(signature);
       }
       return signatures;

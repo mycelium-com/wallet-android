@@ -12,10 +12,16 @@
             android:id="@+id/miShowDetails"
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/show_details"/>
+
     <item
             android:id="@+id/miAddToAddressBook"
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/add_to_addressbook"/>
+
+    <item
+            android:id="@+id/miCancelTransaction"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="Cancel transaction"/>
 
 
 </menu>

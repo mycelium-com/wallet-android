@@ -184,6 +184,9 @@ public class TradeActivity extends Activity {
       _lvChat.setOnItemClickListener(chatItemClickListener);
       //to copy to clipboard
       _lvChat.setOnItemLongClickListener(chatLongClickListener);
+
+      Utils.showOptionalMessage(this, R.string.lt_cash_only_warning);
+
    }
 
    @Override

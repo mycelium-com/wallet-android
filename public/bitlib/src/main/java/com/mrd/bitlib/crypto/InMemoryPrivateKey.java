@@ -20,18 +20,19 @@
  */
 package com.mrd.bitlib.crypto;
 
-import java.io.Serializable;
-import java.math.BigInteger;
-
 import com.google.bitcoinj.Base58;
-
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * A Bitcoin private key that is kept in memory.
@@ -221,50 +222,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       return _publicKey;
    }
 
-   @Override
-   protected Signature generateSignature(Sha256Hash messageHash, RandomSource randomSource) {
-      BigInteger n = Parameters.n;
-      BigInteger e = calculateE(n, messageHash.getBytes()); //leaving strong typing here
-      BigInteger r = null;
-      BigInteger s = null;
-      // 5.3.2
-      do // generate s
-      {
-         BigInteger k = null;
-         int nBitLength = n.bitLength();
 
-         do // generate r
-         {
-            do {
-               // make a BigInteger from bytes to ensure that Andriod and
-               // 'classic' java make the same BigIntegers
-               byte[] bytes = new byte[nBitLength / 8];
-               randomSource.nextBytes(bytes);
-               bytes[0] = (byte) (bytes[0] & 0x7F); // ensure positive number
-               k = new BigInteger(bytes);
-            } while (k.equals(BigInteger.ZERO));
-
-            Point p = EcTools.multiply(Parameters.G, k);
-
-            // 5.3.3
-            BigInteger x = p.getX().toBigInteger();
-
-            r = x.mod(n);
-         } while (r.equals(BigInteger.ZERO));
-
-         BigInteger d = _privateKey;
-
-         s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
-      } while (s.equals(BigInteger.ZERO));
-
-      // Enforce low S value
-      if(s.compareTo(Parameters.MAX_SIG_S) == 1){
-         // If the signature is larger than MAX_SIG_S, inverse it
-         s = Parameters.n.subtract(s);
-      }
-
-      return new Signature(r, s);
-   }
 
    private BigInteger calculateE(BigInteger n, byte[] messageHash) {
       if (n.bitLength() > messageHash.length * 8) {
@@ -279,6 +237,147 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
 
          return trunc;
       }
+   }
+
+   private static abstract class DsaSignatureNonceGen {
+      public abstract BigInteger getNonce();
+   }
+
+   private static class DsaSignatureNonceGenRandom extends DsaSignatureNonceGen {
+      private final RandomSource randomSource;
+
+      private DsaSignatureNonceGenRandom(RandomSource randomSource) {
+         this.randomSource = randomSource;
+      }
+
+      @Override
+      public BigInteger getNonce() {
+         BigInteger k;
+         int nBitLength = Parameters.n.bitLength();
+         do {
+            // make a BigInteger from bytes to ensure that Andriod and
+            // 'classic' java make the same BigIntegers
+            byte[] bytes = new byte[nBitLength / 8];
+            randomSource.nextBytes(bytes);
+            bytes[0] = (byte) (bytes[0] & 0x7F); // ensure positive number
+            k = new BigInteger(bytes);
+         } while (k.equals(BigInteger.ZERO));
+         return k;
+      }
+   }
+
+   private static class DsaSignatureNonceGenDeterministic extends DsaSignatureNonceGen {
+
+      private final Sha256Hash messageHash;
+      private final KeyExporter privateKey;
+
+      private DsaSignatureNonceGenDeterministic(Sha256Hash messageHash, KeyExporter privateKey) {
+         this.messageHash = messageHash;
+         this.privateKey = privateKey;
+      }
+
+      // rfc6979 compliant generation of k-value for DSA
+      @Override
+      public BigInteger getNonce(){
+
+         // Step b
+         byte[] v = new byte[32];
+         Arrays.fill(v, (byte)0x01);
+
+         // Step c
+         byte [] k = new byte[32];
+         Arrays.fill(k, (byte)0x00);
+
+         // Step d
+         ByteWriter bwD = new ByteWriter(32 + 1 + 32 + 32);
+         bwD.putBytes(v);
+         bwD.put((byte) 0x00 );
+         bwD.putBytes(privateKey.getPrivateKeyBytes());
+         bwD.putBytes(messageHash.getBytes());
+         k = Hmac.hmacSha256(k, bwD.toBytes());
+
+         // Step e
+         v = Hmac.hmacSha256(k, v);
+
+         // Step f
+         ByteWriter bwF = new ByteWriter(32 + 1 + 32 + 32);
+         bwF.putBytes(v);
+         bwF.put((byte) 0x01 );
+         bwF.putBytes(privateKey.getPrivateKeyBytes());
+         bwF.putBytes(messageHash.getBytes());
+         k = Hmac.hmacSha256(k, bwF.toBytes());
+
+         // Step g
+         v = Hmac.hmacSha256(k, v);
+
+         // Step H2b
+         v = Hmac.hmacSha256(k, v);
+
+         BigInteger t = bits2int(v);
+
+         // Step H3, repeat until T is within the interval [1, Parameters.n - 1]
+         while ((t.signum() <= 0) || (t.compareTo(Parameters.n) >= 0)) {
+            ByteWriter bwH = new ByteWriter(32 + 1);
+            bwH.putBytes(v);
+            bwH.put((byte) 0x00);
+            k = Hmac.hmacSha256(k, bwH.toBytes());
+            v = Hmac.hmacSha256(k, v);
+
+            t = new BigInteger(v);
+         }
+         return t;
+      }
+
+      private BigInteger bits2int(byte[] in)
+      {
+         BigInteger v = new BigInteger(1, in);
+         // Step H1/H2a, ignored as tlen === qlen (256 bit)
+         return v;
+      }
+   }
+
+
+   @Override
+   protected Signature generateSignature(Sha256Hash messageHash) {
+      return generateSignatureInternal(messageHash, new DsaSignatureNonceGenDeterministic(messageHash, this));
+   }
+
+   @Override
+   protected Signature generateSignature(Sha256Hash messageHash, RandomSource randomSource) {
+      return generateSignatureInternal(messageHash, new DsaSignatureNonceGenRandom(randomSource));
+   }
+
+   private Signature generateSignatureInternal(Sha256Hash messageHash, DsaSignatureNonceGen kGen) {
+      BigInteger n = Parameters.n;
+      BigInteger e = calculateE(n, messageHash.getBytes()); //leaving strong typing here
+      BigInteger r = null;
+      BigInteger s = null;
+
+      // 5.3.2
+      do // generate s
+      {
+         BigInteger k = kGen.getNonce();
+
+         // generate r
+         Point p = EcTools.multiply(Parameters.G, k);
+
+         // 5.3.3
+         BigInteger x = p.getX().toBigInteger();
+
+         r = x.mod(n);
+
+         BigInteger d = _privateKey;
+
+         s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
+      } while (s.equals(BigInteger.ZERO));
+
+      // Enforce low S value
+      if(s.compareTo(Parameters.MAX_SIG_S) == 1){
+         // If the signature is larger than MAX_SIG_S, inverse it
+         s = Parameters.n.subtract(s);
+      }
+
+      return new Signature(r, s);
    }
 
    @Override

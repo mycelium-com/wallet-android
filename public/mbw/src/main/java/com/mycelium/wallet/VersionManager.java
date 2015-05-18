@@ -34,46 +34,80 @@
 
 package com.mycelium.wallet;
 
-import java.util.Locale;
-import java.util.Set;
-
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
-
+import android.widget.TextView;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
-
 import com.mycelium.wallet.activity.UpdateNotificationActivity;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AsynchronousApi;
-import com.mycelium.wapi.api.request.VersionInfoRequest;
-import com.mycelium.wapi.api.response.VersionInfoResponse;
+import com.mycelium.wallet.event.FeatureWarningsAvailable;
+import com.mycelium.wallet.event.NewWalletVersionAvailable;
+import com.mycelium.wallet.event.WalletVersionExEvent;
+import com.mycelium.wapi.api.request.VersionInfoExRequest;
+import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.api.response.FeatureWarning;
+import com.mycelium.wapi.api.response.VersionInfoExResponse;
+import com.mycelium.wapi.api.response.WarningKind;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
+import com.squareup.otto.Subscribe;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class VersionManager {
-   private static final long ONE_WEEK_IN_MILLIS = 1000 * 60 * 60 * 24 * 7;
+   private static final long PERIODIC_BACKGROUND_CHECK_MS = 1000 * 60 * 60 * 4;  // every 4h
+   public static final String BRANCH = "android";
 
    private final SharedPreferences preferences;
    private final Set<String> ignoredVersions;
    private final String version;
+   private Context context;
    private final String language;
    private final AsynchronousApi asyncApi;
-   private long lastUpdateCheck;
+   private final Handler backgroundHandler;
+   private final Bus eventBus;
+   private WalletVersionExEvent lastVersionResult;
+   private Dialog lastDialog;
 
-   public VersionManager(Context context, String language, AsynchronousApi asyncApi, String version) {
+   public VersionManager(Context context, String language, AsynchronousApi asyncApi, String version, Bus eventBus) {
+      this.context = context;
       this.language = language;
       this.asyncApi = asyncApi;
       this.preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
       this.version = version;
       String ignored = preferences.getString(Constants.IGNORED_VERSIONS, "");
       ignoredVersions = Sets.newHashSet(Splitter.on("\n").omitEmptyStrings().split(ignored));
-      lastUpdateCheck = preferences.getLong(Constants.LAST_UPDATE_CHECK, 0);
 
+      this.eventBus = eventBus;
+      eventBus.register(this);
+
+      backgroundHandler = new Handler();
+   }
+
+   @Override
+   protected void finalize() throws Throwable {
+      eventBus.unregister(this);
+      super.finalize();
    }
 
    public static String determineVersion(Context applicationContext) {
@@ -91,32 +125,241 @@ public class VersionManager {
       return "unknown";
    }
 
-   public void showVersionDialog(final VersionInfoResponse response, final Context activity) {
+   public void showVersionDialog(final VersionInfoExResponse response, final Context activity) {
       Intent intent = new Intent(activity, UpdateNotificationActivity.class);
       intent.putExtra(UpdateNotificationActivity.RESPONSE,response);
       activity.startActivity(intent);
    }
 
-   public void checkForUpdate() {
-      if (isWeeklyCheckDue()) {
-         VersionInfoRequest req = new VersionInfoRequest(version, new Locale(language));
-         asyncApi.getWalletVersion(req);
-         checkedForVersionUpdate();
-      }
+   public void initBackgroundVersionChecker() {
+      backgroundCheck.run();
    }
 
-   public void forceCheckForUpdate(AbstractCallbackHandler<VersionInfoResponse> callback) {
-      VersionInfoRequest req = new VersionInfoRequest(version, new Locale(language));
-      asyncApi.getWalletVersion(req, callback);
+   // if app is currently in foreground, make an api call to check if there are some warnings
+   // or a version update
+   private Runnable backgroundCheck = new Runnable(){
+      @Override
+      public void run() {
+         if (isAppOnForeground(context)){
+            checkForUpdate();
+         }
+
+         // call this runnable periodically
+         backgroundHandler.postDelayed(backgroundCheck, PERIODIC_BACKGROUND_CHECK_MS);
+      }
+
+      private boolean isAppOnForeground(Context context) {
+         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+         List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+         if (appProcesses == null) {
+            return false;
+         }
+         final String packageName = context.getPackageName();
+         for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcess.processName.equals(packageName)) {
+               return true;
+            }
+         }
+         return false;
+      }
+   };
+
+   public void checkForUpdate() {
+      VersionInfoExRequest req = new VersionInfoExRequest(BRANCH, version, new Locale(language));
+      //asyncApi.getWalletVersionExTestHelper(req);
+      asyncApi.getWalletVersionEx(req);
+   }
+
+   public void checkForUpdateSync(AbstractCallbackHandler<VersionInfoExResponse> callback) {
+      VersionInfoExRequest req = new VersionInfoExRequest(BRANCH, version, new Locale(language));
+      asyncApi.getWalletVersionEx(req, callback);
    }
 
    public String getVersion() {
       return version;
    }
 
-   boolean isIgnored(String versionNumber) {
+   private boolean isIgnored(String versionNumber) {
       return isSameVersion(versionNumber) || isIgnoredVersion(versionNumber);
 
+   }
+
+   @Subscribe
+   public void getWalletVersionExResult(final WalletVersionExEvent result) {
+
+      // if the last result had no featureWarnings and now we have some, broadcast them.
+      if ((lastVersionResult == null || lastVersionResult.response.featureWarnings == null || lastVersionResult.response.featureWarnings.size() == 0)
+            && (result.response.featureWarnings != null && result.response.featureWarnings.size() > 0) )
+      {
+         eventBus.post(new FeatureWarningsAvailable(result.response));
+      }
+
+      lastVersionResult = result;
+      // is the reported version newer than we and did the user not ignore the information
+      NewWalletVersionAvailable walletUpdateAvailable = isWalletUpdateAvailable();
+      if (walletUpdateAvailable != null){
+         eventBus.post(walletUpdateAvailable);
+      }
+   }
+
+   @Produce
+   public FeatureWarningsAvailable areFeatureWarningsAvailable(){
+      if (lastVersionResult != null && lastVersionResult.response.featureWarnings != null && lastVersionResult.response.featureWarnings.size() > 0){
+         return new FeatureWarningsAvailable(lastVersionResult.response);
+      } else {
+         return null;
+      }
+   }
+
+
+   @Produce
+   public NewWalletVersionAvailable isWalletUpdateAvailable(){
+      if (lastVersionResult != null && !isIgnored(lastVersionResult.response.versionNumber)){
+         return new NewWalletVersionAvailable(lastVersionResult.response);
+      } else {
+         return null;
+      }
+   }
+
+   private Optional<VersionInfoExResponse> getLastVersionResult(){
+      if (lastVersionResult == null) {
+         return Optional.absent();
+      } else {
+         return Optional.of(lastVersionResult.response);
+      }
+   }
+
+   // check if there is a warning issued for a certain feature
+   private Optional<FeatureWarning> getFeatureWarning(Feature forFeature){
+      if (!getLastVersionResult().isPresent()
+            || getLastVersionResult().get().featureWarnings == null || getLastVersionResult().get().featureWarnings.size() == 0 ) {
+         return Optional.absent();
+      } else {
+         List<FeatureWarning> featureWarnings = lastVersionResult.response.featureWarnings;
+         for (FeatureWarning w : featureWarnings){
+            if (w.feature.equals(Feature.GENERAL) || w.feature.equals(forFeature)){
+               return Optional.of(w);
+            }
+         }
+         return Optional.absent();
+      }
+   }
+
+   /**
+    * Check if we know about a warning for a certain feature/component of our app or external service
+    * if so, show the user a warning dialog with the message from the server.
+    *
+    * @param context calling context
+    * @param forFeature check if we have a warning for this feature
+    */
+   public boolean showFeatureWarningIfNeeded(Context context, Feature forFeature){
+      return showFeatureWarningIfNeeded(context, forFeature, false, null);
+   }
+
+
+   /**
+    * Check if we know about a warning for a certain feature/component of our app or external service
+    * if so, show the user a warning dialog with the message from the server.
+    *
+    * Depending on the kind of the warning the feature might be blocked and will not be executed
+    *
+    * @param context calling context
+    * @param forFeature check if we have a warning for this feature
+    * @param allowBlocking set to false if this is a core function and should never get blocked, no matter what the server reports
+    * @param runFeature this runnable gets called if there is no warning or the user accepts it
+    * @return true if there was a warning issued
+    */
+   public boolean showFeatureWarningIfNeeded(final Context context, final Feature forFeature, final boolean allowBlocking, final Runnable runFeature){
+
+      final Optional<FeatureWarning> featureWarning = getFeatureWarning(forFeature);
+      if (featureWarning.isPresent()){
+
+         // if dialog is still shown, dont create a new one
+         if (lastDialog != null && lastDialog.isShowing()){
+            return true;
+         }
+
+         CharSequence msg = new SpannableString(featureWarning.get().warningMessage);
+
+         // include clickable URI in text if one is set
+         if (featureWarning.get().link != null) {
+            SpannableString link = new SpannableString(featureWarning.get().link.toString());
+            Linkify.addLinks(link, Linkify.WEB_URLS);
+            msg = TextUtils.concat(msg, "\n\n", link);
+         }
+
+         TextView text = new TextView(context);
+         text.setText(msg);
+         text.setMovementMethod(LinkMovementMethod.getInstance());
+
+         int padding = (int) (context.getResources().getDisplayMetrics().density * 10f + 0.5f);
+         text.setPadding(padding, padding, padding, padding);
+
+         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+
+         // build the dialog depending on the kind of the warning
+         if (featureWarning.get().warningKind.equals(WarningKind.WARN)) {
+            dialog.setTitle("Warning");
+
+            // add a additional cancel button to emphasize that you might cancel this action (back button works always)
+            if (runFeature != null){
+               dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialog, int which) {
+                     dialog.dismiss();
+                  }
+               });
+            }
+
+            //text.setTextColor(context.getResources().getColor(R.color.red));
+            dialog.setIcon(R.drawable.holo_dark_ic_action_warning_yellow);
+
+         } else if (featureWarning.get().warningKind.equals(WarningKind.BLOCK)) {
+            dialog.setTitle("Temporary deactivated");
+         } else {
+            dialog.setTitle("Information");
+         }
+
+         // only allow to execute the feature if its WARN or INFO or we dont allow a blocking warning here
+         if (!allowBlocking ||
+               featureWarning.get().warningKind.equals(WarningKind.WARN) ||
+               featureWarning.get().warningKind.equals(WarningKind.INFO)) {
+
+            dialog.setPositiveButton("Ignore Warning", new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                  if (runFeature != null) {
+                     runFeature.run();
+                  }
+                  dialog.dismiss();
+               }
+            });
+         } else {
+            dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                  dialog.dismiss();
+               }
+            });
+         }
+
+
+         // set the content
+         dialog.setView(text);
+
+         // show dialog
+         lastDialog = dialog.create();
+         lastDialog.show();
+
+
+         return true;
+      } else {
+         // no warning issued - call runFeature unconditionally
+         if (runFeature != null){
+            runFeature.run();
+         }
+         return false;
+      }
    }
 
    public boolean isSameVersion(String versionNumber) {
@@ -139,17 +382,7 @@ public class VersionManager {
       return preferences.edit();
    }
 
-   private boolean isWeeklyCheckDue() {
-      return (System.currentTimeMillis() - ONE_WEEK_IN_MILLIS > lastUpdateCheck);
-   }
-
-   private void checkedForVersionUpdate() {
-      lastUpdateCheck = System.currentTimeMillis();
-      getEditor().putLong(Constants.LAST_UPDATE_CHECK, lastUpdateCheck).commit();
-   }
-
-
-   public void showIfRelevant(VersionInfoResponse response, Context modernMain) {
+   public void showIfRelevant(VersionInfoExResponse response, Context modernMain) {
       if (isIgnored(response.versionNumber)) {
          return;
       }

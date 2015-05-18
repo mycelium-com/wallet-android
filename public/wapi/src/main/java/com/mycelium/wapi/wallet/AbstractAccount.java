@@ -21,7 +21,6 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
@@ -495,8 +494,9 @@ public abstract class AbstractAccount implements WalletAccount {
    public synchronized boolean broadcastOutgoingTransactions() {
       checkNotArchived();
       List<Sha256Hash> broadcastedIds = new LinkedList<Sha256Hash>();
-      List<byte[]> transactions = _backing.getOutgoingTransactions();
-      for (byte[] rawTransaction : transactions) {
+      Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
+
+      for (byte[] rawTransaction : transactions.values()) {
          TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
 
          BroadcastResult result = broadcastTransaction(TransactionEx.toTransaction(tex));
@@ -603,15 +603,17 @@ public abstract class AbstractAccount implements WalletAccount {
    protected abstract void setBlockChainHeight(int blockHeight);
 
    @Override
-   public Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
+   public Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws InvalidKeyCipher {
       checkNotArchived();
       if (!isValidEncryptionKey(cipher)) {
          throw new InvalidKeyCipher();
       }
       // Make all signatures, this is the CPU intensive part
-      List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(unsigned.getSignatureInfo(),
-            new PrivateKeyRing(cipher), randomSource);
+      List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(
+            unsigned.getSignatureInfo(),
+            new PrivateKeyRing(cipher)
+      );
 
       // Apply signatures and finalize transaction
       Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
@@ -624,6 +626,53 @@ public abstract class AbstractAccount implements WalletAccount {
       byte[] rawTransaction = transaction.toBytes();
       _backing.putOutgoingTransaction(transaction.getHash(), rawTransaction);
       markTransactionAsSpent(transaction);
+   }
+
+   @Override
+   public synchronized boolean cancelQueuedTransaction(Sha256Hash transaction) {
+      Map<Sha256Hash, byte[]> outgoingTransactions = _backing.getOutgoingTransactions();
+
+      if (!outgoingTransactions.containsKey(transaction)){
+         return false;
+      }
+
+      Transaction tx;
+      try {
+         tx = Transaction.fromBytes(outgoingTransactions.get(transaction));
+      } catch (TransactionParsingException e) {
+         return false;
+      }
+
+      _backing.beginTransaction();
+      try {
+
+         // See if any of the outputs are stored locally and remove them
+         for (int i = 0; i < tx.outputs.length; i++) {
+            TransactionOutput output = tx.outputs[i];
+            OutPoint outPoint = new OutPoint(tx.getHash(), i);
+            TransactionOutputEx utxo = _backing.getUnspentOutput(outPoint);
+            if (utxo != null) {
+               _backing.deleteUnspentOutput(outPoint);
+            }
+         }
+
+         // Remove a queued transaction from our outgoing buffer
+         _backing.removeOutgoingTransaction(transaction);
+
+         // remove it from the backing
+         _backing.deleteTransaction(transaction);
+         _backing.setTransactionSuccessful();
+      }finally {
+         _backing.endTransaction();
+      }
+
+      // calc the new balance to remove the outgoing amount
+      // the total balance will still be wrong, as we already deleted some UTXOs to build the queued transaction
+      // these will get restored after the next sync
+      updateLocalBalance();
+
+      //markTransactionAsSpent(transaction);
+      return true;
    }
 
    private void markTransactionAsSpent(Transaction transaction) {

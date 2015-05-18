@@ -32,33 +32,31 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
+package com.mycelium.wallet.external.cashila.api.request;
 
 
-import android.os.Environment;
-import android.test.AndroidTestCase;
+import com.mrd.bitlib.model.Address;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.math.BigDecimal;
 
+public class CreateBillPayNew extends CreateBillPay {
 
-// you should be able to run this tests using "gradle connectedInstrumentTest" or "gradle cIT"
-// in the mbw folder
+   public final String name;
+   public final String iban;
+   public final String bic;
+   public final String city;
+   public final String countryCode;
+   public final String address;
+   public final String postalCode;
 
-public class ExternalStorageManagerTest extends AndroidTestCase {
-
-   public void testOverwriteDelete() throws Exception {
-      File deleteMe = new File(Environment.getExternalStorageDirectory()+"/deleteme.dat");
-      assertFalse(deleteMe.exists());
-      boolean created = deleteMe.createNewFile();
-      assertTrue(created);
-      FileOutputStream fos = new FileOutputStream(deleteMe);
-      fos.write("Test".getBytes());
-      fos.close();
-      assertTrue(deleteMe.exists());
-      new ExternalStorageManager(getContext()).overwriteDelete(deleteMe);
-      assertFalse(deleteMe.exists());
-
+   public CreateBillPayNew(String name, String iban, String bic, String address, String postal, String city, String country_code, BigDecimal amount, String currency, String reference, Address refund) {
+      super(amount, currency, reference, refund);
+      this.name = name;
+      this.iban = iban;
+      this.bic = bic;
+      this.address = address;
+      this.postalCode = postal;
+      this.city = city;
+      this.countryCode = country_code;
    }
-
 }

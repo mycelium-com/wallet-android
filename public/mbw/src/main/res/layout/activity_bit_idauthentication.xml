@@ -41,27 +41,27 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/bitidsign"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp"
-            android:text="@string/sign_bitid"
-            android:onClick="sign"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="30dp"
+                android:gravity="center"
+                android:paddingRight="30dp"
+                android:text="@string/close"
+                android:onClick="abort"/>
 
         <View
             android:layout_width="50dp"
             android:layout_height="1dp" />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp"
-            android:text="@string/close"
-            android:onClick="abort"/>
+                android:id="@+id/bitidsign"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/sign_bitid"
+                android:onClick="sign"/>
 
         </LinearLayout>
 

@@ -86,8 +86,6 @@ public class AdditionalBackupWarningActivity extends ActionBarActivity {
          TextView txtView = (TextView) findViewById(R.id.tvDescriptionAdditionalNotPossiblePinTooNew);
          txtView.setVisibility(View.VISIBLE);
 
-         PrettyTime p = new PrettyTime(new Locale(mbwManager.getLanguage()));
-
          // Show warning, that you have to wait for n Blocks
          Integer remainingPinLockdownDuration = mbwManager.getRemainingPinLockdownDuration().or(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP);
          String approximateDuration = Utils.formatBlockcountAsApproxDuration(this, remainingPinLockdownDuration);

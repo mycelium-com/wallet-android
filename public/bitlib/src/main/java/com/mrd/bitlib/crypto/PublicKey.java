@@ -16,9 +16,6 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.io.Serializable;
-import java.util.Arrays;
-
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.Address;
@@ -27,6 +24,10 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
 
 public class PublicKey implements Serializable {
 
@@ -79,13 +80,23 @@ public class PublicKey implements Serializable {
    public boolean verifyStandardBitcoinSignature(Sha256Hash data, byte[] signature) {
       // Decode parameters r and s
       ByteReader reader = new ByteReader(signature);
-
       Signature params = Signatures.decodeSignatureParameters(reader);
       if (params == null) {
          return false;
       }
       // Make sure that we have a hash type at the end
       if (reader.available() != 1) {
+         return false;
+      }
+      return Signatures.verifySignature(data.getBytes(), params, getQ());
+   }
+
+   // same as verifyStandardBitcoinSignature, but dont enforce the hash-type check
+   public boolean verifyDerEncodedSignature(Sha256Hash data, byte[] signature){
+      // Decode parameters r and s
+      ByteReader reader = new ByteReader(signature);
+      Signature params = Signatures.decodeSignatureParameters(reader);
+      if (params == null) {
          return false;
       }
       return Signatures.verifySignature(data.getBytes(), params, getQ());

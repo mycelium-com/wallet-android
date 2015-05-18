@@ -118,8 +118,19 @@ public interface Wapi {
 
    /**
     * Get the current version-number, to check if there is an update available
-    *
+    * deprecated, replaced by getVersionInfoEx
     */
+   @Deprecated()
    WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request);
 
+   /**
+    * Get the current version-number for a certain branch (Android, iOS, ..)
+    * and also get a collection of eventually blocked features if there is a bug discovered
+    *
+    * returns null (empty object) if there are no warnings or important updates available for this branch/version
+    *
+    * curl -k -X POST -H "Content-Type: application/json" -d '{"branch":"android", "version":"2.3.1", "locale":"de" }' https://144.76.165.115/wapitestnet/wapi/getVersionEx
+    *
+    */
+   WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request);
 }

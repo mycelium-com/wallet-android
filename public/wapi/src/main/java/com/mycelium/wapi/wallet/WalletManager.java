@@ -128,6 +128,7 @@ public class WalletManager {
    private WapiLogger _logger;
    private boolean _synchronizeTransactionHistory;
    private final ExternalSignatureProvider _signatureProvider;
+   private IdentityAccountKeyManager _identityAccountKeyManager;
 
    public AccountScanManager accountScanManager;
 
@@ -849,8 +850,17 @@ public class WalletManager {
       }
    }
 
-
    public SecureKeyValueStore getSecureStorage(){
       return _secureKeyValueStore;
+   }
+
+   public IdentityAccountKeyManager getIdentityAccountKeyManager(KeyCipher cipher) throws InvalidKeyCipher {
+      if (null != _identityAccountKeyManager) {
+         return _identityAccountKeyManager;
+      }
+      if (!hasBip32MasterSeed()) throw new RuntimeException("accessed identity account with no master seed configured");
+      HdKeyNode rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).getBip32Seed());
+      _identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, _secureKeyValueStore, cipher);
+      return _identityAccountKeyManager;
    }
 }

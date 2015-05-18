@@ -118,10 +118,40 @@
   *;
 }
 
+#keep classes used for deserializing json
+-keepclasseswithmembers class com.mycelium.wallet.bitid.json.** {
+  <init>(...);
+  *;
+}
+
 -keep public class com.mycelium.lt.api.** {
   <init>(...);
  }
 -dontwarn com.fasterxml.jackson.**
+
+
+# keep everything decorated with butterknife
+-keep class butterknife.** { *; }
+-dontwarn butterknife.internal.**
+-keep class **$$ViewInjector { *; }
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
+
+# retrofit + API interfaces
+-keep class retrofit.** { *; }
+-keep class com.mycelium.wallet.external.cashila.api.** { *; }
+-keepclassmembernames interface * {
+    @retrofit.http.* <methods>;
+}
+
+#-dontwarn rx.**
+-dontwarn retrofit.**
 
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 

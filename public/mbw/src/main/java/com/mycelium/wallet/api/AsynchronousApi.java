@@ -35,11 +35,19 @@
 package com.mycelium.wallet.api;
 
 import com.mycelium.wallet.event.WalletVersionEvent;
+import com.mycelium.wallet.event.WalletVersionExEvent;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.request.VersionInfoExRequest;
 import com.mycelium.wapi.api.request.VersionInfoRequest;
+import com.mycelium.wapi.api.response.FeatureWarning;
+import com.mycelium.wapi.api.response.VersionInfoExResponse;
 import com.mycelium.wapi.api.response.VersionInfoResponse;
 import com.squareup.otto.Bus;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -91,6 +99,45 @@ public abstract class AsynchronousApi {
          @Override
          protected void callFunction() throws WapiException {
             _response = _wapi.getVersionInfo(req).getResult();
+         }
+      });
+   }
+
+   // call this function to test various warnings
+   public void getWalletVersionExTestHelper(final VersionInfoExRequest versionRequest) {
+
+      AbstractCallbackHandler<VersionInfoExResponse> callback = new AbstractCallbackHandler<VersionInfoExResponse>() {
+         @Override
+         public void handleCallback(VersionInfoExResponse response, WapiException exception) {
+            List<FeatureWarning> warnings = new ArrayList<FeatureWarning>();
+            //warnings.add(new FeatureWarning(Feature.APP_START, WarningKind.WARN, "AppStart", URI.create("https://google.com")));
+            //warnings.add(new FeatureWarning(Feature.CASHILA, WarningKind.BLOCK, "Warning message", URI.create("https://mycelium.com")));
+            //warnings.add(new FeatureWarning(Feature.CASHILA_NEW_PAYMENT, WarningKind.WARN, "NEWPAY Warning message", URI.create("https://mycelium.com")));
+            //warnings.add(new FeatureWarning(Feature.CASHILA_PAY, WarningKind.WARN, "PAY Warning message", URI.create("https://mycelium.com")));
+            response = new VersionInfoExResponse("2.3.4", "Neue super Version", URI.create("https://mycelium.com/bitcoinwallet"), warnings);
+            eventBus.post(new WalletVersionExEvent(response));
+         }
+      };
+      getWalletVersionEx(versionRequest, callback);
+   }
+
+   public void getWalletVersionEx(final VersionInfoExRequest versionRequest) {
+      AbstractCallbackHandler<VersionInfoExResponse> callback = new AbstractCallbackHandler<VersionInfoExResponse>() {
+         @Override
+         public void handleCallback(VersionInfoExResponse response, WapiException exception) {
+            if (response != null) {
+               eventBus.post(new WalletVersionExEvent(response));
+            }
+         }
+      };
+      getWalletVersionEx(versionRequest, callback);
+   }
+
+   public void getWalletVersionEx(final VersionInfoExRequest req, AbstractCallbackHandler<VersionInfoExResponse> callback) {
+      executeRequest(new AbstractCaller<VersionInfoExResponse>(callback) {
+         @Override
+         protected void callFunction() throws WapiException {
+            _response = _wapi.getVersionInfoEx(req).getResult();
          }
       });
    }

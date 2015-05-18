@@ -20,6 +20,7 @@ mkdir -p ${cwd}/res/values || exit
 
 UpdateOne da da
 UpdateOne de de
+UpdateOne el el
 UpdateOne es-ES es
 UpdateOne fr fr
 UpdateOne he iw
@@ -32,7 +33,9 @@ UpdateOne pt-PT pt
 UpdateOne ru ru
 UpdateOne sk sk
 UpdateOne sl sl
+UpdateOne sv-SE sv
 UpdateOne zh-CN zh
 UpdateOne zh-TW zh-rTW
-UpdateOne  vi vi
+UpdateOne vi vi
+UpdateOne sq sq
 

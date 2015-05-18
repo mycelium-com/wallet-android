@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;
@@ -17,7 +16,7 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    }
 
    @Override
-   public Transaction signTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
+   public Transaction signTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, KeyCipher cipher)
          throws KeyCipher.InvalidKeyCipher {
       checkNotArchived();
       if (!isValidEncryptionKey(cipher)) {

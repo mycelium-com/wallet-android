@@ -34,9 +34,6 @@
 
 package com.mycelium.wallet.lt.api;
 
-import java.util.Collection;
-import java.util.UUID;
-
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -45,9 +42,11 @@ import com.mycelium.lt.ApiUtils;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.params.TraderParameters;
-import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
+
+import java.util.Collection;
+import java.util.UUID;
 
 public class CreateTrader extends Request {
    private static final long serialVersionUID = 1L;
@@ -70,7 +69,7 @@ public class CreateTrader extends Request {
          Collection<LocalTraderEventSubscriber> subscribers) {
 
       // Sign session ID with private key
-      String sigHashSessionId = ApiUtils.generateUuidHashSignature(_privateKey, sessionId, new AndroidRandomSource());
+      String sigHashSessionId = ApiUtils.generateUuidHashSignature(_privateKey, sessionId);
       PublicKey publicKey = _privateKey.getPublicKey();
       Address address = publicKey.toAddress(_network);
 

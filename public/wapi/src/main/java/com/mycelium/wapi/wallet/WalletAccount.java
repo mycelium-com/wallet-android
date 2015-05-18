@@ -20,7 +20,6 @@ import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
@@ -38,6 +37,7 @@ import java.util.UUID;
 public interface WalletAccount {
 
    public enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION};
+
 
    /**
     * Get the network that this account is for.
@@ -186,11 +186,10 @@ public interface WalletAccount {
     *
     * @param unsigned     an unsigned transaction
     * @param cipher       the key cipher to use for decrypting the private key
-    * @param randomSource a random source
     * @return the signed transaction.
     * @throws InvalidKeyCipher
     */
-   Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
+   Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws InvalidKeyCipher;
 
    /**
@@ -208,6 +207,17 @@ public interface WalletAccount {
     * @param transaction     an transaction
     */
    void queueTransaction(Transaction transaction);
+
+   /**
+    * Remove a pending outgoing tx from the queue
+    *
+    * A new synchronisation is needed afterwards, as we already purged some UTXOs as we saved the
+    * tx in the queue
+    *
+    * @param transactionId     an transaction id
+    */
+   boolean cancelQueuedTransaction(Sha256Hash transactionId);
+
 
    /**
     * Determine the maximum spendable amount you can send in a transaction

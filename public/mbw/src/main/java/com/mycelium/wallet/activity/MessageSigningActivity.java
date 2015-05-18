@@ -42,12 +42,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -130,7 +128,7 @@ public class MessageSigningActivity extends Activity {
                     @Override
                     public void run() {
                         messageText = messageToSign.getText().toString();
-                        SignedMessage signedMessage = privateKey.signMessage(messageText, new AndroidRandomSource());
+                        SignedMessage signedMessage = privateKey.signMessage(messageText);
                         base64Signature = signedMessage.getBase64Signature();
                         runOnUiThread(new Runnable() {
                             @Override

@@ -5,10 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 
-import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
-import com.mycelium.wallet.bitid.BitIDResponse;
-import com.mycelium.wallet.bitid.BitIDSignRequest;
-
 public class BitIdActivityTest extends ActivityInstrumentationTestCase2<BitIDAuthenticationActivity> {
 
    //private final String URISTRING = "bitid://wiki.unsystem.net/en/index.php/Special:BitIDLogin/callback?x=d94831d37eb690b0";

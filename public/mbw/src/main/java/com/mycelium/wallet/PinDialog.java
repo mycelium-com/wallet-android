@@ -48,6 +48,9 @@ import java.util.ArrayList;
 
 public class PinDialog extends Dialog {
 
+   public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
+   public static final String PLACEHOLDER_NOT_TYPED = "\u25CB"; // Unicode Character 'WHITE CIRCLE' (which is a black circle)
+   public static final String PLACEHOLDER_SMALL = "\u2022"; // Unicode Character  'BULLET'
    protected Button btnBack;
    protected Button btnClear;
 
@@ -67,12 +70,13 @@ public class PinDialog extends Dialog {
    }
 
 
-   public PinDialog(Context context, boolean hidden) {
+   public PinDialog(Context context, boolean hidden, boolean cancelable) {
       super(context);
       this.hidden = hidden;
+      setCancelable(cancelable);
       loadLayout();
       initPinPad();
-      enteredPin = "";
+      clearDigits();
       this.setTitle(R.string.pin_enter_pin);
    }
 
@@ -143,16 +147,16 @@ public class PinDialog extends Dialog {
 
    protected String getPinDigitAsString(String pin, int index) {
       if (pin.length() > index) {
-         return hidden ? "*" : pin.substring(index, index + 1);
+         return hidden ? PLACEHOLDER_TYPED : pin.substring(index, index + 1);
       } else {
-         return " ";
+         return hidden ? PLACEHOLDER_NOT_TYPED : PLACEHOLDER_SMALL;
       }
    }
 
    protected void clearDigits() {
       enteredPin = "";
       for (TextView t : disps) {
-         t.setText("");
+         t.setText(hidden ? PLACEHOLDER_NOT_TYPED : PLACEHOLDER_SMALL);
       }
    }
 

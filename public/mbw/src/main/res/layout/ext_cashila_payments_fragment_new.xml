@@ -1,0 +1,136 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context="com.mycelium.wallet.external.cashila.activity.CashilaNewFragment">
+
+    <ScrollView
+            android:layout_above="@+id/llButtons"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/cashila_logo"/>
+
+            <!-- Receiver -->
+            <TextView
+                    android:text="@string/cashila_send_payment_to"
+                    android:layout_marginTop="15dp"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    >
+                <Spinner
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/spRecipients"
+                        android:layout_toLeftOf="@+id/ibAddRecipient"
+                        android:layout_alignParentLeft="true"
+                        >
+                    <requestFocus/>
+                </Spinner>
+
+                <ImageButton
+                        android:id="@+id/ibAddRecipient"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/holo_dark_ic_action_add_person"
+                        android:layout_centerVertical="true"
+                        />
+
+            </RelativeLayout>
+
+            <!-- Amount -->
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    >
+                <EditText
+                        android:id="@+id/etAmount"
+                        android:layout_width="95dp"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:numeric="decimal"
+                        android:layout_alignParentLeft="true"
+                        android:hint="@string/cashila_fiat_amount"
+                        />
+                <TextView
+                        android:id="@+id/tvCurrency"
+                        android:text="EUR"
+                        android:layout_toRightOf="@id/etAmount"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="2dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                <!-- Reference -->
+                <EditText
+                        android:id="@+id/etReference"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_toRightOf="@id/tvCurrency"
+                        android:layout_marginLeft="20dp"
+                        android:singleLine="true"
+                        android:hint="@string/cashila_reference_text"
+                        tools:text="REF 12345678"
+                        />
+            </RelativeLayout>
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+            android:id="@+id/llButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            >
+        <Button
+                android:id="@+id/btEnqueue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17sp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="@string/cashila_enqueue_payment"/>
+
+        <Button
+                android:id="@+id/btPayNow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textSize="17sp"
+                android:text="@string/cashila_pay_now"/>
+
+    </RelativeLayout>
+</RelativeLayout>

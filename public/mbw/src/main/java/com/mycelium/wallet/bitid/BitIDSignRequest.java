@@ -35,11 +35,9 @@
 package com.mycelium.wallet.bitid;
 
 import android.net.Uri;
-
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,30 +51,77 @@ public class BitIDSignRequest implements Serializable {
    private static final long serialVersionUID = 0L;
    private final URI uri;
    private final boolean isHttpsCallback;
+   private String schemeSpecificWithoutProtocol;
 
-   private BitIDSignRequest(Uri uri) {
-      try {
-         this.uri = new URI(uri.getScheme(),uri.getSchemeSpecificPart(),uri.getFragment());
-         //if the parameter &u=1 exists, a http callback (instead of https) is expected
-         String unsecure = uri.getQueryParameter("u");
-         isHttpsCallback = (null == unsecure || !unsecure.equals("1"));
-      } catch (URISyntaxException e) {
-         throw new RuntimeException(e);
+   private BitIDSignRequest(Uri uri) throws URISyntaxException {
+      this.uri = new URI(uri.getScheme(),uri.getSchemeSpecificPart(),uri.getFragment());
+      if (uri.getSchemeSpecificPart().startsWith("http")) {
+         String specific = uri.getSchemeSpecificPart();
+         //if the url starts with http or https, we can set isHttpsCallback based on that
+         isHttpsCallback = specific.startsWith("https");
+         schemeSpecificWithoutProtocol = specific.substring(specific.indexOf("//") + 2);
+      } else {
+         schemeSpecificWithoutProtocol = uri.getSchemeSpecificPart();
+         if (schemeSpecificWithoutProtocol.startsWith("//")) {
+            schemeSpecificWithoutProtocol = schemeSpecificWithoutProtocol.substring(2);
+         }
+         //otherwise, if the parameter &u=1 exists, a http callback (instead of https) is expected
+         String insecure = null;
+         if (uri.isOpaque()) {
+            if (schemeSpecificWithoutProtocol.contains("u=")) {
+               int index = schemeSpecificWithoutProtocol.indexOf("u=");
+               insecure = schemeSpecificWithoutProtocol.substring(index  + 2, index + 3);
+            }
+         } else {
+            insecure = uri.getQueryParameter("u");
+         }
+         isHttpsCallback = (null == insecure || !insecure.equals("1"));
       }
    }
 
    public static Optional<BitIDSignRequest> parse(Uri uri) {
+      String host, query;
       String scheme = uri.getScheme();
       if (!scheme.equalsIgnoreCase("bitid")) {
          // not a bitid
          return Optional.absent();
       }
-      String host = uri.getHost();
+
+      if (uri.isOpaque()) {
+         String url = uri.getSchemeSpecificPart();
+         if (url.startsWith("http")) {
+            //remove the protocol
+            if (!url.contains("//")) return Optional.absent();
+            url = url.substring(url.indexOf("//") + 2);
+         }
+         if (!url.contains("?")) return Optional.absent();
+         host = url.substring(0, url.indexOf('?'));
+         query = url.substring(url.indexOf('?') + 1);
+      } else {
+         host = uri.getHost();
+         query = uri.getQuery();
+      }
+
       if (null == host || host.length() < 1) return Optional.absent();
-      return Optional.of(new BitIDSignRequest(uri));
+      if (null == query || query.length() < 1) return Optional.absent();
+
+      try {
+         return Optional.of(new BitIDSignRequest(uri));
+      } catch (URISyntaxException e) {
+         return Optional.absent();
+      }
    }
 
    public String getHost() {
+      if (uri.isOpaque()) {
+         if (schemeSpecificWithoutProtocol.contains("/")) {
+            return schemeSpecificWithoutProtocol.substring(0, schemeSpecificWithoutProtocol.indexOf("/"));
+         }
+         if (schemeSpecificWithoutProtocol.contains("?")) {
+            return schemeSpecificWithoutProtocol.substring(0, schemeSpecificWithoutProtocol.indexOf("?"));
+         }
+         return schemeSpecificWithoutProtocol;
+      }
       return uri.getHost();
    }
 
@@ -102,7 +147,7 @@ public class BitIDSignRequest implements Serializable {
 
    private String getUri(String scheme) {
       try {
-         return new URI(scheme, uri.getSchemeSpecificPart(), uri.getFragment()).toString();
+         return new URI(scheme, "//" + schemeSpecificWithoutProtocol, uri.getFragment()).toString();
       } catch (URISyntaxException e) {
          throw new RuntimeException(e);
       }
@@ -118,5 +163,11 @@ public class BitIDSignRequest implements Serializable {
          throw new RuntimeException(e);
       }
       return obj;
+   }
+
+   public String getWebsite() {
+      String uriString = uri.toString();
+      if (uriString.contains("?")) return uriString.substring(0, uriString.indexOf("?"));
+      return uriString;
    }
 }

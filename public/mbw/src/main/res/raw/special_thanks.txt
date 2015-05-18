@@ -1,5 +1,18 @@
 Thanks to Jethro for tirelessly testing the app during beta development.
 
-Thanks to our numerous volunteer translators who provide high-quality translations in many languages. Your name should be listed here, please contact us so we know you want to be included.
-
 Thanks to Johannes Zweng for his testing and providing pull requests for fixes. Thanks to all beta testers to provide early feedback.
+
+Thanks to our numerous volunteer translators:
+
+Perlover (perlover@perlover.com)
+Matija Mazi
+Martijn Wismeijer
+LucMarcoux@YQB
+Petros Moustardas / Metallaxis (danaimou@hotmail.com)
+Matej Nemček / @yangwao
+Phil Trinh (phil@bitcoinvietnam.com.vn)
+Kirvx
+Bitkoinmama
+HostFat
+Zyklon (zyklon87@gmail.com)
+

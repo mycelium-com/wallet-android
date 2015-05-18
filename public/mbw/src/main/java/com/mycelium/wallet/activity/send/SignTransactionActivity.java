@@ -42,7 +42,8 @@ import android.view.Window;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.Transaction;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
 import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -122,7 +123,7 @@ public class SignTransactionActivity extends Activity {
          @Override
          protected Transaction doInBackground(Void... args) {
             try {
-               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
+               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }

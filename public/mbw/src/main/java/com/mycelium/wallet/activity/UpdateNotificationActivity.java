@@ -46,7 +46,7 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.VersionManager;
-import com.mycelium.wapi.api.response.VersionInfoResponse;
+import com.mycelium.wapi.api.response.VersionInfoExResponse;
 
 public class UpdateNotificationActivity extends Activity {
 
@@ -58,7 +58,7 @@ public class UpdateNotificationActivity extends Activity {
       setTitle(R.string.new_version_exists);
       setContentView(R.layout.update_notification);
 
-      final VersionInfoResponse response = Preconditions.checkNotNull((VersionInfoResponse) getIntent().getSerializableExtra(RESPONSE));
+      final VersionInfoExResponse response = Preconditions.checkNotNull((VersionInfoExResponse) getIntent().getSerializableExtra(RESPONSE));
       Button ignoreButton = (Button) findViewById(R.id.ignoreUpdate);
       Button playButton = (Button) findViewById(R.id.getPlay);
       Button myceliumButton = (Button) findViewById(R.id.getMycelium);
@@ -66,8 +66,8 @@ public class UpdateNotificationActivity extends Activity {
       TextView message = (TextView) findViewById(R.id.updateMessage);
 
       versionNumber.setText(response.versionNumber);
-      message.setText(response.message);
-      if ("".equals(response.message)){
+      message.setText(response.versionMessage);
+      if ("".equals(response.versionMessage)){
          message.setVisibility(View.GONE);
       }
 

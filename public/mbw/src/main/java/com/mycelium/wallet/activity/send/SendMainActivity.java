@@ -41,12 +41,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
@@ -60,15 +62,17 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
+import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
+import com.mycelium.wallet.external.cashila.api.response.BillPay;
+import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.squareup.otto.Subscribe;
 
 import java.util.Arrays;
@@ -83,6 +87,7 @@ public class SendMainActivity extends Activity {
    private static final int REQUEST_PICK_ACCOUNT = 5;
    protected static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
    private static final int BROADCAST_REQUEST_CODE = 7;
+   private BillPay _sepaPayment;
 
    private enum TransactionStatus {
       MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -116,6 +121,17 @@ public class SendMainActivity extends Activity {
       return intent;
    }
 
+   public static Intent getIntent(Activity currentActivity, UUID account,
+                                  BillPay sepaPayment, boolean isColdStorage) {
+      Intent intent = new Intent(currentActivity, SendMainActivity.class);
+      intent.putExtra("account", account);
+      intent.putExtra("amountToSend", Bitcoins.nearestValue(sepaPayment.details.amountToDeposit).getLongValue());
+      intent.putExtra("receivingAddress", sepaPayment.details.address);
+      intent.putExtra("sepaPayment", sepaPayment);
+      intent.putExtra("isColdStorage", isColdStorage);
+      return intent;
+   }
+
    public static Intent getIntent(Activity currentActivity, UUID account, HdKeyNode hdKey) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
       intent.putExtra("account", account);
@@ -145,7 +161,8 @@ public class SendMainActivity extends Activity {
       _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
       // May be null
       _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
-      //May be null
+
+      // May be null
       _transactionLabel = getIntent().getStringExtra("transactionLabel");
 
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
@@ -171,11 +188,24 @@ public class SendMainActivity extends Activity {
          // See if we can create the transaction with what we have
          _transactionStatus = tryCreateUnsignedTransaction();
       } else {
-         //we need the user to pick a spending account - the activity will then init sendmain correctly
+         // we need the user to pick a spending account - the activity will then init sendMain correctly
          BitcoinUri uri = new BitcoinUri(_receivingAddress,_amountToSend, _transactionLabel);
          GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_PICK_ACCOUNT);
-         //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
+         // no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
          finish();
+      }
+
+      //SEPA transfer for if cashila account is paired
+      if (_mbwManager.isWalletPaired(ExternalService.CASHILA)) {
+         findViewById(R.id.btSepaTransfer).setVisibility(View.VISIBLE);
+         findViewById(R.id.btSepaTransfer).setOnClickListener(sepaClickListener);
+      } else {
+         findViewById(R.id.btSepaTransfer).setVisibility(View.GONE);
+      }
+
+      _sepaPayment = (BillPay) getIntent().getSerializableExtra("sepaPayment");
+      if (_sepaPayment != null){
+         showSepaInfo(_sepaPayment);
       }
 
       // Scan
@@ -205,6 +235,27 @@ public class SendMainActivity extends Activity {
 
    }
 
+   private void showSepaInfo(BillPay sepaPayment) {
+      // show the sepa information, instead of the Btc Address
+      ViewGroup parent = (ViewGroup) findViewById(R.id.tvReceiver).getParent();
+      findViewById(R.id.tvReceiver).setVisibility(View.GONE);
+      View view = getLayoutInflater().inflate(R.layout.ext_cashila_sepa_info, parent, true);
+
+      ((TextView)view.findViewById(R.id.tvName)).setText(sepaPayment.recipient.name);
+      ((TextView)view.findViewById(R.id.tvSepaAmount)).setText(
+            Utils.formatFiatValueAsString(sepaPayment.payment.amount) + " " + sepaPayment.payment.currency);
+
+      ((TextView)view.findViewById(R.id.tvSepaFee)).setText(getResources().getString(R.string.cashila_fee,
+            Utils.formatFiatValueAsString(sepaPayment.details.fee) + " " + sepaPayment.payment.currency));
+
+      ((TextView)view.findViewById(R.id.tvIban)).setText(sepaPayment.payment.iban);
+      ((TextView)view.findViewById(R.id.tvBic)).setText(sepaPayment.payment.bic);
+      ((TextView)view.findViewById(R.id.tvBtcAddress)).setText(String.format("(%s)", sepaPayment.details.address.toString()));
+
+      // hide the button to change the amount
+      findViewById(R.id.btEnterAmount).setVisibility(View.GONE);
+   }
+
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
@@ -220,6 +271,19 @@ public class SendMainActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrUriOrKeynode());
+      }
+   };
+
+   private OnClickListener sepaClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View arg0) {
+         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this, Feature.CASHILA, true, new Runnable() {
+            @Override
+            public void run() {
+               startActivity(CashilaPaymentsActivity.getIntent(SendMainActivity.this));
+               finish();
+            }
+         });
       }
    };
 
@@ -354,8 +418,10 @@ public class SendMainActivity extends Activity {
       }
 
       // Set Address
-      String choppedAddress = _receivingAddress.toMultiLineString();
-      ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
+      if (_sepaPayment == null) {
+         String choppedAddress = _receivingAddress.toMultiLineString();
+         ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
+      }
 
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
       WalletManager walletManager = _mbwManager.getWalletManager(false);

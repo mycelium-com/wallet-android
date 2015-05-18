@@ -24,6 +24,7 @@ import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -246,6 +247,29 @@ public class SignedMessage implements Serializable {
 
    public String getBase64Signature() {
       return Base64.encodeToString(bitcoinEncodingOfSignature(), false);
+   }
+
+   public byte[] getDerEncodedSignature(){
+      //byte[] rsValues = bitcoinEncodingOfSignature();
+
+      byte[] rBytes = signature.r.toByteArray();
+      byte[] sBytes = signature.s.toByteArray();
+
+      ByteWriter rsValues = new ByteWriter(rBytes.length + sBytes.length + 2 + 2);
+      rsValues.put((byte) 0x02);  // Type: integer
+      rsValues.put((byte)rBytes.length);  // length
+      rsValues.putBytes(rBytes);    // data
+      rsValues.put((byte) 0x02);  // Type: integer
+      rsValues.put((byte)sBytes.length);  // length
+      rsValues.putBytes(sBytes); // data
+
+      ByteWriter byteWriter = new ByteWriter(2 + rsValues.length());
+
+      byteWriter.put((byte)0x30); // Tag
+      Preconditions.checkState(rsValues.length() <= 255, "total length should be smaller than 256");
+      byteWriter.put((byte) rsValues.length());
+      byteWriter.putBytes(rsValues.toBytes());
+      return byteWriter.toBytes();
    }
 
    public static class RecoveryInfo {

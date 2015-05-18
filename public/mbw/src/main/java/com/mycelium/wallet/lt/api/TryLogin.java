@@ -34,9 +34,6 @@
 
 package com.mycelium.wallet.lt.api;
 
-import java.util.Collection;
-import java.util.UUID;
-
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -44,9 +41,11 @@ import com.mycelium.lt.ApiUtils;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.params.LoginParameters;
-import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
+
+import java.util.Collection;
+import java.util.UUID;
 
 public class TryLogin extends Request {
    private static final long serialVersionUID = 1L;
@@ -65,7 +64,7 @@ public class TryLogin extends Request {
          Collection<LocalTraderEventSubscriber> subscribers) {
 
       // Sign session ID with private key
-      String signedMessage = ApiUtils.generateUuidHashSignature(_privateKey, sessionId, new AndroidRandomSource());
+      String signedMessage = ApiUtils.generateUuidHashSignature(_privateKey, sessionId);
       try {
 
          // Call function

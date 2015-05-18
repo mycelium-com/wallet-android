@@ -44,6 +44,7 @@ public class SslUtils {
    private static final Map<String, SSLSocketFactory> _sslSocketFactories = new HashMap<String, SSLSocketFactory>();
 
    public static final HostnameVerifier HOST_NAME_VERIFIER_ACCEPT_ALL;
+   public static final  SSLSocketFactory SSL_SOCKET_FACTORY_ACCEPT_ALL;
 
    public static synchronized SSLSocketFactory getSsLSocketFactory(String certificateThumbprint) {
       SSLSocketFactory factory = _sslSocketFactories.get(certificateThumbprint);
@@ -106,6 +107,28 @@ public class SslUtils {
          }
       };
 
+      //not used for our servers - sometimes needed after user confirmed to contact external services besides cert errors
+      TrustManager[] trustOneCert = new TrustManager[] { new X509TrustManager() {
+         public X509Certificate[] getAcceptedIssuers() {
+            return null;
+         }
+         public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            //everything is fine
+         }
+         public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            //everything is fine
+         }
+      } };
+
+      try {
+         SSLContext sc = SSLContext.getInstance("TLS");
+         sc.init(null, trustOneCert, null);
+         SSL_SOCKET_FACTORY_ACCEPT_ALL = sc.getSocketFactory();
+      } catch (NoSuchAlgorithmException e) {
+         throw new RuntimeException(e);
+      } catch (KeyManagementException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    /**

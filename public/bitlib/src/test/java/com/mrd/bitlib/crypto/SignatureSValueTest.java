@@ -34,21 +34,19 @@
 
 package com.mrd.bitlib.crypto;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.math.BigInteger;
-
-import org.junit.Test;
-
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import org.junit.Test;
+
+import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SignatureSValueTest {
 
    public class FakeRandom implements RandomSource {
-
       @Override
       public void nextBytes(byte[] bytes) {
          for (int i = 0; i < bytes.length; i++) {
@@ -83,6 +81,34 @@ public class SignatureSValueTest {
       // without the fix. (negative test)
       toSign = HashUtils.sha256(new byte[]{0x00});
       sig = pk.generateSignature(toSign, rnd);
+      // Verify that the S parameter is below MAX_SIG_S
+      assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
+      // Verify that the signature is valid
+      assertTrue(Signatures.verifySignature(toSign.getBytes(), sig, pk.getPublicKey().getQ()));
+
+   }
+
+   @Test
+   public void checkSValueDeterministic() {
+      FakeRandom rnd = new FakeRandom();
+      InMemoryPrivateKey pk = new InMemoryPrivateKey(rnd, true);
+
+      Sha256Hash toSign;
+      Signature sig;
+
+      // Generate hash that would create S-value below Parameters.MAX_SIG_S with
+      // or without the fix. (positive test)
+      toSign = HashUtils.sha256(new byte[]{0x01});
+      sig = pk.generateSignature(toSign);
+      // Verify that the S parameter is below MAX_SIG_S
+      assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
+      // Verify that the signature is valid
+      assertTrue(Signatures.verifySignature(toSign.getBytes(), sig, pk.getPublicKey().getQ()));
+
+      // Generate hash that would create S-value above Parameters.MAX_SIG_S
+      // without the fix. (negative test)
+      toSign = HashUtils.sha256(new byte[]{0x02});
+      sig = pk.generateSignature(toSign);
       // Verify that the S parameter is below MAX_SIG_S
       assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
       // Verify that the signature is valid

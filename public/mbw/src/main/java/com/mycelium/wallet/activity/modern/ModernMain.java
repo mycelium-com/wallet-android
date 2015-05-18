@@ -49,30 +49,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.activity.ScanActivity;
-import com.mycelium.wallet.activity.StringHandlerActivity;
-import com.mycelium.wallet.event.*;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.squareup.otto.Subscribe;
-
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AboutActivity;
+import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
+import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
+import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
-
-import java.util.UUID;
 
 public class ModernMain extends ActionBarActivity {
 
@@ -117,6 +113,8 @@ public class ModernMain extends ActionBarActivity {
       }
 
       checkTorState();
+
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
 
    }
 
@@ -209,8 +207,11 @@ public class ModernMain extends ActionBarActivity {
       final boolean isBalance = tabIdx == 1;
       final boolean isHistory = tabIdx == 2;
       refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
-      refreshItem.setVisible(isBalance | isHistory);
+      refreshItem.setVisible(isBalance || isHistory);
       setRefreshAnimation();
+
+      final boolean showSepaEntry = isBalance && _mbwManager.isWalletPaired(ExternalService.CASHILA);
+      Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
 
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistory);
 
@@ -260,6 +261,13 @@ public class ModernMain extends ActionBarActivity {
       } else if (itemId == R.id.miRescanTransactions) {
          _mbwManager.getSelectedAccount().dropCachedData();
          _mbwManager.getWalletManager(false).startSynchronization();
+      } else if ( itemId == R.id.miSepaSend) {
+         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
+            @Override
+            public void run() {
+               startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
+            }
+         });
       }
       return super.onOptionsItemSelected(item);
    }
@@ -340,11 +348,13 @@ public class ModernMain extends ActionBarActivity {
    }
 
    @Subscribe
-   public void onNewVersion(final WalletVersionEvent event) {
-      if (!event.response.isPresent()) {
-         return;
-      }
-      _mbwManager.getVersionManager().showIfRelevant(event.response.get(), this);
+   public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
+   }
+
+   @Subscribe
+   public void onNewVersion(final NewWalletVersionAvailable event) {
+      _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
    }
 
 }

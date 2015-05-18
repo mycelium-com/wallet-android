@@ -30,6 +30,10 @@ dependencies {
     compile 'com.google.android.gms:play-services-base:6.5.+'
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'io.reactivex:rxandroid:0.24.0'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
@@ -38,28 +42,26 @@ android {
 
     dexOptions {
         jumboMode true
+        incremental true
     }
 
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/DEPENDENCIES'
-
     }
-
 
     compileOptions {
         sourceCompatibility = 'VERSION_1_6'
         targetCompatibility = 'VERSION_1_6'
     }
 
-
-
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 23100
-        versionName '2.3.1'
+        versionCode 24005
+        versionName '2.4.0-BETA1'
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -88,7 +90,7 @@ android {
 */
 
         release {
-//            debuggable true
+            //debuggable true
             minifyEnabled true
             proguardFile 'mbw.pro'
             applicationVariants.all { variant ->
@@ -104,15 +106,6 @@ android {
     }
 
     productFlavors {
-        bitsofgold {
-            compileSdkVersion 19
-            targetSdkVersion 19
-            minSdkVersion 14
-
-            applicationId 'il.co.bitsofgold.wallet'
-            versionName = defaultConfig.versionName + '-BOG'
-            signingConfig signingConfigs.release
-        }
         prodnet {
             compileSdkVersion 19
             targetSdkVersion 19
@@ -124,11 +117,20 @@ android {
         }
         dev {
             // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
-            compileSdkVersion 19
-            targetSdkVersion 19
-            minSdkVersion 14
+            compileSdkVersion 21
+            targetSdkVersion 21
+            minSdkVersion 21
 
-            applicationId 'com.mycelium.devwallet'
+            // if we are not on master, include the branchname in appId
+            def appId = 'com.mycelium.devwallet';
+            def branch =  getGitBranch()
+
+            if ( branch != "" && branch != "master"){
+                appId = appId + "_" + branch
+                versionName = defaultConfig.versionName + "-DEV_" + branch
+            }
+
+            applicationId appId
             signingConfig signingConfigs.debug
         }
         testnet {
@@ -169,7 +171,6 @@ if (project.hasProperty('prodKeyStore') &&
     android.signingConfigs.release.keyPassword = prodKeyAliasPassword
 } else {
     android.productFlavors.prodnet.signingConfig = null
-    android.productFlavors.bitsofgold.signingConfig = null
 }
 
 if (project.hasProperty('testKeyStore') &&

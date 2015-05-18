@@ -131,6 +131,11 @@ public class Bip44AccountTest {
             throw new RuntimeException(e);
          }
       }
+
+      @Override
+      public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
+         return null;
+      }
    }
 
    /**

@@ -47,6 +47,8 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
@@ -552,14 +554,19 @@ public class SettingsActivity extends PreferenceActivity {
       }
 
       @Override
-      public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
+      public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
          AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
+         b.setTitle(getString(R.string.lt_set_email_title));
          b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                String email = emailEdit.getText().toString();
                _ltManager.makeRequest(new SetNotificationMail(email));
+
+               if ((info.notificationEmail==null || !info.notificationEmail.equals(email)) && !Strings.isNullOrEmpty(email)) {
+                  Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.lt_email_please_verify_message));
+               }
             }
          });
          b.setNegativeButton(R.string.cancel, null);
@@ -575,9 +582,15 @@ public class SettingsActivity extends PreferenceActivity {
             }
          };
          emailEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-
          emailEdit.setText(info.notificationEmail);
-         b.setView(emailEdit);
+         LinearLayout llDialog = new LinearLayout(SettingsActivity.this);
+         llDialog.setOrientation(LinearLayout.VERTICAL);
+         llDialog.setPadding(10, 10, 10, 10);
+         TextView tvInfo = new TextView(SettingsActivity.this);
+         tvInfo.setText(getString(R.string.lt_set_email_info));
+         llDialog.addView(tvInfo);
+         llDialog.addView(emailEdit);
+         b.setView(llDialog);
          AlertDialog dialog = b.show();
          okButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
          _ltManager.unsubscribe(this);
@@ -586,7 +599,7 @@ public class SettingsActivity extends PreferenceActivity {
       @Override
       public void onLtError(int errorCode) {
          pleaseWait.dismiss();
-         new Toaster(SettingsActivity.this).toast("Unable to retrieve Trader Info from the server", false);
+         new Toaster(SettingsActivity.this).toast(getString(R.string.lt_set_email_error), false);
          _ltManager.unsubscribe(this);
 
       }

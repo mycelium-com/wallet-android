@@ -34,10 +34,6 @@
 
 package com.mycelium.wallet.activity;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.UUID;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -47,22 +43,22 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.NumberEntry;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.UUID;
 
 
 public class GetAmountActivity extends Activity implements NumberEntryListener {
@@ -161,7 +157,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void initNumberEntry(Bundle savedInstanceState) {
       Long amount = (Long) getIntent().getSerializableExtra("amount");
-      _selectedCurrency = "BTC";
+      _selectedCurrency = CurrencySwitcher.BTC;
       // Load saved state
       if (savedInstanceState != null) {
          amount = (Long) savedInstanceState.getSerializable(AMOUNT);
@@ -241,7 +237,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return null;
       }
       String number = content.trim();
-      if (_selectedCurrency.equals("BTC")) {
+      if (_selectedCurrency.equals(CurrencySwitcher.BTC)) {
          number = Utils
                .truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
          if (number == null) {
@@ -266,7 +262,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void switchToBtc() {
-      _selectedCurrency = "BTC";
+      _selectedCurrency = CurrencySwitcher.BTC;
       updateUI();
    }
 
@@ -274,10 +270,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void switchCurrency() {
       _selectedCurrency = _mbwManager.getNextCurrency(true);
 
-      _oneBtcInFiat = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      //if the price is not available, switch on -> no point in showing it
-      if (_oneBtcInFiat == null) {
-         _mbwManager.getExchangeRateManager().requestRefresh();
+      CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+      _oneBtcInFiat = currencySwitcher.getExchangeRatePrice();
+
+      // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
+      // if there is no exchange rate at all available, we will get to BTC and stay there
+      if (!_selectedCurrency.equals(CurrencySwitcher.BTC) && !currencySwitcher.isFiatExchangeRateAvailable()) {
          switchCurrency();
          return;
       }
@@ -380,7 +378,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private boolean isBtc() {
-      return _selectedCurrency.equals("BTC");
+      return _selectedCurrency.equals(CurrencySwitcher.BTC);
    }
 
    private void updateAmounts(String amountText) {
@@ -414,7 +412,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          _numberEntry.setEntry(newAmount, newDecimalPlaces);
          _enteredAmount = BigDecimal.valueOf(_maxSpendableAmount);
          _satoshis = _maxSpendableAmount;
-         _enteredCurrency = "BTC";
+         _enteredCurrency = CurrencySwitcher.BTC;
          updateUI();
          checkEntry();
       }

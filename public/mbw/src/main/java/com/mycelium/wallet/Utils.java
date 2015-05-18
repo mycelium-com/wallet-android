@@ -219,14 +219,14 @@ public class Utils {
       showSimpleMessageDialog(context, messageResource, null);
    }
 
-   public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable postRunner) {
+   public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable okayRunner) {
       String message = context.getResources().getString(messageResource);
-      showSimpleMessageDialog(context, message, postRunner);
+      showSimpleMessageDialog(context, message, okayRunner);
    }
 
    public static String formatBlockcountAsApproxDuration(final Context context, final int blocks){
       MbwManager mbwManager = MbwManager.getInstance(context);
-      PrettyTime p = new PrettyTime(new Locale(mbwManager.getLanguage()));
+      PrettyTime p = new PrettyTime(mbwManager.getLocale());
       String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max(blocks, 1) * 10 * 60 * 1000));
       return ret;
    }
@@ -243,7 +243,15 @@ public class Utils {
     * Show a dialog without buttons that displays a message. Click the message
     * or the back button to make it disappear.
     */
-   public static void showSimpleMessageDialog(final Context context, String message, final Runnable postRunner) {
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner) {
+      showSimpleMessageDialog(context, message, okayRunner, null);
+   }
+
+   /**
+    * Show a dialog without buttons that displays a message. Click the message
+    * or the back button to make it disappear.
+    */
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -255,6 +263,15 @@ public class Utils {
          @Override
          public void onClick(View v) {
             dialog.dismiss();
+            if (okayRunner != null) {
+               okayRunner.run();
+            }
+         }
+      });
+
+      dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+         @Override
+         public void onDismiss(DialogInterface dialog) {
             if (postRunner != null) {
                postRunner.run();
             }
@@ -340,6 +357,10 @@ public class Utils {
    }
 
    private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+
+   public static String formatFiatValueAsString(BigDecimal fiat) {
+      return FIAT_FORMAT.format(fiat);
+   }
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
 
       Double converted = getFiatValue(satoshis, oneBtcInFiat);
