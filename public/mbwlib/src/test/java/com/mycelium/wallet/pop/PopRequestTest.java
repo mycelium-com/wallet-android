@@ -1,10 +1,12 @@
 package com.mycelium.wallet.pop;
 
+import com.google.bitcoinj.Base58;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -30,6 +32,7 @@ public class PopRequestTest {
     public void testCreateOnlyNonce() {
         testIllegalURI("btcpop:?n=B");
     }
+
     @Test
     public void testCreateOnlyP() {
         testIllegalURI("btcpop:?p=a");
@@ -113,7 +116,7 @@ public class PopRequestTest {
     @Test
     public void testCreateMinimal() {
         PopRequest uri = new PopRequest("btcpop:?n=111&p=a");
-        assertEquals(0L, uri.getN().longValue());
+        assertArrayEquals(new byte[3], uri.getN());
         assertNull(uri.getAmountSatoshis());
         assertNull(uri.getLabel());
         assertNull(uri.getTxid());
@@ -124,7 +127,7 @@ public class PopRequestTest {
     public void testCreateFull() {
         String txid="Emt9MPvt1joznqHy5eEHkNtcuQuYWXzYJBQZN6BJm6NL";
         PopRequest uri = new PopRequest("btcpop:?n=111&p=a&label=atext&amount=10&txid=" + txid);
-        assertEquals(0L, uri.getN().longValue());
+        assertArrayEquals(new byte[3], uri.getN());
         assertEquals(1000000000, uri.getAmountSatoshis().longValue());
         assertEquals("atext", uri.getLabel());
         assertEquals("cca7507897abc89628f450e8b1e0c6fca4ec3f7b34cccf55f3f531c659ff4d79", uri.getTxid().toString());

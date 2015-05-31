@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class PopRequest implements Serializable {
-    private Long n;
+    private byte[] n;
     private Long amountSatoshis;
     private String label;
     private String message;
@@ -49,16 +49,12 @@ public class PopRequest implements Serializable {
                 if (value == null) {
                     throw new IllegalArgumentException("Nonce must not be empty");
                 }
-
-                byte[] decodedNonce = Base58.decode(value);
-                if (decodedNonce == null) {
-                    throw new IllegalArgumentException("Can't Base58 decode value " + value);
+                n = Base58.decode(value);
+                if (n == null) {
+                    throw new IllegalArgumentException("Nonce " + value + " cannot be base58 decoded");
                 }
-                byte[] longBytes = new byte[8];
-                System.arraycopy(decodedNonce, 0, longBytes, 8-decodedNonce.length, decodedNonce.length);
-                n = ByteBuffer.wrap(longBytes).getLong();
-                if (n < 0) {
-                    throw new IllegalArgumentException("Negative nonce not allowed");
+                if (n.length < 1) {
+                    throw new IllegalArgumentException("Nonce too short");
                 }
             } else if ("p".equals(key)) {
                 if (value == null) {
@@ -101,7 +97,7 @@ public class PopRequest implements Serializable {
         }
     }
 
-    public Long getN() {
+    public byte[] getN() {
         return n;
     }
 

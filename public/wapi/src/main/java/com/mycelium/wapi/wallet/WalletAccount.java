@@ -230,7 +230,7 @@ public interface WalletAccount {
     */
    boolean isDerivedFromInternalMasterseed();
 
-   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, long nonce);
+   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce);
 
    /**
     * Get the summary list of unspent transaction outputs for this account.

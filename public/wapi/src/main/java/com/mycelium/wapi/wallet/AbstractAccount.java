@@ -1046,7 +1046,7 @@ public abstract class AbstractAccount implements WalletAccount {
       return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
    }
 
-   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, long nonce) {
+   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
       checkNotArchived();
 
       try {
@@ -1103,18 +1103,20 @@ public abstract class AbstractAccount implements WalletAccount {
       return result;
    }
 
-   private TransactionOutput createPopOutput(Sha256Hash txidToProve, long nonce, long amount) {
+   private TransactionOutput createPopOutput(Sha256Hash txidToProve, byte[] nonce, long amount) {
 
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
-      byteBuffer.put((byte)Script.OP_RETURN);
+      byteBuffer.put((byte) Script.OP_RETURN);
 
-      byteBuffer.putShort((short)1); // version 1
+      byteBuffer.put((byte)1).put((byte)0); // version 1
 
       byteBuffer.put(txidToProve.getBytes()); // txid
 
-      ByteBuffer nonceBuffer = ByteBuffer.allocate(8);
-      nonceBuffer.putLong(nonce);
-      byteBuffer.put(nonceBuffer.array(), 2, 6); // nonce
+      if (nonce == null || nonce.length != 6) {
+         throw new IllegalArgumentException("Invalid nonce. Expected 6 bytes.");
+      }
+      byteBuffer.put(nonce); // nonce
+
       ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
       TransactionOutput output = new TransactionOutput(amount, scriptOutput);
       return output;
