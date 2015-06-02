@@ -53,7 +53,8 @@
 
 
     <style name="MyceliumActionBar" parent="MyceliumModern">
-        <item name="android:windowBackground">@drawable/background_witherrors_centered</item>
+        <!-- Load it later in code with a lower pixel format, to save some memory
+        <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
     </style>
 
     <!-- Application theme. -->

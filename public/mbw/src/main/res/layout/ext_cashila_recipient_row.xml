@@ -14,11 +14,10 @@
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/tvInfo"
             android:layout_alignParentLeft="true"
-            android:ellipsize="middle"
             android:textStyle="bold"
             android:singleLine="true"
+            android:paddingRight="5dp"
             tools:text="John Doe"/>
 
 
@@ -26,7 +25,11 @@
             android:id="@+id/tvInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tvName"
             android:layout_alignParentRight="true"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:gravity="right"
             tools:text="xxx1827"/>
 
 

@@ -125,6 +125,7 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+      View ivNfc = findViewById(R.id.ivNfc);
       if (nfc!=null && nfc.isNdefPushEnabled() ) {
          nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
             @Override
@@ -133,9 +134,15 @@ public class ReceiveCoinsActivity extends Activity {
                return new NdefMessage(new NdefRecord[]{uriRecord});
             }
          }, this);
-         findViewById(R.id.ivNfc).setVisibility(View.VISIBLE);
+         ivNfc.setVisibility(View.VISIBLE);
+         ivNfc.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               Utils.showSimpleMessageDialog(ReceiveCoinsActivity.this, getString(R.string.nfc_payment_request_hint));
+            }
+         });
       } else {
-         findViewById(R.id.ivNfc).setVisibility(View.GONE);
+         ivNfc.setVisibility(View.GONE);
       }
    }
 

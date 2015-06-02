@@ -59,6 +59,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    private static final String QUESTION_TEXT = "questiontext";
    private static final String SIGNBUTTON_VISIBLE = "signbuttonvisible";
    private static final String ERRORVIEW_VISIBLE = "errorviewvisible";
+   public static final String REQUEST = "request";
 
    private BitIDSignRequest request;
    private TextView errorView;
@@ -68,7 +69,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
 
    public static void callMe(Activity currentActivity, BitIDSignRequest request) {
       Intent intent = new Intent(currentActivity, BitIDAuthenticationActivity.class);
-      intent.putExtra("request", request);
+      intent.putExtra(REQUEST, request);
       currentActivity.startActivity(intent);
    }
 
@@ -76,14 +77,14 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_bit_idauthentication);
-      request = (BitIDSignRequest) getIntent().getSerializableExtra("request");
-      signInButton = (Button) findViewById(R.id.bitidsign);
-      errorView = (TextView) findViewById(R.id.tvbitiderror);
-      question = (TextView) findViewById(R.id.tvbitidwebsite);
+      request = (BitIDSignRequest) getIntent().getSerializableExtra(REQUEST);
+      signInButton = (Button) findViewById(R.id.btSignIn);
+      errorView = (TextView) findViewById(R.id.tvBitidError);
+      question = (TextView) findViewById(R.id.tvBitIdWebsite);
       question.setText(getString(R.string.bitid_question, request.getHost()));
-      TextView warning = (TextView) findViewById(R.id.tvunsecurewarning);
+      TextView warning = (TextView) findViewById(R.id.tvInsecureWarning);
       if (request.isSecure()) {
-         warning.setVisibility(View.INVISIBLE);
+         warning.setVisibility(View.GONE);
       } else {
          warning.setVisibility(View.VISIBLE);
       }
@@ -91,8 +92,8 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       if (savedInstanceState != null) {
          errorView.setText(savedInstanceState.getString(ERROR_TEXT));
          question.setText(savedInstanceState.getString(QUESTION_TEXT));
-         if (savedInstanceState.getBoolean(SIGNBUTTON_VISIBLE))  signInButton.setVisibility(View.VISIBLE); else signInButton.setVisibility(View.INVISIBLE);
-         if (savedInstanceState.getBoolean(ERRORVIEW_VISIBLE)) errorView.setVisibility(View.VISIBLE); else errorView.setVisibility(View.INVISIBLE);
+         if (savedInstanceState.getBoolean(SIGNBUTTON_VISIBLE))  signInButton.setVisibility(View.VISIBLE); else signInButton.setVisibility(View.GONE);
+         if (savedInstanceState.getBoolean(ERRORVIEW_VISIBLE)) errorView.setVisibility(View.VISIBLE); else errorView.setVisibility(View.GONE);
       }
    }
 
@@ -206,7 +207,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    private void showLoggedIn() {
       //Success - we have been logged in
       Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_loggedin, Toast.LENGTH_LONG).show();
-      signInButton.setVisibility(View.INVISIBLE);
+      signInButton.setVisibility(View.GONE);
       question.setText(getString(R.string.bitid_success, request.getHost()));
    }
 
@@ -222,7 +223,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       progress.setMessage(getString(R.string.bitid_processing));
       progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
       progress.show();
-      errorView.setVisibility(View.INVISIBLE);
+      errorView.setVisibility(View.GONE);
       try {
          new BitIdAsyncTask(
                new BitIdAuthenticator(request, enforceSslCorrectness, key, address),

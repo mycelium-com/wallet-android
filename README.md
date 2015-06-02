@@ -24,8 +24,8 @@ Then you need to use the Android SDK manager to install the following components
 
  * ANDROID_HOME environment variable pointing to the directory where the sdk is installed
  * Android SDK Tools 22.6.4
- * SDK Platform Tools 19.0.2
- * Android SDK build Tools 19.1.0
+ * SDK Platform Tools 22.0.1
+ * Android SDK build Tools 22.0.1
  * Android 4.4.2 (API 19) (at least SDK Platform Rev. 3)
  * Android Extras:
     * Android Support Repository rev 5
@@ -35,7 +35,7 @@ Then you need to use the Android SDK manager to install the following components
     * Google Repository rev 8
 
 
-The project layout is designed to be used with a recent version of Android Studio (currently 1.1.0)
+The project layout is designed to be used with a recent version of Android Studio (currently 1.2.1.1)
 
 On the console write
 
@@ -75,7 +75,8 @@ With the Mycelium Bitcoin Wallet you can send and receive Bitcoins using your mo
  - Trezor enabled - directly spend from trezor-secured accounts.
  - [Mycelium Entropy](https://mycelium.com/entropy) compatible Shamir-Secret-Shared 2-out-of-3 keys spending
  - Secure your wallet with a PIN
- - Compatible with other bitcoin services through *bitcoin:* uri handling
+ - Compatible with other bitcoin services through *bitcoin:* uri handling and BIP70 support
+ - Pair it with [Cashila](https://www.cashila.com/) to enable direct SEPA transfers directly out of the app using the cashila API
  
 
 Please note that bitcoin is still experimental and this app comes with no warranty - while we make sure to adhere to the highest standards of software craftsmanship we can not exclude that the software contains bugs. Please make sure you have backups of your private keys and do not use this for more than you are willing to lose.

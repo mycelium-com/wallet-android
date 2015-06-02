@@ -22,6 +22,7 @@ import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.Balance;
@@ -182,6 +183,28 @@ public interface WalletAccount {
          InsufficientFundsException;
 
    /**
+    * Create a new unsigned transaction sending funds to one or more defined script outputs.
+    * <p/>
+    * The unsigned transaction must be signed and queued before it will affect
+    * the transaction history.
+    * <p/>
+    * If you call this method twice without signing and queuing the unsigned
+    * transaction you are likely to create another unsigned transaction that
+    * double spends the first one. In other words, if you call this method and
+    * do not sign and queue the unspent transaction, then you should discard the
+    * unsigned transaction.
+    *
+    * @param outputs the receiving output (script and amount)
+    * @param minerFeeToUse use this minerFee
+    * @return an unsigned transaction.
+    * @throws OutputTooSmallException    if one of the outputs were too small
+    * @throws InsufficientFundsException if not enough funds were present to create the unsigned
+    *                                    transaction
+    */
+   UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException,
+         InsufficientFundsException;
+
+   /**
     * Sign an unsigned transaction without broadcasting it.
     *
     * @param unsigned     an unsigned transaction
@@ -239,6 +262,16 @@ public interface WalletAccount {
     * Returns true, if this account is based on the internal masterseed.
     */
    boolean isDerivedFromInternalMasterseed();
+
+   /*
+   * returns true if this is one of our already used or monitored internal (="change") addresses
+   */
+   boolean isOwnInternalAddress(Address address);
+
+   /*
+   * returns true if this is one of our already used or monitored external (=normal receiving) addresses
+   */
+   boolean isOwnExternalAddress(Address address);
 
 
    /**

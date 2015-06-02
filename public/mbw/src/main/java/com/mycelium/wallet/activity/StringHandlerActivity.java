@@ -37,15 +37,9 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
-import android.view.Surface;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
@@ -56,7 +50,6 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
-import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.WalletManager;
 
 import java.util.UUID;
@@ -69,6 +62,7 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_ERROR = "error";
    public static final String RESULT_PRIVATE_KEY = "privkey";
    public static final String RESULT_HD_NODE = "hdnode";
+   public static final String RESULT_URI_WITH_ADDRESS_KEY = "uri_with_address";
    public static final String RESULT_URI_KEY = "uri";
    public static final String RESULT_SHARE_KEY = "share";
    public static final String RESULT_ADDRESS_KEY = "address";
@@ -100,7 +94,7 @@ public class StringHandlerActivity extends Activity {
       return ParseAbility.NO;
    }
 
-   public enum ResultType {ADDRESS, PRIVATE_KEY, HD_NODE, ACCOUNT, NONE, URI, SHARE}
+   public enum ResultType {ADDRESS, PRIVATE_KEY, HD_NODE, ACCOUNT, NONE, URI_WITH_ADDRESS, URI, SHARE}
    public enum ParseAbility {YES, MAYBE, NO}
 
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
@@ -169,7 +163,7 @@ public class StringHandlerActivity extends Activity {
 
       boolean wasHandled = false;
       for (StringHandleConfig.Action action : _stringHandleConfig.getAllActions()) {
-         if (action.handle(this, content)) {
+         if (action.canHandle(_mbwManager.getNetwork(), content) && action.handle(this, content)) {
             wasHandled = true;
             break;
          }
@@ -264,6 +258,14 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
+   public void finishOk(BitcoinUriWithAddress bitcoinUriWithAddress) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_URI_WITH_ADDRESS_KEY, bitcoinUriWithAddress);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.URI_WITH_ADDRESS);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
    public void finishOk(BitcoinUri bitcoinUri) {
       Intent result = new Intent();
       result.putExtra(RESULT_URI_KEY, bitcoinUri);
@@ -338,6 +340,13 @@ public class StringHandlerActivity extends Activity {
       Address address = (Address) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
       Preconditions.checkNotNull(address);
       return address;
+   }
+
+   public static BitcoinUriWithAddress getUriWithAddress(Intent intent) {
+      StringHandlerActivity.checkType(intent, ResultType.URI_WITH_ADDRESS);
+      BitcoinUriWithAddress uri = (BitcoinUriWithAddress) intent.getSerializableExtra(RESULT_URI_WITH_ADDRESS_KEY);
+      Preconditions.checkNotNull(uri);
+      return uri;
    }
 
    public static BitcoinUri getUri(Intent intent) {

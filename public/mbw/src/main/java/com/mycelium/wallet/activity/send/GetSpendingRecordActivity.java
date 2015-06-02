@@ -58,10 +58,17 @@ public class GetSpendingRecordActivity extends Activity {
    private BitcoinUri _uri;
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;
+   private byte[] _rawPr;
 
    public static void callMeWithResult(Activity currentActivity, BitcoinUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
       intent.putExtra("uri", uri);
+      currentActivity.startActivityForResult(intent, request);
+   }
+
+   public static void callMeWithResult(Activity currentActivity, byte[] rawPaymentRequest, int request) {
+      Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
+      intent.putExtra("rawPr", rawPaymentRequest);
       currentActivity.startActivityForResult(intent, request);
    }
 
@@ -75,6 +82,7 @@ public class GetSpendingRecordActivity extends Activity {
 
       // Get intent parameters
       _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
+      _rawPr = getIntent().getByteArrayExtra("rawPr");
 
       if (savedInstanceState != null){
          _showAccounts = savedInstanceState.getBoolean("showAccounts");
@@ -84,7 +92,8 @@ public class GetSpendingRecordActivity extends Activity {
       if (!_showAccounts && _mbwManager.isKeyManagementLocked()){
          if (_mbwManager.getSelectedAccount().canSpend()) {
             // if the current locked account canSpend, use this and go directly to sending
-            SendInitializationActivity.callMe(GetSpendingRecordActivity.this, _mbwManager.getSelectedAccount().getId(), _uri, false);
+            callSendInitActivity(_mbwManager.getSelectedAccount());
+
             GetSpendingRecordActivity.this.finish();
          } else {
             // if this is a watch-only account, request the PIN to show the accounts
@@ -98,6 +107,14 @@ public class GetSpendingRecordActivity extends Activity {
          }
       } else {
          _showAccounts = true;
+      }
+   }
+
+   private void callSendInitActivity(WalletAccount account) {
+      if (_rawPr != null){
+         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _rawPr, false);
+      } else {
+         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _uri, false);
       }
    }
 
@@ -115,7 +132,7 @@ public class GetSpendingRecordActivity extends Activity {
             return;
          }
          WalletAccount account = (WalletAccount) v.getTag();
-         SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _uri, false);
+         callSendInitActivity(account);
          GetSpendingRecordActivity.this.finish();
       }
    }

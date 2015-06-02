@@ -79,8 +79,6 @@ public class CashilaNewFragment extends Fragment {
    @InjectView(R.id.etAmount) public EditText etAmount;
    @InjectView(R.id.etReference) public EditText etReference;
 
-   @InjectView(R.id.btEnqueue) public Button btEnqueue;
-
    RecipientArrayAdapter recipientArrayAdapter;
    private CashilaService cs;
    private MbwManager mbw;
@@ -357,7 +355,11 @@ public class CashilaNewFragment extends Fragment {
          BillPayRecentRecipient recipient = getItem(position);
 
          tvName.setText(recipient.name);
-         tvInfo.setText(recipient.address);
+         if (recipient.label != null && !recipient.label.isEmpty()) {
+            tvInfo.setText(recipient.label);
+         } else {
+            tvInfo.setText(recipient.city + ", " + recipient.countryName);
+         }
          return convertView;
       }
 

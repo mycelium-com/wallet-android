@@ -43,7 +43,7 @@ import com.mycelium.wallet.R;
 
 public enum ExternalService {
 
-   CASHILA("cashila.com", "cashila-staging.com", "https://cashila.com/api/", "https://cashila-staging.com/api/", R.string.cashila_welcome_message_cashila);
+   CASHILA("www.cashila.com", "cashila-staging.com", "https://www.cashila.com/api/", "https://cashila-staging.com/api/", R.string.cashila_welcome_message_cashila);
 
    private final String prodnetHost;
    private final String testnetHost;

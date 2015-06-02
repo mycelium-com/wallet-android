@@ -36,7 +36,9 @@ package com.mycelium.wallet.activity.send;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -48,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -55,7 +58,9 @@ import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -67,6 +72,9 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.paymentrequest.PaymentRequestException;
+import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
+import com.mycelium.wallet.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wapi.api.response.Feature;
@@ -74,6 +82,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.squareup.otto.Subscribe;
+import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -87,25 +96,50 @@ public class SendMainActivity extends Activity {
    private static final int REQUEST_PICK_ACCOUNT = 5;
    protected static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
    private static final int BROADCAST_REQUEST_CODE = 7;
+   private static final int REQUEST_PAYMENT_HANDLER = 8;
+   public static final String RAW_PAYMENT_REQUEST = "rawPaymentRequest";
    private BillPay _sepaPayment;
+   public static final String AMOUNT_TO_SEND = "amountToSend";
+
+
+   public static final String ACCOUNT = "account";
+   public static final String IS_COLD_STORAGE = "isColdStorage";
+   public static final String RECEIVING_ADDRESS = "receivingAddress";
+   public static final String HD_KEY = "hdKey";
+   public static final String TRANSACTION_LABEL = "transactionLabel";
+   public static final String BITCOIN_URI = "bitcoinUri";
+   public static final String FEE_LVL = "feeLvl";
+   public static final String PAYMENT_FETCHED = "paymentFetched";
+   private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
+   private static final String SIGNED_TRANSACTION = "signedTransaction";
+   public static final String SEPA_PAYMENT = "sepaPayment";
 
    private enum TransactionStatus {
-      MissingArguments, OutputTooSmall, InsufficientFunds, OK
-   }
+      MissingArguments, OutputTooSmall, InsufficientFunds, OK;
 
+
+   }
    private MbwManager _mbwManager;
+
+   private PaymentRequestHandler _paymentRequestHandler;
+   private String _paymentRequestHandlerUuid;
+
    protected WalletAccount _account;
    private Double _oneBtcInFiat; // May be null
    private Long _amountToSend;
    private Address _receivingAddress;
    protected String _transactionLabel;
+   private BitcoinUri _bitcoinUri;
    protected boolean _isColdStorage;
    private TransactionStatus _transactionStatus;
    protected UnsignedTransaction _unsigned;
+   private Transaction _signedTransaction;
    private MinerFee _fee;
    private ProgressDialog _progress;
    private UUID _receivingAcc;
    private  boolean _xpubSyncing = false;
+   private boolean _spendingUnconfirmed = false;
+   private boolean _paymentFetched = false;
 
    public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
       return getIntent(currentActivity, account, null, null, isColdStorage);
@@ -114,35 +148,45 @@ public class SendMainActivity extends Activity {
    public static Intent getIntent(Activity currentActivity, UUID account,
                              Long amountToSend, Address receivingAddress, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra("account", account);
-      intent.putExtra("amountToSend", amountToSend);
-      intent.putExtra("receivingAddress", receivingAddress);
-      intent.putExtra("isColdStorage", isColdStorage);
+      intent.putExtra(ACCOUNT, account);
+      intent.putExtra(AMOUNT_TO_SEND, amountToSend);
+      intent.putExtra(RECEIVING_ADDRESS, receivingAddress);
+      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
       return intent;
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account,
                                   BillPay sepaPayment, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra("account", account);
-      intent.putExtra("amountToSend", Bitcoins.nearestValue(sepaPayment.details.amountToDeposit).getLongValue());
-      intent.putExtra("receivingAddress", sepaPayment.details.address);
-      intent.putExtra("sepaPayment", sepaPayment);
-      intent.putExtra("isColdStorage", isColdStorage);
+      intent.putExtra(ACCOUNT, account);
+      intent.putExtra(AMOUNT_TO_SEND, Bitcoins.nearestValue(sepaPayment.details.amountToDeposit).getLongValue());
+      intent.putExtra(RECEIVING_ADDRESS, sepaPayment.details.address);
+      intent.putExtra(SEPA_PAYMENT, sepaPayment);
+      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
       return intent;
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, HdKeyNode hdKey) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra("account", account);
-      intent.putExtra("hdKey", hdKey);
-      intent.putExtra("isColdStorage", false);
+      intent.putExtra(ACCOUNT, account);
+      intent.putExtra(HD_KEY, hdKey);
+      intent.putExtra(IS_COLD_STORAGE, false);
       return intent;
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
       Intent intent = getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage);
-      intent.putExtra("transactionLabel", uri.label);
+      intent.putExtra(TRANSACTION_LABEL, uri.label);
+      intent.putExtra(BITCOIN_URI, uri);
+      return intent;
+   }
+
+   public static Intent getIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
+      Intent intent = new Intent(currentActivity, SendMainActivity.class);
+      intent.putExtra(ACCOUNT, account);
+      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
+      intent.putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
+
       return intent;
    }
 
@@ -155,31 +199,43 @@ public class SendMainActivity extends Activity {
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
-      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
 
       // May be null
-      _amountToSend = (Long) getIntent().getSerializableExtra("amountToSend");
+      _amountToSend = (Long) getIntent().getSerializableExtra(AMOUNT_TO_SEND);
       // May be null
-      _receivingAddress = (Address) getIntent().getSerializableExtra("receivingAddress");
+      _receivingAddress = (Address) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
+      //May be null
+      _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
+      //May be null
+      _bitcoinUri = (BitcoinUri)getIntent().getSerializableExtra(BITCOIN_URI);
 
-      // May be null
-      _transactionLabel = getIntent().getStringExtra("transactionLabel");
-
-      _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
+      _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _fee = _mbwManager.getMinerFee();
 
       // Load saved state, overwriting amount and address
       if (savedInstanceState != null) {
-         _amountToSend = (Long) savedInstanceState.getSerializable("amountToSend");
-         _receivingAddress = (Address) savedInstanceState.getSerializable("receivingAddress");
-         _transactionLabel = savedInstanceState.getString("transactionLabel");
-         _fee = MinerFee.fromString(savedInstanceState.getString("feeLvl"));
+         _amountToSend = (Long) savedInstanceState.getSerializable(AMOUNT_TO_SEND);
+         _receivingAddress = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
+         _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
+         _fee = MinerFee.fromString(savedInstanceState.getString(FEE_LVL));
+         _bitcoinUri = (BitcoinUri) savedInstanceState.getSerializable(BITCOIN_URI);
+         _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
+         _signedTransaction = (Transaction) savedInstanceState.getSerializable(SIGNED_TRANSACTION);
+
+         // get the payment request handler from the BackgroundObject cache - if the application
+         // has restarted since it was cached, the user gets queried again
+         _paymentRequestHandlerUuid = savedInstanceState.getString(PAYMENT_REQUEST_HANDLER_ID);
+         if (_paymentRequestHandlerUuid != null) {
+            _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
+                  .getIfPresent(_paymentRequestHandlerUuid);
+         }
       }
 
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
-         HdKeyNode hdKey = (HdKeyNode) getIntent().getSerializableExtra("hdKey");
+         HdKeyNode hdKey = (HdKeyNode) getIntent().getSerializableExtra(HD_KEY);
          if (hdKey != null) setReceivingAddressFromKeynode(hdKey);
       }
 
@@ -188,14 +244,14 @@ public class SendMainActivity extends Activity {
          // See if we can create the transaction with what we have
          _transactionStatus = tryCreateUnsignedTransaction();
       } else {
-         // we need the user to pick a spending account - the activity will then init sendMain correctly
-         BitcoinUri uri = new BitcoinUri(_receivingAddress,_amountToSend, _transactionLabel);
+         //we need the user to pick a spending account - the activity will then init sendmain correctly
+         BitcoinUriWithAddress uri = new BitcoinUriWithAddress(_receivingAddress, _amountToSend, _transactionLabel);
          GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_PICK_ACCOUNT);
-         // no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
+         //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
          finish();
       }
 
-      //SEPA transfer for if cashila account is paired
+      // SEPA transfer for if cashila account is paired
       if (_mbwManager.isWalletPaired(ExternalService.CASHILA)) {
          findViewById(R.id.btSepaTransfer).setVisibility(View.VISIBLE);
          findViewById(R.id.btSepaTransfer).setOnClickListener(sepaClickListener);
@@ -203,9 +259,20 @@ public class SendMainActivity extends Activity {
          findViewById(R.id.btSepaTransfer).setVisibility(View.GONE);
       }
 
-      _sepaPayment = (BillPay) getIntent().getSerializableExtra("sepaPayment");
+      _sepaPayment = (BillPay) getIntent().getSerializableExtra(SEPA_PAYMENT);
       if (_sepaPayment != null){
          showSepaInfo(_sepaPayment);
+      }
+
+      // lets see if we got a raw Paymentreuest (probably by downloading a file with MIME application/bitcoin-paymentrequest)
+      byte[] _rawPr = getIntent().getByteArrayExtra(RAW_PAYMENT_REQUEST);
+      if (_rawPr != null && _paymentRequestHandler == null) {
+         verifyPaymentRequest(_rawPr);
+      }
+
+      //lets check whether we got a payment request uri and need to fetch payment data
+      if (_bitcoinUri != null && !Strings.isNullOrEmpty(_bitcoinUri.callbackURL) && _paymentRequestHandler == null) {
+         verifyPaymentRequest(_bitcoinUri);
       }
 
       // Scan
@@ -233,6 +300,19 @@ public class SendMainActivity extends Activity {
       ((TextView) findViewById(R.id.tvAmount)).setHint(getResources().getString(R.string.amount_hint_denomination,
             _mbwManager.getBitcoinDenomination().toString()));
 
+      //unconfirmed spending warning
+      findViewById(R.id.tvUnconfirmedWarning).setOnClickListener(unconfirmedClickListener);
+
+   }
+
+   private void verifyPaymentRequest(BitcoinUri uri) {
+      Intent intent = VerifyPaymentRequestActivity.getIntent(this, uri);
+      startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
+   }
+
+   private void verifyPaymentRequest(byte[] rawPr) {
+      Intent intent = VerifyPaymentRequestActivity.getIntent(this, rawPr);
+      startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
    }
 
    private void showSepaInfo(BillPay sepaPayment) {
@@ -259,10 +339,14 @@ public class SendMainActivity extends Activity {
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("amountToSend", _amountToSend);
-      savedInstanceState.putSerializable("receivingAddress", _receivingAddress);
-      savedInstanceState.putString("transactionLabel", _transactionLabel);
-      savedInstanceState.putString("feeLvl", _fee.tag);
+      savedInstanceState.putSerializable(AMOUNT_TO_SEND, _amountToSend);
+      savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
+      savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
+      savedInstanceState.putString(FEE_LVL, _fee.tag);
+      savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
+      savedInstanceState.putSerializable(BITCOIN_URI, _bitcoinUri);
+      savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
+      savedInstanceState.putSerializable(SIGNED_TRANSACTION, _signedTransaction);
    }
 
 
@@ -309,7 +393,7 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         BitcoinUri uri = getUriFromClipboard();
+         BitcoinUriWithAddress uri = getUriFromClipboard();
          if (uri != null) {
             Toast.makeText(SendMainActivity.this, getResources().getString(R.string.using_address_from_clipboard),
                   Toast.LENGTH_SHORT).show();
@@ -344,6 +428,23 @@ public class SendMainActivity extends Activity {
       }
    };
 
+   private OnClickListener unconfirmedClickListener = new OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+         new AlertDialog.Builder(SendMainActivity.this)
+               .setTitle(getString(R.string.spending_unconfirmed_title))
+               .setMessage(getString(R.string.spending_unconfirmed_description))
+               .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int which) {
+                     // continue
+                  }
+               })
+               .setIcon(android.R.drawable.ic_dialog_alert)
+               .show();
+      }
+   };
+
    private OnClickListener feeClickListener = new OnClickListener() {
 
       @Override
@@ -361,15 +462,37 @@ public class SendMainActivity extends Activity {
    private TransactionStatus tryCreateUnsignedTransaction() {
       _unsigned = null;
 
-      if (_amountToSend == null || _receivingAddress == null) {
+      if (_paymentRequestHandler == null && (_amountToSend == null || _receivingAddress == null)) {
          return TransactionStatus.MissingArguments;
       }
 
       // Create the unsigned transaction
       try {
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
-         _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _fee.kbMinerFee);
-         return TransactionStatus.OK;
+         if (_paymentRequestHandler == null || !_paymentRequestHandler.hasValidPaymentRequest()) {
+            WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
+            _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _fee.kbMinerFee);
+         checkSpendingUnconfirmed();
+            return TransactionStatus.OK;
+         } else {
+            PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
+            OutputList outputs = paymentRequestInformation.getOutputs();
+
+            // has the payment request an amount set?
+            if (paymentRequestInformation.hasAmount()) {
+               _amountToSend = paymentRequestInformation.getOutputs().getTotalAmount();
+            } else {
+               if (_amountToSend ==  null || _amountToSend == 0){
+                  return TransactionStatus.MissingArguments;
+               }
+
+               // build new output list with user specified amount
+               outputs = outputs.newOutputsWithTotalAmount(_amountToSend);
+            }
+            _unsigned = _account.createUnsignedTransaction(outputs, _fee.kbMinerFee);
+            _receivingAddress = null;
+            _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
+            return TransactionStatus.OK;
+         }
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
          return TransactionStatus.InsufficientFunds;
@@ -379,6 +502,20 @@ public class SendMainActivity extends Activity {
       }
    }
 
+   private void checkSpendingUnconfirmed() {
+      for (UnspentTransactionOutput out : _unsigned.getFundingOutputs()) {
+         Address address = out.script.getAddress(_mbwManager.getNetwork());
+         if (out.height == -1 && _account.isOwnExternalAddress(address)) {
+            // this is an unconfirmed output from an external address -> we want to warn the user
+            // we allow unconfirmed spending of internal (=change addresses) without warning
+            _spendingUnconfirmed = true;
+            return;
+         }
+      }
+      //no unconfirmed outputs are used as inputs, we are fine
+      _spendingUnconfirmed  = false;
+   }
+
    private void updateUi() {
       updateRecipient();
       updateAmount();
@@ -386,10 +523,12 @@ public class SendMainActivity extends Activity {
       // Enable/disable send button
       findViewById(R.id.btSend).setEnabled(_transactionStatus == TransactionStatus.OK);
       findViewById(R.id.root).invalidate();
+
    }
 
    private void updateRecipient() {
-      if (_receivingAddress == null) {
+      boolean hasPaymentRequest = _paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest();
+      if (_receivingAddress == null && !hasPaymentRequest) {
          // Hide address, show "Enter"
          ((TextView) findViewById(R.id.tvRecipientTitle)).setText(R.string.enter_recipient_title);
          findViewById(R.id.llEnterRecipient).setVisibility(View.VISIBLE);
@@ -406,7 +545,10 @@ public class SendMainActivity extends Activity {
       TextView receiverLabel = (TextView) findViewById(R.id.tvReceiverLabel);
 
       // See if the address is in the address book or one of our accounts
-      String label = getAddressLabel(_receivingAddress);
+      String label = null;
+      if (_receivingAddress!=null) {
+         label = getAddressLabel(_receivingAddress);
+      }
 
       if (label == null || label.length() == 0) {
          // Hide label
@@ -418,14 +560,24 @@ public class SendMainActivity extends Activity {
       }
 
       // Set Address
-      if (_sepaPayment == null) {
+      if (_sepaPayment == null && !hasPaymentRequest) {
          String choppedAddress = _receivingAddress.toMultiLineString();
          ((TextView) findViewById(R.id.tvReceiver)).setText(choppedAddress);
       }
 
+      if (hasPaymentRequest){
+         PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
+         if (paymentRequestInformation.hasValidSignature()) {
+            ((TextView) findViewById(R.id.tvReceiver)).setText(paymentRequestInformation.getPkiVerificationData().displayName);
+         } else {
+            ((TextView) findViewById(R.id.tvReceiver)).setText(getString(R.string.label_unverified_recipient));
+         }
+
+      }
+
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      if (walletManager.isMyAddress(_receivingAddress)) {
+      if (_receivingAddress != null && walletManager.isMyAddress(_receivingAddress)) {
          TextView tvWarning = (TextView) findViewById(R.id.tvWarning);
          if (walletManager.hasPrivateKeyForAddress(_receivingAddress)) {
             // Show a warning as we are sending to one of our own addresses
@@ -498,8 +650,20 @@ public class SendMainActivity extends Activity {
                tvAmountFiat.setVisibility(View.VISIBLE);
             }
             findViewById(R.id.tvError).setVisibility(View.GONE);
+            //check if we need to warn the user about unconfirmed funds
+            if (_spendingUnconfirmed) {
+               findViewById(R.id.tvUnconfirmedWarning).setVisibility(View.VISIBLE);
+            } else {
+               findViewById(R.id.tvUnconfirmedWarning).setVisibility(View.GONE);
+            }
          }
       }
+
+      // Disable Amount button if we have a payment request with valid amount
+      if (_paymentRequestHandler != null && _paymentRequestHandler.getPaymentRequestInformation().hasAmount()) {
+         findViewById(R.id.btEnterAmount).setEnabled(false);
+      }
+
 
       // Update Fee-Display
       TextView btFeeLvl = (Button) findViewById(R.id.btFeeLvl);
@@ -565,6 +729,15 @@ public class SendMainActivity extends Activity {
    };
 
    protected void signTransaction() {
+      // if we have a payment request, check if it is expired
+      if (_paymentRequestHandler != null){
+         if (_paymentRequestHandler.getPaymentRequestInformation().isExpired()){
+            Toast.makeText(SendMainActivity.this, getString(R.string.payment_request_not_sent_expired),
+                  Toast.LENGTH_LONG).show();
+            return;
+         }
+      }
+
       disableButtons();
       SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned, SIGN_TRANSACTION_REQUEST_CODE);
    }
@@ -596,8 +769,15 @@ public class SendMainActivity extends Activity {
                _receivingAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork());
             } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
                _receivingAddress = StringHandlerActivity.getAddress(intent);
-            } else if (type == StringHandlerActivity.ResultType.URI) {
-               BitcoinUri uri = StringHandlerActivity.getUri(intent);
+            } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {
+               BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
+               if (uri.callbackURL != null) {
+                  //we contact the merchant server instead of using the params
+                  _bitcoinUri = uri;
+                  _paymentFetched = false;
+                  verifyPaymentRequest(_bitcoinUri);
+                  return;
+               }
                _receivingAddress = uri.address;
                _transactionLabel = uri.label;
                if (uri.amount != null) {
@@ -606,6 +786,16 @@ public class SendMainActivity extends Activity {
                      Toast.makeText(this, R.string.amount_changed, Toast.LENGTH_LONG).show();
                   }
                   _amountToSend = uri.amount;
+               }
+            } else if (type == StringHandlerActivity.ResultType.URI) {
+               //todo: maybe merge with BitcoinUriWithAddress ?
+               BitcoinUri uri = StringHandlerActivity.getUri(intent);
+               if (uri.callbackURL != null) {
+                  //we contact the merchant server instead of using the params
+                  _bitcoinUri = uri;
+                  _paymentFetched = false;
+                  verifyPaymentRequest(_bitcoinUri);
+                  return;
                }
             } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
                setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
@@ -644,17 +834,53 @@ public class SendMainActivity extends Activity {
          updateUi();
       } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE){
          if (resultCode == RESULT_OK) {
-            Transaction tx = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-            BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, tx, _transactionLabel, BROADCAST_REQUEST_CODE);
+            _signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+
+            // if we have a payment request with a payment_url, handle the send differently:
+            if (_paymentRequestHandler != null
+                  && _paymentRequestHandler.getPaymentRequestInformation().hasPaymentCallbackUrl()) {
+
+               // check again if the payment request isn't expired, as signing might have taken some time
+               // (e.g. with external signature provider)
+               if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
+                  // first send signed tx directly to the Merchant, and broadcast
+                  // it only if we get a ACK from him (in paymentRequestAck)
+                  _paymentRequestHandler.sendResponse(_signedTransaction, _account.getReceivingAddress());
+               } else {
+                  Toast.makeText(SendMainActivity.this, getString(R.string.payment_request_not_sent_expired),
+                        Toast.LENGTH_LONG).show();
+
+               }
+            } else {
+               BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, BROADCAST_REQUEST_CODE);
+            }
          }
-      } else if (requestCode == BROADCAST_REQUEST_CODE){
+      } else if (requestCode == BROADCAST_REQUEST_CODE) {
          // return result from broadcast
          this.setResult(resultCode, intent);
          finish();
+      } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
+         if (resultCode == RESULT_OK){
+            _paymentRequestHandlerUuid = Preconditions.checkNotNull(intent.getStringExtra("REQUEST_PAYMENT_HANDLER_ID"));
+            if (_paymentRequestHandlerUuid != null) {
+               _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
+                     .getIfPresent(_paymentRequestHandlerUuid);
+            } else {
+               _paymentRequestHandler = null;
+            }
+            _transactionStatus = tryCreateUnsignedTransaction();
+            updateUi();
+         } else {
+            // user canceled - also leave this activity
+            setResult(RESULT_CANCELED);
+            finish();
+         }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
    }
+
+
 
    private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
@@ -664,7 +890,7 @@ public class SendMainActivity extends Activity {
    }
 
 
-   private BitcoinUri getUriFromClipboard() {
+   private BitcoinUriWithAddress getUriFromClipboard() {
       String content = Utils.getClipboardString(SendMainActivity.this);
       if (content.length() == 0) {
          return null;
@@ -676,15 +902,31 @@ public class SendMainActivity extends Activity {
          if (address == null) {
             return null;
          }
-         return new BitcoinUri(address, null, null);
+         return new BitcoinUriWithAddress(address, null, null);
       } else {
-         Optional<BitcoinUri> b = BitcoinUri.parse(string, _mbwManager.getNetwork());
+         Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(string, _mbwManager.getNetwork());
          if (b.isPresent()) {
             // On URI format
             return b.get();
          }
       }
       return null;
+   }
+
+   @Subscribe
+   public void paymentRequestException(PaymentRequestException ex){
+      //todo: maybe hint the user, that the merchant might broadcast the transaction later anyhow
+      // and we should move funds to a new address to circumvent it
+      Utils.showSimpleMessageDialog(this,
+            String.format(getString(R.string.payment_request_error_while_getting_ack), ex.getMessage()));
+   }
+
+
+   @Subscribe
+   public void paymentRequestAck(PaymentACK paymentACK){
+      if (paymentACK != null){
+         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, BROADCAST_REQUEST_CODE);
+      }
    }
 
    @Subscribe

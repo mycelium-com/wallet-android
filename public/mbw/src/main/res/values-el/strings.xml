@@ -649,17 +649,17 @@
   <string name="remove_queued_transaction_title">Συναλλαγή σε σειρά προτεραιότητας</string>
   <string name="remove_queued_transaction_hint">Το υπόλοιπό σας θα διορθωθεί μετά τον επόμενο συγχρονισμό με το δίκτυο</string>
   <string name="remove_queued_transaction_error">Αδυναμία διαγραφής συναλλαγής</string>
-  <string name="cashila_tab_new">Νέα</string>
+  <string name="cashila_tab_new">Δημιουργία</string>
   <string name="cashila_tab_pending">Πληρωμές</string>
   <string name="cashila_sepa_transfer">\'Εμβασμα SEPA</string>
-  <string name="cashila_status_received">ληφθείσες</string>
-  <string name="cashila_status_chained">δεσμευμένες</string>
-  <string name="cashila_status_confirmed">επιβεβαιωμένες</string>
-  <string name="cashila_status_completed">ολοκληρωμένες</string>
-  <string name="cashila_status_pending">Σε ετοιμότητα για πληρωμή</string>
-  <string name="cashila_status_expired">Σε ετοιμότητα για πληρωμή</string>
-  <string name="cashila_status_uploaded">Ανεβασμένες</string>
-  <string name="cashila_status_transcribed">μεταγεγραμμένες</string>
+  <string name="cashila_status_received">ελήφθη</string>
+  <string name="cashila_status_chained">δεσμεύτηκε</string>
+  <string name="cashila_status_confirmed">επιβεβαιώθηκε</string>
+  <string name="cashila_status_completed">ολοκληρώθηκε</string>
+  <string name="cashila_status_pending">σε ετοιμότητα για πληρωμή</string>
+  <string name="cashila_status_expired">σε ετοιμότητα για πληρωμή</string>
+  <string name="cashila_status_uploaded">ανέβηκε στο δίκτυο</string>
+  <string name="cashila_status_transcribed">μετεγράφη</string>
   <string name="cashila_title_paired">Το πορτοφόλι συνδέθηκε με την υπηρεσία</string>
   <string name="cashila_welcome_message_cashila">Έχετε συνδέσει το πορτοφόλι σας με την εξωτερική υπηρεσία Cashila. Αυτό θα προσθέσει επιλογές στο μενού της κεντρικής σας οθόνης και στο μενού αποστολής, για απευθείας πραγματοποίηση εμβασμάτων χρηματων μέσω SEPA. Παρακαλώ κατανοήστε ότι γι\' αυτή τη λειτουργία θα πρέπει να εμπιστευθείτε την υπηρεσία Cashila, και ότι τα χρήματα δε θα είναι υπό τον έλεγχό σας εφόσον πραγμοτοποιήσετε πληρωμή στο Cashila. Παρακαλώ επισκευθείτε τον ιστότοπο www.cashila.com για περαιτέρω πληροφορίες.</string>
   <string name="cashila_fee">"Κόμιστρο: %s"</string>
@@ -681,4 +681,6 @@
   <string name="cashila_pay_now">Πλήρωσε τώρα</string>
   <string name="cashila_sepa_payment_title">Πληρωμή SEPA</string>
   <string name="cashila_uploaded_title">Ανεβασμένες</string>
+  <string name="cashila_no_recipients">Προς το παρόν υποστηρίζουμε μόνο αποστολές προς προϋπάρχοντες παραλήπτες. \n\nΦαίνεται πως είναι η πρώτη φορά που χρησιμοποιείτε την υπηρεσία Cashila και δεν έχετε παραλήπτες. Παρακαλώ δημιουργήστε πρώτα μια νεα συνδιαλλαγή στην ιστοσελίδα της υπηρεσίας.\n\n</string>
+  <string name="label_cold_storage_external_signing">Υπογραφή με:</string>
 </resources>

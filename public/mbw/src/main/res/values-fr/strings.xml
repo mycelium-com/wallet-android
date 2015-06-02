@@ -656,13 +656,21 @@
   <string name="cashila_tab_pending">Paiements</string>
   <string name="cashila_sepa_transfer">Transfert SEPA</string>
   <string name="cashila_status_received">reçu</string>
+  <string name="cashila_status_chained">Service Cashila lié</string>
   <string name="cashila_status_confirmed">confirmé</string>
   <string name="cashila_status_completed">terminé</string>
   <string name="cashila_status_pending">prêt à payer</string>
   <string name="cashila_status_expired">prêt à payer</string>
+  <string name="cashila_status_uploaded">téléchargées</string>
+  <string name="cashila_status_transcribed">transcrire</string>
+  <string name="cashila_title_paired">Portefeuille synchronisé</string>
+  <string name="cashila_welcome_message_cashila">Vous avez synchronisé votre portefeuille avec le service externe Cashila.\nCe service ajoutera des options à votre menu principal et votre boite de dialogue d\'envoi, afin d\'appeler directement des virements SEPA depuis votre portefeuille bitcoin.\nComprennez qu\'il faut faire confiance à Cashila, et que les sommes déposées ne sont plus sous votre contrôle dès que vous y avez faite un paiement.\n\nVisitez www.cashila.com pour d\'amples d\'informations.</string>
   <string name="cashila_fee">"Frais : %s"</string>
+  <string name="cashila_account_needs_pairing">Votre compte Cashila n\'est pas lié avec votre compte d\'identification actuel - s\'il vous plaît synchroniser vos comptes</string>
+  <string name="cashila_fetching">Derniers paiements en cours de recherche...</string>
   <string name="cashila">Cashila</string>
   <string name="cashila_amount_not_valid">Montant non valide</string>
+  <string name="cashila_pending">En attente</string>
   <string name="cashila_done">Terminé</string>
   <string name="cashila_already_paid">Déjà payé intégralement</string>
   <string name="cashila_pending_payment">Paiement en attente</string>
@@ -672,6 +680,10 @@
   <string name="cashila_send_payment_to">Envoyer le paiement à</string>
   <string name="cashila_fiat_amount">Montant</string>
   <string name="cashila_reference_text">Texte de référence</string>
+  <string name="cashila_enqueue_payment">Paiement placé en attente</string>
   <string name="cashila_pay_now">Payer maintenant</string>
   <string name="cashila_sepa_payment_title">Paiement SEPA</string>
+  <string name="cashila_uploaded_title">Téléchargées</string>
+  <string name="cashila_no_recipients">Actuellement nous soutenons seulement les envoies aux destinataires existants.\n\nIl semble que vous avez jamais utilisé Cashila auparavant et que vous avez aucun récipient existant. Veuillez d\'abord faire une nouvelle transaction sur leur site web.\n\n</string>
+  <string name="label_cold_storage_external_signing">Signer avec :</string>
 </resources>

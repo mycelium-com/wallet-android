@@ -42,7 +42,6 @@ android {
 
     dexOptions {
         jumboMode true
-        incremental true
     }
 
     packagingOptions {
@@ -59,8 +58,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 24005
-        versionName '2.4.0-BETA1'
+        versionCode 24010
+        versionName '2.4.0-BETA4'
         multiDexEnabled true
     }
 
@@ -68,7 +67,7 @@ android {
         release {
             keyAlias = ''
         }
-        testnetplay {
+        btctestnet {
             keyAlias = ''
         }
         commonDebug {
@@ -133,14 +132,14 @@ android {
             applicationId appId
             signingConfig signingConfigs.debug
         }
-        testnet {
+        btctestnet {
             compileSdkVersion 19
             targetSdkVersion 19
             minSdkVersion 14
 
             applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
-            signingConfig signingConfigs.testnetplay
+            signingConfig signingConfigs.btctestnet
         }
     }
 
@@ -177,10 +176,10 @@ if (project.hasProperty('testKeyStore') &&
         project.hasProperty('testKeyAlias') &&
         project.hasProperty('testKeyStorePassword') &&
         project.hasProperty('testKeyAliasPassword')) {
-    android.signingConfigs.testnetplay.storeFile = file('../../' + testKeyStore)
-    android.signingConfigs.testnetplay.keyAlias = testKeyAlias
-    android.signingConfigs.testnetplay.storePassword = testKeyStorePassword
-    android.signingConfigs.testnetplay.keyPassword = testKeyAliasPassword
+    android.signingConfigs.btctestnet.storeFile = file('../../' + testKeyStore)
+    android.signingConfigs.btctestnet.keyAlias = testKeyAlias
+    android.signingConfigs.btctestnet.storePassword = testKeyStorePassword
+    android.signingConfigs.btctestnet.keyPassword = testKeyAliasPassword
 } else {
-    android.productFlavors.testnet.signingConfig = null
+    android.productFlavors.btctestnet.signingConfig = null
 }

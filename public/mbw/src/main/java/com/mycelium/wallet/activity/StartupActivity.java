@@ -49,6 +49,8 @@ import android.view.Window;
 import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -64,6 +66,9 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -116,7 +121,7 @@ public class StartupActivity extends Activity {
          //in case this is a fresh startup, import backup or create new seed
          if (_mbwManager.getWalletManager(false).getAccountIds().isEmpty()) {
             initMasterSeed();
-            //we return here, delayedfinish will get posted once have our first account
+            //we return here, delayed finish will get posted once have our first account
             return;
          } else if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             //user has accounts, but no seed. we just create one for him
@@ -176,6 +181,7 @@ public class StartupActivity extends Activity {
 
    private void initMasterSeed() {
       AlertDialog.Builder importDialog = new AlertDialog.Builder(this);
+      importDialog.setCancelable(false);
       importDialog.setTitle(R.string.master_seed_configuration_title);
       importDialog.setMessage(getString(R.string.master_seed_configuration_description));
       importDialog.setNegativeButton(R.string.master_seed_restore_backup_button, new DialogInterface.OnClickListener() {
@@ -190,6 +196,7 @@ public class StartupActivity extends Activity {
             startMasterSeedTask();
          }
       });
+
       importDialog.show();
    }
 
@@ -311,18 +318,53 @@ public class StartupActivity extends Activity {
    private boolean handleIntent() {
       Intent intent = getIntent();
       final String action = intent.getAction();
-      final Uri intentUri = intent.getData();
-      final String scheme = intentUri != null ? intentUri.getScheme() : null;
 
-      if (intentUri != null && (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action))) {
-         if ("bitcoin".equals(scheme)) {
-            handleBitcoinUri(intentUri);
-         } else if ("bitid".equals(scheme)) {
-            handleBitIdUri(intentUri);
-         }
+      if ("application/bitcoin-paymentrequest".equals(intent.getType())){
+         // called via paymentrequest-file
+         final Uri paymentRequest = intent.getData();
+         handlePaymentRequest(paymentRequest);
          return true;
+      } else {
+         final Uri intentUri = intent.getData();
+         final String scheme = intentUri != null ? intentUri.getScheme() : null;
+
+         if (intentUri != null && (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action))) {
+            if ("bitcoin".equals(scheme)) {
+               handleBitcoinUri(intentUri);
+            } else if ("bitid".equals(scheme)) {
+               handleBitIdUri(intentUri);
+            }
+            return true;
+         }
       }
       return false;
+   }
+
+   private void handlePaymentRequest(Uri paymentRequest) {
+      try {
+         InputStream inputStream = getContentResolver().openInputStream(paymentRequest);
+         byte[] bytes = ByteStreams.toByteArray(inputStream);
+
+         MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
+
+         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         if (spendingAccounts.isEmpty()) {
+            //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
+            spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
+         }
+         if (spendingAccounts.size() == 1) {
+            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bytes, false, REQUEST_FROM_URI);
+         } else {
+            GetSpendingRecordActivity.callMeWithResult(this, bytes, REQUEST_FROM_URI);
+         }
+      } catch (FileNotFoundException e) {
+         Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_LONG).show();
+         finish();
+      } catch (IOException e) {
+         Toast.makeText(this, getString(R.string.payment_request_unable_to_read_payment_request), Toast.LENGTH_LONG).show();
+         finish();
+      }
+
    }
 
    private void handleBitIdUri(Uri intentUri) {
@@ -345,15 +387,14 @@ public class StartupActivity extends Activity {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
       Optional<BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (!bitcoinUri.isPresent()) {
+      if (!bitcoinUri.isPresent() ||
+            (bitcoinUri.get().address==null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL))
+            ) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
          return;
       }
-
-      //address must be present
-      Preconditions.checkNotNull(bitcoinUri.get().address);
 
       List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
       if (spendingAccounts.isEmpty()) {

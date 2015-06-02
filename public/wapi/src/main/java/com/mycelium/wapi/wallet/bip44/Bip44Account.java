@@ -500,6 +500,20 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return Optional.absent();
    }
 
+   // returns true if this is one of our already used or monitored internal (="change") addresses
+   @Override
+   public boolean isOwnInternalAddress(Address address){
+      Optional<Integer[]> addressId = getAddressId(address);
+      return addressId.isPresent() && addressId.get()[0] == 1;
+   }
+
+   // returns true if this is one of our already used or monitored external (=normal receiving) addresses
+   @Override
+   public boolean isOwnExternalAddress(Address address){
+      Optional<Integer[]> addressId = getAddressId(address);
+      return addressId.isPresent() && addressId.get()[0] == 0;
+   }
+
    @Override
    public boolean canSpend() {
       return true;

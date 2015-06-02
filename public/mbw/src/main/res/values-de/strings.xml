@@ -657,7 +657,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cashila_tab_pending">Zahlungen</string>
   <string name="cashila_sepa_transfer">SEPA-Überweisung</string>
   <string name="cashila_status_received">erhalten</string>
-  <string name="cashila_status_chained">verkettet</string>
+  <string name="cashila_status_chained">eingereiht</string>
   <string name="cashila_status_confirmed">bestätigt</string>
   <string name="cashila_status_completed">durchgeführt</string>
   <string name="cashila_status_pending">zahlungsbereit</string>
@@ -685,4 +685,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cashila_pay_now">Jetzt bezahlen</string>
   <string name="cashila_sepa_payment_title">SEPA-Zahlung</string>
   <string name="cashila_uploaded_title">hochgeladen</string>
+  <string name="cashila_no_recipients">Es scheint, Sie haben Cashila noch nicht verwendet, und es gibt keine erfassten Empfänger.\n\nWählen Sie OK um einen neuen Empfänger auf der Cashila Webseite anzulegen.</string>
+  <string name="label_cold_storage_external_signing">Signieren mit:</string>
 </resources>

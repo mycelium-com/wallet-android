@@ -712,4 +712,36 @@
     <string name="cashila_sepa_payment_title">Sepa Payment</string>
     <string name="cashila_uploaded_title">Uploaded</string>
     <string name="cashila_no_recipients">It seems, you never used cashila before and have no existing recipients.\n\nTap OK to create a new recipient on their website.</string>
+    <string name="cashila_amount_outstanding">(%s outstanding)</string>
+
+
+    <string name="payment_request_unable_to_read_payment_request">Unable to read payment request</string>
+    <string name="payment_request_not_sent_expired">Payment not sent - Payment request is already expired!</string>
+    <string name="payment_request_no_amount_specified">no amount specified</string>
+    <string name="payment_request_unable_to_verify">Unable to verify</string>
+    <string name="payment_request_unsigned_request">Unsigned Request</string>
+    <string name="payment_request_signature_okay">Signature okay</string>
+    <string name="payment_request_invalid_signature">invalid Signature</string>
+    <string name="payment_request_fetching_payment_request">Fetching Payment Request</string>
+    <string name="payment_request_title">Payment Request</string>
+    <string name="payment_request_merchant">Merchant</string>
+    <string name="payment_request_signature">Signature</string>
+    <string name="payment_request_amount_to_pay">Amount to pay</string>
+    <string name="payment_request_message">Message</string>
+    <string name="payment_request_created">Created</string>
+    <string name="payment_request_expires">Expires</string>
+    <string name="payment_request_message_to_merchant">Your message to the merchant (optional)</string>
+    <string name="payment_request_error_while_getting_ack">Unable to send payment to merchant-server.\n%s\n\nThe payment will not be broadcasted.</string>
+    <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
+
+    <string name="label_cold_storage_external_signing">Sign with:</string>
+    <string name="spending_unconfirmed_warning">Warning: spending unconfirmed funds</string>
+    <string name="spending_unconfirmed_title">Spending unconfirmed funds</string>
+    <string name="spending_unconfirmed_description">Your transaction uses funds which have not been included in a bitcoin block yet. If for any reason the transaction which sends these coins to you fails or stays unconfirmed, your transaction will fail or stay unconfirmed as well.</string>
+    <string name="label_unverified_recipient">unverified Recipient</string>
+    <string name="file_not_found">File not found</string>
+    <string name="data_not_available_short">n/a</string>
+    <string name="accept">Accept</string>
+    <string name="nfc_payment_request_hint">Place your phone back-to-back to another NFC-enabled device to share this payment request</string>
+
 </resources>

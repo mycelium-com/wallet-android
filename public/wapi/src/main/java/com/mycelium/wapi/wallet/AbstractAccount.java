@@ -61,7 +61,7 @@ public abstract class AbstractAccount implements WalletAccount {
    private AccountBacking _backing;
    protected Balance _cachedBalance;
    private EventHandler _eventHandler;
-   protected boolean _allowZeroConfSpending;
+   protected boolean _allowZeroConfSpending = true;      //on per default, we warn users if they use it
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -438,6 +438,7 @@ public abstract class AbstractAccount implements WalletAccount {
       for (Transaction t : unconfirmed) {
          // For each input figure out if WE are sending it by fetching the
          // parent transaction and looking at the address
+         boolean weSend = false;
          for (TransactionInput input : t.inputs) {
             // Find the parent transaction
             if (input.outPoint.hash.equals(Sha256Hash.ZERO_HASH)) {
@@ -453,6 +454,7 @@ public abstract class AbstractAccount implements WalletAccount {
             if (isMine(fundingAddress)) {
                // One of our addresses are sending coins
                pendingSending += parentOutput.value;
+               weSend = true;
             }
          }
 
@@ -461,8 +463,8 @@ public abstract class AbstractAccount implements WalletAccount {
          for (int i = 0; i < t.outputs.length; i++) {
             TransactionOutput output = t.outputs[i];
             Address destination = output.script.getAddress(_network);
-            if (isMine(destination)) {
-               // The funds are sent to us
+            if (weSend && isMine(destination)) {
+               // The funds are sent from us to us
                OutPoint outPoint = new OutPoint(t.getHash(), i);
                if (!unspentOutPoints.contains(outPoint)) {
                   // This output has been spent, subtract it from the amount sent
@@ -819,6 +821,22 @@ public abstract class AbstractAccount implements WalletAccount {
       for (Receiver receiver : receivers) {
          stb.addOutput(receiver.address, receiver.amount);
       }
+      Address changeAddress = getChangeAddress();
+      UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
+            _network, minerFeeToUse);
+      return unsigned;
+   }
+
+   @Override
+   public UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException, InsufficientFundsException {
+      checkNotArchived();
+
+      // Determine the list of spendable outputs
+      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+
+      // Create the unsigned transaction
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+      stb.addOutputs(outputs);
       Address changeAddress = getChangeAddress();
       UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);

@@ -212,10 +212,22 @@ public class StandardTransactionBuilder {
    }
 
    public void addOutput(Address sendTo, long value) throws OutputTooSmallException {
-      if (value < TransactionUtils.MINIMUM_OUTPUT_VALUE) {
-         throw new OutputTooSmallException(value);
+      addOutput(createOutput(sendTo, value, _network));
+   }
+
+   public void addOutput(TransactionOutput output) throws OutputTooSmallException {
+      if (output.value < TransactionUtils.MINIMUM_OUTPUT_VALUE) {
+         throw new OutputTooSmallException(output.value);
       }
-      _outputs.add(createOutput(sendTo, value, _network));
+      _outputs.add(output);
+   }
+
+   public void addOutputs(OutputList outputs) throws OutputTooSmallException {
+      for (TransactionOutput output : outputs) {
+         if (output.value > 0) {
+            this.addOutput(output);
+         }
+      }
    }
 
    private static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {

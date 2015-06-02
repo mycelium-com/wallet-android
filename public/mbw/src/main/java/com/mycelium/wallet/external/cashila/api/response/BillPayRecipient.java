@@ -43,4 +43,5 @@ public class BillPayRecipient implements Serializable {
    public String city;
    public String countryCode;
    public String countryName;
+   public String label;
 }

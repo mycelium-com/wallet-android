@@ -102,17 +102,19 @@
         </LinearLayout>
     </ScrollView>
 
-    <RelativeLayout
+
+    <LinearLayout
             android:id="@+id/llButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_margin="10dp"
-            >
+            android:layout_margin="10dp">
+
         <Button
                 android:id="@+id/btEnqueue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.5"
                 android:textSize="17sp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
@@ -120,11 +122,16 @@
                 android:paddingRight="15dp"
                 android:text="@string/cashila_enqueue_payment"/>
 
+        <View
+                android:layout_width="10dp"
+                android:layout_height="0dp"
+                android:layout_weight="0"/>
+
         <Button
                 android:id="@+id/btPayNow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
+                android:layout_weight="0.5"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:paddingLeft="15dp"
@@ -132,5 +139,7 @@
                 android:textSize="17sp"
                 android:text="@string/cashila_pay_now"/>
 
-    </RelativeLayout>
+    </LinearLayout>
+
+
 </RelativeLayout>

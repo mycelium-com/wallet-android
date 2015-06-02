@@ -53,6 +53,17 @@
                 <data android:scheme="bitcoin" />
             </intent-filter>
 
+            <!-- payment request mime type uri scheme -->
+            <intent-filter android:label="@string/send_bitcoins" >
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="application/bitcoin-paymentrequest" />
+            </intent-filter>
+
+
             <!-- bitid authentication scheme -->
             <intent-filter android:label="@string/bitid_authentication">
                 <action android:name="android.intent.action.VIEW"/>
@@ -66,10 +77,6 @@
         </activity>
 
 
-        <activity
-            android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
-            android:label="@string/title_activity_bit_idauthentication">
-        </activity>
 
     </application>
 

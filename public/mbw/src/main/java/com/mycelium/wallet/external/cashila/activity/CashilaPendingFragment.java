@@ -50,6 +50,7 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import com.megiontechnologies.Bitcoins;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -71,10 +72,8 @@ import java.util.List;
  * The "pending payments" fragment
  */
 public class CashilaPendingFragment extends Fragment {
-   @InjectView(R.id.lvPending)
-   ListView lvPending;
-   @InjectView(R.id.pbPendingLoading)
-   ProgressBar pbPendingLoading;
+   @InjectView(R.id.lvPending) ListView lvPending;
+   @InjectView(R.id.pbPendingLoading) ProgressBar pbPendingLoading;
 
    private CashilaService cs;
    private MbwManager mbw;
@@ -105,10 +104,10 @@ public class CashilaPendingFragment extends Fragment {
       ButterKnife.inject(this, rootView);
 
       mbw = MbwManager.getInstance(this.getActivity());
-      cs = ((CashilaPaymentsActivity)getActivity()).getCashilaService();
+      cs = ((CashilaPaymentsActivity) getActivity()).getCashilaService();
       eventBus = mbw.getEventBus();
 
-      getBillPays();
+      getBillPays(true);
 
       lvPending.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
          @Override
@@ -125,17 +124,23 @@ public class CashilaPendingFragment extends Fragment {
       return rootView;
    }
 
-   public void refresh(){
-      getBillPays();
+   public void refresh(boolean showProgress) {
+      getBillPays(showProgress);
    }
 
-   @OnItemClick(R.id.lvPending) void onItemClick(View view, int position){
+   @OnItemClick(R.id.lvPending)
+   void onItemClick(View view, int position) {
       //lvPending.setItemChecked(position, true);
    }
 
    // fetches the list of current payable invoices from the server
-   private void getBillPays() {
-      final ProgressDialog progressDialog = ProgressDialog.show(this.getActivity(), getResources().getString(R.string.cashila), getResources().getString(R.string.cashila_fetching), true);
+   private void getBillPays(boolean showProgress) {
+      final ProgressDialog progressDialog;
+      if (showProgress) {
+         progressDialog = ProgressDialog.show(this.getActivity(), getResources().getString(R.string.cashila), getResources().getString(R.string.cashila_fetching), true);
+      } else {
+         progressDialog = null;
+      }
 
       pbPendingLoading.setVisibility(View.VISIBLE);
       AppObservable.bindFragment(this, cs.getAllBillPays())
@@ -143,13 +148,17 @@ public class CashilaPendingFragment extends Fragment {
             .subscribe(new Observer<List<BillPay>>() {
                @Override
                public void onCompleted() {
-                  progressDialog.dismiss();
+                  if (progressDialog != null) {
+                     progressDialog.dismiss();
+                  }
                }
 
                @Override
                public void onError(Throwable e) {
                   //throw new RuntimeException(e);
-                  progressDialog.dismiss();
+                  if (progressDialog != null) {
+                     progressDialog.dismiss();
+                  }
                }
 
                @Override
@@ -175,6 +184,7 @@ public class CashilaPendingFragment extends Fragment {
          currentActionMode.finish();
       }
    }
+
    @Override
    public void onPause() {
       super.onPause();
@@ -205,7 +215,7 @@ public class CashilaPendingFragment extends Fragment {
 
       @Override
       public View getView(final int position, View convertView, ViewGroup parent) {
-         if (convertView == null){
+         if (convertView == null) {
             convertView = inflater.inflate(R.layout.ext_cashila_pending_row, null);
          }
 
@@ -213,6 +223,7 @@ public class CashilaPendingFragment extends Fragment {
 
          TextView tvName = ButterKnife.findById(convertView, R.id.tvName);
          TextView tvAmount = ButterKnife.findById(convertView, R.id.tvAmount);
+         TextView tvOutstandingAmount = ButterKnife.findById(convertView, R.id.tvOutstandingAmount);
          TextView tvStatus = ButterKnife.findById(convertView, R.id.tvStatus);
          TextView tvFee = ButterKnife.findById(convertView, R.id.tvFee);
          TextView tvSectionHeader = ButterKnife.findById(convertView, R.id.tvSectionHeader);
@@ -237,18 +248,31 @@ public class CashilaPendingFragment extends Fragment {
                fee = "???";
             }
             tvFee.setText(getResources().getString(R.string.cashila_fee, fee));
+
+            // if there is already an amount deposited but still outstanding we have underpaid (maybe because of some latency of
+            // the bitcoin network and/or changes in exchange rate)
+            if (billPay.details.amountDeposited.compareTo(BigDecimal.ZERO) > 0 && billPay.details.amountToDeposit.compareTo(BigDecimal.ZERO) > 0){
+               tvOutstandingAmount.setVisibility(View.VISIBLE);
+               long satoshisOutstanding = Bitcoins.nearestValue(billPay.details.amountToDeposit).getLongValue();
+               tvOutstandingAmount.setText(String.format(
+                     getResources().getString(R.string.cashila_amount_outstanding),
+                     mbw.getBtcValueString(satoshisOutstanding)));
+            } else {
+               tvOutstandingAmount.setVisibility(View.GONE);
+            }
+
          }
 
          if (position == 0) {
             tvSectionHeader.setVisibility(View.VISIBLE);
-         } else if (getItem(position-1).getSortOrder() != billPay.getSortOrder()) {
+         } else if (getItem(position - 1).getSortOrder() != billPay.getSortOrder()) {
             tvSectionHeader.setVisibility(View.VISIBLE);
          } else {
             tvSectionHeader.setVisibility(View.GONE);
          }
          if (billPay.isPayable()) {
             tvSectionHeader.setText(getResources().getString(R.string.cashila_pending));
-         }else if (billPay.status.equals(BillPayStatus.uploaded)) {
+         } else if (billPay.status.equals(BillPayStatus.uploaded)) {
             tvSectionHeader.setText(getResources().getString(R.string.cashila_uploaded_title));
          } else {
             tvSectionHeader.setText(getResources().getString(R.string.cashila_done));
@@ -299,7 +323,7 @@ public class CashilaPendingFragment extends Fragment {
                   });
                }
             });
-         }else{
+         } else {
             convertView.setOnClickListener(null);
          }
 
@@ -346,13 +370,13 @@ public class CashilaPendingFragment extends Fragment {
                      @Override
                      public void onCompleted() {
                         // reload the list
-                        getBillPays();
+                        getBillPays(true);
                      }
 
                      @Override
                      public void onError(Throwable e) {
                         // something happened - reload the list
-                        getBillPays();
+                        getBillPays(true);
                      }
 
                      @Override

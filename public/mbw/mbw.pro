@@ -7,6 +7,7 @@
 #ignore xzing version trickery
 -dontwarn com.google.zxing.**
 -dontwarn java.lang.management.**
+-dontwarn javax.naming.**
 -dontwarn okio.**
 
 
@@ -120,6 +121,12 @@
 
 #keep classes used for deserializing json
 -keepclasseswithmembers class com.mycelium.wallet.bitid.json.** {
+  <init>(...);
+  *;
+}
+
+#keep classes used for deserializing payment requests
+-keepclasseswithmembers class org.bitcoin.protocols.** {
   <init>(...);
   *;
 }

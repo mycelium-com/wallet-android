@@ -219,9 +219,9 @@ public class Utils {
       showSimpleMessageDialog(context, messageResource, null);
    }
 
-   public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable okayRunner) {
+   public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable postRunner) {
       String message = context.getResources().getString(messageResource);
-      showSimpleMessageDialog(context, message, okayRunner);
+      showSimpleMessageDialog(context, message, postRunner);
    }
 
    public static String formatBlockcountAsApproxDuration(final Context context, final int blocks){
@@ -440,7 +440,7 @@ public class Utils {
          // Raw format
          return Optional.fromNullable(Address.fromString(someString, network));
       } else {
-         Optional<BitcoinUri> b = BitcoinUri.parse(someString, network);
+         Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(someString, network);
          if (b.isPresent()) {
             // On URI format
             return Optional.of(b.get().address);
@@ -558,12 +558,8 @@ public class Utils {
          // There must be something before the decimal separator
          return false;
       }
-      if ((foundDot || foundComma) && digitsAfter == 0) {
-         // There must be something after the decimal separator
-         return false;
-      }
+      return !((foundDot || foundComma) && digitsAfter == 0);
 
-      return true;
    }
 
    public static void pinProtectedWordlistBackup(final Activity activity) {

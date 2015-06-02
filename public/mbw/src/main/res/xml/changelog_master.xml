@@ -2,9 +2,12 @@
 <changelog>
     <release version="2.4.0" versioncode="24001">
         <change>Integration with Cashila to enable SEPA-Payments</change>
+        <change>Fetch and verify Payment-Requests (BIP70)</change>
+        <change>BitID authentication enabled</change>
         <change>Deterministic signatures for Bitcoin transactions (RFC6979)</change>
         <change>UI changes for the PIN entry</change>
         <change>Option to remove queued outgoing transaction before broadcasting</change>
+        <change>Allow spending of unconfirmed funds</change>
     </release>
     <release version="2.3.2" versioncode="23200">
         <change>Added Albanian, Greek and Swedish languages</change>

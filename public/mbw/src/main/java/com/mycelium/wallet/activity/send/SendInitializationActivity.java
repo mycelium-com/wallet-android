@@ -42,10 +42,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -60,6 +57,7 @@ public class SendInitializationActivity extends Activity {
    private boolean _isColdStorage;
    private Handler _synchronizingHandler;
    private Handler _slowNetworkHandler;
+   private byte[] _rawPr;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
@@ -85,10 +83,28 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
+   public static void callMe(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
+      Intent intent = prepareSendingIntent(currentActivity, account, rawPaymentRequest, isColdStorage);
+      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      currentActivity.startActivity(intent);
+   }
+
    private static Intent prepareSendingIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
       intent.putExtra("account", account);
       intent.putExtra("uri", uri);
+      intent.putExtra("isColdStorage", isColdStorage);
+      return intent;
+   }
+
+   public static void callMeWithResult(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage, int request) {
+      Intent intent = prepareSendingIntent(currentActivity, account, rawPaymentRequest, isColdStorage);
+      currentActivity.startActivityForResult(intent, request);
+   }
+   private static Intent prepareSendingIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
+      Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
+      intent.putExtra("account", account);
+      intent.putExtra("rawPr", rawPaymentRequest);
       intent.putExtra("isColdStorage", isColdStorage);
       return intent;
    }
@@ -103,6 +119,7 @@ public class SendInitializationActivity extends Activity {
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
 
       _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
+      _rawPr =  getIntent().getByteArrayExtra("rawPr");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
    }
@@ -185,7 +202,12 @@ public class SendInitializationActivity extends Activity {
       if (_isColdStorage) {
          ColdStorageSummaryActivity.callMe(this, _account.getId());
       } else {
-         Intent intent = SendMainActivity.getIntent(this, _account.getId(), _uri, false);
+         Intent intent;
+         if (_rawPr != null) {
+            intent = SendMainActivity.getIntent(this, _account.getId(), _rawPr, false);
+         } else {
+            intent = SendMainActivity.getIntent(this, _account.getId(), _uri, false);
+         }
          intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
          this.startActivity(intent);
       }

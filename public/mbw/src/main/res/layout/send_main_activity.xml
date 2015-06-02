@@ -277,6 +277,16 @@
                 android:textSize="20sp"
                 android:visibility="gone" />
 
+            <TextView
+                    android:id="@+id/tvUnconfirmedWarning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/yellow"
+                    android:textSize="20sp"
+                    android:text="@string/spending_unconfirmed_warning"
+                    android:visibility="gone" />
+
             <!-- Fee -->
 
             <LinearLayout

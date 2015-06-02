@@ -38,6 +38,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -48,6 +50,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import butterknife.ButterKnife;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -71,8 +74,8 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    private static final String CASHILA_SERVICE = "cashilaService";
    private static final int REQUEST_SEND_AMOUNT=1;
    private static final int REQUEST_WEBSITE = 2;
+   public static final String WARNINGS_SHOWN = "warningsShown";
 
-   private SectionsPagerAdapter sectionsPagerAdapter;
    private ViewPager viewPager;
    private CashilaService cs;
    private MbwManager mbw;
@@ -104,7 +107,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
 
       // Create the adapter that will return a fragment for each of the three
       // primary sections of the activity.
-      sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+      SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
       // Set up the ViewPager with the sections adapter.
       viewPager = (ViewPager) findViewById(R.id.pager);
@@ -117,8 +120,12 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
          @Override
          public void onPageSelected(int position) {
             actionBar.setSelectedNavigationItem(position);
+            // Hide the keyboard.
+            ((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(viewPager.getWindowToken(), 0);
          }
       });
+
+
 
 
       try {
@@ -154,14 +161,14 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    }
 
    @Override
-   protected void onRestoreInstanceState(Bundle savedInstanceState) {
+   protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
       super.onRestoreInstanceState(savedInstanceState);
-      warningsShown = savedInstanceState.getBoolean("warningsShown");
+      warningsShown = savedInstanceState.getBoolean(WARNINGS_SHOWN);
    }
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
-      outState.putBoolean("warningsShown", warningsShown);
+      outState.putBoolean(WARNINGS_SHOWN, warningsShown);
       super.onSaveInstanceState(outState);
    }
 
@@ -206,19 +213,22 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
 
    private void openDeepLink(String resource) {
       getCashilaService().getDeepLink(resource)
-      .subscribe(new Observer<DeepLink>() {
-         @Override
-         public void onCompleted() {}
+            .subscribe(new Observer<DeepLink>() {
+               @Override
+               public void onCompleted() {
+               }
 
-         @Override
-         public void onError(Throwable e) {}
+               @Override
+               public void onError(Throwable e) {
+               }
 
-         @Override
-         public void onNext(DeepLink deepLink) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(deepLink.url));
-            CashilaPaymentsActivity.this.startActivityForResult(browserIntent, REQUEST_WEBSITE);
-         }
-      });
+               @Override
+               public void onNext(DeepLink deepLink) {
+                  Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(deepLink.url));
+                  browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                  CashilaPaymentsActivity.this.startActivityForResult(browserIntent, REQUEST_WEBSITE);
+               }
+            });
    }
 
 
@@ -236,7 +246,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
 
    public void updatePayments() {
       getNewFragment().refresh();
-      getPendingFragment().refresh();
+      getPendingFragment().refresh(true);
    }
 
    @Override
@@ -260,14 +270,30 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == REQUEST_SEND_AMOUNT) {
          // switch to the list tab
-         this.setCurrentPage(1);
+         setCurrentPage(1);
 
-         // reload list
-         this.updatePayments();
+         // reload list immediately ...
+         updatePayments();
+
+         if (resultCode==RESULT_OK) {
+            // ... and also schedule a reload of the pending list in some seconds
+            // because the cashila backend takes some time to register the payment
+            new Handler().postDelayed(new Runnable() {
+               @Override
+               public void run() {
+                  CashilaPendingFragment pendingFragment = getPendingFragment();
+                  // ensure that the fragment is still alive
+                  if (pendingFragment != null && pendingFragment.isAdded()) {
+                     pendingFragment.refresh(false);
+                  }
+               }
+            }, 5000);
+         }
+
 
       } else if (requestCode == REQUEST_WEBSITE) {
          // after user visited the website, reload if something changed
-         this.updatePayments();
+         updatePayments();
 
       } else {
          super.onActivityResult(requestCode, resultCode, data);

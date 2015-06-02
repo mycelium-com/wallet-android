@@ -229,6 +229,16 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
+   public boolean isOwnInternalAddress(Address address) {
+      return isMine(address);
+   }
+
+   @Override
+   public boolean isOwnExternalAddress(Address address) {
+      return isMine(address);
+   }
+
+   @Override
    public UUID getId() {
       return _context.getId();
    }

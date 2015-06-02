@@ -36,6 +36,10 @@ package com.mycelium.wallet.activity.modern;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,10 +47,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
@@ -69,6 +70,9 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 public class ModernMain extends ActionBarActivity {
 
@@ -93,6 +97,26 @@ public class ModernMain extends ActionBarActivity {
       ActionBar bar = getSupportActionBar();
       bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
       bar.setDisplayOptions(1, ActionBar.DISPLAY_SHOW_TITLE);
+
+      // Load the theme-background (usually happens in styles.xml) but use a lower
+      // pixel format, this saves around 10MB of allocated memory
+      // persist the loaded Bitmap in the context of mbw-manager and reuse it every time this activity gets created
+      try {
+         BitmapDrawable background = (BitmapDrawable) _mbwManager.getBackgroundObjectsCache().get("mainBackground", new Callable<BitmapDrawable>() {
+            @Override
+            public BitmapDrawable call() throws Exception {
+               BitmapFactory.Options options = new BitmapFactory.Options();
+               options.inPreferredConfig = Bitmap.Config.RGB_565;
+               Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.background_witherrors_dimmed, options);
+               BitmapDrawable drawable = new BitmapDrawable(getResources(), background);
+               drawable.setGravity(Gravity.CENTER);
+               return drawable;
+            }
+         });
+         getWindow().setBackgroundDrawable(background);
+      } catch (ExecutionException ignore) {
+      }
+
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();

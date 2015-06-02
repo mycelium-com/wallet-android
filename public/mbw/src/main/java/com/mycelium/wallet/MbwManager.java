@@ -73,10 +73,10 @@ import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.trezor.TrezorManager;
+import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiLogger;
 import com.mycelium.wapi.wallet.*;
@@ -86,7 +86,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -185,6 +185,9 @@ public class MbwManager {
 
       _randomSource = new AndroidRandomSource();
 
+      //_connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
+
+
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
@@ -231,7 +234,7 @@ public class MbwManager {
             _exchangeRateManager,
             fiatCurrencies,
             getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
-            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,Denomination.mBTC.toString()))
+            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
             );
 
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup

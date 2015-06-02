@@ -681,4 +681,6 @@
   <string name="cashila_pay_now">Betala nu</string>
   <string name="cashila_sepa_payment_title">Sepa-betalning</string>
   <string name="cashila_uploaded_title">Uppladdad</string>
+  <string name="cashila_no_recipients">För närvarande stöder vi endast att skicka till befintliga mottagare.\n\nDet verkar som du inte använt cachila förut och inte har några befintliga mottagare. Skapa först en ny transaktion på deras webbplats.\n\n</string>
+  <string name="label_cold_storage_external_signing">Signera med:</string>
 </resources>

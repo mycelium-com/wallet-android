@@ -38,7 +38,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,7 +54,6 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -100,13 +98,6 @@ public class NoticeFragment extends Fragment {
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
       _root.findViewById(R.id.btBackupMissing).setOnClickListener(noticeClickListener);
       _root.findViewById(R.id.btPinResetNotice).setOnClickListener(noticeClickListener);
-      _root.findViewById(R.id.btnCashilaTest).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Intent intent = new Intent(NoticeFragment.this.getActivity(), CashilaPaymentsActivity.class);
-            startActivity(intent);
-         }
-      });
       updateUi();
       super.onResume();
    }

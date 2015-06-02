@@ -3,15 +3,6 @@
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical" >
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Cashila"
-            android:id="@+id/btnCashilaTest"
-            android:visibility="gone"
-            android:layout_margin="10dp"
-            />
 
     <TextView
             android:id="@+id/btBackupMissing"

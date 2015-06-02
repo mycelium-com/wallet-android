@@ -131,8 +131,12 @@
         <activity android:name=".activity.ConnectionLogsActivity" />
         <activity android:name=".activity.GetAmountActivity" />
         <activity android:name=".activity.StringHandlerActivity" />
+        <activity android:name=".activity.send.VerifyPaymentRequestActivity"/>
         <activity android:name=".external.cashila.activity.CashilaPaymentsActivity"
                   android:parentActivityName=".activity.modern.ModernMain"/>
+        <activity
+            android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
+            android:label="@string/title_activity_bit_idauthentication"/>
     </application>
 
 </manifest>

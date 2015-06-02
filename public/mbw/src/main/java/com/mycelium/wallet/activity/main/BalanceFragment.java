@@ -51,7 +51,6 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.event.*;
-import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -115,15 +114,7 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-
-         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(getActivity(), Feature.SEND_BITCOIN, false, new Runnable(){
-            @Override
-            public void run() {
-               SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
-            }
-         });
-
-
+         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
       }
    };
 

@@ -18,8 +18,6 @@ package com.mrd.bitlib.util;
 
 import com.mrd.bitlib.crypto.digest.RIPEMD160Digest;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
