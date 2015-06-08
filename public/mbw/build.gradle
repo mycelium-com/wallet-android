@@ -59,7 +59,7 @@ android {
 
     defaultConfig {
         versionCode 24011
-        versionName '2.4.0-RC1'
+        versionName '2.4.0'
         multiDexEnabled true
     }
 
