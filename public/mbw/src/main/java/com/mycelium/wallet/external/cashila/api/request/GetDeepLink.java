@@ -35,7 +35,6 @@
 package com.mycelium.wallet.external.cashila.api.request;
 
 
-
 public class GetDeepLink {
 
    public String resource;

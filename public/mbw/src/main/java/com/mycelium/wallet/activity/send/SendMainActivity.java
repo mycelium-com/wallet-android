@@ -72,9 +72,9 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.paymentrequest.PaymentRequestException;
+import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
-import com.mycelium.wallet.paymentrequest.PaymentRequestInformation;
+import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wapi.api.response.Feature;
@@ -155,12 +155,13 @@ public class SendMainActivity extends Activity {
       return intent;
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account,
-                                  BillPay sepaPayment, boolean isColdStorage) {
+   public static Intent getSepaIntent(Activity currentActivity, UUID account,
+                                  BillPay sepaPayment, String txLabel, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, SendMainActivity.class);
       intent.putExtra(ACCOUNT, account);
       intent.putExtra(AMOUNT_TO_SEND, Bitcoins.nearestValue(sepaPayment.details.amountToDeposit).getLongValue());
       intent.putExtra(RECEIVING_ADDRESS, sepaPayment.details.address);
+      intent.putExtra(TRANSACTION_LABEL, txLabel);
       intent.putExtra(SEPA_PAYMENT, sepaPayment);
       intent.putExtra(IS_COLD_STORAGE, isColdStorage);
       return intent;

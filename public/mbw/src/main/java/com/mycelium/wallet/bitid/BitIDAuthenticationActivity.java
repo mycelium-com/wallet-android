@@ -45,6 +45,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.common.base.Strings;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -53,7 +54,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-public class BitIDAuthenticationActivity extends ActionBarActivity  {
+public class BitIDAuthenticationActivity extends ActionBarActivity {
 
    private static final String ERROR_TEXT = "errortext";
    private static final String QUESTION_TEXT = "questiontext";
@@ -92,8 +93,16 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       if (savedInstanceState != null) {
          errorView.setText(savedInstanceState.getString(ERROR_TEXT));
          question.setText(savedInstanceState.getString(QUESTION_TEXT));
-         if (savedInstanceState.getBoolean(SIGNBUTTON_VISIBLE))  signInButton.setVisibility(View.VISIBLE); else signInButton.setVisibility(View.GONE);
-         if (savedInstanceState.getBoolean(ERRORVIEW_VISIBLE)) errorView.setVisibility(View.VISIBLE); else errorView.setVisibility(View.GONE);
+         if (savedInstanceState.getBoolean(SIGNBUTTON_VISIBLE)) {
+            signInButton.setVisibility(View.VISIBLE);
+         } else {
+            signInButton.setVisibility(View.GONE);
+         }
+         if (savedInstanceState.getBoolean(ERRORVIEW_VISIBLE)) {
+            errorView.setVisibility(View.VISIBLE);
+         } else {
+            errorView.setVisibility(View.GONE);
+         }
       }
    }
 
@@ -172,7 +181,9 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
       for (ExternalService service : ExternalService.values()) {
          if (service.getHost(manager.getNetwork()).equals(serviceName)) {
             //the service is in the list -> lets check if its already paired
-            if (storage.isPairedService(serviceName)) return; //its paired, we are done
+            if (storage.isPairedService(serviceName)) {
+               return; //its paired, we are done
+            }
             storage.setPairedService(serviceName, true); //it wasnt paired, we set the marker
             service.showWelcomeMessage(this); //show the welcome message and third party warning
             return; //no need to check the other services
@@ -181,7 +192,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
    }
 
    private void handleError(BitIdResponse response) {
-      String message = response.message;
+      String message = Strings.nullToEmpty(response.message);
       int code = response.code;
       String userInfo;
       if (code >= 400 && code < 500) {
@@ -191,7 +202,10 @@ public class BitIDAuthenticationActivity extends ActionBarActivity  {
          } else if (message.length() > 500) {
             userInfo = getString(R.string.bitid_error);
          } else {
-            userInfo = getString(R.string.bitid_errorheader) + code + ": " + response.message;
+            userInfo = getString(R.string.bitid_errorheader) + code;
+            if (!Strings.isNullOrEmpty(response.message)) {
+               userInfo += ": " + response.message;
+            }
          }
       } else if (code >= 500 && code < 600) {
          //server-side error

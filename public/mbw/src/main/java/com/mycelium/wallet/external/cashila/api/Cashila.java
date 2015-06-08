@@ -52,7 +52,8 @@ public interface Cashila {
    Observable<CashilaResponse<List<BillPayRecentRecipient>>> getBillPaysRecent();
 
    @PUT("/billpays/create/{newPaymentId}")
-   Observable<CashilaResponse<BillPay>> createBillPay(@Path("newPaymentId") UUID newPaymentId, @Body CreateBillPay createBillPayRequest);
+   Observable<CashilaResponse<BillPay>> createBillPay(
+         @Path("newPaymentId") UUID newPaymentId, @Body CreateBillPay createBillPayRequest);
 
    @POST("/billpays/{paymentId}/revive")
    Observable<CashilaResponse<BillPay>> reviveBillPay(@Path("paymentId") UUID paymentId);
@@ -64,10 +65,13 @@ public interface Cashila {
    Observable<CashilaResponse<List<Void>>> deleteBillPay(@Path("paymentId") UUID paymentId);
 
    @GET("/billpays")
-   Observable<CashilaResponse<List<BillPay>>> getBillPays(@Query("status") String statusFilter, @Query("id") String idList, @Query("exclude_status") String excludeStatus);
+   Observable<CashilaResponse<List<BillPay>>> getBillPays(
+         @Query("status") String statusFilter,
+         @Query("id") String idList, @Query("exclude_status") String excludeStatus);
 
    @GET("/billpays")
-   Observable<CashilaResponse<List<BillPay>>> getBillPays(@Query("status") String statusFilter); //, @Query("exclude_status") String excludeStatus);
+   Observable<CashilaResponse<List<BillPay>>> getBillPays(
+         @Query("status") String statusFilter); //, @Query("exclude_status") String excludeStatus);
 
    @GET("/billpays")
    Observable<CashilaResponse<List<BillPay>>> getBillPays();

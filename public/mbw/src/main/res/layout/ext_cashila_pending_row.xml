@@ -71,6 +71,38 @@
     </RelativeLayout>
 
     <RelativeLayout
+            android:id="@+id/rlReference"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible"
+            >
+
+        <TextView
+                android:id="@+id/tvReference"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_toLeftOf="@+id/tvDate"
+                android:layout_alignParentLeft="true"
+                tools:text="Reference"/>
+
+
+        <TextView
+                android:id="@+id/tvDate"
+                android:paddingLeft="5dp"
+                android:layout_alignParentRight="true"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textColor="@color/lightgrey"
+                android:layout_alignBaseline="@+id/tvReference"
+                android:textSize="12sp"
+                android:singleLine="true"
+                tools:text="1.1.2015"/>
+    </RelativeLayout>
+
+    <RelativeLayout
             android:id="@+id/rlStatus"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -90,11 +122,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:textColor="@color/lightgrey"
+                android:layout_alignBaseline="@+id/tvStatus"
                 android:paddingTop="2dp"
+                android:textColor="@color/lightgrey"
                 android:textSize="12sp"
                 tools:text="Fee: 1.00€"
                 />
-
     </RelativeLayout>
 </LinearLayout>

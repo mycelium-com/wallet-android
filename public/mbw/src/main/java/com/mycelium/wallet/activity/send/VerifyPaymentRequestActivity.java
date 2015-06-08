@@ -37,12 +37,9 @@ package com.mycelium.wallet.activity.send;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -52,20 +49,21 @@ import butterknife.OnClick;
 import butterknife.OnTouch;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.paymentrequest.PaymentRequestException;
+import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
-import com.mycelium.wallet.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.paymentrequest.PkiVerificationData;
+import com.mycelium.paymentrequest.PaymentRequestInformation;
+import com.mycelium.paymentrequest.PkiVerificationData;
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Subscribe;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.units.JustNow;
 import org.ocpsoft.prettytime.units.Millisecond;
 
-import java.text.DateFormat;
 import java.util.*;
 
 public class VerifyPaymentRequestActivity extends ActionBarActivity {
@@ -134,7 +132,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       );
 
 
-      progress = ProgressDialog.show(this, "", getString(R.string.payment_request_fetching_payment_request), true);
       btAccept.setEnabled(false);
 
       if (savedInstanceState != null) {
@@ -144,11 +141,31 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
                   .getIfPresent(paymentRequestHandlerUuid);
          }
       }
+      String progressMsg = getString(R.string.payment_request_fetching_payment_request);
+
       if (requestHandler == null) {
          paymentRequestHandlerUuid = UUID.randomUUID().toString();
-         requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork());
+
+         // check if we are currently in TOR-only mode - if so, setup the PaymentRequestHandler
+         // that all http(s) calls get routed over TOR
+         if (mbw.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbw.getTorManager() != null){
+            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork()){
+               @Override
+               protected OkHttpClient getHttpClient() {
+                  OkHttpClient client = super.getHttpClient();
+                  return mbw.getTorManager().setupClient(client);
+               }
+            };
+            progressMsg += getString(R.string.payment_request_over_tor);
+
+         } else {
+            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork());
+         }
          mbw.getBackgroundObjectsCache().put(paymentRequestHandlerUuid, requestHandler);
       }
+
+      progress = ProgressDialog.show(this, "", progressMsg, true);
+
 
       if (rawPaymentRequest != null) {
          requestHandler.parseRawPaymentRequest(rawPaymentRequest);
@@ -271,7 +288,7 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
          }
 
          if (requestInformation.getPaymentDetails().time != null) {
-            tvTimeCreated.setText(getFormattedDate(new Date(requestInformation.getPaymentDetails().time * 1000L)));
+            tvTimeCreated.setText(Utils.getFormattedDate(this, new Date(requestInformation.getPaymentDetails().time * 1000L)));
          } else {
             tvTimeCreated.setText(getString(R.string.data_not_available_short));
          }
@@ -289,7 +306,7 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
             prettyTime.removeUnit(JustNow.class);
             prettyTime.removeUnit(Millisecond.class);
             String duration = prettyTime.format(date);
-            tvTimeExpires.setText(String.format("%s\n(%s)", getFormattedDate(date), duration));
+            tvTimeExpires.setText(String.format("%s\n(%s)", Utils.getFormattedDate(this, date), duration));
          } else {
             tvTimeExpires.setText(getString(R.string.data_not_available_short));
          }
@@ -305,18 +322,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       }
    }
 
-   private String getFormattedDate(Date date) {
-      Locale locale = getResources().getConfiguration().locale;
-      DateFormat format;
-      Calendar calExpires = Calendar.getInstance(locale);
-      calExpires.setTime(date);
-      // show the date part if expire is not today
-      if (calExpires.get(Calendar.DAY_OF_YEAR) != Calendar.getInstance(locale).get(Calendar.DAY_OF_YEAR)) {
-         format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, locale);
-      } else {
-         format = DateFormat.getTimeInstance(DateFormat.MEDIUM, locale);
-      }
-      return format.format(date);
-   }
+
 
 }

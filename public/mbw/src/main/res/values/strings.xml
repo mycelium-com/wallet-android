@@ -743,5 +743,6 @@
     <string name="data_not_available_short">n/a</string>
     <string name="accept">Accept</string>
     <string name="nfc_payment_request_hint">Place your phone back-to-back to another NFC-enabled device to share this payment request</string>
+    <string name="payment_request_over_tor">" (over Tor)"</string>
 
 </resources>

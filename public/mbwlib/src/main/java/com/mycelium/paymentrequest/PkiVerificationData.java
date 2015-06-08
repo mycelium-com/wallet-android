@@ -32,21 +32,30 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.paymentrequest;
 
-public class PaymentRequestException extends RuntimeException {
-   public PaymentRequestException() {
-   }
+package com.mycelium.paymentrequest;
 
-   public PaymentRequestException(String detailMessage) {
-      super(detailMessage);
-   }
+import org.bitcoinj.crypto.X509Utils;
 
-   public PaymentRequestException(String detailMessage, Throwable throwable) {
-      super(detailMessage, throwable);
-   }
+import java.security.PublicKey;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.TrustAnchor;
 
-   public PaymentRequestException(Throwable throwable) {
-      super(throwable);
+public class PkiVerificationData  {
+   public final String displayName;
+   public final PublicKey merchantSigningKey;
+   public final TrustAnchor rootAuthority;
+   public final String rootAuthorityName;
+
+   public PkiVerificationData(String displayName, PublicKey merchantSigningKey,
+                               TrustAnchor rootAuthority) throws PaymentRequestException {
+      try {
+         this.displayName = displayName;
+         this.merchantSigningKey = merchantSigningKey;
+         this.rootAuthority = rootAuthority;
+         this.rootAuthorityName = X509Utils.getDisplayNameFromCertificate(rootAuthority.getTrustedCert(), true);
+      } catch (CertificateParsingException x) {
+         throw new PaymentRequestException("invalid certificate", x);
+      }
    }
 }

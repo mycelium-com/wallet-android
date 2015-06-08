@@ -54,16 +54,16 @@ public enum BillPayStatus implements Serializable {
    private final int localizedStringId;
 
 
-   private BillPayStatus(boolean isPayable, int localizedStringId){
+   private BillPayStatus(boolean isPayable, int localizedStringId) {
       this.isPayable = isPayable;
       this.localizedStringId = localizedStringId;
    }
 
-   public boolean isPayable(){
+   public boolean isPayable() {
       return isPayable;
    }
 
-   public String getLocalizedString(Context context){
+   public String getLocalizedString(Context context) {
       return context.getResources().getString(localizedStringId);
    }
 }

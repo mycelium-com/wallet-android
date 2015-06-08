@@ -118,8 +118,8 @@ public class CashilaService {
 
       RestAdapter adapter = new RestAdapter.Builder()
             .setEndpoint(baseUrl + apiVersion + "/")
-            //.setLogLevel(RestAdapter.LogLevel.BASIC)
-            .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setLogLevel(RestAdapter.LogLevel.BASIC)
+            //.setLogLevel(RestAdapter.LogLevel.FULL)
             .setConverter(new JacksonConverter(objectMapper))
             .setClient(new OkClient(client))
             .setRequestInterceptor(apiIdInterceptor)
@@ -131,10 +131,10 @@ public class CashilaService {
       lastNonce = System.currentTimeMillis();
    }
 
-   private volatile Observable<ApiSecretToken> requestToken=null;
+   private volatile Observable<ApiSecretToken> requestToken = null;
 
-   public synchronized Observable<ApiSecretToken> getSecurityToken(){
-      if (requestToken == null){
+   public synchronized Observable<ApiSecretToken> getSecurityToken() {
+      if (requestToken == null) {
          // Call getRequestToken, this should return a BitID-URI
          // We authenticate against it and get back a random security token - with this we HMAC all
          // our future API calls
@@ -146,7 +146,6 @@ public class CashilaService {
                      if (requestTokenCashilaResponse.isError()) {
                         throw new ApiExceptionAuth(requestTokenCashilaResponse);
                      }
-                     //requestTokenCashilaResponse.result.uri = requestTokenCashilaResponse.result.uri; // + "x";
                      return requestTokenCashilaResponse.result;
                   }
                }).map(new Func1<RequestToken, ApiSecretToken>() {
@@ -182,7 +181,6 @@ public class CashilaService {
                            Log.e("cashila", "error while deserialize bitid response", e);
                            apiSecurityToken = new WrappedApiSecretToken(e);
                         }
-
 
                         if (apiSecurityToken.isError()) {
                            throw new ApiExceptionAuth(apiSecurityToken.error.message);
@@ -228,7 +226,7 @@ public class CashilaService {
    }
 
    // used for json de-serialisation
-   private static class WrappedApiSecretToken extends CashilaResponse<ApiSecretToken>{
+   private static class WrappedApiSecretToken extends CashilaResponse<ApiSecretToken> {
       private WrappedApiSecretToken() {
       }
 
@@ -241,13 +239,13 @@ public class CashilaService {
    Observable<CashilaResponse<List<BillPayRecentRecipient>>> billPaysRecentCache;
 
    // Call ApiMethods with a new security Token ensured
-   public Observable<List<BillPayRecentRecipient>> getBillPaysRecent(final boolean fromCache){
+   public Observable<List<BillPayRecentRecipient>> getBillPaysRecent(final boolean fromCache) {
       return new ApiCaller<List<BillPayRecentRecipient>>() {
          @Override
          Observable<CashilaResponse<List<BillPayRecentRecipient>>> apiCall() {
-            if (fromCache && billPaysRecentCache != null){
+            if (fromCache && billPaysRecentCache != null) {
                return billPaysRecentCache;
-            }else {
+            } else {
                Observable<CashilaResponse<List<BillPayRecentRecipient>>> billPaysRecent = getApi().getBillPaysRecent();
                billPaysRecentCache = billPaysRecent.cache();
                return billPaysRecent;
@@ -256,14 +254,16 @@ public class CashilaService {
       }.call();
    }
 
-   public Observable<BillPay> createBillPay(final UUID newPaymentId, final CreateBillPay createBillPayRequest){
+   public Observable<BillPay> createBillPay(final UUID newPaymentId, final CreateBillPay createBillPayRequest) {
       return new ApiCaller<BillPay>() {
          @Override
-         Observable<CashilaResponse<BillPay>> apiCall() { return getApi().createBillPay(newPaymentId, createBillPayRequest); }
+         Observable<CashilaResponse<BillPay>> apiCall() {
+            return getApi().createBillPay(newPaymentId, createBillPayRequest);
+         }
       }.call();
    }
 
-   public Observable<BillPay> reviveBillPay(final UUID paymentId){
+   public Observable<BillPay> reviveBillPay(final UUID paymentId) {
       return new ApiCaller<BillPay>() {
          @Override
          Observable<CashilaResponse<BillPay>> apiCall() {
@@ -272,7 +272,7 @@ public class CashilaService {
       }.call();
    }
 
-   public Observable<List<BillPay>> getBillPays(){
+   public Observable<List<BillPay>> getBillPays() {
       return new ApiCaller<List<BillPay>>() {
          @Override
          Observable<CashilaResponse<List<BillPay>>> apiCall() {
@@ -281,7 +281,7 @@ public class CashilaService {
       }.call();
    }
 
-   public Observable<List<BillPay>> getAllBillPays(){
+   public Observable<List<BillPay>> getAllBillPays() {
       return new ApiCaller<List<BillPay>>() {
          @Override
          Observable<CashilaResponse<List<BillPay>>> apiCall() {
@@ -290,7 +290,7 @@ public class CashilaService {
       }.call();
    }
 
-   public Observable<List<Void>> deleteBillPay(final UUID paymentId){
+   public Observable<List<Void>> deleteBillPay(final UUID paymentId) {
       return new ApiCaller<List<Void>>() {
          @Override
          Observable<CashilaResponse<List<Void>>> apiCall() {
@@ -299,8 +299,8 @@ public class CashilaService {
       }.call();
    }
 
-   private abstract class ApiCaller<T>{
-      public Observable<T> call(){
+   private abstract class ApiCaller<T> {
+      public Observable<T> call() {
          Observable<CashilaResponse<T>> ret;
          // if no security token is available, first get it and call the requested api afterwards ...
          if (securityToken == null) {
@@ -312,14 +312,14 @@ public class CashilaService {
                               .observeOn(Schedulers.newThread());
                      }
                   });
-         }else{
+         } else {
             // ... otherwise, call the api directly
             ret = apiCall()
                   .doOnError(new Action1<Throwable>() {
                      @Override
                      public void call(Throwable throwable) {
                         // On Api error, drop the security token and request a new one on the next call
-                        if (throwable instanceof ApiException){
+                        if (throwable instanceof ApiException) {
                            // todo: make it more granular, when we want to drop the security token
                            securityToken = null;
                         }
@@ -339,9 +339,10 @@ public class CashilaService {
                           }
                );
       }
+
       abstract Observable<CashilaResponse<T>> apiCall();
 
-      private class CashilaResponseUnwrapper<T> implements Func1<CashilaResponse<T>, T>{
+      private class CashilaResponseUnwrapper<T> implements Func1<CashilaResponse<T>, T> {
          @Override
          public T call(CashilaResponse<T> tCashilaResponse) {
             if (tCashilaResponse.isError()) {
@@ -353,15 +354,15 @@ public class CashilaService {
       }
    }
 
-   public Cashila getApi(){
+   public Cashila getApi() {
       return cashila;
    }
 
-   private String getApiUriPathSegment(final String url){
-      if (url.startsWith(baseUrl)){
+   private String getApiUriPathSegment(final String url) {
+      if (url.startsWith(baseUrl)) {
          // only return everything after the base path
-         return url.substring(baseUrl.length()-1);
-      }else{
+         return url.substring(baseUrl.length() - 1);
+      } else {
          return url;
       }
    }

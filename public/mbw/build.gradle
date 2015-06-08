@@ -58,8 +58,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 24010
-        versionName '2.4.0-BETA4'
+        versionCode 24011
+        versionName '2.4.0-RC1'
         multiDexEnabled true
     }
 
@@ -89,7 +89,6 @@ android {
 */
 
         release {
-            //debuggable true
             minifyEnabled true
             proguardFile 'mbw.pro'
             applicationVariants.all { variant ->

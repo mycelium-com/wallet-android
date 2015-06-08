@@ -43,10 +43,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.*;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
@@ -227,6 +224,8 @@ public class CashilaPendingFragment extends Fragment {
          TextView tvStatus = ButterKnife.findById(convertView, R.id.tvStatus);
          TextView tvFee = ButterKnife.findById(convertView, R.id.tvFee);
          TextView tvSectionHeader = ButterKnife.findById(convertView, R.id.tvSectionHeader);
+         TextView tvReference = ButterKnife.findById(convertView, R.id.tvReference);
+         TextView tvDate = ButterKnife.findById(convertView, R.id.tvDate);
 
          if (billPay.recipient != null) {
             tvName.setText(billPay.recipient.name);
@@ -236,6 +235,7 @@ public class CashilaPendingFragment extends Fragment {
 
          if (billPay.payment != null) {
             tvAmount.setText(Utils.formatFiatValueAsString(billPay.payment.amount) + " " + billPay.payment.currency);
+            tvReference.setText(billPay.payment.reference);
          }
 
          tvStatus.setText(billPay.status.getLocalizedString(getActivity()));
@@ -251,16 +251,19 @@ public class CashilaPendingFragment extends Fragment {
 
             // if there is already an amount deposited but still outstanding we have underpaid (maybe because of some latency of
             // the bitcoin network and/or changes in exchange rate)
-            if (billPay.details.amountDeposited.compareTo(BigDecimal.ZERO) > 0 && billPay.details.amountToDeposit.compareTo(BigDecimal.ZERO) > 0){
+
+            BigDecimal amountDeposited = billPay.details.amountDeposited == null ? BigDecimal.ZERO : billPay.details.amountDeposited;
+            BigDecimal amountToDeposit = billPay.details.amountToDeposit == null ? BigDecimal.ZERO : billPay.details.amountToDeposit;
+            if (BigDecimal.ZERO.compareTo(amountDeposited) < 0 && BigDecimal.ZERO.compareTo(amountToDeposit) < 0) {
                tvOutstandingAmount.setVisibility(View.VISIBLE);
-               long satoshisOutstanding = Bitcoins.nearestValue(billPay.details.amountToDeposit).getLongValue();
+               long satoshisOutstanding = Bitcoins.nearestValue(amountToDeposit).getLongValue();
                tvOutstandingAmount.setText(String.format(
                      getResources().getString(R.string.cashila_amount_outstanding),
                      mbw.getBtcValueString(satoshisOutstanding)));
             } else {
                tvOutstandingAmount.setVisibility(View.GONE);
             }
-
+            tvDate.setText(Utils.getFormattedDate(getContext(), billPay.details.createdAt));
          }
 
          if (position == 0) {
@@ -281,51 +284,53 @@ public class CashilaPendingFragment extends Fragment {
 
          final ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 
-         if (billPay.isPayable()) {
-            convertView.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                  currentActionMode = actionBarActivity.startSupportActionMode(new ActionMode.Callback() {
-                     @Override
-                     public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+         final RelativeLayout rlReference = ButterKnife.findById(convertView, R.id.rlReference);
+         convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               currentActionMode = actionBarActivity.startSupportActionMode(new ActionMode.Callback() {
+                  @Override
+                  public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                     if (billPay.isPayable()) {
                         actionMode.getMenuInflater().inflate(R.menu.ext_cashila_pending_payments_menu, menu);
                         currentActionMode = actionMode;
-                        lvPending.setItemChecked(position, true);
+                     }
+                     rlReference.setVisibility(View.VISIBLE);
+                     lvPending.setItemChecked(position, true);
+                     return true;
+                  }
+
+                  @Override
+                  public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                     rlReference.setVisibility(View.VISIBLE);
+                     return billPay.isPayable();
+                  }
+
+                  @Override
+                  public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                     final int itemId = menuItem.getItemId();
+                     if (itemId == R.id.miDeletePayment) {
+                        deletePayment(billPay);
                         return true;
-                     }
-
-                     @Override
-                     public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                     } else if (itemId == R.id.miPayNow) {
+                        payNow(billPay);
                         return true;
+                     } else {
+                        // ...
                      }
 
-                     @Override
-                     public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                        final int itemId = menuItem.getItemId();
-                        if (itemId == R.id.miDeletePayment) {
-                           deletePayment(billPay);
-                           return true;
-                        } else if (itemId == R.id.miPayNow) {
-                           payNow(billPay);
-                           return true;
-                        } else {
-                           // ...
-                        }
+                     return false;
+                  }
 
-                        return false;
-                     }
-
-                     @Override
-                     public void onDestroyActionMode(ActionMode actionMode) {
-                        lvPending.setItemChecked(position, false);
-                        currentActionMode = null;
-                     }
-                  });
-               }
-            });
-         } else {
-            convertView.setOnClickListener(null);
-         }
+                  @Override
+                  public void onDestroyActionMode(ActionMode actionMode) {
+                     lvPending.setItemChecked(position, false);
+                     rlReference.setVisibility(View.GONE);
+                     currentActionMode = null;
+                  }
+               });
+            }
+         });
 
 
          return convertView;

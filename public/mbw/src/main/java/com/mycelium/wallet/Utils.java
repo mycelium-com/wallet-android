@@ -156,7 +156,6 @@ public class Utils {
    }
 
 
-
    public static Bitmap getMinimalQRCodeBitmap(String url) {
       Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
       hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
@@ -224,7 +223,7 @@ public class Utils {
       showSimpleMessageDialog(context, message, postRunner);
    }
 
-   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks){
+   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
       MbwManager mbwManager = MbwManager.getInstance(context);
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
       String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max(blocks, 1) * 10 * 60 * 1000));
@@ -361,6 +360,7 @@ public class Utils {
    public static String formatFiatValueAsString(BigDecimal fiat) {
       return FIAT_FORMAT.format(fiat);
    }
+
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
 
       Double converted = getFiatValue(satoshis, oneBtcInFiat);
@@ -368,7 +368,7 @@ public class Utils {
          return null;
       }
 
-      if (!formatCache.containsKey(precision)){
+      if (!formatCache.containsKey(precision)) {
          DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
          fiatFormat.setMaximumFractionDigits(precision);
          formatCache.put(precision, fiatFormat);
@@ -412,11 +412,11 @@ public class Utils {
          //it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
          //we could also skip the reporting to server, but lets see if this works.
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity,activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity,activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       }
    }
@@ -578,7 +578,7 @@ public class Utils {
       if (_mbwManager.getMetadataStorage().firstMasterseedBackupFinished()) {
          // second+ backup
          AdditionalBackupWarningActivity.callMe(parent);
-      }else{
+      } else {
          // first backup
          AlertDialog.Builder builder = new AlertDialog.Builder(parent);
          builder.setMessage(R.string.backup_all_warning).setCancelable(true)
@@ -667,8 +667,12 @@ public class Utils {
          @Override
          public int compare(WalletAccount lhs, WalletAccount rhs) {
             //HD Accounts always come first
-            if (lhs instanceof Bip44Account && rhs instanceof SingleAddressAccount) return -1;
-            if (lhs instanceof SingleAddressAccount && rhs instanceof Bip44Account) return 1;
+            if (lhs instanceof Bip44Account && rhs instanceof SingleAddressAccount) {
+               return -1;
+            }
+            if (lhs instanceof SingleAddressAccount && rhs instanceof Bip44Account) {
+               return 1;
+            }
             //when both are hd, we take the account index
             if (lhs instanceof Bip44Account) {
                int lid = ((Bip44Account) lhs).getAccountIndex();
@@ -702,7 +706,7 @@ public class Utils {
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, Resources resources) {
       // Watch only
-      if (!walletAccount.canSpend()){
+      if (!walletAccount.canSpend()) {
          return null;
       }
 
@@ -712,7 +716,7 @@ public class Utils {
       }
       //regular HD account
       if (walletAccount instanceof Bip44Account) {
-         return  resources.getDrawable(R.drawable.multikeys_grey);
+         return resources.getDrawable(R.drawable.multikeys_grey);
       }
 
       //single key account
@@ -729,5 +733,21 @@ public class Utils {
       } else {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }
+   }
+
+   public static String getFormattedDate(Context context, Date date) {
+      Locale locale = context.getResources().getConfiguration().locale;
+      java.text.DateFormat format;
+      Calendar now = Calendar.getInstance(locale);
+      Calendar toFormat = Calendar.getInstance(locale);
+      toFormat.setTime(date);
+      // show the date part if it is not today
+      if (toFormat.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+            toFormat.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)) {
+         format = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, locale);
+      } else {
+         format = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.MEDIUM, locale);
+      }
+      return format.format(date);
    }
 }

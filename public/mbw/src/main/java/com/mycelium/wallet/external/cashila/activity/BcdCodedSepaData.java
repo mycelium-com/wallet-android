@@ -53,41 +53,58 @@ public class BcdCodedSepaData implements Serializable {
    public final String displayText;
    public final BigDecimal amount;
 
-   public static BcdCodedSepaData fromString(String bcdData){
+   public static BcdCodedSepaData fromString(String bcdData) {
       String[] lines = bcdData.split("\\r?\\n");
 
       // first 7 lines are mandatory
-      if (lines.length < 7){
+      if (lines.length < 7) {
          return null;
       }
 
-      if (!lines[0].equals("BCD")){
+      if (!lines[0].equals("BCD")) {
          return null;
       }
 
-      if (!lines[1].equals("001")){
+      if (!lines[1].equals("001")) {
          return null;
       }
 
       int encodingId;
       try {
          encodingId = Integer.parseInt(lines[2]);
-      } catch (NumberFormatException ex){
+      } catch (NumberFormatException ex) {
          return null;
       }
 
       // todo
       String encoding;
-      switch (encodingId){
-         case 1: encoding="UTF-8"; break;
-         case 2: encoding="ISO 8895-1"; break;
-         case 3: encoding="ISO 8895-2"; break;
-         case 4: encoding="ISO 8895-4"; break;
-         case 5: encoding="ISO 8895-5"; break;
-         case 6: encoding="ISO 8895-7"; break;
-         case 7: encoding="ISO 8895-10"; break;
-         case 8: encoding="ISO 8895-15"; break;
-         default: return null;
+      switch (encodingId) {
+         case 1:
+            encoding = "UTF-8";
+            break;
+         case 2:
+            encoding = "ISO 8895-1";
+            break;
+         case 3:
+            encoding = "ISO 8895-2";
+            break;
+         case 4:
+            encoding = "ISO 8895-4";
+            break;
+         case 5:
+            encoding = "ISO 8895-5";
+            break;
+         case 6:
+            encoding = "ISO 8895-7";
+            break;
+         case 7:
+            encoding = "ISO 8895-10";
+            break;
+         case 8:
+            encoding = "ISO 8895-15";
+            break;
+         default:
+            return null;
       }
 
       if (!lines[3].equals("SCT")) {
@@ -99,8 +116,8 @@ public class BcdCodedSepaData implements Serializable {
       final String iban = lines[6];
 
       BigDecimal amount;
-      if (lines.length>7){
-         if (!lines[7].startsWith("EUR")){
+      if (lines.length > 7) {
+         if (!lines[7].startsWith("EUR")) {
             return null;
          }
 
@@ -118,7 +135,7 @@ public class BcdCodedSepaData implements Serializable {
       }
 
       String code;
-      if (lines.length > 8){
+      if (lines.length > 8) {
          code = lines[8];
       } else {
          code = "";
@@ -126,18 +143,18 @@ public class BcdCodedSepaData implements Serializable {
 
       // use either line9 (Reference) or line10 (Text) as Reference
       String reference = "";
-      if (lines.length > 9){
+      if (lines.length > 9) {
          reference = lines[9];
       }
 
-      if (lines.length > 10){
-         if (!Strings.isNullOrEmpty(lines[10].trim())){
+      if (lines.length > 10) {
+         if (!Strings.isNullOrEmpty(lines[10].trim())) {
             reference = lines[10];
          }
       }
 
       String displayText;
-      if (lines.length > 11){
+      if (lines.length > 11) {
          displayText = lines[11];
       } else {
          displayText = "";
@@ -147,7 +164,7 @@ public class BcdCodedSepaData implements Serializable {
       return new BcdCodedSepaData(bic, iban, recipient, reference, displayText, amount);
    }
 
-   private BcdCodedSepaData(String bic, String iban, String recipient, String reference, String displayText, BigDecimal amount){
+   private BcdCodedSepaData(String bic, String iban, String recipient, String reference, String displayText, BigDecimal amount) {
       this.bic = bic;
       this.iban = iban;
       this.recipient = recipient;

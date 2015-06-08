@@ -42,7 +42,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -109,13 +108,13 @@ public class CashilaNewFragment extends Fragment {
 
 
       mbw = MbwManager.getInstance(this.getActivity());
-      cs = ((CashilaPaymentsActivity)getActivity()).getCashilaService();
+      cs = ((CashilaPaymentsActivity) getActivity()).getCashilaService();
       eventBus = mbw.getEventBus();
 
       getRecentRecipientsList();
 
       bcd = (BcdCodedSepaData) getActivity().getIntent().getSerializableExtra("bcd");
-      if (bcd != null){
+      if (bcd != null) {
          initFromBcd(bcd);
       }
 
@@ -123,7 +122,7 @@ public class CashilaNewFragment extends Fragment {
    }
 
 
-   private void getRecentRecipientsList(){
+   private void getRecentRecipientsList() {
       final ProgressDialog progressDialog = ProgressDialog.show(this.getActivity(), getResources().getString(R.string.cashila), getResources().getString(R.string.cashila_fetching), true);
 
       // ensure login and get the list of all recipients
@@ -147,7 +146,7 @@ public class CashilaNewFragment extends Fragment {
                      Utils.showSimpleMessageDialog(getActivity(), getResources().getString(R.string.cashila_no_recipients), new Runnable() {
                         @Override
                         public void run() {
-                           ((CashilaPaymentsActivity)getActivity()).openAddRecipient();
+                           ((CashilaPaymentsActivity) getActivity()).openAddRecipient();
 
                         }
                      });
@@ -160,7 +159,7 @@ public class CashilaNewFragment extends Fragment {
             });
    }
 
-   public void refresh(){
+   public void refresh() {
       getRecentRecipientsList();
    }
 
@@ -190,9 +189,10 @@ public class CashilaNewFragment extends Fragment {
       return newBillPay;
       */
    }
+
    private CreateBillPay getBillPayFromUserEntry() {
       BillPayRecentRecipient selectedItem = (BillPayRecentRecipient) spRecipients.getSelectedItem();
-      if (selectedItem == null){
+      if (selectedItem == null) {
          return null;
       }
 
@@ -203,14 +203,14 @@ public class CashilaNewFragment extends Fragment {
 
       CreateBillPayBasedOnRecent newBillPay = new CreateBillPayBasedOnRecent(
             UUID.fromString(selectedItem.id),
-            amount , "EUR",
+            amount, "EUR",
             etReference.getText().toString(),
             mbw.getSelectedAccount().getReceivingAddress());
       return newBillPay;
    }
 
    private CreateBillPay getBillPay() {
-      if (bcd != null){
+      if (bcd != null) {
          return getBillPayFromBcdEntry(bcd);
       } else {
          return getBillPayFromUserEntry();
@@ -242,11 +242,13 @@ public class CashilaNewFragment extends Fragment {
       return amount;
    }
 
-   @OnClick(R.id.ibAddRecipient) public void onAddRecipient(){
-      ((CashilaPaymentsActivity)getActivity()).openAddRecipient();
+   @OnClick(R.id.ibAddRecipient)
+   public void onAddRecipient() {
+      ((CashilaPaymentsActivity) getActivity()).openAddRecipient();
    }
 
-   @OnClick(R.id.btPayNow) public void onPayNow(){
+   @OnClick(R.id.btPayNow)
+   public void onPayNow() {
       final CreateBillPay newBillPay = getBillPay();
       if (newBillPay != null) {
          mbw.getVersionManager().showFeatureWarningIfNeeded(getActivity(), Feature.CASHILA_NEW_PAYMENT, true, new Runnable() {
@@ -265,7 +267,8 @@ public class CashilaNewFragment extends Fragment {
                         }
 
                         @Override
-                        public void onError(Throwable e) {}
+                        public void onError(Throwable e) {
+                        }
 
                         @Override
                         public void onNext(BillPay billPay) {
@@ -277,7 +280,8 @@ public class CashilaNewFragment extends Fragment {
       }
    }
 
-   @OnClick(R.id.btEnqueue) public void onEnqueue(){
+   @OnClick(R.id.btEnqueue)
+   public void onEnqueue() {
       final CreateBillPay newBillPay = getBillPay();
       if (newBillPay != null) {
          mbw.getVersionManager().showFeatureWarningIfNeeded(getActivity(), Feature.CASHILA_NEW_PAYMENT, true, new Runnable() {
@@ -328,14 +332,14 @@ public class CashilaNewFragment extends Fragment {
 
       View view = getActivity().getLayoutInflater().inflate(R.layout.ext_cashila_new_recipient, parent, true);
 
-      ((TextView)view.findViewById(R.id.tvName)).setText(bcd.recipient);
-      ((TextView)view.findViewById(R.id.tvInfo)).setText(bcd.bic);
-      ((TextView)view.findViewById(R.id.tvIban)).setText(bcd.iban);
-      ((TextView)view.findViewById(R.id.tvDisplayText)).setText(bcd.displayText);
+      ((TextView) view.findViewById(R.id.tvName)).setText(bcd.recipient);
+      ((TextView) view.findViewById(R.id.tvInfo)).setText(bcd.bic);
+      ((TextView) view.findViewById(R.id.tvIban)).setText(bcd.iban);
+      ((TextView) view.findViewById(R.id.tvDisplayText)).setText(bcd.displayText);
    }
 
    // Adapter for Recipient Spinner
-   public static class RecipientArrayAdapter  extends android.widget.ArrayAdapter<BillPayRecentRecipient>{
+   public static class RecipientArrayAdapter extends android.widget.ArrayAdapter<BillPayRecentRecipient> {
       private final LayoutInflater inflater;
 
       public RecipientArrayAdapter(Context context, List<BillPayRecentRecipient> elems) {
@@ -345,7 +349,7 @@ public class CashilaNewFragment extends Fragment {
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
-         if (convertView == null){
+         if (convertView == null) {
             convertView = inflater.inflate(R.layout.ext_cashila_recipient_row, null);
          }
 

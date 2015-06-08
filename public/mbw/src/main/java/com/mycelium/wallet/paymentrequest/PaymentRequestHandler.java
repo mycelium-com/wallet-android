@@ -6,31 +6,21 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.*;
+import com.mycelium.paymentrequest.PaymentRequestException;
+import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
 import com.squareup.okhttp.*;
 import com.squareup.otto.Bus;
 import com.squareup.wire.Wire;
-import okio.ByteString;
 import org.bitcoin.protocols.payments.*;
-import org.bitcoinj.crypto.X509Utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.*;
 import java.security.cert.*;
-import java.util.ArrayList;
 
-public class PaymentRequestHandler implements Serializable {
-
-   public static final String PKI_X509_SHA256 = "x509+sha256";
-   public static final String PKI_X509_SHA1 = "x509+sha1";
-   public static final String PKI_NONE = "none";
-
-   private static final int MAX_MESSAGE_SIZE = 50000;
-   public static final String MAIN_NET_MONIKER = "main";
+public class PaymentRequestHandler {
    public static final String MIME_PAYMENTREQUEST = "application/bitcoin-paymentrequest";
    public static final String MIME_ACK = "application/bitcoin-paymentack";
 
@@ -81,7 +71,7 @@ public class PaymentRequestHandler implements Serializable {
          eventBus.post(paymentRequestInformation);
       } else {
          try {
-            paymentRequestInformation = fromRawPaymentRequest(rawPr);
+            paymentRequestInformation = PaymentRequestInformation.fromRawPaymentRequest(rawPr, getAndroidKeyStore(), networkParameters);
             eventBus.post(paymentRequestInformation);
          } catch (PaymentRequestException ex) {
             eventBus.post(ex);
@@ -133,6 +123,11 @@ public class PaymentRequestHandler implements Serializable {
       return paymentRequestInformation;
    }
 
+   // this method can be overwritten to change settings of the http client (eg. tor, ...)
+   protected OkHttpClient getHttpClient(){
+      return new OkHttpClient();
+   }
+
    private PaymentRequestInformation fromCallback(String callbackURL) {
       URL url;
       url = checkUrl(callbackURL);
@@ -144,7 +139,7 @@ public class PaymentRequestHandler implements Serializable {
 
       try {
          final OkHttpClient httpClient;
-         httpClient = new OkHttpClient();  // todo: TOR?
+         httpClient = getHttpClient();
 
          Response response = httpClient.newCall(request).execute();
 
@@ -153,7 +148,7 @@ public class PaymentRequestHandler implements Serializable {
                throw new PaymentRequestException("server responded with wrong mime-type");
             }
             byte[] data = response.body().bytes();
-            return fromRawPaymentRequest(data);
+            return PaymentRequestInformation.fromRawPaymentRequest(data, getAndroidKeyStore(), networkParameters);
          } else {
             throw new PaymentRequestException("could not fetch the payment request from " + url.toString());
          }
@@ -167,7 +162,7 @@ public class PaymentRequestHandler implements Serializable {
       URL url;
       try {
          url = new URL(urlString);
-         if (!url.getProtocol().equals("http") && !url.getProtocol().equals("https")){
+         if (!url.getProtocol().equals("http") && !url.getProtocol().equals("https")) {
             throw new PaymentRequestException("invalid protocol");
          }
       } catch (MalformedURLException e) {
@@ -176,55 +171,6 @@ public class PaymentRequestHandler implements Serializable {
       return url;
    }
 
-   private PaymentRequestInformation fromRawPaymentRequest(byte[] rawPaymentRequest) {
-
-      if (rawPaymentRequest.length > MAX_MESSAGE_SIZE) {
-         throw new PaymentRequestException("payment request too large");
-      }
-
-      try {
-         Wire wire = new Wire();
-
-         PaymentRequest paymentRequest = wire.parseFrom(rawPaymentRequest, PaymentRequest.class);
-         if (paymentRequest.payment_details_version != 1) {
-            throw new PaymentRequestException("unsupported payment details version " + paymentRequest.payment_details_version);
-         }
-
-         PaymentDetails paymentDetails = wire.parseFrom(paymentRequest.serialized_payment_details.toByteArray(), PaymentDetails.class);
-
-         // check if its for the correct bitcoin network (testnet/prodnet)
-         if (MAIN_NET_MONIKER.equals(paymentDetails.network) != networkParameters.isProdnet()) {
-            throw new PaymentRequestException("wrong network: " + paymentDetails.network);
-         }
-
-         X509Certificates certificates;
-         if (!PKI_NONE.equals(paymentRequest.pki_type)) {
-            if (!(paymentRequest.pki_type.equals(PKI_X509_SHA256) || paymentRequest.pki_type.equals(PKI_X509_SHA1))) {
-               throw new PaymentRequestException("unsupported pki type " + paymentRequest.pki_type);
-            }
-
-            if (paymentRequest.pki_data == null || paymentRequest.pki_data.size() == 0) {
-               throw new PaymentRequestException("no pki data available");
-            }
-
-            if (paymentRequest.signature == null || paymentRequest.signature.size() == 0) {
-               throw new PaymentRequestException("no signature available");
-            }
-
-            certificates = wire.parseFrom(paymentRequest.pki_data.toByteArray(), X509Certificates.class);
-            PkiVerificationData pkiVerificationData = verifySignature(paymentRequest, certificates);
-            return new PaymentRequestInformation(paymentRequest, paymentDetails, pkiVerificationData);
-
-
-         } else {
-            return new PaymentRequestInformation(paymentRequest, paymentDetails, null);
-         }
-
-
-      } catch (IOException e) {
-         throw new PaymentRequestException("invalid formatted payment request", e);
-      }
-   }
 
    private static KeyStore getAndroidKeyStore() {
       KeyStore trustStore;
@@ -250,93 +196,6 @@ public class PaymentRequestHandler implements Serializable {
       return trustStore;
    }
 
-   private static String getPkiSignatureAlgorithm(PaymentRequest paymentRequest) {
-      if (PKI_X509_SHA256.equals(paymentRequest.pki_type)) {
-         return "SHA256withRSA";
-      } else if (PKI_X509_SHA1.equals(paymentRequest.pki_type)) {
-         return "SHA1withRSA";
-      } else {
-         throw new PaymentRequestException("unsupported signature algorithm");
-      }
-   }
-
-   private static PkiVerificationData verifySignature(PaymentRequest paymentRequest, X509Certificates certificates) {
-      if (certificates == null) {
-         throw new PaymentRequestException("no certificates supplied");
-      }
-
-      try {
-         KeyStore keyStore = getAndroidKeyStore();
-
-         CertificateFactory certFact = CertificateFactory.getInstance("X.509");
-
-         // parse each certificate from the chain ...
-         ArrayList<X509Certificate> certs = new ArrayList<X509Certificate>();
-         for (ByteString cert : certificates.certificate) {
-            ByteArrayInputStream inStream = new ByteArrayInputStream(cert.toByteArray());
-            certs.add((X509Certificate) certFact.generateCertificate(inStream));
-         }
-
-         // ... and generate the certification path from it.
-         CertPath certPath = certFact.generateCertPath(certs);
-
-         // Retrieves the most-trusted CAs from keystore.
-         PKIXParameters params = new PKIXParameters(keyStore);
-         // Revocation not supported in the current version.
-         params.setRevocationEnabled(false);
-
-         // Now verify the certificate chain is correct and trusted. This let's us get an identity linked pubkey.
-         CertPathValidator validator = CertPathValidator.getInstance("PKIX");
-         PKIXCertPathValidatorResult result = (PKIXCertPathValidatorResult) validator.validate(certPath, params);
-         PublicKey publicKey = result.getPublicKey();
-
-         // OK, we got an identity, now check it was used to sign this message.
-         Signature signature = Signature.getInstance(getPkiSignatureAlgorithm(paymentRequest));
-         // Note that we don't use signature.initVerify(certs.get(0)) here despite it being the most obvious
-         // way to set it up, because we don't care about the constraints specified on the certificates: any
-         // cert that links a key to a domain name or other identity will do for us.
-         signature.initVerify(publicKey);
-
-         // duplicate the payment-request but with an empty signature
-         // then check the again serialized format of it
-         PaymentRequest checkPaymentRequest = new PaymentRequest.Builder(paymentRequest)
-               .signature(ByteString.EMPTY)
-               .build();
-
-         // serialize the payment request (now with an empty signature field) and check if the signature verifies
-         signature.update(checkPaymentRequest.toByteArray());
-
-         boolean isValid = signature.verify(paymentRequest.signature.toByteArray());
-
-         if (!isValid) {
-            throw new PaymentRequestException("signature does not match");
-         }
-
-
-         // Signature verifies, get the names from the identity we just verified for presentation to the user.
-         final X509Certificate cert = certs.get(0);
-         //return new PkiVerificationData(displayName, publicKey, result.getTrustAnchor());
-         String displayName = X509Utils.getDisplayNameFromCertificate(cert, true);
-         return new PkiVerificationData(displayName, publicKey, result.getTrustAnchor());
-
-
-      } catch (CertificateException e) {
-         throw new PaymentRequestException("invalid certificate", e);
-      } catch (InvalidKeyException e) {
-         throw new PaymentRequestException("keystore not ready", e);
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e);
-      } catch (InvalidAlgorithmParameterException e) {
-         throw new PaymentRequestException("invalid certificate", e);
-      } catch (KeyStoreException e) {
-         throw new RuntimeException(e);
-      } catch (CertPathValidatorException e) {
-         throw new PaymentRequestException("invalid certificate", e);
-      } catch (SignatureException e) {
-         throw new PaymentRequestException("invalid certificate", e);
-      }
-
-   }
 
    public void setMerchantMemo(String memo) {
       merchantMemo = memo;
@@ -401,7 +260,7 @@ public class PaymentRequestHandler implements Serializable {
 
       try {
          final OkHttpClient httpClient;
-         httpClient = new OkHttpClient();  // todo: TOR?
+         httpClient = getHttpClient();
          Response response = httpClient.newCall(request).execute();
 
          Wire wire = new Wire();
@@ -414,10 +273,13 @@ public class PaymentRequestHandler implements Serializable {
             }
 
             byte[] data = response.body().bytes();
-            if (data.length > MAX_MESSAGE_SIZE) {
+            if (data.length > PaymentRequestInformation.MAX_MESSAGE_SIZE) {
                throw new PaymentRequestException("ack-message too large");
             }
             paymentAck = wire.parseFrom(data, PaymentACK.class);
+            if (paymentAck == null){
+               throw new PaymentRequestException("could not parse the returned ACK from " + paymentRequestInformation.getPaymentDetails().payment_url);
+            }
             return paymentAck;
          } else {
             throw new PaymentRequestException("could not fetch the payment request from " + paymentRequestInformation.getPaymentDetails().payment_url);

@@ -52,6 +52,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import butterknife.ButterKnife;
+import com.google.common.base.Strings;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -72,7 +73,7 @@ import java.util.concurrent.ExecutionException;
 
 public class CashilaPaymentsActivity extends ActionBarActivity implements ActionBar.TabListener {
    private static final String CASHILA_SERVICE = "cashilaService";
-   private static final int REQUEST_SEND_AMOUNT=1;
+   private static final int REQUEST_SEND_AMOUNT = 1;
    private static final int REQUEST_WEBSITE = 2;
    public static final String WARNINGS_SHOWN = "warningsShown";
 
@@ -87,6 +88,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
       intent.putExtra("bcd", bcdQrCode);
       return intent;
    }
+
    public static Intent getIntent(Context context) {
       return new Intent(context, CashilaPaymentsActivity.class);
    }
@@ -121,11 +123,9 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
          public void onPageSelected(int position) {
             actionBar.setSelectedNavigationItem(position);
             // Hide the keyboard.
-            ((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(viewPager.getWindowToken(), 0);
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(viewPager.getWindowToken(), 0);
          }
       });
-
-
 
 
       try {
@@ -137,9 +137,8 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
             }
          });
       } catch (ExecutionException e) {
-         throw  new RuntimeException(e);
+         throw new RuntimeException(e);
       }
-
 
       actionBar.addTab(
             actionBar.newTab()
@@ -153,6 +152,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
 
       this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
    }
+
 
    @Override
    protected void onDestroy() {
@@ -172,7 +172,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
       super.onSaveInstanceState(outState);
    }
 
-   public void setCurrentPage(int page){
+   public void setCurrentPage(int page) {
       viewPager.setCurrentItem(page);
    }
 
@@ -226,7 +226,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
                public void onNext(DeepLink deepLink) {
                   Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(deepLink.url));
                   browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                  CashilaPaymentsActivity.this.startActivityForResult(browserIntent, REQUEST_WEBSITE);
+                  CashilaPaymentsActivity.this.startActivity(browserIntent);
                }
             });
    }
@@ -236,11 +236,11 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
       return "android:switcher:" + viewPagerId + ":" + index;
    }
 
-   private CashilaNewFragment getNewFragment(){
+   private CashilaNewFragment getNewFragment() {
       return (CashilaNewFragment) getSupportFragmentManager().findFragmentByTag(makeFragmentName(R.id.pager, 0));
    }
 
-   private CashilaPendingFragment getPendingFragment(){
+   private CashilaPendingFragment getPendingFragment() {
       return (CashilaPendingFragment) getSupportFragmentManager().findFragmentByTag(makeFragmentName(R.id.pager, 1));
    }
 
@@ -275,7 +275,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
          // reload list immediately ...
          updatePayments();
 
-         if (resultCode==RESULT_OK) {
+         if (resultCode == RESULT_OK) {
             // ... and also schedule a reload of the pending list in some seconds
             // because the cashila backend takes some time to register the payment
             new Handler().postDelayed(new Runnable() {
@@ -289,35 +289,28 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
                }
             }, 5000);
          }
-
-
-      } else if (requestCode == REQUEST_WEBSITE) {
-         // after user visited the website, reload if something changed
-         updatePayments();
-
       } else {
          super.onActivityResult(requestCode, resultCode, data);
-
       }
    }
 
    public boolean ignoreWarnings;
 
    @Subscribe()
-   public synchronized void onCashilaApiException(final ApiException exception){
+   public synchronized void onCashilaApiException(final ApiException exception) {
       if (!ignoreWarnings) {
          // prevent that two message windows pop up
          ignoreWarnings = true;
          String message = exception.getMessage();
 
-         if (exception instanceof ApiExceptionAuth){
+         if (exception instanceof ApiExceptionAuth) {
             message = getString(R.string.cashila_account_needs_pairing) + "\n\n" + exception.getMessage();
          }
 
          Utils.showSimpleMessageDialog(this, message, null, new Runnable() {
             @Override
             public void run() {
-               if (exception instanceof ApiExceptionAuth){
+               if (exception instanceof ApiExceptionAuth) {
                   CashilaPaymentsActivity.this.finish();
                }
                ignoreWarnings = false;
@@ -327,14 +320,22 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    }
 
    @Subscribe
-   public void onRequestToPay(final BillPay billPay){
+   public void onRequestToPay(final BillPay billPay) {
       mbw.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA_PAY, true, new Runnable() {
 
          @Override
          public void run() {
-            Intent intent = SendMainActivity.getIntent(CashilaPaymentsActivity.this,
+            String txLabel = "Cashila";
+            if (!Strings.isNullOrEmpty(billPay.recipient.name)) {
+               txLabel += ": " + billPay.recipient.name;
+            }
+            if (!Strings.isNullOrEmpty(billPay.payment.reference)) {
+               txLabel += ", " + billPay.payment.reference;
+            }
+            Intent intent = SendMainActivity.getSepaIntent(CashilaPaymentsActivity.this,
                   mbw.getSelectedAccount().getId(),
                   billPay,
+                  txLabel,
                   false);
 
             CashilaPaymentsActivity.this.startActivityForResult(intent, REQUEST_SEND_AMOUNT);
@@ -346,8 +347,6 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    public CashilaService getCashilaService() {
       return cs;
    }
-
-
 
 
    /**

@@ -37,7 +37,7 @@ package com.mycelium.wallet.external.cashila.api.response;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class BillPay implements Serializable{
+public class BillPay implements Serializable {
    public UUID id;
    public BillPayStatus status;
    public BillPayRecipient recipient;
@@ -50,14 +50,14 @@ public class BillPay implements Serializable{
       return String.format("BillPay{id='%s', status='%s', recipient=%s, address=%s}", id, status, recipient, details.address);
    }
 
-   public boolean isPayable(){
+   public boolean isPayable() {
       return this.status.isPayable();
    }
 
-   public int getSortOrder(){
+   public int getSortOrder() {
       // payable, uploaded, others (done)
 
-      if (isPayable()){
+      if (isPayable()) {
          return 0;
       } else if (status.equals(BillPayStatus.uploaded)) {
          return 1;

@@ -40,14 +40,14 @@ public class CashilaResponse<T> {
    public T result;
    public Error error;
 
-   public boolean isError(){
+   public boolean isError() {
       return error != null;
    }
 
    @Override
    public String toString() {
 
-      if (isError()){
+      if (isError()) {
          return error.toString();
       } else {
          return "CashilaResponse{" + result.toString() + '}';

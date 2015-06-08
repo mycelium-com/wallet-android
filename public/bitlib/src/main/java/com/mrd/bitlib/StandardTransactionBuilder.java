@@ -406,8 +406,13 @@ public class StandardTransactionBuilder {
             // only look for standard scripts
             continue;
          }
-         if (output.height < minHeight) {
-            minHeight = output.height;
+
+         // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
+         // choose them as the last possible option
+         int height = output.height > 0 ? output.height : Integer.MAX_VALUE-1;
+
+         if (height < minHeight) {
+            minHeight = height;
             oldest = output;
          }
       }
