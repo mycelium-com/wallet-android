@@ -161,6 +161,8 @@ public class BitIDAuthenticationActivity extends ActionBarActivity {
          Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_noconnection, Toast.LENGTH_LONG).show();
       } else if (BitIdResponse.ResponseStatus.TIMEOUT == response.status) {
          Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_timeout, Toast.LENGTH_LONG).show();
+      } else if (BitIdResponse.ResponseStatus.REFUSED == response.status) {
+         Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_refused, Toast.LENGTH_LONG).show();
       } else if (BitIdResponse.ResponseStatus.SSLPROBLEM == response.status) {
          showDialog(response.message);
       } else if (BitIdResponse.ResponseStatus.SUCCESS == response.status) {

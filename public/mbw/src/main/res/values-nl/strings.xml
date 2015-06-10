@@ -129,6 +129,7 @@
   <string name="get_private_key">Kopieer private key van:</string>
   <string name="cold_storage">Koude opslag</string>
   <string name="cold_storage_title">Bitcoins uit de koude opslag uitgeven</string>
+  <string name="cold_storage_desc">U gaat geld uitgeven vanuit een private key in koude opslag. Dit kan een papieren back-up zijn of een private key slip van een Bitcoin ATM. De volgende formaten worden ondersteund:\nPrivate Key, Master Seed, xPriv Key\n\nZodra de transactie is verstuurd zal elk spoor hiervan worden gewist uit het interne geheugen.</string>
   <string name="keep_account_address">Verwijder alleen de private key en behoudt als alleen-lezen account</string>
   <string name="manual_entry">Handmatige invoer</string>
   <string name="active_hd_accounts_name">Mijn HD-Accounts</string>
@@ -224,6 +225,7 @@
   <string name="secure_my_funds">Beveilig mijn tegoeden</string>
   <string name="move_legacy_funds_message">Uw portemonnee heeft een of meer oudere accounts met tegoeden.\n\nZorg ervoor dat uw geld veilig is en ter verbetering van uw anonimiteit dient u uw fondsen te verplaatsen naar een van uw HD accounts.\n\nGa naar het tabblad rekeningen voor meer informatie.</string>
   <string name="ignore_warnings_title">Negeer de waarschuwingen</string>
+  <string name="ignore_warnings_description">Wilt u waarschuwingen negeren dat er nog tegoed staat op dit bestaande account?</string>
   <string name="explore">Verkennen</string>
   <string name="getting_location">verkrijgen van locatie&#8230;</string>
   <string name="about">Over Mycelium</string>
@@ -259,6 +261,7 @@
   <string name="lt_localization_not_available">Voor deze functie moet uw toestel uw huidige locatie weten. Het lijkt erop dat uw toestel dit momenteel niet doet. Probeer bij instellingen Locatie Services in te schakelen.</string>
   <string name="lt_create_account_title">Trader account aanmaken</string>
   <string name="lt_create_account_address_desc">U gebruikt lokale handelaar voor de eerste keer en dient een paar gegevens in te voeren.\n\nKies het account dat u wenst te gebruiken als uw lokale handelaar identiteit:</string>
+  <string name="use_button">Selecteer</string>
   <string name="lt_create_account_name_desc">Kies een Local Trader alias:</string>
   <string name="lt_create_account_name_hint">naam</string>
   <string name="lt_error_account_name_taken">De door u gekozen naam is reeds in  gebruik. Kies een andere naam</string>
@@ -528,9 +531,11 @@
   <string name="no_spending_records">U heeft geen account waarmee u kunt betalen.\n\nOm te kunnen betalen, heeft u een account nodig met een private key. Er zijn momenteel geen HD Accounts of Eén Adres Accounts met een private key. Activeer of importeer een account met een private key om te kunnen betalen.</string>
   <string name="select_key_for_signing">Selecteer sleutel voor het ondertekenen</string>
   <string name="playstore_link_label">Playstore Link</string>
+  <string name="direct_apk_link_label">Directe\ndownload</string>
   <string name="hide_unused_account_menu">Account verwijderen</string>
   <string name="dont_allow_hiding_used_notification">U kunt een gebruikt account niet verbergen, maar u kunt het archiveren</string>
   <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
+  <string name="pref_miner_fee_summary">Transacties worden verzonden met een %1$s miner fee voor elke 1000 bytes transactiegrootte</string>
   <string name="miner_fee_economic_name">Economisch</string>
   <string name="miner_fee_normal_name">Normaal</string>
   <string name="miner_fee_priority_name">Prioriteit</string>
@@ -541,6 +546,8 @@
   <string name="lt_copied_to_clipboard">Chatbericht is gekopieerd naar het klembord</string>
   <string name="total_balance_title">Totaal:</string>
   <string name="additional_backup_words_title">Aanvullende master seed back-up</string>
+  <string name="wordlist_additional_backup_not_possible_pin_too_new">Sorry, een extra back-up is momenteel niet mogelijk. \nUw PIN is recentelijk gewijzigd.\n\nOm de veiligheid te van uw geld te verhogen, kunt u (of iemand anders) de master seed niet exporteren kort na het instellen van een nieuwe PIN. \n\n U moet ten minste %1$d blokken (~ %2$s) wachten</string>
+  <string name="wordlist_additional_backup_not_possible_no_pin">Sorry, een extra back-up maken is momenteel niet mogelijk.\nU heeft nog geen PIN ingesteld.\n\nOm de veiligheid te van uw geld te verhogen, kunt u (of iemand anders) de master seed niet exporteren zonder dat er een PIN is ingesteld.\n\nGa naar Instellingen en stel een PIN in.</string>
   <string name="pin_pad_clear">CLR</string>
   <string name="pin_pad_backspace">DEL</string>
   <string name="pin_resettable_pin_info">Als u uw pincode bent vergeten, heeft u de optie om deze te resetten na een wachtperiode van %s.</string>

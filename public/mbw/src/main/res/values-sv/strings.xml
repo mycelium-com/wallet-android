@@ -683,4 +683,7 @@
   <string name="cashila_uploaded_title">Uppladdad</string>
   <string name="cashila_no_recipients">För närvarande stöder vi endast att skicka till befintliga mottagare.\n\nDet verkar som du inte använt cachila förut och inte har några befintliga mottagare. Skapa först en ny transaktion på deras webbplats.\n\n</string>
   <string name="label_cold_storage_external_signing">Signera med:</string>
+  <string name="spending_unconfirmed_warning">Varning: spenderar obekräftade tillgångar</string>
+  <string name="spending_unconfirmed_title">Spenderar obekräftade tillgångar</string>
+  <string name="spending_unconfirmed_description">Din transaktion använder tillgångar som ännu inte har inkluderats i ett bitcoin-block. Om, av någon anledning, transaktionen som skickar dessa bitcoins till dig misslyckas eller förblir obekräftad, kommer även din transaktion att misslyckas eller förbli obekräftad.</string>
 </resources>

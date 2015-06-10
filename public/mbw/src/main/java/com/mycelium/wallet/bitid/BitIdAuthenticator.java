@@ -48,6 +48,8 @@ import com.squareup.okhttp.*;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
@@ -88,9 +90,15 @@ public class BitIdAuthenticator {
       } catch (SocketTimeoutException e) {
          //connection timed out
          bitIdResponse.status = BitIdResponse.ResponseStatus.TIMEOUT;
+      } catch (InterruptedIOException e) {
+         //seems like this can also happen when a timeout occurs
+         bitIdResponse.status = BitIdResponse.ResponseStatus.TIMEOUT;
       } catch (UnknownHostException e) {
          //host not known, most probably the device has no internet connection
          bitIdResponse.status = BitIdResponse.ResponseStatus.NOCONNECTION;
+      } catch (ConnectException e) {
+         //might be a refused connection
+         bitIdResponse.status = BitIdResponse.ResponseStatus.REFUSED;
       } catch (SSLException e) {
          Preconditions.checkState(enforceSslCorrectness);
          //ask user whether he wants to proceed although there is a problem with the certificate

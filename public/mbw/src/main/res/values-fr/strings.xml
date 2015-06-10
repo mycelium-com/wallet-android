@@ -113,7 +113,7 @@
   <string name="edit">Modifier</string>
   <string name="delete">Supprimer</string>
   <string name="payment_request">Demande de paiement</string>
-  <string name="export_account_data_warning">Vous êtes sur le point d\'exporter des données sensibles du compte sélectionné.\n\nQuiconque accède à ces clés peut, soit prendre possession des bitcoins qu\'elles contrôlent, soit obtenir des informations privés.\n\nVoulez-vous continuer ?</string>
+  <string name="export_account_data_warning">Vous êtes sur le point d\'exporter des données sensibles du compte sélectionné.\n\nQuiconque accède à ces clés peut, soit prendre possession des bitcoins qu\'elles contrôlent, soit obtenir des informations privées.\n\nVoulez-vous continuer ?</string>
   <string name="backup_all_warning">Vous devez sauvegarder la master seed de votre portefeuille.\nUne sauvegarde de votre master seed vous permet de restaurer vos fonds stockés sur vos comptes HD si votre appareil est perdu ou endommagé.\n\nDésirez-vous faire ceci maintenant ?</string>
   <string name="backup_legacy_warning">Vous allez sauvegarder les comptes à adresse unique de votre portefeuille. \nCette sauvegarde ne contiendra pas votre master seed, aucun de vos comptes HD ne peut être restauré depuis celle-ci !\n\nSouhaitez-vous continuer ?</string>
   <string name="export_to_clipboard_warning">AVERTISSEMENT : Exporter la clé privée vers le presse-papier l\'expose à toutes les autres applications de votre appareil.\n\nNote : Garder votre clé privée dans le presse-papier ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer ?</string>
@@ -504,11 +504,11 @@
   <string name="seed_already_configured">Erreur d\'importation : la master seed est déjà configurée</string>
   <string name="backup_words_title">Sauvegarde Master Seed</string>
   <string name="verify_words_title">Vérification de la Master Seed</string>
-  <string name="wordlist_backup_description">C\'EST IMPORTANT\n\nVous êtes sur le point de sauvegarder votre master seed.\n\nAprès votre sauvegarde, vous devriez définir un code PIN afin d\'empêcher toute personne qui détient brièvement votre téléphone de faire une autre sauvegarde et de voler vos fonds actuels ou futurs.\n\nUne liste de mots s\'affichera, l\'un après l\'autre. Écrivez ces mots sur papier à l\'aide d\'un crayon et rangez-les dans un endroit sûr.</string>
+  <string name="wordlist_backup_description">C\'EST IMPORTANT\n\nVous êtes sur le point de sauvegarder votre master seed.\n\nAprès votre sauvegarde, vous devriez définir un code PIN afin d\'empêcher toute personne qui détient brièvement votre téléphone de faire une autre sauvegarde et de voler vos fonds actuels ou futurs.\n\nUne liste de mots s\'affichera, les uns après les autres. Écrivez ces mots sur papier à l\'aide d\'un crayon et rangez-les dans un endroit sûr.</string>
   <string name="next_word_button">Mot suivant</string>
   <string name="start_with_first_word_button">Afficher le premier mot</string>
   <string name="cick_button_to_show_word">Appuyez sur le bouton ci-dessous pour commencer</string>
-  <string name="wordlist_verify_description">Veuillez entrer les mots que vous venez d\'écrire, l\'un après l\'autre, pour valider votre sauvegarde.</string>
+  <string name="wordlist_verify_description">Veuillez entrer les mots que vous venez d\'écrire, les uns après les autres, pour valider votre sauvegarde.</string>
   <string name="verify_word_wrong">Vous avez entré un mot incorrect, merci de bien vouloir réessayer</string>
   <string name="verify_wordlist_success">Votre sauvegarde de liste de mots a été vérifiée avec succès. Stockez la sauvegarde dans un endroit sûr, vos fonds en dépendent !\n\nVous n\'avez pas configuré de code d\'accès !\n C\'est un bon moment pour le faire.\n\nVous pouvez configurer un code d\'accès dans le menu Paramètres.</string>
   <string name="verify_wordlist_success_pin_already_set">Votre liste de mot sauvegardée a été vérifiée avec succès. Stockez cette sauvegarde en lieu sûr, vos fonds en dépendent !</string>
@@ -686,4 +686,7 @@
   <string name="cashila_uploaded_title">Téléchargées</string>
   <string name="cashila_no_recipients">Actuellement nous soutenons seulement les envoies aux destinataires existants.\n\nIl semble que vous avez jamais utilisé Cashila auparavant et que vous avez aucun récipient existant. Veuillez d\'abord faire une nouvelle transaction sur leur site web.\n\n</string>
   <string name="label_cold_storage_external_signing">Signer avec :</string>
+  <string name="spending_unconfirmed_warning">AVERTISSEMENT : dépense de fonds non confirmés</string>
+  <string name="spending_unconfirmed_title">Dépense de fonds non confirmés</string>
+  <string name="spending_unconfirmed_description">Votre transaction utilise des fonds qui n\'ont pas encore été inclus dans un bloc bitcoin. Si pour une raison quelconque, la transaction qui envoie ces pièces échoue ou reste non confirmée, votre transaction échouera ou restera non confirmée.</string>
 </resources>

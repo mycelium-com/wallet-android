@@ -681,4 +681,9 @@
   <string name="cashila_pay_now">Paguaj tani</string>
   <string name="cashila_sepa_payment_title">Sepa pagesë</string>
   <string name="cashila_uploaded_title">Ngarkuar</string>
+  <string name="cashila_no_recipients">Duke që nuk keni përdorur më herët Cashila dhe nuk keni asnje marrës.\n\nPrek OK për të krijuar një marrës të ri në uebfaqen e tyre.</string>
+  <string name="label_cold_storage_external_signing">Firmos me:</string>
+  <string name="spending_unconfirmed_warning">Paralajmërim: po shpenzoni fonde të pakonfirmuara</string>
+  <string name="spending_unconfirmed_title">Duke shpenzuar fonde të pakonfirmuara</string>
+  <string name="spending_unconfirmed_description">Transaksioni juaj përdor fonde të cilat akoma nuk janë përfshirë në asnjë bitcoin bllok. Nëse pët ndonjë arsye transaksioni që ju dergoj këto fonde dështon apo qëndron i pakonfirumar, gjithashtu edhe transaksioni juaj do të dështoj apo qëndroj i pakonfirmuar.</string>
 </resources>

@@ -683,4 +683,7 @@
   <string name="cashila_uploaded_title">Ανεβασμένες</string>
   <string name="cashila_no_recipients">Προς το παρόν υποστηρίζουμε μόνο αποστολές προς προϋπάρχοντες παραλήπτες. \n\nΦαίνεται πως είναι η πρώτη φορά που χρησιμοποιείτε την υπηρεσία Cashila και δεν έχετε παραλήπτες. Παρακαλώ δημιουργήστε πρώτα μια νεα συνδιαλλαγή στην ιστοσελίδα της υπηρεσίας.\n\n</string>
   <string name="label_cold_storage_external_signing">Υπογραφή με:</string>
+  <string name="spending_unconfirmed_warning">Προσοχή: χρήση μη επιβεβαιωμένων κεφαλαίων</string>
+  <string name="spending_unconfirmed_title">Χρήση μη επιβεβαιωμένων πόρων</string>
+  <string name="spending_unconfirmed_description">Η συναλλαγή σας κάνει χρήση κεφαλαίων που δεν έχουν ενσωματωθεί ακόμη σε μπλοκ του blockchain. Εάν για κάποιον λόγο η συναλλαγή που σας έστειλε αυτά τα χρήματα αποτύχει να επιβεβαιωθεί (δεν ενσωματωθεί σε μπλοκ), η παρούσα συναλλαγή σας θα αποτύχει επίσης.</string>
 </resources>

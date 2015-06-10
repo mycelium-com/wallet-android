@@ -77,6 +77,9 @@ public class PaymentRequestInformation implements Serializable {
          if (paymentRequest == null){
             throw new PaymentRequestException("unable to parse the payment request");
          }
+         if (paymentRequest.payment_details_version == null) {
+            throw new PaymentRequestException("payment details version not set");
+         }
          if (paymentRequest.payment_details_version != 1) {
             throw new PaymentRequestException("unsupported payment details version " + paymentRequest.payment_details_version);
          }

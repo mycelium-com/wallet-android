@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.4.1" versioncode="24100">
+        <change>Added Czech language</change>
+        <change>[bugfix] fixed crash bugs in BitID</change>
+        <change>[bugfix] fixed crash caused by malformed payment requests</change>
+    </release>
     <release version="2.4.0" versioncode="24001">
         <change>Integration with Cashila to enable SEPA-Payments</change>
         <change>Fetch and verify Payment-Requests (BIP70)</change>

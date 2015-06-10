@@ -379,7 +379,7 @@
   <string name="lt_no_trader_account_desc">このウォレットにひもづいたローカルトレーダーは存在しません。\n\nトレーダーアカウントはビットコインのアドレスに直接リンクされ、パスワードや面倒な作業は不要です。\n\n今すぐ作成しますか？</string>
   <string name="lt_trader_name_label">トレーダーの名前</string>
   <string name="lt_trader_address_label">ローカルトレーダーID</string>
-  <string name="lt_trader_email_address_label">メール アドレス</string>
+  <string name="lt_trader_email_address_label">Eメール アドレス</string>
   <string name="lt_trader_age_label">トレーダーアカウント年数</string>
   <string name="lt_trader_last_activity">最後のアクティビティ</string>
   <string name="lt_successful_sells_label">完了した売却</string>
@@ -418,6 +418,7 @@
   <string name="lt_refresh_market_rate_title">市場レートを更新しています</string>
   <string name="lt_refresh_market_rate_description">新しい価格は売却者によって設定された価格計算式と現在の市場レートによって決まります。\n\n価格を更新したい場合は両者がそれに同意しなければなりません。</string>
   <string name="lt_opening_map">地図を開いています</string>
+  <string name="lt_set_email_title">Eメールアドレスを設定してください</string>
   <string name="cs_private_key_description">次のビットコインアドレスを秘密キーを使用しています：</string>
   <string name="cs_address_description">ビットコインアドレスが完了しました。残高を閲覧できますが、そこから支出することはできません。</string>
   <string name="contains_keys">%1$sの秘密鍵が入っています。</string>
@@ -638,10 +639,15 @@
   <string name="masterseed_optional_passphrase_hint">この暗証フレーズは同じマスター・シードから違うアカウントの抽出ができます。\nもし意味がわからなければ、空欄のままにしておいて下さい。</string>
   <string name="tx_details_num_confirmations">確認</string>
   <string name="lt_warning_watch_only_account">このアカウントは監視限定です。別のアカウントを選択して下さい。</string>
+  <string name="refresh">再読込みして</string>
   <string name="xpriv_title">拡張秘密鍵</string>
   <string name="share_xpriv">拡張秘密鍵を共有</string>
   <string name="export_share_warning">警告: アカウントデータの重要な情報を共有しようとしています。この情報を手に入れた人は今までとこれからの当アカウントの全てのビットコインを操作することができます。続行しますか？</string>
   <string name="xpub_title">拡張公開鍵</string>
   <string name="share_xpub">拡張公開鍵を共有</string>
   <string name="share_account_data">アカウントデータを共有</string>
+  <string name="cashila_fee">"手数料： %s"</string>
+  <string name="cashila_amount_not_valid">金額が無効です。</string>
+  <string name="cashila_done">完了</string>
+  <string name="cashila_fiat_amount">金額</string>
 </resources>

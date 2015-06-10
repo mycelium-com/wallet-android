@@ -36,7 +36,7 @@ package com.mycelium.wallet.bitid;
 
 
 public class BitIdResponse {
-   public enum ResponseStatus {NONE, SSLPROBLEM, TIMEOUT, NOCONNECTION, SUCCESS, ERROR}
+   public enum ResponseStatus {NONE, SSLPROBLEM, TIMEOUT, NOCONNECTION, SUCCESS, REFUSED, ERROR}
    public ResponseStatus status = ResponseStatus.NONE;
    public int code = 0;
    public String message = "";
