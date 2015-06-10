@@ -84,7 +84,7 @@ public class LedgerPinDialog extends PinDialog {
    }
 
    public LedgerPinDialog(Context context, boolean hidden) {
-      super(context, hidden);
+      super(context, hidden, true);
    }
 
    @Override
