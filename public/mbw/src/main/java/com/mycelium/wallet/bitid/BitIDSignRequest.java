@@ -51,7 +51,7 @@ public class BitIDSignRequest implements Serializable {
    private static final long serialVersionUID = 0L;
    private final URI uri;
    private final boolean isHttpsCallback;
-   private String schemeSpecificWithoutProtocol;
+   private final String schemeSpecificWithoutProtocol;
 
    private BitIDSignRequest(Uri uri) throws URISyntaxException {
       this.uri = new URI(uri.getScheme(),uri.getSchemeSpecificPart(),uri.getFragment());
@@ -61,9 +61,10 @@ public class BitIDSignRequest implements Serializable {
          isHttpsCallback = specific.startsWith("https");
          schemeSpecificWithoutProtocol = specific.substring(specific.indexOf("//") + 2);
       } else {
-         schemeSpecificWithoutProtocol = uri.getSchemeSpecificPart();
-         if (schemeSpecificWithoutProtocol.startsWith("//")) {
-            schemeSpecificWithoutProtocol = schemeSpecificWithoutProtocol.substring(2);
+         if (uri.getSchemeSpecificPart().startsWith("//")) {
+            schemeSpecificWithoutProtocol = uri.getSchemeSpecificPart().substring(2);
+         } else {
+            schemeSpecificWithoutProtocol = uri.getSchemeSpecificPart();
          }
          //otherwise, if the parameter &u=1 exists, a http callback (instead of https) is expected
          String insecure = null;
@@ -165,8 +166,8 @@ public class BitIDSignRequest implements Serializable {
       return obj;
    }
 
-   public String getWebsite() {
-      String uriString = uri.toString();
+   public String getIdUri() {
+      String uriString = getCallbackUri();
       if (uriString.contains("?")) return uriString.substring(0, uriString.indexOf("?"));
       return uriString;
    }

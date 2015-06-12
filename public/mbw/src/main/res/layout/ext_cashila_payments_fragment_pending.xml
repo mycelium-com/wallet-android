@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/cashila_logo"/>
+            android:src="@drawable/cashila"/>
 
     <ProgressBar
             android:id="@+id/pbPendingLoading"

@@ -233,7 +233,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity {
 
    private void signAndSend(boolean enforceSslCorrectness) {
       MbwManager manager = MbwManager.getInstance(this);
-      InMemoryPrivateKey key = manager.getBitIdKeyForWebsite(request.getWebsite());
+      InMemoryPrivateKey key = manager.getBitIdKeyForWebsite(request.getIdUri());
       Address address = key.getPublicKey().toAddress(manager.getNetwork());
       progress.setCancelable(false);
       progress.setMessage(getString(R.string.bitid_processing));

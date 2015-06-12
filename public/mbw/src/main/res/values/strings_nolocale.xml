@@ -48,9 +48,9 @@
         <item>ru</item>
         <item>sk</item>
         <item>sl</item>
-        <item>sq</item>
-        <item>sv</item>
         <item>vi</item>
+        <item>sv</item>
+        <item>sq</item>
         <item>zh</item>
         <item>zh-TW</item>
         </string-array>
@@ -75,7 +75,7 @@
         <item>Slovenščina</item>
         <item>Tiếng Việt</item>
         <item>Svenska</item>
-        <item>Shqiptar</item>
+        <item>Shqip</item>
         <item>简体中文</item>
         <item>繁体中文</item>
         </string-array>

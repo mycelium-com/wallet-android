@@ -5,6 +5,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.security.SecureRandom;
@@ -21,15 +22,19 @@ public class BitIdKeyDerivationTest {
       }
    }
 
-   private final String[] WORD_LIST = {"alcohol", "woman", "abuse", "must", "during", "monitor",
-                                       "noble", "actual", "mixed", "trade", "anger", "aisle"};
+   private final String[] WORD_LIST = {"abandon", "abandon", "abandon", "abandon", "abandon", "abandon",
+                                       "abandon", "abandon", "abandon", "abandon", "abandon", "about"};
+   private final String PWD = "SecondIdentity";
 
    private final String WEBSITE = "https://satoshi@bitcoin.org/login";
-   private final String PUBKEY = "023a472219ad3327b07c18273717bb3a40b39b743756bf287fbd5fa9d263237f45";
-   private final String ADDRESS = "17F17smBTX9VTZA9Mj8LM5QGYNZnmziCjL";
+   private final String PUBKEY_DEFAULT = "030a79ba07392dafab29e2bf01917dcb2b1cb235ccad9c7a59639ad0f84c3f619c";
+   private final String ADDRESS_DEFAULT = "1LbxwgBqp6VYXfoadiLRVF1jaDxqL4SdRz";
+
+   private final String PUBKEY_OTHER = "0265da9147121706403032fb22107206b0c510de65a19711eca5781edf67639598";
+   private final String ADDRESS_OTHER = "11XiTMf6dULM8Uk7QohJMDEvdW6Lqy2gG";
 
    @Test
-   public void storeAndRetrieveEncrypted() throws KeyCipher.InvalidKeyCipher {
+   public void bitIdDefaultAccount() throws KeyCipher.InvalidKeyCipher {
       Bip39.MasterSeed seed = Bip39.generateSeedFromWordList(WORD_LIST, "");
       HdKeyNode rootNode = HdKeyNode.fromSeed(seed.getBip32Seed());
       SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
@@ -40,7 +45,23 @@ public class BitIdKeyDerivationTest {
       PublicKey pub = priv.getPublicKey();
       Address address = pub.toAddress(NetworkParameters.productionNetwork);
 
-      assertTrue(pub.toString().equals(PUBKEY));
-      assertTrue(address.toString().equals(ADDRESS));
+      assertEquals(PUBKEY_DEFAULT, pub.toString());
+      assertEquals(ADDRESS_DEFAULT, address.toString());
+   }
+
+   @Test
+   public void bitIdOtherAccount() throws KeyCipher.InvalidKeyCipher {
+      Bip39.MasterSeed seed = Bip39.generateSeedFromWordList(WORD_LIST, PWD);
+      HdKeyNode rootNode = HdKeyNode.fromSeed(seed.getBip32Seed());
+      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
+      KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
+
+      IdentityAccountKeyManager identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher);
+      InMemoryPrivateKey priv = identityManager.getPrivateKeyForWebsite(WEBSITE, cipher);
+      PublicKey pub = priv.getPublicKey();
+      Address address = pub.toAddress(NetworkParameters.productionNetwork);
+
+      assertEquals(PUBKEY_OTHER, pub.toString());
+      assertEquals(ADDRESS_OTHER, address.toString());
    }
 }

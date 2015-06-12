@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.4.2" versioncode="24200">
+        <change>[bugfix] fix BitID derivation scheme to be based on the callback url</change>
+        <change>[bugfix] handle optional fields in payment requests correctly</change>
+        <change>[bugfix] corrected Albanian and Vietnamese language entry</change>
+    </release>
     <release version="2.4.1" versioncode="24100">
         <change>Added Czech language</change>
         <change>[bugfix] fixed crash bugs in BitID</change>

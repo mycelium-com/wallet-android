@@ -77,11 +77,10 @@ public class PaymentRequestInformation implements Serializable {
          if (paymentRequest == null){
             throw new PaymentRequestException("unable to parse the payment request");
          }
-         if (paymentRequest.payment_details_version == null) {
-            throw new PaymentRequestException("payment details version not set");
-         }
-         if (paymentRequest.payment_details_version != 1) {
-            throw new PaymentRequestException("unsupported payment details version " + paymentRequest.payment_details_version);
+
+         Integer version = Wire.get(paymentRequest.payment_details_version, PaymentRequest.DEFAULT_PAYMENT_DETAILS_VERSION);
+         if (version != 1) {
+            throw new PaymentRequestException("unsupported payment details version " + version);
          }
 
          PaymentDetails paymentDetails = wire.parseFrom(paymentRequest.serialized_payment_details.toByteArray(), PaymentDetails.class);
@@ -89,16 +88,21 @@ public class PaymentRequestInformation implements Serializable {
             throw new PaymentRequestException("unable to parse the payment details");
          }
 
-
          // check if its for the correct bitcoin network (testnet/prodnet)
-         if (MAIN_NET_MONIKER.equals(paymentDetails.network) != networkParameters.isProdnet()) {
-            throw new PaymentRequestException("wrong network: " + paymentDetails.network);
+         if (MAIN_NET_MONIKER.equals(Wire.get(paymentDetails.network, PaymentDetails.DEFAULT_NETWORK)) != networkParameters.isProdnet()) {
+            throw new PaymentRequestException("wrong network: " + Wire.get(paymentDetails.network, PaymentDetails.DEFAULT_NETWORK));
          }
 
+         if (Wire.get(paymentDetails.outputs, PaymentDetails.DEFAULT_OUTPUTS).size() == 0){
+            throw new PaymentRequestException("no outputs specified");
+         };
+
+
          X509Certificates certificates;
-         if (!PKI_NONE.equals(paymentRequest.pki_type)) {
-            if (!(paymentRequest.pki_type.equals(PKI_X509_SHA256) || paymentRequest.pki_type.equals(PKI_X509_SHA1))) {
-               throw new PaymentRequestException("unsupported pki type " + paymentRequest.pki_type);
+         String pki_type = Wire.get(paymentRequest.pki_type, PaymentRequest.DEFAULT_PKI_TYPE);
+         if (!PKI_NONE.equals(pki_type)) {
+            if (!(pki_type.equals(PKI_X509_SHA256) || pki_type.equals(PKI_X509_SHA1))) {
+               throw new PaymentRequestException("unsupported pki type " + pki_type);
             }
 
             if (paymentRequest.pki_data == null || paymentRequest.pki_data.size() == 0) {
