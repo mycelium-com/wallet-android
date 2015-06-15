@@ -740,7 +740,13 @@ public class StringHandleConfig implements Serializable {
             if (content.length() % 2 != 0) {
                return false;
             }
-            Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(HexUtils.toBytes(content), false);
+            byte[] bytes;
+            try {
+               bytes = HexUtils.toBytes(content);
+            }catch (RuntimeException ex){
+               return false;
+            }
+            Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(bytes, false);
             if (masterSeed.isPresent()) {
                try {
                   Bip39.MasterSeed ourSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
@@ -798,7 +804,13 @@ public class StringHandleConfig implements Serializable {
       };
 
       private static boolean isMasterSeed(NetworkParameters network, String content) {
-         return Bip39.MasterSeed.fromBytes(HexUtils.toBytes(content), false).isPresent();
+         try {
+            byte[] bytes = HexUtils.toBytes(content);
+            return Bip39.MasterSeed.fromBytes(bytes, false).isPresent();
+         } catch (RuntimeException ex){
+            // HexUtils.toBytes will throw a RuntimeException if the string contains invalid characters
+            return false;
+         }
       }
    }
 

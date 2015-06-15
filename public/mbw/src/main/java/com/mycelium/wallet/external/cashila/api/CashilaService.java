@@ -158,7 +158,7 @@ public class CashilaService {
                      }
 
                      MbwManager manager = MbwManager.getInstance(null);
-                     String websiteId = baseUrl.replace("https:", "bitid:") + "v1/bitid/pair";
+                     String websiteId = baseUrl + "v1/bitid/pair";
                      InMemoryPrivateKey key = manager.getBitIdKeyForWebsite(websiteId);
                      Address address = key.getPublicKey().toAddress(manager.getNetwork());
 
@@ -386,6 +386,7 @@ public class CashilaService {
             Request.Builder requestBuilder = request.newBuilder();
 
             String uriPath = getApiUriPathSegment(request.urlString());
+            String method = request.method().toUpperCase();
             synchronized (nonceSynce) {
                String nonce = String.valueOf(getNextNonce());
 
@@ -401,7 +402,11 @@ public class CashilaService {
                Sha256Hash contentHash = HashUtils.sha256(hashBytes.toBytes());
 
                ByteWriter hmacBytes = new ByteWriter(1024);
-               hmacBytes.putRawStringUtf8(uriPath);
+
+               // put method + uripath into hash
+               hmacBytes.putRawStringUtf8(method + uriPath);
+
+               // append the content hash
                hmacBytes.putBytes(contentHash.getBytes());
 
                byte[] hmac = Hmac.hmacSha512(decodedSecret, hmacBytes.toBytes());
