@@ -533,7 +533,6 @@
   <string name="hide_unused_account_menu">アカウントを削除</string>
   <string name="dont_allow_hiding_used_notification">使用履歴のあるアカウントは隠すことができませんが、アーカイブにすることはできます。</string>
   <string name="pref_miner_fee_title">手数料 (%1$s)</string>
-  <string name="pref_miner_fee_summary">取引のデータの大きさ1000バイトごとに、 %1$s の手数料がかかります。</string>
   <string name="miner_fee_economic_name">節約</string>
   <string name="miner_fee_normal_name">普通</string>
   <string name="miner_fee_priority_name">優先度</string>

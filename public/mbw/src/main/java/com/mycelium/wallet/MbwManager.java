@@ -1100,4 +1100,8 @@ public class MbwManager {
    public Cache<String, Object> getBackgroundObjectsCache() {
       return _semiPersistingBackgroundObjects;
    }
+
+   public void switchServer() {
+      _environment.getWapiEndpoints().switchToNextEndpoint();
+   }
 }

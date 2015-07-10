@@ -34,70 +34,51 @@
 
 package com.mycelium.wallet;
 
-import android.content.Context;
-import com.megiontechnologies.Bitcoins;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 
-public enum MinerFee {
-   LOWPRIO("LOWPRIO",   20,  R.string.miner_fee_lowprio_name,  R.string.miner_fee_lowprio_desc),
-   ECONOMIC("ECONOMIC", 10,  R.string.miner_fee_economic_name, R.string.miner_fee_economic_desc),
-   NORMAL("NORMAL",      3,  R.string.miner_fee_normal_name,   R.string.miner_fee_normal_desc),
-   PRIORITY("PRIORITY",  1,  R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc),;
+import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.WalletAccount;
 
-   public final String tag;
-   private final int nBlocks;
-   private final int idTag;
-   private final int idLongDesc;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
-   private MinerFee(String tag, int nBlocks, int idTag, int idLongDesc) {
-      this.tag = tag;
-      this.nBlocks = nBlocks;
-      this.idTag = idTag;
-      this.idLongDesc = idLongDesc;
+public class DataExport {
+
+
+   private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Transaction Label\n";
+
+   public static String getTxHistoryCsv(WalletAccount account, MetadataStorage storage) {
+      StringBuilder result = new StringBuilder();
+      result.append(CSV_HEADER);
+      String accountLabel = storage.getLabelByAccount(account.getId());
+      List<TransactionSummary> history = account.getTransactionHistory(0, Integer.MAX_VALUE);
+      for (TransactionSummary summary : history) {
+         String txLabel = storage.getLabelByTransaction(summary.txid);
+         result.append(getTxLine(accountLabel, txLabel, summary));
+      }
+      return result.toString();
    }
 
-   @Override
-   public String toString() {
-      return tag;
+   private static String getTxLine(String accountLabel, String txLabel, TransactionSummary summary) {
+      TimeZone tz = TimeZone.getDefault();
+      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+      df.setTimeZone(tz);
+      String date = df.format(new Date(summary.time * 1000)); //summary holds time in seconds, date expects milli-seconds
+      //todo: is this correct, using the isQueuedOutgoing (formerly isOutgoing)? seems like its actually just for not-confirmed tx
+      long value = (summary.isQueuedOutgoing ? summary.value * -1 : summary.value); //show outgoing as negative amount
+      String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
+      return escape(accountLabel) + "," + summary.txid + "," + destination + "," + date + "," + value + "," + escape(txLabel) + "\n";
    }
 
-   public static MinerFee fromString(String string) {
-      if (ECONOMIC.tag.equals(string)) {
-         return ECONOMIC;
-      } else if (NORMAL.tag.equals(string)) {
-         return NORMAL;
-      } else if (PRIORITY.tag.equals(string)) {
-         return PRIORITY;
-      } else if (LOWPRIO.tag.equals(string)) {
-         return LOWPRIO;
+   private static String escape(String input) {
+      String output = input.replaceAll("\"", "\"\""); //replace all " with "" to escape them
+      if (output.contains("\"") || output.contains(",") || output.contains("\n")) {
+         return "\"" + output + "\""; //enclose in double quotes, if double quotes or comma or newline is present
       } else {
-         return NORMAL;
+         return output;
       }
    }
-
-   //simply returns the next fee in order of declaration, starts with the first after reaching the last
-   //useful for cycling through them in sending for example
-   public MinerFee getNext() {
-      return this.ordinal() < MinerFee.values().length - 1
-            ? MinerFee.values()[this.ordinal() + 1]
-            : MinerFee.values()[0];
-   }
-
-   public Bitcoins getFeePerKb(FeeEstimation feeEstimation) {
-      return feeEstimation.getEstimation(nBlocks);
-   }
-
-   public String getMinerFeeName(Context context) {
-      return context.getString(idTag);
-   }
-
-   public String getMinerFeeDescription(Context context) {
-      return context.getString(idLongDesc);
-   }
-
-   public int getNBlocks() {
-      return nBlocks;
-   }
-
 }
-

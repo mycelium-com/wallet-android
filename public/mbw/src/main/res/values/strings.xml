@@ -553,11 +553,13 @@
     <string name="hide_unused_account_menu">Delete Account</string>
     <string name="dont_allow_hiding_used_notification">You cannot hide a used account, but you can archive it</string>
     <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
-    <string name="pref_miner_fee_summary">Transactions are sent with a %1$s miner fee for every 1000 bytes of transaction size</string>
+    <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average.</string>
+    <string name="miner_fee_lowprio_name">Low-prio</string>
     <string name="miner_fee_economic_name">Economic</string>
     <string name="miner_fee_normal_name">Normal</string>
     <string name="miner_fee_priority_name">Priority</string>
-    <string name="miner_fee_economic_desc">Warning: Using the economic miner fee schedule is experimental, and may result in transactions that never confirm. Use at your own risk.</string>
+    <string name="miner_fee_lowprio_desc">Warning: Using the low-prio fee schedule is experimental and may result in transactions that never confirm. Use at your own risk.</string>
+    <string name="miner_fee_economic_desc">Warning: Using the economic miner fee might take a very long time to confirm. Use at your own risk.</string>
     <string name="miner_fee_normal_desc">With the normal miner fee schedule you can expect your transactions to confirm within the next few blocks.</string>
     <string name="miner_fee_priority_desc">With the priority fee schedule you can expect your transaction to confirm within one or two blocks.</string>
     <string name="backup_menu_entry">Create Backup</string>
@@ -745,5 +747,17 @@
     <string name="nfc_payment_request_hint">Place your phone back-to-back to another NFC-enabled device to share this payment request</string>
     <string name="payment_request_over_tor">" (over Tor)"</string>
     <string name="bitid_refused">Connection could not be established, maybe the server refused to connect.</string>
+    <string name="export_history">Export transaction history</string>
+    <string name="share_transaction_history">Share transaction history</string>
+    <string name="transaction_history_title">Transaction history</string>
+    <string name="menu_item_cancel_transaction">Cancel transaction</string>
+    <string name="menu_item_rebroadcast_transaction">Rebroadcast transaction</string>
+    <string name="menu_item_delete_unconfirmed_transaction">Delete unconfirmed transaction</string>
+    <string name="delete_unconfirmed_transaction_title">Delete unconfirmed transaction</string>
+    <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
+    <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
+    <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
+    <string name="message_rebroadcast_successfull">The transaction was successfully broadcasted.</string>
+    <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
 
 </resources>

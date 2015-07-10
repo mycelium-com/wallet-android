@@ -40,13 +40,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.Window;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -69,6 +72,13 @@ public class BroadcastTransactionActivity extends Activity {
       intent.putExtra("transactionLabel", transactionLabel);
       intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivityForResult(intent, requestCode);
+   }
+
+   public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
+      TransactionEx tx = account.getTransaction(txid);
+      if (tx == null) return false;
+      callMe(currentActivity, account.getId(), false, TransactionEx.toTransaction(tx), null, 0);
+      return  true;
    }
 
    @Override

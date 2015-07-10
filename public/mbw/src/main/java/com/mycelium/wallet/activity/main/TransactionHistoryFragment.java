@@ -56,6 +56,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.event.AddressBookChanged;
@@ -262,7 +263,10 @@ public class TransactionHistoryFragment extends Fragment {
 
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
-                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.isOutgoing);
+                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.isQueuedOutgoing);
+                     Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(record.confirmations == 0);
+                     //deletion is disabled for now, to enable, replace false with record.confirmations == 0
+                     Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
@@ -295,6 +299,46 @@ public class TransactionHistoryFragment extends Fragment {
                                     } else {
                                        new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
                                     }
+                                 }
+                              })
+                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .create().show();
+                     } else if (itemId == R.id.miDeleteUnconfirmedTransaction) {
+                        new AlertDialog.Builder(getActivity())
+                              .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
+                              .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
+                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    _mbwManager.getSelectedAccount().deleteTransaction(record.txid);
+                                    dialog.dismiss();
+                                    updateTransactionHistory();
+                                 }
+                              })
+                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .create().show();
+                     } else if (itemId == R.id.miRebroadcastTransaction) {
+                        new AlertDialog.Builder(getActivity())
+                              .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
+                              .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
+                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    boolean success = BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(), record.txid);
+                                    if (!success) {
+                                       Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_successfull));
+                                    }
+                                    dialog.dismiss();
                                  }
                               })
                               .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -369,7 +413,7 @@ public class TransactionHistoryFragment extends Fragment {
          // Show confirmations indicator
          int confirmations = record.confirmations;
          TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);
-         if (record.isOutgoing) {
+         if (record.isQueuedOutgoing) {
             // Outgoing, not broadcasted
             tcdConfirmations.setNeedsBroadcast();
          } else {
@@ -382,7 +426,7 @@ public class TransactionHistoryFragment extends Fragment {
          if (label.length() == 0) {
             // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
             String confirmationsText;
-            if (record.isOutgoing) {
+            if (record.isQueuedOutgoing) {
                confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
             } else {
                if (confirmations > 6){

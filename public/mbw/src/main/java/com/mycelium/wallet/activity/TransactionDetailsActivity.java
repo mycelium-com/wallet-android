@@ -107,7 +107,7 @@ public class TransactionDetailsActivity extends Activity {
       TransactionConfirmationsDisplay confirmationsDisplay = (TransactionConfirmationsDisplay) findViewById(R.id.tcdConfirmations);
       TextView confirmationsCount = (TextView) findViewById(R.id.tvConfirmations);
 
-      if (_txs!=null && _txs.isOutgoing){
+      if (_txs!=null && _txs.isQueuedOutgoing){
          confirmationsDisplay.setNeedsBroadcast();
          confirmationsCount.setText("");
          confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);

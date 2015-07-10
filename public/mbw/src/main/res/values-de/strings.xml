@@ -536,7 +536,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="hide_unused_account_menu">Konto löschen</string>
   <string name="dont_allow_hiding_used_notification">Sie können ein verwendetes Konto nicht ausblenden, aber Sie können es archivieren</string>
   <string name="pref_miner_fee_title">Miner-Gebühr (%1$s)</string>
-  <string name="pref_miner_fee_summary">Transaktionen werden mit %1$s Miner-Gebühr pro 1000 Bytes Transaktionsgröße gesendet</string>
   <string name="miner_fee_economic_name">Economy</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Priority</string>

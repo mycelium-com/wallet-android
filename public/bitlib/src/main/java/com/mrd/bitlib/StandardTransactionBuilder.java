@@ -22,15 +22,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.Sha256Hash;
+import com.mrd.bitlib.util.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -322,7 +320,19 @@ public class StandardTransactionBuilder {
          }
       }
 
-      return new UnsignedTransaction(outputs, funding, keyRing, network);
+      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network);
+
+      // check if we have a reasonable Fee or throw an error otherwise
+      int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
+            unsignedTransaction.getOutputs().length);
+      float estimatedFeePerKb = (long)((float) unsignedTransaction.calculateFee() / ((float) estimateTransactionSize / 1000));
+
+      // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
+      if (estimatedFeePerKb > 2000000) {
+         throw new RuntimeException(String.format("Unreasonable high transaction fee of %s satoshi per 1000Byte", estimatedFeePerKb));
+      }
+
+      return unsignedTransaction;
    }
 
    private List<UnspentTransactionOutput> pruneRedundantOutputs(List<UnspentTransactionOutput> funding, long outputSum) {

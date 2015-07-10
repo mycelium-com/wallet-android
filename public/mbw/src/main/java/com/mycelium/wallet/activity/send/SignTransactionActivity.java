@@ -70,6 +70,7 @@ public class SignTransactionActivity extends Activity {
          intent = new Intent(currentActivity, SignTransactionActivity.class);
       }
 
+      Preconditions.checkNotNull(account);
       intent.putExtra("account", account);
       intent.putExtra("isColdStorage", isColdStorage);
       intent.putExtra("unsigned", unsigned);

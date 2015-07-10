@@ -52,10 +52,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
@@ -71,6 +68,7 @@ import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -194,6 +192,7 @@ public class ModernMain extends ActionBarActivity {
       inflater.inflate(R.menu.main_activity_options_menu, menu);
       addEnglishSetting(menu.findItem(R.id.miSettings));
       inflater.inflate(R.menu.refresh, menu);
+      inflater.inflate(R.menu.export_history, menu);
       inflater.inflate(R.menu.record_options_menu_global, menu);
       inflater.inflate(R.menu.addressbook_options_global, menu);
       return true;
@@ -233,6 +232,9 @@ public class ModernMain extends ActionBarActivity {
       refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
       refreshItem.setVisible(isBalance || isHistory);
       setRefreshAnimation();
+
+      //export tx history
+      Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistory);
 
       final boolean showSepaEntry = isBalance && _mbwManager.isWalletPaired(ExternalService.CASHILA);
       Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
@@ -274,6 +276,8 @@ public class ModernMain extends ActionBarActivity {
       //   VerifyBackupActivity.callMe(this);
       //   return true;
       } else if (itemId == R.id.miRefresh) {
+         //switch server every third time the refresh button gets hit
+         if (new Random().nextInt(3) == 0) _mbwManager.switchServer();
          _mbwManager.getWalletManager(false).startSynchronization();
       } else if (itemId == R.id.miExplore) {
          _mbwManager.getExploreHelper().redirectToCoinmap(this);
@@ -292,8 +296,19 @@ public class ModernMain extends ActionBarActivity {
                startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
             }
          });
+      } else if (itemId == R.id.miExportHistory) {
+         shareTransactionHistory();
       }
       return super.onOptionsItemSelected(item);
+   }
+
+   private void shareTransactionHistory() {
+      String historyData = DataExport.getTxHistoryCsv(_mbwManager.getSelectedAccount(), _mbwManager.getMetadataStorage());
+      Intent s = new Intent(android.content.Intent.ACTION_SEND);
+      s.setType("text/plain");
+      s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.transaction_history_title));
+      s.putExtra(Intent.EXTRA_TEXT, historyData);
+      startActivity(Intent.createChooser(s, getResources().getString(R.string.share_transaction_history)));
    }
 
    @Override

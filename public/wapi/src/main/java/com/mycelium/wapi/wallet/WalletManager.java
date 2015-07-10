@@ -20,6 +20,7 @@ import com.google.common.base.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -28,7 +29,11 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.wapi.api.WapiResponse;
+import com.mycelium.wapi.api.lib.FeeEstimation;
+import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bip44.*;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
@@ -47,6 +52,8 @@ import java.util.*;
 public class WalletManager {
 
    private static final byte[] MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990");
+   // maximum age where we say a fetched fee estimation is valid
+   private static final long MAX_AGE_FEE_ESTIMATION = 2 * 60 * 60 * 1000;
 
    /**
     * Implement this interface to get a callback when the wallet manager changes
@@ -129,6 +136,8 @@ public class WalletManager {
    private boolean _synchronizeTransactionHistory;
    private final ExternalSignatureProvider _signatureProvider;
    private IdentityAccountKeyManager _identityAccountKeyManager;
+
+   private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
 
    public AccountScanManager accountScanManager;
 
@@ -463,7 +472,7 @@ public class WalletManager {
     * Check whether the wallet manager has a particular account
     *
     * @param id the account to look for
-    * @return true iff the wallet manager has an account with the specified ID
+    * @return true if the wallet manager has an account with the specified ID
     */
    public boolean hasAccount(UUID id) {
       return _allAccounts.containsKey(id);
@@ -638,6 +647,8 @@ public class WalletManager {
          try {
             setStateAndNotify(State.SYNCHRONIZING);
             synchronized (_allAccounts) {
+               fetchFeeEstimation();
+
                // If we have any lingering outgoing transactions broadcast them
                // now
                if (!broadcastOutgoingTransactions()) {
@@ -653,6 +664,19 @@ public class WalletManager {
             _synchronizationThread = null;
             setStateAndNotify(State.READY);
          }
+      }
+
+      private boolean fetchFeeEstimation(){
+         WapiResponse<MinerFeeEstimationResponse> minerFeeEstimations = _wapi.getMinerFeeEstimations();
+         if (minerFeeEstimations != null && minerFeeEstimations.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
+            try {
+               _lastFeeEstimations = minerFeeEstimations.getResult().feeEstimation;
+               return true;
+            } catch (WapiException e) {
+               return false;
+            }
+         }
+         return false;
       }
 
       private boolean broadcastOutgoingTransactions() {
@@ -863,4 +887,13 @@ public class WalletManager {
       _identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, _secureKeyValueStore, cipher);
       return _identityAccountKeyManager;
    }
+
+   public FeeEstimation getLastFeeEstimations() {
+      if (_lastFeeEstimations != null && (new Date().getTime() - _lastFeeEstimations.getValidFor().getTime()) < MAX_AGE_FEE_ESTIMATION ) {
+         return _lastFeeEstimations;
+      } else {
+         return FeeEstimation.DEFAULT;
+      }
+   }
+
 }

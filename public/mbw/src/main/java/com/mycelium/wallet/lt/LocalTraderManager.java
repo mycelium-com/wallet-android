@@ -44,6 +44,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.common.base.Preconditions;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -787,6 +788,11 @@ public class LocalTraderManager {
 
    public LtSession getSession(){
       return _session;
+   }
+
+   public Bitcoins getMinerFeeEstimation(){
+      // choose a fee to get included within the next block
+      return _mbwManager.getWalletManager(false).getLastFeeEstimations().getEstimation(1);
    }
 
 }

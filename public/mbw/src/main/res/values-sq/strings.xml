@@ -532,7 +532,6 @@
   <string name="hide_unused_account_menu">Fshij llogarinë</string>
   <string name="dont_allow_hiding_used_notification">Nuk mund ta fshihni një llogari të përdorur, por mund ta arkivoni atë</string>
   <string name="pref_miner_fee_title">Tarifa (%1$s)</string>
-  <string name="pref_miner_fee_summary">Transaksionet dërgohen me %1$s tarifë për çdo 1000 bajt/bytes të madhësis së transaksionit</string>
   <string name="miner_fee_economic_name">Ekonomik</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Prioritet</string>

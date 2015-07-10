@@ -532,7 +532,6 @@
   <string name="hide_unused_account_menu">Ta bort konto</string>
   <string name="dont_allow_hiding_used_notification">Du kan inte dölja ett använt konto, men du kan arkivera det</string>
   <string name="pref_miner_fee_title">Transaktionsavgift (%1$s)</string>
-  <string name="pref_miner_fee_summary">Transaktioner skickas med en %1$s transaktionsavgift för varje 1000 bytes av transaktionens storlek</string>
   <string name="miner_fee_economic_name">Ekonomi</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Prioritet</string>

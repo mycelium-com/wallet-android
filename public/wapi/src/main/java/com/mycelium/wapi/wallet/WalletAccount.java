@@ -25,10 +25,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionOutputSummary;
-import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 
 import java.io.Serializable;
@@ -223,6 +220,13 @@ public interface WalletAccount {
    BroadcastResult broadcastTransaction(Transaction transaction);
 
    /**
+    * returns the transactionex for the hash from the backing, if available
+    * @param txid transaction hash
+    * @return the corresponding transaction or null
+    */
+   TransactionEx getTransaction(Sha256Hash txid);
+
+   /**
     * Queue a transaction for broadcasting.
     * <p/>
     * The transaction is broadcasted on next synchronization.
@@ -241,6 +245,11 @@ public interface WalletAccount {
     */
    boolean cancelQueuedTransaction(Sha256Hash transactionId);
 
+   /**
+    * Delete a transaction from the backing
+    * Snyc is needed afterwards
+    */
+   boolean deleteTransaction(Sha256Hash transactionId);
 
    /**
     * Determine the maximum spendable amount you can send in a transaction

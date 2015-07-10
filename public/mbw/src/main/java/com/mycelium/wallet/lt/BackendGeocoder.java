@@ -20,6 +20,7 @@ import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.LtResponse;
 import com.mycelium.lt.api.model.GeocoderSearchResults;
+import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.location.GeocodeResponse;
 import com.mycelium.lt.location.Geocoder;
 import com.mycelium.lt.location.RemoteGeocodeException;
@@ -46,14 +47,17 @@ public class BackendGeocoder extends Geocoder {
 
    @Override
    public GeocodeResponse getFromLocation(double latitude, double longitude) throws RemoteGeocodeException {
-      LtResponse<GeocoderSearchResults> geocodeResult = ltManager.getApi().reverseGeocoder(ltManager.getSession().id, latitude, longitude);
-
-      try {
-         return geocodeResult.getResult().results;
-      } catch (LtApiException e) {
-         throw new RemoteGeocodeException(((LtApiClient)ltManager.getApi()).getUrl(), "Backend Exception; " + e.getMessage());
+      LtSession session = ltManager.getSession();
+      if (session != null) {
+         LtResponse<GeocoderSearchResults> geocodeResult = ltManager.getApi().reverseGeocoder(session.id, latitude, longitude);
+         try {
+            return geocodeResult.getResult().results;
+         } catch (LtApiException e) {
+            throw new RemoteGeocodeException(((LtApiClient) ltManager.getApi()).getUrl(), "Backend Exception; " + e.getMessage());
+         }
+      } else {
+         // return an empty response, if our local session does not exist
+         return new GeocodeResponse();
       }
    }
-
-
 }

@@ -32,6 +32,7 @@ public class WapiConst {
       public static final String COLLECT_ERROR = "collectError";
       public static final String GET_VERSION_INFO = "getVersion";
       public static final String GET_VERSION_INFO_EX = "getVersionEx";
+      public static final String GET_MINER_FEE_ESTIMATION = "getMinerFeeEstimations";
    }
 
 }

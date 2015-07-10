@@ -21,7 +21,17 @@
     <item
             android:id="@+id/miCancelTransaction"
             yourapp:showAsAction="ifRoom|withText"
-            android:title="Cancel transaction"/>
+            android:title="@string/menu_item_cancel_transaction"/>
+
+    <item
+            android:id="@+id/miRebroadcastTransaction"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="@string/menu_item_rebroadcast_transaction"/>
+
+    <item
+            android:id="@+id/miDeleteUnconfirmedTransaction"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="@string/menu_item_delete_unconfirmed_transaction"/>
 
 
 </menu>

@@ -13,10 +13,6 @@ public class Bip44PubOnlyAccount extends Bip44Account {
       super(context, keyManager, network, backing, wapi);
    }
 
-   public TransactionEx getTransaction(Sha256Hash txid){
-      return _backing.getTransaction(txid);
-   }
-
    @Override
    public boolean canSpend() {
       return false;

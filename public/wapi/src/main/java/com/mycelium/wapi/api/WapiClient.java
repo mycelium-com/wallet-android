@@ -69,7 +69,8 @@ public class WapiClient implements Wapi {
          if (response == null) {
             return new WapiResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
-         return _objectMapper.readValue(response.body().string(), typeReference);
+         String content = response.body().string();
+         return _objectMapper.readValue(content, typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
          return new WapiResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
@@ -153,7 +154,8 @@ public class WapiClient implements Wapi {
             if (response.isSuccessful()) {
                if (serverEndpoint instanceof FeedbackEndpoint){
                   ((FeedbackEndpoint) serverEndpoint).onSuccess();
-               }return response;
+               }
+               return response;
             }else{
                // If the status code is not 200 we cycle to the next server
                logError(String.format("Http call to %s failed with %d %s", function, response.code(), response.message()));
@@ -177,6 +179,9 @@ public class WapiClient implements Wapi {
    }
 
    private String getPostBody(Object request) {
+      if (request == null) {
+         return "";
+      }
       try {
          String postString = _objectMapper.writeValueAsString(request);
          return postString;
@@ -251,6 +256,12 @@ public class WapiClient implements Wapi {
    public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
       TypeReference<WapiResponse<VersionInfoExResponse>> typeref = new TypeReference<WapiResponse<VersionInfoExResponse>>() { };
       return sendRequest(Function.GET_VERSION_INFO_EX, request, typeref);
+   }
+
+   @Override
+   public WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations() {
+      TypeReference<WapiResponse<MinerFeeEstimationResponse>> typeref = new TypeReference<WapiResponse<MinerFeeEstimationResponse>>() { };
+      return sendRequest(Function.GET_MINER_FEE_ESTIMATION, null, typeref);
    }
 
 

@@ -61,6 +61,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -412,9 +413,13 @@ public class SendMainActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         GetAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(), _amountToSend, _fee.kbMinerFee, _isColdStorage);
+         GetAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(), _amountToSend, getFeePerKb().getLongValue(), _isColdStorage);
       }
    };
+
+   private Bitcoins getFeePerKb() {
+      return _fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations());
+   }
 
    private OnClickListener sendClickListener = new OnClickListener() {
 
@@ -454,7 +459,7 @@ public class SendMainActivity extends Activity {
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
          //warn user if minimum fee is selected
-         if (_fee == MinerFee.ECONOMIC) {
+         if (_fee == MinerFee.ECONOMIC || _fee == MinerFee.LOWPRIO) {
             Toast.makeText(SendMainActivity.this, getString(R.string.toast_warning_low_fee), Toast.LENGTH_SHORT).show();
          }
       }
@@ -471,7 +476,7 @@ public class SendMainActivity extends Activity {
       try {
          if (_paymentRequestHandler == null || !_paymentRequestHandler.hasValidPaymentRequest()) {
             WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
-            _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _fee.kbMinerFee);
+            _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), getFeePerKb().getLongValue());
          checkSpendingUnconfirmed();
             return TransactionStatus.OK;
          } else {
@@ -489,7 +494,7 @@ public class SendMainActivity extends Activity {
                // build new output list with user specified amount
                outputs = outputs.newOutputsWithTotalAmount(_amountToSend);
             }
-            _unsigned = _account.createUnsignedTransaction(outputs, _fee.kbMinerFee);
+            _unsigned = _account.createUnsignedTransaction(outputs, getFeePerKb().getLongValue());
             _receivingAddress = null;
             _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
             return TransactionStatus.OK;
@@ -670,24 +675,29 @@ public class SendMainActivity extends Activity {
       TextView btFeeLvl = (Button) findViewById(R.id.btFeeLvl);
       if (_unsigned == null) {
          // Only show button for fee lvl, cannot calculate fee yet
-         ((Button) findViewById(R.id.btFeeLvl)).setText(MinerFee.getMinerFeeName(_fee, this));
+         ((Button) findViewById(R.id.btFeeLvl)).setText(_fee.getMinerFeeName(this));
+         findViewById(R.id.tvFeeValue).setVisibility(View.INVISIBLE);
       } else {
          // Show fee fully calculated
          btFeeLvl.setVisibility(View.VISIBLE);
 
          long fee = _unsigned.calculateFee();
 
-         //show fee lvl on button
-         ((Button) findViewById(R.id.btFeeLvl)).setText(MinerFee.getMinerFeeName(_fee, this) + ", " + _mbwManager.getBtcValueString(fee));
+         //show fee lvl on button - always show the fees in mBtc
+         CoinUtil.Denomination feeDenomination = CoinUtil.Denomination.mBTC;
+         String feeString = CoinUtil.valueString(fee, feeDenomination, true) +  " " + feeDenomination.getUnicodeName();
+         ((Button) findViewById(R.id.btFeeLvl)).setText(_fee.getMinerFeeName(this));
 
          if (!_mbwManager.hasFiatCurrency() || _oneBtcInFiat == null) {
-            findViewById(R.id.tvFeeFiat).setVisibility(View.INVISIBLE);
          } else {
             // Set approximate fee in fiat
-            TextView tvFeeFiat = ((TextView) findViewById(R.id.tvFeeFiat));
-            tvFeeFiat.setText("(" + getFiatValue(fee, _oneBtcInFiat) + ")");
-            tvFeeFiat.setVisibility(View.VISIBLE);
+            feeString += ", " + getFiatValue(fee, _oneBtcInFiat);
          }
+
+         TextView tvFeeFiat = ((TextView) findViewById(R.id.tvFeeValue));
+         tvFeeFiat.setVisibility(View.VISIBLE);
+         tvFeeFiat.setText("(" + feeString + ")");
+
       }
 
    }

@@ -522,6 +522,11 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
+   public TransactionEx getTransaction(Sha256Hash txid){
+      return _backing.getTransaction(txid);
+   }
+
+   @Override
    public synchronized BroadcastResult broadcastTransaction(Transaction transaction) {
       checkNotArchived();
       try {
@@ -628,6 +633,32 @@ public abstract class AbstractAccount implements WalletAccount {
       byte[] rawTransaction = transaction.toBytes();
       _backing.putOutgoingTransaction(transaction.getHash(), rawTransaction);
       markTransactionAsSpent(transaction);
+   }
+
+   @Override
+   public synchronized boolean deleteTransaction(Sha256Hash transactionId) {
+      TransactionEx tex = _backing.getTransaction(transactionId);
+      if (tex == null) return false;
+      Transaction tx = TransactionEx.toTransaction(tex);
+      _backing.beginTransaction();
+      try {
+         // See if any of the outputs are stored locally and remove them
+         for (int i = 0; i < tx.outputs.length; i++) {
+            TransactionOutput output = tx.outputs[i];
+            OutPoint outPoint = new OutPoint(tx.getHash(), i);
+            TransactionOutputEx utxo = _backing.getUnspentOutput(outPoint);
+            if (utxo != null) {
+               _backing.deleteUnspentOutput(outPoint);
+            }
+         }
+         // remove it from the backing
+         _backing.deleteTransaction(transactionId);
+         _backing.setTransactionSuccessful();
+      } finally {
+         _backing.endTransaction();
+      }
+      updateLocalBalance(); //will still need a new sync besides re-calculating
+      return true;
    }
 
    @Override
@@ -985,6 +1016,7 @@ public abstract class AbstractAccount implements WalletAccount {
          if (!t.found) {
             // We have a transaction locally that does not exist in the
             // blockchain. Must be a residue due to double-spend or malleability
+
             _backing.deleteTransaction(t.txid);
             continue;
          }

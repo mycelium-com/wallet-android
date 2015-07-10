@@ -237,9 +237,16 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee.setSummary(getMinerFeeSummary());
       _minerFee.setDefaultValue(_mbwManager.getMinerFee().toString());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
-      CharSequence[] minerFees = new CharSequence[]{MinerFee.ECONOMIC.toString(), MinerFee.NORMAL.toString(), MinerFee.PRIORITY.toString()};
-      CharSequence[] minerFeeNames = new CharSequence[]{getString(R.string.miner_fee_economic_name),
-            getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name)};
+      CharSequence[] minerFees = new CharSequence[]{
+            MinerFee.LOWPRIO.toString(),
+            MinerFee.ECONOMIC.toString(),
+            MinerFee.NORMAL.toString(),
+            MinerFee.PRIORITY.toString()};
+      CharSequence[] minerFeeNames = new CharSequence[]{
+            getString(R.string.miner_fee_lowprio_name),
+            getString(R.string.miner_fee_economic_name),
+            getString(R.string.miner_fee_normal_name),
+            getString(R.string.miner_fee_priority_name)};
       _minerFee.setEntries(minerFeeNames);
       _minerFee.setEntryValues(minerFees);
       _minerFee.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -249,7 +256,7 @@ public class SettingsActivity extends PreferenceActivity {
             _mbwManager.setMinerFee(MinerFee.fromString(newValue.toString()));
             _minerFee.setTitle(getMinerFeeTitle());
             _minerFee.setSummary(getMinerFeeSummary());
-            String description = MinerFee.getMinerFeeDescription(_mbwManager.getMinerFee(), SettingsActivity.this);
+            String description = _mbwManager.getMinerFee().getMinerFeeDescription(SettingsActivity.this);
             Utils.showSimpleMessageDialog(SettingsActivity.this, description);
             return true;
          }
@@ -516,12 +523,12 @@ public class SettingsActivity extends PreferenceActivity {
 
    private String getMinerFeeTitle() {
       return getResources().getString(R.string.pref_miner_fee_title,
-            MinerFee.getMinerFeeName(_mbwManager.getMinerFee(), this));
+            _mbwManager.getMinerFee().getMinerFeeName(this));
    }
 
    private String getMinerFeeSummary() {
-      return getResources().getString(R.string.pref_miner_fee_summary,
-            _mbwManager.getBtcValueString(_mbwManager.getMinerFee().kbMinerFee));
+      return getResources().getString(R.string.pref_miner_fee_block_summary,
+            _mbwManager.getMinerFee().getNBlocks());
    }
 
    @SuppressWarnings("deprecation")

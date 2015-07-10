@@ -7,7 +7,7 @@
   <string name="import_seed_title">Εισαγωγή Κεντρικού Κωδικού (σπόρου)</string>
   <string name="import_words_title">Εισαγωγή Λίστας Λέξεων</string>
   <string name="add_account_desc">Το Mycelium υποστηρίζει Λογαριασμούς HD (Ιεραρχικούς-Ντετερμινιστικούς) και Λογαριασμούς Μονής Διεύθυνσης. Όλοι οι HD λογαριασμοί που δημιουργούνται βασίζονται στον ίδιο Κεντρικό Κωδικό (σπόρο).</string>
-  <string name="add_single_acc_info">Για να προσθέσετε Λογαριασμό Μονής Διεύθυνσης με βάση ένα μυστικό κλειδί, ή μία διεύθυνση μόνο για παρακολούθηση, πατήστε το πλήκτρο Για Προχωρημένους.</string>
+  <string name="add_single_acc_info">Για να προσθέσετε Λογαριασμό Μονής Διεύθυνσης με βάση ένα μυστικό κλειδί, ή να προσθέσετε μία διεύθυνση μόνο για παρακολούθηση, πατήστε το πλήκτρο Προηγμένες Ρυθμίσεις.</string>
   <string name="scan_desc">Σαρώστε διεύθυνση Bitcoin, μυστικό κλειδί ή HD λογαριασμό.</string>
   <string name="scan_seed">Σάρωση Κεντρικού Κωδικού (σπόρου) από Αντίγραφο Ασφαλείας του Mycelium</string>
   <string name="use_acc_first">Μπορείτε να έχετε μόνο έναν αχρησιμοποίητο HD λογαριασμό.</string>
@@ -34,7 +34,7 @@
   <string name="enter_amount_title">Εισαγάγετε Ποσό</string>
   <string name="max_btc">Διαθέσιμα για δαπάνη: %1$s</string>
   <string name="max_fiat">Διαθέσιμα για δαπάνη: %1$s %2$s</string>
-  <string name="qr_code">Κωδικός QR</string>
+  <string name="qr_code">Κωδικό QR</string>
   <string name="my_addresses">Οι Διευθύνσεις μου</string>
   <string name="insufficient_funds">Ανεπαρκείς πόροι</string>
   <string name="insufficient_funds_for_fee">Ανεπαρκείς πόροι για πληρωμή τέλους αποστολής</string>
@@ -132,9 +132,9 @@
   <string name="cold_storage_desc">Πρόκειται να χρησιμοποιήσετε κεφάλαια από μυστικό κλειδί σε ψυχρή αποθήκευση. Αυτό μπορεί να είναι ένα χάρτινο πορτοφόλι ή απόκομμα από ATM για Bitcoin. Υποστηρίζονται οι παρακάτω μορφές:\nΜυστικό Κλειδί, Κεντρικός Κωδικός (σπόρος), xPriv Κλειδί\n\nΜόλις η συνδιαλλαγή ολοκληρωθεί, κάθε ίχνος της θα σβηστεί από τη μνήμη.</string>
   <string name="keep_account_address">Διαγραφή μόνο του μυστικού κλειδιού, διατήρηση λογαριασμού ως μόνο για παρακολούθηση</string>
   <string name="manual_entry">Χειροκίνητη Εισαγωγή</string>
-  <string name="active_hd_accounts_name">Οι HD λογαριασμοί μου</string>
+  <string name="active_hd_accounts_name">Λογαριασμοί HD</string>
   <string name="active_other_accounts_name">Άλλοι Λογαριασμοί</string>
-  <string name="archive_name">Αρχειοθετημένα</string>
+  <string name="archive_name">Αρχειοθετημένοι</string>
   <string name="active_accounts_empty">(Κενό)</string>
   <string name="activate_action">Ενεργοποίηση</string>
   <string name="archive_action">Αρχειοθέτηση</string>
@@ -269,8 +269,8 @@
   <string name="lt_create_button">Δημιουργία</string>
   <string name="lt_no_ads">Η σελίδα αυτή δείχνει τις αγγελίες σας.\n\nΗ λίστα είναι προς το παρόν κενή.\n\nΠατήστε το + για να δημιουργήσετε μια.</string>
   <string name="lt_no_recent_trades">Η σελίδα αυτή δείχνει τις ενεργές σας συναλλαγές.\n\nΟι ολοκληρωμένες συναλλαγές μετακινούνται στην καρτέλα Ιστορικό.</string>
-  <string name="lt_buy_bitcoin_tab">Αγορά Bitcoin</string>
-  <string name="lt_sell_bitcoin_tab">Πώληση Bitcoin</string>
+  <string name="lt_buy_bitcoin_tab">Αγόρασε Bitcoin</string>
+  <string name="lt_sell_bitcoin_tab">Πούλησε Bitcoin</string>
   <string name="lt_active_trades_tab">Ενεργές Συναλλαγές</string>
   <string name="lt_trade_history_tab">Ιστορικό Συναλλαγών</string>
   <string name="lt_my_ads_tab">Οι Αγγελίες μου</string>
@@ -357,8 +357,8 @@
   <string name="lt_base_price_label">Βασική Τιμή:</string>
   <string name="lt_changing_location_title">Γίνεται Αλλαγή Τοποθεσίας</string>
   <string name="lt_changing_location_desc">Εισαγάγετε την τοποθεσία σας ή χρησιμοποιήστε το σταυρό για να πάρετε μια προσέγγιση</string>
-  <string name="lt_buying_near">Αγοράζουν Bitcoins Κοντά</string>
-  <string name="lt_selling_near">Πωλούν Bitcoins Κοντά</string>
+  <string name="lt_buying_near">Αγοράζω Bitcoins στην Περιοχή</string>
+  <string name="lt_selling_near">Πωλώ Bitcoins στην Περιοχή</string>
   <string name="lt_trader_key">(κλειδί λογαριασμού Τοπικών Συναλλαγών)</string>
   <string name="lt_thats_you">(αυτός είστε εσείς)</string>
   <string name="lt_detach_trader_account">Αποσύνδεση Λογαριασμού Συναλλαγών</string>
@@ -532,7 +532,6 @@
   <string name="hide_unused_account_menu">Διαγραφή Λογαριασμού</string>
   <string name="dont_allow_hiding_used_notification">Δεν μπορείτε να κρύψετε ένα χρησιμοποιημένο λογαριασμό, μπορείτε όμως να τον αρχειοθετήσετε</string>
   <string name="pref_miner_fee_title">Τέλος Αποστολής (%1$s)</string>
-  <string name="pref_miner_fee_summary">Οι συναλλαγές αποστέλλονται με τέλος αποστολής %1$s για κάθε 1000 bytes μεγέθους της συναλλαγής</string>
   <string name="miner_fee_economic_name">Οικονομικό</string>
   <string name="miner_fee_normal_name">Κανονικό</string>
   <string name="miner_fee_priority_name">Προτεραιότητα</string>

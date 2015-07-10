@@ -66,7 +66,7 @@ public class Constants {
    public static final String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    public static final String DEFAULT_CURRENCY = "USD";
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
-   public static final String MINER_FEE_SETTING = "MinerFeeSetting";
+   public static final String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
    public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";

@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.mycelium.lt.location;
+package com.mycelium.wapi.api.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-public class GeocodeResponse {
 
-   @JsonProperty
-   public String status = "";
-
-   @JsonProperty
-   public String errorMessage = "";
+public class MinerFeeEstimationResponse implements Serializable {
+   private static final long serialVersionUID = 1L;
 
    @JsonProperty
-   public List<Geocode> results = new ArrayList<Geocode>();
+   public final FeeEstimation feeEstimation;
 
+
+   public MinerFeeEstimationResponse(@JsonProperty("feeEstimation") FeeEstimation feeEstimation) {
+      this.feeEstimation = feeEstimation;
+   }
 }
-
-
