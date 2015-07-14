@@ -128,4 +128,8 @@ public class Constants {
    // Force user to read the warnings about additional backups
    public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
    public static final BigDecimal COINAPULT_MINIMUM_AMOUNT = BigDecimal.ONE;
+   
+   // Ledger preferences
+   public static final String LEDGER_SETTINGS_NAME = "ledger.settings";
+   public static final String LEDGER_DISABLE_TEE_SETTING = "ledgerDisableTee";
 }

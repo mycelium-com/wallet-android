@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.Vector;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.btchip.BTChipDongle;
@@ -35,6 +37,7 @@ import com.mycelium.wallet.trezor.TrezorManager.Events;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.wallet.AccountScanManager.Status;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -48,6 +51,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 	private BTChipTransportFactory transportFactory;
 	private BTChipDongle dongle;
 	protected Events handler=null;
+	private boolean disableTee;
 	
 	private static final int PAUSE_RESCAN = 4000;
 	private static final int SW_PIN_NEEDED = 0x6982;
@@ -64,6 +68,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
 		
 	public LedgerManager(Context context, NetworkParameters network){
 		super(context, network);
+		SharedPreferences preferences = _context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
+	              Activity.MODE_PRIVATE);
+		disableTee = preferences.getBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, false);
 	}
 	
 	@Override
@@ -82,16 +89,20 @@ public class LedgerManager extends AbstractAccountScanManager implements
 	
 	public BTChipTransportFactory getTransport() {
 		// Simple demo mode 
-		// If the device has the Trustlet, use it. Otherwise revert to the usual transport
+		// If the device has the Trustlet, and it's not disabled, use it. Otherwise revert to the usual transport
 		// For the full integration, bind this to accounts
 		if (transportFactory == null) {
-			transportFactory = new LedgerTransportTEEProxyFactory(_context);
-			LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy)transportFactory.getTransport();
-			byte[] nvm = proxy.loadNVM("nvm.bin");
-			if (nvm != null) {
-				proxy.setNVM(nvm);
+			boolean initialized = false;
+			if (!disableTee) {
+				transportFactory = new LedgerTransportTEEProxyFactory(_context);
+				LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy)transportFactory.getTransport();
+				byte[] nvm = proxy.loadNVM("nvm.bin");
+				if (nvm != null) {
+					proxy.setNVM(nvm);
+				}
+				initialized = proxy.init();
 			}
-			if (!proxy.init()) {
+			if (!initialized) {
 				transportFactory = new BTChipTransportAndroid(_context);
 			}
 			Log.d("LedgerManager", "Using transport " + transportFactory.getClass());
@@ -352,5 +363,23 @@ public class LedgerManager extends AbstractAccountScanManager implements
 	public String getLabelOrDefault() {
 		return _context.getString(R.string.ledger);
 	}
+	
+	public boolean getDisableTEE() {
+		return disableTee;
+	}
+	
+	public void setDisableTEE(boolean disabled) {
+		SharedPreferences.Editor editor = getEditor();
+	    disableTee = disabled;
+	    editor.putBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, disabled);
+	    editor.commit();		
+	}
+	
+	private SharedPreferences.Editor getEditor() {
+		return _context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
+	}
+	
+	
+	
 
 }
