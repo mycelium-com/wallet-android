@@ -2,15 +2,9 @@ package com.ledger.tbase.comm;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Exchanger;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import com.btchip.BTChipConstants;
@@ -18,18 +12,22 @@ import com.btchip.BTChipException;
 import com.btchip.comm.BTChipTransport;
 import com.btchip.comm.android.BTChipTransportAndroid;
 import com.btchip.utils.Dump;
+import com.btchip.utils.FutureUtils;
 import com.ledger.tbase.utils.LedgerTAUtils;
-import com.ledger.wallet.bridge.common.LedgerWalletBridgeConstants;
+import com.ledger.wallet.service.ILedgerWalletService;
+import com.ledger.wallet.service.ServiceResult;
 
-public class LedgerTransportTEEProxy implements BTChipTransport, LedgerWalletBridgeConstants {
+public class LedgerTransportTEEProxy implements BTChipTransport {
 	
 	public static final String TAG="LedgerTransportTEEProxy";
-	
-	private ExecutorService executor;
+		
 	private Context context;
+	private ILedgerWalletService service;
 	private byte[] session;
 	private byte[] nvm;
 	private boolean debug;
+	
+	private static final byte PROTOCOL_CARD = (byte)0x01;
 	
 	private static final byte[] APDU_INIT[] = {
 		Dump.hexToBin("D020000038000000000000000118F43F95A217EFEDE0A8D98DAC357E3B2501E79C3958B9D7E15238D43A6807C397680EB805BC0E95E2B65D9E49B1B045"),
@@ -39,15 +37,15 @@ public class LedgerTransportTEEProxy implements BTChipTransport, LedgerWalletBri
 	private static final int SW_OK = 0x9000;
 	private static final int SW_CONDITIONS_NOT_SATISFIED = 0x6985;
 		
-	public LedgerTransportTEEProxy(Context context, ExecutorService executor) {
+	public LedgerTransportTEEProxy(Context context, ILedgerWalletService service) {
 		this.context = context;
-		this.executor = executor;
+		this.service = service;
 	}
 	
 	public LedgerTransportTEEProxy(Context context) {
-		this(context, new ScheduledThreadPoolExecutor(1));
+		this(context, null);
 	}
-	
+		
 	public byte[] getNVM() {
 		return nvm;
 	}
@@ -55,35 +53,56 @@ public class LedgerTransportTEEProxy implements BTChipTransport, LedgerWalletBri
 		this.nvm = nvm;
 	}
 	
+	public void setService(ILedgerWalletService service) {
+		this.service = service;
+	}
+	
+	public ILedgerWalletService getService() {
+		return service;
+	}
+	
 	public boolean init() {
-		// Quick check, if the main intent cannot be resolved, exit immediately
-		Intent intent = new Intent(INTENT_NAME);
-		intent.setType(MIME_OPEN);
-		if (intent.resolveActivity(context.getPackageManager()) == null) {
-			return false;
-		}
-		Exchanger<byte[]> exchanger = ExchangerProvider.getNewExchanger();
-		Intent runIntent = new Intent(context, LedgerTBounceActivity.class);
-		runIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		runIntent.setType(LedgerTBounceActivity.MIME_INIT_INTERNAL);
-		runIntent.putExtra(LedgerTBounceActivity.EXTRA_NVM, nvm);
+		ServiceResult result = null;
 		LedgerTAUtils.LedgerTA ta = LedgerTAUtils.getTA();
-		if (ta != null) {
-			runIntent.putExtra(LedgerTBounceActivity.EXTRA_DATA, ta.getTA());
-			runIntent.putExtra(LedgerTBounceActivity.EXTRA_SPID, ta.getSPID());
-		}
-		context.startActivity(runIntent);				
-		try {
-			session = exchanger.exchange(new byte[0], LedgerTBounceActivity.EXCHANGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-			if (session == null) {
-				return false;
-			}
-		}
-		catch(Exception e) {
-			Log.d(TAG, "Exchanger failed", e);
+		
+		if (service == null) {
+			Log.d(TAG, "Cannot initialize until service is available");
 			return false;
 		}
 		
+		try {
+			result = service.open(ta.getSPID(), ta.getTA(), ta.getTA().length);
+		}
+		catch(Exception e) {
+			Log.d(TAG, "Failed to open application (internal)", e);
+			return false;
+		}
+		if (result.getExceptionMessage() != null) {
+			Log.d(TAG, "Failed to open application (service) " + result.getExceptionMessage());
+			return false;
+		}
+		session = result.getResult();
+		try {
+			result = service.initStorage(session, nvm);
+		}
+		catch(Exception e) {
+			Log.d(TAG, "Failed to initialize NVM (internal)", e);
+			try {
+				close();
+			}
+			catch(Exception e1) {				
+			}
+			return false;
+		}
+		if (result.getExceptionMessage() != null) {
+			Log.d(TAG, "Failed to initialize NVM (service) " + result.getExceptionMessage());
+			try {
+				close();
+			}
+			catch(Exception e1) {				
+			}
+			return false;
+		}
 		try {
 			for (byte[] apdu : APDU_INIT) {
 				int sw = 0;
@@ -125,68 +144,53 @@ public class LedgerTransportTEEProxy implements BTChipTransport, LedgerWalletBri
 	}
 
 	@Override
-	public Future<byte[]> exchange(byte[] commandParam) throws BTChipException {
+	public Future<byte[]> exchange(byte[] command) throws BTChipException {
+		ServiceResult result = null;
+				
 		if (debug) {
-			Log.d(BTChipTransportAndroid.LOG_STRING, "=> " + Dump.dump(commandParam));
+			Log.d(BTChipTransportAndroid.LOG_STRING, "=> " + Dump.dump(command));
+		}
+		if (service == null) {
+			throw new BTChipException("Service is not available");
 		}		
 		if (session == null) {
 			throw new BTChipException("Session is not open");
-		}		
-		final Exchanger<byte[]> exchanger = ExchangerProvider.getNewExchanger();
-		final byte[] command = commandParam;
-		Intent runIntent = new Intent(context, LedgerTBounceActivity.class);
-		runIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		
-		runIntent.putExtra(LedgerTBounceActivity.EXTRA_SESSION, session);
-		runIntent.putExtra(LedgerTBounceActivity.EXTRA_DATA, command);
-		if (needExternalUI(command)) {
-			runIntent.setType(LedgerTBounceActivity.MIME_EXCHANGE_EXTENDED_INTERNAL);
-			runIntent.putExtra(LedgerTBounceActivity.EXTRA_PROTOCOL, (byte)0x01);
-			//runIntent.putExtra(LedgerTBounceActivity.EXTRA_EXTENDED_DATA, LedgerTAUtils.getTAExternalUI());
-			runIntent.putExtra(LedgerTBounceActivity.EXTRA_EXTENDED_DATA_PATH, LedgerTAUtils.getTAExternalUIPath());
 		}
-		else {
-			runIntent.setType(LedgerTBounceActivity.MIME_EXCHANGE_INTERNAL);			
-		}
-		context.startActivity(runIntent);			
-		return executor.submit(new Callable<byte[]>() {
-			@Override
-			public byte[] call() throws Exception {
-				try {
-					byte[] response = exchanger.exchange(new byte[0], LedgerTBounceActivity.EXCHANGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-					if (debug && (response != null)) {
-						Log.d(BTChipTransportAndroid.LOG_STRING, "<= " + Dump.dump(response));
-					}							
-					return response; 
-				}
-				catch(Exception e) {
-					Log.d(TAG, "Exchanger failed", e);
-					return null;
-				}
+		try {
+			if (needExternalUI(command)) {
+				result = service.exchangeExtended(session, PROTOCOL_CARD, command, LedgerTAUtils.getTAExternalUI());						
 			}
-		});		
+			else {
+				result = service.exchange(session, command);
+			}
+		}
+		catch(Exception e) {
+			throw new BTChipException("Exception calling service", e);
+		}
+		if (result.getExceptionMessage() != null) {
+			Log.d(TAG, "Exchange failed " + result.getExceptionMessage());
+			return null;
+		}
+		Log.d(BTChipTransportAndroid.LOG_STRING, "<= " + Dump.dump(result.getResult()));		
+		return FutureUtils.getDummyFuture(result.getResult());
 	}
 
 	@Override
 	public void close() throws BTChipException {
 		
+		if (service == null) {
+			throw new BTChipException("Service is not available");
+		}
 		if (session == null) {
 			return;
-		}
-
-		Exchanger<byte[]> exchanger = ExchangerProvider.getNewExchanger();
-		Intent runIntent = new Intent(context, LedgerTBounceActivity.class);
-		runIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		runIntent.putExtra(LedgerTBounceActivity.EXTRA_SESSION, session);
-		runIntent.setType(LedgerTBounceActivity.MIME_CLOSE_INTERNAL);
-		context.startActivity(runIntent);			
+		}		
 		try {
-			exchanger.exchange(new byte[0], LedgerTBounceActivity.EXCHANGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-			session = null;
+			service.close(session);
 		}
 		catch(Exception e) {
-			Log.d(TAG, "Exchanger failed", e);
-		}		
-		
+			throw new BTChipException("Exception calling service", e);
+		}
+		session = null;
 	}
 
 	@Override
@@ -195,28 +199,20 @@ public class LedgerTransportTEEProxy implements BTChipTransport, LedgerWalletBri
 	}
 	
 	public Future<byte[]> requestNVM() throws BTChipException {
+		if (service == null) {
+			throw new BTChipException("Service is not available");
+		}		
 		if (session == null) {
 			throw new BTChipException("Session is not open");
-		}		
-		final Exchanger<byte[]> exchanger = ExchangerProvider.getNewExchanger();
-		Intent runIntent = new Intent(context, LedgerTBounceActivity.class);
-		runIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		runIntent.setType(LedgerTBounceActivity.MIME_GET_NVM_INTERNAL);
-		runIntent.putExtra(LedgerTBounceActivity.EXTRA_SESSION, session);
-		context.startActivity(runIntent);			
-		return executor.submit(new Callable<byte[]>() {
-			@Override
-			public byte[] call() throws Exception {
-				try {
-					byte[] nvmResponse = exchanger.exchange(new byte[0], LedgerTBounceActivity.EXCHANGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-					return nvmResponse; 
-				}
-				catch(Exception e) {
-					Log.d(TAG, "Exchanger failed", e);
-					return null;
-				}
-			}
-		});		
+		}	
+		ServiceResult result = null;
+		try {
+			result = service.getStorage(session);
+		}
+		catch(Exception e) {
+			throw new BTChipException("Exception calling service", e);
+		}
+		return FutureUtils.getDummyFuture(result.getResult());
 	}
 	
 	public byte[] loadNVM(String nvmFile) {

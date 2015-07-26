@@ -21,7 +21,8 @@ package com.btchip.comm.android;
 
 import java.util.concurrent.Future;
 
-import android.nfc.tech.IsoDep;
+import nordpol.android.AndroidCard;
+
 import android.util.Log;
 
 import com.btchip.BTChipException;
@@ -31,22 +32,22 @@ import com.btchip.utils.FutureUtils;
 
 public class BTChipTransportAndroidNFC implements BTChipTransport {
 	
-	public static final int DEFAULT_TIMEOUT = 5000;
+	public static final int DEFAULT_TIMEOUT = 30000;
 	
-	private IsoDep card;
+	private AndroidCard card;
 	private int timeout;
 	private boolean debug;	
 	
-	public BTChipTransportAndroidNFC(IsoDep card, int timeout) {
+	public BTChipTransportAndroidNFC(AndroidCard card, int timeout) {
 		this.card = card;
 		this.timeout = timeout;
+		card.setTimeout(timeout);
 	}
 	
-	public BTChipTransportAndroidNFC(IsoDep card) {
+	public BTChipTransportAndroidNFC(AndroidCard card) {
 		this(card, DEFAULT_TIMEOUT);
 	}
 	
-
 	@Override
 	public Future<byte[]> exchange(byte[] command) throws BTChipException {
 		try {

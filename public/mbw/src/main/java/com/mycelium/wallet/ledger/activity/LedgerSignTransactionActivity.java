@@ -4,11 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.widget.TextView;
+
+import nordpol.android.TagDispatcher;
 
 import com.btchip.BTChipDongle.BTChipOutput;
 import com.btchip.BTChipDongle.BTChipOutputKeycard;
@@ -39,6 +42,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 	private final LedgerManager ledgerManager = MbwManager.getInstance(this).getLedgerManager();
 	private LinkedBlockingQueue<String> ledgerPinResponse;
 	private boolean _showTx;
+	private TagDispatcher dispatcher;
 	
 	private static final int PAUSE_DELAY = 500;
 	private static final String MESSAGE_TITLE_ID = "titleId";
@@ -51,6 +55,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 
 	      // Syncing Queue for the Ledger and UI Thread on PIN-entry
 	      ledgerPinResponse = new LinkedBlockingQueue<String>(1);
+	      dispatcher = TagDispatcher.get(this, ledgerManager);
 	   }
 
 	   @Override
@@ -64,14 +69,22 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 	      // setup the handlers for the Ledger manager to this activity
 	      ledgerManager.setEventHandler(this);	      
 	      updateUi();
+	      dispatcher.enableExclusiveNfc();
 	   }
 
 	   @Override
 	   protected void onPause() {
-	      super.onPause();
+	      super.onPause();	      
 	      // unregister me as event handler for Ledger
-	      ledgerManager.setEventHandler(null);	      
+	      ledgerManager.setEventHandler(null);
+	      dispatcher.disableExclusiveNfc();
 	   }
+
+	   @Override
+	   protected void onNewIntent(Intent intent) {
+		   dispatcher.interceptIntent(intent);
+	   }
+	   
 	
 	   @Override
 	   public void onScanError(String errorMsg) {
@@ -247,12 +260,15 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 			return "";
 		}
 		else
-		if (output.getUserConfirmation().equals(UserConfirmation.KEYBOARD)) {
+		if (output.getUserConfirmation().equals(UserConfirmation.KEYBOARD) ||
+			output.getUserConfirmation().equals(UserConfirmation.KEYCARD_NFC)) {
+			// Prefer the second factor confirmation to the keycard if initiated from another interface in a multi interface product
 			return onUserConfirmationRequestKeyboard();
 		}
 		else
 		if (output.getUserConfirmation().equals(UserConfirmation.KEYCARD) ||
-				output.getUserConfirmation().equals(UserConfirmation.KEYCARD_SCREEN)) {
+			output.getUserConfirmation().equals(UserConfirmation.KEYCARD_SCREEN) ||
+			output.getUserConfirmation().equals(UserConfirmation.KEYCARD_DEPRECATED)) {
 			return onUserConfirmationRequest2FA(output);
 		}
 		return "";

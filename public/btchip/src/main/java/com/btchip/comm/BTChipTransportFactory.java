@@ -25,6 +25,6 @@ public interface BTChipTransportFactory {
 	
 	public BTChipTransport getTransport();
 	public boolean isPluggedIn();
-	public boolean connect(final Context context);
+	public boolean connect(final Context context, final BTChipTransportFactoryCallback callback);
 
 }

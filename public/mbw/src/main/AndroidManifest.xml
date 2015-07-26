@@ -128,7 +128,6 @@
         <activity android:name=".trezor.activity.InstantTrezorActivity" />
         <activity android:name=".trezor.activity.TrezorAccountImportActivity" />
         <activity android:name=".trezor.activity.TrezorSignTransactionActivity" />
-        <activity android:name="com.mycelium.wallet.ledger.activity.InstantLedgerActivity"/>
         <activity android:name="com.mycelium.wallet.ledger.activity.LedgerAccountImportActivity"/>
         <activity android:name="com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity"/>
         <activity android:name=".activity.InstantMasterseedActivity" />
@@ -141,11 +140,6 @@
         <activity
             android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
             android:label="@string/title_activity_bit_idauthentication"/>
-        <activity
-            android:name="com.ledger.tbase.comm.LedgerTBounceActivity"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoDisplay">
-        </activity>
     </application>
 
 </manifest>

@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import nordpol.android.TagDispatcher;
+
 import com.btchip.BTChipDongle.BTChipOutput;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -30,6 +32,7 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 
 	 private final LedgerManager ledgerManager = MbwManager.getInstance(this).getLedgerManager();
 	 private LinkedBlockingQueue<String> ledgerPinResponse;
+	 private TagDispatcher dispatcher;
   	 
 	   @Override
 	   public void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 
 	      // Syncing Queue for the Ledger and UI Thread on PIN-entry
 	      ledgerPinResponse = new LinkedBlockingQueue<String>(1);
+	      dispatcher = TagDispatcher.get(this, ledgerManager);
 	   }
   	 
 	   @Override
@@ -45,15 +49,21 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 	      // setup the handlers for the Ledger manager to this activity
 	      ledgerManager.setEventHandler(this);	      
 	      updateUi();
+	      dispatcher.enableExclusiveNfc();
 	   }
 
 	   @Override
 	   protected void onPause() {
 	      super.onPause();
 	      // unregister me as event handler for Ledger
-	      ledgerManager.setEventHandler(null);	      
+	      ledgerManager.setEventHandler(null);
+	      dispatcher.disableExclusiveNfc();
 	   }
 	   
+	   @Override
+	   protected void onNewIntent(Intent intent) {
+		   dispatcher.interceptIntent(intent);
+	   }	   
 	
 	   public static void callMe(Activity currentActivity, int requestCode) {
 		      Intent intent = new Intent(currentActivity, LedgerAccountImportActivity.class);

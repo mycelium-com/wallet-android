@@ -55,4 +55,8 @@ public interface BTChipConstants {
     public static final byte[] AZERTY_KEYMAP = Dump.hexToBin("08000000010000200100007820c8ffc3feffff07000000002c38202030341e21222d352e102e3637271e1f202122232425263736362e37101f1405060708090a0b0c0d0e0f331112130415161718191d1b1c1a2f64302f2d351405060708090a0b0c0d0e0f331112130415161718191d1b1c1a2f643035");
 	
     public static final int SW_OK = 0x9000;
+    public static final int SW_INCORRECT_P1_P2 = 0x6A86;
+    public static final int SW_WRONG_P1_P2 = 0x6B00;
+    public static final int SW_INS_NOT_SUPPORTED = 0x6D00;
+    
 }
