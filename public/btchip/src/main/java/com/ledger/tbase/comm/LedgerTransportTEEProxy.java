@@ -13,7 +13,6 @@ import com.btchip.comm.BTChipTransport;
 import com.btchip.comm.android.BTChipTransportAndroid;
 import com.btchip.utils.Dump;
 import com.btchip.utils.FutureUtils;
-import com.ledger.tbase.utils.LedgerTAUtils;
 import com.ledger.wallet.service.ILedgerWalletService;
 import com.ledger.wallet.service.ServiceResult;
 
@@ -63,7 +62,6 @@ public class LedgerTransportTEEProxy implements BTChipTransport {
 	
 	public boolean init() {
 		ServiceResult result = null;
-		LedgerTAUtils.LedgerTA ta = LedgerTAUtils.getTA();
 		
 		if (service == null) {
 			Log.d(TAG, "Cannot initialize until service is available");
@@ -71,7 +69,7 @@ public class LedgerTransportTEEProxy implements BTChipTransport {
 		}
 		
 		try {
-			result = service.open(ta.getSPID(), ta.getTA(), ta.getTA().length);
+			result = service.openDefault();
 		}
 		catch(Exception e) {
 			Log.d(TAG, "Failed to open application (internal)", e);
@@ -158,7 +156,7 @@ public class LedgerTransportTEEProxy implements BTChipTransport {
 		}
 		try {
 			if (needExternalUI(command)) {
-				result = service.exchangeExtended(session, PROTOCOL_CARD, command, LedgerTAUtils.getTAExternalUI());						
+				result = service.exchangeExtendedUI(session, command);						
 			}
 			else {
 				result = service.exchange(session, command);
