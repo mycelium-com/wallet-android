@@ -90,11 +90,13 @@ public class MbwProdEnvironment extends MbwEnvironment {
          new HttpsEndpoint("https://mws2.mycelium.com/wapi", myceliumThumbprint),
          new HttpsEndpoint("https://mws6.mycelium.com/wapi", myceliumThumbprint),
          new HttpsEndpoint("https://mws7.mycelium.com/wapi", myceliumThumbprint),
+         new HttpsEndpoint("https://mws8.mycelium.com/wapi", myceliumThumbprint),
 
          // Also try to connect to the nodes via a hardcoded IP, in case the DNS has some problems
          new HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),   // mws2
          new HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),  // mws6
          new HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint),     // mws7
+         new HttpsEndpoint("https://188.40.74.13/wapi", myceliumThumbprint),     // mws8
 
          new TorHttpsEndpoint("https://vtuao7psnrsot4tb.onion/wapi", myceliumThumbprint),     // tor hidden services
          new TorHttpsEndpoint("https://n76y5k3le2zi73bw.onion/wapi", myceliumThumbprint),

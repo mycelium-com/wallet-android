@@ -29,10 +29,9 @@ import java.io.Serializable;
 
 public class Transaction implements Serializable {
    private static final long serialVersionUID = 1L;
-
    public static class TransactionParsingException extends Exception {
-      private static final long serialVersionUID = 1L;
 
+      private static final long serialVersionUID = 1L;
       public TransactionParsingException(String message) {
          super(message);
       }
@@ -40,9 +39,11 @@ public class Transaction implements Serializable {
       public TransactionParsingException(String message, Exception e) {
          super(message, e);
       }
-   }
 
+   }
    public static final int MIN_TRANSACTION_SIZE = 100;
+   public static final int MAX_MINER_FEE_PER_KB = 2000000;
+
    public int version;
    public TransactionInput[] inputs;
    public TransactionOutput[] outputs;

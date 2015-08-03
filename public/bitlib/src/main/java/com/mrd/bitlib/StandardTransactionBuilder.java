@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
@@ -328,7 +327,7 @@ public class StandardTransactionBuilder {
       float estimatedFeePerKb = (long)((float) unsignedTransaction.calculateFee() / ((float) estimateTransactionSize / 1000));
 
       // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
-      if (estimatedFeePerKb > 2000000) {
+      if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
          throw new RuntimeException(String.format("Unreasonable high transaction fee of %s satoshi per 1000Byte", estimatedFeePerKb));
       }
 

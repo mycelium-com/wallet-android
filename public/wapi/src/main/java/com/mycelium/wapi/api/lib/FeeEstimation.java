@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.megiontechnologies.Bitcoins;
+import com.mrd.bitlib.model.Transaction;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,8 +16,8 @@ public class FeeEstimation implements Serializable {
          new ImmutableMap.Builder<Integer, Bitcoins>()
                .put(1,  Bitcoins.valueOf(100000))   // 1mBtc/kB
                .put(3,  Bitcoins.valueOf( 20000))   // 0.2mBtc/kB
-               .put(10, Bitcoins.valueOf( 10000))   // 0.1mBtc/kB
-               .put(20, Bitcoins.valueOf(  1000))   // 0.01mBtc/kB
+               .put(10, Bitcoins.valueOf( 15000))   // 0.15mBtc/kB
+               .put(20, Bitcoins.valueOf(  8000))   // 0.08mBtc/kB
                .build())
             , new Date(0)
    );
@@ -47,7 +48,14 @@ public class FeeEstimation implements Serializable {
          throw new IllegalArgumentException("nBlocks invalid");
       }
 
-      return feeForNBlocks.get(nBlocks);
+      Bitcoins bitcoins = feeForNBlocks.get(nBlocks);
+
+      // check if we got a sane value, otherwise return a default value
+      if (bitcoins.getLongValue() >= Transaction.MAX_MINER_FEE_PER_KB){
+         return DEFAULT.getEstimation(nBlocks);
+      } else {
+         return bitcoins;
+      }
    }
 
    @JsonIgnore
