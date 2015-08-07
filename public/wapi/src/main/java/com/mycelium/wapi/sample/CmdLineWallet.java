@@ -34,7 +34,7 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
@@ -50,6 +50,7 @@ import com.mycelium.wapi.wallet.WalletAccount.Receiver;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.WalletManager.Observer;
 import com.mycelium.wapi.wallet.WalletManager.State;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -378,7 +379,8 @@ public class CmdLineWallet {
          account = accounts.get(index);
       }
       // Determine max amount
-      long maxAmount = account.calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE);
+      ExactBitcoinValue exactCurrencyValue = (ExactBitcoinValue) account.calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE);
+      long maxAmount = exactCurrencyValue.getAsBitcoin().getLongValue();
       if (maxAmount == 0) {
          print("Not enough funds");
          return;

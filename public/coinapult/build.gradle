@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+
+
+dependencies {
+    compile project(':public:bitlib')
+    compile project(':public:mbwlib')
+
+    compile guavaArtifact
+    compile 'com.fasterxml.jackson.core:jackson-core:2.1.0'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.0'
+    compile 'com.google.http-client:google-http-client-jackson2:1.19.0'
+
+    compile 'com.madgag.spongycastle:core:1.51.0.0'
+    compile 'com.madgag.spongycastle:prov:1.51.0.0'
+    compile 'com.madgag.spongycastle:pkix:1.51.0.0'
+    compile 'com.madgag.spongycastle:pg:1.51.0.0'
+    testCompile 'junit:junit:'+junitVersion
+
+}

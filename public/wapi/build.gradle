@@ -24,8 +24,8 @@ dependencies {
     compile project(':public:mbwlib')
 
     compile guavaArtifact
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
 
     testCompile 'junit:junit:' + junitVersion

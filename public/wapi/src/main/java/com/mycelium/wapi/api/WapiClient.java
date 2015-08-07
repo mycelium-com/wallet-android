@@ -23,9 +23,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.FeedbackEndpoint;
-import com.mycelium.net.ServerEndpoints;
+import com.mycelium.WapiLogger;
+import com.mycelium.net.*;
 import com.mycelium.wapi.api.WapiConst.Function;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
@@ -45,7 +44,7 @@ public class WapiClient implements Wapi {
 
 
    private ObjectMapper _objectMapper;
-   private WapiLogger _logger;
+   private com.mycelium.WapiLogger _logger;
 
    private ServerEndpoints _serverEndpoints;
    private String versionCode;

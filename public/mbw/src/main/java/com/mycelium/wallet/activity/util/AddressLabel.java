@@ -36,11 +36,13 @@ package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import com.google.common.base.Joiner;
+
 import com.mrd.bitlib.model.Address;
+import com.mycelium.net.ServerEndpointType;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 
-public class AddressLabel extends GenericLinkLabel {
+public class AddressLabel extends GenericBlockExplorerLabel {
    private Address address;
 
    public AddressLabel(Context context) {
@@ -66,15 +68,15 @@ public class AddressLabel extends GenericLinkLabel {
    }
 
    @Override
-   protected String getLinkURL(){
-      return address.getBlockchainExplorerLink();
+   protected String getLinkURL(BlockExplorer blockExplorer){
+      return blockExplorer.getUrl(address,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
 
    public void setAddress(final Address address){
       this.address = address;
       update_ui();
-      setHandler();
+      setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
    }
    public Address getAddress() {
       return address;

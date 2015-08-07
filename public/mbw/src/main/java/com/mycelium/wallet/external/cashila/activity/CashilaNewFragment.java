@@ -323,6 +323,12 @@ public class CashilaNewFragment extends Fragment {
       ButterKnife.reset(this);
    }
 
+   @Override
+   public void onPause() {
+      mbw.getVersionManager().closeDialog();
+      super.onPause();
+   }
+
    public void initFromBcd(BcdCodedSepaData bcd) {
       etAmount.setText(bcd.amount.toString());
       etReference.setText(bcd.reference);

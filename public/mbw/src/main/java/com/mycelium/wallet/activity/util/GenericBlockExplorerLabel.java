@@ -51,7 +51,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
 
-public abstract class GenericLinkLabel extends TextView {
+public abstract class GenericBlockExplorerLabel extends TextView {
 
    private void init(){
       this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
@@ -59,24 +59,24 @@ public abstract class GenericLinkLabel extends TextView {
       this.setTypeface(Typeface.MONOSPACE);
    }
 
-   public GenericLinkLabel(Context context) {
+   public GenericBlockExplorerLabel(Context context) {
       super(context);
       init();
    }
 
-   public GenericLinkLabel(Context context, AttributeSet attrs) {
+   public GenericBlockExplorerLabel(Context context, AttributeSet attrs) {
       super(context, attrs);
       init();
    }
 
-   public GenericLinkLabel(Context context, AttributeSet attrs, int defStyleAttr) {
+   public GenericBlockExplorerLabel(Context context, AttributeSet attrs, int defStyleAttr) {
       super(context, attrs, defStyleAttr);
       init();
    }
 
    abstract protected String getLinkText();
    abstract protected String getFormattedLinkText();
-   abstract protected String getLinkURL();
+   abstract protected String getLinkURL(BlockExplorer blockExplorer);
 
 
    void update_ui(){
@@ -90,13 +90,13 @@ public abstract class GenericLinkLabel extends TextView {
       }
    }
 
-   protected void setHandler() {
+   protected void setHandler(final BlockExplorer blockExplorer) {
       if (!Strings.isNullOrEmpty(getLinkText())) {
          setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-               Utils.setClipboardString(getLinkText(), GenericLinkLabel.this.getContext());
-               Toast.makeText(GenericLinkLabel.this.getContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+               Utils.setClipboardString(getLinkText(), GenericBlockExplorerLabel.this.getContext());
+               Toast.makeText(GenericBlockExplorerLabel.this.getContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
                return true;
             }
          });
@@ -105,9 +105,9 @@ public abstract class GenericLinkLabel extends TextView {
             @Override
             public void onClick(View v) {
                Intent intent = new Intent(Intent.ACTION_VIEW);
-               intent.setData(Uri.parse(getLinkURL()));
-               GenericLinkLabel.this.getContext().startActivity(intent);
-               Toast.makeText(GenericLinkLabel.this.getContext(), R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT)
+               intent.setData(Uri.parse(getLinkURL(blockExplorer)));
+               GenericBlockExplorerLabel.this.getContext().startActivity(intent);
+               Toast.makeText(GenericBlockExplorerLabel.this.getContext(), R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT)
                      .show();
             }
          });

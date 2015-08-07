@@ -47,6 +47,7 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -63,7 +64,6 @@ public class SetTradeAddress extends Activity {
    }
 
    private TradeSession _tradeSession;
-   private MbwManager _mbwManager;
    private Address _address;
 
    /**
@@ -76,7 +76,7 @@ public class SetTradeAddress extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.lt_set_trade_address_activity);
 
-      _mbwManager = MbwManager.getInstance(getApplication());
+      MbwManager _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
       _tradeSession = (TradeSession) getIntent().getSerializableExtra("tradeSession");
@@ -101,15 +101,20 @@ public class SetTradeAddress extends Activity {
 
       // Show / hide warning
       TextView tvWarning = (TextView) findViewById(R.id.tvWarning);
-      if (account.canSpend()) {
+      if (account.canSpend() && Utils.isAllowedForLocalTrader(account)) {
          // We send to an address where we have the private key
          findViewById(R.id.tvWarning).setVisibility(View.GONE);
       } else {
          // Show a warning as we are sending to an address where we don't have
-         // the private key
+         // the private key or which is not allowed at all
          tvWarning.setVisibility(View.VISIBLE);
-         tvWarning.setText(R.string.read_only_warning);
          tvWarning.setTextColor(getResources().getColor(R.color.red));
+         if (Utils.isAllowedForLocalTrader(account)) {
+            tvWarning.setText(R.string.read_only_warning);
+         } else {
+            findViewById(R.id.btOk).setEnabled(false);
+            tvWarning.setText(R.string.lt_account_not_allowed);
+         }
       }
 
       findViewById(R.id.btOk).setOnClickListener(startTradingClickListener);
@@ -129,9 +134,6 @@ public class SetTradeAddress extends Activity {
    protected void onResume() {
       Preconditions.checkNotNull(_tradeSession);
       Preconditions.checkNotNull(_tradeSession.id);
-      SetTradeReceivingAddress request = new SetTradeReceivingAddress(_tradeSession.id, _address);
-      SendRequestActivity.callMe(SetTradeAddress.this, request, "");
-      finish();
       super.onResume();
    }
 

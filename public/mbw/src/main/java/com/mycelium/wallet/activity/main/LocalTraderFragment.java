@@ -47,6 +47,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
@@ -94,8 +95,12 @@ public class LocalTraderFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-         if (!_mbwManager.getSelectedAccount().canSpend()){
+         if (!_mbwManager.getSelectedAccount().canSpend()) {
             Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
+            return;
+         }
+         if (!Utils.isAllowedForLocalTrader(_mbwManager.getSelectedAccount())) {
+            Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_wrong_account_type, Toast.LENGTH_LONG).show();
             return;
          }
 

@@ -30,7 +30,7 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
@@ -43,6 +43,10 @@ import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.util.*;
 
@@ -89,17 +93,6 @@ public abstract class AbstractAccount implements WalletAccount {
          _eventHandler.onEvent(this.getId(), event);
       }
    }
-
-   /**
-    * Synchronize this account
-    * <p/>
-    * This method should only be called from the wallet manager
-    *
-    * @param synchronizeTransactionHistory should the transaction be synchronized?
-    * @return false if synchronization failed due to failed blockchain
-    * connection
-    */
-   public abstract boolean synchronize(boolean synchronizeTransactionHistory);
 
    /**
     * Determine whether a transaction was sent from one of our own addresses.
@@ -166,14 +159,6 @@ public abstract class AbstractAccount implements WalletAccount {
       Address address = script.getAddress(_network);
       return isMine(address);
    }
-
-   /**
-    * Determine whether an address is one of our own addresses
-    *
-    * @param address the address to check
-    * @return true iff this address is one of our own
-    */
-   protected abstract boolean isMine(Address address);
 
    @Override
    public abstract UUID getId();
@@ -493,6 +478,7 @@ public abstract class AbstractAccount implements WalletAccount {
     * @return false if synchronization failed due to failed blockchain
     * connection
     */
+   @Override
    public synchronized boolean broadcastOutgoingTransactions() {
       checkNotArchived();
       List<Sha256Hash> broadcastedIds = new LinkedList<Sha256Hash>();
@@ -751,6 +737,11 @@ public abstract class AbstractAccount implements WalletAccount {
    protected abstract void persistContextIfNecessary();
 
    @Override
+   public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException {
+      createUnsignedTransaction(Arrays.asList(receiver), kbMinerFee);
+   }
+
+   @Override
    public NetworkParameters getNetwork() {
       return _network;
    }
@@ -794,7 +785,7 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
-   public synchronized long calculateMaxSpendableAmount(long minerFeeToUse) {
+   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs());
       long satoshis = 0;
@@ -806,7 +797,7 @@ public abstract class AbstractAccount implements WalletAccount {
       while (true) {
          satoshis -= minerFeeToUse;
          if (satoshis <= 0) {
-            return 0;
+            return ExactBitcoinValue.ZERO;
          }
 
          // Create transaction builder
@@ -819,14 +810,14 @@ public abstract class AbstractAccount implements WalletAccount {
             stb.addOutput(Address.getNullAddress(_network), satoshis);
          } catch (OutputTooSmallException e1) {
             // The amount we try to send is lower than what the network allows
-            return 0;
+            return ExactBitcoinValue.ZERO;
          }
 
          // Try to create an unsigned transaction
          try {
             stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeeToUse);
             // We have enough to pay the fees, return the amount as the maximum
-            return satoshis;
+            return ExactBitcoinValue.from(satoshis);
          } catch (InsufficientFundsException e) {
             // We cannot send this amount, try again with a little higher fee
             continue;
@@ -883,6 +874,15 @@ public abstract class AbstractAccount implements WalletAccount {
       Balance b = _cachedBalance;
       return new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
             b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending);
+   }
+
+   @Override
+   public CurrencyBasedBalance getCurrencyBasedBalance() {
+      Balance balance = getBalance();
+      ExactCurrencyValue confirmed = ExactBitcoinValue.from(balance.getSpendableBalance());
+      ExactCurrencyValue sending = ExactBitcoinValue.from(balance.getSendingBalance());
+      ExactCurrencyValue receiving = ExactBitcoinValue.from(balance.getReceivingBalance());
+      return new CurrencyBasedBalance(confirmed,sending, receiving);
    }
 
    /**

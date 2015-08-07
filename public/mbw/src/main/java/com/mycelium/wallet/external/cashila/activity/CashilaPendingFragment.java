@@ -354,7 +354,7 @@ public class CashilaPendingFragment extends Fragment {
 
                @Override
                public void onNext(BillPay billPay) {
-                  if (billPay.details.amountToDeposit.equals(BigDecimal.ZERO)) {
+                  if (billPay.details.amountToDeposit.compareTo(BigDecimal.ZERO)==0) {
                      new Toaster(getActivity()).toast(getResources().getString(R.string.cashila_already_paid), false);
                   } else {
                      eventBus.post(billPay);

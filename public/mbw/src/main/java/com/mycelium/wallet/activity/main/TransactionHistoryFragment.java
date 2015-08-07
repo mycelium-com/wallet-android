@@ -51,6 +51,7 @@ import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.CoinapultTransactionSummary;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -262,19 +263,28 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
-                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.isQueuedOutgoing);
-                     Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(record.confirmations == 0);
+                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
+
                      //deletion is disabled for now, to enable, replace false with record.confirmations == 0
                      Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
-
                   
                   @Override
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                      final int itemId = menuItem.getItemId();
+                     if (itemId == R.id.miShowCoinapultDebug) {
+                        if (record instanceof CoinapultTransactionSummary) {
+                           CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
+                           new AlertDialog.Builder(_context).setMessage(summary.input.toString()).show();
+                        }
+                        return true;
+                     }
                      if (itemId == R.id.miShowDetails) {
                         doShowDetails(record);
                         finishActionMode();

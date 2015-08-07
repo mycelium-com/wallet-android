@@ -36,11 +36,13 @@ package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import com.google.common.base.Joiner;
+
+import com.mycelium.net.ServerEndpointType;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.TransactionDetails;
 
-public class TransactionDetailsLabel extends GenericLinkLabel {
+public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    private TransactionDetails transaction;
 
    public TransactionDetailsLabel(Context context) {
@@ -66,17 +68,18 @@ public class TransactionDetailsLabel extends GenericLinkLabel {
    }
 
    @Override
-   protected String getLinkURL(){
-      return transaction.getBlockchainExplorerLink();
+   protected String getLinkURL(BlockExplorer blockExplorer){
+      return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
+
+
 
    public void setTransaction(final TransactionDetails tx){
       this.transaction = tx;
       update_ui();
-      setHandler();
+      setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
    }
    public TransactionDetails getAddress() {
       return transaction;
    }
-
 }

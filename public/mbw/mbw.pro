@@ -10,6 +10,10 @@
 -dontwarn javax.naming.**
 -dontwarn okio.**
 
+#spongycastle/coinapult
+-keep class org.spongycastle.**
+-dontwarn org.spongycastle.jce.provider.X509LDAPCertStoreSpi
+-dontwarn org.spongycastle.x509.util.LDAPStoreHelper
 
 -keepclassmembers class ** {
     @com.squareup.otto.Subscribe public *;
@@ -19,7 +23,7 @@
 -dontwarn android.support.**
 -dontwarn org.apache.xmlrpc.**
 
--optimizationpasses 6
+-optimizationpasses 2
 
 #When not preverifing in a case-insensitive filing system, such as Windows. Because this tool unpacks your processed jars, you should then use:
 -dontusemixedcaseclassnames
@@ -115,6 +119,11 @@
 
 #keep classes used for deserializing json
 -keepclasseswithmembers class com.mycelium.wapi.** {
+  <init>(...);
+  *;
+}
+#keep classes used for deserializing json
+-keepclasseswithmembers class com.coinapult.** {
   <init>(...);
   *;
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mycelium.wapi.api;
+package com.mycelium;
 
 public interface WapiLogger {
    public void logError(String message, Exception e);
@@ -22,4 +22,21 @@ public interface WapiLogger {
    public void logError(String message);
    
    public void logInfo(String message);
+
+   public static WapiLogger NULL_LOGGER = new WapiLogger(){
+      @Override
+      public void logError(String message, Exception e) {
+
+      }
+
+      @Override
+      public void logError(String message) {
+
+      }
+
+      @Override
+      public void logInfo(String message) {
+
+      }
+   };
 }

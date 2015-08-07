@@ -25,6 +25,9 @@
     <ListPreference
             android:key="miner_fee"
             android:layout="@layout/preference_layout"/>
+    <ListPreference
+        android:key="block_explorer"
+        android:layout="@layout/preference_layout"/>
 
     <!-- PIN Settings -->
 

@@ -78,4 +78,20 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
       TransactionSummary other = (TransactionSummary) obj;
       return other.txid.equals(this.txid);
    }
+
+   public boolean canCancel() {
+      return isQueuedOutgoing;
+   }
+
+   public boolean hasAddressBook() {
+      return destinationAddress.isPresent();
+   }
+
+   public boolean hasDetails() {
+      return true;
+   }
+
+   public boolean canCoinapult() {
+      return false;
+   }
 }

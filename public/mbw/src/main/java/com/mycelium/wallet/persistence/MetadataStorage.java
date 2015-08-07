@@ -46,15 +46,18 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MetadataStorage extends GenericMetadataStorage {
+   public static final MetadataCategory COINAPULT = new MetadataCategory("coinapult_adddr");
    public static final MetadataCategory ADDRESSLABEL_CATEGORY = new MetadataCategory("addresslabel");
    public static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
    public static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
+   public static final MetadataCategory ARCHIVED = new MetadataCategory("archived");
    public static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
    public static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
    public static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
+   public static final String EMAIL = "email";
 
    public MetadataStorage(Context context) {
       super(context);
@@ -229,6 +232,39 @@ public class MetadataStorage extends GenericMetadataStorage {
       }else{
          return Optional.absent();
       }
+   }
+
+   public boolean getArchived(UUID uuid) {
+      return "1".equals(getKeyCategoryValueEntry(ARCHIVED.of(uuid.toString()), "0"));
+   }
+
+   public void storeArchived(UUID uuid, boolean archived) {
+      storeKeyCategoryValueEntry(ARCHIVED.of(uuid.toString()), archived ? "1" : "0");
+   }
+
+   public void storeCoinapultAddress(Address address) {
+      storeKeyCategoryValueEntry(COINAPULT.of("last"),address.toString());
+   }
+
+   public Optional<Address> getCoinapultAddress() {
+      Optional<String> last = getKeyCategoryValueEntry(COINAPULT.of("last"));
+      if (!last.isPresent()){
+         return Optional.absent();
+      }
+      return Optional.of(Address.fromString(last.get()));
+   }
+
+   public String getCoinapultMail() {
+      Optional<String> mail = getKeyCategoryValueEntry(COINAPULT.of(EMAIL));
+      if (mail.isPresent()) {
+         return mail.get();
+      } else {
+         return "";
+      }
+   }
+
+   public void setCoinapultMail(String mail) {
+      storeKeyCategoryValueEntry(COINAPULT.of(EMAIL), mail);
    }
 
    public enum BackupState {

@@ -137,4 +137,13 @@ public class HexUtils {
       }
       sb.append(Integer.toHexString(unsignedByte));
    }
+
+   public static boolean isAllZero(byte[] bytes){
+      for (byte b : bytes){
+         if (b != 0) {
+            return false;
+         }
+      }
+      return true;
+   }
 }

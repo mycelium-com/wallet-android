@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.google.bitcoinj.Base58;
 
+import com.google.common.base.Function;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -31,6 +32,13 @@ public class Address implements Serializable, Comparable<Address> {
 
    private static final long serialVersionUID = 1L;
    public static final int NUM_ADDRESS_BYTES = 21;
+   public static final Function<? super String,Address> FROM_STRING = new Function<String, Address>() {
+      @Override
+      public Address apply(String input) {
+         return Address.fromString(input);
+      }
+   };
+
    private byte[] _bytes;
    private String _address;
 
@@ -270,8 +278,5 @@ public class Address implements Serializable, Comparable<Address> {
       return ((byte) (network.getStandardAddressHeader() & 0xFF)) == version || ((byte) (network.getMultisigAddressHeader() & 0xFF)) == version;
    }
 
-   public String getBlockchainExplorerLink(){
-      return getNetwork().getBlockchainExplorerAddress() + toString();
-   }
 
 }

@@ -108,7 +108,6 @@ public class CreateTrader2Activity extends Activity {
       });
 
       // Populate account chooser, you can also choose archived accounts
-      AddressBookManager addressBook = _mbwManager.getAddressBookManager();
       _accounts = new LinkedList<UUID>();
       List<String> choices = new LinkedList<String>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
@@ -118,6 +117,9 @@ public class CreateTrader2Activity extends Activity {
             continue;
          }
          if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
+            continue;
+         }
+         if (!Utils.isAllowedForLocalTrader(account)) {
             continue;
          }
 

@@ -50,6 +50,7 @@ import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -120,7 +121,7 @@ public class AddressFragment extends Fragment {
          tvAddressTitle.setText(name);
 
          // show account type icon next to the name
-         Drawable drawableForAccount = Utils.getDrawableForAccount(_mbwManager.getSelectedAccount(), getResources());
+         Drawable drawableForAccount = Utils.getDrawableForAccount(_mbwManager.getSelectedAccount(), true, getResources());
          if (drawableForAccount == null){
             ivAccountType.setVisibility(View.GONE);
          }else {
@@ -159,6 +160,11 @@ public class AddressFragment extends Fragment {
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
+      updateUi();
+   }
+
+   @Subscribe
+   public void balanceChanged(BalanceChanged event) {
       updateUi();
    }
 

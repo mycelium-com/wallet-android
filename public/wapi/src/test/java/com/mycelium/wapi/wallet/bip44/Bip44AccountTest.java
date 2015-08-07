@@ -6,7 +6,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
@@ -135,6 +135,11 @@ public class Bip44AccountTest {
       @Override
       public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
          return null;
+      }
+
+      @Override
+      public WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations() {
+         throw new UnsupportedOperationException();
       }
    }
 

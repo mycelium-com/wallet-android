@@ -109,7 +109,7 @@ public class PublicKey implements Serializable {
       return getQ().isCompressed();
    }
 
-   Point getQ() {
+  public Point getQ() {
       if (_Q == null) {
          _Q = Parameters.curve.decodePoint(_pubKeyBytes);
       }

@@ -116,8 +116,6 @@ public class TradeActivity extends Activity {
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private TradeSession _tradeSession;
-   // private MyTradeSessionUpdateListener _tradeSessionListener;
-   private MyListener _myListener;
    private Button _btRefresh;
    private Button _btChangePrice;
    private Button _btAccept;
@@ -194,9 +192,21 @@ public class TradeActivity extends Activity {
    protected void onResume() {
       _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
-      _myListener = new MyListener(_tradeSession.id, _tradeSession.lastChange);
-      _ltManager.startMonitoringTradeSession(_myListener);
-      updateUi();
+      MyListener myListener = new MyListener(_tradeSession.id, _tradeSession.lastChange);
+      _ltManager.startMonitoringTradeSession(myListener);
+      if (Utils.isAllowedForLocalTrader(_mbwManager.getSelectedAccount())) {
+         //everything is fine, update UI
+         updateUi();
+      } else {
+         //sneaked an invalid acc into lt, we show a message and close the trade activity
+         Runnable close = new Runnable() {
+            @Override
+            public void run() {
+               TradeActivity.this.finish();
+            }
+         };
+         Utils.showSimpleMessageDialog(this, R.string.lt_warning_wrong_account_type, close);
+      }
       super.onResume();
    }
 

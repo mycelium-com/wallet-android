@@ -40,9 +40,7 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.VersionInfoExRequest;
 import com.mycelium.wapi.api.request.VersionInfoRequest;
-import com.mycelium.wapi.api.response.FeatureWarning;
-import com.mycelium.wapi.api.response.VersionInfoExResponse;
-import com.mycelium.wapi.api.response.VersionInfoResponse;
+import com.mycelium.wapi.api.response.*;
 import com.squareup.otto.Bus;
 
 import java.net.URI;
@@ -114,7 +112,7 @@ public abstract class AsynchronousApi {
             //warnings.add(new FeatureWarning(Feature.CASHILA, WarningKind.BLOCK, "Warning message", URI.create("https://mycelium.com")));
             //warnings.add(new FeatureWarning(Feature.CASHILA_NEW_PAYMENT, WarningKind.WARN, "NEWPAY Warning message", URI.create("https://mycelium.com")));
             //warnings.add(new FeatureWarning(Feature.CASHILA_PAY, WarningKind.WARN, "PAY Warning message", URI.create("https://mycelium.com")));
-            response = new VersionInfoExResponse("2.3.4", "Neue super Version", URI.create("https://mycelium.com/bitcoinwallet"), warnings);
+            response = new VersionInfoExResponse(null, "Neue super Version", URI.create("https://mycelium.com/bitcoinwallet"), warnings);
             eventBus.post(new WalletVersionExEvent(response));
          }
       };

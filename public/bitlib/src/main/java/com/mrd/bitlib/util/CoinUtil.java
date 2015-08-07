@@ -16,6 +16,8 @@
 
 package com.mrd.bitlib.util;
 
+import com.megiontechnologies.Bitcoins;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
@@ -151,6 +153,27 @@ public class CoinUtil {
    }
 
    /**
+    * Get the given value as a string on the form "10.12345" using
+    * the specified denomination.
+    * <p>
+    * This method only returns necessary decimal points to tell the exact value.
+    * If you wish to display all digits use
+    * {@link CoinUtil#fullValueString(long, Denomination)}
+    *
+    * @param value
+    *           The number of bitcoins
+    * @param denomination
+    *           The denomination to use
+    * @param withThousandSeparator
+    *           Use ' ' as the 1000 grouping separator in the output
+    * @return The given value as a string on the form "10.12345".
+    */
+   public static String valueString(BigDecimal value, Denomination denomination, boolean withThousandSeparator) {
+      Long satoshis = Bitcoins.nearestValue(value).getLongValue();
+      return valueString(satoshis, denomination, withThousandSeparator);
+   }
+
+   /**
     * Get the given value in satoshis as a string on the form "10.12345" using
     * the specified denomination.
     * <p>
@@ -184,7 +207,7 @@ public class CoinUtil {
     * denominated in BTC.
     * <p>
     * This method always returns a string with 8 decimal points. If you only
-    * wish to have the necessary digits use {@link CoinUtil#valueString(long)}
+    * wish to have the necessary digits use {@link CoinUtil#valueString(long, boolean)}
     * 
     * @param value
     *           The number of satoshis
@@ -200,7 +223,7 @@ public class CoinUtil {
     * <p>
     * This method always returns a string with all decimal points. If you only
     * wish to have the necessary digits use
-    * {@link CoinUtil#valueString(long, Denomination)}
+    * {@link CoinUtil#valueString(long, Denomination, boolean)}
     * 
     * @param value
     *           The number of satoshis

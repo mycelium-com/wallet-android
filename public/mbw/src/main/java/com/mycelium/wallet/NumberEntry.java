@@ -169,7 +169,7 @@ public class NumberEntry {
       if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
          _entry = "";
       } else {
-         _entry = number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).toPlainString();
+         _entry = number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).stripTrailingZeros().toPlainString();
       }
       _listener.onEntryChanged(_entry, true);
    }

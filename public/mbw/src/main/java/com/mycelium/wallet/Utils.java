@@ -77,11 +77,17 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -90,6 +96,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -663,37 +670,36 @@ public class Utils {
    }
 
    public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts, final MetadataStorage storage) {
-      Comparator<WalletAccount> comparator = new Comparator<WalletAccount>() {
+      Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         @Nullable
          @Override
-         public int compare(WalletAccount lhs, WalletAccount rhs) {
-            //HD Accounts always come first
-            if (lhs instanceof Bip44Account && rhs instanceof SingleAddressAccount) {
-               return -1;
-            }
-            if (lhs instanceof SingleAddressAccount && rhs instanceof Bip44Account) {
-               return 1;
-            }
-            //when both are hd, we take the account index
-            if (lhs instanceof Bip44Account) {
-               int lid = ((Bip44Account) lhs).getAccountIndex();
-               int rid = ((Bip44Account) rhs).getAccountIndex();
-               if (lid < rid) {
-                  return -1;
-               } else if (lid > rid) {
-                  return 1;
-               } else {
-                  return 0;
-               }
-            }
-            //when both are single, we take label
-            String lname = storage.getLabelByAccount(lhs.getId());
-            String rname = storage.getLabelByAccount(rhs.getId());
-            return lname.compareTo(rname);
+         public Integer apply(@Nullable WalletAccount input) {
+            if (input instanceof Bip44Account) return 0;
+            if (input instanceof SingleAddressAccount) return 1;
+            if (input instanceof CoinapultManager) return 3; //coinapult last
+            return 2;
          }
-      };
-      accounts = new ArrayList<WalletAccount>(accounts);
-      Collections.sort(accounts, comparator);
-      return accounts;
+      });
+      Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         @Nullable
+         @Override
+         public Integer apply(@Nullable WalletAccount input) {
+            if (input instanceof Bip44Account) {
+               Bip44Account bip44Account = (Bip44Account) input;
+               return bip44Account.getAccountIndex();
+            }
+            return Integer.MAX_VALUE;
+         }
+      });
+
+      Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
+         @Nullable
+         @Override
+         public String apply(@Nullable WalletAccount input) {
+            return storage.getLabelByAccount(input.getId());
+         }
+      });
+      return type.compound(index).compound(name).sortedCopy(accounts);
    }
 
    public static List<Address> sortAAddresses(List<Address> addresses) {
@@ -704,7 +710,7 @@ public class Utils {
       return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
-   public static Drawable getDrawableForAccount(WalletAccount walletAccount, Resources resources) {
+   public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
       // Watch only
       if (!walletAccount.canSpend()) {
          return null;
@@ -717,6 +723,13 @@ public class Utils {
       //regular HD account
       if (walletAccount instanceof Bip44Account) {
          return resources.getDrawable(R.drawable.multikeys_grey);
+      }
+      if (walletAccount instanceof CoinapultManager) {
+         if (isSelectedAccount) {
+            return resources.getDrawable(R.drawable.coinapult);
+         } else {
+            return resources.getDrawable(R.drawable.coinapultgrey);
+         }
       }
 
       //single key account
@@ -735,6 +748,11 @@ public class Utils {
       }
    }
 
+   public  static boolean isAllowedForLocalTrader(WalletAccount account) {
+      if (account instanceof CoinapultManager) return false; //we do not support coinapult accs in lt (yet)
+      return true; //all other account types including trezor accs are fine
+   }
+
    public static String getFormattedDate(Context context, Date date) {
       Locale locale = context.getResources().getConfiguration().locale;
       java.text.DateFormat format;
@@ -750,4 +768,30 @@ public class Utils {
       }
       return format.format(date);
    }
+
+   public static String getFormattedValue(CurrencyValue value, MbwManager mbw){
+      BigDecimal val = value.getValue();
+      if (val == null){
+         return "";
+      }
+      if (value.isBtc()) {
+         return CoinUtil.valueString(val, mbw.getBitcoinDenomination(), false);
+      } else {
+         return FIAT_FORMAT.format(val);
+      }
+   }
+
+   public static String getFormattedValueWithUnit(CurrencyValue value, MbwManager mbw){
+      BigDecimal val = value.getValue();
+      if (val == null){
+         return "";
+      }
+
+      if (value.isBtc()) {
+         return String.format("%s %s", CoinUtil.valueString(val, mbw.getBitcoinDenomination(), false), mbw.getBitcoinDenomination().getUnicodeName());
+      } else {
+         return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
+      }
+   }
+
 }

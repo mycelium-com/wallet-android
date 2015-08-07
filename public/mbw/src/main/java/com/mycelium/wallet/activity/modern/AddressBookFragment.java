@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import java.util.*;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -48,20 +46,14 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.AddressBookManager.Entry;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
@@ -70,6 +62,10 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChang
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class AddressBookFragment extends Fragment {
 
@@ -145,7 +141,7 @@ public class AddressBookFragment extends Fragment {
       List<Entry> entries = new ArrayList<Entry>();
       for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-         Drawable drawableForAccount = Utils.getDrawableForAccount(account, getResources());
+         Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          entries.add(new AddressBookManager.IconEntry(account.getReceivingAddress(), name, drawableForAccount));
       }
       if (entries.isEmpty()) {

@@ -244,7 +244,7 @@
     <string name="source_repo_label">Source Repository</string>
     <string name="version_label">Version</string>
     <string name="authors_label">Developed by</string>
-    <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske</string>
+    <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
     <string name="homepage_label">Homepage</string>
     <string name="homepage_url">https://mycelium.com</string>
     <string name="company">Megion Research &amp; Development GmbH</string>
@@ -665,6 +665,12 @@
     <string name="hd_account_selector_no_account_found">No active accounts found.</string>
     <string name="masterseed_optional_passphrase_hint">This passphrase allows you to derive different accounts from the same master seed.\nIf you are not sure what this means, leave it empty.</string>
     <string name="tx_details_num_confirmations">Confirmations</string>
+    <string name="coinapult_tos_link">Open Coinapult Terms and Conditions</string>
+    <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
+    <string name="coinapult_tos_question">To create a Coinapult Account you must agree to their Terms and Conditions</string>
+    <string name="coinapult_mail_question">Do you want to provide your mail address?</string>
+    <string name="dontagree">I don\'t agree</string>
+    <string name="agree">I agree</string>
     <string name="lt_warning_watch_only_account">Current account is watch-only - select different account.</string>
 
 
@@ -679,6 +685,10 @@
     <string name="remove_queued_transaction_title">Queued Transaction</string>
     <string name="remove_queued_transaction_hint">Your balance will be corrected after the next synchronisation with the network</string>
     <string name="remove_queued_transaction_error">Unable to remove transaction</string>
+    <string name="createCoinapult">Creating Coinapult Account…</string>
+    <string name="sendingViaCoinapult">Sending Bitcoins via Coinapult</string>
+    <string name="AddCoinapultNotes">A Coinapult account allows you to store value in USD and spend instantly to any bitcoin address.
+        While you use your private keys to access it, they are under control by Coinapult, unlike your funds on normal HD accounts.</string>
 
     <!-- Cashila -->
     <string name="cashila_tab_new">New</string>
@@ -746,6 +756,7 @@
     <string name="accept">Accept</string>
     <string name="nfc_payment_request_hint">Place your phone back-to-back to another NFC-enabled device to share this payment request</string>
     <string name="payment_request_over_tor">" (over Tor)"</string>
+    <string name="cancel_transaction">Cancel transaction</string>
     <string name="bitid_refused">Connection could not be established, maybe the server refused to connect.</string>
     <string name="export_history">Export transaction history</string>
     <string name="share_transaction_history">Share transaction history</string>
@@ -759,5 +770,26 @@
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcasted.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
+    <string name="block_explorer_title">Block Explorer (%1$s)</string>
+    <string name="block_explorer_summary">Transaction details are looked up using the %1$s Block Explorer</string>
+    <string name="lt_warning_wrong_account_type">Local Trader does not work with the selected account type, please select another account.</string>
+    <string name="lt_account_not_allowed">The selected account type does not work with local trader. You need to select another account to perform this trade.</string>
+    <string name="coinapult_mail_hint">Optional: enter mail address</string>
+    <string name="coinapult_mail_description">If you provide your email address, you can file a support ticket with Coinapult by sending an email to support@coinapult.com from the email you specify.</string>
+    <string name="coinapult_threshold_warning">Warning: Coinapult accounts cannot complete conversion transactions that are less than $1.00 USD of value. If less than 1 USD is sent to your Coinapult account, the conversion will fail. The bitcoins will be redeemable through Coinapult at support@coinapult.com.</string>
+    <string name="amount_too_small_coinapult">Amount too low, minimum withdrawal is %1$s USD.</string>
+    <string name="set_mail_menu_item">Set email address</string>
+    <string name="set_coinapult_mail_failed">Setting the email address failed, please check for correct spelling and make sure your device has a working internet connection.</string>
+    <string name="setting_coinapult_email">Sending email address to Coinapult…</string>
+    <string name="set_coinapult_mail_please_verify">Your email address was set, you will receive an email with a confirmation link. Please copy that link and choose \'verify email\' from the account settings, to paste the link and verify the email address is correct.</string>
+    <string name="verify_mail_menu_title">Verify email address</string>
+    <string name="coinapult_mail_verification">Verify your coinapult email address</string>
+    <string name="coinapult_mail_verification_description">Please paste the verification link from your coinapult email into the text field below.</string>
+    <string name="coinapult_mail_verification_hint">paste complete verification link</string>
+    <string name="verifying_coinapult_email">Sending verification link to coinapult…</string>
+    <string name="verify_coinapult_mail_success">Your coinapult email address was successfully verified.</string>
+    <string name="verify_coinapult_mail_error">An error occured verifying your email address. Please make sure you copy the complete and correct verification link.</string>
+    <string name="coinapult_unable_to_create_account">Unable to create coinapult account</string>
+    <string name="coinapult_failed_to_broadcast">Failed to broadcast coinapult transaction</string>
 
 </resources>

@@ -36,6 +36,8 @@ package com.mycelium.wallet;
 
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 
+import java.math.BigDecimal;
+
 public class Constants {
 
    public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
@@ -78,6 +80,7 @@ public class Constants {
    public static final String LANGUAGE_SETTING = "user_language";
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String TOR_MODE = "tor_mode";
+   public static final String BLOCK_EXPLORER = "BlockExplorer";
 
    public static final String LAST_UPDATE_CHECK = "last_update_check";
 
@@ -124,4 +127,5 @@ public class Constants {
    public static final int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
    // Force user to read the warnings about additional backups
    public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
+   public static final BigDecimal COINAPULT_MINIMUM_AMOUNT = BigDecimal.ONE;
 }

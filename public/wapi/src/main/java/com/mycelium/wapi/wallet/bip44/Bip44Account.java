@@ -383,7 +383,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected boolean isMine(Address address) {
+   public boolean isMine(Address address) {
       return _internalAddresses.containsKey(address) || _externalAddresses.containsKey(address);
    }
 

@@ -55,12 +55,13 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 
 //todo HD for the future: keep receiving slots for 20 addresses. assign a name
 
@@ -247,9 +248,9 @@ public class ReceiveCoinsActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser (may be null)
-         _amount = (Long) intent.getSerializableExtra("amount");
+         _amount = (Long) intent.getSerializableExtra(GetAmountActivity.AMOUNT_SATOSHI);
       } else {
-         // We didn't like what we got, bail
+         super.onActivityResult(requestCode, resultCode, intent);
       }
    }
 
@@ -257,7 +258,8 @@ public class ReceiveCoinsActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         GetAmountActivity.callMe(ReceiveCoinsActivity.this, _amount, GET_AMOUNT_RESULT_CODE);
+         ExactBitcoinValue amountToSend = ExactBitcoinValue.from(_amount);
+         GetAmountActivity.callMe(ReceiveCoinsActivity.this, amountToSend, GET_AMOUNT_RESULT_CODE);
       }
    };
 

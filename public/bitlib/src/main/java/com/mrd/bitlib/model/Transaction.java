@@ -51,6 +51,7 @@ public class Transaction implements Serializable {
 
    private Sha256Hash _hash;
    private Sha256Hash _unmalleableHash;
+   private int _txSize = -1;
 
    public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction){
       TransactionInput input[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
@@ -67,6 +68,7 @@ public class Transaction implements Serializable {
    }
 
    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {
+      int size = reader.available();
       try {
          int version = reader.getIntLE();
          int numInputs = (int) reader.getCompactInt();
@@ -93,7 +95,7 @@ public class Transaction implements Serializable {
             }
          }
          int lockTime = reader.getIntLE();
-         Transaction t = new Transaction(version, inputs, outputs, lockTime);
+         Transaction t = new Transaction(version, inputs, outputs, lockTime, size);
          return t;
       } catch (InsufficientBytesException e) {
          throw new TransactionParsingException(e.getMessage());
@@ -115,6 +117,13 @@ public class Transaction implements Serializable {
       return writer.toBytes();
    }
 
+   public int getTxRawSize(){
+      if (_txSize == -1){
+         _txSize = toBytes().length;
+      }
+      return _txSize;
+   }
+
    public void toByteWriter(ByteWriter writer) {
       writer.putIntLE(version);
       writer.putCompactInt(inputs.length);
@@ -129,10 +138,15 @@ public class Transaction implements Serializable {
    }
 
    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
+      this(version, inputs, outputs, lockTime, -1);
+   }
+
+   private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
       this.version = version;
       this.inputs = inputs;
       this.outputs = outputs;
       this.lockTime = lockTime;
+      this._txSize = txSize;
    }
 
    public Sha256Hash getHash() {

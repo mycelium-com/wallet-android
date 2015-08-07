@@ -83,7 +83,7 @@ public class RecordRowBuilder {
       // Show/hide key icon
       ImageView icon = (ImageView) rowView.findViewById(R.id.ivIcon);
 
-      Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, resources);
+      Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, isSelected, resources);
       if (drawableForAccount == null) {
          icon.setVisibility(View.INVISIBLE);
       } else {

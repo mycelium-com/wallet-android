@@ -265,7 +265,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
          if (balance.getSendingBalance() > 0){
             balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSendingBalance()));
          }
-         Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, getResources());
+         Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 
          ((TextView)row.findViewById(R.id.tvBalance)).setText(balanceString);
          ((TextView)row.findViewById(R.id.tvAddress)).setVisibility(View.GONE);

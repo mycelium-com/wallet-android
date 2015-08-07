@@ -214,7 +214,9 @@ public class VersionManager {
 
    @Produce
    public NewWalletVersionAvailable isWalletUpdateAvailable(){
-      if (lastVersionResult != null && !isIgnored(lastVersionResult.response.versionNumber)){
+      if (lastVersionResult != null
+            && lastVersionResult.response.versionNumber != null
+            && !isIgnored(lastVersionResult.response.versionNumber)){
          return new NewWalletVersionAvailable(lastVersionResult.response);
       } else {
          return null;
@@ -359,6 +361,14 @@ public class VersionManager {
             runFeature.run();
          }
          return false;
+      }
+   }
+
+   // closes the dialog, if any is shown
+   public void closeDialog(){
+      if (lastDialog != null) {
+         lastDialog.dismiss();
+         lastDialog = null;
       }
    }
 

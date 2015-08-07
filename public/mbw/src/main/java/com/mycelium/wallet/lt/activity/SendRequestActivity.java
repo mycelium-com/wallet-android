@@ -62,12 +62,10 @@ public class SendRequestActivity extends Activity {
 
    private static final int CREATE_TRADER_RESULT_CODE = 1;
    private static final int SOLVE_CAPTCHA_RESULT_CODE = 2;
-   private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private Request _request;
    private boolean _requestSent;
    private boolean _isCaptchaSolved;
-   private Handler _delayedProgressHandler;
 
    public static void callMe(Activity currentActivity, Request request, String title) {
       Intent intent = new Intent(currentActivity, SendRequestActivity.class);
@@ -82,7 +80,7 @@ public class SendRequestActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.lt_send_request_activity);
-      _mbwManager = MbwManager.getInstance(this.getApplication());
+      MbwManager _mbwManager = MbwManager.getInstance(this.getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();
 
       _request = (Request) getIntent().getSerializableExtra("request");
@@ -93,8 +91,7 @@ public class SendRequestActivity extends Activity {
          _isCaptchaSolved = savedInstanceState.getBoolean("isCaptchaSolved");
       }
       findViewById(R.id.pbWait).setVisibility(View.INVISIBLE);
-      _delayedProgressHandler = new Handler();
-      _delayedProgressHandler.postDelayed(new Runnable() {
+      new Handler().postDelayed(new Runnable() {
 
          @Override
          public void run() {

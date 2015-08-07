@@ -173,13 +173,7 @@ public class NetworkParameters implements Serializable {
       return isProdnet() ? "prodnet" : "testnet";
    }
 
-   public String getBlockchainExplorerTransaction() {
-      return _blockchain_explorer_transaction;
-   }
 
-   public String getBlockchainExplorerAddress() {
-      return _blockchain_explorer_address;
-   }
 
    public HdKeyPath getBip44CoinType() {
       return _bip44_coin_type;

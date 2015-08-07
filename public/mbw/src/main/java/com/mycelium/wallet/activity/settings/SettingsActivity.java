@@ -58,6 +58,7 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -182,6 +183,7 @@ public class SettingsActivity extends PreferenceActivity {
    private LocalTraderManager _ltManager;
    private Dialog _dialog;
    private ListPreference _minerFee;
+   private ListPreference _blockExplorer;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -235,7 +237,6 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee = (ListPreference) findPreference("miner_fee");
       _minerFee.setTitle(getMinerFeeTitle());
       _minerFee.setSummary(getMinerFeeSummary());
-      _minerFee.setDefaultValue(_mbwManager.getMinerFee().toString());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
       CharSequence[] minerFees = new CharSequence[]{
             MinerFee.LOWPRIO.toString(),
@@ -262,6 +263,27 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
+
+      //Block Explorer
+      _blockExplorer = (ListPreference) findPreference("block_explorer");
+      _blockExplorer.setTitle(getBlockExplorerTitle());
+      _blockExplorer.setSummary(getBlockExplorerSummary());
+      _blockExplorer.setValue(_mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
+      CharSequence[] blockExplorerNames = _mbwManager._blockExplorerManager.getBlockExplorerNames(_mbwManager._blockExplorerManager.getAllBlockExplorer());
+      CharSequence[] blockExplorerValues = _mbwManager._blockExplorerManager.getBlockExplorerIds();
+      _blockExplorer.setEntries(blockExplorerNames);
+      _blockExplorer.setEntryValues(blockExplorerValues);
+      _blockExplorer.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+
+         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            _mbwManager.setBlockExplorer(_mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
+            _blockExplorer.setTitle(getBlockExplorerTitle());
+            _blockExplorer.setSummary(getBlockExplorerSummary());
+            return true;
+         }
+      });
+
+      //localcurrency
       _localCurrency = findPreference("local_currency");
       _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
       _localCurrency.setTitle(localCurrencyTitle());
@@ -530,6 +552,16 @@ public class SettingsActivity extends PreferenceActivity {
       return getResources().getString(R.string.pref_miner_fee_block_summary,
             _mbwManager.getMinerFee().getNBlocks());
    }
+
+   private String getBlockExplorerTitle(){
+      return getResources().getString(R.string.block_explorer_title,
+            _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+   }
+   private String getBlockExplorerSummary(){
+      return getResources().getString(R.string.block_explorer_summary,
+            _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+   }
+
 
    @SuppressWarnings("deprecation")
    private void updateClearPin() {

@@ -330,8 +330,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:gravity="center"
                 android:textColor="@color/red"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:visibility="gone"
                 tools:visibility="visible"
                 />

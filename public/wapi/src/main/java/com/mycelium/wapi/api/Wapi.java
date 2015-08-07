@@ -43,7 +43,7 @@ public interface Wapi {
     *
     * @return the logger configured for this {@link Wapi}
     */
-   WapiLogger getLogger();
+   com.mycelium.WapiLogger getLogger();
 
    /**
     * Query the full set of unspent outputs for a set of addresses

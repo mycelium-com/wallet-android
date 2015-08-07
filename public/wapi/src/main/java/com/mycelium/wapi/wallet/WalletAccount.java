@@ -27,12 +27,17 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 public interface WalletAccount {
+
+   void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException;
 
    public enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION};
 
@@ -43,6 +48,25 @@ public interface WalletAccount {
     * @return the network that this account is for.
     */
    NetworkParameters getNetwork();
+
+   /**
+    * Determine whether an address is one of our own addresses
+    *
+    * @param address the address to check
+    * @return true iff this address is one of our own
+    */
+   boolean isMine(Address address);
+
+   /**
+    * Synchronize this account
+    * <p/>
+    * This method should only be called from the wallet manager
+    *
+    * @param synchronizeTransactionHistory should the transaction be synchronized?
+    * @return false if synchronization failed due to failed blockchain
+    * connection
+    */
+   boolean synchronize(boolean synchronizeTransactionHistory);
 
    /**
     * Get the unique ID of this account
@@ -85,6 +109,8 @@ public interface WalletAccount {
     * state.
     */
    Balance getBalance();
+
+   CurrencyBasedBalance getCurrencyBasedBalance();
 
    /**
     * Get the transaction history of this account based on the last synchronized
@@ -212,6 +238,8 @@ public interface WalletAccount {
    Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws InvalidKeyCipher;
 
+   boolean broadcastOutgoingTransactions();
+
    /**
     * Broadcast a transaction
     * @param transaction the transaction to broadcast
@@ -254,7 +282,7 @@ public interface WalletAccount {
    /**
     * Determine the maximum spendable amount you can send in a transaction
     */
-   long calculateMaxSpendableAmount(long minerFeeToUse);
+   ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
 
    /**
     * Determine whether the provided encryption key is valid for this wallet account.

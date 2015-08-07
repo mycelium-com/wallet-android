@@ -535,6 +535,7 @@
   <string name="hide_unused_account_menu">Supprimer le compte</string>
   <string name="dont_allow_hiding_used_notification">Vous ne pouvez pas masquer un compte utilisé, mais vous pouvez l\'archiver</string>
   <string name="pref_miner_fee_title">Frais de transaction (%1$s)</string>
+  <string name="miner_fee_lowprio_name">Faible priorité</string>
   <string name="miner_fee_economic_name">Économiques</string>
   <string name="miner_fee_normal_name">Normaux</string>
   <string name="miner_fee_priority_name">Prioritaires</string>
@@ -684,8 +685,17 @@
   <string name="cashila_sepa_payment_title">Paiement SEPA</string>
   <string name="cashila_uploaded_title">Téléchargées</string>
   <string name="cashila_no_recipients">Actuellement nous soutenons seulement les envoies aux destinataires existants.\n\nIl semble que vous avez jamais utilisé Cashila auparavant et que vous avez aucun récipient existant. Veuillez d\'abord faire une nouvelle transaction sur leur site web.\n\n</string>
+  <string name="payment_request_unable_to_read_payment_request">Impossible de lire la demande de paiement</string>
+  <string name="payment_request_no_amount_specified">aucun montant spécifié</string>
+  <string name="payment_request_signature">Signature</string>
+  <string name="payment_request_message">Message</string>
+  <string name="payment_request_created">Créée</string>
   <string name="label_cold_storage_external_signing">Signer avec :</string>
   <string name="spending_unconfirmed_warning">AVERTISSEMENT : dépense de fonds non confirmés</string>
   <string name="spending_unconfirmed_title">Dépense de fonds non confirmés</string>
   <string name="spending_unconfirmed_description">Votre transaction utilise des fonds qui n\'ont pas encore été inclus dans un bloc bitcoin. Si pour une raison quelconque, la transaction qui envoie ces pièces échoue ou reste non confirmée, votre transaction échouera ou restera non confirmée.</string>
+  <string name="file_not_found">Fichier non trouvé</string>
+  <string name="accept">Accepter</string>
+  <string name="transaction_history_title">Historique des transactions</string>
+  <string name="menu_item_cancel_transaction">Annuler la transaction</string>
 </resources>

@@ -190,7 +190,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   protected boolean isMine(Address address) {
+   public boolean isMine(Address address) {
       return getAddress().equals(address);
    }
 

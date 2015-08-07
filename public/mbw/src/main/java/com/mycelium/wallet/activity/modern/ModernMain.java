@@ -172,6 +172,7 @@ public class ModernMain extends ActionBarActivity {
    @Override
    protected void onPause() {
       _mbwManager.getEventBus().unregister(this);
+      _mbwManager.getVersionManager().closeDialog();
       super.onPause();
    }
 
@@ -389,6 +390,10 @@ public class ModernMain extends ActionBarActivity {
    @Subscribe
    public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
       _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
+
+      if (_mbwManager.getSelectedAccount() instanceof CoinapultManager){
+         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.COINAPULT);
+      }
    }
 
    @Subscribe

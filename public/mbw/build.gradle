@@ -18,6 +18,7 @@ buildscript {
 dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
     compile project(':public:libs:zxing-android')
+    compile project(':public:coinapult')
     compile project(':public:wapi')
     compile project(':public:trezor')
     compile project(':public:lt-api')
@@ -34,6 +35,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'io.reactivex:rxandroid:0.24.0'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.android.support:multidex:1.0.0'
+
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
@@ -41,7 +44,8 @@ def commonDebugKeystore = file("../../keystore_debug")
 android {
 
     dexOptions {
-        jumboMode true
+        javaMaxHeapSize "4g"
+        jumboMode = true
     }
 
     packagingOptions {
@@ -58,8 +62,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 24404
-        versionName '2.4.4'
+        versionCode 25000
+        versionName '2.5.0'
         multiDexEnabled true
     }
 
@@ -105,7 +109,7 @@ android {
 
     productFlavors {
         prodnet {
-            compileSdkVersion 19
+            compileSdkVersion 21
             targetSdkVersion 19
             minSdkVersion 14
 
@@ -116,14 +120,14 @@ android {
         dev {
             // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
             compileSdkVersion 21
-            targetSdkVersion 21
+            buildToolsVersion androidSdkBuildVersion
             minSdkVersion 21
 
             // if we are not on master, include the branchname in appId
-            def appId = 'com.mycelium.devwallet';
-            def branch =  getGitBranch()
+            def appId = 'com.mycelium.devwallet.github';
+            def branch = getGitBranch()
 
-            if ( branch != "" && branch != "master"){
+            if (branch != "" && branch != "master") {
                 appId = appId + "_" + branch
                 versionName = defaultConfig.versionName + "-DEV_" + branch
             }

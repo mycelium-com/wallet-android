@@ -14,6 +14,11 @@
             android:title="@string/show_details"/>
 
     <item
+            android:id="@+id/miShowCoinapultDebug"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="Show Coinapult Debug"/>
+
+    <item
             android:id="@+id/miAddToAddressBook"
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/add_to_addressbook"/>
