@@ -97,6 +97,7 @@ public class CoinapultClient {
          logger.logInfo("Coinapult GET " + url + " [" + sw.elapsed(TimeUnit.MILLISECONDS) + "ms]");
          return response.parseAs(t);
       } catch (IOException ex) {
+         //logger.logInfo("Coinapult ERR GET " + url);
          logger.logInfo("Coinapult ERR " + ex.getMessage());
          throw ex;
       }
@@ -134,8 +135,12 @@ public class CoinapultClient {
       String signdata = Base64.encodeBase64String(JSON_FACTORY
             .toByteArray(options));
       headers.set("cpt-ecc-sign", eccUtil.generateSign(signdata, eccPriv));
-
-      return makePostRequest(t, url, headers, signdata);
+      try {
+         return makePostRequest(t, url, headers, signdata);
+      } catch (IOException ex){
+         //logger.logInfo("Coinapult ERR Content " + options.toString());
+         throw ex;
+      }
    }
 
    private <T> T makePostRequest(Class<T> t, GenericUrl url,
@@ -151,6 +156,7 @@ public class CoinapultClient {
          logger.logInfo("Coinapult POST " + url + " [" + sw.elapsed(TimeUnit.MILLISECONDS) + "ms]");
          return response.parseAs(t);
       } catch (IOException ex) {
+         logger.logInfo("Coinapult ERR POST " + url);
          logger.logInfo("Coinapult ERR " + ex.getMessage());
          throw ex;
       }

@@ -56,7 +56,6 @@ import com.mycelium.wallet.CoinapultManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -171,7 +170,7 @@ public class AddAccountActivity extends Activity {
 
       AlertDialog.Builder b = new AlertDialog.Builder(this);
       b.setTitle(getString(R.string.coinapult_tos_question));
-      View diaView = getLayoutInflater().inflate(R.layout.coinapult_tos, null);
+      View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_tos, null);
       b.setView(diaView);
       b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
          @Override
@@ -196,7 +195,7 @@ public class AddAccountActivity extends Activity {
    private void askForMailAndAddCoinapultAccount() {
       AlertDialog.Builder b = new AlertDialog.Builder(this);
       b.setTitle(getString(R.string.coinapult_mail_question));
-      View diaView = getLayoutInflater().inflate(R.layout.coinapult_mail, null);
+      View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
       final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
       b.setView(diaView);
       b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {

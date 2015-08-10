@@ -46,6 +46,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -665,8 +666,9 @@ public class AccountsFragment extends Fragment {
 
       AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
       b.setTitle(getString(R.string.coinapult_mail_question));
-      View diaView = getActivity().getLayoutInflater().inflate(R.layout.coinapult_mail, null);
+      View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
       final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
+      mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
       String email = _mbwManager.getMetadataStorage().getCoinapultMail();
       if (!email.isEmpty()) mailField.setText(email);
       b.setView(diaView);
@@ -674,15 +676,20 @@ public class AccountsFragment extends Fragment {
          @Override
          public void onClick(DialogInterface dialog, int which) {
             String mailText = mailField.getText().toString();
-            Optional<String> mail;
-            if (mailText.isEmpty()) mail = Optional.absent(); else mail = Optional.of(mailText);
-            _progress.setCancelable(false);
-            _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progress.setMessage(getString(R.string.setting_coinapult_email));
-            _progress.show();
-            _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
-            new SetCoinapultMailAsyncTask(mail).execute();
-            dialog.dismiss();
+            if (Utils.isValidEmailAddress(mailText)) {
+               Optional<String> mail;
+               if (mailText.isEmpty()) mail = Optional.absent();
+               else mail = Optional.of(mailText);
+               _progress.setCancelable(false);
+               _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+               _progress.setMessage(getString(R.string.setting_coinapult_email));
+               _progress.show();
+               _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
+               new SetCoinapultMailAsyncTask(mail).execute();
+               dialog.dismiss();
+            } else {
+               new Toaster(AccountsFragment.this).toast("Email address not valid", false);
+            }
          }
       });
       b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -700,7 +707,7 @@ public class AccountsFragment extends Fragment {
       AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
       b.setTitle(getString(R.string.coinapult_mail_verification));
       final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-      View diaView = getActivity().getLayoutInflater().inflate(R.layout.coinapult_mail_verification, null);
+      View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
       final EditText verificationTextField = (EditText) diaView.findViewById(R.id.mailVerification);
       b.setView(diaView);
       b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {

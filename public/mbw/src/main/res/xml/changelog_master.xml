@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.5.0" versioncode="25000">
+    <release version="2.4.5" versioncode="24500">
         <change>Added new account type which uses coinapult locks to manage USD amounts</change>
         <change>Added option to choose favorite Block Explorer</change>
         <change>Added option to copy input/output-amounts using LongClick in transaction details</change>

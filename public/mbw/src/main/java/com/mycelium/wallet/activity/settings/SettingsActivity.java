@@ -58,7 +58,6 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -316,7 +315,7 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
-      ListPreference language = (ListPreference) findPreference("user_language");
+      ListPreference language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
       language.setTitle(getLanguageSettingTitle());
       language.setDefaultValue(Locale.getDefault().getLanguage());
       language.setSummary(_mbwManager.getLanguage());
@@ -587,10 +586,6 @@ public class SettingsActivity extends PreferenceActivity {
          super(new Handler());
       }
 
-      private boolean checkValidMail(CharSequence value) {
-         return value.length() == 0 || //allow empty email, this removes email notifications
-               android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
-      }
 
       @Override
       public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
@@ -616,7 +611,9 @@ public class SettingsActivity extends PreferenceActivity {
 
                super.onTextChanged(text, start, lengthBefore, lengthAfter);
                if (okButton != null) { //setText is also set before the alert is finished constructing
-                  okButton.setEnabled(checkValidMail(text));
+                  boolean validMail = Strings.isNullOrEmpty(text.toString()) || //allow empty email, this removes email notifications
+                                        Utils.isValidEmailAddress(text.toString());
+                  okButton.setEnabled(validMail);
                }
             }
          };

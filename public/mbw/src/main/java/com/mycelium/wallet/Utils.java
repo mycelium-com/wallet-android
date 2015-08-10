@@ -794,4 +794,9 @@ public class Utils {
       }
    }
 
+   public static boolean isValidEmailAddress(String value) {
+      return android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
+   }
+
+
 }
