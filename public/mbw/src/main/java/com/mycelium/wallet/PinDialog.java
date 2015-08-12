@@ -76,7 +76,9 @@ public class PinDialog extends Dialog {
       setCancelable(cancelable);
       loadLayout();
       initPinPad();
+      enteredPin = "";
       clearDigits();
+      updatePinDisplay();
       this.setTitle(R.string.pin_enter_pin);
    }
 
@@ -123,6 +125,7 @@ public class PinDialog extends Dialog {
          @Override
          public void onClick(View v) {
             clearDigits();
+            updatePinDisplay();
          }
       });
    }

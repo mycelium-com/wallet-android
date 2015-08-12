@@ -173,6 +173,14 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
+   private final OnPreferenceClickListener ledgerNotificationDisableTee = new OnPreferenceClickListener() {
+	   public boolean onPreferenceClick(Preference preference) {
+		   CheckBoxPreference p = (CheckBoxPreference) preference;
+		   _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
+		   return true;
+	   }
+   };   
+   
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -183,6 +191,7 @@ public class SettingsActivity extends PreferenceActivity {
    private Dialog _dialog;
    private ListPreference _minerFee;
    private ListPreference _blockExplorer;
+   private CheckBoxPreference _ledgerDisableTee;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -406,6 +415,10 @@ public class SettingsActivity extends PreferenceActivity {
             return true;
          }
       });
+            
+      _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
+      _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
+      _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);
 
       applyLocalTraderEnablement();
    }

@@ -47,6 +47,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.trezor.activity.TrezorAccountImportActivity;
+import com.mycelium.wallet.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -66,6 +67,7 @@ public class AddAdvancedAccountActivity extends Activity {
    private static final int CREATE_RESULT_CODE = 1;
    private static final int TREZOR_RESULT_CODE = 2;
    private static final int CLIPBOARD_RESULT_CODE = 3;
+   private static final int LEDGER_RESULT_CODE = 4;
    private MbwManager _mbwManager;
 
    private NetworkParameters _network;
@@ -103,6 +105,13 @@ public class AddAdvancedAccountActivity extends Activity {
          }
       });
 
+      findViewById(R.id.btLedger).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View view) {
+             LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE);
+          }
+       });
+            
    }
 
    @Override
@@ -180,6 +189,9 @@ public class AddAdvancedAccountActivity extends Activity {
       } else if (requestCode == TREZOR_RESULT_CODE && resultCode == Activity.RESULT_OK){
          // already added to the WalletManager - just return the new account
          finishOk((UUID)intent.getSerializableExtra("account"));
+      } else if (requestCode == LEDGER_RESULT_CODE && resultCode == Activity.RESULT_OK){
+         // already added to the WalletManager - just return the new account
+         finishOk((UUID)intent.getSerializableExtra("account"));    	  
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }

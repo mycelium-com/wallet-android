@@ -49,7 +49,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.Balance;
@@ -138,7 +137,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
    }
 
    @Override
-   public void onStatusChanged(TrezorManager.Status state, TrezorManager.AccountStatus accountState) {
+   public void onStatusChanged(AccountScanManager.Status state, AccountScanManager.AccountStatus accountState) {
       updateUi();
    }
 

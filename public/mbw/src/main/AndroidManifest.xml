@@ -127,6 +127,8 @@
         <activity android:name=".trezor.activity.InstantTrezorActivity" />
         <activity android:name=".trezor.activity.TrezorAccountImportActivity" />
         <activity android:name=".trezor.activity.TrezorSignTransactionActivity" />
+        <activity android:name="com.mycelium.wallet.ledger.activity.LedgerAccountImportActivity"/>
+        <activity android:name="com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity"/>
         <activity android:name=".activity.InstantMasterseedActivity" />
         <activity android:name=".activity.ConnectionLogsActivity" />
         <activity android:name=".activity.GetAmountActivity" />

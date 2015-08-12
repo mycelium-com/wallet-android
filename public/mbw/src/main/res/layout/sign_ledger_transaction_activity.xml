@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+    <TextView
+            android:id="@+id/tvTitle"
+            android:text="@string/signing_transaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textSize="24sp"/>
+
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            >
+
+        <TextView
+                android:id="@+id/tvPluginLedger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:text="@string/ledger_please_plug_in"/>
+        <ProgressBar
+                android:id="@+id/pbProgress"
+                android:layout_width="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:paddingTop="30dp"
+                android:layout_height="wrap_content"/>
+
+        <LinearLayout
+                android:id="@+id/llShowTx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:paddingBottom="40dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                >
+	    <!--
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trezor_verify_transaction_on_trezor"
+                    android:textColor="@color/lightgrey"
+                    android:paddingBottom="5dp"/>
+	    -->
+
+            <GridLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:columnCount="2"
+                    android:background="@drawable/abc_ab_solid_dark_holo"
+                    android:padding="10dp"
+                    android:rowCount="4"
+                    >
+                <!-- Row 1 -->
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="10dp"
+                        android:text="@string/ledger_amount"/>
+                <TextView
+                        android:id="@+id/tvAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text=""/>
+
+
+                <!-- Row 2 -->
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="10dp"
+                        android:text="@string/ledger_to"/>
+                <TextView
+                        android:id="@+id/tvToAddress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text=""/>
+
+                <!-- Row 3 -->
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="10dp"
+                        android:text="@string/ledger_fee"/>
+                <TextView
+                        android:id="@+id/tvFee"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text=""/>
+
+                <!-- Row 4 -->
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="10dp"
+                        android:text="@string/ledger_total"/>
+                <TextView
+                        android:id="@+id/tvTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text=""/>
+            </GridLayout>
+
+        </LinearLayout>
+
+        <ImageView
+                android:id="@+id/ivConnectLedger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/connect_ledger"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+
+                />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

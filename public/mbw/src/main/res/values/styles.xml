@@ -110,12 +110,26 @@
         <item name="android:textSize">25sp</item>
     </style>
 
+    <style name="MyceliumHexPinpadButtonFn" parent="MyceliumHexPinpadButton">
+        <item name="android:background">@drawable/btn_blue_light_slim</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
     <style name="MyceliumPinpadButton" parent="MyceliumSlimButton">
         <item name="android:layout_width">60dp</item>
         <item name="android:layout_height">60dp</item>
         <item name="android:layout_marginLeft">1dp</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">40sp</item>
+        <item name="android:layout_margin">2dp</item>
+    </style>
+
+    <style name="MyceliumHexPinpadButton" parent="MyceliumSlimButton">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_marginLeft">1dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">35sp</item>
         <item name="android:layout_margin">2dp</item>
     </style>
 

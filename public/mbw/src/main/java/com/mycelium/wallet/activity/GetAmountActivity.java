@@ -298,12 +298,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       BigDecimal newAmount = null;
       if (_amount.isBtc()) {
          //just good ol bitcoins
+         showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          if (_amount.getValue() != null) {
-            showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
             int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
             newAmount = _amount.getValue().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
-         } else {
-            showDecimalPlaces = 2;
          }
       } else {
          //take what was typed in

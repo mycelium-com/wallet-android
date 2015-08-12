@@ -52,6 +52,7 @@ import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.satoshilabs.trezor.Trezor;
@@ -469,6 +470,11 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
       return features;
    }
 
+   @Override
+   public int getBIP44AccountType() {
+	  return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
+   }
+   
    private abstract class AddressSetter{
       public abstract void addAddressN(Integer addressPath);
 
@@ -505,5 +511,4 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          txInput.addAddressN(addressPath);
       }
    }
-
 }

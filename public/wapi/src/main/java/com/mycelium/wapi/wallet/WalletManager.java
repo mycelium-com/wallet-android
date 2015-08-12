@@ -20,7 +20,6 @@ import com.google.common.base.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -36,7 +35,6 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bip44.*;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
@@ -147,7 +145,7 @@ public class WalletManager {
    private Wapi _wapi;
    private WapiLogger _logger;
    private boolean _synchronizeTransactionHistory;
-   private final ExternalSignatureProvider _signatureProvider;
+   private final ExternalSignatureProviderProxy _signatureProviders;
    private IdentityAccountKeyManager _identityAccountKeyManager;
 
    private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
@@ -163,12 +161,12 @@ public class WalletManager {
     * @param wapi    the Wapi instance to use
     */
    public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                        NetworkParameters network, Wapi wapi, ExternalSignatureProvider signatureProvider) {
+                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders) {
       _secureKeyValueStore = secureKeyValueStore;
       _backing = backing;
       _network = network;
       _wapi = wapi;
-      _signatureProvider = signatureProvider;
+      _signatureProviders = signatureProviders;
       _logger = _wapi.getLogger();
       _allAccounts = Maps.newHashMap();
       _bip44Accounts = new ArrayList<Bip44Account>();
@@ -329,7 +327,7 @@ public class WalletManager {
 
             // Generate the context for the account
             Bip44AccountContext context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
-                  Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG, newSubKeyStore.getSubId());
+                  externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId());
             _backing.createBip44AccountContext(context);
 
             // Get the backing for the new account
@@ -623,10 +621,28 @@ public class WalletManager {
             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
             keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
             account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
-         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG) {
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR) {
             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
             keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
-            account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, _signatureProvider);
+            account = new Bip44AccountExternalSignature(
+                  context,
+                  keyManager,
+                  _network,
+                  accountBacking,
+                  _wapi,
+                  _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR)
+            );
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER){
+             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+             keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
+             account = new Bip44AccountExternalSignature(
+                   context,
+                   keyManager,
+                   _network,
+                   accountBacking,
+                   _wapi,
+                   _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
+             );
          } else {
             throw new IllegalArgumentException("Unknown account type " + context.getAccountType());
          }

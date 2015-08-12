@@ -91,6 +91,7 @@ import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -718,7 +719,14 @@ public class Utils {
 
       //trezor account
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-         return resources.getDrawable(R.drawable.trezor_icon_only);
+    	 int accountType = ((Bip44AccountExternalSignature)walletAccount).getAccountType();
+    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 return resources.getDrawable(R.drawable.ledger_icon);
+    	 }
+    	 else {
+    		 return resources.getDrawable(R.drawable.trezor_icon_only);
+    	 }
+         
       }
       //regular HD account
       if (walletAccount instanceof Bip44Account) {
@@ -738,7 +746,15 @@ public class Utils {
 
    public static String getNameForNewAccount(WalletAccount account, Context context) {
       if (account instanceof Bip44AccountExternalSignature) {
-         return MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault() + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
+    	 String baseName;
+    	 int accountType = ((Bip44AccountExternalSignature)account).getAccountType();
+    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
+    	 }
+    	 else {
+    		 baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
+    	 }
+         return baseName + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
       } else if (account instanceof Bip44PubOnlyAccount) {
          return context.getString(R.string.account_prefix_imported);
       } else if (account instanceof Bip44Account) {

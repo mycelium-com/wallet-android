@@ -16,6 +16,12 @@
     <string name="eight">8</string>
     <string name="nine">9</string>
     <string name="zero">0</string>
+    <string name="a">A</string>
+    <string name="b">B</string>
+    <string name="c">C</string>
+    <string name="d">D</string>
+    <string name="e">E</string>
+    <string name="f">F</string>
     <string name="del">&lt;</string>
     <string name="dot">.</string>
     <string name="lt_tos_1">Mycelium Local Trader is a tool that allows buyers and sellers to trade bitcoin for cash. Trading requires buyers and sellers to meet physically as part of the exchange.</string>

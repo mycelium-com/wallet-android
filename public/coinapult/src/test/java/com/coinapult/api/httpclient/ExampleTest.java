@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.WapiLogger;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
@@ -42,6 +43,7 @@ public class ExampleTest {
    }*/
 
    @Test
+   @Ignore
    public void runSimpleCreate() throws IOException, CoinapultError.CoinapultExceptionECC, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 
       InMemoryPrivateKey randomKey = new InMemoryPrivateKey(new TestRandom());
@@ -52,6 +54,7 @@ public class ExampleTest {
    }
 
    @Test
+   @Ignore
    public void runSimpleUSD() throws IOException, CoinapultError.CoinapultExceptionECC, NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, CoinapultClient.CoinapultBackendException {
 
       InMemoryPrivateKey randomKey = new InMemoryPrivateKey(new TestRandom());
@@ -65,6 +68,7 @@ public class ExampleTest {
    }
 
    @Test
+   @Ignore
    public void runTest() {
       Security.insertProviderAt(new BouncyCastleProvider(), 1);
 
