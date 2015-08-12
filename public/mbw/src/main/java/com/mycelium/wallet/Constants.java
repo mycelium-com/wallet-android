@@ -81,6 +81,9 @@ public class Constants {
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String TOR_MODE = "tor_mode";
    public static final String BLOCK_EXPLORER = "BlockExplorer";
+   // Ledger preferences
+   public static final String LEDGER_SETTINGS_NAME = "ledger_settings";
+   public static final String LEDGER_DISABLE_TEE_SETTING = "ledger_disable_tee";
 
    public static final String LAST_UPDATE_CHECK = "last_update_check";
 
@@ -129,7 +132,4 @@ public class Constants {
    public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
    public static final BigDecimal COINAPULT_MINIMUM_AMOUNT = BigDecimal.ONE;
    
-   // Ledger preferences
-   public static final String LEDGER_SETTINGS_NAME = "ledger.settings";
-   public static final String LEDGER_DISABLE_TEE_SETTING = "ledgerDisableTee";
 }

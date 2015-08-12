@@ -10,9 +10,9 @@ import com.mycelium.wapi.wallet.KeyCipher;
 public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    private final ExternalSignatureProvider _sigProvider;
 
-   public Bip44AccountExternalSignature(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, ExternalSignatureProvider trezorManager) {
+   public Bip44AccountExternalSignature(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, ExternalSignatureProvider signatureProvider) {
       super(context, keyManager, network, backing, wapi);
-      _sigProvider = trezorManager;      
+      _sigProvider = signatureProvider;
    }
 
    @Override
@@ -23,7 +23,7 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
          throw new KeyCipher.InvalidKeyCipher();
       }
 
-      // Get the signatures from trezor
+      // Get the signatures from the external signature provider
       Transaction transaction = _sigProvider.sign(unsigned, this);
       return transaction;
    }

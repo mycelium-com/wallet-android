@@ -21,9 +21,9 @@ dependencies {
     compile project(':public:coinapult')
     compile project(':public:wapi')
     compile project(':public:trezor')
-    compile project(':public:btchip')
     compile project(':public:lt-api')
     compile project(':public:mbwlib')
+    compile project(':public:btchip')
 
     compile guavaArtifact
     compile 'com.squareup:otto:1.3.4'
@@ -63,7 +63,7 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 25000
+        versionCode 25001
         versionName '2.5.0'
         multiDexEnabled true
     }

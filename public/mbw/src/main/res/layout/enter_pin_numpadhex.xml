@@ -18,17 +18,17 @@
 
         <Button
                 android:id="@+id/pin_hexbutton1"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/one"/>
 
         <Button
                 android:id="@+id/pin_hexbutton2"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/two"/>
 
         <Button
                 android:id="@+id/pin_hexbutton3"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/three"/>
     </LinearLayout>
 
@@ -39,17 +39,17 @@
 
         <Button
                 android:id="@+id/pin_hexbutton4"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/four"/>
 
         <Button
                 android:id="@+id/pin_hexbutton5"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/five"/>
 
         <Button
                 android:id="@+id/pin_hexbutton6"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/six"/>
     </LinearLayout>
 
@@ -60,17 +60,17 @@
 
         <Button
                 android:id="@+id/pin_hexbutton7"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/seven"/>
 
         <Button
                 android:id="@+id/pin_hexbutton8"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/eight"/>
 
         <Button
                 android:id="@+id/pin_hexbutton9"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/nine"/>
     </LinearLayout>
 
@@ -81,17 +81,17 @@
 
         <Button
                 android:id="@+id/pin_hexbuttonA"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/a"/>
 
         <Button
                 android:id="@+id/pin_hexbuttonB"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/b"/>
 
         <Button
                 android:id="@+id/pin_hexbuttonC"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/c"/>
     </LinearLayout>
 
@@ -102,17 +102,17 @@
 
         <Button
                 android:id="@+id/pin_hexbuttonD"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/d"/>
 
         <Button
                 android:id="@+id/pin_hexbuttonE"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/e"/>
 
         <Button
                 android:id="@+id/pin_hexbuttonF"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/f"/>
     </LinearLayout>
 
@@ -123,17 +123,17 @@
 
         <Button
                 android:id="@+id/pin_clrhex"
-                style="@style/MyceliumPinpadButtonFn"
+                style="@style/MyceliumHexPinpadButtonFn"
                 android:text="@string/pin_pad_clear"/>
 
         <Button
                 android:id="@+id/pin_hexbutton0"
-                style="@style/MyceliumPinpadButton"
+                style="@style/MyceliumHexPinpadButton"
                 android:text="@string/zero"/>
 
         <Button
                 android:id="@+id/pin_backhex"
-                style="@style/MyceliumPinpadButtonFn"
+                style="@style/MyceliumHexPinpadButtonFn"
                 android:text="@string/pin_pad_backspace"/>
 
     </LinearLayout>

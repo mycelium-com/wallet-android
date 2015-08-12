@@ -204,7 +204,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity imple
 		      @Override
 		      public boolean handleMessage(Message message) {
 		    	 Bundle messageData = message.getData();
-		         LedgerPin2FADialog pin = new LedgerPin2FADialog(LedgerSignTransactionActivity.this, messageData.getString(MESSAGE_ADDRESS), messageData.getByteArray(MESSAGE_KEYCARD_INDEXES), true);
+		         LedgerPin2FADialog pin = new LedgerPin2FADialog(LedgerSignTransactionActivity.this, messageData.getString(MESSAGE_ADDRESS), messageData.getByteArray(MESSAGE_KEYCARD_INDEXES));
 		         pin.setTitle(messageData.getInt(MESSAGE_TITLE_ID));
 		         pin.setOnPinValid(new LedgerPin2FADialog.OnPinEntered(){
 		            @Override

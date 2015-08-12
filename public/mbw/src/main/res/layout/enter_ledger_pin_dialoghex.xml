@@ -8,8 +8,19 @@
     <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:orientation="vertical"
             android:gravity="center_horizontal">
 
         <include layout="@layout/enter_ledger_pin_keypadhex"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="5dp"
+                android:textSize="14sp"
+                android:text="Enter the corresponding letter from your ledger keycard"
+                />
     </LinearLayout>
+
 </ScrollView>

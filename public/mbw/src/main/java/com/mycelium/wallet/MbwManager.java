@@ -86,6 +86,7 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -507,9 +508,14 @@ public class MbwManager {
       secureKeyValueStore = new SecureKeyValueStore(backing,
             new AndroidRandomSource());
 
+      ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
+            getTrezorManager(),
+            getLedgerManager()
+      );
+
       // Create and return wallet manager
       return new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, getTrezorManager(), getLedgerManager());
+            backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy);
    }
 
    /**
@@ -529,7 +535,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, null, null);
+            backing, environment.getNetwork(), _wapi, null);
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;

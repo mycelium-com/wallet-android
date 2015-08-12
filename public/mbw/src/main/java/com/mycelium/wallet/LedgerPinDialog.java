@@ -36,17 +36,20 @@ package com.mycelium.wallet;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import com.google.common.base.Strings;
 
-
 public class LedgerPinDialog extends PinDialog {
 
+   public static final int PIN_LENGTH = 4;
    private TextView pinDisp;
-   
+
+   public LedgerPinDialog(Context context, boolean hidden) {
+      super(context, hidden, true);
+   }
+
    public void setDialogTitle(int titleRes) {
-	   this.setTitle(titleRes);
+      this.setTitle(titleRes);
    }
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
@@ -60,43 +63,32 @@ public class LedgerPinDialog extends PinDialog {
 
    @Override
    protected void initPinPad() {
-	  super.initPinPad();
-	  disps.clear(); // references do not exist
-	  pinDisp = (TextView) findViewById(R.id.pin_display);
-	  btnClear = (Button) findViewById(R.id.pin_clr);
-      btnBack = (Button) findViewById(R.id.pin_back);
+      super.initPinPad();
+      disps.clear();
+      pinDisp = (TextView) findViewById(R.id.pin_display);
       btnBack.setText("OK");
-
       btnBack.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
             acceptPin();
          }
       });
-
-      btnClear.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            clearDigits();
-            updatePinDisplay();
-         }
-      });
    }
 
-   public LedgerPinDialog(Context context, boolean hidden) {
-      super(context, hidden, true);
-   }
 
    @Override
-   protected void updatePinDisplay(){
-      pinDisp.setText(Strings.repeat("* ", enteredPin.length()));
+   protected void updatePinDisplay() {
+      pinDisp.setText(
+            Strings.repeat(PinDialog.PLACEHOLDER_TYPED, enteredPin.length()) +
+                  Strings.repeat(PinDialog.PLACEHOLDER_NOT_TYPED, PIN_LENGTH - enteredPin.length())
+      );
       checkPin();
    }
 
 
    @Override
    protected void checkPin() {
-      if (enteredPin.length() >= 4) {
+      if (enteredPin.length() >= PIN_LENGTH) {
          acceptPin();
       }
    }

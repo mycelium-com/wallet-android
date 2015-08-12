@@ -14,7 +14,7 @@
             android:layout_height="40dp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textSize="25sp"/>
+            android:textSize="18sp"/>
 
     <include layout="@layout/enter_pin_numpad"/>
 </LinearLayout>

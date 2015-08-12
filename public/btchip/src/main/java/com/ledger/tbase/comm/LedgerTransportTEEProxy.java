@@ -221,7 +221,7 @@ public class LedgerTransportTEEProxy implements BTChipTransport {
 			return nvm;
 		}
 		catch(Exception e) {
-			Log.d(TAG, "Unable to load NVM", e);
+			Log.d(TAG, "Unable to load NVM: " + e.getMessage());
 			return null;
 		}
 	}
