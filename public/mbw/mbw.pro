@@ -54,9 +54,9 @@
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
+-keep public class * extends android.preference.Preference
 -keep public class com.android.vending.licensing.ILicensingService
 -keep public class com.google.zxing.client.android.common.executor.HoneycombAsyncTaskExecInterface
-
 
 #To remove debug logs:
 -assumenosideeffects class android.util.Log {
@@ -168,6 +168,10 @@
 
 #-dontwarn rx.**
 -dontwarn retrofit.**
+
+# keep everything in ledger/nordpol
+-keep class nordpol.** { *; }
+
 
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 
