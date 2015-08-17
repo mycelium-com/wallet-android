@@ -89,10 +89,12 @@ public class BTChipTransportAndroidHID implements BTChipTransport {
 		ByteBuffer responseBuffer = ByteBuffer.allocate(HID_BUFFER_SIZE);
 		request = new UsbRequest();
 		if (!request.initialize(connection, in)) {
+			request.close();
 			throw new BTChipException("I/O error");
 		}
 		if (!ledger) {
 			if (!request.queue(responseBuffer, HID_BUFFER_SIZE)) {
+				request.close();
 				throw new BTChipException("I/O error");
 			}
 			connection.requestWait();
@@ -113,6 +115,8 @@ public class BTChipTransportAndroidHID implements BTChipTransport {
 				while (offset != responseSize) {
 					responseBuffer.clear();
 					if (!request.queue(responseBuffer, HID_BUFFER_SIZE)) {
+						request.cancel();
+						request.close();
 						throw new BTChipException("I/O error");
 					}
 					connection.requestWait();
@@ -130,6 +134,7 @@ public class BTChipTransportAndroidHID implements BTChipTransport {
 			while ((responseData = LedgerHelper.unwrapResponseAPDU(LEDGER_DEFAULT_CHANNEL, response.toByteArray(), HID_BUFFER_SIZE)) == null) {
 				responseBuffer.clear();
 				if (!request.queue(responseBuffer, HID_BUFFER_SIZE)) {
+					request.close();
 					throw new BTChipException("I/O error");
 				}
 				connection.requestWait();
@@ -141,6 +146,8 @@ public class BTChipTransportAndroidHID implements BTChipTransport {
 		if (debug) {
 			Log.d(BTChipTransportAndroid.LOG_STRING, "<= " + Dump.dump(responseData));
 		}
+
+		request.close();
 		return FutureUtils.getDummyFuture(responseData);				
 	}
 
