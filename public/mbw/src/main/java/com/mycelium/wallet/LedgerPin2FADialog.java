@@ -121,7 +121,7 @@ public class LedgerPin2FADialog extends Dialog {
          int start = Math.max(currentOffset - showSurroundingChars, 0);
          int end = Math.min(currentOffset + showSurroundingChars, address.length());
 
-         String prefix = address.substring(start, currentOffset - 1);
+         String prefix = address.substring(start, currentOffset);
          String postfix = address.substring(currentOffset + 1, end);
 
          if (currentOffset - showSurroundingChars > 0){

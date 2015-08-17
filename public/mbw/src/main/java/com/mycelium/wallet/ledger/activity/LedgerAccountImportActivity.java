@@ -46,8 +46,6 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 	   @Override
 	   protected void onResume() {
 	      super.onResume();
-	      // setup the handlers for the Ledger manager to this activity
-	      ledgerManager.setEventHandler(this);	      
 	      updateUi();
 	      dispatcher.enableExclusiveNfc();
 	   }
@@ -55,8 +53,6 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 	   @Override
 	   protected void onPause() {
 	      super.onPause();
-	      // unregister me as event handler for Ledger
-	      ledgerManager.setEventHandler(null);
 	      dispatcher.disableExclusiveNfc();
 	   }
 	   
