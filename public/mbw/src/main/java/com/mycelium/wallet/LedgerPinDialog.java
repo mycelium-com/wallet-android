@@ -41,7 +41,7 @@ import com.google.common.base.Strings;
 
 public class LedgerPinDialog extends PinDialog {
 
-   public static final int PIN_LENGTH = 4;
+   public static final int MAX_PIN_LENGTH = 32;
    private TextView pinDisp;
 
    public LedgerPinDialog(Context context, boolean hidden) {
@@ -79,8 +79,7 @@ public class LedgerPinDialog extends PinDialog {
    @Override
    protected void updatePinDisplay() {
       pinDisp.setText(
-            Strings.repeat(PinDialog.PLACEHOLDER_TYPED, enteredPin.length()) +
-                  Strings.repeat(PinDialog.PLACEHOLDER_NOT_TYPED, PIN_LENGTH - enteredPin.length())
+            Strings.repeat(PinDialog.PLACEHOLDER_TYPED, enteredPin.length())
       );
       checkPin();
    }
@@ -88,7 +87,7 @@ public class LedgerPinDialog extends PinDialog {
 
    @Override
    protected void checkPin() {
-      if (enteredPin.length() >= PIN_LENGTH) {
+      if (enteredPin.length() >= MAX_PIN_LENGTH) {
          acceptPin();
       }
    }

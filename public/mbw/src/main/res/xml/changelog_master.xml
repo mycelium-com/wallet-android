@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.5.0" versioncode="25000">
-        <change>Add Ledger support (Ledger Nano, HW.1 and also Ledger-Unplugged)</change>
-        <change>Added new account type which uses coinapult locks to manage USD amounts</change>
+    <release version="2.5.0" versioncode="25010">
+        <change>Added Ledger support (Ledger Nano, HW.1 and also Ledger-Unplugged)</change>
+        <change>Added Coinapult support - new account type which uses coinapult locks to manage USD amounts</change>
         <change>Added option to choose favorite Block Explorer</change>
         <change>Added option to copy input/output-amounts using LongClick in transaction details</change>
+        <change>Show fiat value for payment requests</change>
         <change>Minor UI changes</change>
+        <change>[bugfix] Fix error in transaction history, if no fiat currency is selected</change>
+        <change>[bugfix] Also check startup-pin on launch via LT notification</change>
     </release>
     <release version="2.4.4" versioncode="24400">
         <change>Added option to re-broadcast unconfirmed transactions</change>

@@ -19,56 +19,55 @@
 
 package com.btchip.utils;
 
+import com.btchip.BTChipException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.btchip.BTChipException;
-
 public class BufferUtils {
-	
-	public static void writeUint32BE(ByteArrayOutputStream buffer, long value) {
-		buffer.write((byte)((value >> 24) & 0xff));
-		buffer.write((byte)((value >> 16) & 0xff));
-		buffer.write((byte)((value >> 8) & 0xff));
-		buffer.write((byte)(value & 0xff));		
-	}
 
-	public static void writeUint32LE(ByteArrayOutputStream buffer, long value) {
-		buffer.write((byte)(value & 0xff));		
-		buffer.write((byte)((value >> 8) & 0xff));
-		buffer.write((byte)((value >> 16) & 0xff));
-		buffer.write((byte)((value >> 24) & 0xff));				
-	}
-	
-	public static void writeUint64LE(ByteArrayOutputStream buffer, long value) {
-		buffer.write((byte)(value & 0xff));		
-		buffer.write((byte)((value >> 8) & 0xff));
-		buffer.write((byte)((value >> 16) & 0xff));
-		buffer.write((byte)((value >> 24) & 0xff));				
-		buffer.write((byte)((value >> 32) & 0xff));
-		buffer.write((byte)((value >> 40) & 0xff));
-		buffer.write((byte)((value >> 48) & 0xff));
-		buffer.write((byte)((value >> 56) & 0xff));		
-	}
-		
-	public static void writeUint64BE(ByteArrayOutputStream buffer, long value) {
-		buffer.write((byte)((value >> 56) & 0xff));
-		buffer.write((byte)((value >> 48) & 0xff));
-		buffer.write((byte)((value >> 40) & 0xff));
-		buffer.write((byte)((value >> 32) & 0xff));
-		buffer.write((byte)((value >> 24) & 0xff));
-		buffer.write((byte)((value >> 16) & 0xff));
-		buffer.write((byte)((value >> 8) & 0xff));
-		buffer.write((byte)(value & 0xff));						
-	}
-	
-	public static void writeBuffer(ByteArrayOutputStream buffer, byte[] data) throws BTChipException {
-		try {
-			buffer.write(data);
-		}
-		catch(IOException e) {
-			throw new BTChipException("Internal error", e);
-		}
-	}
-	
+   public static void writeUint32BE(ByteArrayOutputStream buffer, long value) {
+      buffer.write((byte) ((value >> 24) & 0xff));
+      buffer.write((byte) ((value >> 16) & 0xff));
+      buffer.write((byte) ((value >> 8) & 0xff));
+      buffer.write((byte) (value & 0xff));
+   }
+
+   public static void writeUint32LE(ByteArrayOutputStream buffer, long value) {
+      buffer.write((byte) (value & 0xff));
+      buffer.write((byte) ((value >> 8) & 0xff));
+      buffer.write((byte) ((value >> 16) & 0xff));
+      buffer.write((byte) ((value >> 24) & 0xff));
+   }
+
+   public static void writeUint64LE(ByteArrayOutputStream buffer, long value) {
+      buffer.write((byte) (value & 0xff));
+      buffer.write((byte) ((value >> 8) & 0xff));
+      buffer.write((byte) ((value >> 16) & 0xff));
+      buffer.write((byte) ((value >> 24) & 0xff));
+      buffer.write((byte) ((value >> 32) & 0xff));
+      buffer.write((byte) ((value >> 40) & 0xff));
+      buffer.write((byte) ((value >> 48) & 0xff));
+      buffer.write((byte) ((value >> 56) & 0xff));
+   }
+
+   public static void writeUint64BE(ByteArrayOutputStream buffer, long value) {
+      buffer.write((byte) ((value >> 56) & 0xff));
+      buffer.write((byte) ((value >> 48) & 0xff));
+      buffer.write((byte) ((value >> 40) & 0xff));
+      buffer.write((byte) ((value >> 32) & 0xff));
+      buffer.write((byte) ((value >> 24) & 0xff));
+      buffer.write((byte) ((value >> 16) & 0xff));
+      buffer.write((byte) ((value >> 8) & 0xff));
+      buffer.write((byte) (value & 0xff));
+   }
+
+   public static void writeBuffer(ByteArrayOutputStream buffer, byte[] data) throws BTChipException {
+      try {
+         buffer.write(data);
+      } catch (IOException e) {
+         throw new BTChipException("Internal error", e);
+      }
+   }
+
 }

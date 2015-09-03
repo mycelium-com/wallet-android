@@ -68,7 +68,7 @@ public class MasterseedPasswordDialog extends DialogFragment {
                             Bundle savedInstanceState) {
 
       getDialog().setTitle("Passphrase");
-
+      getDialog().setCanceledOnTouchOutside(false);
       final View v = inflater.inflate(R.layout.passphrase_dialog, container, false);
 
       // show/hide password

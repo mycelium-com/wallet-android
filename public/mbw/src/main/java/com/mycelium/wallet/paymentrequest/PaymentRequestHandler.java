@@ -282,7 +282,7 @@ public class PaymentRequestHandler {
             }
             return paymentAck;
          } else {
-            throw new PaymentRequestException("could not fetch the payment request from " + paymentRequestInformation.getPaymentDetails().payment_url);
+            throw new PaymentRequestException(String.format("could not send the payment to %s (HTTP %d)", paymentRequestInformation.getPaymentDetails().payment_url, response.code()));
          }
 
 

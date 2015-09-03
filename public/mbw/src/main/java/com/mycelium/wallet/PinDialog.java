@@ -74,6 +74,7 @@ public class PinDialog extends Dialog {
       super(context);
       this.hidden = hidden;
       setCancelable(cancelable);
+      setCanceledOnTouchOutside(false);
       loadLayout();
       initPinPad();
       enteredPin = "";

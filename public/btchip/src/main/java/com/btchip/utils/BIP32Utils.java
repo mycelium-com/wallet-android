@@ -19,34 +19,33 @@
 
 package com.btchip.utils;
 
-import java.io.ByteArrayOutputStream;
-
 import com.btchip.BTChipException;
 
+import java.io.ByteArrayOutputStream;
+
 public class BIP32Utils {
-	
-	public static byte[] splitPath(String path) throws BTChipException {
-		if (path.length() == 0) {
-			return new byte[] { 0 };
-		}		
-		String elements[] = path.split("/");
-		if (elements.length > 10) {
-			throw new BTChipException("Path too long");
-		}
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
-		result.write((byte)elements.length);
-		for (String element : elements) {
-			long elementValue;
-			int hardenedIndex = element.indexOf('\'');
-			if (hardenedIndex > 0) {
-				elementValue = Long.parseLong(element.substring(0, hardenedIndex));
-				elementValue |= 0x80000000;
-			}
-			else {
-				elementValue = Long.parseLong(element);
-			}
-			BufferUtils.writeUint32BE(result, elementValue);
-		}
-		return result.toByteArray();
-	}
+
+   public static byte[] splitPath(String path) throws BTChipException {
+      if (path.length() == 0) {
+         return new byte[]{0};
+      }
+      String elements[] = path.split("/");
+      if (elements.length > 10) {
+         throw new BTChipException("Path too long");
+      }
+      ByteArrayOutputStream result = new ByteArrayOutputStream();
+      result.write((byte) elements.length);
+      for (String element : elements) {
+         long elementValue;
+         int hardenedIndex = element.indexOf('\'');
+         if (hardenedIndex > 0) {
+            elementValue = Long.parseLong(element.substring(0, hardenedIndex));
+            elementValue |= 0x80000000;
+         } else {
+            elementValue = Long.parseLong(element);
+         }
+         BufferUtils.writeUint32BE(result, elementValue);
+      }
+      return result.toByteArray();
+   }
 }

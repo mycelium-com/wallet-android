@@ -23,14 +23,16 @@
                 android:id="@+id/tvPluginLedger"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dp"
+                android:gravity="center"
+                android:padding="5dp"
                 android:layout_centerHorizontal="true"
                 android:text="@string/ledger_please_plug_in"/>
         <ProgressBar
                 android:id="@+id/pbProgress"
                 android:layout_width="wrap_content"
+                android:layout_below="@+id/tvPluginLedger"
                 android:layout_centerHorizontal="true"
-                android:paddingTop="30dp"
+                android:paddingTop="10dp"
                 android:layout_height="wrap_content"/>
 
         <LinearLayout
@@ -44,14 +46,6 @@
                 android:visibility="gone"
                 tools:visibility="visible"
                 >
-	    <!--
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/trezor_verify_transaction_on_trezor"
-                    android:textColor="@color/lightgrey"
-                    android:paddingBottom="5dp"/>
-	    -->
 
             <GridLayout
                     android:layout_width="wrap_content"

@@ -1013,21 +1013,31 @@ public abstract class AbstractAccount implements WalletAccount {
          return false;
       }
       for (TransactionStatus t : result.transactions) {
+         TransactionEx tex = _backing.getTransaction(t.txid);
          if (!t.found) {
-            // We have a transaction locally that does not exist in the
-            // blockchain. Must be a residue due to double-spend or malleability
-
-            _backing.deleteTransaction(t.txid);
+            if (tex != null) {
+               // We have a transaction locally that did not get reported back by the server
+               // put it into the outgoing queue and mark it as "not transmitted" (even as it might be an incomming tx)
+               try {
+                  Transaction transaction = Transaction.fromBytes(tex.binary);
+                  queueTransaction(transaction);
+               } catch (TransactionParsingException ignore) {
+                  // ignore this tx and just delete it
+                  _backing.deleteTransaction(t.txid);
+               }
+            } else {
+               // we haven't found it locally (shouldn't happen here) - so delete it to be sure
+               _backing.deleteTransaction(t.txid);
+            }
             continue;
          }
-         TransactionEx tex = _backing.getTransaction(t.txid);
          Preconditions.checkNotNull(tex);
          if (tex.height != t.height || tex.time != t.time) {
             // The transaction got a new height or timestamp. There could be
             // several reasons for that. It got a new timestamp from the server,
             // it confirmed, or might also be a reorg.
             TransactionEx newTex = new TransactionEx(tex.txid, t.height, t.time, tex.binary);
-            System.out.println("Replacing:\n" + tex.toString() + "\nWith:\n" + newTex.toString());
+            _logger.logInfo(String.format("Replacing: %s With: %s", tex.toString(), newTex.toString()));
             postEvent(Event.TRANSACTION_HISTORY_CHANGED);
             _backing.deleteTransaction(tex.txid);
             _backing.putTransaction(newTex);

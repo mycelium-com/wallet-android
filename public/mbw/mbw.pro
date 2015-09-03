@@ -95,6 +95,10 @@
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
 
+# GMS related classes
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
 #Maintain enums
 -keepclassmembers enum * {
     public static **[] values();

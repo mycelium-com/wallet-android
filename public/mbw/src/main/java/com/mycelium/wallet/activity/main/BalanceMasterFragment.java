@@ -39,6 +39,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,14 @@ public class BalanceMasterFragment extends Fragment {
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       setHasOptionsMenu(true);
-      return Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
+      View view = Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
+      FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.phFragmentAddress, new AddressFragment());
+      fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
+      fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
+      fragmentTransaction.replace(R.id.phFragmentLocalTrader, new LocalTraderFragment());
+      fragmentTransaction.commit();
+      return view;
    }
 
    @Override

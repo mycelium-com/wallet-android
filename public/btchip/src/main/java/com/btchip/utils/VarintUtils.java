@@ -19,53 +19,45 @@
 
 package com.btchip.utils;
 
+import com.btchip.BTChipException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import com.btchip.BTChipException;
-
 public class VarintUtils {
-	
-	public static long read(ByteArrayInputStream in) throws BTChipException {
-		long result = 0;
-		int val1 = (int)(in.read() & 0xff);
-		if (val1 < 0xfd) {
-			result = val1;
-		}
-		else
-		if (val1 == 0xfd) {
-			result |= (int)(in.read() & 0xff);
-			result |= (((int)in.read() & 0xff) << 8);
-		}
-		else
-		if (val1 == 0xfe) {
-			result |= (int)(in.read() & 0xff);
-			result |= (((int)in.read() & 0xff) << 8);
-			result |= (((int)in.read() & 0xff) << 16);
-			result |= (((int)in.read() & 0xff) << 24);
-		}
-		else {
-			throw new BTChipException("Unsupported varint encoding");
-		}
-		return result;
-	}
-	
-	public static void write(ByteArrayOutputStream buffer, long value) {
-		if (value < 0xfd) {
-			buffer.write((byte)value);
-		}
-		else
-		if (value <= 0xffff) {
-			buffer.write(0xfd);
-			buffer.write((byte)(value & 0xff));
-			buffer.write((byte)((value >> 8) & 0xff));			
-		}
-		else {
-			buffer.write(0xfe);
-			buffer.write((byte)(value & 0xff));
-			buffer.write((byte)((value >> 8) & 0xff));
-			buffer.write((byte)((value >> 16) & 0xff));
-			buffer.write((byte)((value >> 24) & 0xff));
-		}
-	}
+
+   public static long read(ByteArrayInputStream in) throws BTChipException {
+      long result = 0;
+      int val1 = (int) (in.read() & 0xff);
+      if (val1 < 0xfd) {
+         result = val1;
+      } else if (val1 == 0xfd) {
+         result |= (int) (in.read() & 0xff);
+         result |= (((int) in.read() & 0xff) << 8);
+      } else if (val1 == 0xfe) {
+         result |= (int) (in.read() & 0xff);
+         result |= (((int) in.read() & 0xff) << 8);
+         result |= (((int) in.read() & 0xff) << 16);
+         result |= (((int) in.read() & 0xff) << 24);
+      } else {
+         throw new BTChipException("Unsupported varint encoding");
+      }
+      return result;
+   }
+
+   public static void write(ByteArrayOutputStream buffer, long value) {
+      if (value < 0xfd) {
+         buffer.write((byte) value);
+      } else if (value <= 0xffff) {
+         buffer.write(0xfd);
+         buffer.write((byte) (value & 0xff));
+         buffer.write((byte) ((value >> 8) & 0xff));
+      } else {
+         buffer.write(0xfe);
+         buffer.write((byte) (value & 0xff));
+         buffer.write((byte) ((value >> 8) & 0xff));
+         buffer.write((byte) ((value >> 16) & 0xff));
+         buffer.write((byte) ((value >> 24) & 0xff));
+      }
+   }
 }

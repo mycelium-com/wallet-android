@@ -19,58 +19,57 @@
 
 package com.btchip.utils;
 
+import com.btchip.BTChipException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
-import com.btchip.BTChipException;
-
 public class SignatureUtils {
-	
-	private static final BigInteger HALF_ORDER = new BigInteger(Dump.hexToBin("7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0"));
-	private static final BigInteger ORDER = new BigInteger(1, Dump.hexToBin("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"));	
-	
-	public static byte[] canonicalize(byte[] signature, boolean includeHashType, int hashType) throws BTChipException {
-		ByteArrayInputStream in = new ByteArrayInputStream(signature);
-		if (in.read() != 0x30) {
-			throw new BTChipException("Invalid sequence");
-		}
-		in.read();
-		if (in.read() != (byte)0x02) {
-			throw new BTChipException("Invalid r");
-		}
-		int rSize = in.read();
-		byte[] value = new byte[rSize];
-		in.read(value, 0, rSize);		
-		BigInteger r = new BigInteger(value);
-		if (in.read() != (byte)0x02) {
-			throw new BTChipException("Invalid s");
-		}
-		int sSize = in.read();
-		value = new byte[sSize];
-		in.read(value, 0, sSize);
-		BigInteger s = new BigInteger(value);
-		if (s.compareTo(HALF_ORDER) > 0) {
-			s = ORDER.subtract(s);
-			byte[] rByte = r.toByteArray();
-			byte[] sByte = s.toByteArray();
-			ByteArrayOutputStream result = new ByteArrayOutputStream(100);
-			result.write(0x30);
-			result.write(2 + rByte.length + 2 + sByte.length);
-			result.write(0x02);
-			result.write(rByte.length);
-			result.write(rByte, 0, rByte.length);
-			result.write(0x02);
-			result.write(sByte.length);
-			result.write(sByte, 0, sByte.length);
-			if (includeHashType) {
-				result.write(hashType);
-			}
-			return result.toByteArray();
-		}
-		else {
-			return signature;
-		}
-		
-	}
+
+   private static final BigInteger HALF_ORDER = new BigInteger(Dump.hexToBin("7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0"));
+   private static final BigInteger ORDER = new BigInteger(1, Dump.hexToBin("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"));
+
+   public static byte[] canonicalize(byte[] signature, boolean includeHashType, int hashType) throws BTChipException {
+      ByteArrayInputStream in = new ByteArrayInputStream(signature);
+      if (in.read() != 0x30) {
+         throw new BTChipException("Invalid sequence");
+      }
+      in.read();
+      if (in.read() != (byte) 0x02) {
+         throw new BTChipException("Invalid r");
+      }
+      int rSize = in.read();
+      byte[] value = new byte[rSize];
+      in.read(value, 0, rSize);
+      BigInteger r = new BigInteger(value);
+      if (in.read() != (byte) 0x02) {
+         throw new BTChipException("Invalid s");
+      }
+      int sSize = in.read();
+      value = new byte[sSize];
+      in.read(value, 0, sSize);
+      BigInteger s = new BigInteger(value);
+      if (s.compareTo(HALF_ORDER) > 0) {
+         s = ORDER.subtract(s);
+         byte[] rByte = r.toByteArray();
+         byte[] sByte = s.toByteArray();
+         ByteArrayOutputStream result = new ByteArrayOutputStream(100);
+         result.write(0x30);
+         result.write(2 + rByte.length + 2 + sByte.length);
+         result.write(0x02);
+         result.write(rByte.length);
+         result.write(rByte, 0, rByte.length);
+         result.write(0x02);
+         result.write(sByte.length);
+         result.write(sByte, 0, sByte.length);
+         if (includeHashType) {
+            result.write(hashType);
+         }
+         return result.toByteArray();
+      } else {
+         return signature;
+      }
+
+   }
 }

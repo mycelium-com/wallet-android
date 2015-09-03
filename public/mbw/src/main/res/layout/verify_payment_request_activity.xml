@@ -1,4 +1,3 @@
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
@@ -21,7 +20,7 @@
                 android:text="@string/payment_request_title"
                 android:layout_centerHorizontal="true"
                 android:padding="8dp"
-                android:textSize="24sp" />
+                android:textSize="24sp"/>
 
         <LinearLayout
                 android:id="@+id/llMerchant"
@@ -32,6 +31,7 @@
                 android:layout_alignParentLeft="true"
                 android:orientation="vertical"
                 >
+
             <TextView
                     android:text="@string/payment_request_merchant"
                     android:textColor="@color/grey"
@@ -54,6 +54,7 @@
                 android:gravity="right"
                 android:layout_alignParentRight="true"
                 >
+
             <TextView
                     android:text="@string/payment_request_signature"
                     android:textColor="@color/grey"
@@ -71,6 +72,7 @@
                         android:layout_height="25dp"
                         android:visibility="gone"
                         android:src="@drawable/holo_dark_ic_action_warning_yellow"/>
+
                 <TextView
                         android:id="@+id/tvValid"
                         tools:text="Checked"
@@ -87,17 +89,34 @@
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/llMerchant"
                 >
+
             <TextView
                     android:text="@string/payment_request_amount_to_pay"
                     android:textColor="@color/grey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
-            <TextView
-                    android:id="@+id/tvAmount"
-                    tools:text="15 BTC"
+            <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content">
+
+                <TextView
+                        android:id="@+id/tvAmount"
+                        tools:text="15 BTC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                <TextView
+                        android:id="@+id/tvFiatAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightgrey"
+                        android:paddingLeft="10sp"
+                        tools:text="(~1000 USD)"
+                        />
+            </LinearLayout>
+
+
         </LinearLayout>
 
         <LinearLayout
@@ -108,6 +127,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/llAmount"
                 >
+
             <TextView
                     android:text="@string/payment_request_message"
                     android:textColor="@color/grey"
@@ -127,12 +147,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/llMessage">
+
             <LinearLayout
                     android:id="@+id/llTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     >
+
                 <TextView
                         android:text="@string/payment_request_created"
                         android:textColor="@color/grey"
@@ -156,6 +178,7 @@
                     android:layout_toRightOf="@+id/llTime"
                     android:gravity="right"
                     >
+
                 <TextView
                         android:text="@string/payment_request_expires"
                         android:textColor="@color/grey"
@@ -179,6 +202,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/rlTime"
                 >
+
             <TextView
                     android:text="@string/payment_request_message_to_merchant"
                     android:textColor="@color/grey"

@@ -55,7 +55,7 @@ public class CoinapultManager implements WalletAccount {
    private final Bus eventBus;
    private final UUID uuid;
    private CoinapultClient coinapultClient;
-   private Address firstAddress;
+   private Address currentAddress;
    private CurrencyBasedBalance balanceUSD;
    private final InMemoryPrivateKey accountKey;
    private final Handler handler;
@@ -124,12 +124,29 @@ public class CoinapultManager implements WalletAccount {
 
    private void initBalance() {
       try {
-         //requesting fresh address
-         com.coinapult.api.httpclient.Address.Json bitcoinAddress = coinapultClient.getBitcoinAddress();
+         String address;
+         Optional<Address> lastCoinapultAddress = metadataStorage.getCoinapultAddress();
+         if (!lastCoinapultAddress.isPresent()){
+            //requesting fresh address
+            address = coinapultClient.getBitcoinAddress().address;
+         } else {
+            // check if address was already used (via new coinapult api),
+            // if so: request a fresh one from coinapult
+            HashMap<String, String> criteria = new HashMap<String, String>(1);
+            criteria.put("to", lastCoinapultAddress.get().toString());
+            com.coinapult.api.httpclient.Transaction.Json search = coinapultClient.search(criteria);
+            boolean alreadyUsed = search.containsKey("transaction_id");
+            if (alreadyUsed){
+               // get a new one
+               address = coinapultClient.getBitcoinAddress().address;
+            } else {
+               address = lastCoinapultAddress.get().toString();
+            }
+         }
          //setting preference to USD
-         coinapultClient.config(bitcoinAddress.address, "USD");
-         firstAddress = Address.fromString(bitcoinAddress.address);
-         metadataStorage.storeCoinapultAddress(firstAddress);
+         coinapultClient.config(address, "USD");
+         currentAddress = Address.fromString(address);
+         metadataStorage.storeCoinapultAddress(currentAddress);
       } catch (Exception e) {
          Log.e("CoinapultManager", "Failed to initBalance", e);
          handler.post(new Runnable() {
@@ -232,14 +249,14 @@ public class CoinapultManager implements WalletAccount {
 
    @Override
    public Address getReceivingAddress() {
-      if (firstAddress == null) {
+      if (currentAddress == null) {
          Optional<Address> coinapultAddress = metadataStorage.getCoinapultAddress();
          if (!coinapultAddress.isPresent()) {
             return Address.getNullAddress(getNetwork());
          }
-         firstAddress = coinapultAddress.get();
+         currentAddress = coinapultAddress.get();
       }
-      return firstAddress;
+      return currentAddress;
    }
 
    @Override
@@ -394,7 +411,8 @@ public class CoinapultManager implements WalletAccount {
 
    @Override
    public boolean isMine(Address address) {
-      return false;
+      // there might be more, but currently we only know about this one...
+      return getReceivingAddress().equals(address);
    }
 
    @Override
@@ -535,7 +553,7 @@ public class CoinapultManager implements WalletAccount {
 
    @Override
    public boolean isOwnExternalAddress(Address address) {
-      return false;
+      return isMine(address);
    }
 
    @Override

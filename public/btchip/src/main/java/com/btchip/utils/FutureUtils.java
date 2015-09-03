@@ -25,46 +25,46 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class FutureUtils {
-	
-	static class DummyFuture implements Future<byte[]> {
-		
-		private byte[] value;
-		
-		public DummyFuture(byte[] value) {
-			this.value = value;
-		}
 
-		@Override
-		public boolean cancel(boolean mayInterruptIfRunning) {
-			return false;
-		}
+   static class DummyFuture implements Future<byte[]> {
 
-		@Override
-		public byte[] get() throws InterruptedException, ExecutionException {
-			return value;
-		}
+      private byte[] value;
 
-		@Override
-		public byte[] get(long timeout, TimeUnit unit)
-				throws InterruptedException, ExecutionException,
-				TimeoutException {
-			return value;
-		}
+      public DummyFuture(byte[] value) {
+         this.value = value;
+      }
 
-		@Override
-		public boolean isCancelled() {
-			return false;
-		}
+      @Override
+      public boolean cancel(boolean mayInterruptIfRunning) {
+         return false;
+      }
 
-		@Override
-		public boolean isDone() {
-			return true;
-		}
-		
-	}
-	
-	public static Future<byte[]> getDummyFuture(byte[] responseParam) {
-		return new DummyFuture(responseParam);
-	}
+      @Override
+      public byte[] get() throws InterruptedException, ExecutionException {
+         return value;
+      }
+
+      @Override
+      public byte[] get(long timeout, TimeUnit unit)
+            throws InterruptedException, ExecutionException,
+            TimeoutException {
+         return value;
+      }
+
+      @Override
+      public boolean isCancelled() {
+         return false;
+      }
+
+      @Override
+      public boolean isDone() {
+         return true;
+      }
+
+   }
+
+   public static Future<byte[]> getDummyFuture(byte[] responseParam) {
+      return new DummyFuture(responseParam);
+   }
 
 }

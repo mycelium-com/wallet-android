@@ -23,7 +23,8 @@
                 tools:text="...abc1262h"
                 android:textColor="@color/lightgrey"
                 android:typeface="monospace"
-                android:textSize="15sp"/>
+                android:textSize="18sp"/>
+
         <TextView
                 android:id="@+id/pin_addr_info_highlight"
                 android:layout_width="wrap_content"
@@ -35,7 +36,8 @@
                 android:typeface="monospace"
                 android:layout_marginLeft="4sp"
                 android:layout_marginRight="4sp"
-                android:textSize="20sp"/>
+                android:textSize="18sp"/>
+
         <TextView
                 android:id="@+id/pin_addr_info_postfix"
                 android:layout_width="wrap_content"
@@ -44,7 +46,7 @@
                 tools:text="wxyz1234..."
                 android:textColor="@color/lightgrey"
                 android:typeface="monospace"
-                android:textSize="15sp"/>
+                android:textSize="18sp"/>
 
     </LinearLayout>
 

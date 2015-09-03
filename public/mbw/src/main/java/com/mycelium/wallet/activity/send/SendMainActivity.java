@@ -682,7 +682,14 @@ public class SendMainActivity extends Activity {
          } else {
             ((TextView) findViewById(R.id.tvReceiver)).setText(getString(R.string.label_unverified_recipient));
          }
+      }
 
+      // show address (if available - some PRs might have more than one address or a not decodeable input)
+      if (hasPaymentRequest && _receivingAddress != null) {
+         ((TextView) findViewById(R.id.tvReceiverAddress)).setText(_receivingAddress.toDoubleLineString());
+         findViewById(R.id.tvReceiverAddress).setVisibility(View.VISIBLE);
+      } else {
+         findViewById(R.id.tvReceiverAddress).setVisibility(View.GONE);
       }
 
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
@@ -1004,6 +1011,7 @@ public class SendMainActivity extends Activity {
          super.onActivityResult(requestCode, resultCode, intent);
       }
    }
+
 
    private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);

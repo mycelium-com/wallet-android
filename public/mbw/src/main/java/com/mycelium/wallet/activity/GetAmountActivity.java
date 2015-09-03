@@ -188,6 +188,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       @Override
       public void onClick(View arg0) {
+         if (_amount == null){
+            return;
+         }
+
          // Return the number of satoshis
          Intent result = new Intent();
          result.putExtra(AMOUNT, _amount);

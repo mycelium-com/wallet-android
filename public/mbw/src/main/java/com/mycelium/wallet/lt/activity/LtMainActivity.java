@@ -70,6 +70,7 @@ import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 
 public class LtMainActivity extends ActionBarActivity {
+   public static final String TAB_TO_SELECT = "tabToSelect";
 
    public enum TAB_TYPE {
       DEFAULT, ACTIVE_TRADES, TRADE_HISTORY, MY_ADS
@@ -82,7 +83,7 @@ public class LtMainActivity extends ActionBarActivity {
 
    public static Intent createIntent(Context context, TAB_TYPE tabToSelect) {
       Intent intent = new Intent(context, LtMainActivity.class);
-      intent.putExtra("tabToSelect", tabToSelect.ordinal());
+      intent.putExtra(TAB_TO_SELECT, tabToSelect.ordinal());
       return intent;
    }
 
@@ -154,7 +155,7 @@ public class LtMainActivity extends ActionBarActivity {
       tabsAdapter.addTab(_myTraderInfoTab, MyInfoFragment.class, null);
 
       // Load the tab to select from intent
-      TAB_TYPE tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra("tabToSelect", TAB_TYPE.DEFAULT.ordinal())];
+      TAB_TYPE tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra(TAB_TO_SELECT, TAB_TYPE.DEFAULT.ordinal())];
       _actionBar.selectTab(enumToTab(tabToSelect));
 
       _updateSound = RingtoneManager

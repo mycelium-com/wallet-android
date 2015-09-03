@@ -393,7 +393,7 @@ public class TransactionHistoryFragment extends Fragment {
          // Set fiat value
          TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
          Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-         if (rate == null) _mbwManager.getExchangeRateManager().requestRefresh();
+         if (_mbwManager.hasFiatCurrency() && rate == null) _mbwManager.getExchangeRateManager().requestRefresh();
          if (!_mbwManager.hasFiatCurrency() || rate == null) {
             tvFiat.setVisibility(View.GONE);
          } else {

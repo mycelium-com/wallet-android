@@ -30,11 +30,11 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
+import com.squareup.otto.Bus;
 import nordpol.android.OnDiscoveredTagListener;
 
 import java.io.ByteArrayInputStream;
@@ -49,8 +49,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    private BTChipTransportFactory transportFactory;
    private BTChipDongle dongle;
-   protected Events handler = null;
    private boolean disableTee;
+   protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<String>(1);
+   protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<String>(1);
 
    private static final String LOG_TAG = "LedgerManager";
 
@@ -70,27 +71,25 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    private static final byte AID[] = Dump.hexToBin("a0000006170054bf6aa94901");
 
-   public interface Events extends AccountScanManager.Events {
-      String onPinRequest();
-      String onUserConfirmationRequest(BTChipDongle.BTChipOutput output);
+   // EventBus classes
+   public static class OnPinRequest {
    }
 
-   public LedgerManager(Context context, NetworkParameters network) {
-      super(context, network);
-      SharedPreferences preferences = _context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
+   public static class On2FaRequest {
+      public final BTChipDongle.BTChipOutput output;
+
+      public On2FaRequest(BTChipDongle.BTChipOutput output) {
+         this.output = output;
+      }
+   }
+
+   public LedgerManager(Context context, NetworkParameters network, Bus eventBus) {
+      super(context, network, eventBus);
+      SharedPreferences preferences = this.context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
             Activity.MODE_PRIVATE);
       disableTee = preferences.getBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, false);
    }
 
-   @Override
-   public void setEventHandler(AccountScanManager.Events handler) {
-      if (handler instanceof Events) {
-         this.handler = (Events) handler;
-      }
-      // pass handler down to superclass, and also use own handler, because we have some
-      // additional events
-      super.setEventHandler(handler);
-   }
 
    public void setTransportFactory(BTChipTransportFactory transportFactory) {
       this.transportFactory = transportFactory;
@@ -103,7 +102,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       if (transportFactory == null) {
          boolean initialized = false;
          if (!disableTee) {
-            transportFactory = new LedgerTransportTEEProxyFactory(_context);
+            transportFactory = new LedgerTransportTEEProxyFactory(context);
             LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) transportFactory.getTransport();
             byte[] nvm = proxy.loadNVM(NVM_IMAGE);
             if (nvm != null) {
@@ -111,7 +110,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
             // Check if the TEE can be connected
             final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<Boolean>(1);
-            boolean result = transportFactory.connect(_context, new BTChipTransportFactoryCallback() {
+            boolean result = transportFactory.connect(context, new BTChipTransportFactoryCallback() {
 
                @Override
                public void onConnected(boolean success) {
@@ -133,7 +132,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
          }
          if (!initialized) {
-            transportFactory = new BTChipTransportAndroid(_context);
+            transportFactory = new BTChipTransportAndroid(context);
             ((BTChipTransportAndroid) transportFactory).setAID(AID);
          }
          Log.d(LOG_TAG, "Using transport " + transportFactory.getClass());
@@ -150,6 +149,16 @@ public class LedgerManager extends AbstractAccountScanManager implements
          postErrorMessage(e.getMessage());
          return null;
       }
+   }
+
+   public void enterPin(String pin){
+      pinRequestEntry.clear();
+      pinRequestEntry.offer(pin);
+   }
+
+   public void enterTransaction2FaPin(String tx2FaPin){
+      tx2FaEntry.clear();
+      tx2FaEntry.offer(tx2FaPin);
    }
 
    private Transaction signInternal(UnsignedTransaction unsigned,
@@ -251,8 +260,21 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      }
                   }
                   dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.script.getScriptBytes());
-               } else if (handler != null) {
-                  String pin = handler.onPinRequest();
+               } else {
+                  mainThreadHandler.post(new Runnable() {
+                     @Override
+                     public void run() {
+                        eventBus.post(new OnPinRequest());
+                     }
+                  });
+                  String pin;
+                  try {
+                     // wait for the user to enter the pin
+                     pin = pinRequestEntry.take();
+                  } catch (InterruptedException e1) {
+                     pin = "";
+                  }
+
                   try {
                      Log.d(LOG_TAG, "Reinitialize transport");
                      initialize();
@@ -264,16 +286,25 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      postErrorMessage("Invalid second factor");
                      return null;
                   }
-               } else {
-                  postErrorMessage("Internal error " + e);
-                  throw e;
                }
             }
          }
          outputData = dongle.finalizeInput(rawOutputs, outputAddress, amount, fees, changePath);
+         final BTChipDongle.BTChipOutput output = outputData;
          // Check OTP confirmation
-         if ((i == 0) && (handler != null) && outputData.isConfirmationNeeded()) {
-            txpin = handler.onUserConfirmationRequest(outputData);
+         if ((i == 0) && outputData.isConfirmationNeeded()) {
+            mainThreadHandler.post(new Runnable() {
+               @Override
+               public void run() {
+                  eventBus.post(new On2FaRequest(output));
+               }
+            });
+            try {
+               // wait for the user to enter the pin
+               txpin = tx2FaEntry.take();
+            } catch (InterruptedException e1) {
+               txpin = "";
+            }
             Log.d(LOG_TAG, "Reinitialize transport");
             initialize();
             Log.d(LOG_TAG, "Reinitialize transport done");
@@ -327,7 +358,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             break;
          }
       }
-      boolean connectResult = getTransport().connect(_context, new BTChipTransportFactoryCallback() {
+      boolean connectResult = getTransport().connect(context, new BTChipTransportFactoryCallback() {
          @Override
          public void onConnected(boolean success) {
             try {
@@ -387,7 +418,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          try {
             int attempts = dongle.getVerifyPinRemainingAttempts();
             if (attempts == 0) {
-               _context.deleteFile(NVM_IMAGE);
+               context.deleteFile(NVM_IMAGE);
                LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
                proxy.setNVM(null);
                proxy.init();
@@ -456,8 +487,20 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      }
                   }
                   publicKey = dongle.getWalletPublicKey(keyPath);
-               } else if (handler != null) {
-                  String pin = handler.onPinRequest();
+               } else {
+                  mainThreadHandler.post(new Runnable() {
+                     @Override
+                     public void run() {
+                        eventBus.post(new OnPinRequest());
+                     }
+                  });
+                  String pin;
+                  try {
+                     // wait for the user to enter the pin
+                     pin = pinRequestEntry.take();
+                  } catch (InterruptedException e1) {
+                     pin = "";
+                  }
                   try {
                      Log.d(LOG_TAG, "Reinitialize transport");
                      initialize();
@@ -474,9 +517,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
                         return Optional.absent();
                      }
                   }
-               } else {
-                  postErrorMessage("Unsupported PIN verification method");
-                  return Optional.absent();
                }
             } else {
                postErrorMessage("Internal error " + e);
@@ -499,7 +539,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    public String getLabelOrDefault() {
-      return _context.getString(R.string.ledger);
+      return context.getString(R.string.ledger);
    }
 
    public boolean getDisableTEE() {
@@ -514,7 +554,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    private SharedPreferences.Editor getEditor() {
-      return _context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
+      return context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
    }
 
    @Override

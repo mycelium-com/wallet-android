@@ -49,23 +49,22 @@ import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.MasterseedPasswordDialog;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
+import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TrezorSignTransactionActivity
       extends SignTransactionActivity
-      implements TrezorManager.Events, MasterseedPasswordSetter {
+      implements MasterseedPasswordSetter {
 
    private static final String PASSPHRASE_FRAGMENT_TAG = "pass";
    private final TrezorManager trezorManager = MbwManager.getInstance(this).getTrezorManager();
 
-   // Syncing Queue for the Trezor and UI Thread on PIN-entry
-   final private LinkedBlockingQueue<String> trezorPinResponse = new LinkedBlockingQueue<String>(1);
    private boolean showTx;
 
    @Override
@@ -81,56 +80,16 @@ public class TrezorSignTransactionActivity
    @Override
    protected void onResume() {
       super.onResume();
-      // setup the handlers for the trezor manager to this activity
-      trezorManager.setEventHandler(this);
+      MbwManager.getInstance(this).getEventBus().register(this);
       updateUi();
    }
 
    @Override
    protected void onPause() {
+      MbwManager.getInstance(this).getEventBus().unregister(this);
       super.onPause();
-      // unregister me as event handler for the trezor
-      trezorManager.setEventHandler(null);
    }
 
-   final Handler trezorPinHandler = new Handler(new Handler.Callback() {
-      @Override
-      public boolean handleMessage(Message message) {
-         TrezorPinDialog pin = new TrezorPinDialog(TrezorSignTransactionActivity.this, true);
-         pin.setOnPinValid(new PinDialog.OnPinEntered(){
-            @Override
-            public void pinEntered(PinDialog dialog, Pin pin) {
-               trezorPinResponse.add(pin.getPin());
-               dialog.dismiss();
-            }
-         });
-         pin.show();
-
-         // update the UI, as the state might have changed
-         updateUi();
-         return true;
-      }
-   });
-
-   @Override
-   public String onPinMatrixRequest() {
-      // open the pin-entry dialog on the UI-Thread
-      trezorPinHandler.sendEmptyMessage(0);
-
-      try {
-         // this call blocks until the users has entered the pin and it got added to the Queue
-         String pin = trezorPinResponse.take();
-         return pin;
-      } catch (InterruptedException e) {
-         return "";
-      }
-   }
-
-   @Override
-   public void onPassphraseRequest() {
-      MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
-      pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
-   }
 
    @Override
    public void setPassphrase(String passphrase){
@@ -146,21 +105,6 @@ public class TrezorSignTransactionActivity
             getFragmentManager().beginTransaction().remove(fragPassphrase).commit();
          }
       }
-   }
-
-   @Override
-   public void onScanError(String errorMsg) {
-      Utils.showSimpleMessageDialog(TrezorSignTransactionActivity.this, errorMsg, new Runnable() {
-               @Override
-               public void run() {
-                  TrezorSignTransactionActivity.this.setResult(RESULT_CANCELED);
-                  // close this activity and let the user try again
-                  TrezorSignTransactionActivity.this.finish();
-               }
-            });
-
-      // kill the signing task
-      TrezorSignTransactionActivity.this.startSigningTask().cancel(true);
    }
 
    private void updateUi(){
@@ -205,29 +149,56 @@ public class TrezorSignTransactionActivity
 
    }
 
-   final Handler buttonHandler = new Handler(new Handler.Callback()  {
-      @Override
-      public boolean handleMessage(Message message) {
-         showTx = true;
-         updateUi();
-         return true;
-      }
-   });
 
-   @Override
-   public void onButtonRequest() {
-      buttonHandler.sendMessage(new Message());
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+      MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
+      pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
    }
 
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event){
+      Utils.showSimpleMessageDialog(TrezorSignTransactionActivity.this, event.errorMessage, new Runnable() {
+         @Override
+         public void run() {
+            TrezorSignTransactionActivity.this.setResult(RESULT_CANCELED);
+            // close this activity and let the user try again
+            TrezorSignTransactionActivity.this.finish();
+         }
+      });
 
-   @Override
-   public void onStatusChanged(TrezorManager.Status state, TrezorManager.AccountStatus accountState) {
+      // kill the signing task
+      TrezorSignTransactionActivity.this.cancelSigningTask();
+   }
+
+   @Subscribe
+   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event){
+      TrezorPinDialog pin = new TrezorPinDialog(TrezorSignTransactionActivity.this, true);
+      pin.setOnPinValid(new PinDialog.OnPinEntered(){
+         @Override
+         public void pinEntered(PinDialog dialog, Pin pin) {
+            trezorManager.enterPin(pin.getPin());
+            dialog.dismiss();
+         }
+      });
+      pin.show();
+
+      // update the UI, as the state might have changed
       updateUi();
    }
 
-   @Override
-   public void onAccountFound(AbstractAccountScanManager.HdKeyNodeWrapper account) {
-      throw new RuntimeException("Callback not expected here");
+   @Subscribe
+   public void onButtonRequest(TrezorManager.OnButtonRequest event){
+      showTx = true;
+      updateUi();
    }
+
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+      updateUi();
+   }
+
 
 }

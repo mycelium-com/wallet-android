@@ -60,7 +60,8 @@ import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.*;
+import com.mrd.bitlib.util.BitUtils;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.lt.api.LtApiClient;
@@ -73,7 +74,6 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
-import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.ledger.LedgerManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -118,6 +118,7 @@ public class MbwManager {
 
    private final CurrencySwitcher _currencySwitcher;
    private Date lastSuccessfullPin;
+   private boolean startUpPinUnlocked = false;
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
@@ -252,8 +253,8 @@ public class MbwManager {
             ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
             : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
-      _trezorManager = new TrezorManager(_applicationContext, getNetwork());
-      _ledgerManager = new LedgerManager(_applicationContext, getNetwork());
+      _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
+      _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
       _walletManager = createWalletManager(_applicationContext, _environment);
       _eventTranslator = new EventTranslator(new Handler(), _eventBus);
       _walletManager.addObserver(_eventTranslator);
@@ -842,11 +843,10 @@ public class MbwManager {
       getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).commit();
    }
 
-   public void setBlockExplorer(BlockExplorer blockExplorer){
+   public void setBlockExplorer(BlockExplorer blockExplorer) {
       _blockExplorerManager.setBlockExplorer(blockExplorer);
       getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).commit();
    }
-
 
 
    public CoinUtil.Denomination getBitcoinDenomination() {
@@ -1163,6 +1163,14 @@ public class MbwManager {
 
    public boolean getPinRequiredOnStartup() {
       return this._pinRequiredOnStartup;
+   }
+
+   public boolean isUnlockPinRequired() {
+      return getPinRequiredOnStartup() && !startUpPinUnlocked;
+   }
+
+   public void setStartUpPinUnlocked(boolean unlocked) {
+      this.startUpPinUnlocked = unlocked;
    }
 
    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {

@@ -81,6 +81,7 @@ public class VersionManager {
    private final SharedPreferences preferences;
    private final Set<String> ignoredVersions;
    private final String version;
+   private final int versionCode;
    private Context context;
    private final String language;
    private final AsynchronousApi asyncApi;
@@ -95,6 +96,7 @@ public class VersionManager {
       this.asyncApi = asyncApi;
       this.preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
       this.version = version;
+      this.versionCode = determineVersionCode(context);
       String ignored = preferences.getString(Constants.IGNORED_VERSIONS, "");
       ignoredVersions = Sets.newHashSet(Splitter.on("\n").omitEmptyStrings().split(ignored));
 
@@ -123,6 +125,21 @@ public class VersionManager {
       } catch (PackageManager.NameNotFoundException ignored) {
       }
       return "unknown";
+   }
+
+   public static int determineVersionCode(Context applicationContext) {
+      try {
+         PackageManager packageManager = applicationContext.getPackageManager();
+         if (packageManager != null) {
+            final PackageInfo pInfo;
+            pInfo = packageManager.getPackageInfo(applicationContext.getPackageName(), 0);
+            return pInfo.versionCode;
+         } else {
+            Log.i(Constants.TAG, "unable to obtain packageManager");
+         }
+      } catch (PackageManager.NameNotFoundException ignored) {
+      }
+      return 0;
    }
 
    public void showVersionDialog(final VersionInfoExResponse response, final Context activity) {
@@ -177,6 +194,10 @@ public class VersionManager {
 
    public String getVersion() {
       return version;
+   }
+
+   public int getVersionCode() {
+      return versionCode;
    }
 
    private boolean isIgnored(String versionNumber) {

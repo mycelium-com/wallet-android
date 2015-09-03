@@ -57,7 +57,7 @@
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
     </style>
 
-    <!-- Application theme. -->
+    <!-- Application theme. Theme.AppCompat.Base.CompactMenu.Dialog -->
     <style name="MyceliumModern.Dialog" parent="Theme.AppCompat.CompactMenu.Dialog">
 
         <item name="android:actionButtonStyle" tools:ignore="NewApi">@style/ActionButtonStyle</item>

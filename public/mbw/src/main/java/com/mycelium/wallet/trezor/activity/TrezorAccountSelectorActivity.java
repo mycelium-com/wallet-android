@@ -44,14 +44,16 @@ import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
 import com.mycelium.wallet.activity.MasterseedPasswordDialog;
 import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.squareup.otto.Subscribe;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorActivity implements TrezorManager.Events, MasterseedPasswordSetter {
+public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {
 
    @Override
    protected AbstractAccountScanManager initMasterseedManager() {
@@ -69,25 +71,14 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
    abstract protected void setView();
 
    @Override
-   protected void onStop() {
-      super.onStop();
-      masterseedScanManager.setEventHandler(null);
-   }
-
-   @Override
    public void finish() {
       super.finish();
       masterseedScanManager.stopBackgroundAccountScan();
    }
 
    @Override
-   public void onStatusChanged(TrezorManager.Status state, TrezorManager.AccountStatus accountState) {
-      updateUi();
-   }
-
-   @Override
    protected void updateUi() {
-      if (masterseedScanManager.currentState != TrezorManager.Status.initializing) {
+      if (masterseedScanManager.currentState == TrezorManager.Status.readyToScan) {
          findViewById(R.id.tvWaitForTrezor).setVisibility(View.GONE);
          findViewById(R.id.ivConnectTrezor).setVisibility(View.GONE);
          txtStatus.setText(getString(R.string.trezor_scanning_status));
@@ -154,49 +145,6 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
       accountsAdapter.notifyDataSetChanged();
    }
 
-   @Override
-   public void onButtonRequest() {   }
-
-   final private LinkedBlockingQueue<String> trezorPinResponse = new LinkedBlockingQueue<String>(1);
-
-   final Handler trezorPinHandler = new Handler(new Handler.Callback() {
-      @Override
-      public boolean handleMessage(Message message) {
-         TrezorPinDialog pin = new TrezorPinDialog(TrezorAccountSelectorActivity.this, true);
-         pin.setOnPinValid(new PinDialog.OnPinEntered(){
-            @Override
-            public void pinEntered(PinDialog dialog, Pin pin) {
-               trezorPinResponse.add(pin.getPin());
-               dialog.dismiss();
-            }
-         });
-         pin.show();
-
-         // update the UI, as the state might have changed
-         updateUi();
-         return true;
-      }
-   });
-
-   @Override
-   public String onPinMatrixRequest() {
-      // open the pin-entry dialog on the UI-Thread
-      trezorPinHandler.sendEmptyMessage(0);
-
-      try {
-         // this call blocks until the users has entered the pin and it got added to the Queue
-         String pin = trezorPinResponse.take();
-         return pin;
-      } catch (InterruptedException e) {
-         return "";
-      }
-   }
-
-   @Override
-   public void onPassphraseRequest() {
-      MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
-      pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
-   }
 
    @Override
    public void setPassphrase(String passphrase){
@@ -214,6 +162,44 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
       }
    }
 
+
+   @Subscribe
+   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event){
+      TrezorPinDialog pin = new TrezorPinDialog(TrezorAccountSelectorActivity.this, true);
+      pin.setOnPinValid(new PinDialog.OnPinEntered() {
+         @Override
+         public void pinEntered(PinDialog dialog, Pin pin) {
+            ((TrezorManager) masterseedScanManager).enterPin(pin.getPin());
+            dialog.dismiss();
+         }
+      });
+      pin.show();
+
+      // update the UI, as the state might have changed
+      updateUi();
+   }
+
+
+   // Otto.EventBus does not traverse class hierarchy to find subscribers
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event){
+      super.onScanError(event);
+   }
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+      super.onStatusChanged(event);
+   }
+
+   @Subscribe
+   public void onAccountFound(AccountScanManager.OnAccountFound event){
+      super.onAccountFound(event);
+   }
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+      super.onPassphraseRequest(event);
+   }
 
 }
 

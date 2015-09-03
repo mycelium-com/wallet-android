@@ -42,10 +42,13 @@ import android.widget.AdapterView;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wallet.activity.util.MasterseedScanManager;
+import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Subscribe;
 
 public class InstantMasterseedActivity extends HdAccountSelectorActivity {
 
@@ -87,13 +90,22 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
 
    @Override
    protected AbstractAccountScanManager initMasterseedManager() {
-      WalletManager walletManager = MbwManager.getInstance(this).getWalletManager(true);
+      MbwManager mbwManager = MbwManager.getInstance(this);
+      WalletManager walletManager = mbwManager.getWalletManager(true);
       if (walletManager.accountScanManager == null) {
          if (masterSeed != null) {
-            walletManager.accountScanManager = new MasterseedScanManager(this, MbwManager.getInstance(this).getNetwork(), masterSeed);
+            walletManager.accountScanManager = new MasterseedScanManager(
+                  this,
+                  mbwManager.getNetwork(),
+                  masterSeed,
+                  mbwManager.getEventBus());
          } else {
             // only provide the words - the manager will ask for a passphrase
-            walletManager.accountScanManager = new MasterseedScanManager(this, MbwManager.getInstance(this).getNetwork(), words);
+            walletManager.accountScanManager = new MasterseedScanManager(
+                  this,
+                  mbwManager.getNetwork(),
+                  words,
+                  mbwManager.getEventBus());
          }
       }
       return (AbstractAccountScanManager) walletManager.accountScanManager;
@@ -111,4 +123,24 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
       };
    }
 
+   // Otto.EventBus does not traverse class hierarchy to find subscribers
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event){
+      super.onScanError(event);
+   }
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+      super.onStatusChanged(event);
+   }
+
+   @Subscribe
+   public void onAccountFound(AccountScanManager.OnAccountFound event){
+      super.onAccountFound(event);
+   }
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+      super.onPassphraseRequest(event);
+   }
 }

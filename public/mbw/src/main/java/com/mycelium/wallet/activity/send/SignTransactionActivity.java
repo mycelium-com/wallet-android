@@ -61,6 +61,7 @@ public class SignTransactionActivity extends Activity {
    protected StandardTransactionBuilder.UnsignedTransaction _unsigned;
    private Transaction _transaction;
    private AsyncTask<Void, Integer, Transaction> _signingTask;
+   private AsyncTask<Void, Integer, Transaction> signingTask;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, int requestCode) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
@@ -124,8 +125,9 @@ public class SignTransactionActivity extends Activity {
    }
 
    protected AsyncTask<Void, Integer, Transaction> startSigningTask() {
+      cancelSigningTask();
       // Sign transaction in the background
-      AsyncTask<Void, Integer, Transaction> task = new AsyncTask<Void, Integer, Transaction>() {
+      signingTask = new AsyncTask<Void, Integer, Transaction>() {
 
          @Override
          protected Transaction doInBackground(Void... args) {
@@ -148,8 +150,14 @@ public class SignTransactionActivity extends Activity {
             }
          }
       };
-      task.execute();
-      return task;
+      signingTask.execute();
+      return signingTask;
+   }
+
+   protected void cancelSigningTask(){
+      if (signingTask != null){
+         signingTask.cancel(true);
+      }
    }
 
    @Override

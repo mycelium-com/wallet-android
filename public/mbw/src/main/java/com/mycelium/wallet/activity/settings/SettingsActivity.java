@@ -52,6 +52,7 @@ import android.widget.TextView;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
+import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.net.ServerEndpointType;
@@ -396,7 +397,7 @@ public class SettingsActivity extends PreferenceActivity {
       useTor.setEntryValues(new String[]{
             ServerEndpointType.Types.ONLY_HTTPS.toString(),
             ServerEndpointType.Types.ONLY_TOR.toString(),
-      //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
+            //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
       });
 
       useTor.setValue(_mbwManager.getTorMode().toString());
@@ -404,22 +405,28 @@ public class SettingsActivity extends PreferenceActivity {
       useTor.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (newValue.equals(ServerEndpointType.Types.ONLY_TOR.toString())){
+            if (newValue.equals(ServerEndpointType.Types.ONLY_TOR.toString())) {
                OrbotHelper obh = new OrbotHelper(SettingsActivity.this);
-               if (!obh.isOrbotInstalled()){
+               if (!obh.isOrbotInstalled()) {
                   obh.promptToInstall(SettingsActivity.this);
                }
             }
-            _mbwManager.setTorMode( ServerEndpointType.Types.valueOf( (String) newValue) );
+            _mbwManager.setTorMode(ServerEndpointType.Types.valueOf((String) newValue));
             useTor.setTitle(getUseTorTitle());
             return true;
          }
       });
             
       _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
-      _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
-      _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);
 
+      boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isTeeAvailable(this);
+      if (isTeeAvailable) {
+         _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
+         _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);
+      } else {
+
+         getPreferenceScreen().removePreference(findPreference("ledger"));
+      }
       applyLocalTraderEnablement();
    }
 

@@ -48,6 +48,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.PinProtectedActivity;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 
@@ -160,7 +161,10 @@ public class GcmIntentService extends IntentService {
       } else {
          intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES);
       }
-      PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+      Intent pinProtectedIntent = PinProtectedActivity.createIntent(this, intent);
+
+      PendingIntent pIntent = PendingIntent.getActivity(this, 0, pinProtectedIntent, PendingIntent.FLAG_CANCEL_CURRENT);
       String title = getResources().getString(R.string.lt_mycelium_local_trader_title);
       String message = getResources().getString(R.string.lt_new_trading_activity_message);
 
@@ -195,7 +199,9 @@ public class GcmIntentService extends IntentService {
    private void showAdNotification(String type) {
       Intent intent;
       if (LtApi.AD_TIME_OUT_NOTIFICATION_TYPE.equals(type)) {
-         intent = LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS);
+         intent = PinProtectedActivity.createIntent(this,
+               LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
+         );
       } else {
          // We don't know this type, so we ignore it
          return;

@@ -50,11 +50,9 @@ import butterknife.OnTouch;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.paymentrequest.PaymentRequestException;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.paymentrequest.PkiVerificationData;
@@ -73,6 +71,7 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
    @InjectView(R.id.tvMerchant) TextView tvMerchant;
    @InjectView(R.id.tvAmount) TextView tvAmount;
+   @InjectView(R.id.tvFiatAmount) TextView tvFiatAmount;
    @InjectView(R.id.tvMessage) TextView tvMessage;
    @InjectView(R.id.tvTimeExpires) TextView tvTimeExpires;
    @InjectView(R.id.tvTimeCreated) TextView tvTimeCreated;
@@ -212,22 +211,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    }
 
 
-   @Subscribe
-   public void onPaymentRequestFetched(PaymentRequestInformation paymentRequestInformation) {
-      progress.dismiss();
-      requestInformation = paymentRequestInformation;
-      requestException = null;
-      updateUi();
-   }
-
-   @Subscribe
-   public void onPaymentRequestException(PaymentRequestException paymentRequestException) {
-      progress.dismiss();
-      requestInformation = null;
-      requestException = paymentRequestException;
-      updateUi();
-   }
-
    @OnClick(R.id.btAccept)
    void onAcceptClick() {
       Intent result = new Intent();
@@ -278,8 +261,16 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
          if (requestInformation.hasAmount()) {
             long totalAmount = requestInformation.getOutputs().getTotalAmount();
             tvAmount.setText(mbw.getBtcValueString(totalAmount));
+            CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
+            if (currencySwitcher.isFiatExchangeRateAvailable()){
+               tvFiatAmount.setVisibility(View.VISIBLE);
+               tvFiatAmount.setText(String.format("(~%s)", currencySwitcher.getFormattedFiatValue(totalAmount, true)));
+            } else {
+               tvFiatAmount.setVisibility(View.GONE);
+            }
          } else {
             tvAmount.setText(getString(R.string.payment_request_no_amount_specified));
+            tvFiatAmount.setVisibility(View.GONE);
          }
          tvMessage.setText(requestInformation.getPaymentDetails().memo);
 
@@ -323,5 +314,25 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    }
 
 
+   @Subscribe
+   public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
+      updateUi();
+   }
+
+   @Subscribe
+   public void onPaymentRequestFetched(PaymentRequestInformation paymentRequestInformation) {
+      progress.dismiss();
+      requestInformation = paymentRequestInformation;
+      requestException = null;
+      updateUi();
+   }
+
+   @Subscribe
+   public void onPaymentRequestException(PaymentRequestException paymentRequestException) {
+      progress.dismiss();
+      requestInformation = null;
+      requestException = paymentRequestException;
+      updateUi();
+   }
 
 }

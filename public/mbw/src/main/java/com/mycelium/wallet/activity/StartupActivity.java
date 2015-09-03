@@ -239,7 +239,7 @@ public class StartupActivity extends Activity {
 
       @Override
       public void run() {
-         if (_mbwManager.getPinRequiredOnStartup()) {
+         if (_mbwManager.isUnlockPinRequired()) {
 
             // set a click handler to the background, so that
             // if the PIN-Pad closes, you can reopen it by touching the background
@@ -253,6 +253,7 @@ public class StartupActivity extends Activity {
             Runnable start = new Runnable() {
                @Override
                public void run() {
+                  _mbwManager.setStartUpPinUnlocked(true);
                   start();
                }
             };

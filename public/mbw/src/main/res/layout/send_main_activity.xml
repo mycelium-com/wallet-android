@@ -141,7 +141,9 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:gravity="center"
-                            android:orientation="horizontal">
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:orientation="vertical">
 
                         <!-- Receiver Address -->
 
@@ -150,10 +152,20 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:hint="@string/receiver_address_hint"
+                                tools:text="1Address1234\n567890abcdef\nghijklmnop"
                                 android:textColor="@color/white"
                                 android:textColorHint="@color/darkgrey"
                                 android:textSize="20sp"
+                                android:typeface="monospace"/>
+                        <TextView
+                                android:id="@+id/tvReceiverAddress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                tools:text="1Address1234d90abcdefghijklmnop"
+                                android:textColor="@color/lightgrey"
+                                android:textSize="12sp"
+                                android:visibility="gone"
                                 android:typeface="monospace"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -187,8 +199,10 @@
         <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -200,7 +214,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/transaction_label_title"
                     android:visibility="gone"
-                    android:textSize="20sp"/>
+                    android:textSize="18sp"/>
 
             <TextView
                     android:id="@+id/tvTransactionLabel"
@@ -208,7 +222,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="@color/white"
-                    android:textSize="18sp"
+                    android:textSize="15sp"
                     android:visibility="gone"
                     android:typeface="monospace"/>
 

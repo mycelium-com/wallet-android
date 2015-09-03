@@ -72,7 +72,9 @@ public class AboutActivity extends Activity {
       final MbwManager mbwManager = MbwManager.getInstance(this);
       final VersionManager versionManager = mbwManager.getVersionManager();
       String version = versionManager.getVersion();
+      int versionCode = versionManager.getVersionCode();
       ((TextView) findViewById(R.id.tvVersionNumber)).setText(version);
+      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format("(%d)", versionCode));
       findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
       findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));

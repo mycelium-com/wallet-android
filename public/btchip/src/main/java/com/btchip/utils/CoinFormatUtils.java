@@ -22,9 +22,9 @@ package com.btchip.utils;
 import java.math.BigDecimal;
 
 public class CoinFormatUtils {
-	
-	public static long toSatoshi(String amount) {
-		return new BigDecimal(amount).movePointRight(8).toBigIntegerExact().longValue();
-	}
+
+   public static long toSatoshi(String amount) {
+      return new BigDecimal(amount).movePointRight(8).toBigIntegerExact().longValue();
+   }
 
 }

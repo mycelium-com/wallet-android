@@ -37,7 +37,6 @@ package com.mycelium.wallet.trezor;
 import android.content.Context;
 import android.util.Log;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
@@ -50,17 +49,18 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.satoshilabs.trezor.Trezor;
 import com.satoshilabs.trezor.TrezorConnectionException;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
+import com.squareup.otto.Bus;
 
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TrezorManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
    private static final int MOST_RECENT_VERSION_MAJOR = 1;
@@ -73,16 +73,25 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
    private Trezor _trezor = null;
    private TrezorMessage.Features features;
 
-   // keep an own events handler as we provide more events than AbstractAccountSM
-   protected Events trezorEventsHandler =null;
+   protected final LinkedBlockingQueue<String> pinMatrixEntry = new LinkedBlockingQueue<String>(1);
 
-   public TrezorManager(Context context, NetworkParameters network){
-      super(context, network);
+   public static class OnButtonRequest {
+      public OnButtonRequest() {
+      }
    }
 
-   private Trezor getTrezor(){
-      if (_trezor==null){
-         _trezor = new Trezor(_context);
+   public static class OnPinMatrixRequest {
+      public OnPinMatrixRequest() {
+      }
+   }
+
+   public TrezorManager(Context context, NetworkParameters network, Bus eventBus) {
+      super(context, network, eventBus);
+   }
+
+   private Trezor getTrezor() {
+      if (_trezor == null) {
+         _trezor = new Trezor(context);
       }
       return _trezor;
    }
@@ -94,46 +103,35 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
       return DEFAULT_LABEL;
    }
 
+
    public boolean isMostRecentVersion() {
-      if (features != null){
-         if (features.getMajorVersion() < MOST_RECENT_VERSION_MAJOR) { return false; }
-         if (features.getMinorVersion() < MOST_RECENT_VERSION_MINOR) { return false; }
-         if (features.getPatchVersion() < MOST_RECENT_VERSION_PATCH) { return false; }
+      if (features != null) {
+         if (features.getMajorVersion() < MOST_RECENT_VERSION_MAJOR) {
+            return false;
+         }
+         if (features.getMinorVersion() < MOST_RECENT_VERSION_MINOR) {
+            return false;
+         }
+         if (features.getPatchVersion() < MOST_RECENT_VERSION_PATCH) {
+            return false;
+         }
          return true;
-      }else{
+      } else {
          // we dont know...
          return true;
       }
    }
-
-
-   public interface Events extends AccountScanManager.Events {
-      public void onButtonRequest();
-      public String onPinMatrixRequest();
-   }
-
-
-   @Override
-   public void setEventHandler(AccountScanManager.Events handler){
-      if (handler instanceof Events) {
-         this.trezorEventsHandler = (Events) handler;
-      }
-      // pass handler down to superclass, and also use own handler, because we have some
-      // additional events
-      super.setEventHandler(handler);
-   }
-
 
    @Override
    protected boolean onBeforeScan() {
       return initialize();
    }
 
-   public boolean initialize(){
+   public boolean initialize() {
       // check if a trezor is attached and connect to it, otherwise loop and check periodically
 
       // wait until a device is connected
-      while(!getTrezor().isTrezorPluggedIn(_context)){
+      while (!getTrezor().isTrezorPluggedIn(context)) {
          try {
             setState(Status.unableToScan, currentAccountState);
             Thread.sleep(4000);
@@ -143,7 +141,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
       }
 
       // set up the connection and afterwards send a Features-Request
-      if (getTrezor().connect(_context)){
+      if (getTrezor().connect(context)) {
          TrezorMessage.Initialize req = TrezorMessage.Initialize.newBuilder().build();
          Message resp = getTrezor().send(req);
          if (resp != null && resp instanceof TrezorMessage.Features) {
@@ -158,9 +156,9 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
             });
 
             return true;
-         }else if (resp==null){
+         } else if (resp == null) {
             Log.e("trezor", "Got null-response from trezor");
-         }else {
+         } else {
             Log.e("trezor", "Got wrong response from trezor " + resp.getClass().toString());
          }
       }
@@ -170,9 +168,9 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
    // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
-   public Transaction sign(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount){
+   public Transaction sign(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
 
-      if (!initialize()){
+      if (!initialize()) {
          return null;
       }
 
@@ -189,7 +187,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
       Message response;
       try {
          response = getTrezor().send(signTx);
-      } catch  (TrezorConnectionException ex){
+      } catch (TrezorConnectionException ex) {
          postErrorMessage(ex.getMessage());
          return null;
       }
@@ -198,22 +196,22 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
       ByteWriter signedTx = new ByteWriter(1024);
 
-      while (true){
+      while (true) {
 
          // check for common response and handle them
          try {
             response = filterMessages(response);
-         } catch  (TrezorConnectionException ex){
+         } catch (TrezorConnectionException ex) {
             postErrorMessage(ex.getMessage());
             return null;
          }
 
-         if (response == null){
+         if (response == null) {
             // Something went wrong while talking with trezor - get out of here
             return null;
          }
 
-         if (! (response instanceof TrezorMessage.TxRequest)) {
+         if (!(response instanceof TrezorMessage.TxRequest)) {
             Log.e("trezor", "Trezor: Unexpected Response " + response.getClass().toString());
             return null;
          }
@@ -221,11 +219,11 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          TrezorMessage.TxRequest txRequest = (TrezorMessage.TxRequest) response;
 
          // response had a part of the signed tx - write it to our buffer
-         if (txRequest.hasSerialized() && txRequest.getSerialized().hasSerializedTx()){
+         if (txRequest.hasSerialized() && txRequest.getSerialized().hasSerializedTx()) {
             signedTx.putBytes(txRequest.getSerialized().getSerializedTx().toByteArray());
          }
 
-         if (txRequest.getRequestType() == TrezorType.RequestType.TXFINISHED){
+         if (txRequest.getRequestType() == TrezorType.RequestType.TXFINISHED) {
             // We are done here...
             break;
          }
@@ -240,13 +238,13 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
             // trezor requested information about a related tx - get it from the account backing
             Sha256Hash requestHash = Sha256Hash.of(txRequestDetailsType.getTxHash().toByteArray());
             currentTx = TransactionEx.toTransaction(forAccount.getTransaction(requestHash));
-         }else{
+         } else {
             // trezor requested information about the to-be-signed tx
             currentTx = Transaction.fromUnsignedTransaction(unsigned);
          }
 
          // Lets see, what trezor wants to know
-         if (txRequest.getRequestType() == TrezorType.RequestType.TXMETA){
+         if (txRequest.getRequestType() == TrezorType.RequestType.TXMETA) {
             // Send transaction metadata
 
             TrezorType.TransactionType txType = TrezorType.TransactionType.newBuilder()
@@ -262,7 +260,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
             response = getTrezor().send(txAck);
 
-         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXINPUT){
+         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXINPUT) {
             TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
 
 
@@ -302,12 +300,12 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
             response = getTrezor().send(txAck);
 
-         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXOUTPUT){
+         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXOUTPUT) {
             TransactionOutput ak_output = currentTx.outputs[txRequestDetailsType.getRequestIndex()];
 
             TrezorType.TransactionType txType;
 
-            if (txRequestDetailsType.hasTxHash()){
+            if (txRequestDetailsType.hasTxHash()) {
                // request has an hash -> requests data for an existing output
                ByteString scriptPubKey = ByteString.copyFrom(ak_output.script.getScriptBytes());
                TrezorType.TxOutputBinType txOutput = TrezorType.TxOutputBinType.newBuilder()
@@ -319,7 +317,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
                      .addBinOutputs(txOutput)
                      .build();
 
-            }else {
+            } else {
                // request has no hash -> trezor wants informations about the
                // outputs of the new tx
                Address address = ak_output.script.getAddress(getNetwork());
@@ -360,10 +358,10 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
    }
 
-   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script){
+   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script) {
       if (script instanceof ScriptOutputStandard) {
          return TrezorType.OutputScriptType.PAYTOADDRESS;
-      } else if (script instanceof  ScriptOutputP2SH) {
+      } else if (script instanceof ScriptOutputP2SH) {
          return TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
       } else {
          throw new RuntimeException("unknown script type");
@@ -371,7 +369,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
    }
 
    @Override
-   public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex){
+   public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex) {
       //44'/0'/0'/0/1
       TrezorMessage.GetPublicKey msgGetPubKey = TrezorMessage.GetPublicKey.newBuilder()
             .addAddressN(44 | PRIME_DERIVATION_FLAG)
@@ -389,7 +387,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          } else {
             return Optional.absent();
          }
-      } catch (final TrezorConnectionException ex){
+      } catch (final TrezorConnectionException ex) {
          postErrorMessage(ex.getMessage());
          return Optional.absent();
       }
@@ -398,72 +396,83 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
    @Override
    public UUID createOnTheFlyAccount(HdKeyNode accountRoot, WalletManager walletManager, int accountIndex) {
       UUID account;
-      if (walletManager.hasAccount(accountRoot.getUuid())){
+      if (walletManager.hasAccount(accountRoot.getUuid())) {
          // Account already exists
          account = accountRoot.getUuid();
-      }else {
+      } else {
          account = walletManager.createExternalSignatureAccount(accountRoot, this, accountIndex);
       }
       return account;
    }
 
-   private Message filterMessages(final Message msg){
+   public void enterPin(String pin) {
+      pinMatrixEntry.clear();
+      pinMatrixEntry.offer(pin);
+   }
+
+   private Message filterMessages(final Message msg) {
       if (msg instanceof TrezorMessage.ButtonRequest) {
-         if (trezorEventsHandler != null) {
-            trezorEventsHandler.onButtonRequest();
-         }
+         mainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+               eventBus.post(new OnButtonRequest());
+            }
+         });
 
          TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
                .build();
          return filterMessages(getTrezor().send(txButtonAck));
 
-      }else if (msg instanceof TrezorMessage.PinMatrixRequest) {
-         if (trezorEventsHandler != null) {
-            String pin = Preconditions.checkNotNull(this.trezorEventsHandler.onPinMatrixRequest());
+      } else if (msg instanceof TrezorMessage.PinMatrixRequest) {
+         mainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+               eventBus.post(new OnPinMatrixRequest());
+            }
+         });
+         String pin;
+         try {
+            // wait for the user to enter the pin
+            pin = pinMatrixEntry.take();
+         } catch (InterruptedException e) {
+            pin = "";
+         }
 
-            TrezorMessage.PinMatrixAck txPinAck = TrezorMessage.PinMatrixAck.newBuilder()
-                  .setPin(pin)
+         TrezorMessage.PinMatrixAck txPinAck = TrezorMessage.PinMatrixAck.newBuilder()
+               .setPin(pin)
+               .build();
+
+         // send the Pin Response and (if everything is okay) get the response for the
+         // previous requested action
+         return filterMessages(getTrezor().send(txPinAck));
+      } else if (msg instanceof TrezorMessage.PassphraseRequest) {
+         // get the user to enter a passphrase
+         Optional<String> passphrase = waitForPassphrase();
+
+         GeneratedMessage response;
+         if (!passphrase.isPresent()) {
+            // user has not provided a password - reset session on trezor and cancel
+            response = TrezorMessage.ClearSession.newBuilder().build();
+            getTrezor().send(response);
+            return null;
+         } else {
+            response = TrezorMessage.PassphraseAck.newBuilder()
+                  .setPassphrase(passphrase.get())
                   .build();
 
-            // send the Pin Response and (if everything is okay) get the response for the
+            // send the Passphrase Response and get the response for the
             // previous requested action
-            return filterMessages(getTrezor().send(txPinAck));
-         } else {
-            throw new RuntimeException("No PinMatrix callback function set");
+            return filterMessages(getTrezor().send(response));
          }
-      } else if (msg instanceof TrezorMessage.PassphraseRequest) {
-         if (trezorEventsHandler != null){
-
-            // get the user to enter a passphrase
-            Optional<String> passphrase = waitForPassphrase();
-
-            GeneratedMessage response;
-            if (!passphrase.isPresent()) {
-               // user has not provided a password - reset session on trezor and cancel
-               response = TrezorMessage.ClearSession.newBuilder().build();
-               getTrezor().send(response);
-               return null;
-            } else {
-               response = TrezorMessage.PassphraseAck.newBuilder()
-                     .setPassphrase(passphrase.get())
-                     .build();
-
-               // send the Passphrase Response and get the response for the
-               // previous requested action
-               return filterMessages(getTrezor().send(response));
-            }
-         } else {
-            throw new RuntimeException("No PassphraseRequest callback function set");
-         }
-      } else if (msg instanceof TrezorMessage.Failure){
-         if (postErrorMessage(((TrezorMessage.Failure) msg).getMessage())){
+      } else if (msg instanceof TrezorMessage.Failure) {
+         if (postErrorMessage(((TrezorMessage.Failure) msg).getMessage())) {
             return null;
-         }else {
+         } else {
             throw new RuntimeException("Trezor error:" + ((TrezorMessage.Failure) msg).getCode().toString() + "; " + ((TrezorMessage.Failure) msg).getMessage());
          }
       }
 
-      return  msg;
+      return msg;
    }
 
    public TrezorMessage.Features getFeatures() {
@@ -472,10 +481,10 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
    @Override
    public int getBIP44AccountType() {
-	  return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
+      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
    }
-   
-   private abstract class AddressSetter{
+
+   private abstract class AddressSetter {
       public abstract void addAddressN(Integer addressPath);
 
       public void setAddressN(Integer accountNumber, Integer[] addId) {
@@ -487,7 +496,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
       }
    }
 
-   private class OutputAddressSetter extends AddressSetter   {
+   private class OutputAddressSetter extends AddressSetter {
       final private TrezorType.TxOutputType.Builder txOutput;
 
       private OutputAddressSetter(TrezorType.TxOutputType.Builder txOutput) {
@@ -499,7 +508,8 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          txOutput.addAddressN(addressPath);
       }
    }
-   private class InputAddressSetter extends AddressSetter   {
+
+   private class InputAddressSetter extends AddressSetter {
       final private TrezorType.TxInputType.Builder txInput;
 
       private InputAddressSetter(TrezorType.TxInputType.Builder txInput) {

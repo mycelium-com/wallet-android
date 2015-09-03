@@ -636,6 +636,7 @@ public class CoinapultClient {
       String endpoint = "/api/accountInfo/email";
       Map<String, String> options = new HashMap<String, String>();
       options.put("email", mail);
+      options.put("setPrimary", "True");
       return sendSignedRequest(EmailAddress.Json.class, endpoint, options);
    }
 
