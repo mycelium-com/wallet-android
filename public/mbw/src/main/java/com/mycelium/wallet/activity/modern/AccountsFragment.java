@@ -57,6 +57,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mycelium.wallet.CoinapultManager;
 import com.mycelium.wallet.CurrencySwitcher;
@@ -76,6 +77,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
+import se.grunka.fortuna.Util;
 
 import java.util.List;
 import java.util.UUID;
@@ -709,6 +711,13 @@ public class AccountsFragment extends Fragment {
       final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
       View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
       final EditText verificationTextField = (EditText) diaView.findViewById(R.id.mailVerification);
+
+      // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
+      String clipboardString = Utils.getClipboardString(getActivity());
+      if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")){
+         verificationTextField.setText(clipboardString);
+      }
+
       b.setView(diaView);
       b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
          @Override

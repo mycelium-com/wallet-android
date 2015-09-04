@@ -118,8 +118,6 @@ public class PaymentRequestHandler {
             throw new PaymentRequestException("Uri amount does not match payment request amount");
          }
       }
-
-
       return paymentRequestInformation;
    }
 
@@ -128,7 +126,7 @@ public class PaymentRequestHandler {
       return new OkHttpClient();
    }
 
-   private PaymentRequestInformation fromCallback(String callbackURL) {
+   public PaymentRequestInformation fromCallback(String callbackURL) {
       URL url;
       url = checkUrl(callbackURL);
 

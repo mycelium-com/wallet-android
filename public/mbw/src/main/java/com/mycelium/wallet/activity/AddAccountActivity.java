@@ -1,4 +1,5 @@
 /*
+/*
  * Copyright 2013, 2014 Megion Research and Development GmbH
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
@@ -43,6 +44,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.text.InputType;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
@@ -197,6 +199,7 @@ public class AddAccountActivity extends Activity {
       b.setTitle(getString(R.string.coinapult_mail_question));
       View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
       final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
+      mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
       b.setView(diaView);
       b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
          @Override
@@ -256,6 +259,10 @@ public class AddAccountActivity extends Activity {
          coinapultManager = _mbwManager.getCoinapultManager();
          try {
             coinapultManager.addUSD(mail);
+            // save the mail address locally for later verification
+            if (mail.isPresent()) {
+               _mbwManager.getMetadataStorage().setCoinapultMail(mail.get());
+            }
          } catch (CoinapultClient.CoinapultBackendException e) {
             return null;
          }

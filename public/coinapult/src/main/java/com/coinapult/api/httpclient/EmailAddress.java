@@ -9,5 +9,7 @@ public class EmailAddress {
 		public String email;
 		@Key
 		public  boolean verified;
+		@Key
+		public String error;
 	}
 }

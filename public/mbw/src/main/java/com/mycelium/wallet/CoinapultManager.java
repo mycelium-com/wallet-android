@@ -629,6 +629,9 @@ public class CoinapultManager implements WalletAccount {
    public boolean verifyMail(String link, String email) {
       try {
          EmailAddress.Json result = coinapultClient.verifyMail(link, email);
+         if (!result.verified){
+            logger.logError("Coinapult email error: " + result.error);
+         }
          return result.verified;
       } catch (IOException e) {
          return false;

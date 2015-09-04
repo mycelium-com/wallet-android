@@ -46,6 +46,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
+import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
@@ -124,7 +125,7 @@ public class StringHandleConfig implements Serializable {
       request.bitcoinUriAction = BitcoinUriAction.SEND;
       request.bitIdAction = BitIdAction.LOGIN;
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
-      request.websiteAction = WebsiteAction.OPEN_BROWSER;
+      request.websiteAction = WebsiteAction.HANDLE_URL;
       request.sssShareAction = SssShareAction.START_COMBINING;
       request.wordListAction = WordListAction.COLD_SPENDING;
       request.hdNodeAction = HdNodeAction.SEND_PUB_SPEND_PRIV;
@@ -658,7 +659,7 @@ public class StringHandleConfig implements Serializable {
             if (!content.toLowerCase(Locale.US).startsWith("http")) {
                return false;
             }
-            Uri uri = (Uri.parse(content));
+            Uri uri = Uri.parse(content);
             if (null == uri) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with http/https, but unable to parse, so we handled it.
@@ -678,8 +679,36 @@ public class StringHandleConfig implements Serializable {
          public boolean canHandle(NetworkParameters network, String content) {
             return content.toLowerCase().startsWith("http");
          }
-      }
+      },
+
+      HANDLE_URL {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("http")) {
+               return false;
+            }
+
+            final Uri uri = Uri.parse(content);
+            if (null == uri) {
+               //started with http/https, but unable to parse, so we handled it.
+               handlerActivity.finishError(R.string.unrecognized_format, content);
+            } else {
+               // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
+               Intent intent = HandleUrlActivity.getIntent(handlerActivity, uri);
+               handlerActivity.startActivity(intent);
+               handlerActivity.finishOk();
+            }
+            return true;
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return WebsiteAction.OPEN_BROWSER.canHandle(network, content);
+         }
+      },
    }
+
+
 
    public enum SssShareAction implements Action {
       START_COMBINING {

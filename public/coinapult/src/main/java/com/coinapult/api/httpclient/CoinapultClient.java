@@ -97,7 +97,7 @@ public class CoinapultClient {
          logger.logInfo("Coinapult GET " + url + " [" + sw.elapsed(TimeUnit.MILLISECONDS) + "ms]");
          return response.parseAs(t);
       } catch (IOException ex) {
-         //logger.logInfo("Coinapult ERR GET " + url);
+         logger.logInfo("Coinapult ERR GET " + url);
          logger.logInfo("Coinapult ERR " + ex.getMessage());
          throw ex;
       }
@@ -138,7 +138,7 @@ public class CoinapultClient {
       try {
          return makePostRequest(t, url, headers, signdata);
       } catch (IOException ex){
-         //logger.logInfo("Coinapult ERR Content " + options.toString());
+         logger.logInfo("Coinapult ERR Content " + options.toString());
          throw ex;
       }
    }

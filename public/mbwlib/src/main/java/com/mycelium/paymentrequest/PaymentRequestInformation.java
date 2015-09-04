@@ -63,6 +63,7 @@ public class PaymentRequestInformation implements Serializable {
    private final PaymentRequest paymentRequest;
    private final PaymentDetails paymentDetails;
    private final PkiVerificationData pkiVerificationData;
+   private final byte[] rawPaymentRequest;
 
    public static PaymentRequestInformation fromRawPaymentRequest(byte[] rawPaymentRequest, KeyStore keyStore, NetworkParameters networkParameters) {
 
@@ -115,11 +116,11 @@ public class PaymentRequestInformation implements Serializable {
 
             certificates = wire.parseFrom(paymentRequest.pki_data.toByteArray(), X509Certificates.class);
             PkiVerificationData pkiVerificationData = verifySignature(paymentRequest, certificates, keyStore);
-            return new PaymentRequestInformation(paymentRequest, paymentDetails, pkiVerificationData);
+            return new PaymentRequestInformation(paymentRequest, paymentDetails, pkiVerificationData, rawPaymentRequest);
 
 
          } else {
-            return new PaymentRequestInformation(paymentRequest, paymentDetails, null);
+            return new PaymentRequestInformation(paymentRequest, paymentDetails, null, rawPaymentRequest);
          }
 
 
@@ -217,10 +218,11 @@ public class PaymentRequestInformation implements Serializable {
 
 
 
-   public PaymentRequestInformation(PaymentRequest paymentRequest, PaymentDetails paymentDetails, PkiVerificationData pkiVerificationData) {
+   public PaymentRequestInformation(PaymentRequest paymentRequest, PaymentDetails paymentDetails, PkiVerificationData pkiVerificationData, byte[] rawPaymentRequest) {
       this.paymentRequest = paymentRequest;
       this.paymentDetails = paymentDetails;
       this.pkiVerificationData = pkiVerificationData;
+      this.rawPaymentRequest = rawPaymentRequest;
    }
 
    public OutputList getOutputs() {
@@ -287,6 +289,10 @@ public class PaymentRequestInformation implements Serializable {
 
    public PaymentRequest getPaymentRequest() {
       return paymentRequest;
+   }
+
+   public byte[] getRawPaymentRequest() {
+      return rawPaymentRequest;
    }
 
    public PaymentDetails getPaymentDetails() {

@@ -125,6 +125,7 @@
         <activity android:name=".activity.modern.HDSigningActivity" />
         <activity android:name=".activity.BipSsImportActivity" />
         <activity android:name=".activity.CreateKeyActivity" />
+        <activity android:name=".activity.HandleUrlActivity" />
         <activity android:name=".trezor.activity.InstantTrezorActivity" />
         <activity android:name=".trezor.activity.TrezorAccountImportActivity" />
         <activity android:name=".trezor.activity.TrezorSignTransactionActivity" />
