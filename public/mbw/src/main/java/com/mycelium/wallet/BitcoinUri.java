@@ -48,14 +48,21 @@ import com.mrd.bitlib.model.NetworkParameters;
  * purpose.
  */
 public class BitcoinUri implements Serializable {
-   //todo: check where code expects the address to be present -> with BIP72 it might not be
-
    private static final long serialVersionUID = 1L;
 
    public final Address address;
    public final Long amount;
    public final String label;
    public final String callbackURL;
+
+   // returns a BitcoinUriWithAddress if address != null
+   public static BitcoinUri from(Address address, Long amount, String label, String callbackURL){
+      if (address != null){
+         return new BitcoinUriWithAddress(address, amount, label, callbackURL);
+      } else {
+         return new BitcoinUri(null, amount, label, callbackURL);
+      }
+   }
 
    public BitcoinUri(Address address, Long amount, String label) {
       this.address = address;

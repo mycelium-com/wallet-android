@@ -223,6 +223,9 @@ public class SendMainActivity extends Activity {
       //May be null
       _bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(BITCOIN_URI);
 
+      // did we get a raw payment request
+      byte[] _rawPr = getIntent().getByteArrayExtra(RAW_PAYMENT_REQUEST);
+
       _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _fee = _mbwManager.getMinerFee();
@@ -248,6 +251,10 @@ public class SendMainActivity extends Activity {
          }
       }
 
+      if (_amountEntered == null && _amountToSend != null){
+         _amountEntered = ExactBitcoinValue.from(_amountToSend);
+      }
+
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
          HdKeyNode hdKey = (HdKeyNode) getIntent().getSerializableExtra(HD_KEY);
@@ -256,16 +263,28 @@ public class SendMainActivity extends Activity {
          }
       }
 
-      //check whether the account can spend, if not, ask user to select one
+      // check whether the account can spend, if not, ask user to select one
       if (_account.canSpend()) {
          // See if we can create the transaction with what we have
          _transactionStatus = tryCreateUnsignedTransaction();
       } else {
          //we need the user to pick a spending account - the activity will then init sendmain correctly
-         BitcoinUriWithAddress uri = new BitcoinUriWithAddress(_receivingAddress, _amountToSend, _transactionLabel);
-         GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_PICK_ACCOUNT);
+         BitcoinUri uri;
+         if (_bitcoinUri == null) {
+            uri = BitcoinUri.from(_receivingAddress, _amountToSend, _transactionLabel, null);
+         } else {
+            uri = _bitcoinUri;
+         }
+
+         if (_rawPr != null) {
+            GetSpendingRecordActivity.callMeWithResult(this, _rawPr, REQUEST_PICK_ACCOUNT);
+         } else {
+            GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_PICK_ACCOUNT);
+         }
+
          //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
          finish();
+         return;
       }
 
       // SEPA transfer for if cashila account is paired
@@ -280,17 +299,16 @@ public class SendMainActivity extends Activity {
       if (_sepaPayment != null) {
          showSepaInfo(_sepaPayment);
       }
-
-      // lets see if we got a raw Paymentreuest (probably by downloading a file with MIME application/bitcoin-paymentrequest)
-      byte[] _rawPr = getIntent().getByteArrayExtra(RAW_PAYMENT_REQUEST);
+      // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
       if (_rawPr != null && _paymentRequestHandler == null) {
          verifyPaymentRequest(_rawPr);
       }
 
-      //lets check whether we got a payment request uri and need to fetch payment data
+      // lets check whether we got a payment request uri and need to fetch payment data
       if (_bitcoinUri != null && !Strings.isNullOrEmpty(_bitcoinUri.callbackURL) && _paymentRequestHandler == null) {
          verifyPaymentRequest(_bitcoinUri);
       }
+
 
       // Scan
       findViewById(R.id.btScan).setOnClickListener(scanClickListener);

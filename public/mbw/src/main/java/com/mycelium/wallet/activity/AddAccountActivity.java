@@ -177,7 +177,9 @@ public class AddAccountActivity extends Activity {
       b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
          @Override
          public void onClick(DialogInterface dialog, int which) {
-            askForMailAndAddCoinapultAccount();
+            // Create the account initially without set email address
+            // if needed, the user can later set and verify it via account menu.
+            new AddCoinapultAsyncTask(_mbwManager.getEventBus(), Optional.<String>absent()).execute();
          }
       });
       b.setNegativeButton(getString(R.string.dontagree), null);
@@ -191,31 +193,6 @@ public class AddAccountActivity extends Activity {
       String text = "<a href='" + linkUrl + "'> " + link.getText() + "</a>";
       link.setText(Html.fromHtml(text));
 
-      dialog.show();
-   }
-
-   private void askForMailAndAddCoinapultAccount() {
-      AlertDialog.Builder b = new AlertDialog.Builder(this);
-      b.setTitle(getString(R.string.coinapult_mail_question));
-      View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
-      final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
-      mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-      b.setView(diaView);
-      b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            _progress.setCancelable(false);
-            _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progress.setMessage(getString(R.string.createCoinapult));
-            _progress.show();
-            String mailText = mailField.getText().toString();
-            Optional<String> mail;
-            if (mailText.isEmpty()) mail = Optional.absent(); else mail = Optional.of(mailText);
-            new AddCoinapultAsyncTask(_mbwManager.getEventBus(), mail).execute();
-         }
-      });
-
-      AlertDialog dialog = b.create();
       dialog.show();
    }
 

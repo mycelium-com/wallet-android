@@ -799,7 +799,7 @@
     <string name="block_explorer_summary">Transaction details are looked up using the %1$s Block Explorer</string>
     <string name="lt_warning_wrong_account_type">Local Trader does not work with the selected account type, please select another account.</string>
     <string name="lt_account_not_allowed">The selected account type does not work with local trader. You need to select another account to perform this trade.</string>
-    <string name="coinapult_mail_hint">Optional: enter mail address</string>
+    <string name="coinapult_mail_hint">Enter mail address</string>
     <string name="coinapult_mail_description">If you provide your email address, you can file a support ticket with Coinapult by sending an email to support@coinapult.com from the email you specify.</string>
     <string name="coinapult_threshold_warning">Warning: Coinapult accounts cannot complete conversion transactions that are less than $1.00 USD of value. If less than 1 USD is sent to your Coinapult account, the conversion will fail. The bitcoins will be redeemable through Coinapult at support@coinapult.com.</string>
     <string name="amount_too_small_coinapult">Amount too low, minimum withdrawal is %1$s USD.</string>
