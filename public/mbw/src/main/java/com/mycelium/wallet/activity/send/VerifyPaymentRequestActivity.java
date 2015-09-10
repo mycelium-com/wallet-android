@@ -233,6 +233,11 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    }
 
    private void updateUi() {
+      if (requestException == null && requestInformation == null){
+         // no payment request (or error) available
+         return;
+      }
+
       if (requestException != null) {
          tvMerchant.setText(requestException.getMessage());
          tvValid.setText(getString(R.string.payment_request_invalid_signature));
