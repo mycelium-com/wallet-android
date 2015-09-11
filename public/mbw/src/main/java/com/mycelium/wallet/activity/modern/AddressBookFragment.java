@@ -142,7 +142,10 @@ public class AddressBookFragment extends Fragment {
       for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-         entries.add(new AddressBookManager.IconEntry(account.getReceivingAddress(), name, drawableForAccount));
+         Optional<Address> receivingAddress = account.getReceivingAddress();
+         if (receivingAddress.isPresent()) {
+            entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount));
+         }
       }
       if (entries.isEmpty()) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);

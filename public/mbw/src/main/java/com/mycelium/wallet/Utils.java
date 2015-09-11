@@ -766,6 +766,7 @@ public class Utils {
 
    public  static boolean isAllowedForLocalTrader(WalletAccount account) {
       if (account instanceof CoinapultManager) return false; //we do not support coinapult accs in lt (yet)
+      if (!account.getReceivingAddress().isPresent()) return false;  // the account has no valid receiving address (should not happen) - dont use it
       return true; //all other account types including trezor accs are fine
    }
 

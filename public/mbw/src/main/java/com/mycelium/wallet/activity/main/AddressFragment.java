@@ -44,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
@@ -104,10 +105,25 @@ public class AddressFragment extends Fragment {
       // Update QR code
       QrImageView qrButton = (QrImageView) Preconditions.checkNotNull(_root.findViewById(R.id.ivQR));
 
-      qrButton.setQrCode(BitcoinUriWithAddress.fromAddress(getAddress()).toString());
+      Optional<Address> receivingAddress = getAddress();
 
       // Update address
-      Address address = getAddress();
+      if (receivingAddress.isPresent()) {
+         // Set address
+         qrButton.setVisibility(View.VISIBLE);
+         qrButton.setQrCode(BitcoinUriWithAddress.fromAddress(receivingAddress.get()).toString());
+         String[] addressStrings = Utils.stringChopper(receivingAddress.get().toString(), 12);
+         ((TextView) _root.findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
+         ((TextView) _root.findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
+         ((TextView) _root.findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
+      } else {
+         // No address available
+         qrButton.setVisibility(View.INVISIBLE);
+         ((TextView) _root.findViewById(R.id.tvAddress1)).setText("");
+         ((TextView) _root.findViewById(R.id.tvAddress2)).setText("");
+         ((TextView) _root.findViewById(R.id.tvAddress3)).setText("");
+      }
+
       // Show name of bitcoin address according to address book
       TextView tvAddressTitle = (TextView) _root.findViewById(R.id.tvAddressLabel);
       ImageView ivAccountType = (ImageView) _root.findViewById(R.id.ivAccountType);
@@ -130,22 +146,20 @@ public class AddressFragment extends Fragment {
          }
       }
 
-      // Set address
-      String[] addressStrings = Utils.stringChopper(address.toString(), 12);
-      ((TextView) _root.findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
-      ((TextView) _root.findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
-      ((TextView) _root.findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
    }
 
-    public Address getAddress() {
+    public Optional<Address> getAddress() {
         return _mbwManager.getSelectedAccount().getReceivingAddress();
     }
 
     private class QrClickListener implements OnClickListener {
       @Override
       public void onClick(View v) {
-         ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
-               _mbwManager.getSelectedAccount().getReceivingAddress(), _mbwManager.getSelectedAccount().canSpend());
+         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
+         if (receivingAddress.isPresent()) {
+            ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
+                  receivingAddress.get(), _mbwManager.getSelectedAccount().canSpend());
+         }
       }
    }
 

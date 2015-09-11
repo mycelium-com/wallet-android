@@ -43,8 +43,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
@@ -53,7 +55,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -127,8 +129,11 @@ public class BalanceFragment extends Fragment {
 
       @Override
       public void onClick(View arg0) {
-         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getReceivingAddress(),
-               _mbwManager.getSelectedAccount().canSpend());
+         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
+         if (receivingAddress.isPresent()) {
+            ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
+                  _mbwManager.getSelectedAccount().canSpend());
+         }
       }
    };
 
@@ -215,8 +220,8 @@ public class BalanceFragment extends Fragment {
       } else {
          _root.findViewById(R.id.tvReceiving).setVisibility(View.GONE);
       }
-      //todo maybe show a conversion here as well?
-      setFiatValue(R.id.tvReceivingFiat, 0, true);
+      // show fiat value (if balance is in btc)
+      setFiatValue(R.id.tvReceivingFiat, balance.receiving, true);
 
       // Show/Hide Sending
       if (balance.sending.getValue().compareTo(BigDecimal.ZERO) > 0) {
@@ -228,17 +233,21 @@ public class BalanceFragment extends Fragment {
       } else {
          _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
       }
-      //todo maybe show a conversion here as well?
-      setFiatValue(R.id.tvSendingFiat,0, true);
+      // show fiat value (if balance is in btc)
+      setFiatValue(R.id.tvSendingFiat, balance.sending, true);
    }
 
-   private void setFiatValue(int textViewResourceId, long satoshis, boolean hideOnZeroBalance) {
+   private void setFiatValue(int textViewResourceId, CurrencyValue value, boolean hideOnZeroBalance) {
       TextView tv = (TextView) _root.findViewById(textViewResourceId);
-      if (!_mbwManager.hasFiatCurrency() || _exchangeRatePrice == null || (hideOnZeroBalance && satoshis == 0)) {
+      if (!_mbwManager.hasFiatCurrency()
+            || _exchangeRatePrice == null
+            || (hideOnZeroBalance && value.isZero())
+            || value.isFiat()
+            ) {
          tv.setVisibility(View.GONE);
       } else {
          tv.setVisibility(View.VISIBLE);
-
+         long satoshis = value.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
          String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
          String currency = _mbwManager.getFiatCurrency();
          tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));

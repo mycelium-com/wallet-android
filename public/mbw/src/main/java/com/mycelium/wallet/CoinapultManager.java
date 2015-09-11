@@ -55,7 +55,7 @@ public class CoinapultManager implements WalletAccount {
    private final Bus eventBus;
    private final UUID uuid;
    private CoinapultClient coinapultClient;
-   private Address currentAddress;
+   private Optional<Address> currentAddress = Optional.absent();
    private CurrencyBasedBalance balanceUSD;
    private final InMemoryPrivateKey accountKey;
    private final Handler handler;
@@ -145,8 +145,8 @@ public class CoinapultManager implements WalletAccount {
          }
          //setting preference to USD
          coinapultClient.config(address, "USD");
-         currentAddress = Address.fromString(address);
-         metadataStorage.storeCoinapultAddress(currentAddress);
+         currentAddress = Optional.of(Address.fromString(address));
+         metadataStorage.storeCoinapultAddress(currentAddress.get());
       } catch (Exception e) {
          Log.e("CoinapultManager", "Failed to initBalance", e);
          handler.post(new Runnable() {
@@ -248,13 +248,9 @@ public class CoinapultManager implements WalletAccount {
    }
 
    @Override
-   public Address getReceivingAddress() {
-      if (currentAddress == null) {
-         Optional<Address> coinapultAddress = metadataStorage.getCoinapultAddress();
-         if (!coinapultAddress.isPresent()) {
-            return Address.getNullAddress(getNetwork());
-         }
-         currentAddress = coinapultAddress.get();
+   public Optional<Address> getReceivingAddress() {
+      if (!currentAddress.isPresent()) {
+         currentAddress = metadataStorage.getCoinapultAddress();
       }
       return currentAddress;
    }
@@ -412,11 +408,13 @@ public class CoinapultManager implements WalletAccount {
    @Override
    public boolean isMine(Address address) {
       // there might be more, but currently we only know about this one...
-      return getReceivingAddress().equals(address);
+      Optional<Address> receivingAddress = getReceivingAddress();
+      return  receivingAddress.isPresent() && receivingAddress.get().equals(address);
    }
 
    @Override
    public boolean synchronize(boolean synchronizeTransactionHistory) {
+
       try {
          queryActive();
          if (synchronizeTransactionHistory) {

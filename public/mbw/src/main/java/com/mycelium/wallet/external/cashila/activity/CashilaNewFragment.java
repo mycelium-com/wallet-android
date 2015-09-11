@@ -48,6 +48,8 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -201,11 +203,16 @@ public class CashilaNewFragment extends Fragment {
          return null;
       }
 
+      Optional<Address> receivingAddress = mbw.getSelectedAccount().getReceivingAddress();
+      if (!receivingAddress.isPresent()){
+         return null;
+      }
+
       CreateBillPayBasedOnRecent newBillPay = new CreateBillPayBasedOnRecent(
             UUID.fromString(selectedItem.id),
             amount, "EUR",
             etReference.getText().toString(),
-            mbw.getSelectedAccount().getReceivingAddress());
+            receivingAddress.get());
       return newBillPay;
    }
 

@@ -1063,7 +1063,8 @@ public class MbwManager {
       Preconditions.checkState(account.isActive());
       getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
       getEventBus().post(new SelectedAccountChanged(uuid));
-      getEventBus().post(new ReceivingAddressChanged(account.getReceivingAddress()));
+      Optional<Address> receivingAddress = account.getReceivingAddress();
+      getEventBus().post(new ReceivingAddressChanged(receivingAddress));
    }
 
    public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {

@@ -47,6 +47,10 @@ public abstract class CurrencyValue implements Serializable {
    public abstract String getCurrency();
 
    public abstract BigDecimal getValue();
+
+   public boolean isZero(){
+      return BigDecimal.ZERO.compareTo(getValue()) == 0;
+   }
    
    @Override
    public String toString() {

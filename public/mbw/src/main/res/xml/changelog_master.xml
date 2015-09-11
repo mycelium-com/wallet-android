@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release version="2.5.1" versioncode="25100">
-        <change>[bugfix] Fix error if exchange rate changes while a payment request gets fetched</change>
+        <change>Show fiat value of sending/receiving amounts</change>
+        <change>[bugfix] dont show any address if coinapult servers do not respond</change>
     </release>
     <release version="2.5.0" versioncode="25012">
         <change>Added Ledger support (Ledger Nano, HW.1 and also Ledger-Unplugged)</change>

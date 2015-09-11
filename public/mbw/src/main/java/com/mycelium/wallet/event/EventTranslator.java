@@ -35,6 +35,8 @@
 package com.mycelium.wallet.event;
 
 import android.os.Handler;
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
@@ -92,7 +94,8 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             //Transaction history changed
             break;
          case RECEIVING_ADDRESS_CHANGED:
-            postEvent(new ReceivingAddressChanged(wallet.getAccount(accountId).getReceivingAddress()));
+            Optional<Address> receivingAddress = wallet.getAccount(accountId).getReceivingAddress();
+            postEvent(new ReceivingAddressChanged(receivingAddress));
             break;
          default:
             //unknown event

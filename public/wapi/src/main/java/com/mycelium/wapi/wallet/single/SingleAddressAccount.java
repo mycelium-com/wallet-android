@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet.single;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -178,10 +179,10 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   public Address getReceivingAddress() {
+   public Optional<Address> getReceivingAddress() {
       //removed checkNotArchived, cause we wont to know the address for archived acc
       //to display them as archived accounts in "Accounts" tab
-      return getAddress();
+      return Optional.of(getAddress());
    }
 
    @Override
@@ -279,7 +280,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          } else {
             sb.append(" Balance: ").append(_cachedBalance);
          }
-         sb.append(" Receiving Address: ").append(getReceivingAddress());
+         Optional<Address> receivingAddress = getReceivingAddress();
+         sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
       }
       return sb.toString();

@@ -26,8 +26,8 @@ public class WalletVersion {
    private static WalletVersion noUpdatePrior = WalletVersion.from("2.0.7");
 
    private static Set<WalletVersion> latestVersions = ImmutableSet.of(
-         WalletVersion.from("2.4.4"),
-         WalletVersion.from("2.4.4-TESTNET"),
+         WalletVersion.from("2.5.0"),
+         WalletVersion.from("2.5.0-TESTNET"),
          WalletVersion.from("1.3.3-BOG"));
 
    private static Map<String, Set<WalletVersion>> latestVersionsEx = ImmutableMap.of(

@@ -114,7 +114,7 @@ public class CmdLineWallet {
       }
 
       wallet1.createAdditionalBip44Account(cipher);
-      print("Wallet 1 account 0 receiving address 0: " + wallet1.getActiveAccounts().get(0).getReceivingAddress().toString());
+      print("Wallet 1 account 0 receiving address 0: " + wallet1.getActiveAccounts().get(0).getReceivingAddress().get().toString());
 
       WalletManagerBacking backing2 = new InMemoryWalletManagerBacking();
       SecureKeyValueStore secureKeyValueStore2 = new SecureKeyValueStore(backing2, _randomSource);
@@ -129,7 +129,7 @@ public class CmdLineWallet {
 
       wallet2.createAdditionalBip44Account(cipher);
 
-      print("Wallet 2 account 0 receiving address 0: " + wallet2.getActiveAccounts().get(0).getReceivingAddress().toString());
+      print("Wallet 2 account 0 receiving address 0: " + wallet2.getActiveAccounts().get(0).getReceivingAddress().get().toString());
 
       Observer observer = new Observer() {
 
@@ -144,7 +144,7 @@ public class CmdLineWallet {
                } else {
                   foreign = wallet1;
                }
-               Address address = foreign.getActiveAccounts().get(0).getReceivingAddress();
+               Address address = foreign.getActiveAccounts().get(0).getReceivingAddress().get();
                WalletAccount myAccount = wallet.getActiveAccounts().get(0);
                List<Receiver> receivers = new ArrayList<Receiver>();
                receivers.add(new Receiver(address, 10000 * (1 + new Random().nextInt(100))));

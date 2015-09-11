@@ -355,10 +355,10 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return _internalAddresses.inverse().get(_context.getLastInternalIndexWithActivity() + 1);
    }
 
-   public Address getReceivingAddress() {
+   public Optional<Address> getReceivingAddress() {
       // public method that needs no synchronization
       checkNotArchived();
-      return _currentReceivingAddress;
+      return Optional.of(_currentReceivingAddress);
    }
 
    //used for message signing picker
@@ -473,7 +473,8 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          } else {
             sb.append(" Balance: ").append(_cachedBalance);
          }
-         sb.append(" Receiving Address: ").append(getReceivingAddress());
+         Optional<Address> receivingAddress = getReceivingAddress();
+         sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
          toStringMonitoredAddresses(sb);
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
       }

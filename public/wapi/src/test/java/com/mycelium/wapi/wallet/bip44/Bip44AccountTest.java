@@ -166,7 +166,7 @@ public class Bip44AccountTest {
 
       Bip44Account account1 = (Bip44Account) walletManager.getAccount(account1Id);
 
-      assertEquals(Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS), account1.getReceivingAddress());
+      assertEquals(Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS), account1.getReceivingAddress().get());
       assertEquals(Address.fromString(MASTER_SEED_512_A0_C0_ADDRESS), account1.getChangeAddress());
    }
 

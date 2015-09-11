@@ -588,9 +588,6 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
-   public abstract Address getReceivingAddress();
-
-   @Override
    public abstract int getBlockChainHeight();
 
    protected abstract void setBlockChainHeight(int blockHeight);

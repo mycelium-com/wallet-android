@@ -995,7 +995,7 @@ public class SendMainActivity extends Activity {
                if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
                   // first send signed tx directly to the Merchant, and broadcast
                   // it only if we get a ACK from him (in paymentRequestAck)
-                  _paymentRequestHandler.sendResponse(_signedTransaction, _account.getReceivingAddress());
+                  _paymentRequestHandler.sendResponse(_signedTransaction, _account.getReceivingAddress().get());
                } else {
                   Toast.makeText(SendMainActivity.this, getString(R.string.payment_request_not_sent_expired),
                         Toast.LENGTH_LONG).show();
@@ -1094,7 +1094,7 @@ public class SendMainActivity extends Activity {
    public void syncFinished(SyncStopped event) {
       if (_xpubSyncing) {
          _xpubSyncing = false;
-         _receivingAddress = _mbwManager.getWalletManager(true).getAccount(_receivingAcc).getReceivingAddress();
+         _receivingAddress = _mbwManager.getWalletManager(true).getAccount(_receivingAcc).getReceivingAddress().get();
          if (_progress != null) {
             _progress.dismiss();
          }

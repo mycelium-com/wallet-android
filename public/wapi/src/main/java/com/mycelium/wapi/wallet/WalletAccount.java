@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.google.common.base.Optional;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -97,7 +98,7 @@ public interface WalletAccount {
     * continuously use the same receiving address while others return new ones
     * as they get used.
     */
-   Address getReceivingAddress();
+   Optional<Address> getReceivingAddress();
 
    /**
     * Can this account be used for spending, or is it read-only?

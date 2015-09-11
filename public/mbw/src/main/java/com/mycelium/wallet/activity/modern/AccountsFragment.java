@@ -59,6 +59,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.CoinapultManager;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
@@ -219,20 +220,36 @@ public class AccountsFragment extends Fragment {
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
                // is money on archived accounts
+               Optional<Address> receivingAddress = accountToDelete.getReceivingAddress();
                if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
                   if (label != null && label.length() != 0) {
+                     String address;
+                     if (receivingAddress.isPresent()) {
+                        address = receivingAddress.get().toMultiLineString();
+                     } else {
+                        address = "";
+                     }
                      message = getString(R.string.confirm_delete_pk_with_balance_with_label, label,
-                           accountToDelete.getReceivingAddress().toMultiLineString(), _mbwManager.getBtcValueString(satoshis));
+                           address, _mbwManager.getBtcValueString(satoshis));
                   } else {
-                     message = getString(R.string.confirm_delete_pk_with_balance, accountToDelete.getReceivingAddress().toMultiLineString(),
-                           _mbwManager.getBtcValueString(satoshis));
+                     message = getString(
+                           R.string.confirm_delete_pk_with_balance,
+                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
+                           _mbwManager.getBtcValueString(satoshis)
+                     );
                   }
                } else {
                   if (label != null && label.length() != 0) {
-                     message = getString(R.string.confirm_delete_pk_without_balance_with_label, label,
-                           accountToDelete.getReceivingAddress().toMultiLineString());
+                     message = getString(
+                           R.string.confirm_delete_pk_without_balance_with_label,
+                           label,
+                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                     );
                   } else {
-                     message = getString(R.string.confirm_delete_pk_without_balance, accountToDelete.getReceivingAddress().toMultiLineString());
+                     message = getString(
+                           R.string.confirm_delete_pk_without_balance,
+                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                     );
                   }
                }
                confirmDeleteDialog.setMessage(message);

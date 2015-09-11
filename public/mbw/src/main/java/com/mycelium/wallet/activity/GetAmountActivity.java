@@ -410,7 +410,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void maximizeAmount() {
-      if (_maxSpendableAmount.getValue().compareTo(BigDecimal.ZERO)==0) {
+      if (_maxSpendableAmount.isZero()) {
          String msg = getResources().getString(R.string.insufficient_funds);
          Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
       } else {
@@ -421,7 +421,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void checkEntry() {
-      if (_amount.getValue() == null || _amount.getValue().compareTo(BigDecimal.ZERO)==0) {
+      if (_amount.getValue() == null || _amount.isZero()) {
          // Nothing entered
          ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
          findViewById(R.id.btOk).setEnabled(false);
@@ -431,7 +431,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          AmountValidation result = checkTransaction();
          // Enable/disable Ok button
          findViewById(R.id.btOk).setEnabled(result == AmountValidation.Ok
-               && _amount.getValue().compareTo(BigDecimal.ZERO)!=0);
+               && !_amount.isZero());
       } else {
          findViewById(R.id.btOk).setEnabled(true);
       }

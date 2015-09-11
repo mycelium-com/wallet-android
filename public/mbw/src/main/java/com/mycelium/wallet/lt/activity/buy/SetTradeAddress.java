@@ -83,7 +83,7 @@ public class SetTradeAddress extends Activity {
       Preconditions.checkNotNull(_tradeSession);
       Preconditions.checkNotNull(_tradeSession.id);
       WalletAccount account = _mbwManager.getSelectedAccount();
-      _address = account.getReceivingAddress();
+      _address = account.getReceivingAddress().get();
       // Set label if applicable
       TextView addressLabel = (TextView) findViewById(R.id.tvAddressLabel);
       String label = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
