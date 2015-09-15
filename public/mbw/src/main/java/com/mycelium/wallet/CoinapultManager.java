@@ -217,7 +217,7 @@ public class CoinapultManager implements WalletAccount {
          //users will get confused -> opt to show an explanation in sendmain
          //throw new StandardTransactionBuilder.OutputTooSmallException(receiver.amount);
       }
-      if (usd.isPresent() && usd.get().getValue().compareTo(balanceUSD.confirmed.getValue()) > 0) {
+      if (balanceUSD == null || usd.isPresent() && usd.get().getValue().compareTo(balanceUSD.confirmed.getValue()) > 0) {
          //not enough funds
          throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
       }
@@ -659,6 +659,11 @@ public class CoinapultManager implements WalletAccount {
          String fiat = amount != null ? ", amount=" + amount : "";
          return "address=" + address + sat + fiat;
       }
+   }
+
+   @Override
+   public boolean onlySyncWhenActive() {
+      return true;
    }
 
 }

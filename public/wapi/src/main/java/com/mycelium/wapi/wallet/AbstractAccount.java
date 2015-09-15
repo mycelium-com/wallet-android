@@ -1151,4 +1151,8 @@ public abstract class AbstractAccount implements WalletAccount {
       return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
    }
 
+   @Override
+   public boolean onlySyncWhenActive() {
+      return false;
+   }
 }

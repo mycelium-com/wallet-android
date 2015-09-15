@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.5.2" versioncode="25200">
+        <change>Only sync coinapult account, if it is the selected account</change>
+        <change>[bugfix] various small bug fixes</change>
+    </release>
     <release version="2.5.1" versioncode="25100">
-        <change>Show fiat value of sending/receiving amounts</change>
         <change>[bugfix] dont show any address if coinapult servers do not respond</change>
     </release>
     <release version="2.5.0" versioncode="25012">

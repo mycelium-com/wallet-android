@@ -417,9 +417,7 @@ public class Utils {
       } catch (SecurityException ex) {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
-         //it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         //we could also skip the reporting to server, but lets see if this works.
-         MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
+         // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
          Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       } catch (NullPointerException ex) {

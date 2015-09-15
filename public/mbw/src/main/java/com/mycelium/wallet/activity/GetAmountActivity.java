@@ -195,8 +195,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          // Return the number of satoshis
          Intent result = new Intent();
          result.putExtra(AMOUNT, _amount);
-         long longValue = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
-         result.putExtra(AMOUNT_SATOSHI, longValue);
+         Bitcoins amountBtc = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager());
+         if (amountBtc != null) {
+            long longValue = amountBtc.getLongValue();
+            result.putExtra(AMOUNT_SATOSHI, longValue);
+         }
          setResult(RESULT_OK, result);
          GetAmountActivity.this.finish();
       }
@@ -372,6 +375,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          Long satoshis;
          int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          satoshis = value.movePointRight(decimals).longValue();
+         if (satoshis > Bitcoins.MAX_VALUE){
+            // entered value is larger then total amount of bitcoins ever existing
+            return;
+         }
+
          _amount = ExactBitcoinValue.from(satoshis);
       } else {
          _amount = ExactCurrencyValue.from(value, _amount.getCurrency());

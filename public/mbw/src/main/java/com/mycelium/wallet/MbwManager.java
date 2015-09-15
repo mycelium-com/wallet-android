@@ -1065,6 +1065,8 @@ public class MbwManager {
       getEventBus().post(new SelectedAccountChanged(uuid));
       Optional<Address> receivingAddress = account.getReceivingAddress();
       getEventBus().post(new ReceivingAddressChanged(receivingAddress));
+      // notify the wallet manager that this is the active account now
+      _walletManager.setActiveAccount(account.getId());
    }
 
    public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {

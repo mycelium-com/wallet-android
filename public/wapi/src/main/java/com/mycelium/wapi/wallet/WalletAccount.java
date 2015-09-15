@@ -317,8 +317,13 @@ public interface WalletAccount {
     *
     * @return the summary list of unspent transaction outputs for this account.
     */
-   public List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
+   List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
 
+   /**
+    * Only sync this account if it is the active one
+    * @return true if this account should always be synced
+    */
+   boolean onlySyncWhenActive();
 
    /**
     * Class representing a receiver of funds

@@ -978,9 +978,12 @@ public class SendMainActivity extends Activity {
          updateUi();
       } else if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from AmountEntry
-         _amountToSend = Preconditions.checkNotNull((Long) intent.getSerializableExtra(GetAmountActivity.AMOUNT_SATOSHI));
-         _amountEntered = (CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
-         _transactionStatus = tryCreateUnsignedTransaction();
+         Long amountSatoshi = (Long) intent.getSerializableExtra(GetAmountActivity.AMOUNT_SATOSHI);
+         if (amountSatoshi != null) {
+            _amountToSend = amountSatoshi;
+            _amountEntered = (CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
+            _transactionStatus = tryCreateUnsignedTransaction();
+         }
          updateUi();
       } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {

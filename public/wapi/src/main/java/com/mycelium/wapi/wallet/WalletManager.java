@@ -147,6 +147,7 @@ public class WalletManager {
    private boolean _synchronizeTransactionHistory;
    private final ExternalSignatureProviderProxy _signatureProviders;
    private IdentityAccountKeyManager _identityAccountKeyManager;
+   private volatile UUID _activeAccountId;
 
    private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
 
@@ -676,6 +677,8 @@ public class WalletManager {
    }
 
 
+   private volatile boolean isFirstSync = true;
+
    private class Synchronizer implements Runnable {
 
       @Override
@@ -730,17 +733,31 @@ public class WalletManager {
       }
 
       private boolean synchronize() {
-         for (WalletAccount account : _allAccounts.values()) {
-            if (account.isArchived()) {
-               continue;
+         try {
+            for (WalletAccount account : _allAccounts.values()) {
+               if (account.isArchived()) {
+                  continue;
+               }
+
+               // sync all accounts on startup
+               if (!isFirstSync) {
+                  // _activeAccountId might be null - then we sync all accounts
+                  if (account.onlySyncWhenActive() && !account.getId().equals(_activeAccountId)) {
+                     // this account should only be synced if active
+                     continue;
+                  }
+               }
+
+               if (!account.synchronize(_synchronizeTransactionHistory)) {
+                  // We failed to broadcast due to API error, we will have to try
+                  // again later
+                  return false;
+               }
             }
-            if (!account.synchronize(_synchronizeTransactionHistory)) {
-               // We failed to broadcast due to API error, we will have to try
-               // again later
-               return false;
-            }
+            return true;
+         }finally {
+            isFirstSync = false;
          }
-         return true;
       }
 
    }
@@ -754,6 +771,10 @@ public class WalletManager {
             }
          }
       }
+   }
+
+   public void setActiveAccount(UUID accountId){
+      _activeAccountId = accountId;
    }
 
    /**
