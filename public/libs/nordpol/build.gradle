@@ -26,6 +26,7 @@ android {
 //    we are just embedding the zxing lib here, we are not maintaining it.
     lintOptions {
         ignoreWarnings true
+	abortOnError false	
     }
 
 }
