@@ -50,6 +50,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    private BTChipTransportFactory transportFactory;
    private BTChipDongle dongle;
    private boolean disableTee;
+   private byte[] aid;
    protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<String>(1);
    protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<String>(1);
 
@@ -69,7 +70,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    private static final String DUMMY_PIN = "0000";
 
-   private static final byte AID[] = Dump.hexToBin("a0000006170054bf6aa94901");
+   private static final String DEFAULT_UNPLUGGED_AID = "a0000006170054bf6aa94901";
 
    // EventBus classes
    public static class OnPinRequest {
@@ -88,6 +89,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       SharedPreferences preferences = this.context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
             Activity.MODE_PRIVATE);
       disableTee = preferences.getBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, false);
+      aid = Dump.hexToBin(preferences.getString(Constants.LEDGER_UNPLUGGED_AID_SETTING, DEFAULT_UNPLUGGED_AID));
    }
 
 
@@ -140,7 +142,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
          if (!initialized) {
             transportFactory = new BTChipTransportAndroid(context);
-            ((BTChipTransportAndroid) transportFactory).setAID(AID);
+            ((BTChipTransportAndroid) transportFactory).setAID(aid);
          }
          Log.d(LOG_TAG, "Using transport " + transportFactory.getClass());
       }
@@ -558,6 +560,17 @@ public class LedgerManager extends AbstractAccountScanManager implements
       disableTee = disabled;
       editor.putBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, disabled);
       editor.commit();
+   }
+   
+   public String getUnpluggedAID() {
+	   return Dump.dump(aid);
+   }
+   
+   public void setUnpluggedAID(String aid) {
+	   SharedPreferences.Editor editor = getEditor();
+	   this.aid = Dump.hexToBin(aid);
+	   editor.putString(Constants.LEDGER_UNPLUGGED_AID_SETTING, aid);
+	   editor.commit();
    }
 
    private SharedPreferences.Editor getEditor() {

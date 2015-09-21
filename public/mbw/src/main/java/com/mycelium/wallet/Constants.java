@@ -84,6 +84,7 @@ public class Constants {
    // Ledger preferences
    public static final String LEDGER_SETTINGS_NAME = "ledger_settings";
    public static final String LEDGER_DISABLE_TEE_SETTING = "ledger_disable_tee";
+   public static final String LEDGER_UNPLUGGED_AID_SETTING = "ledger_unplugged_aid";
 
    public static final String LAST_UPDATE_CHECK = "last_update_check";
 
