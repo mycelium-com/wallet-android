@@ -419,7 +419,7 @@ public class SettingsActivity extends PreferenceActivity {
             
       _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
 
-      boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isTeeAvailable(this);
+      boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(this);
       if (isTeeAvailable) {
          _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
          _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);

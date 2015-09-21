@@ -66,7 +66,7 @@ public class LedgerTransportTEEProxyFactory implements BTChipTransportFactory {
       return true;
    }
 
-   public static boolean isTeeAvailable(final Context context) {
+   public static boolean isServiceAvailable(final Context context) {
       LedgerTransportTEEProxyFactory ledgerTransportTEEProxyFactory = new LedgerTransportTEEProxyFactory(context);
       try {
          return ledgerTransportTEEProxyFactory.connect(context, null);

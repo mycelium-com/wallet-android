@@ -94,6 +94,13 @@ public class LedgerManager extends AbstractAccountScanManager implements
    public void setTransportFactory(BTChipTransportFactory transportFactory) {
       this.transportFactory = transportFactory;
    }
+   
+   private boolean isTee() {
+	   if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
+		   return false;
+	   }
+	   return ((LedgerTransportTEEProxy)getTransport().getTransport()).hasTeeImplementation();
+   }
 
    public BTChipTransportFactory getTransport() {
       // Simple demo mode
@@ -179,7 +186,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          postErrorMessage("Failed to connect to Ledger device");
          return null;
       }
-      boolean isTEE = getTransport().getTransport() instanceof LedgerTransportTEEProxy;
+      boolean isTEE = isTee();
 
       setState(Status.readyToScan, currentAccountState);
 
@@ -411,7 +418,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    @Override
    public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex) {
-      boolean isTEE = getTransport().getTransport() instanceof LedgerTransportTEEProxy;
+      boolean isTEE = isTee();
       String keyPath = "44'/" + getNetwork().getBip44CoinType().getLastIndex() + "'/" + accountIndex + "'";
       if (isTEE) {
          // Check if the PIN has been terminated - in this case, reinitialize
