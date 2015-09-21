@@ -49,20 +49,20 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class HdAccountSelectorActivity extends Activity implements AccountScanManager.Events, MasterseedPasswordSetter {
+public abstract class HdAccountSelectorActivity extends Activity implements MasterseedPasswordSetter {
    protected final static int REQUEST_SEND = 1;
    public static final String PASSPHRASE_FRAGMENT_TAG = "passphrase";
    protected ArrayList<HdAccountWrapper> accounts = new ArrayList<HdAccountWrapper>();
@@ -73,14 +73,15 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
    private ListView lvAccounts;
    protected TextView txtStatus;
 
-
    protected abstract AbstractAccountScanManager initMasterseedManager();
 
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+
       setView();
+
       lvAccounts = (ListView)findViewById(R.id.lvAccounts);
       txtStatus = (TextView)findViewById(R.id.txtStatus);
 
@@ -90,7 +91,6 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
       lvAccounts.setOnItemClickListener(accountClickListener());
 
       masterseedScanManager = initMasterseedManager();
-      masterseedScanManager.setEventHandler(this);
 
       startBackgroundScan();
       updateUi();
@@ -126,33 +126,21 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
    abstract protected void setView();
 
    @Override
-   protected void onStop() {
-      super.onStop();
-      masterseedScanManager.setEventHandler(null);
-   }
-
-   @Override
    public void finish() {
       super.finish();
       masterseedScanManager.stopBackgroundAccountScan();
    }
 
    @Override
-   public void onStatusChanged(TrezorManager.Status state, TrezorManager.AccountStatus accountState) {
-      updateUi();
+   protected void onResume() {
+      super.onResume();
+      MbwManager.getInstance(this).getEventBus().register(this);
    }
 
    @Override
-   public synchronized void onAccountFound(AbstractAccountScanManager.HdKeyNodeWrapper account) {
-      HdAccountWrapper acc = new HdAccountWrapper();
-      acc.id = account.accountId;
-      acc.accountIndex = account.accountIndex;
-      acc.name = String.format(getString(R.string.account_number), account.accountIndex + 1);
-      acc.xPub = account.accountRoot;
-      if (!accounts.contains(acc)) {
-         accountsAdapter.add(acc);
-         updateUi();
-      }
+   protected void onPause() {
+      MbwManager.getInstance(getApplicationContext()).getEventBus().unregister(this);
+      super.onPause();
    }
 
    protected void updateUi() {
@@ -189,14 +177,6 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
       // remove all account-data from the tempWalletManager, to improve privacy
       MbwManager.getInstance(this).forgetColdStorageWalletManager();
       masterseedScanManager.forgetAccounts();
-   }
-
-
-
-   @Override
-   public void onPassphraseRequest() {
-      MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
-      pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
    }
 
    @Override
@@ -265,7 +245,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
          if (balance.getSendingBalance() > 0){
             balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSendingBalance()));
          }
-         Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, getResources());
+         Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 
          ((TextView)row.findViewById(R.id.tvBalance)).setText(balanceString);
          ((TextView)row.findViewById(R.id.tvAddress)).setVisibility(View.GONE);
@@ -278,11 +258,36 @@ public abstract class HdAccountSelectorActivity extends Activity implements Acco
       }
    }
 
-   @Override
-   public void onScanError(String errorMsg) {
-      Utils.showSimpleMessageDialog(this, errorMsg);
+
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event){
+      Utils.showSimpleMessageDialog(this, event.errorMessage);
    }
 
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+      updateUi();
+   }
+
+   @Subscribe
+   public void onAccountFound(AccountScanManager.OnAccountFound event){
+      HdAccountWrapper acc = new HdAccountWrapper();
+      acc.id = event.account.accountId;
+      acc.accountIndex = event.account.accountIndex;
+      acc.name = String.format(getString(R.string.account_number), event.account.accountIndex + 1);
+      acc.xPub = event.account.accountRoot;
+      if (!accounts.contains(acc)) {
+         accountsAdapter.add(acc);
+         updateUi();
+      }
+   }
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+      MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
+      pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
+   }
 
 }
 

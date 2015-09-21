@@ -12,10 +12,31 @@
             android:id="@+id/miShowDetails"
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/show_details"/>
+
+    <item
+            android:id="@+id/miShowCoinapultDebug"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="Show Coinapult Debug"/>
+
     <item
             android:id="@+id/miAddToAddressBook"
             yourapp:showAsAction="ifRoom|withText"
             android:title="@string/add_to_addressbook"/>
+
+    <item
+            android:id="@+id/miCancelTransaction"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="@string/menu_item_cancel_transaction"/>
+
+    <item
+            android:id="@+id/miRebroadcastTransaction"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="@string/menu_item_rebroadcast_transaction"/>
+
+    <item
+            android:id="@+id/miDeleteUnconfirmedTransaction"
+            yourapp:showAsAction="ifRoom|withText"
+            android:title="@string/menu_item_delete_unconfirmed_transaction"/>
 
 
 </menu>

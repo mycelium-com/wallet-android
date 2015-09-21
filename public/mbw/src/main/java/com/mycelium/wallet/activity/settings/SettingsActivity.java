@@ -47,9 +47,12 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
+import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.net.ServerEndpointType;
@@ -171,6 +174,14 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
+   private final OnPreferenceClickListener ledgerNotificationDisableTee = new OnPreferenceClickListener() {
+	   public boolean onPreferenceClick(Preference preference) {
+		   CheckBoxPreference p = (CheckBoxPreference) preference;
+		   _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
+		   return true;
+	   }
+   };   
+   
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -180,6 +191,8 @@ public class SettingsActivity extends PreferenceActivity {
    private LocalTraderManager _ltManager;
    private Dialog _dialog;
    private ListPreference _minerFee;
+   private ListPreference _blockExplorer;
+   private CheckBoxPreference _ledgerDisableTee;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -233,11 +246,17 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee = (ListPreference) findPreference("miner_fee");
       _minerFee.setTitle(getMinerFeeTitle());
       _minerFee.setSummary(getMinerFeeSummary());
-      _minerFee.setDefaultValue(_mbwManager.getMinerFee().toString());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
-      CharSequence[] minerFees = new CharSequence[]{MinerFee.ECONOMIC.toString(), MinerFee.NORMAL.toString(), MinerFee.PRIORITY.toString()};
-      CharSequence[] minerFeeNames = new CharSequence[]{getString(R.string.miner_fee_economic_name),
-            getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name)};
+      CharSequence[] minerFees = new CharSequence[]{
+            MinerFee.LOWPRIO.toString(),
+            MinerFee.ECONOMIC.toString(),
+            MinerFee.NORMAL.toString(),
+            MinerFee.PRIORITY.toString()};
+      CharSequence[] minerFeeNames = new CharSequence[]{
+            getString(R.string.miner_fee_lowprio_name),
+            getString(R.string.miner_fee_economic_name),
+            getString(R.string.miner_fee_normal_name),
+            getString(R.string.miner_fee_priority_name)};
       _minerFee.setEntries(minerFeeNames);
       _minerFee.setEntryValues(minerFees);
       _minerFee.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -247,12 +266,33 @@ public class SettingsActivity extends PreferenceActivity {
             _mbwManager.setMinerFee(MinerFee.fromString(newValue.toString()));
             _minerFee.setTitle(getMinerFeeTitle());
             _minerFee.setSummary(getMinerFeeSummary());
-            String description = MinerFee.getMinerFeeDescription(_mbwManager.getMinerFee(), SettingsActivity.this);
+            String description = _mbwManager.getMinerFee().getMinerFeeDescription(SettingsActivity.this);
             Utils.showSimpleMessageDialog(SettingsActivity.this, description);
             return true;
          }
       });
 
+
+      //Block Explorer
+      _blockExplorer = (ListPreference) findPreference("block_explorer");
+      _blockExplorer.setTitle(getBlockExplorerTitle());
+      _blockExplorer.setSummary(getBlockExplorerSummary());
+      _blockExplorer.setValue(_mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
+      CharSequence[] blockExplorerNames = _mbwManager._blockExplorerManager.getBlockExplorerNames(_mbwManager._blockExplorerManager.getAllBlockExplorer());
+      CharSequence[] blockExplorerValues = _mbwManager._blockExplorerManager.getBlockExplorerIds();
+      _blockExplorer.setEntries(blockExplorerNames);
+      _blockExplorer.setEntryValues(blockExplorerValues);
+      _blockExplorer.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+
+         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            _mbwManager.setBlockExplorer(_mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
+            _blockExplorer.setTitle(getBlockExplorerTitle());
+            _blockExplorer.setSummary(getBlockExplorerSummary());
+            return true;
+         }
+      });
+
+      //localcurrency
       _localCurrency = findPreference("local_currency");
       _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
       _localCurrency.setTitle(localCurrencyTitle());
@@ -285,7 +325,7 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
-      ListPreference language = (ListPreference) findPreference("user_language");
+      ListPreference language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
       language.setTitle(getLanguageSettingTitle());
       language.setDefaultValue(Locale.getDefault().getLanguage());
       language.setSummary(_mbwManager.getLanguage());
@@ -357,7 +397,7 @@ public class SettingsActivity extends PreferenceActivity {
       useTor.setEntryValues(new String[]{
             ServerEndpointType.Types.ONLY_HTTPS.toString(),
             ServerEndpointType.Types.ONLY_TOR.toString(),
-      //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
+            //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
       });
 
       useTor.setValue(_mbwManager.getTorMode().toString());
@@ -365,18 +405,28 @@ public class SettingsActivity extends PreferenceActivity {
       useTor.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
          @Override
          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (newValue.equals(ServerEndpointType.Types.ONLY_TOR.toString())){
+            if (newValue.equals(ServerEndpointType.Types.ONLY_TOR.toString())) {
                OrbotHelper obh = new OrbotHelper(SettingsActivity.this);
-               if (!obh.isOrbotInstalled()){
+               if (!obh.isOrbotInstalled()) {
                   obh.promptToInstall(SettingsActivity.this);
                }
             }
-            _mbwManager.setTorMode( ServerEndpointType.Types.valueOf( (String) newValue) );
+            _mbwManager.setTorMode(ServerEndpointType.Types.valueOf((String) newValue));
             useTor.setTitle(getUseTorTitle());
             return true;
          }
       });
+            
+      _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
 
+      boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isTeeAvailable(this);
+      if (isTeeAvailable) {
+         _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
+         _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);
+      } else {
+
+         getPreferenceScreen().removePreference(findPreference("ledger"));
+      }
       applyLocalTraderEnablement();
    }
 
@@ -514,13 +564,23 @@ public class SettingsActivity extends PreferenceActivity {
 
    private String getMinerFeeTitle() {
       return getResources().getString(R.string.pref_miner_fee_title,
-            MinerFee.getMinerFeeName(_mbwManager.getMinerFee(), this));
+            _mbwManager.getMinerFee().getMinerFeeName(this));
    }
 
    private String getMinerFeeSummary() {
-      return getResources().getString(R.string.pref_miner_fee_summary,
-            _mbwManager.getBtcValueString(_mbwManager.getMinerFee().kbMinerFee));
+      return getResources().getString(R.string.pref_miner_fee_block_summary,
+            _mbwManager.getMinerFee().getNBlocks());
    }
+
+   private String getBlockExplorerTitle(){
+      return getResources().getString(R.string.block_explorer_title,
+            _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+   }
+   private String getBlockExplorerSummary(){
+      return getResources().getString(R.string.block_explorer_summary,
+            _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+   }
+
 
    @SuppressWarnings("deprecation")
    private void updateClearPin() {
@@ -546,20 +606,21 @@ public class SettingsActivity extends PreferenceActivity {
          super(new Handler());
       }
 
-      private boolean checkValidMail(CharSequence value) {
-         return value.length() == 0 || //allow empty email, this removes email notifications
-               android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
-      }
 
       @Override
-      public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
+      public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
          AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
+         b.setTitle(getString(R.string.lt_set_email_title));
          b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                String email = emailEdit.getText().toString();
                _ltManager.makeRequest(new SetNotificationMail(email));
+
+               if ((info.notificationEmail==null || !info.notificationEmail.equals(email)) && !Strings.isNullOrEmpty(email)) {
+                  Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.lt_email_please_verify_message));
+               }
             }
          });
          b.setNegativeButton(R.string.cancel, null);
@@ -570,14 +631,22 @@ public class SettingsActivity extends PreferenceActivity {
 
                super.onTextChanged(text, start, lengthBefore, lengthAfter);
                if (okButton != null) { //setText is also set before the alert is finished constructing
-                  okButton.setEnabled(checkValidMail(text));
+                  boolean validMail = Strings.isNullOrEmpty(text.toString()) || //allow empty email, this removes email notifications
+                                        Utils.isValidEmailAddress(text.toString());
+                  okButton.setEnabled(validMail);
                }
             }
          };
          emailEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-
          emailEdit.setText(info.notificationEmail);
-         b.setView(emailEdit);
+         LinearLayout llDialog = new LinearLayout(SettingsActivity.this);
+         llDialog.setOrientation(LinearLayout.VERTICAL);
+         llDialog.setPadding(10, 10, 10, 10);
+         TextView tvInfo = new TextView(SettingsActivity.this);
+         tvInfo.setText(getString(R.string.lt_set_email_info));
+         llDialog.addView(tvInfo);
+         llDialog.addView(emailEdit);
+         b.setView(llDialog);
          AlertDialog dialog = b.show();
          okButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
          _ltManager.unsubscribe(this);
@@ -586,7 +655,7 @@ public class SettingsActivity extends PreferenceActivity {
       @Override
       public void onLtError(int errorCode) {
          pleaseWait.dismiss();
-         new Toaster(SettingsActivity.this).toast("Unable to retrieve Trader Info from the server", false);
+         new Toaster(SettingsActivity.this).toast(getString(R.string.lt_set_email_error), false);
          _ltManager.unsubscribe(this);
 
       }

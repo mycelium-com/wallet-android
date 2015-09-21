@@ -28,9 +28,10 @@
                 android:text="@string/trezor_please_plug_in"/>
         <ProgressBar
                 android:id="@+id/pbProgress"
+                android:layout_below="@+id/tvPluginTrezor"
                 android:layout_width="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:paddingTop="30dp"
+                android:paddingTop="10dp"
                 android:layout_height="wrap_content"/>
 
         <LinearLayout

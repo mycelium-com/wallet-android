@@ -33,7 +33,7 @@ public final class Bitcoins implements Serializable {
 
    public static final long SATOSHIS_PER_BITCOIN = 100000000L;
    private static final BigDecimal SATOSHIS_PER_BITCOIN_BD = BigDecimal.valueOf(SATOSHIS_PER_BITCOIN);
-   private static final long MAX_VALUE = 21000000 * SATOSHIS_PER_BITCOIN;
+   public static final long MAX_VALUE = 21000000 * SATOSHIS_PER_BITCOIN;
    // public static final String BITCOIN_SYMBOL = "\u0243"; // Ƀ
    // public static final String BITCOIN_SYMBOL = "\u0E3F"; // ฿
    public static final String BITCOIN_SYMBOL = "BTC"; // BTC

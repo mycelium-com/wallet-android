@@ -63,7 +63,7 @@ public class HexUtils {
    /**
     * Encodes a single byte to hex symbols.
     * 
-    * @param byte the byte to encode
+    * @param b the byte to encode
     * @return the resulting hex string
     */
    public static String toHex(byte b) {
@@ -119,6 +119,9 @@ public class HexUtils {
       for (int i = 0; i < length; i++) {
          int high = Character.digit(hex[i * 2], 16);
          int low = Character.digit(hex[i * 2 + 1], 16);
+         if (high < 0 || low < 0){
+            throw new RuntimeException("Invalid hex digit " + hex[i * 2] + hex[i * 2 + 1]);
+         }
          int value = (high << 4) | low;
          if (value > 127)
             value -= 256;
@@ -133,5 +136,14 @@ public class HexUtils {
          sb.append("0");
       }
       sb.append(Integer.toHexString(unsignedByte));
+   }
+
+   public static boolean isAllZero(byte[] bytes){
+      for (byte b : bytes){
+         if (b != 0) {
+            return false;
+         }
+      }
+      return true;
    }
 }

@@ -28,13 +28,13 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
@@ -50,6 +50,7 @@ import com.mycelium.wapi.wallet.WalletAccount.Receiver;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.WalletManager.Observer;
 import com.mycelium.wapi.wallet.WalletManager.State;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -113,7 +114,7 @@ public class CmdLineWallet {
       }
 
       wallet1.createAdditionalBip44Account(cipher);
-      print("Wallet 1 account 0 receiving address 0: " + wallet1.getActiveAccounts().get(0).getReceivingAddress().toString());
+      print("Wallet 1 account 0 receiving address 0: " + wallet1.getActiveAccounts().get(0).getReceivingAddress().get().toString());
 
       WalletManagerBacking backing2 = new InMemoryWalletManagerBacking();
       SecureKeyValueStore secureKeyValueStore2 = new SecureKeyValueStore(backing2, _randomSource);
@@ -128,7 +129,7 @@ public class CmdLineWallet {
 
       wallet2.createAdditionalBip44Account(cipher);
 
-      print("Wallet 2 account 0 receiving address 0: " + wallet2.getActiveAccounts().get(0).getReceivingAddress().toString());
+      print("Wallet 2 account 0 receiving address 0: " + wallet2.getActiveAccounts().get(0).getReceivingAddress().get().toString());
 
       Observer observer = new Observer() {
 
@@ -143,13 +144,13 @@ public class CmdLineWallet {
                } else {
                   foreign = wallet1;
                }
-               Address address = foreign.getActiveAccounts().get(0).getReceivingAddress();
+               Address address = foreign.getActiveAccounts().get(0).getReceivingAddress().get();
                WalletAccount myAccount = wallet.getActiveAccounts().get(0);
                List<Receiver> receivers = new ArrayList<Receiver>();
                receivers.add(new Receiver(address, 10000 * (1 + new Random().nextInt(100))));
                try {
                   UnsignedTransaction unsigned = myAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
-                  Transaction transaction = myAccount.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher(), _randomSource);
+                  Transaction transaction = myAccount.signTransaction(unsigned, AesKeyCipher.defaultKeyCipher());
                   myAccount.broadcastTransaction(transaction);
                   wallet.startSynchronization();
                } catch (OutputTooSmallException e) {
@@ -378,7 +379,8 @@ public class CmdLineWallet {
          account = accounts.get(index);
       }
       // Determine max amount
-      long maxAmount = account.calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE);
+      ExactBitcoinValue exactCurrencyValue = (ExactBitcoinValue) account.calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE);
+      long maxAmount = exactCurrencyValue.getAsBitcoin().getLongValue();
       if (maxAmount == 0) {
          print("Not enough funds");
          return;
@@ -421,7 +423,7 @@ public class CmdLineWallet {
 
       print("fee: " + unsigned.calculateFee());
 
-      Transaction tx = account.signTransaction(unsigned, cipher, _randomSource);
+      Transaction tx = account.signTransaction(unsigned, cipher);
       account.broadcastTransaction(tx);
       print("Transaction " + tx.getHash().toString() + " queued");
    }

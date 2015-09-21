@@ -27,16 +27,16 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
    public final long time;
    public final int height;
    public final int confirmations;
-   public final boolean isOutgoing;
+   public final boolean isQueuedOutgoing;
    public final Optional<Address> destinationAddress;
 
-   public TransactionSummary(Sha256Hash txid, long value, long time, int height, int confirmations, boolean isOutgoing, Optional<Address> destinationAddress) {
+   public TransactionSummary(Sha256Hash txid, long value, long time, int height, int confirmations, boolean isQueuedOutgoing, Optional<Address> destinationAddress) {
       this.txid = txid;
       this.value = value;
       this.time = time;
       this.height = height;
       this.confirmations = confirmations;
-      this.isOutgoing = isOutgoing;
+      this.isQueuedOutgoing = isQueuedOutgoing;
       this.destinationAddress = destinationAddress;
    }
 
@@ -49,8 +49,8 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
          return -1;
       } else {
          // Then sort by outgoing status
-         if (isOutgoing != other.isOutgoing) {
-            return isOutgoing ? 1 : -1;
+         if (isQueuedOutgoing != other.isQueuedOutgoing) {
+            return isQueuedOutgoing ? 1 : -1;
          }
          // Finally sort by time
          if (time < other.time) {
@@ -77,5 +77,21 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
       }
       TransactionSummary other = (TransactionSummary) obj;
       return other.txid.equals(this.txid);
+   }
+
+   public boolean canCancel() {
+      return isQueuedOutgoing;
+   }
+
+   public boolean hasAddressBook() {
+      return destinationAddress.isPresent();
+   }
+
+   public boolean hasDetails() {
+      return true;
+   }
+
+   public boolean canCoinapult() {
+      return false;
    }
 }

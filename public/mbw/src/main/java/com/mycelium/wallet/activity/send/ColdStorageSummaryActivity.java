@@ -44,7 +44,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -105,7 +107,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Address
-      ((TextView) findViewById(R.id.tvAddress)).setText(_account.getReceivingAddress().toMultiLineString());
+      Optional<Address> receivingAddress = _account.getReceivingAddress();
+      ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
 
       // Balance
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));

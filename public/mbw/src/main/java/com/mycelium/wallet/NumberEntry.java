@@ -34,12 +34,12 @@
 
 package com.mycelium.wallet;
 
-import java.math.BigDecimal;
-
 import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import java.math.BigDecimal;
 
 public class NumberEntry {
 
@@ -88,6 +88,15 @@ public class NumberEntry {
       }
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btZero), 0);
       setClickListener((Button) _llNumberEntry.findViewById(R.id.btDel), DEL);
+
+      _llNumberEntry.findViewById(R.id.btDel).setOnLongClickListener(new View.OnLongClickListener() {
+         @Override
+         public boolean onLongClick(View v) {
+            _entry = "";
+            _listener.onEntryChanged(_entry, false);
+            return true;
+         }
+      });
    }
 
    private void clicked(int digit) {
@@ -160,7 +169,7 @@ public class NumberEntry {
       if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
          _entry = "";
       } else {
-         _entry = number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).toPlainString();
+         _entry = number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).stripTrailingZeros().toPlainString();
       }
       _listener.onEntryChanged(_entry, true);
    }

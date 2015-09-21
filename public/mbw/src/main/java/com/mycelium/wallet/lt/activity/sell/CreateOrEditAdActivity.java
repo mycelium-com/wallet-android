@@ -111,9 +111,6 @@ public class CreateOrEditAdActivity extends Activity {
    private Spinner _spPremium;
    private Spinner _spAdType;
    private Button _btCreate;
-   private Button _btChange;
-   private Button _btCurrency;
-   private Button _btEdit;
    private TextView _tvDescription;
    private TextView _tvMinAmount;
    private TextView _tvMaxAmount;
@@ -142,12 +139,12 @@ public class CreateOrEditAdActivity extends Activity {
       _spAdType = (Spinner) findViewById(R.id.spAdType);
       _spPriceFormula = (Spinner) findViewById(R.id.spPriceFormula);
       _spPremium = (Spinner) findViewById(R.id.spPremium);
-      _btChange = (Button) findViewById(R.id.btChange);
-      _btChange.setOnClickListener(changeClickListener);
-      _btCurrency = (Button) findViewById(R.id.btCurrency);
-      _btCurrency.setOnClickListener(currencyClickListener);
-      _btEdit = (Button) findViewById(R.id.btEdit);
-      _btEdit.setOnClickListener(editClickListener);
+      Button btChange = (Button) findViewById(R.id.btChange);
+      btChange.setOnClickListener(changeClickListener);
+      Button btCurrency = (Button) findViewById(R.id.btCurrency);
+      btCurrency.setOnClickListener(currencyClickListener);
+      Button btEdit = (Button) findViewById(R.id.btEdit);
+      btEdit.setOnClickListener(editClickListener);
       _btCreate = (Button) findViewById(R.id.btCreate);
       _btCreate.setOnClickListener(createOrEditClickListener);
       _tvMinAmount = (TextView) findViewById(R.id.tvMinAmount);

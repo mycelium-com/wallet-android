@@ -48,22 +48,39 @@ import com.mrd.bitlib.model.NetworkParameters;
  * purpose.
  */
 public class BitcoinUri implements Serializable {
-
    private static final long serialVersionUID = 1L;
 
    public final Address address;
    public final Long amount;
    public final String label;
+   public final String callbackURL;
+
+   // returns a BitcoinUriWithAddress if address != null
+   public static BitcoinUri from(Address address, Long amount, String label, String callbackURL){
+      if (address != null){
+         return new BitcoinUriWithAddress(address, amount, label, callbackURL);
+      } else {
+         return new BitcoinUri(null, amount, label, callbackURL);
+      }
+   }
 
    public BitcoinUri(Address address, Long amount, String label) {
       this.address = address;
       this.amount = amount;
       this.label = label == null ? null : label.trim();
+      this.callbackURL = null;
+   }
+
+   public BitcoinUri(Address address, Long amount, String label, String callbackURL) {
+      this.address = address;
+      this.amount = amount;
+      this.label = label == null ? null : label.trim();
+      this.callbackURL = callbackURL;
    }
 
    public static Optional<BitcoinUri> parse(String uri, NetworkParameters network) {
       try {
-         Uri u = Uri.parse(uri);
+         Uri u = Uri.parse(uri.trim());
          String scheme = u.getScheme();
          if (!scheme.equalsIgnoreCase("bitcoin")) {
             // not a bitcoin URI
@@ -75,18 +92,12 @@ public class BitcoinUri implements Serializable {
             schemeSpecific = schemeSpecific.substring(2);
          }
          u = Uri.parse("bitcoin://" + schemeSpecific);
-         if (u == null) {
-            return Optional.absent();
-         }
 
          // Address
+         Address address = null;
          String addressString = u.getHost();
-         if (addressString == null || addressString.length() < 1) {
-            return Optional.absent();
-         }
-         Address address = Address.fromString(addressString.trim(), network);
-         if (address == null) {
-            return Optional.absent();
+         if (addressString != null && addressString.length() > 0) {
+            address = Address.fromString(addressString.trim(), network);
          }
 
          // Amount
@@ -98,7 +109,11 @@ public class BitcoinUri implements Serializable {
 
          // Label
          String label = u.getQueryParameter("label");
-         return Optional.of(new BitcoinUri(address, amount, label));
+
+         // Payment Uri
+         String paymentUri = u.getQueryParameter("r");
+
+         return Optional.of(new BitcoinUri(address, amount, label, paymentUri));
 
       } catch (Exception e) {
          //todo insert uncaught error handler
@@ -111,19 +126,14 @@ public class BitcoinUri implements Serializable {
    }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder("bitcoin:");
-        builder.append(address.toString());
-        if (amount != null) {
-            builder.append("?amount=").append(amount.toString());
-            if (label != null) {
-                builder.append("&label=").append(label);
-            }
-            return  builder.toString();
-        }
-        if (label != null) {
-            builder.append("?label=").append(label);
-        }
-        return builder.toString();
+       Uri.Builder builder = new Uri.Builder()
+             .scheme("bitcoin")
+             .authority(address == null ? "" : address.toString());
+       if (amount != null) builder.appendQueryParameter("amount", amount.toString());
+       if (label != null) builder.appendQueryParameter("label", label);
+       if (callbackURL != null) builder.appendQueryParameter("r", callbackURL);
+      //todo: this can probably be solved nicer with some opaque flags or something
+       return builder.toString().replace("/", "");
     }
 
 }

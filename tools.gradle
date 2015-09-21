@@ -33,6 +33,39 @@ def getCheckedOutGitCommitHash() {
     return version
 }
 
+def getGitBranch() {
+    def gitFolder = project.rootDir.getPath() + "/.git/"
+
+    /*
+     * Simple access to the current branch, without having to rely on a local git installation
+     *   (based on https://gist.github.com/JonasGroeger/7620911 )
+     *
+     *  '.git/HEAD' contains either
+     *      in case of detached head: the currently checked out commit hash ("3b3fe8f99d45d48ada83596cee371b21899d97a8")
+     *      otherwise: a reference to a file containing the current commit hash  ("ref: refs/heads/master")
+     */
+    def branch = ""
+    try {
+        def head = new File(gitFolder + "HEAD").text.split(":") // .git/HEAD
+        def isDetached = (head.length == 1)
+
+        if (isDetached) {
+            logger.warn("Unable to detect current git branch, {}", head)
+        } else {
+            def refHead = new File(gitFolder + head[1].trim()) // .git/refs/heads/master
+            branch = head.last().split("/").last().trim();
+        }
+    }catch(IOException ex){
+        logger.warn("Unable to detect current git branch: {}", ex.toString())
+    }
+
+    logger.debug("Detected '{}' as git branch", branch)
+
+    return branch
+}
+
+// export the functions
 ext{
     getCheckedOutGitCommitHash = this.&getCheckedOutGitCommitHash
+    getGitBranch = this.&getGitBranch
 }

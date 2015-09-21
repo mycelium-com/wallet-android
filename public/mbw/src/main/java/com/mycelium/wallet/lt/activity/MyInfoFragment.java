@@ -56,7 +56,6 @@ import com.mycelium.wallet.lt.api.Request;
 public class MyInfoFragment extends Fragment {
 
    protected static final int CREATE_TRADER_RESULT_CODE = 0;
-   private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
 
    @Override
@@ -81,7 +80,7 @@ public class MyInfoFragment extends Fragment {
 
    @Override
    public void onAttach(Activity activity) {
-      _mbwManager = MbwManager.getInstance(getActivity().getApplication());
+      MbwManager _mbwManager = MbwManager.getInstance(getActivity().getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();
       super.onAttach(activity);
    }

@@ -35,7 +35,9 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -49,10 +51,13 @@ import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.CoinapultTransactionSummary;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.event.AddressBookChanged;
@@ -64,7 +69,6 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
-
 
 import java.text.DateFormat;
 import java.util.*;
@@ -132,18 +136,22 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Subscribe
    public void exchangeRateChanged(ExchangeRatesRefreshed event) {
+      refreshList();
+   }
+
+   private void refreshList() {
       ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
    }
 
    @Subscribe
    public void fiatCurrencyChanged(SelectedCurrencyChanged event) {
-      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+      refreshList();
    }
 
    @Subscribe
    public void addressBookEntryChanged(AddressBookChanged event) {
       cacheAddressBook();
-      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+      refreshList();
    }
 
    private void cacheAddressBook() {
@@ -178,7 +186,7 @@ public class TransactionHistoryFragment extends Fragment {
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
          Wrapper wrapper = new Wrapper(getActivity(), history);
          ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
-         ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+         refreshList();
       }
    }
 
@@ -244,23 +252,39 @@ public class TransactionHistoryFragment extends Fragment {
                   public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                      actionMode.getMenuInflater().inflate(R.menu.transaction_history_context_menu, menu);
                      //we only allow address book entries for outgoing transactions
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
-                     currentActionMode = actionMode;
-                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                     updateActionBar(actionMode, menu);
                      return true;
                   }
 
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.destinationAddress.isPresent());
-                     currentActionMode = actionMode;
-                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                     updateActionBar(actionMode, menu);
                      return true;
                   }
 
+                  private void updateActionBar(ActionMode actionMode, Menu menu) {
+                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
+                     Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
+
+                     //deletion is disabled for now, to enable, replace false with record.confirmations == 0
+                     Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+                     currentActionMode = actionMode;
+                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                  }
+                  
                   @Override
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                      final int itemId = menuItem.getItemId();
+                     if (itemId == R.id.miShowCoinapultDebug) {
+                        if (record instanceof CoinapultTransactionSummary) {
+                           CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
+                           new AlertDialog.Builder(_context).setMessage(summary.input.toString()).show();
+                        }
+                        return true;
+                     }
                      if (itemId == R.id.miShowDetails) {
                         doShowDetails(record);
                         finishActionMode();
@@ -270,6 +294,70 @@ public class TransactionHistoryFragment extends Fragment {
                         finishActionMode();
                      } else if (itemId == R.id.miAddToAddressBook) {
                         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), record.destinationAddress.get(), "", addressLabelChanged);
+                     } else if (itemId == R.id.miCancelTransaction) {
+                        new AlertDialog.Builder(getActivity())
+                              .setTitle(_context.getString(R.string.remove_queued_transaction_title))
+                              .setMessage(_context.getString(R.string.remove_queued_transaction))
+                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    boolean okay = _mbwManager.getSelectedAccount().cancelQueuedTransaction(record.txid);
+                                    dialog.dismiss();
+                                    updateTransactionHistory();
+                                    if (okay) {
+                                       Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
+                                    } else {
+                                       new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
+                                    }
+                                 }
+                              })
+                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .create().show();
+                     } else if (itemId == R.id.miDeleteUnconfirmedTransaction) {
+                        new AlertDialog.Builder(getActivity())
+                              .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
+                              .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
+                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    _mbwManager.getSelectedAccount().deleteTransaction(record.txid);
+                                    dialog.dismiss();
+                                    updateTransactionHistory();
+                                 }
+                              })
+                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .create().show();
+                     } else if (itemId == R.id.miRebroadcastTransaction) {
+                        new AlertDialog.Builder(getActivity())
+                              .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
+                              .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
+                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    boolean success = BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(), record.txid);
+                                    if (!success) {
+                                       Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_successfull));
+                                    }
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                 }
+                              })
+                              .create().show();
                      }
                      return false;
                   }
@@ -305,7 +393,7 @@ public class TransactionHistoryFragment extends Fragment {
          // Set fiat value
          TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
          Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-         if (rate == null) _mbwManager.getExchangeRateManager().requestRefresh();
+         if (_mbwManager.hasFiatCurrency() && rate == null) _mbwManager.getExchangeRateManager().requestRefresh();
          if (!_mbwManager.hasFiatCurrency() || rate == null) {
             tvFiat.setVisibility(View.GONE);
          } else {
@@ -335,7 +423,7 @@ public class TransactionHistoryFragment extends Fragment {
          // Show confirmations indicator
          int confirmations = record.confirmations;
          TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);
-         if (record.isOutgoing) {
+         if (record.isQueuedOutgoing) {
             // Outgoing, not broadcasted
             tcdConfirmations.setNeedsBroadcast();
          } else {
@@ -348,7 +436,7 @@ public class TransactionHistoryFragment extends Fragment {
          if (label.length() == 0) {
             // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
             String confirmationsText;
-            if (record.isOutgoing) {
+            if (record.isQueuedOutgoing) {
                confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
             } else {
                if (confirmations > 6){

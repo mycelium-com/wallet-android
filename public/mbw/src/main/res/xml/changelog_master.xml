@@ -1,5 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.5.2" versioncode="25200">
+        <change>Only sync coinapult account, if it is the selected account</change>
+        <change>[bugfix] various small bug fixes</change>
+    </release>
+    <release version="2.5.1" versioncode="25100">
+        <change>[bugfix] dont show any address if coinapult servers do not respond</change>
+    </release>
+    <release version="2.5.0" versioncode="25012">
+        <change>Added Ledger support (Ledger Nano, HW.1 and also Ledger-Unplugged)</change>
+        <change>Added Coinapult support - new account type which uses coinapult locks to manage USD amounts</change>
+        <change>Added option to choose favorite Block Explorer</change>
+        <change>Added option to copy input/output-amounts using LongClick in transaction details</change>
+        <change>Added Bip73 support - compacter QR codes for payment requests</change>
+        <change>Show fiat value for payment requests</change>
+        <change>Minor UI changes</change>
+        <change>[bugfix] Fix error in transaction history, if no fiat currency is selected</change>
+        <change>[bugfix] Also check startup-pin on launch via LT notification</change>
+    </release>
+    <release version="2.4.4" versioncode="24400">
+        <change>Added option to re-broadcast unconfirmed transactions</change>
+        <change>Dynamic Fee structure, based on blockchain load</change>
+        <change>Added csv export for transaction history</change>
+    </release>
+    <release version="2.4.3" versioncode="24300">
+        <change>[bugfix] fix BitID derivation scheme for cashila login - if you have already used it, please pair it again</change>
+    </release>
+    <release version="2.4.2" versioncode="24200">
+        <change>[bugfix] fix BitID derivation scheme to be based on the callback url</change>
+        <change>[bugfix] handle optional fields in payment requests correctly</change>
+        <change>[bugfix] corrected Albanian and Vietnamese language entry</change>
+    </release>
+    <release version="2.4.1" versioncode="24100">
+        <change>Added Czech language</change>
+        <change>[bugfix] fixed crash bugs in BitID</change>
+        <change>[bugfix] fixed crash caused by malformed payment requests</change>
+    </release>
+    <release version="2.4.0" versioncode="24001">
+        <change>Integration with Cashila to enable SEPA-Payments</change>
+        <change>Fetch and verify Payment-Requests (BIP70)</change>
+        <change>BitID authentication enabled</change>
+        <change>Deterministic signatures for Bitcoin transactions (RFC6979)</change>
+        <change>UI changes for the PIN entry</change>
+        <change>Option to remove queued outgoing transaction before broadcasting</change>
+        <change>Allow spending of unconfirmed funds</change>
+    </release>
+    <release version="2.3.2" versioncode="23200">
+        <change>Added Albanian, Greek and Swedish languages</change>
+        <change>Added translators to special thanks in About screen</change>
+    </release>
+    <release version="2.3.1" versioncode="23100">
+        <change>Trezor: Fix PIN entry for new 1.3.3 firmware</change>
+    </release>
     <release version="2.3.0" versioncode="23000">
         <change>Allow direct spending from offline master-seed</change>
         <change>Add xPriv/xPub import feature</change>
@@ -14,7 +66,7 @@
         <change>[bug] enabling OK button after pasting amount from clipboard</change>
         <change>[bug] fixing cut-off transaction labels in history</change>
         <change>[bug] correctly showing entered amount after screen rotation</change>
-        <change>[bug] correctly showing selection when scrolling i transaction history</change>
+        <change>[bug] correctly showing selection when scrolling in transaction history</change>
     </release>
     <release version="2.2.0" versioncode="22000">
         <change>Transactions tab: UI-Changes, show confirmations with pie-chart</change>

@@ -27,7 +27,8 @@ public class Bip44AccountContext {
    public static final int ACCOUNT_TYPE_FROM_MASTERSEED = 0;
    public static final int ACCOUNT_TYPE_UNRELATED_X_PRIV = 1;
    public static final int ACCOUNT_TYPE_UNRELATED_X_PUB = 2;
-   public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG = 3;
+   public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR = 3;
+   public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER = 4;
 
    private UUID id;
    private int accountIndex;

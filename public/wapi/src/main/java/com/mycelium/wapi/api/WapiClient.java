@@ -23,13 +23,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import com.mycelium.net.HttpEndpoint;
-import com.mycelium.net.FeedbackEndpoint;
-import com.mycelium.net.ServerEndpoints;
+import com.mycelium.WapiLogger;
+import com.mycelium.net.*;
 import com.mycelium.wapi.api.WapiConst.Function;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.squareup.okhttp.*;
 
 
@@ -46,7 +44,7 @@ public class WapiClient implements Wapi {
 
 
    private ObjectMapper _objectMapper;
-   private WapiLogger _logger;
+   private com.mycelium.WapiLogger _logger;
 
    private ServerEndpoints _serverEndpoints;
    private String versionCode;
@@ -70,7 +68,8 @@ public class WapiClient implements Wapi {
          if (response == null) {
             return new WapiResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
-         return _objectMapper.readValue(response.body().string(), typeReference);
+         String content = response.body().string();
+         return _objectMapper.readValue(content, typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
          return new WapiResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
@@ -154,7 +153,8 @@ public class WapiClient implements Wapi {
             if (response.isSuccessful()) {
                if (serverEndpoint instanceof FeedbackEndpoint){
                   ((FeedbackEndpoint) serverEndpoint).onSuccess();
-               }return response;
+               }
+               return response;
             }else{
                // If the status code is not 200 we cycle to the next server
                logError(String.format("Http call to %s failed with %d %s", function, response.code(), response.message()));
@@ -178,6 +178,9 @@ public class WapiClient implements Wapi {
    }
 
    private String getPostBody(Object request) {
+      if (request == null) {
+         return "";
+      }
       try {
          String postString = _objectMapper.writeValueAsString(request);
          return postString;
@@ -246,6 +249,18 @@ public class WapiClient implements Wapi {
    public WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request) {
       TypeReference<WapiResponse<VersionInfoResponse>> typeref = new TypeReference<WapiResponse<VersionInfoResponse>>() { };
       return sendRequest(Function.GET_VERSION_INFO, request, typeref);
+   }
+
+   @Override
+   public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
+      TypeReference<WapiResponse<VersionInfoExResponse>> typeref = new TypeReference<WapiResponse<VersionInfoExResponse>>() { };
+      return sendRequest(Function.GET_VERSION_INFO_EX, request, typeref);
+   }
+
+   @Override
+   public WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations() {
+      TypeReference<WapiResponse<MinerFeeEstimationResponse>> typeref = new TypeReference<WapiResponse<MinerFeeEstimationResponse>>() { };
+      return sendRequest(Function.GET_MINER_FEE_ESTIMATION, null, typeref);
    }
 
 

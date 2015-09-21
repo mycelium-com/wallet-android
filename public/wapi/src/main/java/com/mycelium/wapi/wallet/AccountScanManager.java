@@ -41,7 +41,6 @@ import java.util.UUID;
 
 
 public interface AccountScanManager {
-   void setEventHandler(Events handler);
 
    void startBackgroundAccountScan(AccountCallback scanningCallback);
 
@@ -73,12 +72,35 @@ public interface AccountScanManager {
       }
    }
 
-   public interface Events{
-      public void onPassphraseRequest();
-      public void onScanError(String errorMsg);
+   // Classes for the EventBus
+   public class OnAccountFound {
+      public final HdKeyNodeWrapper account;
 
-      public void onStatusChanged(Status state, AccountStatus accountState);
-      public void onAccountFound(HdKeyNodeWrapper account);
+      public OnAccountFound(HdKeyNodeWrapper account) {
+         this.account = account;
+      }
+   }
+
+   public class OnStatusChanged {
+      public final Status state;
+      public final AccountStatus accountState;
+
+      public OnStatusChanged(Status state, AccountStatus accountState) {
+         this.state = state;
+         this.accountState = accountState;
+      }
+   }
+
+   public class OnScanError {
+      public final String errorMessage;
+
+      public OnScanError(String errorMessage) {
+         this.errorMessage = errorMessage;
+      }
+   }
+
+   public class OnPassphraseRequest {
+
    }
 
    public interface AccountCallback {

@@ -38,8 +38,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
+import com.mycelium.wallet.LedgerPinDialog;
+import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.TrezorPinDialog;
 import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.ledger.LedgerManager;
+import com.mycelium.wallet.trezor.TrezorManager;
+import com.mycelium.wapi.wallet.AccountScanManager;
+import com.squareup.otto.Subscribe;
 
 public class InstantTrezorActivity extends TrezorAccountSelectorActivity {
 
@@ -64,5 +72,33 @@ public class InstantTrezorActivity extends TrezorAccountSelectorActivity {
          }
       };
    }
+
+
+   // Otto.EventBus does not traverse class hierarchy to find subscribers
+   @Subscribe
+   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event){
+      super.onPinMatrixRequest(event);
+   }
+
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event){
+      super.onScanError(event);
+   }
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+      super.onStatusChanged(event);
+   }
+
+   @Subscribe
+   public void onAccountFound(AccountScanManager.OnAccountFound event){
+      super.onAccountFound(event);
+   }
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+      super.onPassphraseRequest(event);
+   }
+
 
 }

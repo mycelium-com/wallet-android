@@ -500,7 +500,6 @@
   <string name="hide_unused_account_menu">帳戶刪除</string>
   <string name="dont_allow_hiding_used_notification">您不能隱藏已使用帳戶，但您可以將其存檔</string>
   <string name="pref_miner_fee_title">礦工費 (%1$s)</string>
-  <string name="pref_miner_fee_summary">每1000 個字節的交易處理需要交納的%1$s 的礦工費</string>
   <string name="miner_fee_economic_name">經濟</string>
   <string name="miner_fee_normal_name">正常</string>
   <string name="miner_fee_priority_name">優先</string>

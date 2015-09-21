@@ -45,7 +45,7 @@ import com.mycelium.wallet.activity.util.Pin;
 
 public class ClearPinDialog extends PinDialog {
    public ClearPinDialog(final Context context, boolean hidden) {
-      super(context, hidden);
+      super(context, hidden, true);
       final MbwManager mbwManager = MbwManager.getInstance(context);
 
       Button btnForgotPin = (Button) findViewById(R.id.btn_forgot_pin);

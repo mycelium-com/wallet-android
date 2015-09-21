@@ -42,6 +42,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -83,7 +85,7 @@ public class RecordRowBuilder {
       // Show/hide key icon
       ImageView icon = (ImageView) rowView.findViewById(R.id.ivIcon);
 
-      Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, resources);
+      Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, isSelected, resources);
       if (drawableForAccount == null) {
          icon.setVisibility(View.INVISIBLE);
       } else {
@@ -119,12 +121,18 @@ public class RecordRowBuilder {
                displayAddress = resources.getString(R.string.account_contains_one_key_info);
             }
          } else {
-            if (name.length() == 0) {
-               // Display address in it's full glory, chopping it into three
-               displayAddress = walletAccount.getReceivingAddress().toMultiLineString();
+
+            Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
+            if (receivingAddress.isPresent()) {
+               if (name.length() == 0) {
+                  // Display address in it's full glory, chopping it into three
+                  displayAddress = receivingAddress.get().toMultiLineString();
+               } else {
+                  // Display address in short form
+                  displayAddress = receivingAddress.get().getShortAddress();
+               }
             } else {
-               // Display address in short form
-               displayAddress = walletAccount.getReceivingAddress().getShortAddress();
+               displayAddress = "";
             }
          }
       } else {

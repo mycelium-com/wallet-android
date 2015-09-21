@@ -1,17 +1,17 @@
 package com.mrd.bitlib.crypto;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class StandardBitcoinSigning {
 
@@ -66,7 +66,7 @@ public class StandardBitcoinSigning {
       String message = "abc";
       byte[] msg = Signatures.formatMessageForSigning(message);
       Assert.assertArrayEquals(abcMessage, msg);
-      SignedMessage signed2 = privKey.signMessage(message, new TestNonRandomSource());
+      SignedMessage signed2 = privKey.signMessage(message);
       assertEquals(privKey.getPublicKey(), signed2.getPublicKey());
       String sigStr  = signed2.getBase64Signature();
       System.out.println(sigStr);

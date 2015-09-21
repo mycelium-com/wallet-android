@@ -35,17 +35,25 @@
 package com.mycelium.wallet;
 
 import android.content.Context;
-import com.mrd.bitlib.TransactionUtils;
+import com.megiontechnologies.Bitcoins;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 
 public enum MinerFee {
-   ECONOMIC("ECONOMIC", TransactionUtils.MINIMUM_KB_FEE), NORMAL("NORMAL", TransactionUtils.DEFAULT_KB_FEE), PRIORITY("PRIORITY", TransactionUtils.GENEROUS_KB_FEE),;
+   LOWPRIO("LOWPRIO",   20,  R.string.miner_fee_lowprio_name,  R.string.miner_fee_lowprio_desc),
+   ECONOMIC("ECONOMIC", 10,  R.string.miner_fee_economic_name, R.string.miner_fee_economic_desc),
+   NORMAL("NORMAL",      3,  R.string.miner_fee_normal_name,   R.string.miner_fee_normal_desc),
+   PRIORITY("PRIORITY",  1,  R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc),;
 
    public final String tag;
-   public final long kbMinerFee;
+   private final int nBlocks;
+   private final int idTag;
+   private final int idLongDesc;
 
-   private MinerFee(String tag, long kbMinerFee) {
+   private MinerFee(String tag, int nBlocks, int idTag, int idLongDesc) {
       this.tag = tag;
-      this.kbMinerFee = kbMinerFee;
+      this.nBlocks = nBlocks;
+      this.idTag = idTag;
+      this.idLongDesc = idLongDesc;
    }
 
    @Override
@@ -60,41 +68,36 @@ public enum MinerFee {
          return NORMAL;
       } else if (PRIORITY.tag.equals(string)) {
          return PRIORITY;
+      } else if (LOWPRIO.tag.equals(string)) {
+         return LOWPRIO;
       } else {
          return NORMAL;
       }
    }
 
    //simply returns the next fee in order of declaration, starts with the first after reaching the last
-   //useful for cycling through them in sneding for example
+   //useful for cycling through them in sending for example
    public MinerFee getNext() {
       return this.ordinal() < MinerFee.values().length - 1
             ? MinerFee.values()[this.ordinal() + 1]
             : MinerFee.values()[0];
    }
 
-   public static String getMinerFeeName(MinerFee minerFee, Context context) {
-      if (minerFee == ECONOMIC) {
-         return context.getString(R.string.miner_fee_economic_name);
-      } else if (minerFee == NORMAL) {
-         return context.getString(R.string.miner_fee_normal_name);
-      } else if (minerFee == PRIORITY) {
-         return context.getString(R.string.miner_fee_priority_name);
-      } else {
-         return context.getString(R.string.miner_fee_normal_name);
-      }
+   public Bitcoins getFeePerKb(FeeEstimation feeEstimation) {
+      return feeEstimation.getEstimation(nBlocks);
    }
 
-   public static String getMinerFeeDescription(MinerFee minerFee, Context context) {
-      if (minerFee == ECONOMIC) {
-         return context.getString(R.string.miner_fee_economic_desc);
-      } else if (minerFee == NORMAL) {
-         return context.getString(R.string.miner_fee_normal_desc);
-      } else if (minerFee == PRIORITY) {
-         return context.getString(R.string.miner_fee_priority_desc);
-      } else {
-         return context.getString(R.string.miner_fee_normal_desc);
-      }
+   public String getMinerFeeName(Context context) {
+      return context.getString(idTag);
    }
+
+   public String getMinerFeeDescription(Context context) {
+      return context.getString(idLongDesc);
+   }
+
+   public int getNBlocks() {
+      return nBlocks;
+   }
+
 }
 

@@ -312,8 +312,8 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public List<byte[]> getOutgoingTransactions() {
-         return new ArrayList<byte[]>(_outgoingTransactions.values());
+      public Map<Sha256Hash, byte[]> getOutgoingTransactions() {
+         return new HashMap<Sha256Hash, byte[]>(_outgoingTransactions);
       }
 
       @Override

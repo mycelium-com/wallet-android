@@ -199,6 +199,10 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       updateUi();
    }
 
+   public void setFiatOnly(boolean fiatOnly) {
+      this.fiatOnly = fiatOnly;
+   }
+
    @Subscribe
    public void onExchangeRateChange(ExchangeRatesRefreshed event){
       updateUi();

@@ -103,6 +103,7 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
       }
    }
 
+
    protected NetworkParameters getNetwork(){
       if (inputs.length>0){
          return inputs[0].address.getNetwork();
@@ -113,8 +114,8 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
       }
    }
 
-   public String getBlockchainExplorerLink() {
-      return getNetwork().getBlockchainExplorerTransaction() + hash.toString();
+   public String toString(){
+      return hash.toString();
    }
 
 }

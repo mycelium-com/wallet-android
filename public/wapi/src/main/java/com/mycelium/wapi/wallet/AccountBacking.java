@@ -20,12 +20,10 @@ import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 public interface AccountBacking {
 
@@ -67,7 +65,7 @@ public interface AccountBacking {
 
    void putOutgoingTransaction(Sha256Hash txid, byte[] rawTransaction);
 
-   List<byte[]> getOutgoingTransactions();
+   Map<Sha256Hash, byte[]> getOutgoingTransactions();
 
    boolean isOutgoingTransaction(Sha256Hash txid);
 

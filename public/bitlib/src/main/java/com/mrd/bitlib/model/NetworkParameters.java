@@ -27,7 +27,7 @@ import com.mrd.bitlib.util.HexUtils;
 public class NetworkParameters implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   public static final int PROTOCOL_VERSION = 70001;
+   public static final int PROTOCOL_VERSION = 70002;
    public static final NetworkParameters testNetwork;
    public static final NetworkParameters productionNetwork;
    private static byte[] TESTNET_GENESIS_BLOCK;
@@ -173,13 +173,7 @@ public class NetworkParameters implements Serializable {
       return isProdnet() ? "prodnet" : "testnet";
    }
 
-   public String getBlockchainExplorerTransaction() {
-      return _blockchain_explorer_transaction;
-   }
 
-   public String getBlockchainExplorerAddress() {
-      return _blockchain_explorer_address;
-   }
 
    public HdKeyPath getBip44CoinType() {
       return _bip44_coin_type;

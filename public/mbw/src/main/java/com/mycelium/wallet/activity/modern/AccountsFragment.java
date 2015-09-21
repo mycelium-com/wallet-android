@@ -36,23 +36,31 @@ package com.mycelium.wallet.activity.modern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.CoinapultManager;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -70,6 +78,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
+import se.grunka.fortuna.Util;
 
 import java.util.List;
 import java.util.UUID;
@@ -90,6 +99,7 @@ public class AccountsFragment extends Fragment {
    private LayoutParams _innerLayoutParameters;
    private WalletAccount _focusedAccount;
    private Toaster _toaster;
+   private ProgressDialog _progress;
 
    /**
     * Called when the activity is first created.
@@ -129,11 +139,13 @@ public class AccountsFragment extends Fragment {
       _mbwManager.getEventBus().register(this);
       getView().findViewById(R.id.btUnlock).setOnClickListener(unlockClickedListener);
       update();
+      _progress = new ProgressDialog(getActivity());
       super.onResume();
    }
 
    @Override
    public void onPause() {
+      _progress.dismiss();
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
    }
@@ -153,6 +165,14 @@ public class AccountsFragment extends Fragment {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       ActivityCompat.invalidateOptionsMenu(getActivity());
+      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAccountActivity.RESULT_COINAPULT) {
+         UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+         _mbwManager.setSelectedAccount(accountid);
+         _mbwManager.getMetadataStorage().storeAccountLabel(accountid,"coinapultUSD");
+         _focusedAccount = _mbwManager.getCoinapultManager();
+         update();
+         return;
+      }
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
@@ -200,20 +220,36 @@ public class AccountsFragment extends Fragment {
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
                // is money on archived accounts
+               Optional<Address> receivingAddress = accountToDelete.getReceivingAddress();
                if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
                   if (label != null && label.length() != 0) {
+                     String address;
+                     if (receivingAddress.isPresent()) {
+                        address = receivingAddress.get().toMultiLineString();
+                     } else {
+                        address = "";
+                     }
                      message = getString(R.string.confirm_delete_pk_with_balance_with_label, label,
-                           accountToDelete.getReceivingAddress().toMultiLineString(), _mbwManager.getBtcValueString(satoshis));
+                           address, _mbwManager.getBtcValueString(satoshis));
                   } else {
-                     message = getString(R.string.confirm_delete_pk_with_balance, accountToDelete.getReceivingAddress().toMultiLineString(),
-                           _mbwManager.getBtcValueString(satoshis));
+                     message = getString(
+                           R.string.confirm_delete_pk_with_balance,
+                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
+                           _mbwManager.getBtcValueString(satoshis)
+                     );
                   }
                } else {
                   if (label != null && label.length() != 0) {
-                     message = getString(R.string.confirm_delete_pk_without_balance_with_label, label,
-                           accountToDelete.getReceivingAddress().toMultiLineString());
+                     message = getString(
+                           R.string.confirm_delete_pk_without_balance_with_label,
+                           label,
+                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                     );
                   } else {
-                     message = getString(R.string.confirm_delete_pk_without_balance, accountToDelete.getReceivingAddress().toMultiLineString());
+                     message = getString(
+                           R.string.confirm_delete_pk_without_balance,
+                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                     );
                   }
                }
                confirmDeleteDialog.setMessage(message);
@@ -325,7 +361,6 @@ public class AccountsFragment extends Fragment {
 
          List<WalletAccount> activeHdAccounts = walletManager.getActiveMasterseedAccounts();
          List<WalletAccount> activeOtherAccounts = walletManager.getActiveOtherAccounts();
-
 
          List<WalletAccount> activeHdRecords = Utils.sortAccounts(activeHdAccounts, _storage);
          List<WalletAccount> activeOtherRecords = Utils.sortAccounts(activeOtherAccounts, _storage);
@@ -519,6 +554,14 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_active);
       }
 
+      if (account.isActive() && !(account instanceof CoinapultManager)) {
+         menus.add(R.menu.record_options_menu_outputs);
+      }
+
+      if (account instanceof CoinapultManager) {
+         menus.add(R.menu.record_options_menu_set_coinapult_mail);
+      }
+
       if (account.isArchived()) {
          menus.add(R.menu.record_options_menu_archive);
       }
@@ -605,31 +648,164 @@ public class AccountsFragment extends Fragment {
             } else if (id == R.id.miRescan) {
                rescan();
                return true;
+            } else if (id == R.id.miSetMail) {
+               setCoinapultMail();
+               return true;
+            } else if (id == R.id.miVerifyMail) {
+               verifyCoinapultMail();
+               return true;
             }
-               return false;
-            }
-
-            @Override
-            public void onDestroyActionMode (ActionMode actionMode){
-               currentActionMode = null;
-               // Loose focus
-               if (_focusedAccount != null) {
-                  _focusedAccount = null;
-                  update();
-               }
-            }
+            return false;
          }
 
-         ;
-         currentActionMode=parent.startSupportActionMode(actionMode);
-         // Late set the focused record. We have to do this after
-         // startSupportActionMode above, as it calls onDestroyActionMode when
-         // starting for some reason, and this would clear the focus and force
-         // an update.
-         _focusedAccount=account;
-
-         update();
+         @Override
+         public void onDestroyActionMode (ActionMode actionMode){
+            currentActionMode = null;
+            // Loose focus
+            if (_focusedAccount != null) {
+               _focusedAccount = null;
+               update();
+            }
+         }
       }
+
+            ;
+      currentActionMode=parent.startSupportActionMode(actionMode);
+      // Late set the focused record. We have to do this after
+      // startSupportActionMode above, as it calls onDestroyActionMode when
+      // starting for some reason, and this would clear the focus and force
+      // an update.
+      _focusedAccount=account;
+
+      update();
+   }
+
+   //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
+   private void setCoinapultMail() {
+
+      AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+      b.setTitle(getString(R.string.coinapult_mail_question));
+      View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
+      final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
+      mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+      String email = _mbwManager.getMetadataStorage().getCoinapultMail();
+      if (!email.isEmpty()) mailField.setText(email);
+      b.setView(diaView);
+      b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
+         @Override
+         public void onClick(DialogInterface dialog, int which) {
+            String mailText = mailField.getText().toString();
+            if (Utils.isValidEmailAddress(mailText)) {
+               Optional<String> mail;
+               if (mailText.isEmpty()) mail = Optional.absent();
+               else mail = Optional.of(mailText);
+               _progress.setCancelable(false);
+               _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+               _progress.setMessage(getString(R.string.setting_coinapult_email));
+               _progress.show();
+               _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
+               new SetCoinapultMailAsyncTask(mail).execute();
+               dialog.dismiss();
+            } else {
+               new Toaster(AccountsFragment.this).toast("Email address not valid", false);
+            }
+         }
+      });
+      b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+         @Override
+         public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+         }
+      });
+
+      AlertDialog dialog = b.create();
+      dialog.show();
+   }
+
+   private void verifyCoinapultMail() {
+      AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+      b.setTitle(getString(R.string.coinapult_mail_verification));
+      final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
+      View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
+      final EditText verificationTextField = (EditText) diaView.findViewById(R.id.mailVerification);
+
+      // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
+      String clipboardString = Utils.getClipboardString(getActivity());
+      if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")){
+         verificationTextField.setText(clipboardString);
+      }
+
+      b.setView(diaView);
+      b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
+         @Override
+         public void onClick(DialogInterface dialog, int which) {
+            String verification = verificationTextField.getText().toString();
+            _progress.setCancelable(false);
+            _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            _progress.setMessage(getString(R.string.verifying_coinapult_email));
+            _progress.show();
+            new VerifyCoinapultMailAsyncTask(verification, email).execute();
+            dialog.dismiss();
+         }
+      });
+      b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+         @Override
+         public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+         }
+      });
+
+      AlertDialog dialog = b.create();
+      dialog.show();
+   }
+
+   private class SetCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
+      private Optional<String> mail;
+
+      public SetCoinapultMailAsyncTask(Optional<String> mail) {
+         this.mail = mail;
+      }
+
+      @Override
+      protected Boolean doInBackground(Void... params) {
+         return _mbwManager.getCoinapultManager().setMail(mail);
+      }
+
+      @Override
+      protected void onPostExecute(Boolean success) {
+         _progress.dismiss();
+         if (success) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.set_coinapult_mail_please_verify);
+         } else {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.set_coinapult_mail_failed);
+         }
+      }
+   }
+
+   private class VerifyCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
+      private String link;
+      private String email;
+
+      public VerifyCoinapultMailAsyncTask(String link, String email) {
+         this.link = link;
+         this.email = email;
+      }
+
+      @Override
+      protected Boolean doInBackground(Void... params) {
+         return _mbwManager.getCoinapultManager().verifyMail(link, email);
+      }
+
+      @Override
+      protected void onPostExecute(Boolean success) {
+         _progress.dismiss();
+         if (success) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.verify_coinapult_mail_success);
+         } else {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.verify_coinapult_mail_error);
+         }
+      }
+   }
 
 
    private void verifySingleKeyBackup(){
@@ -648,8 +824,8 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-      if (_focusedAccount instanceof Bip44Account) {
-         //start wordlist backup if a HD account was selected
+      if (_focusedAccount.isDerivedFromInternalMasterseed()) {
+         //start wordlist backup if a HD account or derived account was selected
          Utils.pinProtectedWordlistBackup(getActivity());
       } else if (_focusedAccount instanceof SingleAddressAccount) {
          //start legacy backup if a single key or watch only was selected
@@ -674,7 +850,10 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            if (_focusedAccount instanceof SingleAddressAccount) {
+            if (_focusedAccount instanceof CoinapultManager) {
+               CoinapultManager focusedAccount = (CoinapultManager) _focusedAccount;
+               MessageSigningActivity.callMe(getActivity(), focusedAccount.getAccountKey());
+            } else if (_focusedAccount instanceof SingleAddressAccount) {
                MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
             } else {
                Intent intent = new Intent(getActivity(), HDSigningActivity.class);
@@ -885,6 +1064,21 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
+      if (_focusedAccount instanceof CoinapultManager){
+         _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+
+            @Override
+            public void run() {
+               if (!AccountsFragment.this.isAdded()) {
+                  return;
+               }
+
+               archive(_focusedAccount);
+            }
+
+         });
+         return;
+      }
       if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
          //this is the last active account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
@@ -953,8 +1147,8 @@ public class AccountsFragment extends Fragment {
       confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface arg0, int arg1) {
-            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
             account.archiveAccount();
+            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
             _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
             updateIncludingMenus();
             _toaster.toast(R.string.archived, false);

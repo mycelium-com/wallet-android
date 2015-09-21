@@ -35,18 +35,25 @@
 package com.mycelium.wallet.trezor.activity;
 
 import android.app.Fragment;
+import android.os.Handler;
+import android.os.Message;
 import android.view.*;
 import android.widget.*;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
+import com.google.common.base.Strings;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
 import com.mycelium.wallet.activity.MasterseedPasswordDialog;
+import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.squareup.otto.Subscribe;
 
-public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorActivity implements TrezorManager.Events, MasterseedPasswordSetter {
+import java.util.concurrent.LinkedBlockingQueue;
+
+public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {
 
    @Override
    protected AbstractAccountScanManager initMasterseedManager() {
@@ -64,25 +71,14 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
    abstract protected void setView();
 
    @Override
-   protected void onStop() {
-      super.onStop();
-      masterseedScanManager.setEventHandler(null);
-   }
-
-   @Override
    public void finish() {
       super.finish();
       masterseedScanManager.stopBackgroundAccountScan();
    }
 
    @Override
-   public void onStatusChanged(TrezorManager.Status state, TrezorManager.AccountStatus accountState) {
-      updateUi();
-   }
-
-   @Override
    protected void updateUi() {
-      if (masterseedScanManager.currentState != TrezorManager.Status.initializing) {
+      if (masterseedScanManager.currentState == TrezorManager.Status.readyToScan) {
          findViewById(R.id.tvWaitForTrezor).setVisibility(View.GONE);
          findViewById(R.id.ivConnectTrezor).setVisibility(View.GONE);
          txtStatus.setText(getString(R.string.trezor_scanning_status));
@@ -114,29 +110,41 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
          // Show the label and version of the connected Trezor
          findViewById(R.id.llTrezorInfo).setVisibility(View.VISIBLE);
          TrezorManager trezor = (TrezorManager) masterseedScanManager;
-         ((TextView)findViewById(R.id.tvTrezorName)).setText(trezor.getFeatures().getLabel());
 
-         String version = String.format("%s, V%d.%d", trezor.getFeatures().getDeviceId(), trezor.getFeatures().getMajorVersion(), trezor.getFeatures().getMinorVersion());
-         ((TextView)findViewById(R.id.tvTrezorSerial)).setText(version);
+         if (trezor.getFeatures() != null && !Strings.isNullOrEmpty(trezor.getFeatures().getLabel())) {
+            ((TextView) findViewById(R.id.tvTrezorName)).setText(trezor.getFeatures().getLabel());
+         }else {
+            ((TextView) findViewById(R.id.tvTrezorName)).setText(getString(R.string.trezor_unnamed));
+         }
+
+         String version;
+         TextView tvTrezorSerial = (TextView) findViewById(R.id.tvTrezorSerial);
+         if (trezor.isMostRecentVersion()) {
+            if (trezor.getFeatures() != null) {
+               version = String.format("%s, V%d.%d.%d",
+                     trezor.getFeatures().getDeviceId(),
+                     trezor.getFeatures().getMajorVersion(),
+                     trezor.getFeatures().getMinorVersion(),
+                     trezor.getFeatures().getPatchVersion());
+            } else {
+               version = "";
+            }
+         }else{
+            version = getString(R.string.trezor_new_firmware);
+            tvTrezorSerial.setTextColor(getResources().getColor(R.color.semidarkgreen));
+            tvTrezorSerial.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                  Utils.showSimpleMessageDialog(TrezorAccountSelectorActivity.this, getString(R.string.trezor_new_firmware_description));
+               }
+            });
+         }
+         tvTrezorSerial.setText(version);
       }
 
       accountsAdapter.notifyDataSetChanged();
    }
 
-   @Override
-   public void onButtonRequest() {   }
-
-   @Override
-   public String onPinMatrixRequest() {
-      // PIN should never requested here - only for signing.
-      throw new RuntimeException("Unexpected PIN Request");
-   }
-
-   @Override
-   public void onPassphraseRequest() {
-      MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
-      pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
-   }
 
    @Override
    public void setPassphrase(String passphrase){
@@ -154,6 +162,44 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
       }
    }
 
+
+   @Subscribe
+   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event){
+      TrezorPinDialog pin = new TrezorPinDialog(TrezorAccountSelectorActivity.this, true);
+      pin.setOnPinValid(new PinDialog.OnPinEntered() {
+         @Override
+         public void pinEntered(PinDialog dialog, Pin pin) {
+            ((TrezorManager) masterseedScanManager).enterPin(pin.getPin());
+            dialog.dismiss();
+         }
+      });
+      pin.show();
+
+      // update the UI, as the state might have changed
+      updateUi();
+   }
+
+
+   // Otto.EventBus does not traverse class hierarchy to find subscribers
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event){
+      super.onScanError(event);
+   }
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+      super.onStatusChanged(event);
+   }
+
+   @Subscribe
+   public void onAccountFound(AccountScanManager.OnAccountFound event){
+      super.onAccountFound(event);
+   }
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+      super.onPassphraseRequest(event);
+   }
 
 }
 

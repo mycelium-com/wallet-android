@@ -53,17 +53,13 @@ import android.widget.TextView;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteSource;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.DarkThemeChangeLog;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.api.response.VersionInfoResponse;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.api.response.VersionInfoExResponse;
 import de.cketti.library.changelog.ChangeLog;
 
 public class AboutActivity extends Activity {
@@ -76,7 +72,9 @@ public class AboutActivity extends Activity {
       final MbwManager mbwManager = MbwManager.getInstance(this);
       final VersionManager versionManager = mbwManager.getVersionManager();
       String version = versionManager.getVersion();
+      int versionCode = versionManager.getVersionCode();
       ((TextView) findViewById(R.id.tvVersionNumber)).setText(version);
+      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format("(%d)", versionCode));
       findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
       findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));
@@ -95,9 +93,9 @@ public class AboutActivity extends Activity {
          public void onClick(View v) {
             final ProgressDialog progress = ProgressDialog.show(AboutActivity.this, getString(R.string.update_check),
                   getString(R.string.please_wait), true);
-            versionManager.forceCheckForUpdate(new AbstractCallbackHandler<VersionInfoResponse>() {
+            versionManager.checkForUpdateSync(new AbstractCallbackHandler<VersionInfoExResponse>() {
                @Override
-               public void handleCallback(VersionInfoResponse response, WapiException exception) {
+               public void handleCallback(VersionInfoExResponse response, WapiException exception) {
                   progress.dismiss();
                   if (exception != null) {
                      new Toaster(AboutActivity.this).toast(R.string.version_check_failed, false);
@@ -153,9 +151,9 @@ public class AboutActivity extends Activity {
 
    }
 
-   private void showVersionInfo(VersionManager versionManager, VersionInfoResponse response) {
-      if (versionManager.isSameVersion(response.versionNumber)) {
-         new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, response.versionNumber))
+   private void showVersionInfo(VersionManager versionManager, VersionInfoExResponse response) {
+      if (response==null || versionManager.isSameVersion(response.versionNumber)) {
+         new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, versionManager.getVersion()))
                .setTitle(getString(R.string.update_check))
                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                   @Override

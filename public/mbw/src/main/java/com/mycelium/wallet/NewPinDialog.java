@@ -45,7 +45,7 @@ public class NewPinDialog extends PinDialog {
    private final CheckBox cbResettablePin;
 
    public NewPinDialog(final Context context, boolean hidden) {
-      super(context, hidden);
+      super(context, hidden, true);
       this.setTitle(R.string.pin_enter_new_pin);
 
       MbwManager mbwManager = MbwManager.getInstance(context);

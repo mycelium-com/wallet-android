@@ -7,8 +7,13 @@
 #ignore xzing version trickery
 -dontwarn com.google.zxing.**
 -dontwarn java.lang.management.**
+-dontwarn javax.naming.**
 -dontwarn okio.**
 
+#spongycastle/coinapult
+-keep class org.spongycastle.**
+-dontwarn org.spongycastle.jce.provider.X509LDAPCertStoreSpi
+-dontwarn org.spongycastle.x509.util.LDAPStoreHelper
 
 -keepclassmembers class ** {
     @com.squareup.otto.Subscribe public *;
@@ -49,9 +54,9 @@
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
+-keep public class * extends android.preference.Preference
 -keep public class com.android.vending.licensing.ILicensingService
 -keep public class com.google.zxing.client.android.common.executor.HoneycombAsyncTaskExecInterface
-
 
 #To remove debug logs:
 -assumenosideeffects class android.util.Log {
@@ -90,6 +95,10 @@
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
 
+# GMS related classes
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
 #Maintain enums
 -keepclassmembers enum * {
     public static **[] values();
@@ -117,11 +126,56 @@
   <init>(...);
   *;
 }
+#keep classes used for deserializing json
+-keepclasseswithmembers class com.coinapult.** {
+  <init>(...);
+  *;
+}
+
+#keep classes used for deserializing json
+-keepclasseswithmembers class com.mycelium.wallet.bitid.json.** {
+  <init>(...);
+  *;
+}
+
+#keep classes used for deserializing payment requests
+-keepclasseswithmembers class org.bitcoin.protocols.** {
+  <init>(...);
+  *;
+}
 
 -keep public class com.mycelium.lt.api.** {
   <init>(...);
  }
 -dontwarn com.fasterxml.jackson.**
+
+
+# keep everything decorated with butterknife
+-keep class butterknife.** { *; }
+-dontwarn butterknife.internal.**
+-keep class **$$ViewInjector { *; }
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
+
+# retrofit + API interfaces
+-keep class retrofit.** { *; }
+-keep class com.mycelium.wallet.external.cashila.api.** { *; }
+-keepclassmembernames interface * {
+    @retrofit.http.* <methods>;
+}
+
+#-dontwarn rx.**
+-dontwarn retrofit.**
+
+# keep everything in ledger/nordpol
+-keep class nordpol.** { *; }
+
 
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 

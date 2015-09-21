@@ -77,19 +77,27 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -154,7 +162,6 @@ public class Utils {
        * defaultResources.getString(resId); } return settingsEn;
        */
    }
-
 
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
@@ -224,9 +231,9 @@ public class Utils {
       showSimpleMessageDialog(context, message, postRunner);
    }
 
-   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks){
+   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
       MbwManager mbwManager = MbwManager.getInstance(context);
-      PrettyTime p = new PrettyTime(new Locale(mbwManager.getLanguage()));
+      PrettyTime p = new PrettyTime(mbwManager.getLocale());
       String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max(blocks, 1) * 10 * 60 * 1000));
       return ret;
    }
@@ -243,7 +250,15 @@ public class Utils {
     * Show a dialog without buttons that displays a message. Click the message
     * or the back button to make it disappear.
     */
-   public static void showSimpleMessageDialog(final Context context, String message, final Runnable postRunner) {
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner) {
+      showSimpleMessageDialog(context, message, okayRunner, null);
+   }
+
+   /**
+    * Show a dialog without buttons that displays a message. Click the message
+    * or the back button to make it disappear.
+    */
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -255,6 +270,15 @@ public class Utils {
          @Override
          public void onClick(View v) {
             dialog.dismiss();
+            if (okayRunner != null) {
+               okayRunner.run();
+            }
+         }
+      });
+
+      dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+         @Override
+         public void onDismiss(DialogInterface dialog) {
             if (postRunner != null) {
                postRunner.run();
             }
@@ -340,6 +364,11 @@ public class Utils {
    }
 
    private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+
+   public static String formatFiatValueAsString(BigDecimal fiat) {
+      return FIAT_FORMAT.format(fiat);
+   }
+
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
 
       Double converted = getFiatValue(satoshis, oneBtcInFiat);
@@ -347,7 +376,7 @@ public class Utils {
          return null;
       }
 
-      if (!formatCache.containsKey(precision)){
+      if (!formatCache.containsKey(precision)) {
          DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
          fiatFormat.setMaximumFractionDigits(precision);
          formatCache.put(precision, fiatFormat);
@@ -388,14 +417,12 @@ public class Utils {
       } catch (SecurityException ex) {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
-         //it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         //we could also skip the reporting to server, but lets see if this works.
-         MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity,activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
+         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity,activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       }
    }
@@ -419,7 +446,7 @@ public class Utils {
          // Raw format
          return Optional.fromNullable(Address.fromString(someString, network));
       } else {
-         Optional<BitcoinUri> b = BitcoinUri.parse(someString, network);
+         Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(someString, network);
          if (b.isPresent()) {
             // On URI format
             return Optional.of(b.get().address);
@@ -537,12 +564,8 @@ public class Utils {
          // There must be something before the decimal separator
          return false;
       }
-      if ((foundDot || foundComma) && digitsAfter == 0) {
-         // There must be something after the decimal separator
-         return false;
-      }
+      return !((foundDot || foundComma) && digitsAfter == 0);
 
-      return true;
    }
 
    public static void pinProtectedWordlistBackup(final Activity activity) {
@@ -561,7 +584,7 @@ public class Utils {
       if (_mbwManager.getMetadataStorage().firstMasterseedBackupFinished()) {
          // second+ backup
          AdditionalBackupWarningActivity.callMe(parent);
-      }else{
+      } else {
          // first backup
          AlertDialog.Builder builder = new AlertDialog.Builder(parent);
          builder.setMessage(R.string.backup_all_warning).setCancelable(true)
@@ -646,33 +669,36 @@ public class Utils {
    }
 
    public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts, final MetadataStorage storage) {
-      Comparator<WalletAccount> comparator = new Comparator<WalletAccount>() {
+      Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         @Nullable
          @Override
-         public int compare(WalletAccount lhs, WalletAccount rhs) {
-            //HD Accounts always come first
-            if (lhs instanceof Bip44Account && rhs instanceof SingleAddressAccount) return -1;
-            if (lhs instanceof SingleAddressAccount && rhs instanceof Bip44Account) return 1;
-            //when both are hd, we take the account index
-            if (lhs instanceof Bip44Account) {
-               int lid = ((Bip44Account) lhs).getAccountIndex();
-               int rid = ((Bip44Account) rhs).getAccountIndex();
-               if (lid < rid) {
-                  return -1;
-               } else if (lid > rid) {
-                  return 1;
-               } else {
-                  return 0;
-               }
-            }
-            //when both are single, we take label
-            String lname = storage.getLabelByAccount(lhs.getId());
-            String rname = storage.getLabelByAccount(rhs.getId());
-            return lname.compareTo(rname);
+         public Integer apply(@Nullable WalletAccount input) {
+            if (input instanceof Bip44Account) return 0;
+            if (input instanceof SingleAddressAccount) return 1;
+            if (input instanceof CoinapultManager) return 3; //coinapult last
+            return 2;
          }
-      };
-      accounts = new ArrayList<WalletAccount>(accounts);
-      Collections.sort(accounts, comparator);
-      return accounts;
+      });
+      Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         @Nullable
+         @Override
+         public Integer apply(@Nullable WalletAccount input) {
+            if (input instanceof Bip44Account) {
+               Bip44Account bip44Account = (Bip44Account) input;
+               return bip44Account.getAccountIndex();
+            }
+            return Integer.MAX_VALUE;
+         }
+      });
+
+      Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
+         @Nullable
+         @Override
+         public String apply(@Nullable WalletAccount input) {
+            return storage.getLabelByAccount(input.getId());
+         }
+      });
+      return type.compound(index).compound(name).sortedCopy(accounts);
    }
 
    public static List<Address> sortAAddresses(List<Address> addresses) {
@@ -683,19 +709,33 @@ public class Utils {
       return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
-   public static Drawable getDrawableForAccount(WalletAccount walletAccount, Resources resources) {
+   public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
       // Watch only
-      if (!walletAccount.canSpend()){
+      if (!walletAccount.canSpend()) {
          return null;
       }
 
       //trezor account
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-         return resources.getDrawable(R.drawable.trezor_icon_only);
+    	 int accountType = ((Bip44AccountExternalSignature)walletAccount).getAccountType();
+    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 return resources.getDrawable(R.drawable.ledger_icon);
+    	 }
+    	 else {
+    		 return resources.getDrawable(R.drawable.trezor_icon_only);
+    	 }
+         
       }
       //regular HD account
       if (walletAccount instanceof Bip44Account) {
-         return  resources.getDrawable(R.drawable.multikeys_grey);
+         return resources.getDrawable(R.drawable.multikeys_grey);
+      }
+      if (walletAccount instanceof CoinapultManager) {
+         if (isSelectedAccount) {
+            return resources.getDrawable(R.drawable.coinapult);
+         } else {
+            return resources.getDrawable(R.drawable.coinapultgrey);
+         }
       }
 
       //single key account
@@ -704,7 +744,15 @@ public class Utils {
 
    public static String getNameForNewAccount(WalletAccount account, Context context) {
       if (account instanceof Bip44AccountExternalSignature) {
-         return MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault() + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
+    	 String baseName;
+    	 int accountType = ((Bip44AccountExternalSignature)account).getAccountType();
+    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
+    	 }
+    	 else {
+    		 baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
+    	 }
+         return baseName + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
       } else if (account instanceof Bip44PubOnlyAccount) {
          return context.getString(R.string.account_prefix_imported);
       } else if (account instanceof Bip44Account) {
@@ -713,4 +761,57 @@ public class Utils {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }
    }
+
+   public  static boolean isAllowedForLocalTrader(WalletAccount account) {
+      if (account instanceof CoinapultManager) return false; //we do not support coinapult accs in lt (yet)
+      if (!account.getReceivingAddress().isPresent()) return false;  // the account has no valid receiving address (should not happen) - dont use it
+      return true; //all other account types including trezor accs are fine
+   }
+
+   public static String getFormattedDate(Context context, Date date) {
+      Locale locale = context.getResources().getConfiguration().locale;
+      java.text.DateFormat format;
+      Calendar now = Calendar.getInstance(locale);
+      Calendar toFormat = Calendar.getInstance(locale);
+      toFormat.setTime(date);
+      // show the date part if it is not today
+      if (toFormat.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+            toFormat.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)) {
+         format = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, locale);
+      } else {
+         format = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.MEDIUM, locale);
+      }
+      return format.format(date);
+   }
+
+   public static String getFormattedValue(CurrencyValue value, MbwManager mbw){
+      BigDecimal val = value.getValue();
+      if (val == null){
+         return "";
+      }
+      if (value.isBtc()) {
+         return CoinUtil.valueString(val, mbw.getBitcoinDenomination(), false);
+      } else {
+         return FIAT_FORMAT.format(val);
+      }
+   }
+
+   public static String getFormattedValueWithUnit(CurrencyValue value, MbwManager mbw){
+      BigDecimal val = value.getValue();
+      if (val == null){
+         return "";
+      }
+
+      if (value.isBtc()) {
+         return String.format("%s %s", CoinUtil.valueString(val, mbw.getBitcoinDenomination(), false), mbw.getBitcoinDenomination().getUnicodeName());
+      } else {
+         return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
+      }
+   }
+
+   public static boolean isValidEmailAddress(String value) {
+      return android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
+   }
+
+
 }

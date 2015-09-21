@@ -40,38 +40,41 @@ import android.os.Handler;
 import android.os.Looper;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Bus;
 
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class AbstractAccountScanManager implements AccountScanManager {
-   protected final Context _context;
+   protected final Context context;
    final private NetworkParameters network;
-   private Events handler=null;
    private AsyncTask<Void, ScanStatus, Integer> scanAsyncTask = null;
-   private TreeMap<Integer, HdKeyNodeWrapper> foundAccounts = new TreeMap<Integer, HdKeyNodeWrapper>();
-   protected LinkedBlockingQueue<Optional<String>> passphraseSyncQueue = new LinkedBlockingQueue<Optional<String>>(1);
-   protected Handler mainThreadHandler;
+   private final TreeMap<Integer, HdKeyNodeWrapper> foundAccounts = new TreeMap<Integer, HdKeyNodeWrapper>();
+   protected final Bus eventBus;
+   protected final LinkedBlockingQueue<Optional<String>> passphraseSyncQueue = new LinkedBlockingQueue<Optional<String>>(1);
+   protected final Handler mainThreadHandler;
 
    public volatile AccountStatus currentAccountState = AccountStatus.unknown;
    public volatile Status currentState = Status.unableToScan;
 
-   public AbstractAccountScanManager(Context context, NetworkParameters network){
-      _context = context;
-      mainThreadHandler = new Handler(Looper.getMainLooper());
-
+   public AbstractAccountScanManager(Context context, NetworkParameters network, Bus eventBus) {
+      this.context = context;
+      this.eventBus = eventBus;
       this.network = network;
+
+      mainThreadHandler = new Handler(Looper.getMainLooper());
    }
+
 
    public class ScanStatus {
       public final Status state;
       public final AccountStatus accountState;
 
-      public ScanStatus(Status state, AccountStatus accountState){
+      public ScanStatus(Status state, AccountStatus accountState) {
          this.state = state;
          this.accountState = accountState;
       }
@@ -86,24 +89,16 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
       }
    }
 
-   @Override
-   public void setEventHandler(Events handler){
-      this.handler = handler;
-   }
-
-
    protected abstract boolean onBeforeScan();
 
    @Override
    public void startBackgroundAccountScan(final AccountCallback scanningCallback) {
       if (currentAccountState == AccountStatus.scanning || currentAccountState == AccountStatus.done) {
-         // currently scanning or have already all account - just call the callback for all already known accounts
-         if (AbstractAccountScanManager.this.handler != null){
-            for (HdKeyNodeWrapper a : foundAccounts.values()){
-               AbstractAccountScanManager.this.handler.onAccountFound(a);
-            }
+         // currently scanning or have already all account - just post the events for all already known accounts
+         for (HdKeyNodeWrapper a : foundAccounts.values()) {
+            eventBus.post(new OnAccountFound(a));
          }
-      }else {
+      } else {
          // start a background task which iterates over all accounts and calls the callback
          // to check if there was activity on it
          scanAsyncTask = new AsyncTask<Void, ScanStatus, Integer>() {
@@ -121,7 +116,7 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
                do {
                   HdKeyNode rootNode;
                   Optional<HdKeyNode> accountPubKeyNode = AbstractAccountScanManager.this.getAccountPubKeyNode(accountIndex);
-                  if (!accountPubKeyNode.isPresent()){
+                  if (!accountPubKeyNode.isPresent()) {
                      publishProgress(new ScanStatus(AccountScanManager.Status.initializing, AccountStatus.unknown));
                      break;
                   }
@@ -159,7 +154,7 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
 
                   if (si instanceof FoundAccountStatus) {
                      HdKeyNodeWrapper foundAccount = ((FoundAccountStatus) si).account;
-                     if (AbstractAccountScanManager.this.handler != null) AbstractAccountScanManager.this.handler.onAccountFound(foundAccount);
+                     eventBus.post(new OnAccountFound(foundAccount));
                      foundAccounts.put(foundAccount.accountIndex, foundAccount);
                   }
                }
@@ -181,70 +176,67 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
    }
 
    protected synchronized void setState(final Status state, final AccountStatus accountState) {
-      if (this.handler != null) {
-         mainThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-               AbstractAccountScanManager.this.handler.onStatusChanged(state, accountState);
-            }
-         });
-      }
+      mainThreadHandler.post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.post(new OnStatusChanged(state, accountState));
+         }
+      });
       currentState = state;
       currentAccountState = accountState;
    }
 
    @Override
    public void stopBackgroundAccountScan() {
-      if (scanAsyncTask != null){
+      if (scanAsyncTask != null) {
          scanAsyncTask.cancel(true);
          currentAccountState = AccountStatus.unknown;
       }
    }
 
    @Override
-   public void forgetAccounts(){
-      if (currentAccountState == AccountStatus.scanning ){
+   public void forgetAccounts() {
+      if (currentAccountState == AccountStatus.scanning) {
          stopBackgroundAccountScan();
       }
       currentAccountState = AccountStatus.unknown;
       foundAccounts.clear();
    }
 
-   protected Optional<String> waitForPassphrase(){
+   protected Optional<String> waitForPassphrase() {
       // call external passphrase request ...
-      this.handler.onPassphraseRequest();
+      mainThreadHandler.post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.post(new OnPassphraseRequest());
+         }
+      });
 
-      Optional<String> passphrase;
       // ... and block until we get one
       while (true) {
          try {
-            passphrase = passphraseSyncQueue.take();
-            break;
+            return passphraseSyncQueue.take();
          } catch (InterruptedException ignore) {
          }
       }
-      return passphrase;
    }
 
-   protected NetworkParameters getNetwork(){
+   protected NetworkParameters getNetwork() {
       return network;
    }
 
-   protected boolean postErrorMessage(final String msg){
-      if (handler != null) {
-         mainThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-               handler.onScanError(msg);
-            }
-         });
-         return  true;
-      }
-      return false;
+   protected boolean postErrorMessage(final String msg) {
+      mainThreadHandler.post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.post(new OnScanError(msg));
+         }
+      });
+      return true;
    }
 
    @Override
-   public void setPassphrase(String passphrase){
+   public void setPassphrase(String passphrase) {
       passphraseSyncQueue.add(Optional.fromNullable(passphrase));
    }
 

@@ -52,22 +52,20 @@ import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.lt.api.model.PriceFormula;
 import com.mycelium.lt.api.model.TradeSession;
-import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
       WalletAccount account = mbwManager.getSelectedAccount();
+      LocalTraderManager lt = mbwManager.getLocalTraderManager();
 
       if (!account.canSpend()) {
          // this is a watch-only account
@@ -76,7 +74,7 @@ public class TradeActivityUtil {
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
       WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {
-         account.createUnsignedTransaction(Arrays.asList(receiver), mbwManager.getMinerFee().kbMinerFee);
+         account.createUnsignedTransaction(Arrays.asList(receiver), lt.getMinerFeeEstimation().getLongValue());
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {

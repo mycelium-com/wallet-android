@@ -72,6 +72,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Transaction;
@@ -85,12 +86,12 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.*;
-import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 public class TradeActivity extends Activity {
@@ -115,8 +116,6 @@ public class TradeActivity extends Activity {
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private TradeSession _tradeSession;
-   // private MyTradeSessionUpdateListener _tradeSessionListener;
-   private MyListener _myListener;
    private Button _btRefresh;
    private Button _btChangePrice;
    private Button _btAccept;
@@ -184,15 +183,30 @@ public class TradeActivity extends Activity {
       _lvChat.setOnItemClickListener(chatItemClickListener);
       //to copy to clipboard
       _lvChat.setOnItemLongClickListener(chatLongClickListener);
+
+      Utils.showOptionalMessage(this, R.string.lt_cash_only_warning);
+
    }
 
    @Override
    protected void onResume() {
       _ltManager.enableNotifications(false);
       _ltManager.subscribe(ltSubscriber);
-      _myListener = new MyListener(_tradeSession.id, _tradeSession.lastChange);
-      _ltManager.startMonitoringTradeSession(_myListener);
-      updateUi();
+      MyListener myListener = new MyListener(_tradeSession.id, _tradeSession.lastChange);
+      _ltManager.startMonitoringTradeSession(myListener);
+      if (Utils.isAllowedForLocalTrader(_mbwManager.getSelectedAccount())) {
+         //everything is fine, update UI
+         updateUi();
+      } else {
+         //sneaked an invalid acc into lt, we show a message and close the trade activity
+         Runnable close = new Runnable() {
+            @Override
+            public void run() {
+               TradeActivity.this.finish();
+            }
+         };
+         Utils.showSimpleMessageDialog(this, R.string.lt_warning_wrong_account_type, close);
+      }
       super.onResume();
    }
 
@@ -294,9 +308,9 @@ public class TradeActivity extends Activity {
 
       // Create unsigned transaction
       StandardTransactionBuilder.UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, mbwManager.getMinerFee().kbMinerFee);
+            ts.buyerAddress, ts.feeAddress, acc, _ltManager.getMinerFeeEstimation().getLongValue());
 
-      TrezorSignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);
+      SignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);
    }
 
 

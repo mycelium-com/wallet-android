@@ -44,6 +44,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.common.base.Preconditions;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -56,7 +57,6 @@ import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.lt.location.Geocoder;
-import com.mycelium.wallet.AndroidRandomSource;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
@@ -299,8 +299,8 @@ public class LocalTraderManager {
             handleErrors(null, LtApi.ERROR_CODE_TRADER_DOES_NOT_EXIST);
             return false;
          }
-         String sigHashSessionId = ApiUtils.generateUuidHashSignature(privateKey, _session.id,
-               new AndroidRandomSource());
+         String sigHashSessionId = ApiUtils.generateUuidHashSignature(privateKey, _session.id
+         );
          try {
             // Login
             LoginParameters params = new LoginParameters(getLocalTraderAddress(), sigHashSessionId);
@@ -788,6 +788,11 @@ public class LocalTraderManager {
 
    public LtSession getSession(){
       return _session;
+   }
+
+   public Bitcoins getMinerFeeEstimation(){
+      // choose a fee to get included within the next block
+      return _mbwManager.getWalletManager(false).getLastFeeEstimations().getEstimation(1);
    }
 
 }

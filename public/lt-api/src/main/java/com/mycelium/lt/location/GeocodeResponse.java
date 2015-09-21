@@ -24,10 +24,10 @@ import java.util.List;
 public class GeocodeResponse {
 
    @JsonProperty
-   public String status;
+   public String status = "";
 
    @JsonProperty
-   public String errorMessage;
+   public String errorMessage = "";
 
    @JsonProperty
    public List<Geocode> results = new ArrayList<Geocode>();

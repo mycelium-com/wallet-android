@@ -73,7 +73,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="5dp"
-                android:text="Sign with:"
+                android:text="@string/label_cold_storage_external_signing"
                 android:textSize="20sp" />
 
         <Button

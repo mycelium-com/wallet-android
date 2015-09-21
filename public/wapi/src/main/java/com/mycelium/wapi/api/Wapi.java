@@ -43,7 +43,7 @@ public interface Wapi {
     *
     * @return the logger configured for this {@link Wapi}
     */
-   WapiLogger getLogger();
+   com.mycelium.WapiLogger getLogger();
 
    /**
     * Query the full set of unspent outputs for a set of addresses
@@ -118,8 +118,32 @@ public interface Wapi {
 
    /**
     * Get the current version-number, to check if there is an update available
-    *
+    * deprecated, replaced by getVersionInfoEx
     */
+   @Deprecated()
    WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request);
 
+   /**
+    * Get the current version-number for a certain branch (Android, iOS, ..)
+    * and also get a collection of eventually blocked features if there is a bug discovered
+    *
+    * returns null (empty object) if there are no warnings or important updates available for this branch/version
+    *
+    * curl -k -X POST -H "Content-Type: application/json" -d '{"branch":"android", "currentVersion":"2.3.1", "locale":"de" }' https://144.76.165.115/wapitestnet/wapi/getVersionEx
+    *
+    */
+   WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request);
+
+
+   /**
+    * Get the current miner fee estimation in Bitcoin-per-kB, to be included within the next 1,2 or 4 Blocks
+    *
+    *
+    * returns an object with {1: fee_1, 2: fee_2, 4: fee_4}  (where fee_n is the fee needed per kB to be
+    * included in the next n-Blocks, in satoshis
+    *
+    * curl -k -X POST -H "Content-Type: application/json" -d '{}' https://144.76.165.115/wapitestnet/wapi/getMinerFeeEstimations
+    *
+    */
+   WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations();
 }

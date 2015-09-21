@@ -4,5 +4,6 @@
     <issue id="InvalidPackage">
         <ignore regexp=".*com\.squareup\.okio.*"/>
         <ignore regexp=".*org\.apache\.xmlrpc\.jaxb\.JaxbParser.*"/>
+        <ignore regexp=".*org\.spongycastle\.jce\.provider.*"/>
     </issue>
 </lint>

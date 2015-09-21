@@ -90,7 +90,6 @@ public class AdSearchFragment extends Fragment {
    private static final String ADS = "ads";
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private ActionMode currentActionMode;
    private List<AdSearchItem> _ads;
    private AdAdapter _recordsAdapter;
    private AdSearchItem _selected; // todo rework this so that the listview does
@@ -127,20 +126,6 @@ public class AdSearchFragment extends Fragment {
       _mbwManager = MbwManager.getInstance(getActivity().getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();
       super.onAttach(activity);
-   }
-
-   @Override
-   public void setUserVisibleHint(boolean isVisibleToUser) {
-      super.setUserVisibleHint(isVisibleToUser);
-      if (!isVisibleToUser) {
-         finishActionMode();
-      }
-   }
-
-   private void finishActionMode() {
-      if (currentActionMode != null) {
-         currentActionMode.finish();
-      }
    }
 
    private boolean isBuy() {

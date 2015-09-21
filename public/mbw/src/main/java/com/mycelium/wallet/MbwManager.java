@@ -52,6 +52,8 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
@@ -67,24 +69,29 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.wallet.activity.modern.ExploreHelper;
+import com.mycelium.wallet.activity.util.BlockExplorer;
+import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
+import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.ledger.LedgerManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.trezor.TrezorManager;
+import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -101,8 +108,17 @@ public class MbwManager {
     * 0x424944 = "BID"
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
+   private Optional<CoinapultManager> coinapultManager;
+
+   /**
+    * The index proposed for bit id as per https://github.com/bitid/bitid/blob/master/BIP_draft.md
+    * Including hardened marker
+    */
+   private static final int BITID_BIP_INDEX = 0xb11e | HdKeyNode.HARDENED_MARKER;
+
    private final CurrencySwitcher _currencySwitcher;
    private Date lastSuccessfullPin;
+   private boolean startUpPinUnlocked = false;
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
@@ -113,13 +129,12 @@ public class MbwManager {
 
    private final Bus _eventBus;
    private final TrezorManager _trezorManager;
+   private final LedgerManager _ledgerManager;
    private final WapiClient _wapi;
 
    private final LtApiClient _ltApi;
    private Handler torHandler;
-   private NetworkConnectionWatcher _connectionWatcher;
    private Context _applicationContext;
-   private AndroidAsyncApi _asyncApi;
    private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
@@ -144,8 +159,10 @@ public class MbwManager {
    private final EventTranslator _eventTranslator;
    private ServerEndpointType.Types _torMode;
    private TorManager _torManager;
+   public final BlockExplorerManager _blockExplorerManager;
 
    private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
+   private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -163,7 +180,7 @@ public class MbwManager {
       // init tor - if needed
       try {
          setTorMode(ServerEndpointType.Types.valueOf(preferences.getString(Constants.TOR_MODE, "")));
-      }catch (IllegalArgumentException ex){
+      } catch (IllegalArgumentException ex) {
          setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
       }
 
@@ -177,9 +194,8 @@ public class MbwManager {
 
       _randomSource = new AndroidRandomSource();
 
-      _connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
+      //_connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
 
-      _asyncApi = new AndroidAsyncApi(_wapi, _eventBus);
 
       _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
 
@@ -207,7 +223,7 @@ public class MbwManager {
       _storage = new MetadataStorage(_applicationContext);
       exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-      _versionManager = new VersionManager(_applicationContext, _language, _asyncApi, version);
+      _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
       ArrayList<String> fiatCurrencies = new ArrayList<String>();
@@ -226,8 +242,8 @@ public class MbwManager {
             _exchangeRateManager,
             fiatCurrencies,
             getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
-            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING,Denomination.mBTC.toString()))
-            );
+            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
+      );
 
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
       ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -237,14 +253,49 @@ public class MbwManager {
             ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
             : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
-      _trezorManager = new TrezorManager(_applicationContext, getNetwork());
+      _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
+      _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
       _walletManager = createWalletManager(_applicationContext, _environment);
       _eventTranslator = new EventTranslator(new Handler(), _eventBus);
       _walletManager.addObserver(_eventTranslator);
       _exchangeRateManager.subscribe(_eventTranslator);
+      coinapultManager = createCoinapultManager();
+      _walletManager.setExtraAccount(coinapultManager);
       migrateOldKeys();
       createTempWalletManager();
 
+      _versionManager.initBackgroundVersionChecker();
+      _blockExplorerManager = new BlockExplorerManager(this,
+            _environment.getBlockExplorerList(),
+            getPreferences().getString(Constants.BLOCK_EXPLORER,
+                  _environment.getBlockExplorerList().get(0).getIdentifier()));
+   }
+
+   private Optional<CoinapultManager> createCoinapultManager() {
+      if (_walletManager.hasBip32MasterSeed() && _storage.isPairedService("coinapult")) {
+         BitidKeyDerivation derivation = new BitidKeyDerivation() {
+            @Override
+            public InMemoryPrivateKey deriveKey(int accountIndex, String site) {
+               try {
+                  Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                  return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, site);
+               } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                  throw new RuntimeException(invalidKeyCipher);
+               }
+            }
+         };
+         return Optional.of(new CoinapultManager(
+               _environment,
+               derivation,
+               _eventBus,
+               new Handler(_applicationContext.getMainLooper()),
+               _storage,
+               _exchangeRateManager,
+               retainingWapiLogger));
+
+      } else {
+         return Optional.absent();
+      }
    }
 
    private void createTempWalletManager() {
@@ -275,52 +326,53 @@ public class MbwManager {
       });
    }
 
-   private synchronized void retainLog(Level level, String message){
+   private synchronized void retainLog(Level level, String message) {
       _wapiLogs.add(new LogEntry(message, level, new Date()));
    }
+
+   public WapiLogger retainingWapiLogger = new WapiLogger() {
+      @Override
+      public void logError(String message) {
+         Log.e("Wapi", message);
+         retainLog(Level.SEVERE, message);
+      }
+
+      @Override
+      public void logError(String message, Exception e) {
+         Log.e("Wapi", message, e);
+         retainLog(Level.SEVERE, message);
+      }
+
+      @Override
+      public void logInfo(String message) {
+         Log.i("Wapi", message);
+         retainLog(Level.INFO, message);
+      }
+   };
 
    private WapiClient initWapi() {
       String version;
       try {
          PackageInfo packageInfo = _applicationContext.getPackageManager().getPackageInfo(_applicationContext.getPackageName(), 0);
-         if (packageInfo != null){
+         if (packageInfo != null) {
             version = String.valueOf(packageInfo.versionCode);
          } else {
-            version="na";
+            version = "na";
          }
       } catch (PackageManager.NameNotFoundException e) {
-         version="na";
+         version = "na";
       }
 
-      return new WapiClient(_environment.getWapiEndpoints(), new WapiLogger() {
 
-
-         @Override
-         public void logError(String message) {
-            Log.e("Wapi", message);
-            retainLog(Level.SEVERE, message);
-         }
-
-         @Override
-         public void logError(String message, Exception e) {
-            Log.e("Wapi", message, e);
-            retainLog(Level.SEVERE, message);
-         }
-
-         @Override
-         public void logInfo(String message) {
-            Log.i("Wapi", message);
-            retainLog(Level.INFO, message);
-         }
-      }, version);
+      return new WapiClient(_environment.getWapiEndpoints(), retainingWapiLogger, version);
    }
 
    private void initTor() {
       torHandler = new Handler(Looper.getMainLooper());
 
-      if (_torMode == ServerEndpointType.Types.ONLY_TOR){
+      if (_torMode == ServerEndpointType.Types.ONLY_TOR) {
          this._torManager = new TorManagerOrbot();
-      }else{
+      } else {
          throw new IllegalArgumentException();
       }
 
@@ -343,10 +395,11 @@ public class MbwManager {
    }
 
 
-
    private void migrateOldKeys() {
       // We only migrate old keys if we don't have any accounts yet - otherwise, migration has already taken place
-      if (!_walletManager.getAccountIds().isEmpty()) return;
+      if (!_walletManager.getAccountIds().isEmpty()) {
+         return;
+      }
 
       // Get the local trader address, may be null
       Address localTraderAddress = _localTraderManager.getLocalTraderAddress();
@@ -434,9 +487,6 @@ public class MbwManager {
             //we just put it into the addressbook
             _storage.storeAddressLabel(address, label);
          }
-
-
-
       }
    }
 
@@ -459,9 +509,14 @@ public class MbwManager {
       secureKeyValueStore = new SecureKeyValueStore(backing,
             new AndroidRandomSource());
 
+      ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
+            getTrezorManager(),
+            getLedgerManager()
+      );
+
       // Create and return wallet manager
       return new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, getTrezorManager());
+            backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy);
    }
 
    /**
@@ -514,11 +569,15 @@ public class MbwManager {
 
    public boolean nextCurrencyReady() {
       List<String> currencies = getCurrencyList();
-      if (currencies.isEmpty()) return false;
+      if (currencies.isEmpty()) {
+         return false;
+      }
       int index = currencies.indexOf(getFiatCurrency());
       Preconditions.checkState(index >= 0);
       index++; //hop one forward
-      if (index >= currencies.size()) index -= currencies.size(); //wrap around
+      if (index >= currencies.size()) {
+         index -= currencies.size(); //wrap around
+      }
       String newCurrency = currencies.get(index);
       if (_exchangeRateManager.getExchangeRate(newCurrency) == null) {
          _exchangeRateManager.requestRefresh();
@@ -556,27 +615,29 @@ public class MbwManager {
    }
 
    // returns the age of the PIN in blocks (~10min)
-   public Optional<Integer> getRemainingPinLockdownDuration(){
+   public Optional<Integer> getRemainingPinLockdownDuration() {
       Optional<Integer> pinSetHeight = getMetadataStorage().getLastPinSetBlockheight();
-      if (!pinSetHeight.isPresent()) return Optional.absent();
+      if (!pinSetHeight.isPresent()) {
+         return Optional.absent();
+      }
 
       int blockHeight = getSelectedAccount().getBlockChainHeight();
 
       int pinAge = blockHeight - pinSetHeight.get();
-      if (pinAge > Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP){
+      if (pinAge > Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP) {
          return Optional.of(0);
-      }else {
+      } else {
          return Optional.of(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP - pinAge);
       }
    }
 
    public boolean isPinOldEnough() {
-      if (!isPinProtected()){
+      if (!isPinProtected()) {
          return false;
       }
 
       Optional<Integer> pinLockdownDuration = getRemainingPinLockdownDuration();
-      if (!pinLockdownDuration.isPresent()){
+      if (!pinLockdownDuration.isPresent()) {
          // PIN height was not set (older version) - take the current height and let the user wait...
          setPinBlockheight();
          return false;
@@ -594,12 +655,14 @@ public class MbwManager {
          public void run() {
             MbwManager.this.savePin(Pin.CLEAR_PIN);
             Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
-            if (afterDialogClosed.isPresent()) afterDialogClosed.get().run();
+            if (afterDialogClosed.isPresent()) {
+               afterDialogClosed.get().run();
+            }
          }
       });
    }
 
-   public void showSetPinDialog(final Context context, final Optional<Runnable> afterDialogClosed ){
+   public void showSetPinDialog(final Context context, final Optional<Runnable> afterDialogClosed) {
 
       // Must make a backup before setting PIN
       if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
@@ -621,12 +684,16 @@ public class MbwManager {
                MbwManager.this.savePin(pin);
                Toast.makeText(context, R.string.pin_set, Toast.LENGTH_LONG).show();
                dialog.dismiss();
-               if (afterDialogClosed.isPresent()) afterDialogClosed.get().run();
+               if (afterDialogClosed.isPresent()) {
+                  afterDialogClosed.get().run();
+               }
             } else {
                Toast.makeText(context, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
                MbwManager.this.vibrate(500);
                dialog.dismiss();
-               if (afterDialogClosed.isPresent()) afterDialogClosed.get().run();
+               if (afterDialogClosed.isPresent()) {
+                  afterDialogClosed.get().run();
+               }
             }
          }
       });
@@ -645,9 +712,9 @@ public class MbwManager {
       // at which the pin was set - so that we can measure the age of the pin.
       if (!isPinProtected()) {
          setPinBlockheight();
-      }else{
+      } else {
          // if we were pin-protected and now the pin is removed, reset the blockheight
-         if (!pin.isSet()){
+         if (!pin.isSet()) {
             getMetadataStorage().clearLastPinSetBlockheight();
          }
       }
@@ -661,23 +728,36 @@ public class MbwManager {
       getMetadataStorage().setLastPinSetBlockheight(blockHeight);
    }
 
-   public void runPinProtectedFunction(final Context context, final Runnable fun) {
+   // returns the PinDialog or null, if no pin was needed
+   public PinDialog runPinProtectedFunction(final Context context, final Runnable fun, boolean cancelable) {
+      return runPinProtectedFunctionInternal(context, fun, cancelable);
+   }
 
+   // returns the PinDialog or null, if no pin was needed
+   public PinDialog runPinProtectedFunction(final Context context, final Runnable fun) {
+      return runPinProtectedFunctionInternal(context, fun, true);
+   }
+
+   // returns the PinDialog or null, if no pin was needed
+   private PinDialog runPinProtectedFunctionInternal(Context context, Runnable fun, boolean cancelable) {
       // if last Pin entry was 1sec ago, dont ask for it again.
       // to prevent if there are two pin protected functions cascaded
       // like startup-pin request and account-choose-pin request if opened by a bitcoin url
       boolean lastPinAgeOkay = false;
-      if (lastSuccessfullPin != null){
+      if (lastSuccessfullPin != null) {
          lastPinAgeOkay = (new Date().getTime() - lastSuccessfullPin.getTime()) < 1 * 1000;
       }
 
       if (isPinProtected() && !lastPinAgeOkay) {
-         PinDialog d = new PinDialog(context, true);
+         PinDialog d = new PinDialog(context, true, cancelable);
          runPinProtectedFunction(context, d, fun);
-      }else{
+         return d;
+      } else {
          fun.run();
+         return null;
       }
    }
+
 
    protected void runPinProtectedFunction(final Context context, PinDialog pinDialog, final Runnable fun) {
       if (isPinProtected()) {
@@ -713,7 +793,7 @@ public class MbwManager {
 
                            .setMessage(context.getString(R.string.wrong_pin_message))
                            .show();
-                  }else {
+                  } else {
                      // This pin is not resettable, you are out of luck
                      Toast.makeText(context, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
                      vibrate(500);
@@ -728,16 +808,16 @@ public class MbwManager {
       }
    }
 
-   public void startResetPinProcedure(){
+   public void startResetPinProcedure() {
       getMetadataStorage().setResetPinStartBlockheight(getSelectedAccount().getBlockChainHeight());
    }
 
-   public Optional<Integer> getResetPinRemainingBlocksCount(){
+   public Optional<Integer> getResetPinRemainingBlocksCount() {
       Optional<Integer> resetPinStartBlockHeight = getMetadataStorage().getResetPinStartBlockHeight();
-      if (!resetPinStartBlockHeight.isPresent()){
+      if (!resetPinStartBlockHeight.isPresent()) {
          // no reset procedure ongoing
          return Optional.absent();
-      }else{
+      } else {
          int blockAge = getSelectedAccount().getBlockChainHeight() - resetPinStartBlockHeight.get();
          return Optional.of(Math.max(0, Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN - blockAge));
       }
@@ -758,10 +838,16 @@ public class MbwManager {
       return _minerFee;
    }
 
-   public void setMinerFee(MinerFee minerFee){
+   public void setMinerFee(MinerFee minerFee) {
       _minerFee = minerFee;
       getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).commit();
    }
+
+   public void setBlockExplorer(BlockExplorer blockExplorer) {
+      _blockExplorerManager.setBlockExplorer(blockExplorer);
+      getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).commit();
+   }
+
 
    public CoinUtil.Denomination getBitcoinDenomination() {
       return _currencySwitcher.getBitcoinDenomination();
@@ -874,6 +960,10 @@ public class MbwManager {
       return _language;
    }
 
+   public Locale getLocale() {
+      return new Locale(_language);
+   }
+
    public void setLanguage(String _language) {
       this._language = _language;
       SharedPreferences.Editor editor = getEditor();
@@ -881,24 +971,26 @@ public class MbwManager {
       editor.commit();
    }
 
-   public void setTorMode(ServerEndpointType.Types torMode){
+   public void setTorMode(ServerEndpointType.Types torMode) {
       this._torMode = torMode;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.TOR_MODE, torMode.toString());
       editor.commit();
 
       ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
-      if (serverEndpointType.mightUseTor()){
+      if (serverEndpointType.mightUseTor()) {
          initTor();
-      }else{
-         if (_torManager != null) _torManager.stopClient();
+      } else {
+         if (_torManager != null) {
+            _torManager.stopClient();
+         }
       }
 
       _environment.getWapiEndpoints().setAllowedEndpointTypes(serverEndpointType);
       _environment.getLtEndpoints().setAllowedEndpointTypes(serverEndpointType);
    }
 
-   public ServerEndpointType.Types getTorMode(){
+   public ServerEndpointType.Types getTorMode() {
       return _torMode;
    }
 
@@ -951,6 +1043,11 @@ public class MbwManager {
             // default to null and select another account below
          }
       }
+
+      if (coinapultManager.isPresent() && coinapultManager.get().getId().equals(uuid)) {
+         return coinapultManager.get();
+      }
+
       // If nothing is selected, or selected is archived, pick the first one
       if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
          uuid = _walletManager.getActiveAccounts().get(0).getId();
@@ -961,11 +1058,15 @@ public class MbwManager {
    }
 
    public void setSelectedAccount(UUID uuid) {
-      WalletAccount account = _walletManager.getAccount(uuid);
+      final WalletAccount account;
+      account = _walletManager.getAccount(uuid);
       Preconditions.checkState(account.isActive());
       getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
       getEventBus().post(new SelectedAccountChanged(uuid));
-      getEventBus().post(new ReceivingAddressChanged(account.getReceivingAddress()));
+      Optional<Address> receivingAddress = account.getReceivingAddress();
+      getEventBus().post(new ReceivingAddressChanged(receivingAddress));
+      // notify the wallet manager that this is the active account now
+      _walletManager.setActiveAccount(account.getId());
    }
 
    public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {
@@ -983,10 +1084,19 @@ public class MbwManager {
             int accountIndex = ((Bip44Account) account).getAccountIndex();
             return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, website);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException();
+            throw new RuntimeException(invalidKeyCipher);
          }
       } else {
          throw new RuntimeException("Invalid account type");
+      }
+   }
+
+   public InMemoryPrivateKey getBitIdKeyForWebsite(String website) {
+      try {
+         IdentityAccountKeyManager identity = _walletManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher());
+         return identity.getPrivateKeyForWebsite(website, AesKeyCipher.defaultKeyCipher());
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
       }
    }
 
@@ -1010,6 +1120,10 @@ public class MbwManager {
       return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
    }
 
+   public boolean isWalletPaired(ExternalService service) {
+      return getMetadataStorage().isPairedService(service.getHost(getNetwork()));
+   }
+
    public MetadataStorage getMetadataStorage() {
       return _storage;
    }
@@ -1020,6 +1134,10 @@ public class MbwManager {
 
    public TrezorManager getTrezorManager() {
       return _trezorManager;
+   }
+   
+   public LedgerManager getLedgerManager() {
+	   return _ledgerManager;
    }
 
    public WapiClient getWapi() {
@@ -1039,15 +1157,23 @@ public class MbwManager {
    }
 
    @Subscribe
-   public void onSelectedCurrencyChanged(SelectedCurrencyChanged event){
+   public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency());
       editor.commit();
 
    }
 
-   public boolean getPinRequiredOnStartup(){
+   public boolean getPinRequiredOnStartup() {
       return this._pinRequiredOnStartup;
+   }
+
+   public boolean isUnlockPinRequired() {
+      return getPinRequiredOnStartup() && !startUpPinUnlocked;
+   }
+
+   public void setStartUpPinUnlocked(boolean unlocked) {
+      this.startUpPinUnlocked = unlocked;
    }
 
    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
@@ -1056,5 +1182,34 @@ public class MbwManager {
       editor.commit();
 
       this._pinRequiredOnStartup = _pinRequiredOnStartup;
+   }
+
+   /**
+    * this should only be called if a coinapult account was created once.
+    *
+    * @return
+    */
+   public CoinapultManager getCoinapultManager() {
+      if (coinapultManager.isPresent()) {
+         return coinapultManager.get();
+      } else {
+         //lazily create one
+         coinapultManager = createCoinapultManager();
+         //still not certain, if user never created one
+         if (coinapultManager.isPresent()) {
+            _walletManager.setExtraAccount(coinapultManager);
+            return coinapultManager.get();
+         } else {
+            throw new IllegalStateException("tried to obtain coinapult manager without having created one");
+         }
+      }
+   }
+
+   public Cache<String, Object> getBackgroundObjectsCache() {
+      return _semiPersistingBackgroundObjects;
+   }
+
+   public void switchServer() {
+      _environment.getWapiEndpoints().switchToNextEndpoint();
    }
 }

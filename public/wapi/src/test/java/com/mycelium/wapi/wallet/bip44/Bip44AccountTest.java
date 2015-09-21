@@ -6,7 +6,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
@@ -131,6 +131,16 @@ public class Bip44AccountTest {
             throw new RuntimeException(e);
          }
       }
+
+      @Override
+      public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
+         return null;
+      }
+
+      @Override
+      public WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations() {
+         throw new UnsupportedOperationException();
+      }
    }
 
    /**
@@ -156,7 +166,7 @@ public class Bip44AccountTest {
 
       Bip44Account account1 = (Bip44Account) walletManager.getAccount(account1Id);
 
-      assertEquals(Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS), account1.getReceivingAddress());
+      assertEquals(Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS), account1.getReceivingAddress().get());
       assertEquals(Address.fromString(MASTER_SEED_512_A0_C0_ADDRESS), account1.getChangeAddress());
    }
 

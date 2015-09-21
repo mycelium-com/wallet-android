@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical"
+        tools:showIn="@layout/enter_ledger_pin_dialoghex">
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="10dp"
+            android:layout_gravity="center">
+
+        <TextView
+                android:id="@+id/pin_addr_info_prefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                tools:text="...abc1262h"
+                android:textColor="@color/lightgrey"
+                android:typeface="monospace"
+                android:textSize="18sp"/>
+
+        <TextView
+                android:id="@+id/pin_addr_info_highlight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                tools:text="a"
+                android:textColor="@color/white"
+                android:background="@drawable/border_highlight"
+                android:typeface="monospace"
+                android:layout_marginLeft="4sp"
+                android:layout_marginRight="4sp"
+                android:textSize="18sp"/>
+
+        <TextView
+                android:id="@+id/pin_addr_info_postfix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                tools:text="wxyz1234..."
+                android:textColor="@color/lightgrey"
+                android:typeface="monospace"
+                android:textSize="18sp"/>
+
+    </LinearLayout>
+
+    <TextView
+            android:id="@+id/pin_display"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textSize="18sp"/>
+
+    <include layout="@layout/enter_pin_numpadhex"/>
+</LinearLayout>

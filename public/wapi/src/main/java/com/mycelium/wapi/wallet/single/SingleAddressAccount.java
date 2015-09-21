@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet.single;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -178,10 +179,10 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   public Address getReceivingAddress() {
+   public Optional<Address> getReceivingAddress() {
       //removed checkNotArchived, cause we wont to know the address for archived acc
       //to display them as archived accounts in "Accounts" tab
-      return getAddress();
+      return Optional.of(getAddress());
    }
 
    @Override
@@ -190,7 +191,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   protected boolean isMine(Address address) {
+   public boolean isMine(Address address) {
       return getAddress().equals(address);
    }
 
@@ -226,6 +227,16 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    @Override
    protected void onNewTransaction(TransactionEx tex, Transaction t) {
       // Nothing to do for this account type
+   }
+
+   @Override
+   public boolean isOwnInternalAddress(Address address) {
+      return isMine(address);
+   }
+
+   @Override
+   public boolean isOwnExternalAddress(Address address) {
+      return isMine(address);
    }
 
    @Override
@@ -269,7 +280,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          } else {
             sb.append(" Balance: ").append(_cachedBalance);
          }
-         sb.append(" Receiving Address: ").append(getReceivingAddress());
+         Optional<Address> receivingAddress = getReceivingAddress();
+         sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
       }
       return sb.toString();

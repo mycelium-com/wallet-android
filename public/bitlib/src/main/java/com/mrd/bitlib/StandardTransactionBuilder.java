@@ -22,12 +22,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.BitcoinSigner;
+import com.mrd.bitlib.crypto.IPrivateKeyRing;
+import com.mrd.bitlib.crypto.IPublicKeyRing;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.Sha256Hash;
+import com.mrd.bitlib.util.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -231,10 +231,22 @@ public class StandardTransactionBuilder {
    }
 
    public void addOutput(Address sendTo, long value) throws OutputTooSmallException {
-      if (value < TransactionUtils.MINIMUM_OUTPUT_VALUE) {
-         throw new OutputTooSmallException(value);
+      addOutput(createOutput(sendTo, value, _network));
+   }
+
+   public void addOutput(TransactionOutput output) throws OutputTooSmallException {
+      if (output.value < TransactionUtils.MINIMUM_OUTPUT_VALUE) {
+         throw new OutputTooSmallException(output.value);
       }
-      _outputs.add(createOutput(sendTo, value, _network));
+      _outputs.add(output);
+   }
+
+   public void addOutputs(OutputList outputs) throws OutputTooSmallException {
+      for (TransactionOutput output : outputs) {
+         if (output.value > 0) {
+            this.addOutput(output);
+         }
+      }
    }
 
    private static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
@@ -248,8 +260,7 @@ public class StandardTransactionBuilder {
       return output;
    }
 
-   public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing,
-                                                 RandomSource randomSource) {
+   public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing) {
       List<byte[]> signatures = new LinkedList<byte[]>();
       for (SigningRequest request : requests) {
          BitcoinSigner signer = keyRing.findSignerByPublicKey(request.publicKey);
@@ -258,7 +269,7 @@ public class StandardTransactionBuilder {
             // keys for
             throw new RuntimeException("Private key not found");
          }
-         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign, randomSource);
+         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign);
          signatures.add(signature);
       }
       return signatures;
@@ -337,7 +348,19 @@ public class StandardTransactionBuilder {
          }
       }
 
-      return new UnsignedTransaction(outputs, funding, keyRing, network);
+      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network);
+
+      // check if we have a reasonable Fee or throw an error otherwise
+      int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
+            unsignedTransaction.getOutputs().length);
+      float estimatedFeePerKb = (long)((float) unsignedTransaction.calculateFee() / ((float) estimateTransactionSize / 1000));
+
+      // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
+      if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
+         throw new RuntimeException(String.format("Unreasonable high transaction fee of %s satoshi per 1000Byte", estimatedFeePerKb));
+      }
+
+      return unsignedTransaction;
    }
 
    private List<UnspentTransactionOutput> pruneRedundantOutputs(List<UnspentTransactionOutput> funding, long outputSum) {
@@ -424,8 +447,13 @@ public class StandardTransactionBuilder {
             // only look for standard scripts
             continue;
          }
-         if (output.height < minHeight) {
-            minHeight = output.height;
+
+         // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
+         // choose them as the last possible option
+         int height = output.height > 0 ? output.height : Integer.MAX_VALUE-1;
+
+         if (height < minHeight) {
+            minHeight = height;
             oldest = output;
          }
       }

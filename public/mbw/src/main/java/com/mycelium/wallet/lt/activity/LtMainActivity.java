@@ -70,6 +70,7 @@ import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 
 public class LtMainActivity extends ActionBarActivity {
+   public static final String TAB_TO_SELECT = "tabToSelect";
 
    public enum TAB_TYPE {
       DEFAULT, ACTIVE_TRADES, TRADE_HISTORY, MY_ADS
@@ -82,7 +83,7 @@ public class LtMainActivity extends ActionBarActivity {
 
    public static Intent createIntent(Context context, TAB_TYPE tabToSelect) {
       Intent intent = new Intent(context, LtMainActivity.class);
-      intent.putExtra("tabToSelect", tabToSelect.ordinal());
+      intent.putExtra(TAB_TO_SELECT, tabToSelect.ordinal());
       return intent;
    }
 
@@ -90,7 +91,6 @@ public class LtMainActivity extends ActionBarActivity {
    private static final String TAG = "LtMainActivity";
 
    private ViewPager _viewPager;
-   private TabsAdapter _tabsAdapter;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    ActionBar.Tab _myBuyBitcoinTab;
@@ -100,7 +100,6 @@ public class LtMainActivity extends ActionBarActivity {
    ActionBar.Tab _myAdsTab;
    ActionBar.Tab _myTraderInfoTab;
    ActionBar _actionBar;
-   private TAB_TYPE _tabToSelect;
    private boolean _hasWelcomed;
    private Ringtone _updateSound;
 
@@ -121,43 +120,43 @@ public class LtMainActivity extends ActionBarActivity {
       // activity is not on the stack
       _actionBar.setDisplayHomeAsUpEnabled(true);
 
-      _tabsAdapter = new TabsAdapter(this, _viewPager);
+      TabsAdapter tabsAdapter = new TabsAdapter(this, _viewPager);
 
       // Add Buy Bitcoin tab
       _myBuyBitcoinTab = _actionBar.newTab();
       _myBuyBitcoinTab.setText(getResources().getString(R.string.lt_buy_bitcoin_tab));
-      _tabsAdapter.addTab(_myBuyBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(true));
+      tabsAdapter.addTab(_myBuyBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(true));
 
       // Add Sell Bitcoin tab
       _mySellBitcoinTab = _actionBar.newTab();
       _mySellBitcoinTab.setText(getResources().getString(R.string.lt_sell_bitcoin_tab));
-      _tabsAdapter.addTab(_mySellBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(false));
+      tabsAdapter.addTab(_mySellBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(false));
 
       // Add Active Trades tab
       _myActiveTradesTab = _actionBar.newTab();
       _myActiveTradesTab.setText(getResources().getString(R.string.lt_active_trades_tab));
-      _tabsAdapter.addTab(_myActiveTradesTab, ActiveTradesFragment.class, null);
+      tabsAdapter.addTab(_myActiveTradesTab, ActiveTradesFragment.class, null);
 
       // Add Historic Trades tab
       _myTradeHistoryTab = _actionBar.newTab();
       _myTradeHistoryTab.setText(getResources().getString(R.string.lt_trade_history_tab));
-      _tabsAdapter.addTab(_myTradeHistoryTab, TradeHistoryFragment.class, null);
+      tabsAdapter.addTab(_myTradeHistoryTab, TradeHistoryFragment.class, null);
 
       // Add Ads tab
       _myAdsTab = _actionBar.newTab();
       _myAdsTab.setText(getResources().getString(R.string.lt_my_ads_tab));
-      _myAdsTab.setTag(_tabsAdapter.getCount());
-      _tabsAdapter.addTab(_myAdsTab, AdsFragment.class, null);
+      _myAdsTab.setTag(tabsAdapter.getCount());
+      tabsAdapter.addTab(_myAdsTab, AdsFragment.class, null);
 
       // Add Trader Info tab
       _myTraderInfoTab = _actionBar.newTab();
       _myTraderInfoTab.setText(getResources().getString(R.string.lt_my_trader_info_tab));
-      _myTraderInfoTab.setTag(_tabsAdapter.getCount());
-      _tabsAdapter.addTab(_myTraderInfoTab, MyInfoFragment.class, null);
+      _myTraderInfoTab.setTag(tabsAdapter.getCount());
+      tabsAdapter.addTab(_myTraderInfoTab, MyInfoFragment.class, null);
 
       // Load the tab to select from intent
-      _tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra("tabToSelect", TAB_TYPE.DEFAULT.ordinal())];
-      _actionBar.selectTab(enumToTab(_tabToSelect));
+      TAB_TYPE tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra(TAB_TO_SELECT, TAB_TYPE.DEFAULT.ordinal())];
+      _actionBar.selectTab(enumToTab(tabToSelect));
 
       _updateSound = RingtoneManager
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));

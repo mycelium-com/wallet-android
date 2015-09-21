@@ -28,10 +28,13 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.WapiLogger;
+import com.mycelium.wapi.api.WapiResponse;
+import com.mycelium.wapi.api.lib.FeeEstimation;
+import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bip44.*;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
@@ -47,6 +50,21 @@ import java.util.*;
 public class WalletManager {
 
    private static final byte[] MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990");
+   // maximum age where we say a fetched fee estimation is valid
+   private static final long MAX_AGE_FEE_ESTIMATION = 2 * 60 * 60 * 1000;
+
+   //if there are more external account types, expand this to a list
+   private Optional<? extends WalletAccount> extraAccount;
+
+   public void setExtraAccount(Optional<? extends WalletAccount> extraAccount) {
+      this.extraAccount = extraAccount;
+      if (extraAccount.isPresent()) {
+         WalletAccount key = extraAccount.get();
+         if (!_allAccounts.containsKey(key.getId())) {
+            _allAccounts.put(key.getId(), key);
+         }
+      }
+   }
 
    /**
     * Implement this interface to get a callback when the wallet manager changes
@@ -117,7 +135,7 @@ public class WalletManager {
 
    private final SecureKeyValueStore _secureKeyValueStore;
    private WalletManagerBacking _backing;
-   private final Map<UUID, AbstractAccount> _allAccounts;
+   private final Map<UUID, WalletAccount> _allAccounts;
    private final List<Bip44Account> _bip44Accounts;
    private final Collection<Observer> _observers;
    private State _state;
@@ -127,7 +145,11 @@ public class WalletManager {
    private Wapi _wapi;
    private WapiLogger _logger;
    private boolean _synchronizeTransactionHistory;
-   private final ExternalSignatureProvider _signatureProvider;
+   private final ExternalSignatureProviderProxy _signatureProviders;
+   private IdentityAccountKeyManager _identityAccountKeyManager;
+   private volatile UUID _activeAccountId;
+
+   private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
 
    public AccountScanManager accountScanManager;
 
@@ -140,14 +162,14 @@ public class WalletManager {
     * @param wapi    the Wapi instance to use
     */
    public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                        NetworkParameters network, Wapi wapi, ExternalSignatureProvider signatureProvider) {
+                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders) {
       _secureKeyValueStore = secureKeyValueStore;
       _backing = backing;
       _network = network;
       _wapi = wapi;
-      _signatureProvider = signatureProvider;
+      _signatureProviders = signatureProviders;
       _logger = _wapi.getLogger();
-      _allAccounts = new HashMap<UUID, AbstractAccount>();
+      _allAccounts = Maps.newHashMap();
       _bip44Accounts = new ArrayList<Bip44Account>();
       _state = State.READY;
       _accountEventManager = new AccountEventManager();
@@ -306,7 +328,7 @@ public class WalletManager {
 
             // Generate the context for the account
             Bip44AccountContext context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
-                  Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG, newSubKeyStore.getSubId());
+                  externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId());
             _backing.createBip44AccountContext(context);
 
             // Get the backing for the new account
@@ -354,8 +376,11 @@ public class WalletManager {
     */
    public void deleteUnrelatedAccount(UUID id, KeyCipher cipher) throws InvalidKeyCipher {
       synchronized (_allAccounts) {
-         AbstractAccount account = _allAccounts.get(id);
-         account.setEventHandler(null);
+         WalletAccount account = _allAccounts.get(id);
+         if (account instanceof AbstractAccount) {
+            AbstractAccount abstractAccount = (AbstractAccount) account;
+            abstractAccount.setEventHandler(null);
+         }
          if (account instanceof SingleAddressAccount) {
             SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
             singleAddressAccount.forgetPrivateKey(cipher);
@@ -363,7 +388,7 @@ public class WalletManager {
             _allAccounts.remove(id);
          } else if (account instanceof Bip44Account) {
             Bip44Account hdAccount = (Bip44Account) account;
-            if (hdAccount.isDerivedFromInternalMasterseed()){
+            if (hdAccount.isDerivedFromInternalMasterseed()) {
                throw new RuntimeException("cant delete masterseed based accounts");
             }
             hdAccount.clearBacking();
@@ -392,7 +417,7 @@ public class WalletManager {
     */
    public List<UUID> getAccountIds() {
       List<UUID> list = new ArrayList<UUID>(_allAccounts.size());
-      for (AbstractAccount account : _allAccounts.values()) {
+      for (WalletAccount account : _allAccounts.values()) {
          list.add(account.getId());
       }
       return list;
@@ -453,7 +478,7 @@ public class WalletManager {
       return filterAndConvert(Predicates.and(ACTIVE_CAN_SPEND, HAS_BALANCE));
    }
 
-   private List<WalletAccount> filterAndConvert(Predicate<Map.Entry<UUID, AbstractAccount>> filter) {
+   private List<WalletAccount> filterAndConvert(Predicate<Map.Entry<UUID, WalletAccount>> filter) {
       Set<UUID> uuids = Maps.filterEntries(_allAccounts, filter).keySet();
       return Lists.transform(Lists.newArrayList(uuids), key2Account);
    }
@@ -462,7 +487,7 @@ public class WalletManager {
     * Check whether the wallet manager has a particular account
     *
     * @param id the account to look for
-    * @return true iff the wallet manager has an account with the specified ID
+    * @return true if the wallet manager has an account with the specified ID
     */
    public boolean hasAccount(UUID id) {
       return _allAccounts.containsKey(id);
@@ -475,7 +500,8 @@ public class WalletManager {
     * @return a wallet account
     */
    public WalletAccount getAccount(UUID id) {
-      return Preconditions.checkNotNull(_allAccounts.get(id));
+      WalletAccount normalAccount = _allAccounts.get(id);
+      return Preconditions.checkNotNull(normalAccount);
    }
 
    /**
@@ -532,7 +558,7 @@ public class WalletManager {
     * @return the account UUID if found.
     */
    public synchronized Optional<UUID> getAccountByAddress(Address address) {
-      for (AbstractAccount account : _allAccounts.values()) {
+      for (WalletAccount account : _allAccounts.values()) {
          if (account.isMine(address)) {
             return Optional.of(account.getId());
          }
@@ -547,7 +573,7 @@ public class WalletManager {
     * @return true if any account in the wallet manager has the private key for the specified address
     */
    public synchronized boolean hasPrivateKeyForAddress(Address address) {
-      for (AbstractAccount account : _allAccounts.values()) {
+      for (WalletAccount account : _allAccounts.values()) {
          if (account.isMine(address) && account.canSpend()) {
             return true;
          }
@@ -596,10 +622,28 @@ public class WalletManager {
             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
             keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
             account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
-         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG){
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR) {
             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
             keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
-            account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, _signatureProvider);
+            account = new Bip44AccountExternalSignature(
+                  context,
+                  keyManager,
+                  _network,
+                  accountBacking,
+                  _wapi,
+                  _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR)
+            );
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER){
+             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+             keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
+             account = new Bip44AccountExternalSignature(
+                   context,
+                   keyManager,
+                   _network,
+                   accountBacking,
+                   _wapi,
+                   _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
+             );
          } else {
             throw new IllegalArgumentException("Unknown account type " + context.getAccountType());
          }
@@ -621,14 +665,19 @@ public class WalletManager {
       }
    }
 
-   public void addAccount(AbstractAccount account) {
+   public void addAccount(WalletAccount account) {
       synchronized (_allAccounts) {
-         account.setEventHandler(_accountEventManager);
+         if (account instanceof AbstractAccount) {
+            AbstractAccount abstractAccount = (AbstractAccount) account;
+            abstractAccount.setEventHandler(_accountEventManager);
+         }
          _allAccounts.put(account.getId(), account);
          _logger.logInfo("Account Added: " + account.getId());
       }
    }
 
+
+   private volatile boolean isFirstSync = true;
 
    private class Synchronizer implements Runnable {
 
@@ -637,6 +686,8 @@ public class WalletManager {
          try {
             setStateAndNotify(State.SYNCHRONIZING);
             synchronized (_allAccounts) {
+               fetchFeeEstimation();
+
                // If we have any lingering outgoing transactions broadcast them
                // now
                if (!broadcastOutgoingTransactions()) {
@@ -654,8 +705,21 @@ public class WalletManager {
          }
       }
 
+      private boolean fetchFeeEstimation(){
+         WapiResponse<MinerFeeEstimationResponse> minerFeeEstimations = _wapi.getMinerFeeEstimations();
+         if (minerFeeEstimations != null && minerFeeEstimations.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
+            try {
+               _lastFeeEstimations = minerFeeEstimations.getResult().feeEstimation;
+               return true;
+            } catch (WapiException e) {
+               return false;
+            }
+         }
+         return false;
+      }
+
       private boolean broadcastOutgoingTransactions() {
-         for (AbstractAccount account : _allAccounts.values()) {
+         for (WalletAccount account : _allAccounts.values()) {
             if (account.isArchived()) {
                continue;
             }
@@ -669,17 +733,31 @@ public class WalletManager {
       }
 
       private boolean synchronize() {
-         for (AbstractAccount account : _allAccounts.values()) {
-            if (account.isArchived()) {
-               continue;
+         try {
+            for (WalletAccount account : _allAccounts.values()) {
+               if (account.isArchived()) {
+                  continue;
+               }
+
+               // sync all accounts on startup
+               if (!isFirstSync) {
+                  // _activeAccountId might be null - then we sync all accounts
+                  if (account.onlySyncWhenActive() && !account.getId().equals(_activeAccountId)) {
+                     // this account should only be synced if active
+                     continue;
+                  }
+               }
+
+               if (!account.synchronize(_synchronizeTransactionHistory)) {
+                  // We failed to broadcast due to API error, we will have to try
+                  // again later
+                  return false;
+               }
             }
-            if (!account.synchronize(_synchronizeTransactionHistory)) {
-               // We failed to broadcast due to API error, we will have to try
-               // again later
-               return false;
-            }
+            return true;
+         }finally {
+            isFirstSync = false;
          }
-         return true;
       }
 
    }
@@ -693,6 +771,10 @@ public class WalletManager {
             }
          }
       }
+   }
+
+   public void setActiveAccount(UUID accountId){
+      _activeAccountId = accountId;
    }
 
    /**
@@ -736,32 +818,32 @@ public class WalletManager {
       _secureKeyValueStore.encryptAndStoreValue(MASTER_SEED_ID, masterSeed.toBytes(false), cipher);
    }
 
-   private static final Predicate<Map.Entry<UUID, AbstractAccount>> IS_ARCHIVE = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+   private static final Predicate<Map.Entry<UUID, WalletAccount>> IS_ARCHIVE = new Predicate<Map.Entry<UUID, WalletAccount>>() {
       @Override
-      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
          return input.getValue().isArchived();
       }
    };
 
-   private static final Predicate<Map.Entry<UUID, AbstractAccount>> ACTIVE_CAN_SPEND = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+   private static final Predicate<Map.Entry<UUID, WalletAccount>> ACTIVE_CAN_SPEND = new Predicate<Map.Entry<UUID, WalletAccount>>() {
       @Override
-      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
          return input.getValue().isActive() && input.getValue().canSpend();
       }
    };
 
-   private static final Predicate<Map.Entry<UUID, AbstractAccount>> MAIN_SEED_HD_ACCOUNT = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+   private static final Predicate<Map.Entry<UUID, WalletAccount>> MAIN_SEED_HD_ACCOUNT = new Predicate<Map.Entry<UUID, WalletAccount>>() {
       @Override
-      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
          // todo: if relevant also check if this account is derived from the main-masterseed
          return input.getValue() instanceof Bip44Account &&
                input.getValue().isDerivedFromInternalMasterseed();
       }
    };
 
-   private static final Predicate<Map.Entry<UUID, AbstractAccount>> HAS_BALANCE = new Predicate<Map.Entry<UUID, AbstractAccount>>() {
+   private static final Predicate<Map.Entry<UUID, WalletAccount>> HAS_BALANCE = new Predicate<Map.Entry<UUID, WalletAccount>>() {
       @Override
-      public boolean apply(Map.Entry<UUID, AbstractAccount> input) {
+      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
          return input.getValue().getBalance().getSpendableBalance() > 0;
       }
    };
@@ -849,8 +931,26 @@ public class WalletManager {
       }
    }
 
-
    public SecureKeyValueStore getSecureStorage(){
       return _secureKeyValueStore;
    }
+
+   public IdentityAccountKeyManager getIdentityAccountKeyManager(KeyCipher cipher) throws InvalidKeyCipher {
+      if (null != _identityAccountKeyManager) {
+         return _identityAccountKeyManager;
+      }
+      if (!hasBip32MasterSeed()) throw new RuntimeException("accessed identity account with no master seed configured");
+      HdKeyNode rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).getBip32Seed());
+      _identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, _secureKeyValueStore, cipher);
+      return _identityAccountKeyManager;
+   }
+
+   public FeeEstimation getLastFeeEstimations() {
+      if (_lastFeeEstimations != null && (new Date().getTime() - _lastFeeEstimations.getValidFor().getTime()) < MAX_AGE_FEE_ESTIMATION ) {
+         return _lastFeeEstimations;
+      } else {
+         return FeeEstimation.DEFAULT;
+      }
+   }
+
 }

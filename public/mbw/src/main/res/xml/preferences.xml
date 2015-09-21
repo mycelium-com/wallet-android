@@ -25,6 +25,9 @@
     <ListPreference
             android:key="miner_fee"
             android:layout="@layout/preference_layout"/>
+    <ListPreference
+        android:key="block_explorer"
+        android:layout="@layout/preference_layout"/>
 
     <!-- PIN Settings -->
 
@@ -103,6 +106,18 @@
                 android:layout="@layout/preference_layout"
                 android:summary="@string/pref_legacy_backup_verify_summary"
                 android:title="@string/pref_legacy_backup_verify_title" />
+    </PreferenceCategory>
+
+    <!-- Ledger -->
+
+    <PreferenceCategory
+            android:key="ledger"
+            android:title="@string/pref_ledger_title">
+        <CheckBoxPreference
+                android:key="ledgerDisableTee"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/ledger_disable_tee_preference_summary"
+                android:title="@string/ledger_disable_tee_preference" />
     </PreferenceCategory>
 
 </PreferenceScreen>

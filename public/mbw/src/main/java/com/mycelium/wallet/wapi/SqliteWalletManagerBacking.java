@@ -47,8 +47,8 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
+import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
@@ -792,13 +792,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public List<byte[]> getOutgoingTransactions() {
+      public Map<Sha256Hash, byte[]> getOutgoingTransactions() {
          Cursor cursor = null;
-         List<byte[]> list = new LinkedList<byte[]>();
+         HashMap<Sha256Hash, byte[]> list = new HashMap<Sha256Hash, byte[]>();
          try {
-            cursor = _db.rawQuery("SELECT raw FROM " + outTxTableName, new String[]{});
+            cursor = _db.rawQuery("SELECT id, raw FROM " + outTxTableName, new String[]{});
             while (cursor.moveToNext()) {
-               list.add(cursor.getBlob(0));
+               list.put(new Sha256Hash(cursor.getBlob(0)), cursor.getBlob(1));
             }
             return list;
          } finally {

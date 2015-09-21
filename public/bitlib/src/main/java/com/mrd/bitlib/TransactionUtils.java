@@ -85,23 +85,28 @@ public class TransactionUtils {
       }
 
       // A fee is required, does it pay enough fees?
-      long feePaid = calculateFeePaid(tx);
+      long feePaid = calculateFeePaid(tx, funding);
       long feeRequired = calculateFeeRequired(txSize, minerFeeToUse);
       return feePaid < feeRequired;
    }
 
-   private static long calculateFeeRequired(int txSize, long minerFeeToUse) {
+   public static long calculateFeeRequired(int txSize, long minerFeeToUse) {
       long minFee = (1 + (txSize / 1000)) * minerFeeToUse;
       return minFee;
    }
 
-   private static long calculateFeePaid(Transaction tx) {
+   private static long calculateFeePaid(Transaction tx, UnspentTransactionOutput[] funding) {
       long fee = 0;
+      for (UnspentTransactionOutput in : funding) {
+         fee += in.value;
+      }
       for (TransactionOutput out : tx.outputs) {
-         fee += out.value;
+         fee -= out.value;
       }
       return fee;
    }
+
+
 
    private static long calculateMinOutputValue(Transaction tx) {
       long min = Long.MAX_VALUE;

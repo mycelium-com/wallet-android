@@ -41,6 +41,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Bus;
 
 import java.util.UUID;
 
@@ -50,14 +51,14 @@ public class MasterseedScanManager extends AbstractAccountScanManager {
    private HdKeyNode accountsRoot = null;
 
 
-   public MasterseedScanManager(Context context, NetworkParameters network, Bip39.MasterSeed masterSeed){
-      super(context, network);
+   public MasterseedScanManager(Context context, NetworkParameters network, Bip39.MasterSeed masterSeed, Bus eventBus){
+      super(context, network, eventBus);
       this.masterSeed = masterSeed;
       this.words = null;
    }
 
-   public MasterseedScanManager(Context context, NetworkParameters network, String[] words){
-      super(context, network);
+   public MasterseedScanManager(Context context, NetworkParameters network, String[] words, Bus eventBus){
+      super(context, network, eventBus);
       this.words = words;
    }
 

@@ -3,8 +3,17 @@ package com.mycelium.wapi.api.lib;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.api.response.FeatureWarning;
+import com.mycelium.wapi.api.response.VersionInfoExResponse;
+import com.mycelium.wapi.api.response.WarningKind;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class WalletVersion {
@@ -13,8 +22,18 @@ public class WalletVersion {
    final public int maintenance;
    final public String variant;
 
-   private static Set<WalletVersion> latestVersions = ImmutableSet.of(WalletVersion.from("2.0.5"),
-         WalletVersion.from("2.0.5-TESTNET"), WalletVersion.from("1.3.3-BOG"));
+   // latest Version pre minSDK-Update
+   private static WalletVersion noUpdatePrior = WalletVersion.from("2.0.7");
+
+   private static Set<WalletVersion> latestVersions = ImmutableSet.of(
+         WalletVersion.from("2.5.0"),
+         WalletVersion.from("2.5.0-TESTNET"),
+         WalletVersion.from("1.3.3-BOG"));
+
+   private static Map<String, Set<WalletVersion>> latestVersionsEx = ImmutableMap.of(
+         "android", latestVersions
+   );
+
 
    public WalletVersion(int major, int minor, int maintenance, String variant) {
       this.major = major;
@@ -65,12 +84,45 @@ public class WalletVersion {
 
    public static String responseVersion(String clientVersion) {
       WalletVersion client = from(clientVersion);
-      for (WalletVersion latestVersion : latestVersions) {
-         if (latestVersion.isGreaterThan(client)) {
-            return latestVersion.toString();
+
+      // only replay with an update info, if the client is already on the highe minSdk Level
+      if (client.isGreaterThan(noUpdatePrior)) {
+         for (WalletVersion latestVersion : latestVersions) {
+            if (latestVersion.isGreaterThan(client)) {
+               return latestVersion.toString();
+            }
          }
       }
+
       return clientVersion;
+   }
+
+   public static VersionInfoExResponse responseVersionEx(String branch, String version){
+
+      WalletVersion clientVersion = WalletVersion.from(version);
+      if (clientVersion == null) {
+         return null;
+      }
+      // todo: add different warnings depending on branch/version
+      if (branch.equals("android") && version.startsWith("1.1.1")) {
+         //List<FeatureWarning> warnings = new ArrayList<FeatureWarning>();
+         //warnings.add(new FeatureWarning(Feature.MAIN_SCREEN, WarningKind.WARN, "Warning", URI.create("https://mycelium.com")));
+         //return new VersionInfoExResponse("2.3.2", "", URI.create("https://mycelium.com/bitcoinwallet"), warnings);
+      }
+
+      // check if we have a newer version
+      if (latestVersionsEx.containsKey(branch)){
+         Set<WalletVersion> walletVersions = latestVersionsEx.get(branch);
+
+         for (WalletVersion latestVersion : walletVersions) {
+            if (latestVersion.isGreaterThan(clientVersion)) {
+               return  new VersionInfoExResponse(latestVersion.toString(), "Update available", URI.create("https://mycelium.com/bitcoinwallet"), null);
+            }
+         }
+      }
+
+      // return null -> no important update or warnings available for this branch/version
+      return null;
    }
 
    @Override

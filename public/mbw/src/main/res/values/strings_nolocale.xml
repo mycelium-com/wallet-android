@@ -16,6 +16,12 @@
     <string name="eight">8</string>
     <string name="nine">9</string>
     <string name="zero">0</string>
+    <string name="a">A</string>
+    <string name="b">B</string>
+    <string name="c">C</string>
+    <string name="d">D</string>
+    <string name="e">E</string>
+    <string name="f">F</string>
     <string name="del">&lt;</string>
     <string name="dot">.</string>
     <string name="lt_tos_1">Mycelium Local Trader is a tool that allows buyers and sellers to trade bitcoin for cash. Trading requires buyers and sellers to meet physically as part of the exchange.</string>
@@ -33,9 +39,11 @@
     <string-array name="languages">
         <item>da</item>
         <item>de</item>
+        <item>el</item>
         <item>en</item>
         <item>es</item>
         <item>fr</item>
+        <item>cs</item>
         <item>iw</item>
         <item>it</item>
         <item>ja</item>
@@ -47,6 +55,8 @@
         <item>sk</item>
         <item>sl</item>
         <item>vi</item>
+        <item>sv</item>
+        <item>sq</item>
         <item>zh</item>
         <item>zh-TW</item>
         </string-array>
@@ -54,9 +64,11 @@
     <string-array name="languages_desc">
         <item>Dansk</item>
         <item>Deutsch</item>
+        <item>ελληνικά</item>
         <item>English</item>
         <item>Español</item>
         <item>Français</item>
+        <item>čeština</item>
         <item>עברית</item>
         <item>Italiano</item>
         <item>日本語</item>
@@ -68,6 +80,8 @@
         <item>Slovensky</item>
         <item>Slovenščina</item>
         <item>Tiếng Việt</item>
+        <item>Svenska</item>
+        <item>Shqip</item>
         <item>简体中文</item>
         <item>繁体中文</item>
         </string-array>

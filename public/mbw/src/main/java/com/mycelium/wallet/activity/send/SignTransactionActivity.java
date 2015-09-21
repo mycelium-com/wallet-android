@@ -42,11 +42,14 @@ import android.view.Window;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.Transaction;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
@@ -58,17 +61,23 @@ public class SignTransactionActivity extends Activity {
    protected StandardTransactionBuilder.UnsignedTransaction _unsigned;
    private Transaction _transaction;
    private AsyncTask<Void, Integer, Transaction> _signingTask;
+   private AsyncTask<Void, Integer, Transaction> signingTask;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, int requestCode) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Intent intent;
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-         intent = new Intent(currentActivity, TrezorSignTransactionActivity.class);
+    	 if (((Bip44AccountExternalSignature)walletAccount).getBIP44AccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+    		 intent = new Intent(currentActivity, LedgerSignTransactionActivity.class);
+    	 }else {
+    		 intent = new Intent(currentActivity, TrezorSignTransactionActivity.class); 
+    	 }         
       }else{
          intent = new Intent(currentActivity, SignTransactionActivity.class);
       }
 
+      Preconditions.checkNotNull(account);
       intent.putExtra("account", account);
       intent.putExtra("isColdStorage", isColdStorage);
       intent.putExtra("unsigned", unsigned);
@@ -116,13 +125,14 @@ public class SignTransactionActivity extends Activity {
    }
 
    protected AsyncTask<Void, Integer, Transaction> startSigningTask() {
+      cancelSigningTask();
       // Sign transaction in the background
-      AsyncTask<Void, Integer, Transaction> task = new AsyncTask<Void, Integer, Transaction>() {
+      signingTask = new AsyncTask<Void, Integer, Transaction>() {
 
          @Override
          protected Transaction doInBackground(Void... args) {
             try {
-               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
+               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }
@@ -140,8 +150,14 @@ public class SignTransactionActivity extends Activity {
             }
          }
       };
-      task.execute();
-      return task;
+      signingTask.execute();
+      return signingTask;
+   }
+
+   protected void cancelSigningTask(){
+      if (signingTask != null){
+         signingTask.cancel(true);
+      }
    }
 
    @Override

@@ -36,6 +36,8 @@ package com.mycelium.wallet;
 
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 
+import java.math.BigDecimal;
+
 public class Constants {
 
    public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
@@ -66,7 +68,7 @@ public class Constants {
    public static final String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    public static final String DEFAULT_CURRENCY = "USD";
    public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
-   public static final String MINER_FEE_SETTING = "MinerFeeSetting";
+   public static final String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
    public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
@@ -78,6 +80,10 @@ public class Constants {
    public static final String LANGUAGE_SETTING = "user_language";
    public static final String IGNORED_VERSIONS = "ignored_versions";
    public static final String TOR_MODE = "tor_mode";
+   public static final String BLOCK_EXPLORER = "BlockExplorer";
+   // Ledger preferences
+   public static final String LEDGER_SETTINGS_NAME = "ledger_settings";
+   public static final String LEDGER_DISABLE_TEE_SETTING = "ledger_disable_tee";
 
    public static final String LAST_UPDATE_CHECK = "last_update_check";
 
@@ -124,4 +130,6 @@ public class Constants {
    public static final int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
    // Force user to read the warnings about additional backups
    public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
+   public static final BigDecimal COINAPULT_MINIMUM_AMOUNT = BigDecimal.ONE;
+   
 }

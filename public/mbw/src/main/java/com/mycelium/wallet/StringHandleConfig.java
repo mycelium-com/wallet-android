@@ -46,15 +46,20 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
+import com.mycelium.wallet.activity.HandleUrlActivity;
+import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.send.PopActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.external.cashila.activity.BcdCodedSepaData;
+import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -72,6 +77,7 @@ public class StringHandleConfig implements Serializable {
       StringHandleConfig request = new StringHandleConfig();
       request.privateKeyAction = PrivateKeyAction.RETURN;
       request.addressAction = AddressAction.RETURN;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.RETURN;
       request.bitcoinUriAction = BitcoinUriAction.RETURN;
       request.hdNodeAction = HdNodeAction.RETURN;
       request.popAction = PopAction.SEND;
@@ -82,7 +88,7 @@ public class StringHandleConfig implements Serializable {
       StringHandleConfig request = new StringHandleConfig();
       request.privateKeyAction = PrivateKeyAction.RETURN;
       request.addressAction = AddressAction.RETURN;
-      request.bitcoinUriAction = BitcoinUriAction.RETURN_ADDRESS;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.RETURN_ADDRESS;
       request.sssShareAction = SssShareAction.START_COMBINING;
       return request;
    }
@@ -92,7 +98,7 @@ public class StringHandleConfig implements Serializable {
       request.privateKeyAction = PrivateKeyAction.RETURN;
       request.hdNodeAction = HdNodeAction.RETURN;
       request.addressAction = AddressAction.RETURN;
-      request.bitcoinUriAction = BitcoinUriAction.RETURN_ADDRESS;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.RETURN_ADDRESS;
       request.sssShareAction = SssShareAction.START_COMBINING;
       return request;
    }
@@ -101,7 +107,7 @@ public class StringHandleConfig implements Serializable {
       StringHandleConfig request = new StringHandleConfig();
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
       request.addressAction = AddressAction.CHECK_BALANCE;
-      request.bitcoinUriAction = BitcoinUriAction.CHECK_BALANCE;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.CHECK_BALANCE;
       request.hdNodeAction = HdNodeAction.COLD_SPENDING;
       request.sssShareAction = SssShareAction.START_COMBINING;
       request.wordListAction = WordListAction.COLD_SPENDING;
@@ -112,21 +118,26 @@ public class StringHandleConfig implements Serializable {
       StringHandleConfig request = new StringHandleConfig();
       request.privateKeyAction = PrivateKeyAction.RETURN;
       request.addressAction = AddressAction.RETURN;
-      request.bitcoinUriAction = BitcoinUriAction.RETURN_ADDRESS;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.RETURN_ADDRESS;
       return request;
    }
 
    public static StringHandleConfig genericScanRequest() {
       StringHandleConfig request = new StringHandleConfig();
       request.addressAction = AddressAction.SEND;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.SEND;
       request.bitcoinUriAction = BitcoinUriAction.SEND;
       request.bitIdAction = BitIdAction.LOGIN;
       request.privateKeyAction = PrivateKeyAction.COLD_SPENDING;
-      request.websiteAction = WebsiteAction.OPEN_BROWSER;
+      request.websiteAction = WebsiteAction.HANDLE_URL;
       request.sssShareAction = SssShareAction.START_COMBINING;
       request.wordListAction = WordListAction.COLD_SPENDING;
       request.hdNodeAction = HdNodeAction.SEND_PUB_SPEND_PRIV;
       request.popAction = PopAction.SEND;
+
+      //not supported so far, as this data lacks address informations
+      //request.bcdSepaCodeAction = SepaAction.INIT_SEND;
+
       //at the moment, we just support wordlist backups
       //request.masterSeedAction = MasterSeedAction.IMPORT;
       return request;
@@ -268,6 +279,41 @@ public class StringHandleConfig implements Serializable {
 
       static private boolean isPrivKey(NetworkParameters network, String content) {
          return getPrivateKey(network, content).isPresent();
+      }
+   }
+
+   public enum SepaAction implements Action {
+      INIT_SEND {
+         @Override
+         public boolean handle(final StringHandlerActivity handlerActivity, final String content) {
+            try {
+               final BcdCodedSepaData bcdCode = BcdCodedSepaData.fromString(content);
+               if (bcdCode == null){
+                  return false;
+               }
+
+               MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
+               mbwManager.getVersionManager().showFeatureWarningIfNeeded(handlerActivity, Feature.CASHILA, true, new Runnable() {
+                  @Override
+                  public void run() {
+                     Intent intent = CashilaPaymentsActivity.getIntent(handlerActivity, bcdCode);
+                     intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                     handlerActivity.startActivity(intent);
+                     handlerActivity.finishOk();
+                  }
+               });
+
+
+               return true;
+            } catch (HdKeyNode.KeyGenerationException ex) {
+               return false;
+            }
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return BcdCodedSepaData.fromString(content) != null;
+         }
       }
    }
 
@@ -455,7 +501,6 @@ public class StringHandleConfig implements Serializable {
             return isUri(network, content);
          }
       },
-
       RETURN {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
@@ -474,12 +519,67 @@ public class StringHandleConfig implements Serializable {
          public boolean canHandle(NetworkParameters network, String content) {
             return isUri(network, content);
          }
+      };
+
+      private static Optional<BitcoinUri> getUri(StringHandlerActivity handlerActivity, String content) {
+         MbwManager manager = MbwManager.getInstance(handlerActivity);
+         return BitcoinUri.parse(content, manager.getNetwork());
+      }
+
+      private static boolean isUri(NetworkParameters network, String content) {
+         return content.toLowerCase().startsWith("bitcoin");
+      }
+   }
+
+   public enum BitcoinUriWithAddressAction implements Action {
+      SEND {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
+            Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
+            if (!uri.isPresent()) {
+               handlerActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+               return false;
+            } else {
+               Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), uri.get(), false);
+               intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+               handlerActivity.startActivity(intent);
+               handlerActivity.finishOk();
+               return true;
+            }
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return isUri(network, content);
+         }
+      },
+
+      RETURN {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
+            Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
+            if (!uri.isPresent()) {
+               handlerActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+            } else {
+               handlerActivity.finishOk(uri.get());
+            }
+            return true;
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return isUri(network, content);
+         }
       },
       CHECK_BALANCE {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
-            Optional<BitcoinUri> uri = getUri(handlerActivity, content);
+            Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
@@ -502,7 +602,7 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
-            Optional<BitcoinUri> uri = getUri(handlerActivity, content);
+            Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
@@ -518,13 +618,13 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      private static Optional<BitcoinUri> getUri(StringHandlerActivity handlerActivity, String content) {
+      private static Optional<BitcoinUriWithAddress> getUri(StringHandlerActivity handlerActivity, String content) {
          MbwManager manager = MbwManager.getInstance(handlerActivity);
-         return BitcoinUri.parse(content, manager.getNetwork());
+         return BitcoinUriWithAddress.parseWithAddress(content, manager.getNetwork());
       }
 
       private static boolean isUri(NetworkParameters network, String content) {
-         return content.toLowerCase().startsWith("bitcoin");
+         return BitcoinUriWithAddress.parseWithAddress(content, network).isPresent();
       }
    }
 
@@ -564,7 +664,7 @@ public class StringHandleConfig implements Serializable {
             if (!content.toLowerCase(Locale.US).startsWith("http")) {
                return false;
             }
-            Uri uri = (Uri.parse(content));
+            Uri uri = Uri.parse(content);
             if (null == uri) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with http/https, but unable to parse, so we handled it.
@@ -584,8 +684,36 @@ public class StringHandleConfig implements Serializable {
          public boolean canHandle(NetworkParameters network, String content) {
             return content.toLowerCase().startsWith("http");
          }
-      }
+      },
+
+      HANDLE_URL {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("http")) {
+               return false;
+            }
+
+            final Uri uri = Uri.parse(content);
+            if (null == uri) {
+               //started with http/https, but unable to parse, so we handled it.
+               handlerActivity.finishError(R.string.unrecognized_format, content);
+            } else {
+               // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
+               Intent intent = HandleUrlActivity.getIntent(handlerActivity, uri);
+               handlerActivity.startActivity(intent);
+               handlerActivity.finishOk();
+            }
+            return true;
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return WebsiteAction.OPEN_BROWSER.canHandle(network, content);
+         }
+      },
    }
+
+
 
    public enum SssShareAction implements Action {
       START_COMBINING {
@@ -646,7 +774,13 @@ public class StringHandleConfig implements Serializable {
             if (content.length() % 2 != 0) {
                return false;
             }
-            Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(HexUtils.toBytes(content), false);
+            byte[] bytes;
+            try {
+               bytes = HexUtils.toBytes(content);
+            }catch (RuntimeException ex){
+               return false;
+            }
+            Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(bytes, false);
             if (masterSeed.isPresent()) {
                try {
                   Bip39.MasterSeed ourSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
@@ -704,7 +838,13 @@ public class StringHandleConfig implements Serializable {
       };
 
       private static boolean isMasterSeed(NetworkParameters network, String content) {
-         return Bip39.MasterSeed.fromBytes(HexUtils.toBytes(content), false).isPresent();
+         try {
+            byte[] bytes = HexUtils.toBytes(content);
+            return Bip39.MasterSeed.fromBytes(bytes, false).isPresent();
+         } catch (RuntimeException ex){
+            // HexUtils.toBytes will throw a RuntimeException if the string contains invalid characters
+            return false;
+         }
       }
    }
 
@@ -765,6 +905,7 @@ public class StringHandleConfig implements Serializable {
    }
 
    public Action privateKeyAction = Action.NONE;
+   public Action bitcoinUriWithAddressAction = Action.NONE;
    public Action bitcoinUriAction = Action.NONE;
    public Action addressAction = Action.NONE;
    public Action bitIdAction = Action.NONE;
@@ -773,10 +914,12 @@ public class StringHandleConfig implements Serializable {
    public Action sssShareAction = Action.NONE;
    public Action hdNodeAction = Action.NONE;
    public Action wordListAction = Action.NONE;
+   public Action bcdSepaCodeAction = Action.NONE;
    public Action popAction = Action.NONE;
 
    public List<Action> getAllActions() {
-      return ImmutableList.of(popAction, privateKeyAction, bitcoinUriAction, addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
+      return ImmutableList.of(popAction, privateKeyAction, bitcoinUriWithAddressAction, bitcoinUriAction,
+            addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
    }
 
 }

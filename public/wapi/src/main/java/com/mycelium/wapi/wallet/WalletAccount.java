@@ -16,20 +16,21 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.google.common.base.Optional;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionOutputSummary;
-import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.io.Serializable;
 import java.util.List;
@@ -37,7 +38,10 @@ import java.util.UUID;
 
 public interface WalletAccount {
 
+   void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException;
+
    public enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION};
+
 
    /**
     * Get the network that this account is for.
@@ -45,6 +49,25 @@ public interface WalletAccount {
     * @return the network that this account is for.
     */
    NetworkParameters getNetwork();
+
+   /**
+    * Determine whether an address is one of our own addresses
+    *
+    * @param address the address to check
+    * @return true iff this address is one of our own
+    */
+   boolean isMine(Address address);
+
+   /**
+    * Synchronize this account
+    * <p/>
+    * This method should only be called from the wallet manager
+    *
+    * @param synchronizeTransactionHistory should the transaction be synchronized?
+    * @return false if synchronization failed due to failed blockchain
+    * connection
+    */
+   boolean synchronize(boolean synchronizeTransactionHistory);
 
    /**
     * Get the unique ID of this account
@@ -75,7 +98,7 @@ public interface WalletAccount {
     * continuously use the same receiving address while others return new ones
     * as they get used.
     */
-   Address getReceivingAddress();
+   Optional<Address> getReceivingAddress();
 
    /**
     * Can this account be used for spending, or is it read-only?
@@ -87,6 +110,8 @@ public interface WalletAccount {
     * state.
     */
    Balance getBalance();
+
+   CurrencyBasedBalance getCurrencyBasedBalance();
 
    /**
     * Get the transaction history of this account based on the last synchronized
@@ -182,16 +207,39 @@ public interface WalletAccount {
          InsufficientFundsException;
 
    /**
+    * Create a new unsigned transaction sending funds to one or more defined script outputs.
+    * <p/>
+    * The unsigned transaction must be signed and queued before it will affect
+    * the transaction history.
+    * <p/>
+    * If you call this method twice without signing and queuing the unsigned
+    * transaction you are likely to create another unsigned transaction that
+    * double spends the first one. In other words, if you call this method and
+    * do not sign and queue the unspent transaction, then you should discard the
+    * unsigned transaction.
+    *
+    * @param outputs the receiving output (script and amount)
+    * @param minerFeeToUse use this minerFee
+    * @return an unsigned transaction.
+    * @throws OutputTooSmallException    if one of the outputs were too small
+    * @throws InsufficientFundsException if not enough funds were present to create the unsigned
+    *                                    transaction
+    */
+   UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException,
+         InsufficientFundsException;
+
+   /**
     * Sign an unsigned transaction without broadcasting it.
     *
     * @param unsigned     an unsigned transaction
     * @param cipher       the key cipher to use for decrypting the private key
-    * @param randomSource a random source
     * @return the signed transaction.
     * @throws InvalidKeyCipher
     */
-   Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
+   Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws InvalidKeyCipher;
+
+   boolean broadcastOutgoingTransactions();
 
    /**
     * Broadcast a transaction
@@ -199,6 +247,13 @@ public interface WalletAccount {
     * @return the broadcast result
     */
    BroadcastResult broadcastTransaction(Transaction transaction);
+
+   /**
+    * returns the transactionex for the hash from the backing, if available
+    * @param txid transaction hash
+    * @return the corresponding transaction or null
+    */
+   TransactionEx getTransaction(Sha256Hash txid);
 
    /**
     * Queue a transaction for broadcasting.
@@ -210,9 +265,25 @@ public interface WalletAccount {
    void queueTransaction(Transaction transaction);
 
    /**
+    * Remove a pending outgoing tx from the queue
+    *
+    * A new synchronisation is needed afterwards, as we already purged some UTXOs as we saved the
+    * tx in the queue
+    *
+    * @param transactionId     an transaction id
+    */
+   boolean cancelQueuedTransaction(Sha256Hash transactionId);
+
+   /**
+    * Delete a transaction from the backing
+    * Snyc is needed afterwards
+    */
+   boolean deleteTransaction(Sha256Hash transactionId);
+
+   /**
     * Determine the maximum spendable amount you can send in a transaction
     */
-   long calculateMaxSpendableAmount(long minerFeeToUse);
+   ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
 
    /**
     * Determine whether the provided encryption key is valid for this wallet account.
@@ -230,15 +301,31 @@ public interface WalletAccount {
     */
    boolean isDerivedFromInternalMasterseed();
 
+   /*
+   * returns true if this is one of our already used or monitored internal (="change") addresses
+   */
+   boolean isOwnInternalAddress(Address address);
+   
    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce);
+
+   /*
+   * returns true if this is one of our already used or monitored external (=normal receiving) addresses
+   */
+   boolean isOwnExternalAddress(Address address);
+
 
    /**
     * Get the summary list of unspent transaction outputs for this account.
     *
     * @return the summary list of unspent transaction outputs for this account.
     */
-   public List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
+   List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
 
+   /**
+    * Only sync this account if it is the active one
+    * @return true if this account should always be synced
+    */
+   boolean onlySyncWhenActive();
 
    /**
     * Class representing a receiver of funds

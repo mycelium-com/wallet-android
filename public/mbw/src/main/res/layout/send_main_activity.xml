@@ -1,144 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:scrollbars="vertical" >
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical" >
-
-        <LinearLayout
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/root"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
+            android:scrollbars="vertical">
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvRecipientTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/recipient_title"
-                android:textSize="24sp" />
-
-            <FrameLayout
+        <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center" >
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/tvRecipientTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recipient_title"
+                    android:textSize="24sp"/>
+
+            <FrameLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center">
 
                 <!-- Enter Recipient -->
 
                 <LinearLayout
-                    android:id="@+id/llEnterRecipient"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical" >
+                        android:id="@+id/llEnterRecipient"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                     <!-- Receiver -->
 
                     <View
-                        android:layout_width="1dp"
-                        android:layout_height="12dp" />
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Scan button -->
 
                     <Button
-                        android:id="@+id/btScan"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/scan_qr_code"
-                        android:textSize="20sp" />
+                            android:id="@+id/btScan"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/scan_qr_code"
+                            android:textSize="20sp"/>
 
                     <View
-                        android:layout_width="1dp"
-                        android:layout_height="12dp" />
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Address Book -->
 
                     <Button
-                        android:id="@+id/btAddressBook"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/my_addresses"
-                        android:textSize="20sp" />
+                            android:id="@+id/btAddressBook"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/my_addresses"
+                            android:textSize="20sp"/>
 
                     <View
-                        android:layout_width="1dp"
-                        android:layout_height="12dp" />
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Clipboard -->
 
                     <Button
-                        android:id="@+id/btClipboard"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/clipboard"
-                        android:textSize="20sp" />
+                            android:id="@+id/btClipboard"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/clipboard"
+                            android:textSize="20sp"/>
 
                     <View
-                        android:layout_width="1dp"
-                        android:layout_height="12dp" />
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Manual Entry -->
 
                     <Button
-                        android:id="@+id/btManualEntry"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/manual_entry"
-                        android:textSize="20sp" />
+                            android:id="@+id/btManualEntry"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/manual_entry"
+                            android:textSize="20sp"/>
+
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
+
+                    <!-- SEPA Transfer -->
+
+                    <Button
+                            android:id="@+id/btSepaTransfer"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:visibility="gone"
+                            android:text="@string/cashila_sepa_transfer"
+                            android:textSize="20sp"/>
                 </LinearLayout>
 
                 <!-- Recipient Address Box -->
 
                 <LinearLayout
-                    android:id="@+id/llRecipientAddress"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical" >
+                        android:id="@+id/llRecipientAddress"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                     <!-- Receiver Label -->
 
                     <TextView
-                        android:id="@+id/tvReceiverLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/green"
-                        android:textSize="20sp"
-                        android:visibility="gone" />
+                            android:id="@+id/tvReceiverLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/green"
+                            android:textSize="20sp"
+                            android:visibility="gone"/>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:orientation="horizontal" >
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:orientation="vertical">
 
                         <!-- Receiver Address -->
 
                         <TextView
-                            android:id="@+id/tvReceiver"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:hint="@string/receiver_address_hint"
-                            android:textColor="@color/white"
-                            android:textColorHint="@color/darkgrey"
-                            android:textSize="20sp"
-                            android:typeface="monospace" />
+                                android:id="@+id/tvReceiver"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                tools:text="1Address1234\n567890abcdef\nghijklmnop"
+                                android:textColor="@color/white"
+                                android:textColorHint="@color/darkgrey"
+                                android:textSize="20sp"
+                                android:typeface="monospace"/>
+                        <TextView
+                                android:id="@+id/tvReceiverAddress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                tools:text="1Address1234d90abcdefghijklmnop"
+                                android:textColor="@color/lightgrey"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                android:typeface="monospace"/>
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -146,23 +174,37 @@
         <!-- Warning Message -->
 
         <TextView
-            android:id="@+id/tvWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
-            android:text="@string/read_only_warning"
-            android:textColor="@color/red"
-            android:textSize="20sp" />
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:text="@string/read_only_warning"
+                android:textColor="@color/red"
+                android:textSize="18sp"/>
+
+        <TextView
+                android:id="@+id/tvUnconfirmedWarning"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/yellow"
+                android:textSize="18sp"
+                android:text="@string/spending_unconfirmed_warning"
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:orientation="vertical" >
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
             <!-- Transaction Label -->
 
@@ -172,7 +214,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/transaction_label_title"
                     android:visibility="gone"
-                    android:textSize="24sp" />
+                    android:textSize="18sp"/>
 
             <TextView
                     android:id="@+id/tvTransactionLabel"
@@ -180,105 +222,93 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="@color/white"
-                    android:textSize="20sp"
+                    android:textSize="15sp"
                     android:visibility="gone"
-                    android:typeface="monospace" />
+                    android:typeface="monospace"/>
 
             <View
                     android:layout_width="1dp"
-                    android:layout_height="20dp" >
+                    android:layout_height="10dp">
             </View>
 
             <!-- Amount Title -->
 
             <TextView
-                android:id="@+id/tvAmountTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/amount_title"
-                android:textSize="24sp" />
+                    android:id="@+id/tvAmountTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/amount_title"
+                    android:textSize="24sp"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal" >
-
-                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:orientation="vertical" >
+                    android:orientation="horizontal">
+
+                <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical">
 
                     <!-- Amount -->
 
                     <TextView
-                        android:id="@+id/tvAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:hint="@string/amount_hint_denomination"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="20sp" />
+                            android:id="@+id/tvAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:hint="@string/amount_hint_denomination"
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/darkgrey"
+                            android:textSize="20sp"/>
 
                     <!-- Fiat Amount -->
 
                     <TextView
-                        android:id="@+id/tvAmountFiat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="10dp"
-                        android:textSize="13sp" />
+                            android:id="@+id/tvAmountFiat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="10dp"
+                            android:textSize="13sp"/>
                 </LinearLayout>
 
                 <View
-                    android:layout_width="20dp"
-                    android:layout_height="1dp" >
+                        android:layout_width="20dp"
+                        android:layout_height="1dp">
                 </View>
 
                 <!-- Enter Amount button -->
 
                 <ImageButton
-                    android:id="@+id/btEnterAmount"
-                    style="@style/MyceliumSlimButton"
-                    android:layout_width="75dp"
-                    android:layout_height="45dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/an_icon"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/keyboard_icon" />
+                        android:id="@+id/btEnterAmount"
+                        style="@style/MyceliumSlimButton"
+                        android:layout_width="75dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/an_icon"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/keyboard_icon"/>
             </LinearLayout>
 
-            <!-- Amount Error -->
-
-            <TextView
-                android:id="@+id/tvError"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/red"
-                android:textSize="20sp"
-                android:visibility="gone" />
-
             <!-- Fee -->
-
             <LinearLayout
-                android:id="@+id/llFee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                    android:id="@+id/llFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                 <!-- Fee Title -->
 
                 <TextView
-                    android:id="@+id/tvFeeLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/miner_fee_title"
-                    android:layout_gravity="center"
-                    android:textSize="24sp" />
+                        android:id="@+id/tvFeeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/miner_fee_title"
+                        android:layout_gravity="center"
+                        android:textSize="24sp"/>
 
                 <!-- Fee toggle button, Fee amount in BTC -->
 
@@ -287,51 +317,65 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/MyceliumSlimButton"
-                        android:paddingTop="3sp"
-                        android:paddingBottom="3sp"
-                        android:paddingLeft="5sp"
-                        android:paddingRight="5sp"
+                        android:paddingTop="4sp"
+                        android:paddingBottom="4sp"
+                        android:paddingLeft="10sp"
+                        android:paddingRight="10sp"
                         android:layout_gravity="center_horizontal"
-                        android:text="fee, x.xx mBTC"
                         android:textSize="16sp"
-                         />
+                        tools:text="Fee"
+                        />
 
                 <!-- Fiat Fee -->
 
                 <TextView
-                    android:id="@+id/tvFeeFiat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textSize="13sp" />
+                        android:id="@+id/tvFeeValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="13sp"
+                        tools:text = "(x.xx mBTC, x.xx USD)"/>
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Amount Error -->
+        <TextView
+                android:id="@+id/tvError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/red"
+                android:textSize="18sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
 
         <!-- Send -->
 
         <FrameLayout
-            android:layout_width="130dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:padding="0dp" >
-
-            <Button
-                android:id="@+id/btSend"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_gravity="center"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/send"
-                android:textSize="20sp" />
-
-            <ProgressBar
-                android:id="@+id/pbSend"
-                android:layout_width="wrap_content"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="invisible" />
+                android:layout_margin="5dp"
+                android:padding="0dp">
+
+            <Button
+                    android:id="@+id/btSend"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="@string/send"
+                    android:textSize="20sp"/>
+
+            <ProgressBar
+                    android:id="@+id/pbSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"/>
         </FrameLayout>
     </LinearLayout>
 

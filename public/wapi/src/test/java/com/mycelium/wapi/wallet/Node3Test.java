@@ -37,7 +37,7 @@ package com.mycelium.wapi.wallet;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiClient;
-import com.mycelium.wapi.api.WapiLogger;
+import com.mycelium.WapiLogger;
 
 public abstract class Node3Test {
 

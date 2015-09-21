@@ -11,7 +11,7 @@ dependencies {
     compile project(':public:bitlib')
     compile project(':public:mbwlib')
 
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     testCompile 'junit:junit:' + junitVersion
 }

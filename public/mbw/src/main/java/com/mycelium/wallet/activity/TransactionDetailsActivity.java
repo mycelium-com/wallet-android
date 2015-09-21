@@ -48,9 +48,12 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import android.widget.Toast;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
@@ -66,7 +69,6 @@ public class TransactionDetailsActivity extends Activity {
    private TransactionSummary _txs;
    private int _white_color;
    private MbwManager _mbwManager;
-   private String _transactionInfoTemplate;
 
    /**
     * Called when the activity is first created.
@@ -107,7 +109,7 @@ public class TransactionDetailsActivity extends Activity {
       TransactionConfirmationsDisplay confirmationsDisplay = (TransactionConfirmationsDisplay) findViewById(R.id.tcdConfirmations);
       TextView confirmationsCount = (TextView) findViewById(R.id.tvConfirmations);
 
-      if (_txs!=null && _txs.isOutgoing){
+      if (_txs!=null && _txs.isQueuedOutgoing){
          confirmationsDisplay.setNeedsBroadcast();
          confirmationsCount.setText("");
          confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
@@ -195,13 +197,24 @@ public class TransactionDetailsActivity extends Activity {
       return tv;
    }
 
-   private View getValue(long value, Object tag) {
+   private View getValue(final long value, Object tag) {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
       tv.setText(_mbwManager.getBtcValueString(value));
       tv.setTextColor(_white_color);
       tv.setTag(tag);
+
+      tv.setOnLongClickListener(new View.OnLongClickListener() {
+         @Override
+         public boolean onLongClick(View v) {
+            Utils.setClipboardString(CoinUtil.valueString(value, _mbwManager.getCurrencySwitcher().getBitcoinDenomination(), false), getApplicationContext());
+            Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+            return true;
+         }
+      });
+
+
       return tv;
    }
 

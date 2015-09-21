@@ -16,18 +16,17 @@
 
 package com.mycelium.lt;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.UUID;
-
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.crypto.WrongSignatureException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.UUID;
 
 public class ApiUtils {
 
@@ -52,8 +51,8 @@ public class ApiUtils {
       return new StringBuilder().append(SIGNATURE_PREFIX).append(uuidHash.toHex()).toString();
    }
 
-   public static String generateUuidHashSignature(InMemoryPrivateKey key, UUID uuid, RandomSource randomSource) {
-      return key.signMessage(uuidToMessage(uuid), randomSource).getBase64Signature();
+   public static String generateUuidHashSignature(InMemoryPrivateKey key, UUID uuid) {
+      return key.signMessage(uuidToMessage(uuid)).getBase64Signature();
    }
 
    protected static byte[] uuidToBytes(UUID uuid) {

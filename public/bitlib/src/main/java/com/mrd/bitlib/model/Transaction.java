@@ -16,23 +16,22 @@
 
 package com.mrd.bitlib.model;
 
-import java.io.Serializable;
-
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
 import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
+
+import java.io.Serializable;
 
 public class Transaction implements Serializable {
    private static final long serialVersionUID = 1L;
-
    public static class TransactionParsingException extends Exception {
-      private static final long serialVersionUID = 1L;
 
+      private static final long serialVersionUID = 1L;
       public TransactionParsingException(String message) {
          super(message);
       }
@@ -40,9 +39,11 @@ public class Transaction implements Serializable {
       public TransactionParsingException(String message, Exception e) {
          super(message, e);
       }
-   }
 
+   }
    public static final int MIN_TRANSACTION_SIZE = 100;
+   public static final int MAX_MINER_FEE_PER_KB = 2000000;
+
    public int version;
    public TransactionInput[] inputs;
    public TransactionOutput[] outputs;
@@ -50,6 +51,7 @@ public class Transaction implements Serializable {
 
    private Sha256Hash _hash;
    private Sha256Hash _unmalleableHash;
+   private int _txSize = -1;
 
    public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction){
       TransactionInput input[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
@@ -61,7 +63,12 @@ public class Transaction implements Serializable {
       return new Transaction(1, input, unsignedTransaction.getOutputs(),0);
    }
 
+   public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
+      return fromByteReader(new ByteReader(transaction));
+   }
+
    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {
+      int size = reader.available();
       try {
          int version = reader.getIntLE();
          int numInputs = (int) reader.getCompactInt();
@@ -88,7 +95,7 @@ public class Transaction implements Serializable {
             }
          }
          int lockTime = reader.getIntLE();
-         Transaction t = new Transaction(version, inputs, outputs, lockTime);
+         Transaction t = new Transaction(version, inputs, outputs, lockTime, size);
          return t;
       } catch (InsufficientBytesException e) {
          throw new TransactionParsingException(e.getMessage());
@@ -110,6 +117,13 @@ public class Transaction implements Serializable {
       return writer.toBytes();
    }
 
+   public int getTxRawSize(){
+      if (_txSize == -1){
+         _txSize = toBytes().length;
+      }
+      return _txSize;
+   }
+
    public void toByteWriter(ByteWriter writer) {
       writer.putIntLE(version);
       writer.putCompactInt(inputs.length);
@@ -124,10 +138,15 @@ public class Transaction implements Serializable {
    }
 
    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
+      this(version, inputs, outputs, lockTime, -1);
+   }
+
+   private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
       this.version = version;
       this.inputs = inputs;
       this.outputs = outputs;
       this.lockTime = lockTime;
+      this._txSize = txSize;
    }
 
    public Sha256Hash getHash() {

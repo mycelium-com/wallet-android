@@ -38,6 +38,14 @@
                     android:layout_height="wrap_content"
                     tools:text="0.99"
                     android:id="@+id/tvVersionNumber"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="(990)"
+                    android:textColor="@color/lightgrey"
+                    android:paddingLeft="10sp"
+                    android:id="@+id/tvVersionCode"/>
             </LinearLayout>
 
             <LinearLayout

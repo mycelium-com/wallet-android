@@ -36,6 +36,10 @@ package com.mycelium.wallet.activity.modern;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,36 +47,30 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.activity.ScanActivity;
-import com.mycelium.wallet.activity.StringHandlerActivity;
-import com.mycelium.wallet.event.*;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.squareup.otto.Subscribe;
-
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.AboutActivity;
+import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
+import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
+import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
-import java.util.UUID;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 public class ModernMain extends ActionBarActivity {
 
@@ -98,6 +96,26 @@ public class ModernMain extends ActionBarActivity {
       bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
       bar.setDisplayOptions(1, ActionBar.DISPLAY_SHOW_TITLE);
 
+      // Load the theme-background (usually happens in styles.xml) but use a lower
+      // pixel format, this saves around 10MB of allocated memory
+      // persist the loaded Bitmap in the context of mbw-manager and reuse it every time this activity gets created
+      try {
+         BitmapDrawable background = (BitmapDrawable) _mbwManager.getBackgroundObjectsCache().get("mainBackground", new Callable<BitmapDrawable>() {
+            @Override
+            public BitmapDrawable call() throws Exception {
+               BitmapFactory.Options options = new BitmapFactory.Options();
+               options.inPreferredConfig = Bitmap.Config.RGB_565;
+               Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.background_witherrors_dimmed, options);
+               BitmapDrawable drawable = new BitmapDrawable(getResources(), background);
+               drawable.setGravity(Gravity.CENTER);
+               return drawable;
+            }
+         });
+         getWindow().setBackgroundDrawable(background);
+      } catch (ExecutionException ignore) {
+      }
+
+
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
       mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
@@ -117,6 +135,8 @@ public class ModernMain extends ActionBarActivity {
       }
 
       checkTorState();
+
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
 
    }
 
@@ -152,6 +172,7 @@ public class ModernMain extends ActionBarActivity {
    @Override
    protected void onPause() {
       _mbwManager.getEventBus().unregister(this);
+      _mbwManager.getVersionManager().closeDialog();
       super.onPause();
    }
 
@@ -172,6 +193,7 @@ public class ModernMain extends ActionBarActivity {
       inflater.inflate(R.menu.main_activity_options_menu, menu);
       addEnglishSetting(menu.findItem(R.id.miSettings));
       inflater.inflate(R.menu.refresh, menu);
+      inflater.inflate(R.menu.export_history, menu);
       inflater.inflate(R.menu.record_options_menu_global, menu);
       inflater.inflate(R.menu.addressbook_options_global, menu);
       return true;
@@ -209,8 +231,14 @@ public class ModernMain extends ActionBarActivity {
       final boolean isBalance = tabIdx == 1;
       final boolean isHistory = tabIdx == 2;
       refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
-      refreshItem.setVisible(isBalance | isHistory);
+      refreshItem.setVisible(isBalance || isHistory);
       setRefreshAnimation();
+
+      //export tx history
+      Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistory);
+
+      final boolean showSepaEntry = isBalance && _mbwManager.isWalletPaired(ExternalService.CASHILA);
+      Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
 
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistory);
 
@@ -249,6 +277,8 @@ public class ModernMain extends ActionBarActivity {
       //   VerifyBackupActivity.callMe(this);
       //   return true;
       } else if (itemId == R.id.miRefresh) {
+         //switch server every third time the refresh button gets hit
+         if (new Random().nextInt(3) == 0) _mbwManager.switchServer();
          _mbwManager.getWalletManager(false).startSynchronization();
       } else if (itemId == R.id.miExplore) {
          _mbwManager.getExploreHelper().redirectToCoinmap(this);
@@ -260,8 +290,26 @@ public class ModernMain extends ActionBarActivity {
       } else if (itemId == R.id.miRescanTransactions) {
          _mbwManager.getSelectedAccount().dropCachedData();
          _mbwManager.getWalletManager(false).startSynchronization();
+      } else if ( itemId == R.id.miSepaSend) {
+         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
+            @Override
+            public void run() {
+               startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
+            }
+         });
+      } else if (itemId == R.id.miExportHistory) {
+         shareTransactionHistory();
       }
       return super.onOptionsItemSelected(item);
+   }
+
+   private void shareTransactionHistory() {
+      String historyData = DataExport.getTxHistoryCsv(_mbwManager.getSelectedAccount(), _mbwManager.getMetadataStorage());
+      Intent s = new Intent(android.content.Intent.ACTION_SEND);
+      s.setType("text/plain");
+      s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.transaction_history_title));
+      s.putExtra(Intent.EXTRA_TEXT, historyData);
+      startActivity(Intent.createChooser(s, getResources().getString(R.string.share_transaction_history)));
    }
 
    @Override
@@ -340,11 +388,17 @@ public class ModernMain extends ActionBarActivity {
    }
 
    @Subscribe
-   public void onNewVersion(final WalletVersionEvent event) {
-      if (!event.response.isPresent()) {
-         return;
+   public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
+
+      if (_mbwManager.getSelectedAccount() instanceof CoinapultManager){
+         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.COINAPULT);
       }
-      _mbwManager.getVersionManager().showIfRelevant(event.response.get(), this);
+   }
+
+   @Subscribe
+   public void onNewVersion(final NewWalletVersionAvailable event) {
+      _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
    }
 
 }

@@ -53,8 +53,10 @@ public class Trezor {
                   false);
             Log.d("usb", "ACTION_USB_PERMISSION: " + permission + " Device: " + deviceName);
 
+            gotRights.clear();
             // sync with connect
             gotRights.add(permission);
+            context.unregisterReceiver(mUsbReceiver);
          }
       }
    };

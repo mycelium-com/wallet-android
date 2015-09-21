@@ -355,10 +355,10 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return _internalAddresses.inverse().get(_context.getLastInternalIndexWithActivity() + 1);
    }
 
-   public Address getReceivingAddress() {
+   public Optional<Address> getReceivingAddress() {
       // public method that needs no synchronization
       checkNotArchived();
-      return _currentReceivingAddress;
+      return Optional.of(_currentReceivingAddress);
    }
 
    //used for message signing picker
@@ -383,7 +383,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected boolean isMine(Address address) {
+   public boolean isMine(Address address) {
       return _internalAddresses.containsKey(address) || _externalAddresses.containsKey(address);
    }
 
@@ -473,7 +473,8 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          } else {
             sb.append(" Balance: ").append(_cachedBalance);
          }
-         sb.append(" Receiving Address: ").append(getReceivingAddress());
+         Optional<Address> receivingAddress = getReceivingAddress();
+         sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
          toStringMonitoredAddresses(sb);
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
       }
@@ -498,6 +499,20 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          return Optional.of(new Integer[]{1, _internalAddresses.get(address) });
       }
       return Optional.absent();
+   }
+
+   // returns true if this is one of our already used or monitored internal (="change") addresses
+   @Override
+   public boolean isOwnInternalAddress(Address address){
+      Optional<Integer[]> addressId = getAddressId(address);
+      return addressId.isPresent() && addressId.get()[0] == 1;
+   }
+
+   // returns true if this is one of our already used or monitored external (=normal receiving) addresses
+   @Override
+   public boolean isOwnExternalAddress(Address address){
+      Optional<Integer[]> addressId = getAddressId(address);
+      return addressId.isPresent() && addressId.get()[0] == 0;
    }
 
    @Override

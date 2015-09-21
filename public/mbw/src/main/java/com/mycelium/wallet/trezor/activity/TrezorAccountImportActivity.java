@@ -47,6 +47,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
+import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
@@ -68,7 +69,7 @@ public class TrezorAccountImportActivity extends TrezorAccountSelectorActivity {
             MbwManager mbwManager = MbwManager.getInstance(TrezorAccountImportActivity.this);
 
             UUID acc = mbwManager.getWalletManager(false)
-                  .createExternalSignatureAccount(item.xPub, (TrezorManager)masterseedScanManager, item.accountIndex);
+                  .createExternalSignatureAccount(item.xPub, (TrezorManager) masterseedScanManager, item.accountIndex);
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -94,9 +95,9 @@ public class TrezorAccountImportActivity extends TrezorAccountSelectorActivity {
    @Override
    protected void setView() {
       setContentView(R.layout.activity_instant_trezor);
-      ((TextView)findViewById(R.id.tvCaption)).setText(getString(R.string.trezor_import_account_caption));
-      ((TextView)findViewById(R.id.tvSelectAccount)).setText(getString(R.string.trezor_select_account_to_import));
-      ((TextView)findViewById(R.id.btNextAccount)).setVisibility(View.VISIBLE);
+      ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.trezor_import_account_caption));
+      ((TextView) findViewById(R.id.tvSelectAccount)).setText(getString(R.string.trezor_select_account_to_import));
+      ((TextView) findViewById(R.id.btNextAccount)).setVisibility(View.VISIBLE);
 
       findViewById(R.id.btNextAccount).setOnClickListener(new View.OnClickListener() {
          @Override
@@ -126,4 +127,32 @@ public class TrezorAccountImportActivity extends TrezorAccountSelectorActivity {
          }
       });
    }
+
+
+   // Otto.EventBus does not traverse class hierarchy to find subscribers
+   @Subscribe
+   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event) {
+      super.onPinMatrixRequest(event);
+   }
+
+   @Subscribe
+   public void onScanError(AccountScanManager.OnScanError event) {
+      super.onScanError(event);
+   }
+
+   @Subscribe
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event) {
+      super.onStatusChanged(event);
+   }
+
+   @Subscribe
+   public void onAccountFound(AccountScanManager.OnAccountFound event) {
+      super.onAccountFound(event);
+   }
+
+   @Subscribe
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
+      super.onPassphraseRequest(event);
+   }
+
 }
