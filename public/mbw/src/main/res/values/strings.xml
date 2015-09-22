@@ -647,9 +647,14 @@
     <string name="ledger_enter_transaction_pin">Enter Ledger Wallet 2FA</string>
     <string name="ledger_enter_2fa_pin">Confirm output address using your Security Card</string>
     <string name="ledger_please_wait">Please wait ...</string>
+    <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
+    <string name="ledger_set_unplugged_aid_title">Set Ledger Unplugged AID</string>
+    <string name="ledger_check_unplugged_aid">Invalid AID, please recheck</string>
     <string name="pref_ledger_title">Ledger Hardware Wallet</string>
     <string name="ledger_disable_tee_preference">Disable TEE support</string>
     <string name="ledger_disable_tee_preference_summary">Disable Trusted Execution Environment support if present to use a different Ledger Hardware Wallet</string>
+    <string name="ledger_unplugged_aid_preference">Set Ledger Unplugged AID</string>
+    <string name="ledger_unplugged_aid_preference_summary">Support a different AID for Ledger Unplugged custom builds</string>
 
     <string name="select_local_currencies">Select your currencies</string>
     <string name="show_public_or_private_data">Show</string>
