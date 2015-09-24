@@ -57,7 +57,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
-import com.mycelium.wallet.activity.send.PopActivity;
+import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;

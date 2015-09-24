@@ -48,6 +48,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.annotation.StringRes;
 import android.text.ClipboardManager;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -78,22 +79,18 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
+import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.PrettyTime;
 
@@ -102,7 +99,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 
 @SuppressWarnings("deprecation")
 public class Utils {
@@ -259,13 +261,24 @@ public class Utils {
     * or the back button to make it disappear.
     */
    public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, final Runnable postRunner) {
+      showSimpleMessageDialog(context, message, okayRunner, R.string.ok, postRunner);
+   }
+
+   /**
+    * Show a dialog with a buttons that displays a message. Click the message
+    * or the back button to make it disappear.
+    */
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, @StringRes int okayButtonText, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
       TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
       tvMessage.setText(message);
-      layout.findViewById(R.id.btOk).setOnClickListener(new OnClickListener() {
+
+      TextView okButton = (TextView) layout.findViewById(R.id.btOk);
+      okButton.setText(okayButtonText);
+      okButton.setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View v) {
@@ -286,6 +299,7 @@ public class Utils {
       });
       dialog.show();
    }
+
 
    /**
     * Show an optional message/

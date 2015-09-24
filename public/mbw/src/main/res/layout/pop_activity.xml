@@ -8,18 +8,7 @@
     <LinearLayout android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="30sp"
-                android:text="@string/pop_send_pop_to" />
 
-        <TextView
-                android:id="@+id/pop_recipient_host"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="20dp" />
 
         <TextView
                 android:layout_width="wrap_content"
@@ -27,23 +16,22 @@
                 android:layout_gravity="center"
                 android:paddingTop="20dp"
                 android:textSize="30sp"
-                android:text="@string/pop_transaction_info" />
+                android:text="@string/pop_transaction_info"/>
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:text="@string/date"/>
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pop_transaction_date"/>
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="20dp"
-                android:text="@string/pop_transaction_label"/>
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/pop_transaction_label"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="20dp"
-                android:text="@string/pop_transaction_amount"/>
+                android:text="@string/amount_title"/>
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,21 +41,60 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="20dp"
-                android:text="@string/pop_transaction_id"/>
+                android:text="@string/transaction_label_title"/>
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/pop_transaction_id"/>
+                android:id="@+id/pop_transaction_label"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="20sp"
+                android:text="@string/pop_send_pop_to"/>
+
+        <LinearLayout android:layout_marginTop="10dp"
+                      android:layout_gravity="center_horizontal"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content">
+
+            <ImageView android:id="@+id/pop_secure_icon"
+                    android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:src="@drawable/holo_dark_ic_action_secure"/>
+            <TextView
+                    android:id="@+id/pop_recipient_host"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="30sp"
+                    android:text="www.rosenbaum.se"/>
+
+        </LinearLayout>
 
         <Button
+                android:layout_marginTop="20dp"
                 android:id="@+id/btSend"
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_gravity="center"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
                 android:text="@string/send"
                 android:textSize="20sp"
+                android:layout_gravity="center"
                 android:onClick="sendPop"/>
+
+
+        <Button
+                android:layout_marginTop="10dp"
+                android:id="@+id/btSelectOther"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/pop_select_other_tx"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:onClick="selectOtherTransaction"/>
+
     </LinearLayout>
 </ScrollView>

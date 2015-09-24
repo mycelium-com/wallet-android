@@ -817,12 +817,17 @@
     <string name="coinapult_unable_to_create_account">Unable to create coinapult account</string>
     <string name="coinapult_failed_to_broadcast">Failed to broadcast coinapult transaction</string>
     <string name="invalid_pop_uri">Invalid pop request URI</string>
-    <string name="pop_send_pop_to">Send Proof of Payment to</string>
+    <string name="pop_send_pop_to">Send Proof to</string>
     <string name="pop_transaction_info">Transaction information</string>
     <string name="pop_transaction_id">Hash</string>
     <string name="pop_transaction_amount">Amount</string>
     <string name="pop_transaction_label">Label</string>
     <string name="pop_no_transaction_selected">No transaction selected</string>
-    <string name="send_pop">Send Proof of Payment</string>
-
+    <string name="pop_send_pop">Send Proof of Payment</string>
+    <string name="pop_select_other_tx">Select another</string>
+    <string name="pop_invalid_pop">Proof of Payment was invalid</string>
+    <string name="pop_message_from_server">Message from server:</string>
+    <string name="pop_no_matching_transaction">No payment matching the criteria found. Please, manually select a transaction to prove.</string>
+    <string name="pop_matching_transactions">Matching transactions</string>
+    <string name="pop_non_matching_transactions">Other transactions</string>
 </resources>
