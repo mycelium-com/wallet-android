@@ -280,13 +280,13 @@ public class PopActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("valid")) {
-                Toast.makeText(PopActivity.this, result, Toast.LENGTH_LONG).show();
+                Toast.makeText(PopActivity.this, R.string.pop_success, Toast.LENGTH_LONG).show();
                 finish();
             } else {
-                String serverMessage = "";
-                int i = result.indexOf('\n');
-                if (i != -1) {
-                    serverMessage = result.substring(i + 1);
+                String serverMessage = result;
+                String prefix = "invalid\n";
+                if (result.startsWith(prefix)) {
+                    serverMessage = result.substring(prefix.length());
                 }
                 String message = s(R.string.pop_invalid_pop) + " " + s(R.string.pop_message_from_server) + "\n" + serverMessage;
                 Utils.showSimpleMessageDialog(PopActivity.this, message, new Runnable() {
@@ -319,7 +319,6 @@ public class PopActivity extends Activity {
         try {
             urlConnection.setDoOutput(true);
             byte[] bytes = tx.toBytes();
-            //    urlConnection.setFixedLengthStreamingMode(bytes.length);
             OutputStream out = null;
             try {
                 out = new BufferedOutputStream(urlConnection.getOutputStream());

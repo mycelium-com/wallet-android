@@ -96,9 +96,13 @@ public class PopSelectTransactionActivity extends FragmentActivity {
 
         Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
 
-        matchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(this, matchingTransactions, addressBook));
+        if (matchingTransactions.isEmpty()) {
+            findViewById(R.id.matchingTransactionsContainer).setVisibility(View.GONE);
+            findViewById(R.id.noMatchingTransactionsInfo).setVisibility(View.VISIBLE);
+        } else {
+            matchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(this, matchingTransactions, addressBook));
+        }
         nonMatchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(this, nonMatchingTransactions, addressBook));
-
 
     }
 

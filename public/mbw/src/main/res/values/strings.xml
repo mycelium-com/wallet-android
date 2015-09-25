@@ -830,4 +830,8 @@
     <string name="pop_no_matching_transaction">No payment matching the criteria found. Please, manually select a transaction to prove.</string>
     <string name="pop_matching_transactions">Matching transactions</string>
     <string name="pop_non_matching_transactions">Other transactions</string>
+    <string name="pop_success">PoP successfully sent</string>
+    <string name="pop_no_matching_transactions">No transactions matching the PoP request were found. You may select a
+        non-matching transaction.
+    </string>
 </resources>
