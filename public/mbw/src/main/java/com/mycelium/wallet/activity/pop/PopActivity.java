@@ -318,6 +318,8 @@ public class PopActivity extends Activity {
         }
         try {
             urlConnection.setDoOutput(true);
+            urlConnection.setRequestProperty("Content-Type", "application/bitcoin-pop");
+
             byte[] bytes = tx.toBytes();
             OutputStream out = null;
             try {

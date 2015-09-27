@@ -207,12 +207,10 @@ public class TransactionHistoryFragment extends Fragment {
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
       private Context _context;
-      private DateFormat dateFormat;
 
       public TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
          super(context, transactions, TransactionHistoryFragment.this, _addressBook);
          _context = context;
-         dateFormat = new AdaptiveDateFormat(context);
       }
 
       @Override

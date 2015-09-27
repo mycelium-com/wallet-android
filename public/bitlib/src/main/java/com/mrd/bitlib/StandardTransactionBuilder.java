@@ -97,15 +97,6 @@ public class StandardTransactionBuilder {
          return _funding;
       }
 
-      private UnsignedTransaction(TransactionOutput output, List<UnspentTransactionOutput> funding,
-                                  IPublicKeyRing keyRing, NetworkParameters network) {
-         _network = network;
-         _outputs = new TransactionOutput[]{output};
-         _funding = funding.toArray(new UnspentTransactionOutput[]{});
-         _signingRequests = new SigningRequest[_funding.length];
-
-      }
-
       private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
                                   IPublicKeyRing keyRing, NetworkParameters network) {
          this(outputs, funding, keyRing, false, network);
