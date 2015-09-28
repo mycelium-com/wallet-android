@@ -1,7 +1,7 @@
 /*
 *******************************************************************************    
-*   BTChip Bitcoin Hardware Wallet Java API
-*   (c) 2014 BTChip - 1BTChip7VfTnrPra5jqci7ejnMguuHogTn
+*   Ledger Bitcoin Hardware Wallet Java API
+*   (c) 2014-2015 Ledger - 1BTChip7VfTnrPra5jqci7ejnMguuHogTn
 *   
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.btchip.comm.BTChipTransport;
 import com.btchip.utils.*;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 public class BTChipDongle implements BTChipConstants {
 
@@ -286,13 +287,52 @@ public class BTChipDongle implements BTChipConstants {
          return buffer.toString();
       }
    }
+   
+   public class BTChipKeyRecoveryData {
+	   private byte[] hashData;
+	   private byte[] keyX;
+	   private byte[] signature;
+	   
+	   public BTChipKeyRecoveryData(byte[] hashData, byte[] keyX, byte[] signature) {
+		   this.hashData = hashData;
+		   this.keyX = keyX;
+		   this.signature = signature;
+	   }
+	   
+	   public byte[] getHashData() {
+		   return hashData;
+	   }
+	   
+	   public byte[] getKeyX() {
+		   return keyX;
+	   }
+	   
+	   public byte[] getSignature() {
+		   return signature;
+	   }
+	   
+	   @Override
+	   public String toString() {
+		   StringBuffer buffer = new StringBuffer();
+		   buffer.append("Message hash ").append(Dump.dump(hashData));
+		   buffer.append(" key X ").append(Dump.dump(keyX));
+		   buffer.append(" signature ").append(Dump.dump(signature));
+		   return buffer.toString();
+	   }	   
+   }
 
    private BTChipTransport transport;
+   private BTChipKeyRecovery keyRecovery;
+   private boolean needExternalKeyResolution;
+   private boolean needExternalKeyResolutionChecked;
    private int lastSW;
    private boolean supportScreen;
 
    private static final int OK[] = {SW_OK};
+   private static final int OK_NOT_SUPPORTED[] = { SW_OK, SW_INS_NOT_SUPPORTED, SW_CLA_NOT_SUPPORTED };
    private static final byte DUMMY[] = {0};
+   
+   private static final byte FEATURE_EXT_HAS_PROPRIETARY_API = (byte)0x01;
 
    public BTChipDongle(BTChipTransport transport) {
       this.transport = transport;
@@ -301,6 +341,10 @@ public class BTChipDongle implements BTChipConstants {
    public BTChipDongle(BTChipTransport transport, boolean supportScreen) {
       this.transport = transport;
       this.supportScreen = supportScreen;
+   }
+   
+   public void setKeyRecovery(BTChipKeyRecovery keyRecovery) {
+	   this.keyRecovery = keyRecovery;
    }
 
    public boolean hasScreenSupport() {
@@ -412,6 +456,7 @@ public class BTChipDongle implements BTChipConstants {
    }
 
    public BTChipPublicKey getWalletPublicKey(String keyPath) throws BTChipException {
+	  resolvePath(keyPath);
       byte data[] = BIP32Utils.splitPath(keyPath);
       byte response[] = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_GET_WALLET_PUBLIC_KEY, (byte) 0x00, (byte) 0x00, data, OK);
       int offset = 0;
@@ -534,6 +579,7 @@ public class BTChipDongle implements BTChipConstants {
    }
 
    public BTChipOutput finalizeInput(String outputAddress, String amount, String fees, String changePath) throws BTChipException {
+	  resolvePath(changePath);
       BTChipOutput result = null;
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       byte path[] = BIP32Utils.splitPath(changePath);
@@ -619,6 +665,7 @@ public class BTChipDongle implements BTChipConstants {
    }
 
    public byte[] untrustedHashSign(String privateKeyPath, String pin, long lockTime, byte sigHashType) throws BTChipException {
+	  resolvePath(privateKeyPath);
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       byte path[] = BIP32Utils.splitPath(privateKeyPath);
       BufferUtils.writeBuffer(data, path);
@@ -636,6 +683,7 @@ public class BTChipDongle implements BTChipConstants {
    }
 
    public boolean signMessagePrepare(String path, byte[] message) throws BTChipException {
+	  resolvePath(path);
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       BufferUtils.writeBuffer(data, BIP32Utils.splitPath(path));
       data.write((byte) message.length);
@@ -666,7 +714,7 @@ public class BTChipDongle implements BTChipConstants {
       int patch = (int) (response[4] & 0xff);
       return new BTChipFirmware(major, minor, patch, compressedKeys);
    }
-
+          
    public void setKeymapEncoding(byte[] keymapEncoding) throws BTChipException {
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       BufferUtils.writeBuffer(data, keymapEncoding);
@@ -725,6 +773,104 @@ public class BTChipDongle implements BTChipConstants {
       }
       return (response[0] == (byte) 0x01);
    }
+   
+   // Java Card Open Source extensions
 
-
+   public boolean needExternalKeyResolution() throws BTChipException {
+	   byte[] response = exchangeApdu(BTCHIP_JC_EXT_CLA, BTCHIP_INS_EXT_GET_FEATURES, (byte)0x00, (byte)0x00, (byte)0x01, OK_NOT_SUPPORTED);
+	   if (lastSW == SW_OK) {
+		   if (response.length > 0) {
+			   boolean result = ((response[0] & FEATURE_EXT_HAS_PROPRIETARY_API) == 0);
+			   if (result && (keyRecovery == null)) {
+				   throw new BTChipException("Key recovery needed but no implementation available");
+			   }
+			   return result;
+		   }
+	   }
+	   return false;
+   }
+   
+   public boolean extHasPublicKeyInCache(Long[] pathParam) throws BTChipException {
+	   byte[] path = BIP32Utils.serializePath(pathParam);
+	   byte[] response = exchangeApdu(BTCHIP_JC_EXT_CLA, BTCHIP_INS_EXT_CACHE_HAS_PUBLIC_KEY, (byte)0x00, (byte)0x00, path, OK);
+	   return (response[0] != 0);
+   }
+   
+   public BTChipKeyRecoveryData extGetPublicKeyRecoveyData(Long[] pathParam) throws BTChipException {
+	   byte[] path = BIP32Utils.serializePath(pathParam);
+	   byte[] response = exchangeApdu(BTCHIP_JC_EXT_CLA, BTCHIP_INS_EXT_GET_HALF_PUBLIC_KEY, (byte)0x00, (byte)0x00, path, OK);
+	   int offset = 0;
+	   byte[] hashData = new byte[32];
+	   System.arraycopy(response, offset, hashData, 0, hashData.length);
+	   offset += hashData.length;
+	   byte[] keyX = new byte[32];
+	   System.arraycopy(response, offset, keyX, 0, keyX.length);
+	   offset += keyX.length;
+	   byte[] signature = new byte[response.length - offset];
+	   System.arraycopy(response, offset, signature, 0, signature.length);
+	   return new BTChipKeyRecoveryData(hashData, keyX, signature);	   
+   }
+   
+   public void extStorePublicKey(Long[] pathParam, byte[] publicKey) throws BTChipException {
+	   byte[] path = BIP32Utils.serializePath(pathParam);
+	   ByteArrayOutputStream data = new ByteArrayOutputStream();
+	   BufferUtils.writeBuffer(data, path);
+	   BufferUtils.writeBuffer(data, publicKey);
+	   exchangeApdu(BTCHIP_JC_EXT_CLA, BTCHIP_INS_EXT_CACHE_PUT_PUBLIC_KEY, (byte)0x00, (byte)0x00, data.toByteArray(), OK);	   
+   }
+   
+   private void resolvePath(String path) throws BTChipException {
+	   if (!needExternalKeyResolutionChecked) {
+		   needExternalKeyResolution = needExternalKeyResolution();
+		   needExternalKeyResolutionChecked = true;
+	   }
+	   if (needExternalKeyResolution) {
+		   Long[] pathElements = BIP32Utils.pathToComponents(path);
+		   int startOffset = 0;
+		   for (int i=0; i<pathElements.length; i++) {
+			   if (!BIP32Utils.isHardened(pathElements[i])) {
+				   startOffset = i;
+				   break;
+			   }
+		   }
+		   if (startOffset != 0) {
+			   int offset = startOffset - 1;
+			   while (offset != pathElements.length) {
+				   Long subPath[] = Arrays.copyOfRange(pathElements, 0, offset);
+				   resolvePublicKey(subPath);
+				   offset++;
+			   }
+		   }
+		   resolvePublicKey(pathElements);
+	   }
+   }
+   
+   private void resolvePublicKey(Long[] path) throws BTChipException {
+	   if (!extHasPublicKeyInCache(path)) {
+		   byte[] publicKey = null;
+		   BTChipKeyRecoveryData recoveryData = extGetPublicKeyRecoveyData(path);
+		   for (int i=0; i<4; i++) {
+			   byte[] publicKeyCandidate = keyRecovery.recoverKey(i, recoveryData.getSignature(), recoveryData.getHashData());
+			   boolean keysEqual = true;
+			   if (publicKeyCandidate == null) {
+				   continue;
+			   }
+			   for (int j=0; j<32; j++) {
+				   if (publicKeyCandidate[1 + j] != recoveryData.getKeyX()[j]) {
+					   keysEqual = false;
+					   break;
+				   }
+			   }
+			   if (keysEqual) {
+				   publicKey = publicKeyCandidate;
+				   break;
+			   }
+		   }
+		   if (publicKey == null) {
+			   throw new BTChipException("Failed to recover key");
+		   }
+		   extStorePublicKey(path, publicKey);
+	   }
+   }
+   
 }
