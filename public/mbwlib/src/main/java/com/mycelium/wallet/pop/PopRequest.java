@@ -1,12 +1,11 @@
 package com.mycelium.wallet.pop;
 
 import com.google.bitcoinj.Base58;
+import com.google.common.base.Strings;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class PopRequest implements Serializable {
@@ -16,7 +15,6 @@ public class PopRequest implements Serializable {
     private String message;
     private Sha256Hash txid;
     private String p;
-    private String r;
 
     public PopRequest(String input) {
         if (!input.startsWith("btcpop:?")) {
@@ -24,9 +22,7 @@ public class PopRequest implements Serializable {
         }
 
         String query = input.substring("btcpop:?".length());
-        if (query == null) {
-            throw new IllegalArgumentException("No query string");
-        }
+
         StringTokenizer parameters = new StringTokenizer(query, "&", false);
         while (parameters.hasMoreTokens()) {
             String token = parameters.nextToken();
@@ -57,15 +53,10 @@ public class PopRequest implements Serializable {
                     throw new IllegalArgumentException("Nonce too short");
                 }
             } else if ("p".equals(key)) {
-                if (value == null) {
+                if (Strings.isNullOrEmpty(value)) {
                     throw new IllegalArgumentException("Pop URL must not be empty");
                 }
                 p = value;
-            } else if ("r".equals(key)) {
-                if (value == null) {
-                    throw new IllegalArgumentException("r must not be empty");
-                }
-                r = value;
             } else if ("label".equals(key)) {
                 label = value;
             } else if ("message".equals(key)) {
@@ -92,8 +83,8 @@ public class PopRequest implements Serializable {
                 txid = Sha256Hash.of(bytes);
             }
         }
-        if (r == null && (p == null || n == null)) {
-            throw new IllegalArgumentException("p and n must be set if r is unset");
+        if (p == null || n == null) {
+            throw new IllegalArgumentException("p and n must be set");
         }
     }
 
@@ -115,6 +106,10 @@ public class PopRequest implements Serializable {
 
     public String getP() {
         return p;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public String toString() {

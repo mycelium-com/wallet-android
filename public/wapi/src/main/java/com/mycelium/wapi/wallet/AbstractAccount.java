@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.PopBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -1173,14 +1174,14 @@ public abstract class AbstractAccount implements WalletAccount {
 
          TransactionOutput popOutput = createPopOutput(txid, nonce);
 
-         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+         PopBuilder popBuilder = new PopBuilder(_network);
 
-         UnsignedTransaction unsignedTransaction = stb.createUnsignedPop(Collections.singletonList(popOutput), funding,
+         UnsignedTransaction unsignedTransaction = popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
                  new PublicKeyRing(), _network);
 
          return unsignedTransaction;
       } catch (TransactionParsingException e) {
-         throw new RuntimeException("Cannot parse transaction", e);
+         throw new RuntimeException("Cannot parse transaction: " + e.getMessage(), e);
       }
    }
 

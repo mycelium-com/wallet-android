@@ -1,6 +1,5 @@
 package com.mycelium.wallet.pop;
 
-import com.google.bitcoinj.Base58;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -39,21 +38,6 @@ public class PopRequestTest {
     }
 
     @Test
-    public void testCreateOnlyPButR() {
-        new PopRequest("btcpop:?p=a&r=b");
-    }
-
-    @Test
-    public void testCreateOnlyNButR() {
-        new PopRequest("btcpop:?n=a&r=b");
-    }
-
-    @Test
-    public void testCreateOnlyR() {
-        new PopRequest("btcpop:?r=b");
-    }
-
-    @Test
     public void testCreateEmptyNonce() {
         testIllegalURI("btcpop:?p=a&n=");
     }
@@ -70,7 +54,7 @@ public class PopRequestTest {
 
     @Test
     public void testCreateMalformedTxidBadChar() {
-        testIllegalURI("btcpop:?p=a&n=1&txid=Axc9,");
+        testIllegalURI("btcpop:?p=a&n=1&txid=Emt9MPvt1joznqHy5eEHkNtcuQuYWXzYJBQZN6BJm6N,");
     }
 
     @Test

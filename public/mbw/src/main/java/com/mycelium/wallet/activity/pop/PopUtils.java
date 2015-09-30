@@ -4,7 +4,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
 
-public class PopUtils {
+class PopUtils {
     public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, TransactionSummary transactionSummary) {
         if (popRequest.getTxid() != null && !transactionSummary.txid.equals(popRequest.getTxid())) {
             return false;

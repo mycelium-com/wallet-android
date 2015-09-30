@@ -66,8 +66,7 @@
                     android:id="@+id/pop_recipient_host"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="30sp"
-                    android:text="www.rosenbaum.se"/>
+                    android:textSize="30sp"/>
 
         </LinearLayout>
 
@@ -78,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
-                android:text="@string/send"
+                android:text="@string/pop_prove"
                 android:textSize="20sp"
                 android:layout_gravity="center"
                 android:onClick="sendPop"/>
