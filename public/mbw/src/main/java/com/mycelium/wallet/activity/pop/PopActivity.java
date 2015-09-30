@@ -86,7 +86,6 @@ public class PopActivity extends Activity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pop_activity);
-
         _mbwManager = MbwManager.getInstance(getApplication());
 
         if (savedInstanceState != null) {
@@ -186,12 +185,13 @@ public class PopActivity extends Activity {
             return;
         }
 
-        setText(R.id.pop_recipient_host, url.getHost());
+        TextView textView = (TextView) findViewById(R.id.pop_recipient_host);
+        textView.setText(url.getHost());
         String protocol = url.getProtocol();
         if ("https".equals(protocol)) {
-            findViewById(R.id.pop_secure_icon).setVisibility(View.VISIBLE);
+            textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.holo_dark_ic_action_secure, 0, 0, 0);
         } else if ("http".equals(protocol)) {
-            findViewById(R.id.pop_secure_icon).setVisibility(View.GONE);
+            textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         } else {
             Toast.makeText(this, "Unsupported protocol:" + url.getProtocol(), Toast.LENGTH_LONG).show();
             finish();

@@ -6,8 +6,8 @@
             android:scrollbars="vertical">
 
     <LinearLayout android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content">
 
 
         <TextView
@@ -53,22 +53,12 @@
                 android:textSize="20sp"
                 android:text="@string/pop_send_pop_to"/>
 
-        <LinearLayout android:layout_marginTop="10dp"
-                      android:layout_gravity="center_horizontal"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content">
-
-            <ImageView android:id="@+id/pop_secure_icon"
-                    android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:src="@drawable/holo_dark_ic_action_secure"/>
-            <TextView
-                    android:id="@+id/pop_recipient_host"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="30sp"/>
-
-        </LinearLayout>
+        <TextView android:id="@+id/pop_recipient_host"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textSize="30sp"
+                  android:layout_gravity="center"
+                  android:text="www.example.com"/>
 
         <Button
                 android:layout_marginTop="20dp"
