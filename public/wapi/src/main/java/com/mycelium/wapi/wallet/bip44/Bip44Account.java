@@ -276,6 +276,12 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       for (int i = 0; i < INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
          lookAhead.add(_internalAddresses.inverse().get(_context.getLastInternalIndexWithActivity() + 1 + i));
       }
+      return doDiscoveryForAddresses(lookAhead);
+
+   }
+
+   @Override
+   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
       // Do look ahead query
       List<Sha256Hash> ids = _wapi.queryTransactionInventory(
             new QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).getResult().txIds;
@@ -545,18 +551,18 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   public String getPrivateData(KeyCipher cipher) throws InvalidKeyCipher {
-      return _keyManager.getPrivateAccountRoot(cipher).serialize(_network);
-   }
+   public Data getExportData(KeyCipher cipher) {
+      Optional<String> privKey = Optional.absent();
 
-   @Override
-   public String getPublicData() {
-      return _keyManager.getPublicAccountRoot().serialize(getNetwork());
-   }
+      if (canSpend()) {
+         try {
+            privKey = Optional.of(_keyManager.getPrivateAccountRoot(cipher).serialize(_network));
+         } catch (InvalidKeyCipher ignore) {
+         }
+      }
 
-   @Override
-   public boolean containsPrivateData() {
-      return canSpend();
+      Optional<String> pubKey = Optional.of(_keyManager.getPublicAccountRoot().serialize(getNetwork()));
+      return new Data(privKey, pubKey);
    }
 
 

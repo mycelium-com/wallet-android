@@ -33,10 +33,6 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
       return true;
    }
 
-   @Override
-   public boolean containsPrivateData() {
-      return false;
-   }
    
    public int getBIP44AccountType() {
 	   return _sigProvider.getBIP44AccountType();

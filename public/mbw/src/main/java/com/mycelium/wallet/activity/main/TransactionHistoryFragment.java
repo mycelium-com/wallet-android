@@ -47,6 +47,7 @@ import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -274,14 +275,36 @@ public class TransactionHistoryFragment extends Fragment {
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
-                  
+
                   @Override
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                      final int itemId = menuItem.getItemId();
                      if (itemId == R.id.miShowCoinapultDebug) {
                         if (record instanceof CoinapultTransactionSummary) {
-                           CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
-                           new AlertDialog.Builder(_context).setMessage(summary.input.toString()).show();
+                           final CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
+                           new AlertDialog.Builder(_context)
+                                 .setMessage(summary.input.toString())
+                                 .setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                       Utils.setClipboardString(
+                                             summary.input.toString(),
+                                             TransactionHistoryFragment.this.getActivity());
+                                       Toast.makeText(
+                                             TransactionHistoryFragment.this.getActivity(),
+                                             R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
+                                             .show();
+
+                                       dialog.dismiss();
+                                    }
+                                 })
+                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                       dialog.dismiss();
+                                    }
+                                 })
+                                 .show();
                         }
                         return true;
                      }
@@ -393,7 +416,9 @@ public class TransactionHistoryFragment extends Fragment {
          // Set fiat value
          TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
          Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-         if (_mbwManager.hasFiatCurrency() && rate == null) _mbwManager.getExchangeRateManager().requestRefresh();
+         if (_mbwManager.hasFiatCurrency() && rate == null) {
+            _mbwManager.getExchangeRateManager().requestRefresh();
+         }
          if (!_mbwManager.hasFiatCurrency() || rate == null) {
             tvFiat.setVisibility(View.GONE);
          } else {
@@ -405,17 +430,16 @@ public class TransactionHistoryFragment extends Fragment {
          }
 
 
-
          // Show destination address and address label, if this address is in our address book
-         TextView tvAddressLabel = (TextView)rowView.findViewById(R.id.tvAddressLabel);
-         TextView tvDestAddress = (TextView)rowView.findViewById(R.id.tvDestAddress);
+         TextView tvAddressLabel = (TextView) rowView.findViewById(R.id.tvAddressLabel);
+         TextView tvDestAddress = (TextView) rowView.findViewById(R.id.tvDestAddress);
 
          if (record.destinationAddress.isPresent() && _addressBook.containsKey(record.destinationAddress.get())) {
             tvDestAddress.setText(record.destinationAddress.get().getShortAddress());
             tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix), _addressBook.get(record.destinationAddress.get())));
             tvDestAddress.setVisibility(View.VISIBLE);
             tvAddressLabel.setVisibility(View.VISIBLE);
-         }else {
+         } else {
             tvDestAddress.setVisibility(View.GONE);
             tvAddressLabel.setVisibility(View.GONE);
          }
@@ -439,7 +463,7 @@ public class TransactionHistoryFragment extends Fragment {
             if (record.isQueuedOutgoing) {
                confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
             } else {
-               if (confirmations > 6){
+               if (confirmations > 6) {
                   confirmationsText = _context.getResources().getString(R.string.confirmed);
                } else {
                   confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);

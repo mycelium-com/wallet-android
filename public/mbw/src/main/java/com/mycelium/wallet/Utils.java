@@ -82,12 +82,9 @@ import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -631,7 +628,7 @@ public class Utils {
    }
 
    public static void exportSelectedAccount(final Activity parent) {
-      WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
+      final WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
       if (!(account instanceof ExportableAccount)) {
          return;
       }
@@ -641,7 +638,9 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  Intent intent = new Intent(parent, ExportAsQrCodeActivity.class);
+                  Intent intent = ExportAsQrCodeActivity.getIntent(parent,
+                        ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher())
+                  );
                   parent.startActivity(intent);
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

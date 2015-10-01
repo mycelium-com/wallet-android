@@ -213,6 +213,12 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
+   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+      // not needed for SingleAddressAccount
+      return true;
+   }
+
+   @Override
    public boolean isArchived() {
       // public method that needs no synchronization
       return _context.isArchived();
@@ -312,18 +318,20 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       return _context.getAddress();
    }
 
-   @Override
-   public String getPrivateData(KeyCipher cipher) throws InvalidKeyCipher {
-      return _keyStore.getPrivateKey(getAddress(), cipher).getBase58EncodedPrivateKey(getNetwork());
-   }
 
    @Override
-   public String getPublicData() {
-      return getAddress().toString();
+   public Data getExportData(KeyCipher cipher) {
+      Optional<String> privKey = Optional.absent();
+
+      if (canSpend()) {
+         try {
+            privKey = Optional.of(_keyStore.getPrivateKey(getAddress(), cipher).getBase58EncodedPrivateKey(getNetwork()));
+         } catch (InvalidKeyCipher ignore) {
+         }
+      }
+
+      Optional<String> pubKey = Optional.of(getAddress().toString());
+      return new Data(privKey, pubKey);
    }
 
-   @Override
-   public boolean containsPrivateData() {
-      return canSpend();
-   }
 }

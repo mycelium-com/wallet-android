@@ -176,7 +176,7 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
-   private final OnPreferenceClickListener ledgerNotificationDisableTee = new OnPreferenceClickListener() {
+   private final OnPreferenceClickListener onClickLedgerNotificationDisableTee = new OnPreferenceClickListener() {
 	   public boolean onPreferenceClick(Preference preference) {
 		   CheckBoxPreference p = (CheckBoxPreference) preference;
 		   _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
@@ -184,7 +184,7 @@ public class SettingsActivity extends PreferenceActivity {
 	   }
    };   
 
-   private final OnPreferenceClickListener ledgerSetUnpluggedAID = new OnPreferenceClickListener() {
+   private final OnPreferenceClickListener onClickLedgerSetUnpluggedAID = new OnPreferenceClickListener() {
 	   private Button okButton;
 	   private EditText aidEdit;
 	   
@@ -464,18 +464,18 @@ public class SettingsActivity extends PreferenceActivity {
       });
             
       _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
+      _ledgerSetUnpluggedAID = (Preference) findPreference("ledgerUnpluggedAID");
 
       boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(this);
       if (isTeeAvailable) {
          _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
-         _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);
+         _ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
+         _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
       } else {
-         getPreferenceScreen().removePreference(findPreference("ledgerDisableTee"));
+         getPreferenceScreen().removePreference(findPreference("ledger"));
       }
-      
-      _ledgerSetUnpluggedAID = (Preference) findPreference("ledgerUnpluggedAID");
-      _ledgerSetUnpluggedAID.setOnPreferenceClickListener(ledgerSetUnpluggedAID);
-      
+
+
       applyLocalTraderEnablement();
    }
 

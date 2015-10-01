@@ -73,6 +73,7 @@ public class LocalTraderManager {
    public static final String GCM_SENDER_ID = "1025080855849";
 
    private static final String TAG = "LocalTraderManager";
+   public static final String LT_DERIVATION_SEED = "lt.mycelium.com";
 
    final private Context _context;
    final private TradeSessionDb _db;

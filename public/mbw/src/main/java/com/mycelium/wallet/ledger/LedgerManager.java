@@ -425,16 +425,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
          getTransport().getTransport().setDebug(true);
          dongle = new BTChipDongle(getTransport().getTransport());
          dongle.setKeyRecovery(new MyceliumKeyRecovery());
-         /* Not necessary with recent Ledger Wallet Chrome application */
-         /*
-         if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
-            // Try to activate the Security Card (until done in the Ledger Wallet application)
-            try {
-               getTransport().getTransport().exchange(ACTIVATE_ALT_2FA);
-            } catch (Exception ignore) {
-            }
-         }
-         */
       }
       Log.d(LOG_TAG, "Initialized " + connected);
       return connected;
