@@ -39,7 +39,7 @@ public class PopRequest implements Serializable {
             String key = paramPair[0];
             String value = null;
             if (paramPair.length == 2) {
-                value = PopEncodeDecode.popURIDecode(paramPair[1]);
+                value = PopURIDecoder.popURIDecode(paramPair[1]);
             }
             if ("n".equals(key)) {
                 if (value == null) {

@@ -49,7 +49,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -1190,7 +1189,7 @@ public abstract class AbstractAccount implements WalletAccount {
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
       byteBuffer.put((byte) Script.OP_RETURN);
 
-      byteBuffer.put((byte)1).put((byte)0); // version 1
+      byteBuffer.put((byte)1).put((byte)0); // version 1, little endian
 
       byteBuffer.put(txidToProve.getBytes()); // txid
 

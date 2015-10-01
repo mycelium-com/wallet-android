@@ -3,7 +3,6 @@ package com.mycelium.wallet.pop;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -129,8 +128,8 @@ public class PopRequestTest {
 
     @Test
     public void testTest() throws UnsupportedEncodingException {
-        assertEquals("/", URLDecoder.decode("/", "UTF-8"));
-        assertEquals("+", URLDecoder.decode("+", "UTF-8"));
+        assertEquals("/", PopURIDecoder.popURIDecode("/"));
+        assertEquals("+", PopURIDecoder.popURIDecode("+"));
     }
 
 }
