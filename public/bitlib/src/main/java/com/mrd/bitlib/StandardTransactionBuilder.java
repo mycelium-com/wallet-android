@@ -33,7 +33,6 @@ import java.io.Serializable;
 import java.util.*;
 
 public class StandardTransactionBuilder {
-   public static final int MAX_LOCK_TIME = 499999999;
 
    public static class InsufficientFundsException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
@@ -82,12 +81,12 @@ public class StandardTransactionBuilder {
 
    public static class UnsignedTransaction implements Serializable {
       private static final long serialVersionUID = 1L;
+      public static final int NO_SEQUENCE = -1;
 
       private TransactionOutput[] _outputs;
       private UnspentTransactionOutput[] _funding;
       private SigningRequest[] _signingRequests;
       private NetworkParameters _network;
-      private boolean _isPop = false;
 
       public TransactionOutput[] getOutputs(){
          return _outputs;
@@ -97,32 +96,21 @@ public class StandardTransactionBuilder {
          return _funding;
       }
 
-      private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
+      protected UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
                                   IPublicKeyRing keyRing, NetworkParameters network) {
-         this(outputs, funding, keyRing, false, network);
-      }
-
-      private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-                                  IPublicKeyRing keyRing, boolean isPop, NetworkParameters network) {
          _network = network;
          _outputs = outputs.toArray(new TransactionOutput[]{});
          _funding = funding.toArray(new UnspentTransactionOutput[]{});
          _signingRequests = new SigningRequest[_funding.length];
-         _isPop = isPop;
 
          // Create empty input scripts pointing at the right out points
          TransactionInput[] inputs = new TransactionInput[_funding.length];
          for (int i = 0; i < _funding.length; i++) {
-            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
-            if (isPop) {
-               // If we're creating an unsigned pop, the sequence numbers must be zero for all inputs.
-               inputs[i].sequence = 0;
-            }
+            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY, getDefaultSequenceNumber());
          }
 
-         // Create transaction with valid outputs and empty inputs. If PoP, make it invalid by setting
-         // lock_time to its max block index.
-         Transaction transaction = new Transaction(1, inputs, _outputs, isPop ? MAX_LOCK_TIME : 0);
+         // Create transaction with valid outputs and empty inputs
+         Transaction transaction = new Transaction(1, inputs, _outputs, getLockTime());
 
          for (int i = 0; i < _funding.length; i++) {
             UnspentTransactionOutput f = _funding[i];
@@ -170,6 +158,14 @@ public class StandardTransactionBuilder {
             out += output.value;
          }
          return in - out;
+      }
+
+      public int getLockTime() {
+         return 0;
+      }
+
+      public int getDefaultSequenceNumber() {
+         return NO_SEQUENCE;
       }
 
       @Override
@@ -264,13 +260,6 @@ public class StandardTransactionBuilder {
          signatures.add(signature);
       }
       return signatures;
-   }
-
-   public UnsignedTransaction createUnsignedPop(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-                                                IPublicKeyRing keyRing, NetworkParameters network) {
-      UnsignedTransaction unsignedPop = new UnsignedTransaction(outputs, funding, keyRing, true, network);
-
-      return unsignedPop;
    }
 
    /**
@@ -418,14 +407,11 @@ public class StandardTransactionBuilder {
          // Create script from signature and public key
          ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
                unsigned._signingRequests[i].publicKey.getPublicKeyBytes());
-         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script);
-         if (unsigned._isPop) {
-            inputs[i].sequence = 0;
-         }
+         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script, unsigned.getDefaultSequenceNumber());
       }
 
       // Create transaction with valid outputs and empty inputs
-      Transaction transaction = new Transaction(1, inputs, unsigned._outputs, unsigned._isPop ? MAX_LOCK_TIME : 0);
+      Transaction transaction = new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime());
       return transaction;
    }
 

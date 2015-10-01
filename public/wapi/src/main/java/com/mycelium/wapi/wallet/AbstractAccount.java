@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.PopBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -48,7 +49,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -1173,14 +1173,14 @@ public abstract class AbstractAccount implements WalletAccount {
 
          TransactionOutput popOutput = createPopOutput(txid, nonce);
 
-         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+         PopBuilder popBuilder = new PopBuilder(_network);
 
-         UnsignedTransaction unsignedTransaction = stb.createUnsignedPop(Collections.singletonList(popOutput), funding,
+         UnsignedTransaction unsignedTransaction = popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
                  new PublicKeyRing(), _network);
 
          return unsignedTransaction;
       } catch (TransactionParsingException e) {
-         throw new RuntimeException("Cannot parse transaction", e);
+         throw new RuntimeException("Cannot parse transaction: " + e.getMessage(), e);
       }
    }
 
@@ -1189,7 +1189,7 @@ public abstract class AbstractAccount implements WalletAccount {
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
       byteBuffer.put((byte) Script.OP_RETURN);
 
-      byteBuffer.put((byte)1).put((byte)0); // version 1
+      byteBuffer.put((byte)1).put((byte)0); // version 1, little endian
 
       byteBuffer.put(txidToProve.getBytes()); // txid
 

@@ -37,10 +37,15 @@ package com.mycelium.wallet.activity.pop;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -55,9 +60,10 @@ import java.util.Map;
 
 public class PopSelectTransactionActivity extends FragmentActivity {
     private PopRequest popRequest;
-
+    private MbwManager mbwManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pop_select_transaction_activity);
 
@@ -67,45 +73,81 @@ public class PopSelectTransactionActivity extends FragmentActivity {
         }
         this.popRequest = popRequest;
 
-        List<TransactionSummary> matchingTransactions = new ArrayList<TransactionSummary>();
-        List<TransactionSummary> nonMatchingTransactions = new ArrayList<TransactionSummary>();
 
-        MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-
+        mbwManager = MbwManager.getInstance(getApplicationContext());
         WalletAccount account = mbwManager.getSelectedAccount();
         if (account.isArchived()) {
             return;
         }
-
-        List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
-
-        for (TransactionSummary transactionSummary : history) {
-            if (transactionSummary.value >= 0L) {
-                // We are only interested in payments
-                continue;
-            }
-            if (PopUtils.matches(popRequest, mbwManager.getMetadataStorage(), transactionSummary)) {
-                matchingTransactions.add(transactionSummary);
-            } else {
-                nonMatchingTransactions.add(transactionSummary);
-            }
-        }
-
-        ListFragment matchingTransactionsFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.matchingTransactions);
-        ListFragment nonMatchingTransactionsFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.nonMatchingTransactions);
-
-        Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
-
-        if (matchingTransactions.isEmpty()) {
-            findViewById(R.id.matchingTransactionsContainer).setVisibility(View.GONE);
-            findViewById(R.id.noMatchingTransactionsInfo).setVisibility(View.VISIBLE);
-        } else {
-            matchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(this, matchingTransactions, addressBook));
-        }
-        nonMatchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(this, nonMatchingTransactions, addressBook));
+        HistoryPagerAdapter pagerAdapter = new HistoryPagerAdapter(getSupportFragmentManager());
+        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager.setAdapter(pagerAdapter);
 
     }
 
+    public class HistoryPagerAdapter extends FragmentPagerAdapter {
+
+        private ListFragment matchingTransactionsFragment = null;
+        private ListFragment nonMatchingTransactionsFragment = null;
+
+        public HistoryPagerAdapter(FragmentManager fm) {
+            super(fm);
+
+            WalletAccount account = mbwManager.getSelectedAccount();
+
+            List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
+            List<TransactionSummary> matchingTransactions = new ArrayList<TransactionSummary>();
+            List<TransactionSummary> nonMatchingTransactions = new ArrayList<TransactionSummary>();
+
+            for (TransactionSummary transactionSummary : history) {
+                if (transactionSummary.value >= 0L) {
+                    // We are only interested in payments
+                    continue;
+                }
+                if (PopUtils.matches(popRequest, mbwManager.getMetadataStorage(), transactionSummary)) {
+                    matchingTransactions.add(transactionSummary);
+                } else {
+                    nonMatchingTransactions.add(transactionSummary);
+                }
+            }
+
+            Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
+
+            matchingTransactionsFragment = new ListFragment() {
+                @Override
+                public void onViewCreated(View view, Bundle savedInstanceState) {
+                    super.onViewCreated(view, savedInstanceState);
+                    setEmptyText(getText(R.string.pop_no_matching_transactions));
+                }
+            };
+            matchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(PopSelectTransactionActivity.this, matchingTransactions, addressBook));
+
+            nonMatchingTransactionsFragment = new ListFragment();
+            nonMatchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(PopSelectTransactionActivity.this, nonMatchingTransactions, addressBook));
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            switch (i) {
+                case 0:
+                    return matchingTransactionsFragment;
+                case 1:
+                    return nonMatchingTransactionsFragment;
+                default:
+                    throw new RuntimeException("Unknown fragemt id " + i);
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return getString(position == 0 ? R.string.pop_matching_transactions : R.string.pop_non_matching_transactions);
+        }
+    }
 
     private class TransactionHistoryAdapter extends TransactionArrayAdapter {
 

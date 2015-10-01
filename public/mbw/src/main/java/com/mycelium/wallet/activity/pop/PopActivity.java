@@ -46,10 +46,12 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -60,16 +62,13 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -80,25 +79,29 @@ public class PopActivity extends Activity {
     private PopRequest popRequest;
     private MbwManager _mbwManager;
     private Sha256Hash txidToProve;
-    protected static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
+    private static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pop_activity);
-
         _mbwManager = MbwManager.getInstance(getApplication());
 
+        if (savedInstanceState != null) {
+            popRequest = (PopRequest)savedInstanceState.getSerializable("popRequest");
+            txidToProve = (Sha256Hash)savedInstanceState.getSerializable("txidToProve");
+            updateUi(_mbwManager.getSelectedAccount().getTransactionSummary(txidToProve));
+            return;
+        }
 
-        PopRequest popRequest = (PopRequest) getIntent().getSerializableExtra("popRequest");
+        popRequest = (PopRequest)getIntent().getSerializableExtra("popRequest");
         if (popRequest == null) {
             finish();
         }
-        this.popRequest = popRequest;
 
         Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
-        TransactionSummary txToProve = null;
+        TransactionSummary txToProve;
         if (userSelectedTransaction != null) {
             txidToProve = userSelectedTransaction;
             txToProve = _mbwManager.getSelectedAccount().getTransactionSummary(txidToProve);
@@ -166,7 +169,7 @@ public class PopActivity extends Activity {
         String value = _mbwManager.getBtcValueString(amountSatoshis);
         String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(amountSatoshis, true);
         String fiatAppendment = "";
-        if (fiatValue != null || !"".equals(fiatValue)) {
+        if (!Strings.isNullOrEmpty(fiatValue)) {
             fiatAppendment = " (" + fiatValue + ")";
         }
         setText(R.id.pop_transaction_amount, value + fiatAppendment);
@@ -176,13 +179,19 @@ public class PopActivity extends Activity {
         setText(R.id.pop_transaction_label, label);
 
         URL url = getUrl(popRequest.getP());
+        if (url == null) {
+            Toast.makeText(this, "Invalid URL:" + popRequest.getP(), Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
-        setText(R.id.pop_recipient_host, url.getHost());
+        TextView textView = (TextView) findViewById(R.id.pop_recipient_host);
+        textView.setText(url.getHost());
         String protocol = url.getProtocol();
         if ("https".equals(protocol)) {
-            findViewById(R.id.pop_secure_icon).setVisibility(View.VISIBLE);
+            textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.holo_dark_ic_action_secure, 0, 0, 0);
         } else if ("http".equals(protocol)) {
-            findViewById(R.id.pop_secure_icon).setVisibility(View.GONE);
+            textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         } else {
             Toast.makeText(this, "Unsupported protocol:" + url.getProtocol(), Toast.LENGTH_LONG).show();
             finish();
@@ -212,42 +221,43 @@ public class PopActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putSerializable("popRequest", popRequest);
+        savedInstanceState.putSerializable("txidToProve", txidToProve);
     }
 
 
     public void sendPop(View view) {
-        if (txidToProve == null) {
-            Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG);
-        }
-        WalletAccount account = _mbwManager.getSelectedAccount();
-
-        final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
-
-        _mbwManager.runPinProtectedFunction(PopActivity.this, new Runnable() {
-
-            @Override
-            public void run() {
-                disableButtons();
-                SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
-                        false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
+        try {
+            if (txidToProve == null) {
+                Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
             }
-        });
+            WalletAccount account = _mbwManager.getSelectedAccount();
+
+            final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
+
+            _mbwManager.runPinProtectedFunction(PopActivity.this, new Runnable() {
+
+                @Override
+                public void run() {
+                    disableButtons();
+                    SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
+                            false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "An internal error occurred:" + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     public void selectOtherTransaction(View view) {
         launchSelectTransactionActivity();
     }
 
-    protected void disableButtons() {
+    private void disableButtons() {
         findViewById(R.id.btSend).setEnabled(false);
+        findViewById(R.id.btSelectOther).setEnabled(false);
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
@@ -304,75 +314,35 @@ public class PopActivity extends Activity {
     }
 
     private String sendPop(Transaction tx) {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/bitcoin-pop"), tx.toBytes());
+
         URL url;
         try {
             url = new URL(popRequest.getP());
+            if (!"http".equals(url.getProtocol()) && !"https".equals(url.getProtocol())) {
+                return "Invalid Url, expected protocol http or https: " + popRequest.getP();
+            }
         } catch (MalformedURLException e) {
             return "Invalid Url: " + popRequest.getP();
         }
-        HttpURLConnection urlConnection;
+
+        Request request = new Request.Builder().url(url).post(requestBody).build();
+
+        OkHttpClient httpClient = new OkHttpClient();
+        if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null){
+            httpClient =_mbwManager.getTorManager().setupClient(httpClient);
+        }
+
         try {
-            urlConnection = (HttpURLConnection) url.openConnection();
+            Response response = httpClient.newCall(request).execute();
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                return "Error occurred: " + response.code();
+            }
         } catch (IOException e) {
-            return "Cannot connect to " + url + ": " + e.getMessage();
+            return "Cannot communicate with server: " + e.getMessage();
         }
-        try {
-            urlConnection.setDoOutput(true);
-            urlConnection.setRequestProperty("Content-Type", "application/bitcoin-pop");
 
-            byte[] bytes = tx.toBytes();
-            OutputStream out = null;
-            try {
-                out = new BufferedOutputStream(urlConnection.getOutputStream());
-            } catch (IOException e) {
-                return "Cannot get OutputStream on " + url + ": " + e.getMessage();
-            }
-            try {
-                out.write(bytes);
-                out.close();
-            } catch (IOException e) {
-                return "Cannot write to " + url + ": " + e.getMessage();
-            }
-            try {
-                int responseCode = urlConnection.getResponseCode();
-                if (responseCode != HttpURLConnection.HTTP_OK) {
-                    return "Got response code: " + responseCode;
-                }
-            } catch (IOException e) {
-                return "Cannot get response code: " + e.getMessage();
-            }
-
-            InputStream in = null;
-            try {
-                in = new BufferedInputStream(urlConnection.getInputStream());
-            } catch (IOException e) {
-                return "Cannot get InputStream on " + url + ": " + e.getMessage();
-            }
-            InputStreamReader inputStreamReader = null;
-            try {
-                inputStreamReader = new InputStreamReader(in, "US-ASCII");
-            } catch (UnsupportedEncodingException e) {
-                return "Unknown encoding 'US-ASCII':" + e.getMessage();
-            }
-
-            BufferedReader bufReader = new BufferedReader(inputStreamReader);
-            StringBuffer reply = new StringBuffer();
-            try {
-                String line = bufReader.readLine();
-                while (line != null) {
-                    if (reply.length() > 0) {
-                        reply.append("\n");
-                    }
-                    reply.append(line);
-                    line = bufReader.readLine();
-                }
-            } catch (IOException e) {
-                return "Could not read reply: " + e.getMessage();
-            }
-            return reply.toString();
-        } finally {
-            urlConnection.disconnect();
-        }
     }
-
 }

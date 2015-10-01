@@ -880,7 +880,7 @@ public class StringHandleConfig implements Serializable {
             try {
                popRequest = new PopRequest(content);
             } catch (IllegalArgumentException e) {
-               handlerActivity.finishError(R.string.invalid_pop_uri, content);
+               handlerActivity.finishError(R.string.pop_invalid_pop_uri, content);
                return false;
             }
 
