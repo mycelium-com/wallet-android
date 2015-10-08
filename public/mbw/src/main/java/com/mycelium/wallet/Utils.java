@@ -263,7 +263,7 @@ public class Utils {
     * Show a dialog with a buttons that displays a message. Click the message
     * or the back button to make it disappear.
     */
-   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, @StringRes int okayButtonText, final Runnable postRunner) {
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, int okayButtonText, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -294,7 +294,6 @@ public class Utils {
       });
       dialog.show();
    }
-
 
    /**
     * Show an optional message/
