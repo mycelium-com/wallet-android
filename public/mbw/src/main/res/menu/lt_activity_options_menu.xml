@@ -5,6 +5,8 @@
         android:id="@+id/miHowTo"
         android:title="@string/lt_how_to_trade_menu"/>
 
+    <item android:id="@+id/miBackupLT"
+          android:title="@string/lt_backup_lt_id"/>
     <item
             android:id="@+id/miDeleteTradeAccount"
             android:title="@string/lt_delete_account"/>

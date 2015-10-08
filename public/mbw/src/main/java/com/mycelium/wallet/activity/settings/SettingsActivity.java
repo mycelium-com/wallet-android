@@ -49,10 +49,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.net.ServerEndpointType;
@@ -174,14 +176,57 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
-   private final OnPreferenceClickListener ledgerNotificationDisableTee = new OnPreferenceClickListener() {
+   private final OnPreferenceClickListener onClickLedgerNotificationDisableTee = new OnPreferenceClickListener() {
 	   public boolean onPreferenceClick(Preference preference) {
 		   CheckBoxPreference p = (CheckBoxPreference) preference;
 		   _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
 		   return true;
 	   }
    };   
-   
+
+   private final OnPreferenceClickListener onClickLedgerSetUnpluggedAID = new OnPreferenceClickListener() {
+	   private Button okButton;
+	   private EditText aidEdit;
+	   
+	   public boolean onPreferenceClick(Preference preference) {		   
+	        AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
+	         b.setTitle(getString(R.string.ledger_set_unplugged_aid_title));
+	         b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	               byte[] aidBinary = null;
+	               String aid = aidEdit.getText().toString();
+	               try {
+	            	   aidBinary = HexUtils.toBytes(aid);
+	               }
+	               catch(Exception e) {	            	   
+	               }
+	               if (aidBinary == null) {
+	            	   Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.ledger_check_unplugged_aid));	            	   
+	               }
+	               else {
+	            	   _mbwManager.getLedgerManager().setUnpluggedAID(aid);
+	               }
+	            }
+	         });
+	         b.setNegativeButton(R.string.cancel, null);
+
+	         aidEdit = new EditText(SettingsActivity.this); 
+	         aidEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+	         aidEdit.setText(_mbwManager.getLedgerManager().getUnpluggedAID());
+	         LinearLayout llDialog = new LinearLayout(SettingsActivity.this);
+	         llDialog.setOrientation(LinearLayout.VERTICAL);
+	         llDialog.setPadding(10, 10, 10, 10);
+	         TextView tvInfo = new TextView(SettingsActivity.this);
+	         tvInfo.setText(getString(R.string.ledger_unplugged_aid));
+	         llDialog.addView(tvInfo);
+	         llDialog.addView(aidEdit);
+	         b.setView(llDialog);
+	         AlertDialog dialog = b.show();		   
+	         return true;
+	   }
+   };   
+      
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -193,6 +238,7 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _minerFee;
    private ListPreference _blockExplorer;
    private CheckBoxPreference _ledgerDisableTee;
+   private Preference _ledgerSetUnpluggedAID;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -418,15 +464,18 @@ public class SettingsActivity extends PreferenceActivity {
       });
             
       _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
+      _ledgerSetUnpluggedAID = (Preference) findPreference("ledgerUnpluggedAID");
 
-      boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isTeeAvailable(this);
+      boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(this);
       if (isTeeAvailable) {
          _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
-         _ledgerDisableTee.setOnPreferenceClickListener(ledgerNotificationDisableTee);
+         _ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
+         _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
       } else {
-
          getPreferenceScreen().removePreference(findPreference("ledger"));
       }
+
+
       applyLocalTraderEnablement();
    }
 

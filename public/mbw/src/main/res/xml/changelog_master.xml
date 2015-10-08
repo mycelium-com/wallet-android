@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.5.3" versioncode="25300">
+        <change>Option to export your LocalTrader-ID to migrate to a different phone</change>
+        <change>Recognize outgoing transactions from other phones sharing the same account correctly</change>
+        <change>[bugfix] Don't crash if user enters a bitcoin amount larger than 21mil</change>
+        <change>[bugfix] Cleanup if connection fails while creating coinapult account</change>
+        <change>[bugfix] Dont crash on unexpected coinapult transaction type</change>
+
+    </release>
     <release version="2.5.2" versioncode="25200">
         <change>Only sync coinapult account, if it is the selected account</change>
         <change>[bugfix] various small bug fixes</change>

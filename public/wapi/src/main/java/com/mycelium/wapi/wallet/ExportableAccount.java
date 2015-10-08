@@ -1,10 +1,21 @@
 package com.mycelium.wapi.wallet;
 
 
-public interface ExportableAccount {
-   String getPrivateData(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher;
-   String getPublicData();
+import com.google.common.base.Optional;
 
-   // does this account store locally private date (xPriv, PrivateKey, ...)
-   boolean containsPrivateData();
+import java.io.Serializable;
+
+public interface ExportableAccount {
+
+   class Data implements Serializable {
+      public final Optional<String> privateData;
+      public final Optional<String> publicData;
+
+      public Data(Optional<String> privateData, Optional<String> publicData) {
+         this.privateData = privateData;
+         this.publicData = publicData;
+      }
+   }
+
+   Data getExportData(KeyCipher cipher);
 }

@@ -54,13 +54,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -68,6 +68,11 @@ import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+
 
 public class LtMainActivity extends ActionBarActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
@@ -183,9 +188,10 @@ public class LtMainActivity extends ActionBarActivity {
       final boolean isAdsTab = tabIdx == ((TabsAdapter.TabInfo) _myAdsTab.getTag()).index;
       Preconditions.checkNotNull(menu.findItem(R.id.miAddAd)).setVisible(isAdsTab);
 
-      //check delete trade account visibility
+      //check delete trade account visibility & backup account visibility
       final boolean hasTradeAccAndIsInfoTab = _ltManager.hasLocalTraderAccount() && (tabIdx == ((TabsAdapter.TabInfo) _myTraderInfoTab.getTag()).index);
       Preconditions.checkNotNull(menu.findItem(R.id.miDeleteTradeAccount).setVisible(hasTradeAccAndIsInfoTab));
+      Preconditions.checkNotNull(menu.findItem(R.id.miBackupLT).setVisible(hasTradeAccAndIsInfoTab));
 
       return super.onPrepareOptionsMenu(menu);
    }
@@ -234,6 +240,32 @@ public class LtMainActivity extends ActionBarActivity {
          openLocalTraderHelp();
          return true;
       }
+      if(itemId == R.id.miBackupLT){
+         AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
+         confirmDialog.setTitle(R.string.lt_confirm_title);
+         confirmDialog.setMessage(R.string.lt_confirm_backup_trader_message);
+         confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface arg0, int arg1) {
+               try {
+                  backupTraderAccount();
+               } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                  invalidKeyCipher.printStackTrace();
+               }
+            }
+         });
+         confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface arg0, int arg1) {
+               // User clicked no
+            }
+         });
+         confirmDialog.show();
+
+
+        return true;
+      }
+
       if (itemId == android.R.id.home) {
         // Respond to the action bar's home button, navigates to parent activity
         Intent intent = new Intent(this, ModernMain.class);
@@ -249,6 +281,26 @@ public class LtMainActivity extends ActionBarActivity {
          return true;
       }
       return super.onOptionsItemSelected(item);
+   }
+
+   private void backupTraderAccount() throws KeyCipher.InvalidKeyCipher {
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_ltManager.getLocalTraderAccountId());
+      final InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
+
+      ExportableAccount exportableAccount = new ExportableAccount() {
+         @Override
+         public Data getExportData(KeyCipher cipher) {
+            return new Data(
+                  Optional.of(privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork())),
+                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()).toString())
+            );
+         }
+      };
+
+      Intent intent = ExportAsQrCodeActivity.getIntent(this,
+            exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher())
+      );
+      startActivity(intent);
    }
 
    private void deleteTraderAccount() {

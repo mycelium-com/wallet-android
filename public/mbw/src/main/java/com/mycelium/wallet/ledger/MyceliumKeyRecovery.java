@@ -1,5 +1,6 @@
 /*
- * Copyright 2013, 2014 Megion Research and Development GmbH
+ * Copyright 2015 Megion Research and Development GmbH
+ * Copyright 2015 Ledger
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
@@ -32,37 +33,32 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wapi.wallet.currency;
+package com.mycelium.wallet.ledger;
 
+import com.btchip.BTChipKeyRecovery;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.Signature;
+import com.mrd.bitlib.crypto.Signatures;
+import com.mrd.bitlib.crypto.SignedMessage;
+import com.mrd.bitlib.util.ByteReader;
+import com.mrd.bitlib.util.Sha256Hash;
 
-public class CurrencyBasedBalance {
-   public final static CurrencyBasedBalance ZERO_BITCOIN_BALANCE = new CurrencyBasedBalance(
-         ExactBitcoinValue.ZERO, ExactBitcoinValue.ZERO, ExactBitcoinValue.ZERO);
+// The ledger unplugged does not allow open source code applications (on the card) to use the
+// hardware accelerated ECC primitives to calculate the public key from its private key,
+// so the indirection via a signature and KeyRecovery is done
+public class MyceliumKeyRecovery implements BTChipKeyRecovery {
 
-   public final ExactCurrencyValue confirmed;
-   public final ExactCurrencyValue sending;
-   public final ExactCurrencyValue receiving;
-   public final boolean isSynchronizing;
-
-
-   public CurrencyBasedBalance(ExactCurrencyValue confirmed, ExactCurrencyValue sending, ExactCurrencyValue receiving) {
-      this(confirmed, sending, receiving, false);
-   }
-
-   public CurrencyBasedBalance(ExactCurrencyValue confirmed, ExactCurrencyValue sending, ExactCurrencyValue receiving, boolean isSynchronizing) {
-      this.confirmed = confirmed;
-      this.sending = sending;
-      this.receiving = receiving;
-      this.isSynchronizing = isSynchronizing;
-   }
-
-   @Override
-   public String toString() {
-      return "CurrencyBasedBalance{" +
-            "confirmed=" + confirmed +
-            ", sending=" + sending +
-            ", receiving=" + receiving +
-            (isSynchronizing ? " [syncing]" : "") +
-            '}';
-   }
+	@Override
+	public byte[] recoverKey(int recId, byte[] signatureParam, byte[] hashValue) {
+	      Signature signature = Signatures.decodeSignatureParameters(new ByteReader(signatureParam));
+	      Sha256Hash hash = new Sha256Hash(hashValue);
+	      PublicKey key = SignedMessage.recoverFromSignature(recId, signature, hash, false);
+	      if (key != null) {
+	    	  return key.getPublicKeyBytes();
+	      }
+	      else {
+	    	  return null;
+	      }
+	}
+	
 }

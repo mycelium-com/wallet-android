@@ -1,3 +1,38 @@
+/*
+ * Copyright 2015 Megion Research and Development GmbH
+ * Copyright 2015 Ledger
+ *
+ * Licensed under the Microsoft Reference Source License (MS-RSL)
+ *
+ * This license governs use of the accompanying software. If you use the software, you accept this license.
+ * If you do not accept the license, do not use the software.
+ *
+ * 1. Definitions
+ * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
+ * "You" means the licensee of the software.
+ * "Your company" means the company you worked for when you downloaded the software.
+ * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
+ * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
+ * software, and specifically excludes the right to distribute the software outside of your company.
+ * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
+ * under this license.
+ *
+ * 2. Grant of Rights
+ * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free copyright license to reproduce the software for reference use.
+ * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
+ * worldwide, royalty-free patent license under licensed patents for reference use.
+ *
+ * 3. Limitations
+ * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
+ * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
+ * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
+ * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
+ * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
+ * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
+ * fitness for a particular purpose and non-infringement.
+ */
+
 package com.mycelium.wallet.ledger;
 
 import android.app.Activity;
@@ -50,6 +85,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    private BTChipTransportFactory transportFactory;
    private BTChipDongle dongle;
    private boolean disableTee;
+   private byte[] aid;
    protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<String>(1);
    protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<String>(1);
 
@@ -69,7 +105,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    private static final String DUMMY_PIN = "0000";
 
-   private static final byte AID[] = Dump.hexToBin("a0000006170054bf6aa94901");
+   private static final String DEFAULT_UNPLUGGED_AID = "a0000006170054bf6aa94901";
 
    // EventBus classes
    public static class OnPinRequest {
@@ -88,11 +124,19 @@ public class LedgerManager extends AbstractAccountScanManager implements
       SharedPreferences preferences = this.context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
             Activity.MODE_PRIVATE);
       disableTee = preferences.getBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, false);
+      aid = Dump.hexToBin(preferences.getString(Constants.LEDGER_UNPLUGGED_AID_SETTING, DEFAULT_UNPLUGGED_AID));
    }
 
 
    public void setTransportFactory(BTChipTransportFactory transportFactory) {
       this.transportFactory = transportFactory;
+   }
+   
+   private boolean isTee() {
+	   if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
+		   return false;
+	   }
+	   return ((LedgerTransportTEEProxy)getTransport().getTransport()).hasTeeImplementation();
    }
 
    public BTChipTransportFactory getTransport() {
@@ -133,7 +177,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
          if (!initialized) {
             transportFactory = new BTChipTransportAndroid(context);
-            ((BTChipTransportAndroid) transportFactory).setAID(AID);
+            ((BTChipTransportAndroid) transportFactory).setAID(aid);
          }
          Log.d(LOG_TAG, "Using transport " + transportFactory.getClass());
       }
@@ -179,7 +223,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          postErrorMessage("Failed to connect to Ledger device");
          return null;
       }
-      boolean isTEE = getTransport().getTransport() instanceof LedgerTransportTEEProxy;
+      boolean isTEE = isTee();
 
       setState(Status.readyToScan, currentAccountState);
 
@@ -380,13 +424,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          Log.d(LOG_TAG, "Connected");
          getTransport().getTransport().setDebug(true);
          dongle = new BTChipDongle(getTransport().getTransport());
-         if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
-            // Try to activate the Security Card (until done in the Ledger Wallet application)
-            try {
-               getTransport().getTransport().exchange(ACTIVATE_ALT_2FA);
-            } catch (Exception ignore) {
-            }
-         }
+         dongle.setKeyRecovery(new MyceliumKeyRecovery());
       }
       Log.d(LOG_TAG, "Initialized " + connected);
       return connected;
@@ -411,7 +449,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    @Override
    public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex) {
-      boolean isTEE = getTransport().getTransport() instanceof LedgerTransportTEEProxy;
+      boolean isTEE = isTee();
       String keyPath = "44'/" + getNetwork().getBip44CoinType().getLastIndex() + "'/" + accountIndex + "'";
       if (isTEE) {
          // Check if the PIN has been terminated - in this case, reinitialize
@@ -551,6 +589,17 @@ public class LedgerManager extends AbstractAccountScanManager implements
       disableTee = disabled;
       editor.putBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, disabled);
       editor.commit();
+   }
+   
+   public String getUnpluggedAID() {
+	   return Dump.dump(aid);
+   }
+   
+   public void setUnpluggedAID(String aid) {
+	   SharedPreferences.Editor editor = getEditor();
+	   this.aid = Dump.hexToBin(aid);
+	   editor.putString(Constants.LEDGER_UNPLUGGED_AID_SETTING, aid);
+	   editor.commit();
    }
 
    private SharedPreferences.Editor getEditor() {

@@ -17,18 +17,10 @@
 ********************************************************************************
 */
 
-package com.btchip.comm;
+package com.btchip;
 
-import com.btchip.BTChipException;
-
-import java.util.concurrent.Future;
-
-public interface BTChipTransport {
-
-   public Future<byte[]> exchange(byte[] command) throws BTChipException;
-
-   public void close() throws BTChipException;
-
-   public void setDebug(boolean debugFlag);
+public interface BTChipKeyRecovery {
+	
+	public byte[] recoverKey(int recId, byte[] signature, byte[] hashValue);
 
 }

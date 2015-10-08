@@ -324,7 +324,7 @@ public class CoinapultManager implements WalletAccount {
    private long satoshiDifference(com.coinapult.api.httpclient.Transaction.Json input) {
       boolean isSending = isSending(input);
       int sign = isSending ? -1 : 1;
-      return sign * CoinapultManager.this.getSatoshis(input.out.amount, input.out.currency);
+      return sign * CoinapultManager.this.getSatoshis(input.out.expected, input.out.currency);
    }
 
    private boolean isSending(com.coinapult.api.httpclient.Transaction.Json input) {
@@ -336,8 +336,9 @@ public class CoinapultManager implements WalletAccount {
       if (isInvoice) {
          return false;
       }
-      throw new IllegalStateException("unexpected tx type: " + input.type);
 
+      // other unexpected tx type - but ignore it
+      return false;
    }
 
    private <T> List<T> limitedList(int offset, int limit, List<T> list) {
@@ -460,37 +461,55 @@ public class CoinapultManager implements WalletAccount {
       final long oneMinuteAgo = new Date().getTime() - 1000 * 60;
 
       BigDecimal receivingUsd = BigDecimal.ZERO;
-      BigDecimal sendingUsd = BigDecimal.ZERO;
       BigDecimal receivingUsdNotIncludedInBalance = BigDecimal.ZERO;
       BigDecimal sendingUsdNotIncludedInBalance = BigDecimal.ZERO;
       for (com.coinapult.api.httpclient.Transaction.Json json : getHistoryWithExtras()) {
          boolean sending = isSending(json);
          if (json.state.equals("processing") || json.completeTime * 1000 > oneMinuteAgo) {
             if (sending) {
-               sendingUsdNotIncludedInBalance = sendingUsdNotIncludedInBalance.add(json.in.amount);
+               sendingUsdNotIncludedInBalance = sendingUsdNotIncludedInBalance.add(json.in.expected);
             } else {
                receivingUsd = receivingUsd.add(json.out.amount);
             }
          } else if (json.state.equals("confirming")) {
             if (sending) {
-               sendingUsdNotIncludedInBalance = sendingUsdNotIncludedInBalance.add(json.in.amount);
+               sendingUsdNotIncludedInBalance = sendingUsdNotIncludedInBalance.add(json.in.expected);
             } else {
-               receivingUsdNotIncludedInBalance = receivingUsdNotIncludedInBalance.add(json.out.amount);
+               receivingUsdNotIncludedInBalance = receivingUsdNotIncludedInBalance.add(json.out.expected);
             }
          }
       }
-      BigDecimal withoutUnconfirmed = balanceUSD1.amount.subtract(receivingUsd).add(sendingUsd);
+      BigDecimal withoutUnconfirmed = balanceUSD1.amount.subtract(receivingUsd);
+      BigDecimal totalReceiving = receivingUsd.add(receivingUsdNotIncludedInBalance);
+
       if (withoutUnconfirmed.compareTo(BigDecimal.ZERO) < 0) {
          MbwManager.getInstance(null).reportIgnoredException(
                new RuntimeException(String
-                     .format("Calculated withoutUnconfirmed-amount for coinapult account is negative {}, sending: {}, recv: {}", withoutUnconfirmed, sendingUsd, receivingUsd))
+                     .format("Calculated withoutUnconfirmed-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingUsdNotIncludedInBalance, totalReceiving))
          );
          withoutUnconfirmed=BigDecimal.ZERO;
       }
+
+      if (sendingUsdNotIncludedInBalance.compareTo(BigDecimal.ZERO) < 0) {
+         MbwManager.getInstance(null).reportIgnoredException(
+               new RuntimeException(String
+                     .format("Calculated sendingUsdNotIncludedInBalance-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingUsdNotIncludedInBalance, totalReceiving))
+         );
+         sendingUsdNotIncludedInBalance=BigDecimal.ZERO;
+      }
+
+      if (totalReceiving.compareTo(BigDecimal.ZERO) < 0) {
+         MbwManager.getInstance(null).reportIgnoredException(
+               new RuntimeException(String
+                     .format("Calculated totalReceiving-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingUsdNotIncludedInBalance, totalReceiving))
+         );
+         sendingUsdNotIncludedInBalance=BigDecimal.ZERO;
+      }
+
       balanceUSD = new CurrencyBasedBalance(
             ExactCurrencyValue.from(withoutUnconfirmed, "USD"),
-            ExactCurrencyValue.from(sendingUsd.add(sendingUsdNotIncludedInBalance), "USD"),
-            ExactCurrencyValue.from(receivingUsd.add(receivingUsdNotIncludedInBalance), "USD")
+            ExactCurrencyValue.from(sendingUsdNotIncludedInBalance, "USD"),
+            ExactCurrencyValue.from(totalReceiving, "USD")
       );
    }
 
@@ -572,6 +591,14 @@ public class CoinapultManager implements WalletAccount {
       }
    }
 
+   public PreparedCoinapult prepareCoinapultTx(Address receivingAddress, ExactFiatValue amountEntered) throws StandardTransactionBuilder.InsufficientFundsException {
+      if (balanceUSD.confirmed.getValue().compareTo(amountEntered.getValue()) < 0) {
+         throw new StandardTransactionBuilder.InsufficientFundsException(getSatoshis(amountEntered), 0);
+      }
+      return new PreparedCoinapult(receivingAddress, amountEntered);
+   }
+
+
    public boolean broadcast(PreparedCoinapult preparedCoinapult) {
       try {
          final com.coinapult.api.httpclient.Transaction.Json send;
@@ -606,13 +633,6 @@ public class CoinapultManager implements WalletAccount {
       // if we dont have a balance, return 0
       ExactFiatValue zero = new ExactFiatValue("USD", BigDecimal.ZERO);
       return new CurrencyBasedBalance(zero, zero, zero, true);
-   }
-
-   public PreparedCoinapult prepareCoinapultTx(Address receivingAddress, ExactFiatValue amountEntered) throws StandardTransactionBuilder.InsufficientFundsException {
-      if (balanceUSD.confirmed.getValue().compareTo(amountEntered.getValue()) < 0) {
-         throw new StandardTransactionBuilder.InsufficientFundsException(getSatoshis(amountEntered), 0);
-      }
-      return new PreparedCoinapult(receivingAddress, amountEntered);
    }
 
    public boolean setMail(Optional<String> mail) {
