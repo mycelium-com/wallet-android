@@ -108,7 +108,7 @@ public class MbwManager {
     * 0x424944 = "BID"
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
-   private Optional<CoinapultManager> coinapultManager;
+   private Optional<CoinapultManager> _coinapultManager;
 
    /**
     * The index proposed for bit id as per https://github.com/bitid/bitid/blob/master/BIP_draft.md
@@ -259,8 +259,8 @@ public class MbwManager {
       _eventTranslator = new EventTranslator(new Handler(), _eventBus);
       _walletManager.addObserver(_eventTranslator);
       _exchangeRateManager.subscribe(_eventTranslator);
-      coinapultManager = createCoinapultManager();
-      _walletManager.setExtraAccount(coinapultManager);
+      _coinapultManager = createCoinapultManager();
+      _walletManager.setExtraAccount(_coinapultManager);
       migrateOldKeys();
       createTempWalletManager();
 
@@ -1044,8 +1044,8 @@ public class MbwManager {
          }
       }
 
-      if (coinapultManager.isPresent() && coinapultManager.get().getId().equals(uuid)) {
-         return coinapultManager.get();
+      if (_coinapultManager.isPresent() && _coinapultManager.get().getId().equals(uuid)) {
+         return _coinapultManager.get();
       }
 
       // If nothing is selected, or selected is archived, pick the first one
@@ -1190,15 +1190,14 @@ public class MbwManager {
     * @return
     */
    public CoinapultManager getCoinapultManager() {
-      if (coinapultManager.isPresent()) {
-         return coinapultManager.get();
+      if (_coinapultManager.isPresent()) {
+         return _coinapultManager.get();
       } else {
          //lazily create one
-         coinapultManager = createCoinapultManager();
+         _coinapultManager = createCoinapultManager();
          //still not certain, if user never created one
-         if (coinapultManager.isPresent()) {
-            _walletManager.setExtraAccount(coinapultManager);
-            return coinapultManager.get();
+         if (_coinapultManager.isPresent()) {
+            return _coinapultManager.get();
          } else {
             throw new IllegalStateException("tried to obtain coinapult manager without having created one");
          }

@@ -47,6 +47,7 @@ import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -59,7 +60,6 @@ import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
-import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -263,8 +263,30 @@ public class TransactionHistoryFragment extends Fragment {
                      final int itemId = menuItem.getItemId();
                      if (itemId == R.id.miShowCoinapultDebug) {
                         if (record instanceof CoinapultTransactionSummary) {
-                           CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
-                           new AlertDialog.Builder(_context).setMessage(summary.input.toString()).show();
+                           final CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
+                           new AlertDialog.Builder(_context)
+                                 .setMessage(summary.input.toString())
+                                 .setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                       Utils.setClipboardString(
+                                             summary.input.toString(),
+                                             TransactionHistoryFragment.this.getActivity());
+                                       Toast.makeText(
+                                             TransactionHistoryFragment.this.getActivity(),
+                                             R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
+                                             .show();
+
+                                       dialog.dismiss();
+                                    }
+                                 })
+                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                       dialog.dismiss();
+                                    }
+                                 })
+                                 .show();
                         }
                         return true;
                      }

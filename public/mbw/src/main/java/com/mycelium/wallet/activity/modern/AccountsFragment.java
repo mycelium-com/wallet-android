@@ -78,7 +78,6 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
-import se.grunka.fortuna.Util;
 
 import java.util.List;
 import java.util.UUID;
@@ -201,7 +200,9 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setMessage(R.string.delete_account_message);
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
-      final boolean hasPrivateData = accountToDelete instanceof ExportableAccount && ((ExportableAccount) accountToDelete).containsPrivateData();
+      final boolean hasPrivateData = accountToDelete instanceof ExportableAccount
+            && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent();
+
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
       }

@@ -35,8 +35,6 @@
 
 package com.mycelium.wallet.ledger;
 
-import java.math.BigInteger;
-
 import com.btchip.BTChipKeyRecovery;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.Signature;
@@ -45,6 +43,9 @@ import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.Sha256Hash;
 
+// The ledger unplugged does not allow open source code applications (on the card) to use the
+// hardware accelerated ECC primitives to calculate the public key from its private key,
+// so the indirection via a signature and KeyRecovery is done
 public class MyceliumKeyRecovery implements BTChipKeyRecovery {
 
 	@Override

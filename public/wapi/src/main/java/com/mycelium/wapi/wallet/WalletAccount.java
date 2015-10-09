@@ -307,26 +307,6 @@ public interface WalletAccount {
    boolean isOwnInternalAddress(Address address);
 
    /**
-    * Create a new unsigned transaction sending funds to one or more defined script outputs.
-    * <p/>
-    * The unsigned transaction must be signed and queued before it will affect
-    * the transaction history.
-    * <p/>
-    * If you call this method twice without signing and queuing the unsigned
-    * transaction you are likely to create another unsigned transaction that
-    * double spends the first one. In other words, if you call this method and
-    * do not sign and queue the unspent transaction, then you should discard the
-    * unsigned transaction.
-    *
-    * @param outputs the receiving output (script and amount)
-    * @param minerFeeToUse use this minerFee
-    * @return an unsigned transaction.
-    * @throws OutputTooSmallException    if one of the outputs were too small
-    * @throws InsufficientFundsException if not enough funds were present to create the unsigned
-    *                                    transaction
-    */
-
-   /**
     * Create a new unsigned PoP according to
     * <a href="https://github.com/bitcoin/bips/blob/master/bip-0120.mediawiki">BIP 120</a>.
     * @param txid The transaction id for the transaction to prove.

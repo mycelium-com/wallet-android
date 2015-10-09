@@ -44,11 +44,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
-import android.text.InputType;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.coinapult.api.httpclient.CoinapultClient;
@@ -251,13 +249,16 @@ public class AddAccountActivity extends Activity {
       protected void onPostExecute(UUID account) {
          _progress.dismiss();
          if (account != null) {
+            _mbwManager.getWalletManager(false).setExtraAccount(Optional.of(coinapultManager));
             bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, coinapultManager.getId());
             setResult(RESULT_COINAPULT, result);
             finish();
          } else {
+            // something went wrong - clean up the half ready coinapultManager
             Toast.makeText(AddAccountActivity.this, R.string.coinapult_unable_to_create_account, Toast.LENGTH_SHORT).show();
+            _mbwManager.getMetadataStorage().setPairedService("coinapult", false);
          }
       }
    }

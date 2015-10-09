@@ -821,6 +821,10 @@
     <string name="verify_coinapult_mail_error">An error occured verifying your email address. Please make sure you copy the complete and correct verification link.</string>
     <string name="coinapult_unable_to_create_account">Unable to create coinapult account</string>
     <string name="coinapult_failed_to_broadcast">Failed to broadcast coinapult transaction</string>
+    <string name="copy">Copy</string>
+    <string name="lt_backup_lt_id">Backup Trader Identity</string>
+    <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
+
     <string name="pop_invalid_pop_uri">Invalid pop request URI</string>
     <string name="pop_send_pop_to">Prove to</string>
     <string name="pop_transaction_info">Transaction information</string>

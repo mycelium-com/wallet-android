@@ -175,7 +175,7 @@ public class CreateTrader2Activity extends Activity {
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.llRoot).setVisibility(View.GONE);
          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
-         InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, "lt.mycelium.com", AesKeyCipher.defaultKeyCipher());
+         InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
          _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
       } else {
          // Let the user choose which private key to use
@@ -198,7 +198,7 @@ public class CreateTrader2Activity extends Activity {
       }
       UUID accountId = _accounts.get(index);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
-      return _mbwManager.obtainPrivateKeyForAccount(account, "lt.mycelium.com", AesKeyCipher.defaultKeyCipher());
+      return _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
    }
 
    private UUID getSelectedAccount() {

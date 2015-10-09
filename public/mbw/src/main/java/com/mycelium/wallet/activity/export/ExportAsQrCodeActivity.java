@@ -54,15 +54,21 @@ import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
 
 public class ExportAsQrCodeActivity extends Activity {
 
 
+   public static final String ACCOUNT = "account";
    private MbwManager _mbwManager;
-   private WalletAccount account;
+   private ExportableAccount.Data accountData;
    private Switch swSelectData;
    private boolean hasWarningAccepted = false;
+
+   public static Intent getIntent(Activity activity, ExportableAccount.Data accountData){
+      Intent intent = new Intent(activity, ExportAsQrCodeActivity.class);
+      intent.putExtra(ACCOUNT, accountData);
+      return intent;
+   }
 
    /** Called when the activity is first created. */
    @Override
@@ -75,15 +81,18 @@ public class ExportAsQrCodeActivity extends Activity {
 
       // Get base58 encoded private key
       _mbwManager = MbwManager.getInstance(getApplication());
-      account = _mbwManager.getSelectedAccount();
-      if (!(account instanceof ExportableAccount)) {
+      accountData = (ExportableAccount.Data) getIntent().getSerializableExtra(ACCOUNT);
+      if (accountData == null ||
+            (!accountData.publicData.isPresent() && !accountData.privateData.isPresent())
+            ){
+         finish();
          return;
       }
 
 
-      // hide the priv/pub switch, if this is a watch-only account
+      // hide the priv/pub switch, if this is a watch-only accountData
       swSelectData = (Switch) findViewById(R.id.swSelectData);
-      if (((ExportableAccount) account).containsPrivateData()) {
+      if (accountData.privateData.isPresent()) {
          swSelectData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -117,7 +126,7 @@ public class ExportAsQrCodeActivity extends Activity {
    }
 
    private boolean isPrivateDataSelected() {
-      if (((ExportableAccount) account).containsPrivateData()) {
+      if (accountData.privateData.isPresent()) {
          return swSelectData.isChecked();
       }else {
          return false;
@@ -146,12 +155,8 @@ public class ExportAsQrCodeActivity extends Activity {
 
       if (hasWarningAccepted) {
          setWarningVisibility(false);
-         try {
-            String privateData = ((ExportableAccount) account).getPrivateData(AesKeyCipher.defaultKeyCipher());
-            showData(privateData);
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException(invalidKeyCipher);
-         }
+         String privateData = accountData.privateData.get();
+         showData(privateData);
       }else{
          setWarningVisibility(true);
       }
@@ -161,7 +166,7 @@ public class ExportAsQrCodeActivity extends Activity {
 
    private void showPublicData(){
       setWarningVisibility(false);
-      String publicData = ((ExportableAccount) account).getPublicData();
+      String publicData = accountData.publicData.get();
       showData(publicData);
       ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_pubkey));
 

@@ -18,8 +18,4 @@ public class Bip44PubOnlyAccount extends Bip44Account {
       return false;
    }
 
-   @Override
-   public boolean containsPrivateData() {
-      return false;
-   }
 }

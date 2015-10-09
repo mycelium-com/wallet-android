@@ -161,8 +161,13 @@ public class BalanceFragment extends Fragment {
          return;
       }
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
-
+      CurrencyBasedBalance balance;
+      try {
+         balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
+      } catch (IllegalArgumentException ex){
+         _mbwManager.reportIgnoredException(ex);
+         balance = CurrencyBasedBalance.ZERO_BITCOIN_BALANCE;
+      }
       if (account.canSpend()) {
          // Show spend button
          _root.findViewById(R.id.btSend).setVisibility(View.VISIBLE);
