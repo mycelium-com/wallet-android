@@ -375,8 +375,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          Long satoshis;
          int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          satoshis = value.movePointRight(decimals).longValue();
-         if (satoshis > Bitcoins.MAX_VALUE){
-            // entered value is larger then total amount of bitcoins ever existing
+         if (satoshis >= Bitcoins.MAX_VALUE){
+            // entered value is equal or larger then total amount of bitcoins ever existing
             return;
          }
 

@@ -197,7 +197,7 @@ public enum CurrencyCode {
    WST("WST", "Samoan Tala"), //
    XAF("XAF", "CFA Franc BEAC"), //
    XAG("XAG", "Silver (troy ounce)"), //
-   XAR("XAR", "Argentine Peso (blue)"), //
+   XAR("XAR", "Argentine Peso Blue Rate"), //
    XAU("XAU", "Gold (troy ounce)"), //
    XCD("XCD", "East Caribbean Dollar"), //
    XDR("XDR", "Special Drawing Rights"), //

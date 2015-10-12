@@ -362,9 +362,13 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    }
 
    public Optional<Address> getReceivingAddress() {
-      // public method that needs no synchronization
-      checkNotArchived();
-      return Optional.of(_currentReceivingAddress);
+      // if this account is archived, we cant ensure that we have the most recent ReceivingAddress (or any at all)
+      // so return absent.
+      if (isArchived()) {
+         return Optional.absent();
+      } else {
+         return Optional.of(_currentReceivingAddress);
+      }
    }
 
    //used for message signing picker

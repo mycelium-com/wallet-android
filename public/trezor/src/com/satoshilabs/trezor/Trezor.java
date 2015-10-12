@@ -66,6 +66,10 @@ public class Trezor {
    }
 
    private UsbDevice getTrezorDevice(Context context){
+      if (usbManager == null) {
+         return null;
+      }
+
       HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
       Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
 
@@ -121,16 +125,27 @@ public class Trezor {
    }
 
    public boolean isTrezorPluggedIn(Context context){
+      if (usbManager == null) {
+         return false;
+      }
+
       return (getTrezorDevice(context) != null);
    }
 
 	public boolean connect(final Context context) {
+      if (usbManager == null) {
+         return false;
+      }
 
       IntentFilter filter = new IntentFilter();
       filter.addAction(ACTION_USB_PERMISSION);
       context.registerReceiver(mUsbReceiver, filter);
 
       final UsbDevice trezorDevice = getTrezorDevice(context);
+      if (trezorDevice == null) {
+         return false;
+      }
+
       final Intent intent = new Intent(ACTION_USB_PERMISSION);
 
       // clear the token-queue - under some circumstances it might happen that the requestPermission

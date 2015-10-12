@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.bip44;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
@@ -33,7 +34,14 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
       return true;
    }
 
-   
+
+   @Override
+   public Data getExportData(KeyCipher cipher) {
+      // we dont have a private key we can export, always set it as absent
+      Optional<String> pubKey = Optional.of(_keyManager.getPublicAccountRoot().serialize(getNetwork()));
+      return new Data(Optional.<String>absent(), pubKey);
+   }
+
    public int getBIP44AccountType() {
 	   return _sigProvider.getBIP44AccountType();
    }
