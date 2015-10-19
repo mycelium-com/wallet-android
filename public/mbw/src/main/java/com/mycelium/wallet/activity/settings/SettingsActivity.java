@@ -470,11 +470,11 @@ public class SettingsActivity extends PreferenceActivity {
       if (isTeeAvailable) {
          _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
          _ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
-         _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
       } else {
-         getPreferenceScreen().removePreference(findPreference("ledger"));
+	 getPreferenceScreen().removePreference(findPreference("ledgerDisableTee"));
       }
-
+      
+      _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
 
       applyLocalTraderEnablement();
    }
