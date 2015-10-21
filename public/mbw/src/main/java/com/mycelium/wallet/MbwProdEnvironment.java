@@ -133,6 +133,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
       add(new BlockExplorer("CPM","coinprism", "https://www.coinprism.info/address/", "https://www.coinprism.info/tx/", null, null));
       add(new BlockExplorer("TBC","TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));
       add(new BlockExplorer("BCO","blockchains.io", "http://blockchains.io/btc/address/", "http://blockchains.io/btc/transaction/", null, null));
+      add(new BlockExplorer("BLC","blockonomics.co", "https://www.blockonomics.co/#/search?q=", "https://www.blockonomics.co/api/tx?txid=", null, null));
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
