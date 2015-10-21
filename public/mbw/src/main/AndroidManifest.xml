@@ -141,6 +141,10 @@
         <activity
             android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
             android:label="@string/title_activity_bit_idauthentication"/>
+
+        <activity android:name=".activity.pop.PopActivity" />
+        <activity android:name=".activity.pop.PopSelectTransactionActivity" />
+
     </application>
 
 </manifest>

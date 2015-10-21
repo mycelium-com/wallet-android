@@ -73,6 +73,17 @@
 
                 <data android:scheme="bitid"/>
             </intent-filter>
+
+            <!-- BIP 121 Proof of Payment URI scheme -->
+            <intent-filter android:label="@string/pop_send_pop">
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data android:scheme="btcpop"/>
+            </intent-filter>
         </activity>
 
         <activity

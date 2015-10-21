@@ -66,6 +66,7 @@ public abstract class Script implements Serializable {
    public static final int OP_NOP = 97;
    public static final int OP_IF = 99;
    public static final int OP_VERIFY = 105;
+   public static final int OP_RETURN = 106;
    public static final int OP_IFDUP = 115;
    public static final int OP_DEPTH = 116;
    public static final int OP_DROP = 117;
@@ -109,6 +110,7 @@ public abstract class Script implements Serializable {
       OP_CODE_MAP.put(OP_NOP, "OP_NOP");
       OP_CODE_MAP.put(OP_IF, "OP_IF");
       OP_CODE_MAP.put(OP_VERIFY, "OP_VERIFY");
+      OP_CODE_MAP.put(OP_RETURN, "OP_RETURN");
       OP_CODE_MAP.put(OP_IFDUP, "OP_IFDUP");
       OP_CODE_MAP.put(OP_DEPTH, "OP_DEPTH");
       OP_CODE_MAP.put(OP_DROP, "OP_DROP");

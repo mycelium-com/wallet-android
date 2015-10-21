@@ -256,13 +256,24 @@ public class Utils {
     * or the back button to make it disappear.
     */
    public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, final Runnable postRunner) {
+      showSimpleMessageDialog(context, message, okayRunner, R.string.ok, postRunner);
+   }
+
+   /**
+    * Show a dialog with a buttons that displays a message. Click the message
+    * or the back button to make it disappear.
+    */
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, int okayButtonText, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
       TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
       tvMessage.setText(message);
-      layout.findViewById(R.id.btOk).setOnClickListener(new OnClickListener() {
+
+      TextView okButton = (TextView) layout.findViewById(R.id.btOk);
+      okButton.setText(okayButtonText);
+      okButton.setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View v) {

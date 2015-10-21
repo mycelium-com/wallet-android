@@ -18,6 +18,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.mrd.bitlib.PopBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -49,6 +50,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public abstract class AbstractAccount implements WalletAccount {
@@ -1188,6 +1190,56 @@ public abstract class AbstractAccount implements WalletAccount {
       }
 
       return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
+   }
+
+   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
+      checkNotArchived();
+
+      try {
+         TransactionEx txExToProve = _backing.getTransaction(txid);
+         Transaction txToProve = Transaction.fromByteReader(new ByteReader(txExToProve.binary));
+
+         List<UnspentTransactionOutput> funding = new ArrayList<UnspentTransactionOutput>(txToProve.inputs.length);
+         for (TransactionInput input : txToProve.inputs) {
+            TransactionEx inTxEx = _backing.getTransaction(input.outPoint.hash);
+            Transaction inTx = Transaction.fromByteReader(new ByteReader(inTxEx.binary));
+            UnspentTransactionOutput unspentOutput = new UnspentTransactionOutput(input.outPoint, inTxEx.height,
+                    inTx.outputs[input.outPoint.index].value,
+                    inTx.outputs[input.outPoint.index].script);
+
+            funding.add(unspentOutput);
+         }
+
+         TransactionOutput popOutput = createPopOutput(txid, nonce);
+
+         PopBuilder popBuilder = new PopBuilder(_network);
+
+         UnsignedTransaction unsignedTransaction = popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
+                 new PublicKeyRing(), _network);
+
+         return unsignedTransaction;
+      } catch (TransactionParsingException e) {
+         throw new RuntimeException("Cannot parse transaction: " + e.getMessage(), e);
+      }
+   }
+
+   private TransactionOutput createPopOutput(Sha256Hash txidToProve, byte[] nonce) {
+
+      ByteBuffer byteBuffer = ByteBuffer.allocate(41);
+      byteBuffer.put((byte) Script.OP_RETURN);
+
+      byteBuffer.put((byte)1).put((byte)0); // version 1, little endian
+
+      byteBuffer.put(txidToProve.getBytes()); // txid
+
+      if (nonce == null || nonce.length != 6) {
+         throw new IllegalArgumentException("Invalid nonce. Expected 6 bytes.");
+      }
+      byteBuffer.put(nonce); // nonce
+
+      ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
+      TransactionOutput output = new TransactionOutput(0L, scriptOutput);
+      return output;
    }
 
    @Override

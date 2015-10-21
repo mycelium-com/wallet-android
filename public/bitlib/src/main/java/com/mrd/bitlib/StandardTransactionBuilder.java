@@ -81,6 +81,7 @@ public class StandardTransactionBuilder {
 
    public static class UnsignedTransaction implements Serializable {
       private static final long serialVersionUID = 1L;
+      public static final int NO_SEQUENCE = -1;
 
       private TransactionOutput[] _outputs;
       private UnspentTransactionOutput[] _funding;
@@ -95,7 +96,7 @@ public class StandardTransactionBuilder {
          return _funding;
       }
 
-      private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
+      protected UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
                                   IPublicKeyRing keyRing, NetworkParameters network) {
          _network = network;
          _outputs = outputs.toArray(new TransactionOutput[]{});
@@ -105,11 +106,11 @@ public class StandardTransactionBuilder {
          // Create empty input scripts pointing at the right out points
          TransactionInput[] inputs = new TransactionInput[_funding.length];
          for (int i = 0; i < _funding.length; i++) {
-            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
+            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY, getDefaultSequenceNumber());
          }
 
          // Create transaction with valid outputs and empty inputs
-         Transaction transaction = new Transaction(1, inputs, _outputs, 0);
+         Transaction transaction = new Transaction(1, inputs, _outputs, getLockTime());
 
          for (int i = 0; i < _funding.length; i++) {
             UnspentTransactionOutput f = _funding[i];
@@ -157,6 +158,14 @@ public class StandardTransactionBuilder {
             out += output.value;
          }
          return in - out;
+      }
+
+      public int getLockTime() {
+         return 0;
+      }
+
+      public int getDefaultSequenceNumber() {
+         return NO_SEQUENCE;
       }
 
       @Override
@@ -398,11 +407,11 @@ public class StandardTransactionBuilder {
          // Create script from signature and public key
          ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
                unsigned._signingRequests[i].publicKey.getPublicKeyBytes());
-         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script);
+         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script, unsigned.getDefaultSequenceNumber());
       }
 
       // Create transaction with valid outputs and empty inputs
-      Transaction transaction = new Transaction(1, inputs, unsigned._outputs, 0);
+      Transaction transaction = new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime());
       return transaction;
    }
 

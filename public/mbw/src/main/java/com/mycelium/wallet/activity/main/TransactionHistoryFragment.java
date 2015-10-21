@@ -205,35 +205,17 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-   private class TransactionHistoryAdapter extends ArrayAdapter<TransactionSummary> {
+   private class TransactionHistoryAdapter extends TransactionArrayAdapter {
       private Context _context;
-      private Date _midnight;
-      private DateFormat _dayFormat;
-      private DateFormat _hourFormat;
 
       public TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
-         super(context, R.layout.transaction_row, transactions);
+         super(context, transactions, TransactionHistoryFragment.this, _addressBook);
          _context = context;
-         // Get the time at last midnight
-         Calendar midnight = Calendar.getInstance();
-         midnight.set(midnight.get(Calendar.YEAR), midnight.get(Calendar.MONTH), midnight.get(Calendar.DAY_OF_MONTH),
-               0, 0, 0);
-         _midnight = midnight.getTime();
-         // Create date formats for hourly and day format
-         Locale locale = getResources().getConfiguration().locale;
-         _dayFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
-         _hourFormat = android.text.format.DateFormat.getTimeFormat(_context);
-
       }
 
       @Override
       public View getView(final int position, View convertView, ViewGroup parent) {
-         // Only inflate a new view if we are not reusing an old one
-         View rowView = convertView;
-         if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = Preconditions.checkNotNull(inflater.inflate(R.layout.transaction_row, parent, false));
-         }
+         View rowView = super.getView(position, convertView, parent);
 
          // Make sure we are still added
          if (!isAdded()) {
@@ -394,88 +376,6 @@ public class TransactionHistoryFragment extends Fragment {
             }
          });
 
-         // Determine Color
-         int color;
-         if (record.value < 0) {
-            color = getResources().getColor(R.color.red);
-         } else {
-            color = getResources().getColor(R.color.green);
-         }
-
-         // Set Date
-         Date date = new Date(record.time * 1000L);
-         DateFormat dateFormat = date.before(_midnight) ? _dayFormat : _hourFormat;
-         TextView tvDate = (TextView) rowView.findViewById(R.id.tvDate);
-         tvDate.setText(dateFormat.format(date));
-
-         // Set value
-         TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
-         tvAmount.setText(_mbwManager.getBtcValueString(record.value));
-         tvAmount.setTextColor(color);
-
-         // Set fiat value
-         TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
-         Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-         if (_mbwManager.hasFiatCurrency() && rate == null) {
-            _mbwManager.getExchangeRateManager().requestRefresh();
-         }
-         if (!_mbwManager.hasFiatCurrency() || rate == null) {
-            tvFiat.setVisibility(View.GONE);
-         } else {
-            tvFiat.setVisibility(View.VISIBLE);
-            String currency = _mbwManager.getFiatCurrency();
-            String converted = Utils.getFiatValueAsString(record.value, rate);
-            tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
-            tvFiat.setTextColor(color);
-         }
-
-
-         // Show destination address and address label, if this address is in our address book
-         TextView tvAddressLabel = (TextView) rowView.findViewById(R.id.tvAddressLabel);
-         TextView tvDestAddress = (TextView) rowView.findViewById(R.id.tvDestAddress);
-
-         if (record.destinationAddress.isPresent() && _addressBook.containsKey(record.destinationAddress.get())) {
-            tvDestAddress.setText(record.destinationAddress.get().getShortAddress());
-            tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix), _addressBook.get(record.destinationAddress.get())));
-            tvDestAddress.setVisibility(View.VISIBLE);
-            tvAddressLabel.setVisibility(View.VISIBLE);
-         } else {
-            tvDestAddress.setVisibility(View.GONE);
-            tvAddressLabel.setVisibility(View.GONE);
-         }
-
-         // Show confirmations indicator
-         int confirmations = record.confirmations;
-         TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);
-         if (record.isQueuedOutgoing) {
-            // Outgoing, not broadcasted
-            tcdConfirmations.setNeedsBroadcast();
-         } else {
-            tcdConfirmations.setConfirmations(confirmations);
-         }
-
-         // Show label or confirmations
-         TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-         String label = _storage.getLabelByTransaction(record.txid);
-         if (label.length() == 0) {
-            // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
-            String confirmationsText;
-            if (record.isQueuedOutgoing) {
-               confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
-            } else {
-               if (confirmations > 6) {
-                  confirmationsText = _context.getResources().getString(R.string.confirmed);
-               } else {
-                  confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
-               }
-            }
-            tvLabel.setText(confirmationsText);
-         } else {
-            tvLabel.setText(label);
-         }
-
-
-         rowView.setTag(record);
          return rowView;
       }
    }

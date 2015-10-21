@@ -49,6 +49,7 @@ import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
@@ -56,6 +57,7 @@ import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.external.cashila.activity.BcdCodedSepaData;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -77,6 +79,7 @@ public class StringHandleConfig implements Serializable {
       request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.RETURN;
       request.bitcoinUriAction = BitcoinUriAction.RETURN;
       request.hdNodeAction = HdNodeAction.RETURN;
+      request.popAction = PopAction.SEND;
       return request;
    }
 
@@ -129,6 +132,7 @@ public class StringHandleConfig implements Serializable {
       request.sssShareAction = SssShareAction.START_COMBINING;
       request.wordListAction = WordListAction.COLD_SPENDING;
       request.hdNodeAction = HdNodeAction.SEND_PUB_SPEND_PRIV;
+      request.popAction = PopAction.SEND;
 
       //not supported so far, as this data lacks address informations
       //request.bcdSepaCodeAction = SepaAction.INIT_SEND;
@@ -864,6 +868,41 @@ public class StringHandleConfig implements Serializable {
       }
    }
 
+   public enum PopAction implements Action {
+
+      SEND {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!isBtcpopURI(content)) {
+               return false;
+            }
+            PopRequest popRequest;
+            try {
+               popRequest = new PopRequest(content);
+            } catch (IllegalArgumentException e) {
+               handlerActivity.finishError(R.string.pop_invalid_pop_uri, content);
+               return false;
+            }
+
+            Intent intent = new Intent(handlerActivity, PopActivity.class);
+            intent.putExtra("popRequest", popRequest);
+            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            handlerActivity.startActivity(intent);
+            handlerActivity.finishOk();
+            return true;
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return isBtcpopURI(content);
+         }
+
+         private boolean isBtcpopURI(String content) {
+            return content.startsWith("btcpop:");
+         }
+      }
+   }
+
    public Action privateKeyAction = Action.NONE;
    public Action bitcoinUriWithAddressAction = Action.NONE;
    public Action bitcoinUriAction = Action.NONE;
@@ -875,9 +914,10 @@ public class StringHandleConfig implements Serializable {
    public Action hdNodeAction = Action.NONE;
    public Action wordListAction = Action.NONE;
    public Action bcdSepaCodeAction = Action.NONE;
+   public Action popAction = Action.NONE;
 
    public List<Action> getAllActions() {
-      return ImmutableList.of(privateKeyAction, bitcoinUriWithAddressAction, bitcoinUriAction,
+      return ImmutableList.of(popAction, privateKeyAction, bitcoinUriWithAddressAction, bitcoinUriAction,
             addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
    }
 

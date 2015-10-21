@@ -569,6 +569,11 @@ public class CoinapultManager implements WalletAccount {
    }
 
    @Override
+   public StandardTransactionBuilder.UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
+      return null;
+   }
+
+   @Override
    public boolean isOwnExternalAddress(Address address) {
       return isMine(address);
    }
