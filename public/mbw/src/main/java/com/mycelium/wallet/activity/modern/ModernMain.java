@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -207,6 +206,7 @@ public class ModernMain extends ActionBarActivity {
       }
    }
 
+
    // controlling the behavior here is the safe but slightly slower responding
    // way of doing this.
    // controlling the visibility from the individual fragments is a bug-ridden
@@ -222,6 +222,7 @@ public class ModernMain extends ActionBarActivity {
       final boolean isRecords = tabIdx == 0;
       final boolean locked = _mbwManager.isKeyManagementLocked();
       Preconditions.checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isRecords && !locked);
+      Preconditions.checkNotNull(menu.findItem(R.id.miAddUsdAccount)).setVisible(isRecords && !locked && !_mbwManager.hasUsdAccount());
 
       // Lock menu
       final boolean hasPin = _mbwManager.isPinProtected();

@@ -60,7 +60,6 @@ import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
-import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -206,11 +205,9 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      private Context _context;
 
       public TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
-         super(context, transactions, TransactionHistoryFragment.this, _addressBook);
-         _context = context;
+         super(context, transactions, TransactionHistoryFragment.this, _addressBook, false);
       }
 
       @Override

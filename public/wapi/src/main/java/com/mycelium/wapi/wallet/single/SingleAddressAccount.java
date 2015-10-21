@@ -213,12 +213,6 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
-      // not needed for SingleAddressAccount
-      return true;
-   }
-
-   @Override
    public boolean isArchived() {
       // public method that needs no synchronization
       return _context.isArchived();
@@ -334,4 +328,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       return new Data(privKey, pubKey);
    }
 
+   @Override
+   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+      // not needed for SingleAddressAccount
+      return true;
+   }
 }

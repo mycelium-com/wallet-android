@@ -893,6 +893,9 @@ public class AccountsFragment extends Fragment {
       if (item.getItemId() == R.id.miAddRecord) {
          AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
          return true;
+      } else if (item.getItemId() == R.id.miAddUsdAccount) {
+         AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE, true);
+         return true;
       } else if (item.getItemId() == R.id.miLockKeys) {
          lock();
          return true;

@@ -49,13 +49,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.*;
@@ -119,9 +118,9 @@ public class SettingsActivity extends PreferenceActivity {
                   @Override
                   public void run() {
                      // toggle it here
-                     boolean checked = !((CheckBoxPreference)preference).isChecked();
+                     boolean checked = !((CheckBoxPreference) preference).isChecked();
                      _mbwManager.setPinRequiredOnStartup(checked);
-                     ((CheckBoxPreference)preference).setChecked(_mbwManager.getPinRequiredOnStartup());
+                     ((CheckBoxPreference) preference).setChecked(_mbwManager.getPinRequiredOnStartup());
                   }
                }
          );
@@ -177,56 +176,54 @@ public class SettingsActivity extends PreferenceActivity {
    };
 
    private final OnPreferenceClickListener onClickLedgerNotificationDisableTee = new OnPreferenceClickListener() {
-	   public boolean onPreferenceClick(Preference preference) {
-		   CheckBoxPreference p = (CheckBoxPreference) preference;
-		   _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
-		   return true;
-	   }
-   };   
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
+         return true;
+      }
+   };
 
    private final OnPreferenceClickListener onClickLedgerSetUnpluggedAID = new OnPreferenceClickListener() {
-	   private Button okButton;
-	   private EditText aidEdit;
-	   
-	   public boolean onPreferenceClick(Preference preference) {		   
-	        AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
-	         b.setTitle(getString(R.string.ledger_set_unplugged_aid_title));
-	         b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface dialog, int which) {
-	               byte[] aidBinary = null;
-	               String aid = aidEdit.getText().toString();
-	               try {
-	            	   aidBinary = HexUtils.toBytes(aid);
-	               }
-	               catch(Exception e) {	            	   
-	               }
-	               if (aidBinary == null) {
-	            	   Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.ledger_check_unplugged_aid));	            	   
-	               }
-	               else {
-	            	   _mbwManager.getLedgerManager().setUnpluggedAID(aid);
-	               }
-	            }
-	         });
-	         b.setNegativeButton(R.string.cancel, null);
+      private Button okButton;
+      private EditText aidEdit;
 
-	         aidEdit = new EditText(SettingsActivity.this); 
-	         aidEdit.setInputType(InputType.TYPE_CLASS_TEXT);
-	         aidEdit.setText(_mbwManager.getLedgerManager().getUnpluggedAID());
-	         LinearLayout llDialog = new LinearLayout(SettingsActivity.this);
-	         llDialog.setOrientation(LinearLayout.VERTICAL);
-	         llDialog.setPadding(10, 10, 10, 10);
-	         TextView tvInfo = new TextView(SettingsActivity.this);
-	         tvInfo.setText(getString(R.string.ledger_unplugged_aid));
-	         llDialog.addView(tvInfo);
-	         llDialog.addView(aidEdit);
-	         b.setView(llDialog);
-	         AlertDialog dialog = b.show();		   
-	         return true;
-	   }
-   };   
-      
+      public boolean onPreferenceClick(Preference preference) {
+         AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
+         b.setTitle(getString(R.string.ledger_set_unplugged_aid_title));
+         b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+               byte[] aidBinary = null;
+               String aid = aidEdit.getText().toString();
+               try {
+                  aidBinary = HexUtils.toBytes(aid);
+               } catch (Exception e) {
+               }
+               if (aidBinary == null) {
+                  Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.ledger_check_unplugged_aid));
+               } else {
+                  _mbwManager.getLedgerManager().setUnpluggedAID(aid);
+               }
+            }
+         });
+         b.setNegativeButton(R.string.cancel, null);
+
+         aidEdit = new EditText(SettingsActivity.this);
+         aidEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+         aidEdit.setText(_mbwManager.getLedgerManager().getUnpluggedAID());
+         LinearLayout llDialog = new LinearLayout(SettingsActivity.this);
+         llDialog.setOrientation(LinearLayout.VERTICAL);
+         llDialog.setPadding(10, 10, 10, 10);
+         TextView tvInfo = new TextView(SettingsActivity.this);
+         tvInfo.setText(getString(R.string.ledger_unplugged_aid));
+         llDialog.addView(tvInfo);
+         llDialog.addView(aidEdit);
+         b.setView(llDialog);
+         AlertDialog dialog = b.show();
+         return true;
+      }
+   };
+
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -462,7 +459,7 @@ public class SettingsActivity extends PreferenceActivity {
             return true;
          }
       });
-            
+
       _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
       _ledgerSetUnpluggedAID = (Preference) findPreference("ledgerUnpluggedAID");
 
@@ -471,9 +468,10 @@ public class SettingsActivity extends PreferenceActivity {
          _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
          _ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
       } else {
-	 getPreferenceScreen().removePreference(findPreference("ledgerDisableTee"));
+         PreferenceCategory ledger = (PreferenceCategory) findPreference("ledger");
+         ledger.removePreference(_ledgerDisableTee);
       }
-      
+
       _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
 
       applyLocalTraderEnablement();
@@ -510,7 +508,9 @@ public class SettingsActivity extends PreferenceActivity {
    private void showOrHideLegacyBackup() {
       List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       Preference legacyPref = findPreference("legacyBackup");
-      if (legacyPref == null) return; // it was already removed, don't remove it again.
+      if (legacyPref == null) {
+         return; // it was already removed, don't remove it again.
+      }
 
       PreferenceCategory legacyCat = (PreferenceCategory) findPreference("legacy");
       for (WalletAccount account : accounts) {
@@ -621,15 +621,15 @@ public class SettingsActivity extends PreferenceActivity {
             _mbwManager.getMinerFee().getNBlocks());
    }
 
-   private String getBlockExplorerTitle(){
+   private String getBlockExplorerTitle() {
       return getResources().getString(R.string.block_explorer_title,
             _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
    }
-   private String getBlockExplorerSummary(){
+
+   private String getBlockExplorerSummary() {
       return getResources().getString(R.string.block_explorer_summary,
             _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
    }
-
 
    @SuppressWarnings("deprecation")
    private void updateClearPin() {
@@ -655,7 +655,6 @@ public class SettingsActivity extends PreferenceActivity {
          super(new Handler());
       }
 
-
       @Override
       public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
@@ -667,7 +666,7 @@ public class SettingsActivity extends PreferenceActivity {
                String email = emailEdit.getText().toString();
                _ltManager.makeRequest(new SetNotificationMail(email));
 
-               if ((info.notificationEmail==null || !info.notificationEmail.equals(email)) && !Strings.isNullOrEmpty(email)) {
+               if ((info.notificationEmail == null || !info.notificationEmail.equals(email)) && !Strings.isNullOrEmpty(email)) {
                   Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.lt_email_please_verify_message));
                }
             }
@@ -681,7 +680,7 @@ public class SettingsActivity extends PreferenceActivity {
                super.onTextChanged(text, start, lengthBefore, lengthAfter);
                if (okButton != null) { //setText is also set before the alert is finished constructing
                   boolean validMail = Strings.isNullOrEmpty(text.toString()) || //allow empty email, this removes email notifications
-                                        Utils.isValidEmailAddress(text.toString());
+                        Utils.isValidEmailAddress(text.toString());
                   okButton.setEnabled(validMail);
                }
             }

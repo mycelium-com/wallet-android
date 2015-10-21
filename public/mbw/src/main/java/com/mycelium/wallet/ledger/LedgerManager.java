@@ -58,6 +58,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.CoinUtil;
@@ -448,9 +449,11 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    @Override
-   public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex) {
+   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath) {
       boolean isTEE = isTee();
-      String keyPath = "44'/" + getNetwork().getBip44CoinType().getLastIndex() + "'/" + accountIndex + "'";
+      // ledger needs it in the format "/44'/0'/0'" - our default toString format
+      // is with leading "m/" -> replace the "m" away
+      String keyPathString = keyPath.toString().replace("m/", "");
       if (isTEE) {
          // Check if the PIN has been terminated - in this case, reinitialize
          try {
@@ -475,7 +478,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       try {
          BTChipDongle.BTChipPublicKey publicKey;
          try {
-            publicKey = dongle.getWalletPublicKey(keyPath);
+            publicKey = dongle.getWalletPublicKey(keyPathString);
          } catch (BTChipException e) {
             if (isTEE && (e.getSW() == SW_CONDITIONS_NOT_SATISFIED)) {
                LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
@@ -504,7 +507,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   } catch (Exception ignore) {
                   }
                }
-               publicKey = dongle.getWalletPublicKey(keyPath);
+               publicKey = dongle.getWalletPublicKey(keyPathString);
             } else if (e.getSW() == SW_PIN_NEEDED) {
                //if (dongle.hasScreenSupport()) {
                if (isTEE) {
@@ -524,7 +527,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      } catch (Exception ignore) {
                      }
                   }
-                  publicKey = dongle.getWalletPublicKey(keyPath);
+                  publicKey = dongle.getWalletPublicKey(keyPathString);
                } else {
                   mainThreadHandler.post(new Runnable() {
                      @Override
@@ -544,7 +547,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      initialize();
                      Log.d(LOG_TAG, "Reinitialize transport done");
                      dongle.verifyPin(pin.getBytes());
-                     publicKey = dongle.getWalletPublicKey(keyPath);
+                     publicKey = dongle.getWalletPublicKey(keyPathString);
                   } catch (BTChipException e1) {
                      if ((e1.getSW() & 0xfff0) == SW_INVALID_PIN) {
                         postErrorMessage("Invalid PIN - " + (e1.getSW() - SW_INVALID_PIN) + " attempts remaining");
@@ -562,7 +565,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
          }
          PublicKey pubKey = new PublicKey(KeyUtils.compressPublicKey(publicKey.getPublicKey()));
-         HdKeyNode accountRootNode = new HdKeyNode(pubKey, publicKey.getChainCode(), 3, 0, accountIndex);
+         HdKeyNode accountRootNode = new HdKeyNode(pubKey, publicKey.getChainCode(), 3, 0, keyPath.getLastIndex());
          return Optional.of(accountRootNode);
       } catch (Exception e) {
          Log.d(LOG_TAG, "Generic error", e);

@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity.send;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -69,6 +70,10 @@ public class SendInitializationActivity extends Activity {
       intent.putExtra("isColdStorage", isColdStorage);
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
+   }
+
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
+      return prepareSendingIntent(currentActivity, account, (BitcoinUri)null, isColdStorage);
    }
 
    public static void callMeWithResult(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage, int request) {

@@ -42,8 +42,7 @@ import android.widget.AdapterView;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wallet.activity.util.MasterseedScanManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
@@ -52,26 +51,33 @@ import com.squareup.otto.Subscribe;
 
 public class InstantMasterseedActivity extends HdAccountSelectorActivity {
 
+   public static final String PASSWORD = "password";
+   public static final String WORDS = "words";
+   public static final String MASTERSEED = "masterseed";
    private Bip39.MasterSeed masterSeed;
    private String[] words;
+   private String password;
 
-   public static void callMe(Activity currentActivity, String[] masterSeedWords) {
+   // if password is null, the scan manager will ask the user for a password later on
+   public static void callMe(Activity currentActivity, String[] masterSeedWords, String password) {
       Intent intent = new Intent(currentActivity, InstantMasterseedActivity.class);
-      intent.putExtra("words", masterSeedWords);
+      intent.putExtra(WORDS, masterSeedWords);
+      intent.putExtra(PASSWORD, password);
       currentActivity.startActivity(intent);
    }
 
    public static void callMe(Activity currentActivity, int requestCode, Bip39.MasterSeed masterSeed) {
       Intent intent = new Intent(currentActivity, InstantMasterseedActivity.class);
-      intent.putExtra("masterseed", masterSeed);
+      intent.putExtra(MASTERSEED, masterSeed);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
-      masterSeed = (Bip39.MasterSeed) getIntent().getSerializableExtra("masterseed");
+      masterSeed = (Bip39.MasterSeed) getIntent().getSerializableExtra(MASTERSEED);
       if (masterSeed == null){
-         words = getIntent().getStringArrayExtra("words");
+         words = getIntent().getStringArrayExtra(WORDS);
+         password = getIntent().getStringExtra(PASSWORD);
       }
       super.onCreate(savedInstanceState);
    }
@@ -105,6 +111,7 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
                   this,
                   mbwManager.getNetwork(),
                   words,
+                  password,
                   mbwManager.getEventBus());
          }
       }
@@ -117,7 +124,7 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
          @Override
          public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
-            Intent intent = SendMainActivity.getIntent(InstantMasterseedActivity.this, item.id, true);
+            Intent intent = SendInitializationActivity.getIntent(InstantMasterseedActivity.this, item.id, true);
             InstantMasterseedActivity.this.startActivityForResult(intent, REQUEST_SEND);
          }
       };

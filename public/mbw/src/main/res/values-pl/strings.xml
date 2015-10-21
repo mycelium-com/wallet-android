@@ -180,7 +180,6 @@
   <string name="scan_qr_code">Skanuj kod QR</string>
   <string name="going_to_mycelium_com_help">Przechodzenie do www.mycelium.com</string>
   <string name="add_dialog_title">Dodaj adres</string>
-  <string name="add_key">Dodaj klucz</string>
   <string name="page_locked">Strona jest zablokowana</string>
   <string name="unlock_label">Odblokuj</string>
   <string name="lock_label">Zablokuj</string>
@@ -335,7 +334,6 @@
   <string name="version_check_failed">Nie można otrzymać informacji o wersji</string>
   <string name="version_uptodate">Twój portfel jest na bieżąco w wersji %s</string>
   <string name="update_check">Sprawdzanie aktualizacji</string>
-  <string name="ignore_update">Ignorowanie tej aktualizacji</string>
   <string name="get_from">Uzyskaj od</string>
   <string name="sign_message">Podpisz wiadomość</string>
   <string name="enter_message_hint">Wpisz wiadomość, którą chcesz zarejestrować tutaj</string>

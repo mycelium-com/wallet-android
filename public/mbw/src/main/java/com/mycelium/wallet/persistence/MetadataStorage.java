@@ -58,6 +58,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
    public static final String EMAIL = "email";
+   public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
 
    public MetadataStorage(Context context) {
       super(context);

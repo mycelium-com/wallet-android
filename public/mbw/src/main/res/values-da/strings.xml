@@ -163,7 +163,6 @@
   <string name="scan_qr_code">Skan QR Kode</string>
   <string name="going_to_mycelium_com_help">Gå til www.mycelium.com</string>
   <string name="add_dialog_title">Tilføj Adresse</string>
-  <string name="add_key">Tilføj Nøgle</string>
   <string name="page_locked">Denne side er låst</string>
   <string name="unlock_label">Lås op</string>
   <string name="lock_label">Lås</string>
@@ -193,7 +192,6 @@
   <string name="version_check_failed">Versions check fejlede</string>
   <string name="version_uptodate">Din wallet kører seneste version %s</string>
   <string name="update_check">Update Check</string>
-  <string name="ignore_update">Ignorer denne version</string>
   <string name="get_from">Hent Via</string>
   <string name="sign_message">Signer Besked</string>
   <string name="enter_message_hint">Skriv en besked som du vil signere</string>

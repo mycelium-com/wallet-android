@@ -38,13 +38,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
-import com.mycelium.wallet.LedgerPinDialog;
-import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.TrezorPinDialog;
-import com.mycelium.wallet.activity.send.SendMainActivity;
-import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.ledger.LedgerManager;
+import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.trezor.TrezorManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
@@ -67,7 +62,7 @@ public class InstantTrezorActivity extends TrezorAccountSelectorActivity {
          @Override
          public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
-            Intent intent = SendMainActivity.getIntent(InstantTrezorActivity.this, item.id, true);
+            Intent intent = SendInitializationActivity.getIntent(InstantTrezorActivity.this, item.id, true);
             InstantTrezorActivity.this.startActivityForResult(intent, REQUEST_SEND);
          }
       };

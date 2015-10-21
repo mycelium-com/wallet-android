@@ -48,17 +48,16 @@ import com.mrd.bitlib.util.Sha256Hash;
 // so the indirection via a signature and KeyRecovery is done
 public class MyceliumKeyRecovery implements BTChipKeyRecovery {
 
-	@Override
-	public byte[] recoverKey(int recId, byte[] signatureParam, byte[] hashValue) {
-	      Signature signature = Signatures.decodeSignatureParameters(new ByteReader(signatureParam));
-	      Sha256Hash hash = new Sha256Hash(hashValue);
-	      PublicKey key = SignedMessage.recoverFromSignature(recId, signature, hash, false);
-	      if (key != null) {
-	    	  return key.getPublicKeyBytes();
-	      }
-	      else {
-	    	  return null;
-	      }
-	}
-	
+   @Override
+   public byte[] recoverKey(int recId, byte[] signatureParam, byte[] hashValue) {
+      Signature signature = Signatures.decodeSignatureParameters(new ByteReader(signatureParam));
+      Sha256Hash hash = new Sha256Hash(hashValue);
+      PublicKey key = SignedMessage.recoverFromSignature(recId, signature, hash, false);
+      if (key != null) {
+         return key.getPublicKeyBytes();
+      } else {
+         return null;
+      }
+   }
+
 }

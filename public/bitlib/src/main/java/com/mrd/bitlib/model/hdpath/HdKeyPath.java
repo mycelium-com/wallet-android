@@ -21,6 +21,7 @@ public class HdKeyPath implements Serializable {
 
    public static final HdKeyPath ROOT = new HdKeyPath();
    public static final Bip44Purpose BIP44 = ROOT.getBip44Purpose();
+   public static final HdKeyPath BIP32_ROOT = ROOT.getHardenedChild(0);
    public static final Bip44CoinType BIP44_TESTNET = BIP44.getCoinTypeBitcoinTestnet();
    public static final Bip44CoinType BIP44_PRODNET = BIP44.getCoinTypeBitcoin();
 
@@ -42,7 +43,7 @@ public class HdKeyPath implements Serializable {
       if (!path.hasNext()) return this;
 
       String ak = path.next();
-      int index = Integer.valueOf(ak.replace(HARDENED_MARKER,""));
+      int index = Integer.valueOf(ak.replace(HARDENED_MARKER, ""));
 
       if (ak.endsWith(HARDENED_MARKER)){
          return this.getHardenedChild(index).getChild(path);
@@ -111,6 +112,7 @@ public class HdKeyPath implements Serializable {
       return new Bip44Purpose(this, UnsignedInteger.valueOf(44), true);
    }
 
+
    private int getValue(){
       return index.intValue() | (isHardened() ? 1<<31 : 0);
    }
@@ -154,8 +156,13 @@ public class HdKeyPath implements Serializable {
       return result;
    }
 
-   public int getLastIndex() {
+   // returns the raw index (including the hardened bit, if set) of the last path element
+   public int getLastRawIndex() {
       return getValue();
    }
 
+   // returns the index of the last path element
+   public int getLastIndex() {
+      return index.intValue();
+   }
 }

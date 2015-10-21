@@ -218,7 +218,6 @@
   <string name="scan_qr_code">QR コードをスキャンする</string>
   <string name="going_to_mycelium_com_help">www.mycelium.comに接続しています</string>
   <string name="add_dialog_title">アドレスの追加</string>
-  <string name="add_key">キーを追加します。</string>
   <string name="page_locked">このページはロックされました。</string>
   <string name="unlock_label">ロック解除</string>
   <string name="lock_label">ロック</string>
@@ -238,7 +237,6 @@
   <string name="source_repo_label">ソースリポジトリ</string>
   <string name="version_label">バージョン</string>
   <string name="authors_label">によって開発されました。</string>
-  <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
   <string name="homepage_label">ホームページ</string>
   <string name="homepage_url">https://mycelium.com</string>
   <string name="company">Megion Research &amp; Development GmbH</string>
@@ -430,7 +428,6 @@
   <string name="version_check_failed">バージョン情報を受け取ることができません。</string>
   <string name="version_uptodate">あなたのウォレットは最新のバージョン %s です。</string>
   <string name="update_check">更新プログラムのチェック</string>
-  <string name="ignore_update">この更新プログラムを無視します。</string>
   <string name="get_from">取得元</string>
   <string name="sign_message">メッセージの署名</string>
   <string name="cant_sign_message">サーバーから情報を取得中</string>
@@ -607,6 +604,8 @@
   <string name="trezor_unnamed">(ななし)</string>
   <string name="ledger_cold_storage_header">Ledger Wallet</string>
   <string name="ledger_import_account_caption">アカウントをインポート</string>
+  <string name="ledger_to">宛先:</string>
+  <string name="ledger_total">合計:</string>
   <string name="ledger">Ledger</string>
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="select_local_currencies">通貨を選択して下さい</string>

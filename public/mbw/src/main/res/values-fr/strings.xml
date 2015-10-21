@@ -218,7 +218,6 @@
   <string name="scan_qr_code">Numériser le code QR</string>
   <string name="going_to_mycelium_com_help">En route pour www.mycelium.com</string>
   <string name="add_dialog_title">Ajouter une adresse</string>
-  <string name="add_key">Ajouter une clé</string>
   <string name="page_locked">Cette page est verrouillée</string>
   <string name="unlock_label">Déverrouiller</string>
   <string name="lock_label">Verrouiller</string>
@@ -236,7 +235,6 @@
   <string name="source_repo_label">Code source</string>
   <string name="version_label">Version</string>
   <string name="authors_label">Développé par</string>
-  <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
   <string name="homepage_label">Page d\'accueil</string>
   <string name="homepage_url">https://mycelium.com</string>
   <string name="company">Megion Research &amp; Development GmbH</string>
@@ -421,7 +419,7 @@
   <string name="lt_set_email_info">Entrez votre adresse e-mail pour recevoir des notifications lorsqu\'il y a certaines activités sur votre compte de marchand local.</string>
   <string name="lt_set_email_error">Impossible de récupérer les informations du marchand depuis le serveur</string>
   <string name="lt_email_please_verify_message">Nous vous avons envoyé un e-mail de vérification - cliquez sur le lien fourni pour activer votre adresse de messagerie.</string>
-  <string name="lt_set_email_title">Entrez l\'adresse e-mail</string>
+  <string name="lt_set_email_title">Veuillez saisir l\'adresse e-mail</string>
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
   <string name="contains_keys">Contient %1$s clés privées.</string>
@@ -432,7 +430,6 @@
   <string name="version_check_failed">Impossible de recevoir l\'information de version</string>
   <string name="version_uptodate">Votre portefeuille est à jour avec la version %s</string>
   <string name="update_check">Vérification d\'une mise à jour</string>
-  <string name="ignore_update">Ignorer cette mise à jour</string>
   <string name="get_from">Obtenir de</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
@@ -685,7 +682,6 @@
   <string name="remove_queued_transaction_title">Transaction en attente</string>
   <string name="remove_queued_transaction_hint">Votre solde sera corrigé après la prochaine synchronisation avec le réseau</string>
   <string name="remove_queued_transaction_error">Impossible de supprimer la transaction</string>
-  <string name="createCoinapult">Création du compte Coinapult&#8230;</string>
   <string name="sendingViaCoinapult">Envoi de Bitcoins via Coinapult</string>
   <string name="AddCoinapultNotes">Un compte Coinapult vous permet de stocker de la valeur en dollars américains et de la dépenser instantanément à n\'importe quelle adresse bitcoin.
         Lorsque vous utilisez vos clés privées pour y accéder, elles sont sous le contrôle de Coinapult, à la différence de vos fonds sur des comptes HD normaux.</string>
@@ -769,6 +765,7 @@
   <string name="block_explorer_summary">Les détails de la transaction peuvent être consultés en utilisant l\'explorateur de blocs %1$s</string>
   <string name="lt_warning_wrong_account_type">Marchand Local ne fonctionne pas avec le type de compte sélectionné, veuillez sélectionner un autre compte.</string>
   <string name="lt_account_not_allowed">Le type de compte sélectionné ne fonctionne pas avec Marchand Local. Vous devez sélectionner un autre compte pour effectuer cet échange.</string>
+  <string name="coinapult_mail_hint">Entrez l\'adresse e-mail</string>
   <string name="coinapult_mail_description">Si vous fournissez votre adresse e-mail, vous pouvez déposer un ticket de support avec Coinapult en envoyant un email à support@coinapult.com depuis l\'e-mail que vous spécifiez.</string>
   <string name="coinapult_threshold_warning">Attention : Les comptes Coinapult ne peuvent pas traiter la conversion de transactions inférieures à 1,00 $ US en valeur. Si moins de 1 USD est envoyé à votre compte  Coinapult, la conversion échouera. Les bitcoins seront remboursables par l\'intermédiaire de Coinapult à support@coinapult.com.</string>
   <string name="amount_too_small_coinapult">Montant trop faible, le retrait minimal est de %1$s USD.</string>
@@ -785,4 +782,5 @@
   <string name="verify_coinapult_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
+  <string name="copy">Copier</string>
 </resources>

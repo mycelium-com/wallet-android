@@ -36,6 +36,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 
 import java.util.UUID;
 
@@ -48,9 +49,12 @@ public interface AccountScanManager {
 
    void forgetAccounts();
 
-   Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex);
+   Optional<HdKeyNode> getNextUnusedAccount();
+   Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath);
+   Optional<? extends HdKeyPath> getAccountPathToScan(Optional<? extends HdKeyPath> lastPath, boolean wasUsed);
 
    void setPassphrase(String passphrase);
+
 
    public enum Status{
       unableToScan, initializing, readyToScan
@@ -61,12 +65,12 @@ public interface AccountScanManager {
    }
 
    public class HdKeyNodeWrapper {
-      final public int accountIndex;
+      final public HdKeyPath keyPath;
       final public HdKeyNode accountRoot;
       final public UUID accountId;
 
-      public HdKeyNodeWrapper(int accountIndex, HdKeyNode accountRoot, UUID accountId) {
-         this.accountIndex = accountIndex;
+      public HdKeyNodeWrapper(HdKeyPath keyPath, HdKeyNode accountRoot, UUID accountId) {
+         this.keyPath = keyPath;
          this.accountRoot = accountRoot;
          this.accountId = accountId;
       }

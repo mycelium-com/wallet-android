@@ -45,6 +45,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.google.common.collect.Iterables;
 import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -68,6 +69,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected ArrayList<HdAccountWrapper> accounts = new ArrayList<HdAccountWrapper>();
    protected AccountsAdapter accountsAdapter;
    protected AbstractAccountScanManager masterseedScanManager;
+
 
 
    private ListView lvAccounts;
@@ -106,7 +108,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
             UUID id = masterseedScanManager.createOnTheFlyAccount(
                   account.accountRoot,
                   walletManager,
-                  account.accountIndex);
+                  account.keyPath.getLastIndex());
 
             Bip44Account tempAccount = (Bip44Account) walletManager.getAccount(id);
             tempAccount.synchronize(false);
@@ -197,7 +199,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
    protected class HdAccountWrapper implements Serializable {
       public UUID id;
-      public int accountIndex;
+      public HdKeyPath accountHdKeyPath;
       public HdKeyNode xPub;
       public String name;
 
@@ -274,8 +276,12 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    public void onAccountFound(AccountScanManager.OnAccountFound event){
       HdAccountWrapper acc = new HdAccountWrapper();
       acc.id = event.account.accountId;
-      acc.accountIndex = event.account.accountIndex;
-      acc.name = String.format(getString(R.string.account_number), event.account.accountIndex + 1);
+      acc.accountHdKeyPath = event.account.keyPath;
+      if (event.account.keyPath.equals(HdKeyPath.BIP32_ROOT)) {
+         acc.name = getString(R.string.bip32_root_account);
+      } else {
+         acc.name = String.format(getString(R.string.account_number), event.account.keyPath.getLastIndex() + 1);
+      }
       acc.xPub = event.account.accountRoot;
       if (!accounts.contains(acc)) {
          accountsAdapter.add(acc);

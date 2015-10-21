@@ -260,7 +260,7 @@ public class MbwManager {
       _walletManager.addObserver(_eventTranslator);
       _exchangeRateManager.subscribe(_eventTranslator);
       _coinapultManager = createCoinapultManager();
-      _walletManager.setExtraAccount(_coinapultManager);
+      setExtraAccount(_coinapultManager);
       migrateOldKeys();
       createTempWalletManager();
 
@@ -271,8 +271,13 @@ public class MbwManager {
                   _environment.getBlockExplorerList().get(0).getIdentifier()));
    }
 
+   public void setExtraAccount(Optional<CoinapultManager> coinapultManager) {
+      _walletManager.setExtraAccount(coinapultManager);
+      _hasUsdAccount = null;  // invalidate cache
+   }
+
    private Optional<CoinapultManager> createCoinapultManager() {
-      if (_walletManager.hasBip32MasterSeed() && _storage.isPairedService("coinapult")) {
+      if (_walletManager.hasBip32MasterSeed() && _storage.isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT)) {
          BitidKeyDerivation derivation = new BitidKeyDerivation() {
             @Override
             public InMemoryPrivateKey deriveKey(int accountIndex, String site) {
@@ -1210,5 +1215,13 @@ public class MbwManager {
 
    public void switchServer() {
       _environment.getWapiEndpoints().switchToNextEndpoint();
+   }
+
+   Boolean _hasUsdAccount = null;
+   public boolean hasUsdAccount() {
+      if (_hasUsdAccount == null){
+         _hasUsdAccount = getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT);
+      }
+      return _hasUsdAccount;
    }
 }

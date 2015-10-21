@@ -163,7 +163,6 @@
   <string name="scan_qr_code">סרוק קוד QR</string>
   <string name="going_to_mycelium_com_help">גולש לעמוד www.mycelium.com</string>
   <string name="add_dialog_title">הוסף כתובת</string>
-  <string name="add_key">הוסף מפתח</string>
   <string name="page_locked">עמוד זה נעול</string>
   <string name="unlock_label">פתח נעילה</string>
   <string name="lock_label">נעל</string>
@@ -193,7 +192,6 @@
   <string name="version_check_failed">אין אפשרות לקבל מידע אודות גירסא</string>
   <string name="version_uptodate">הארנק שלך מעודכן עם גירסה %s</string>
   <string name="update_check">בדוק עדכונים</string>
-  <string name="ignore_update">התעלם מעדכון זה</string>
   <string name="get_from">מקור עדכון</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>

@@ -225,7 +225,8 @@
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="going_to_mycelium_com_help">Going to www.mycelium.com</string>
     <string name="add_dialog_title">Add Address</string>
-    <string name="add_key">Add Key</string>
+    <string name="add_key">Add Account</string>
+    <string name="add_usd_key">Add USD Account</string>
     <string name="page_locked">This page is locked</string>
     <string name="unlock_label">Unlock</string>
     <string name="lock_label">Lock</string>
@@ -244,7 +245,6 @@
     <string name="source_repo_label">Source Repository</string>
     <string name="version_label">Version</string>
     <string name="authors_label">Developed by</string>
-    <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
     <string name="homepage_label">Homepage</string>
     <string name="homepage_url">https://mycelium.com</string>
     <string name="company">Megion Research &amp; Development GmbH</string>
@@ -444,7 +444,7 @@
     <string name="version_check_failed">Unable to receive Version information</string>
     <string name="version_uptodate">Your Wallet is up to date with version %s</string>
     <string name="update_check">Update check</string>
-    <string name="ignore_update">Ignore this update</string>
+    <string name="ignore_update">I will update later</string>
     <string name="get_from">Get from</string>
     <string name="mycelium_com">mycelium.com</string>
     <string name="google_play">Google Play</string>
@@ -715,7 +715,7 @@
     <string name="remove_queued_transaction_title">Queued Transaction</string>
     <string name="remove_queued_transaction_hint">Your balance will be corrected after the next synchronisation with the network</string>
     <string name="remove_queued_transaction_error">Unable to remove transaction</string>
-    <string name="createCoinapult">Creating Coinapult Account…</string>
+    <string name="createCoinapult">Creating Coinapult account…</string>
     <string name="sendingViaCoinapult">Sending Bitcoins via Coinapult</string>
     <string name="AddCoinapultNotes">A Coinapult account allows you to store value in USD and spend instantly to any bitcoin address.
         While you use your private keys to access it, they are under control by Coinapult, unlike your funds on normal HD accounts.</string>
@@ -824,10 +824,14 @@
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
+    <string name="masterseed">Masterseed</string>
+    <string name="bip32_root_account">Root Account</string>
 
     <string name="pop_invalid_pop_uri">Invalid pop request URI</string>
+    <string name="pop_amount_title">Amount paid</string>
+    <string name="pop_date">Time/Date</string>
     <string name="pop_send_pop_to">Prove to</string>
-    <string name="pop_transaction_info">Transaction information</string>
+    <string name="pop_transaction_info">Prove Payment</string>
     <string name="pop_transaction_id">Hash</string>
     <string name="pop_transaction_amount">Amount</string>
     <string name="pop_transaction_label">Label</string>
@@ -841,7 +845,6 @@
     <string name="pop_matching_transactions">Matching transactions</string>
     <string name="pop_non_matching_transactions">Other transactions</string>
     <string name="pop_success">Proof was successful</string>
-    <string name="pop_no_matching_transactions">No transactions matching the PoP request were found. You may select a
-        non-matching transaction.
-    </string>
+    <string name="pop_no_matching_transactions">No transactions matching the PoP request were found. You may select a non-matching transaction.</string>
+    <string name="pop_transaction_info_advice">Check payment information to prove below</string>
 </resources>

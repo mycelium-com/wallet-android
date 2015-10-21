@@ -60,10 +60,23 @@ import java.util.List;
 import java.util.UUID;
 
 public class EnterWordListActivity extends ActionBarActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
+   private static final String ONLY_SEED = "onlySeed";
+   public static final String MASTERSEED = "masterseed";
+   public static final String PASSWORD = "password";
+
+   private boolean _seedOnly;
 
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, EnterWordListActivity.class);
+      intent.putExtra(ONLY_SEED, false);
+      activity.startActivityForResult(intent, requestCode);
+   }
+
+   // only return the masterseed as string, dont try to create a new account based on it
+   public static void callMe(Activity activity, int requestCode, boolean returnMasterseedOnly) {
+      Intent intent = new Intent(activity, EnterWordListActivity.class);
+      intent.putExtra(ONLY_SEED, returnMasterseedOnly);
       activity.startActivityForResult(intent, requestCode);
    }
 
@@ -93,7 +106,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
       UsKeyboardFragment keyboard = (UsKeyboardFragment) getSupportFragmentManager().findFragmentById(R.id.usKeyboard);
       keyboard.setListener(_wordAutoCompleter);
       currentWordNum = 1;
-
+      _seedOnly = getIntent().getBooleanExtra(ONLY_SEED, false);
 
       if (savedInstanceState == null) {
          //only ask if we are not recreating the activity, because of rotation for example
@@ -221,11 +234,19 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
    }
 
    private void calculateSeed(String password) {
-      _progress.setCancelable(false);
-      _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      _progress.setMessage(getString(R.string.importing_master_seed_from_wordlist));
-      _progress.show();
-      new MasterSeedFromWordsAsyncTask(_mbwManager.getEventBus(), enteredWords, password).execute();
+      if (_seedOnly){
+         Intent result = new Intent();
+         result.putStringArrayListExtra(MASTERSEED, new ArrayList<String>(enteredWords));
+         result.putExtra(PASSWORD, password);
+         setResult(RESULT_OK, result);
+         finish();
+      } else {
+         _progress.setCancelable(false);
+         _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+         _progress.setMessage(getString(R.string.importing_master_seed_from_wordlist));
+         _progress.show();
+         new MasterSeedFromWordsAsyncTask(_mbwManager.getEventBus(), enteredWords, password).execute();
+      }
    }
 
 

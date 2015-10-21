@@ -163,7 +163,6 @@
   <string name="scan_qr_code">Skenuj QR kód</string>
   <string name="going_to_mycelium_com_help">Ísť na www.mycelium.com</string>
   <string name="add_dialog_title">Pridať Adresu</string>
-  <string name="add_key">Pridať Kľúč</string>
   <string name="page_locked">Táto stránka je zamknutá</string>
   <string name="unlock_label">Odomknúť</string>
   <string name="lock_label">Uzamknúť</string>
@@ -211,7 +210,6 @@
   <string name="version_check_failed">Nemôžem získat informácie o Verzii</string>
   <string name="version_uptodate">Vaša Peňaženka je aktuálna s verziou %s</string>
   <string name="update_check">Skontrolovať Aktualizácie</string>
-  <string name="ignore_update">Ignoruj túto Aktualizáciu</string>
   <string name="get_from">Získať z</string>
   <string name="sign_message">Podpísať Správu</string>
   <string name="enter_message_hint">Prosím vložte správu, ktorú chcete podpísať sem</string>

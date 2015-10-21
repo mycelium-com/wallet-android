@@ -44,16 +44,17 @@ import android.view.WindowManager;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
-import com.mycelium.wallet.activity.ScanActivity;
-import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.activity.*;
 import com.mycelium.wallet.trezor.activity.InstantTrezorActivity;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class InstantWalletActivity extends Activity {
 
    public static final int REQUEST_SCAN = 0;
    private static final int REQUEST_TREZOR = 1;
+   private static final int IMPORT_WORDLIST = 2;
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, InstantWalletActivity.class);
@@ -73,10 +74,15 @@ public class InstantWalletActivity extends Activity {
       findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View arg0) {
-            Intent intent = StringHandlerActivity.getIntent(InstantWalletActivity.this,
-                  StringHandleConfig.spendFromColdStorage(),
-                  Utils.getClipboardString(InstantWalletActivity.this));
-            InstantWalletActivity.this.startActivityForResult(intent, REQUEST_SCAN);
+            handleString(Utils.getClipboardString(InstantWalletActivity.this));
+         }
+      });
+
+      findViewById(R.id.btMasterseed).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View arg0) {
+            EnterWordListActivity.callMe(InstantWalletActivity.this, IMPORT_WORDLIST, true);
          }
       });
 
@@ -94,6 +100,13 @@ public class InstantWalletActivity extends Activity {
             InstantTrezorActivity.callMe(InstantWalletActivity.this, REQUEST_TREZOR);
          }
       });
+   }
+
+   private void handleString(String str) {
+      Intent intent = StringHandlerActivity.getIntent(InstantWalletActivity.this,
+            StringHandleConfig.spendFromColdStorage(),
+            str);
+      InstantWalletActivity.this.startActivityForResult(intent, REQUEST_SCAN);
    }
 
    @Override
@@ -122,6 +135,13 @@ public class InstantWalletActivity extends Activity {
       } else if (requestCode == REQUEST_TREZOR){
          if (resultCode == RESULT_OK) {
             finish();
+         }
+      } else if (requestCode == IMPORT_WORDLIST){
+         if (resultCode == RESULT_OK) {
+            ArrayList<String> wordList = intent.getStringArrayListExtra(EnterWordListActivity.MASTERSEED);
+            String password = intent.getStringExtra(EnterWordListActivity.PASSWORD);
+            InstantMasterseedActivity.callMe(this, wordList.toArray(new String[wordList.size()]), password);
+
          }
       } else {
          throw new IllegalStateException("unknown return codes after scanning... " + requestCode + " " + resultCode);

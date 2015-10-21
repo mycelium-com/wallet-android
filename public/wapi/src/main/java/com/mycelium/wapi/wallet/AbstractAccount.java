@@ -206,7 +206,7 @@ public abstract class AbstractAccount implements WalletAccount {
             // we need to fetch associated transactions, to see the outgoing tx in the history
             ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(l.script);
             if (scriptOutput != null){
-            Address address = scriptOutput.getAddress(_network);
+               Address address = scriptOutput.getAddress(_network);
                if (!address.equals(Address.getNullAddress(_network))){
                   addressesToDiscover.add(address);
                }
@@ -269,6 +269,8 @@ public abstract class AbstractAccount implements WalletAccount {
 
       return true;
    }
+
+   protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
 
    protected static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
       Map<OutPoint, TransactionOutputEx> map = new HashMap<OutPoint, TransactionOutputEx>();
@@ -794,8 +796,6 @@ public abstract class AbstractAccount implements WalletAccount {
       }
       return list;
    }
-
-   protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
 
    protected abstract Address getChangeAddress();
 

@@ -37,16 +37,15 @@ package com.mycelium.wallet.activity.pop;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.TransactionArrayAdapter;
@@ -58,118 +57,190 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PopSelectTransactionActivity extends FragmentActivity {
-    private PopRequest popRequest;
-    private MbwManager mbwManager;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.pop_select_transaction_activity);
+public class PopSelectTransactionActivity extends ActionBarActivity implements ActionBar.TabListener {
+   private PopRequest popRequest;
+   private MbwManager mbwManager;
+   private ViewPager viewPager;
 
-        PopRequest popRequest = (PopRequest) getIntent().getSerializableExtra("popRequest");
-        if (popRequest == null) {
-            finish();
-        }
-        this.popRequest = popRequest;
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.pop_select_transaction_activity);
+
+      PopRequest popRequest = (PopRequest) getIntent().getSerializableExtra("popRequest");
+      if (popRequest == null) {
+         finish();
+      }
+      this.popRequest = popRequest;
 
 
-        mbwManager = MbwManager.getInstance(getApplicationContext());
-        WalletAccount account = mbwManager.getSelectedAccount();
-        if (account.isArchived()) {
-            return;
-        }
-        HistoryPagerAdapter pagerAdapter = new HistoryPagerAdapter(getSupportFragmentManager());
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(pagerAdapter);
+      mbwManager = MbwManager.getInstance(getApplicationContext());
+      WalletAccount account = mbwManager.getSelectedAccount();
+      if (account.isArchived()) {
+         return;
+      }
+      // Set up the action bar.
+      final ActionBar actionBar = getSupportActionBar();
+      actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-    }
+      viewPager = (ViewPager) findViewById(R.id.pager);
+      HistoryPagerAdapter pagerAdapter = new HistoryPagerAdapter(getSupportFragmentManager());
+      viewPager.setAdapter(pagerAdapter);
 
-    public class HistoryPagerAdapter extends FragmentPagerAdapter {
+      // When swiping between different sections, select the corresponding
+      // tab. We can also use ActionBar.Tab#select() to do this if we have
+      // a reference to the Tab.
+      viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+         @Override
+         public void onPageSelected(int position) {
+            actionBar.setSelectedNavigationItem(position);
+            // Hide the keyboard.
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(viewPager.getWindowToken(), 0);
+         }
+      });
 
-        private ListFragment matchingTransactionsFragment = null;
-        private ListFragment nonMatchingTransactionsFragment = null;
 
-        public HistoryPagerAdapter(FragmentManager fm) {
-            super(fm);
+      actionBar.addTab(
+            actionBar.newTab()
+                  .setText(getString(R.string.pop_matching_transactions).toUpperCase())
+                  .setTabListener(this));
 
-            WalletAccount account = mbwManager.getSelectedAccount();
+      actionBar.addTab(
+            actionBar.newTab()
+                  .setText(getString(R.string.pop_non_matching_transactions).toUpperCase())
+                  .setTabListener(this));
 
-            List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
-            List<TransactionSummary> matchingTransactions = new ArrayList<TransactionSummary>();
-            List<TransactionSummary> nonMatchingTransactions = new ArrayList<TransactionSummary>();
+   }
 
-            for (TransactionSummary transactionSummary : history) {
-                if (transactionSummary.value >= 0L) {
-                    // We are only interested in payments
-                    continue;
-                }
-                if (PopUtils.matches(popRequest, mbwManager.getMetadataStorage(), transactionSummary)) {
-                    matchingTransactions.add(transactionSummary);
-                } else {
-                    nonMatchingTransactions.add(transactionSummary);
-                }
+   @Override
+   public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+      // When the given tab is selected, switch to the corresponding page in
+      // the ViewPager.
+      viewPager.setCurrentItem(tab.getPosition());
+   }
+
+   @Override
+   public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+
+   }
+
+   @Override
+   public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+
+   }
+
+   public class HistoryPagerAdapter extends FragmentPagerAdapter {
+
+      private ListFragment matchingTransactionsFragment = null;
+      private ListFragment nonMatchingTransactionsFragment = null;
+
+      public HistoryPagerAdapter(FragmentManager fm) {
+         super(fm);
+      }
+
+      @Override
+      public Fragment getItem(int i) {
+         switch (i) {
+            case 0:
+               return TransactionListFragment.init(popRequest, true);
+            case 1:
+               return TransactionListFragment.init(popRequest, false);
+            default:
+               throw new RuntimeException("Unknown fragment id " + i);
+         }
+      }
+
+      @Override
+      public int getCount() {
+         return 2;
+      }
+
+      /*@Override
+      public CharSequence getPageTitle(int position) {
+         return getString(position == 0 ? R.string.pop_matching_transactions : R.string.pop_non_matching_transactions);
+      }*/
+   }
+
+   public static class TransactionListFragment extends ListFragment {
+      private PopRequest popRequest;
+      private TransactionHistoryAdapter transactionHistoryAdapter;
+
+      static TransactionListFragment init(PopRequest popRequest, boolean showMatching) {
+         TransactionListFragment list = new TransactionListFragment();
+
+         Bundle args = new Bundle();
+         args.putSerializable("pop", popRequest);
+         args.putBoolean("match", showMatching);
+         list.setArguments(args);
+
+         return list;
+      }
+
+
+      @Override
+      public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         popRequest = (PopRequest) getArguments().getSerializable("pop");
+         boolean showMatching = getArguments().getBoolean("match");
+
+         MbwManager mbwManager = MbwManager.getInstance(getActivity());
+         WalletAccount account = mbwManager.getSelectedAccount();
+
+         List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
+         List<TransactionSummary> list = new ArrayList<TransactionSummary>();
+
+         for (TransactionSummary transactionSummary : history) {
+            if (transactionSummary.value >= 0L) {
+               // We are only interested in payments
+               continue;
             }
-
-            Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
-
-            matchingTransactionsFragment = new ListFragment() {
-                @Override
-                public void onViewCreated(View view, Bundle savedInstanceState) {
-                    super.onViewCreated(view, savedInstanceState);
-                    setEmptyText(getText(R.string.pop_no_matching_transactions));
-                }
-            };
-            matchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(PopSelectTransactionActivity.this, matchingTransactions, addressBook));
-
-            nonMatchingTransactionsFragment = new ListFragment();
-            nonMatchingTransactionsFragment.setListAdapter(new TransactionHistoryAdapter(PopSelectTransactionActivity.this, nonMatchingTransactions, addressBook));
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            switch (i) {
-                case 0:
-                    return matchingTransactionsFragment;
-                case 1:
-                    return nonMatchingTransactionsFragment;
-                default:
-                    throw new RuntimeException("Unknown fragemt id " + i);
+            if (PopUtils.matches(popRequest, mbwManager.getMetadataStorage(), transactionSummary) == showMatching) {
+               list.add(transactionSummary);
             }
-        }
+         }
 
-        @Override
-        public int getCount() {
-            return 2;
-        }
+         Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
+         transactionHistoryAdapter = new TransactionHistoryAdapter(getActivity(), list, addressBook);
+      }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return getString(position == 0 ? R.string.pop_matching_transactions : R.string.pop_non_matching_transactions);
-        }
-    }
+      @Override
+      public void onViewCreated(View view, Bundle savedInstanceState) {
+         super.onViewCreated(view, savedInstanceState);
+         setEmptyText(getText(R.string.pop_no_matching_transactions));
+         setListShown(true);
+      }
 
-    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
+      @Override
+      public void onActivityCreated(Bundle savedInstanceState) {
+         super.onActivityCreated(savedInstanceState);
+         setListAdapter(transactionHistoryAdapter);
+      }
+   }
 
-        public TransactionHistoryAdapter(Context context, List<TransactionSummary> objects, Map<Address, String> addressBook) {
-            super(context, objects, addressBook);
-        }
+   public static class TransactionHistoryAdapter extends TransactionArrayAdapter {
 
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent signPopIntent = new Intent(PopSelectTransactionActivity.this, PopActivity.class);
-                    signPopIntent.putExtra("popRequest", popRequest);
-                    signPopIntent.putExtra("selectedTransactionToProve", getItem(position).txid);
-                    startActivity(signPopIntent);
-                    finish();
-                }
-            });
-            return view;
-        }
-    }
+      public TransactionHistoryAdapter(Context context, List<TransactionSummary> objects, Map<Address, String> addressBook) {
+         super(context, objects, addressBook);
+      }
 
+      @Override
+      public View getView(final int position, View convertView, ViewGroup parent) {
+         View view = super.getView(position, convertView, parent);
+         view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               ((PopSelectTransactionActivity) getContext()).onTxClick(getItem(position).txid);
+            }
+         });
+         return view;
+      }
+   }
+
+   protected void onTxClick(Sha256Hash txid) {
+      Intent signPopIntent = new Intent(PopSelectTransactionActivity.this, PopActivity.class);
+      signPopIntent.putExtra("popRequest", popRequest);
+      signPopIntent.putExtra("selectedTransactionToProve", txid);
+      startActivity(signPopIntent);
+      finish();
+   }
 }

@@ -62,11 +62,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import com.squareup.okhttp.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -76,273 +72,274 @@ import java.util.Date;
 import java.util.List;
 
 public class PopActivity extends Activity {
-    private PopRequest popRequest;
-    private MbwManager _mbwManager;
-    private Sha256Hash txidToProve;
-    private static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
+   private PopRequest popRequest;
+   private MbwManager _mbwManager;
+   private Sha256Hash txidToProve;
+   private static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.pop_activity);
-        _mbwManager = MbwManager.getInstance(getApplication());
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+      this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.pop_activity);
+      _mbwManager = MbwManager.getInstance(getApplication());
 
-        if (savedInstanceState != null) {
-            popRequest = (PopRequest)savedInstanceState.getSerializable("popRequest");
-            txidToProve = (Sha256Hash)savedInstanceState.getSerializable("txidToProve");
-            updateUi(_mbwManager.getSelectedAccount().getTransactionSummary(txidToProve));
+      if (savedInstanceState != null) {
+         popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
+         txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
+         updateUi(_mbwManager.getSelectedAccount().getTransactionSummary(txidToProve));
+         return;
+      }
+
+      popRequest = (PopRequest) getIntent().getSerializableExtra("popRequest");
+      if (popRequest == null) {
+         finish();
+      }
+
+      Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
+      TransactionSummary txToProve;
+      if (userSelectedTransaction != null) {
+         txidToProve = userSelectedTransaction;
+         txToProve = _mbwManager.getSelectedAccount().getTransactionSummary(txidToProve);
+      } else {
+         // Get history ordered by block height descending
+         List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
+         TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
+         if (matchingTransaction == null) {
+            launchSelectTransactionActivity();
             return;
-        }
+         }
+         txidToProve = matchingTransaction.txid;
+         txToProve = matchingTransaction;
+      }
 
-        popRequest = (PopRequest)getIntent().getSerializableExtra("popRequest");
-        if (popRequest == null) {
-            finish();
-        }
+      updateUi(txToProve);
+   }
 
-        Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
-        TransactionSummary txToProve;
-        if (userSelectedTransaction != null) {
-            txidToProve = userSelectedTransaction;
-            txToProve = _mbwManager.getSelectedAccount().getTransactionSummary(txidToProve);
-        } else {
-            // Get history ordered by block height descending
-            List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
-            TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
-            if (matchingTransaction == null) {
-                launchSelectTransactionActivity();
-                return;
+   private void launchSelectTransactionActivity() {
+      Intent intent = new Intent(this, PopSelectTransactionActivity.class);
+      intent.putExtra("popRequest", popRequest);
+      startActivity(intent);
+      finish();
+   }
+
+   private TransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<TransactionSummary> transactions) {
+      MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
+      for (TransactionSummary transactionSummary : transactions) {
+         if (PopUtils.matches(popRequest, metadataStorage, transactionSummary)) {
+            return transactionSummary;
+         }
+      }
+      return null;
+   }
+
+   private void setText(int viewId, String value) {
+      TextView textView = (TextView) findViewById(viewId);
+      textView.setText(value);
+   }
+
+   private long getFee(TransactionDetails tx) {
+      long inputs = sum(tx.inputs);
+      long outputs = sum(tx.outputs);
+      return inputs - outputs;
+   }
+
+   private long sum(TransactionDetails.Item[] items) {
+      long sum = 0;
+      for (TransactionDetails.Item item : items) {
+         sum += item.value;
+      }
+      return sum;
+   }
+
+   private void updateUi(TransactionSummary transactionSummary) {
+      MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
+
+      // Set Date
+      Date date = new Date(transactionSummary.time * 1000L);
+      DateFormat dateFormat = new AdaptiveDateFormat(getApplicationContext());
+      setText(R.id.pop_transaction_date, dateFormat.format(date));
+
+      // Set amount
+      long amountSatoshis = getPaymentAmountSatoshis(transactionSummary);
+      String value = _mbwManager.getBtcValueString(amountSatoshis);
+      String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(amountSatoshis, true);
+      String fiatAppendment = "";
+      if (!Strings.isNullOrEmpty(fiatValue)) {
+         fiatAppendment = " (" + fiatValue + ")";
+      }
+      setText(R.id.pop_transaction_amount, value + fiatAppendment);
+
+      // Set label
+      String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
+      setText(R.id.pop_transaction_label, label);
+
+      URL url = getUrl(popRequest.getP());
+      if (url == null) {
+         Toast.makeText(this, "Invalid URL:" + popRequest.getP(), Toast.LENGTH_LONG).show();
+         finish();
+         return;
+      }
+
+      TextView textView = (TextView) findViewById(R.id.pop_recipient_host);
+      textView.setText(url.getHost());
+      String protocol = url.getProtocol();
+      if ("https".equals(protocol)) {
+         textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.holo_dark_ic_action_secure, 0, 0, 0);
+      } else if ("http".equals(protocol)) {
+         textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+      } else {
+         Toast.makeText(this, "Unsupported protocol:" + url.getProtocol(), Toast.LENGTH_LONG).show();
+         finish();
+      }
+   }
+
+   private URL getUrl(String pParam) {
+      URL url;
+      try {
+         url = new URL(pParam);
+      } catch (MalformedURLException e) {
+         Toast.makeText(this, "Not a proper destination URL:" + pParam, Toast.LENGTH_LONG).show();
+         finish();
+         return null;
+      }
+      return url;
+   }
+
+   private long getPaymentAmountSatoshis(TransactionSummary transactionSummary) {
+      long amountSatoshis = transactionSummary.value;
+      if (amountSatoshis < 0) {
+         amountSatoshis = -amountSatoshis;
+      }
+      TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transactionSummary.txid);
+      amountSatoshis -= getFee(transactionDetails);
+      return amountSatoshis;
+   }
+
+   @Override
+   public void onSaveInstanceState(Bundle savedInstanceState) {
+      super.onSaveInstanceState(savedInstanceState);
+      savedInstanceState.putSerializable("popRequest", popRequest);
+      savedInstanceState.putSerializable("txidToProve", txidToProve);
+   }
+
+
+   public void sendPop(View view) {
+      try {
+         if (txidToProve == null) {
+            Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
+         }
+         WalletAccount account = _mbwManager.getSelectedAccount();
+
+         final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
+
+         _mbwManager.runPinProtectedFunction(PopActivity.this, new Runnable() {
+
+            @Override
+            public void run() {
+               disableButtons();
+               SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
+                     false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
             }
-            txidToProve = matchingTransaction.txid;
-            txToProve = matchingTransaction;
-        }
+         });
+      } catch (Exception e) {
+         Toast.makeText(this, "An internal error occurred:" + e.getMessage(), Toast.LENGTH_LONG).show();
+      }
+   }
 
-        updateUi(txToProve);
-    }
+   public void selectOtherTransaction(View view) {
+      launchSelectTransactionActivity();
+   }
 
-    private void launchSelectTransactionActivity() {
-        Intent intent = new Intent(this, PopSelectTransactionActivity.class);
-        intent.putExtra("popRequest", popRequest);
-        startActivity(intent);
-        finish();
-    }
+   private void disableButtons() {
+      findViewById(R.id.btSend).setEnabled(false);
+      findViewById(R.id.btSelectOther).setEnabled(false);
+   }
 
-    private TransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<TransactionSummary> transactions) {
-        MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-        for (TransactionSummary transactionSummary : transactions) {
-            if (PopUtils.matches(popRequest, metadataStorage, transactionSummary)) {
-                return transactionSummary;
-            }
-        }
-        return null;
-    }
-
-    private void setText(int viewId, String value) {
-        TextView textView = (TextView) findViewById(viewId);
-        textView.setText(value);
-    }
-
-    private long getFee(TransactionDetails tx) {
-        long inputs = sum(tx.inputs);
-        long outputs = sum(tx.outputs);
-        return inputs - outputs;
-    }
-
-    private long sum(TransactionDetails.Item[] items) {
-        long sum = 0;
-        for (TransactionDetails.Item item : items) {
-            sum += item.value;
-        }
-        return sum;
-    }
-
-    private void updateUi(TransactionSummary transactionSummary) {
-        MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-
-        // Set Date
-        Date date = new Date(transactionSummary.time * 1000L);
-        DateFormat dateFormat = new AdaptiveDateFormat(getApplicationContext());
-        setText(R.id.pop_transaction_date, dateFormat.format(date));
-
-        // Set amount
-        long amountSatoshis = getPaymentAmountSatoshis(transactionSummary);
-        String value = _mbwManager.getBtcValueString(amountSatoshis);
-        String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(amountSatoshis, true);
-        String fiatAppendment = "";
-        if (!Strings.isNullOrEmpty(fiatValue)) {
-            fiatAppendment = " (" + fiatValue + ")";
-        }
-        setText(R.id.pop_transaction_amount, value + fiatAppendment);
-
-        // Set label
-        String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
-        setText(R.id.pop_transaction_label, label);
-
-        URL url = getUrl(popRequest.getP());
-        if (url == null) {
-            Toast.makeText(this, "Invalid URL:" + popRequest.getP(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
-        TextView textView = (TextView) findViewById(R.id.pop_recipient_host);
-        textView.setText(url.getHost());
-        String protocol = url.getProtocol();
-        if ("https".equals(protocol)) {
-            textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.holo_dark_ic_action_secure, 0, 0, 0);
-        } else if ("http".equals(protocol)) {
-            textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else {
-            Toast.makeText(this, "Unsupported protocol:" + url.getProtocol(), Toast.LENGTH_LONG).show();
-            finish();
-        }
-    }
-
-    private URL getUrl(String pParam) {
-        URL url;
-        try {
-            url = new URL(pParam);
-        } catch (MalformedURLException e) {
-            Toast.makeText(this, "Not a proper destination URL:" + pParam, Toast.LENGTH_LONG).show();
-            finish();
-            return null;
-        }
-        return url;
-    }
-
-    private long getPaymentAmountSatoshis(TransactionSummary transactionSummary) {
-        long amountSatoshis = transactionSummary.value;
-        if (amountSatoshis < 0) {
-            amountSatoshis = -amountSatoshis;
-        }
-        TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transactionSummary.txid);
-        amountSatoshis -= getFee(transactionDetails);
-        return amountSatoshis;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putSerializable("popRequest", popRequest);
-        savedInstanceState.putSerializable("txidToProve", txidToProve);
-    }
-
-
-    public void sendPop(View view) {
-        try {
-            if (txidToProve == null) {
-                Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
-            }
-            WalletAccount account = _mbwManager.getSelectedAccount();
-
-            final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
-
-            _mbwManager.runPinProtectedFunction(PopActivity.this, new Runnable() {
-
-                @Override
-                public void run() {
-                    disableButtons();
-                    SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
-                            false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
-                }
-            });
-        } catch (Exception e) {
-            Toast.makeText(this, "An internal error occurred:" + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void selectOtherTransaction(View view) {
-        launchSelectTransactionActivity();
-    }
-
-    private void disableButtons() {
-        findViewById(R.id.btSend).setEnabled(false);
-        findViewById(R.id.btSelectOther).setEnabled(false);
-    }
-
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-        if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Transaction pop = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-                ConnectivityManager connMgr = (ConnectivityManager)
-                        getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                if (networkInfo != null && networkInfo.isConnected()) {
-                    new SendPopTask().execute(pop);
-                } else {
-                    Toast.makeText(this, "No network available", Toast.LENGTH_LONG).show();
-                }
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
-    }
-
-    private class SendPopTask extends AsyncTask<Transaction, Void, String> {
-        @Override
-        protected String doInBackground(Transaction... pop) {
-
-            // params comes from the execute() call: params[0] is the url.
-            return sendPop(pop[0]);
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            if (result.equals("valid")) {
-                Toast.makeText(PopActivity.this, R.string.pop_success, Toast.LENGTH_LONG).show();
-                finish();
+   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
+         if (resultCode == RESULT_OK) {
+            Transaction pop = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+            ConnectivityManager connMgr = (ConnectivityManager)
+                  getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+               new SendPopTask().execute(pop);
             } else {
-                String serverMessage = result;
-                String prefix = "invalid\n";
-                if (result.startsWith(prefix)) {
-                    serverMessage = result.substring(prefix.length());
-                }
-                String message = s(R.string.pop_invalid_pop) + " " + s(R.string.pop_message_from_server) + "\n" + serverMessage;
-                Utils.showSimpleMessageDialog(PopActivity.this, message, new Runnable() {
-                    @Override
-                    public void run() {
-                        launchSelectTransactionActivity();
-                    }
-                }, R.string.pop_select_other_tx, null);
+               Toast.makeText(this, "No network available", Toast.LENGTH_LONG).show();
             }
-        }
-    }
+         }
+      } else {
+         super.onActivityResult(requestCode, resultCode, intent);
+      }
+   }
 
-    private String s(@StringRes int resId) {
-        return getResources().getText(resId).toString();
-    }
+   private class SendPopTask extends AsyncTask<Transaction, Void, String> {
+      @Override
+      protected String doInBackground(Transaction... pop) {
+         // params comes from the execute() call: params[0] is the url.
+         return sendPop(pop[0]);
+      }
 
-    private String sendPop(Transaction tx) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/bitcoin-pop"), tx.toBytes());
+      private String sendPop(Transaction tx) {
+         RequestBody requestBody = RequestBody.create(MediaType.parse("application/bitcoin-pop"), tx.toBytes());
 
-        URL url;
-        try {
+         URL url;
+         try {
             url = new URL(popRequest.getP());
             if (!"http".equals(url.getProtocol()) && !"https".equals(url.getProtocol())) {
-                return "Invalid Url, expected protocol http or https: " + popRequest.getP();
+               return "Invalid Url, expected protocol http or https: " + popRequest.getP();
             }
-        } catch (MalformedURLException e) {
+         } catch (MalformedURLException e) {
             return "Invalid Url: " + popRequest.getP();
-        }
+         }
 
-        Request request = new Request.Builder().url(url).post(requestBody).build();
+         Request request = new Request.Builder().url(url).post(requestBody).build();
 
-        OkHttpClient httpClient = new OkHttpClient();
-        if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null){
-            httpClient =_mbwManager.getTorManager().setupClient(httpClient);
-        }
+         OkHttpClient httpClient = new OkHttpClient();
+         if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
+            httpClient = _mbwManager.getTorManager().setupClient(httpClient);
+         }
 
-        try {
+         try {
             Response response = httpClient.newCall(request).execute();
             if (response.isSuccessful()) {
-                return response.body().string();
+               return response.body().string();
             } else {
-                return "Error occurred: " + response.code();
+               return "Error occurred: " + response.code();
             }
-        } catch (IOException e) {
+         } catch (IOException e) {
             return "Cannot communicate with server: " + e.getMessage();
-        }
+         }
 
-    }
+      }
+
+      // onPostExecute displays the results of the AsyncTask.
+      @Override
+      protected void onPostExecute(String result) {
+         if (result.equals("valid")) {
+            Toast.makeText(PopActivity.this, R.string.pop_success, Toast.LENGTH_LONG).show();
+            finish();
+         } else {
+            String serverMessage = result;
+            String prefix = "invalid\n";
+            if (result.startsWith(prefix)) {
+               serverMessage = result.substring(prefix.length());
+            }
+            String message = s(R.string.pop_invalid_pop) + " " + s(R.string.pop_message_from_server) + "\n" + serverMessage;
+            Utils.showSimpleMessageDialog(PopActivity.this, message, new Runnable() {
+               @Override
+               public void run() {
+                  launchSelectTransactionActivity();
+               }
+            }, R.string.pop_select_other_tx, null);
+         }
+      }
+   }
+
+   private String s(@StringRes int resId) {
+      return getResources().getText(resId).toString();
+   }
+
+
 }

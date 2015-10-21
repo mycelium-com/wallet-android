@@ -44,6 +44,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -65,7 +66,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TrezorManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
    private static final int MOST_RECENT_VERSION_MAJOR = 1;
    private static final int MOST_RECENT_VERSION_MINOR = 3;
-   private static final int MOST_RECENT_VERSION_PATCH = 3;
+   private static final int MOST_RECENT_VERSION_PATCH = 4;
 
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
    private static final String DEFAULT_LABEL = "Trezor";
@@ -369,12 +370,9 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
    }
 
    @Override
-   public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex) {
-      //44'/0'/0'/0/1
+   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath) {
       TrezorMessage.GetPublicKey msgGetPubKey = TrezorMessage.GetPublicKey.newBuilder()
-            .addAddressN(44 | PRIME_DERIVATION_FLAG)
-            .addAddressN(getNetwork().getBip44CoinType().getLastIndex() | PRIME_DERIVATION_FLAG)
-            .addAddressN(accountIndex | PRIME_DERIVATION_FLAG)
+            .addAllAddressN(keyPath.getAddressN())
             .build();
 
       try {
@@ -382,7 +380,12 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
          if (resp != null && resp instanceof TrezorMessage.PublicKey) {
             TrezorMessage.PublicKey pubKeyNode = (TrezorMessage.PublicKey) resp;
             PublicKey pubKey = new PublicKey(pubKeyNode.getNode().getPublicKey().toByteArray());
-            HdKeyNode accountRootNode = new HdKeyNode(pubKey, pubKeyNode.getNode().getChainCode().toByteArray(), 3, 0, accountIndex);
+            HdKeyNode accountRootNode = new HdKeyNode(
+                  pubKey,
+                  pubKeyNode.getNode().getChainCode().toByteArray(),
+                  3, 0,
+                  keyPath.getLastIndex()
+            );
             return Optional.of(accountRootNode);
          } else {
             return Optional.absent();

@@ -170,7 +170,6 @@
   <string name="scan_qr_code">Escanear el código QR</string>
   <string name="going_to_mycelium_com_help">Ir a www.mycelium.com</string>
   <string name="add_dialog_title">Agregar dirección</string>
-  <string name="add_key">Agregar Clave</string>
   <string name="page_locked">Esta página está bloqueada</string>
   <string name="unlock_label">Desbloquear</string>
   <string name="lock_label">Bloquear</string>
@@ -206,7 +205,6 @@
   <string name="version_check_failed">No se puede recibir información de la Versión</string>
   <string name="version_uptodate">Su monedero está actualizado con la Versión %s</string>
   <string name="update_check">Verificar actualización</string>
-  <string name="ignore_update">Ignorar esta actualización</string>
   <string name="get_from">Obtener de</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>

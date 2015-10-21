@@ -162,7 +162,6 @@
   <string name="scan_qr_code">QR 코드 스캔</string>
   <string name="going_to_mycelium_com_help">www.mycelium.com로 가기</string>
   <string name="add_dialog_title">주소 추가</string>
-  <string name="add_key">키 추가</string>
   <string name="page_locked">이 페이지는 잠겨있습니다</string>
   <string name="unlock_label">잠금 해제</string>
   <string name="lock_label">잠금</string>

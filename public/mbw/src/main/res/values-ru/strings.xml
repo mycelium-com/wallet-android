@@ -218,7 +218,6 @@
   <string name="scan_qr_code"> Сканируйте QR-код</string>
   <string name="going_to_mycelium_com_help">Переход на www.mycelium.com</string>
   <string name="add_dialog_title">Добавить адрес</string>
-  <string name="add_key">Добавить ключ</string>
   <string name="page_locked">Эта страница заблокирована</string>
   <string name="unlock_label">Разблокировать</string>
   <string name="lock_label">Заблокировать</string>
@@ -431,7 +430,6 @@
   <string name="version_check_failed">Не удаётся получить сведения о версии</string>
   <string name="version_uptodate">У Вас последняя версия, %s</string>
   <string name="update_check">Проверка обновлений</string>
-  <string name="ignore_update">Игнорировать это обновление</string>
   <string name="get_from">Получить из</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>

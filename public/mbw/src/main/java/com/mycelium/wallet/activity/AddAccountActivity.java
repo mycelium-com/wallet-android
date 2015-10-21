@@ -72,7 +72,12 @@ public class AddAccountActivity extends Activity {
    public static final int RESULT_COINAPULT = 2;
 
    public static void callMe(Fragment fragment, int requestCode) {
+      callMe(fragment, requestCode, false);
+   }
+
+   public static void callMe(Fragment fragment, int requestCode, boolean addCoinapult) {
       Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
+      intent.putExtra("coinapult", addCoinapult);
       fragment.startActivityForResult(intent, requestCode);
    }
 
@@ -96,7 +101,7 @@ public class AddAccountActivity extends Activity {
       findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
       final View coinapultUSD = findViewById(R.id.btCoinapultCreate);
       coinapultUSD.setOnClickListener(createCoinapultAccount);
-      coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService("coinapult"));
+      coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
       if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
          findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
       } else {
@@ -104,6 +109,9 @@ public class AddAccountActivity extends Activity {
       }
 
       _progress = new ProgressDialog(this);
+      if (getIntent().getBooleanExtra("coinapult", false)){
+         createCoinapultAccountProtected();
+      }
    }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -134,22 +142,25 @@ public class AddAccountActivity extends Activity {
    View.OnClickListener createCoinapultAccount = new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-
-         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
-               AddAccountActivity.this, Feature.COINAPULT_NEW_ACCOUNT, true, new Runnable() {
-                  @Override
-                  public void run() {
-                     _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
-                        @Override
-                        public void run() {
-                           createCoinapultAccount();
-                        }
-                     });
-                  }
-               });
-
+         createCoinapultAccountProtected();
       }
    };
+
+   private void createCoinapultAccountProtected() {
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
+            AddAccountActivity.this, Feature.COINAPULT_NEW_ACCOUNT, true, new Runnable() {
+               @Override
+               public void run() {
+                  _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+                     @Override
+                     public void run() {
+                        createCoinapultAccount();
+                     }
+                  });
+               }
+            }
+      );
+   }
 
    private void createNewHdAccount() {
       final WalletManager wallet = _mbwManager.getWalletManager(false);
@@ -222,15 +233,20 @@ public class AddAccountActivity extends Activity {
       private Bus bus;
       private Optional<String> mail;
       private CoinapultManager coinapultManager;
+      private final ProgressDialog progressDialog;
 
       public AddCoinapultAsyncTask(Bus bus, Optional<String> mail) {
          this.bus = bus;
          this.mail = mail;
+         progressDialog = ProgressDialog.show(AddAccountActivity.this, getString(R.string.coinapult), getString(R.string.createCoinapult));
+         progressDialog.setCancelable(false);
+         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+         progressDialog.show();
       }
 
       @Override
       protected UUID doInBackground(Void... params) {
-         _mbwManager.getMetadataStorage().setPairedService("coinapult", true);
+         _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, true);
          coinapultManager = _mbwManager.getCoinapultManager();
          try {
             coinapultManager.addUSD(mail);
@@ -241,15 +257,14 @@ public class AddAccountActivity extends Activity {
          } catch (CoinapultClient.CoinapultBackendException e) {
             return null;
          }
-         // at this point, we have to have a master seed, since we created one on startup
          return coinapultManager.getId();
       }
 
       @Override
       protected void onPostExecute(UUID account) {
-         _progress.dismiss();
+         progressDialog.dismiss();
          if (account != null) {
-            _mbwManager.getWalletManager(false).setExtraAccount(Optional.of(coinapultManager));
+            _mbwManager.setExtraAccount(Optional.of(coinapultManager));
             bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, coinapultManager.getId());
@@ -258,7 +273,7 @@ public class AddAccountActivity extends Activity {
          } else {
             // something went wrong - clean up the half ready coinapultManager
             Toast.makeText(AddAccountActivity.this, R.string.coinapult_unable_to_create_account, Toast.LENGTH_SHORT).show();
-            _mbwManager.getMetadataStorage().setPairedService("coinapult", false);
+            _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, false);
          }
       }
    }

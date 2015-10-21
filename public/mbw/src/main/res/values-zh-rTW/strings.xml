@@ -203,7 +203,6 @@
   <string name="scan_qr_code">掃描QR Code</string>
   <string name="going_to_mycelium_com_help">正在去 www.mycelium.com</string>
   <string name="add_dialog_title">添加地址</string>
-  <string name="add_key">添加密鑰</string>
   <string name="page_locked">本頁面已被鎖定</string>
   <string name="unlock_label">開鎖</string>
   <string name="lock_label">鎖定</string>
@@ -404,7 +403,6 @@
   <string name="version_check_failed">無法接收版本信息</string>
   <string name="version_uptodate">你的錢包是最新版本 %s</string>
   <string name="update_check">已檢測更新</string>
-  <string name="ignore_update">忽略此更新</string>
   <string name="get_from">從獲取</string>
   <string name="sign_message">信息簽名</string>
   <string name="cant_sign_message">您不能用HD帳戶對消息進行簽署。</string>

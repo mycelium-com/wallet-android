@@ -218,7 +218,6 @@
   <string name="scan_qr_code">Prečitaj QR-kodo</string>
   <string name="going_to_mycelium_com_help">Preusmerjam na www.mycelium.com</string>
   <string name="add_dialog_title">Dodaj naslov</string>
-  <string name="add_key">Dodaj ključ</string>
   <string name="page_locked">Ta stran je zaklenjena</string>
   <string name="unlock_label">Odkleni</string>
   <string name="lock_label">Zakleni</string>
@@ -236,7 +235,6 @@
   <string name="source_repo_label">Odložišče kode</string>
   <string name="version_label">Verzija</string>
   <string name="authors_label">Avtorji</string>
-  <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
   <string name="homepage_label">Domača stran</string>
   <string name="homepage_url">https://mycelium.com</string>
   <string name="company">Megion Research &amp; Development GmbH</string>
@@ -432,7 +430,6 @@
   <string name="version_check_failed">Preverjanje verzije spodletelo</string>
   <string name="version_uptodate">Imate zadnjo verzijo denarnice (%s).</string>
   <string name="update_check">Preverjanje posodobitev</string>
-  <string name="ignore_update">Prezri to posodobitev</string>
   <string name="get_from">Vir posodobitve:</string>
   <string name="sign_message">Podpiši sporočilo</string>
   <string name="cant_sign_message">S HD-računom ne morete podpisati sporočila</string>

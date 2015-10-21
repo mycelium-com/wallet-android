@@ -41,10 +41,13 @@ import android.os.Looper;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.hdpath.Bip44CoinType;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -52,14 +55,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class AbstractAccountScanManager implements AccountScanManager {
    protected final Context context;
    final private NetworkParameters network;
-   private AsyncTask<Void, ScanStatus, Integer> scanAsyncTask = null;
-   private final TreeMap<Integer, HdKeyNodeWrapper> foundAccounts = new TreeMap<Integer, HdKeyNodeWrapper>();
+   private AsyncTask<Void, ScanStatus, Void> scanAsyncTask = null;
+   private final ArrayList<HdKeyNodeWrapper> foundAccounts = new ArrayList<HdKeyNodeWrapper>();
    protected final Bus eventBus;
    protected final LinkedBlockingQueue<Optional<String>> passphraseSyncQueue = new LinkedBlockingQueue<Optional<String>>(1);
    protected final Handler mainThreadHandler;
 
    public volatile AccountStatus currentAccountState = AccountStatus.unknown;
    public volatile Status currentState = Status.unableToScan;
+   private volatile Optional<HdKeyNode> nextUnusedAccount = Optional.absent();
 
    public AbstractAccountScanManager(Context context, NetworkParameters network, Bus eventBus) {
       this.context = context;
@@ -95,27 +99,45 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
    public void startBackgroundAccountScan(final AccountCallback scanningCallback) {
       if (currentAccountState == AccountStatus.scanning || currentAccountState == AccountStatus.done) {
          // currently scanning or have already all account - just post the events for all already known accounts
-         for (HdKeyNodeWrapper a : foundAccounts.values()) {
+         for (HdKeyNodeWrapper a : foundAccounts) {
             eventBus.post(new OnAccountFound(a));
          }
       } else {
          // start a background task which iterates over all accounts and calls the callback
          // to check if there was activity on it
-         scanAsyncTask = new AsyncTask<Void, ScanStatus, Integer>() {
+         scanAsyncTask = new AsyncTask<Void, ScanStatus, Void>() {
             @Override
-            protected Integer doInBackground(Void... voids) {
+            protected Void doInBackground(Void... voids) {
                publishProgress(new ScanStatus(AccountScanManager.Status.initializing, AccountStatus.unknown));
                if (onBeforeScan()) {
                   publishProgress(new ScanStatus(AccountScanManager.Status.readyToScan, AccountStatus.scanning));
                } else {
-                  return 0;
+                  return null;
                }
 
                // scan through the accounts, to find the first unused one
-               int accountIndex = 0;
+               Optional<HdKeyPath> lastScannedPath = Optional.absent();
+               Optional<HdKeyNode> lastAccountPubKeyNode = Optional.absent();
+               boolean wasUsed = false;
                do {
                   HdKeyNode rootNode;
-                  Optional<HdKeyNode> accountPubKeyNode = AbstractAccountScanManager.this.getAccountPubKeyNode(accountIndex);
+                  Optional<? extends HdKeyPath> accountPathToScan =
+                        AbstractAccountScanManager.this.getAccountPathToScan(lastScannedPath, wasUsed);
+
+                  // we have scanned all accounts - get out of here...
+                  if (!accountPathToScan.isPresent()) {
+                     // remember the last xPub key as the next-unused one
+                     nextUnusedAccount = lastAccountPubKeyNode;
+                     break;
+                  }
+
+                  Optional<HdKeyNode> accountPubKeyNode =
+                        AbstractAccountScanManager.this.getAccountPubKeyNode(accountPathToScan.get());
+                  lastAccountPubKeyNode = accountPubKeyNode;
+
+
+
+                  // unable to retrieve the account (eg. device unplugged) - cancel scan
                   if (!accountPubKeyNode.isPresent()) {
                      publishProgress(new ScanStatus(AccountScanManager.Status.initializing, AccountStatus.unknown));
                      break;
@@ -124,20 +146,22 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
                   rootNode = accountPubKeyNode.get();
 
                   // leave accountID empty for now - set it later if it is a already used account
-                  HdKeyNodeWrapper acc = new HdKeyNodeWrapper(accountIndex, rootNode, null);
+                  HdKeyNodeWrapper acc = new HdKeyNodeWrapper(accountPathToScan.get(), rootNode, null);
                   UUID newAccount = scanningCallback.checkForTransactions(acc);
+                  lastScannedPath = Optional.<HdKeyPath>of(accountPathToScan.get());
+
                   if (newAccount != null) {
-                     HdKeyNodeWrapper foundAccount = new HdKeyNodeWrapper(accountIndex, rootNode, newAccount);
+                     HdKeyNodeWrapper foundAccount =
+                           new HdKeyNodeWrapper(accountPathToScan.get(), rootNode, newAccount);
+
                      publishProgress(new FoundAccountStatus(foundAccount));
+                     wasUsed = true;
                   } else {
-                     publishProgress(new ScanStatus(AccountScanManager.Status.initializing, AccountStatus.unknown));
-                     break;
+                     wasUsed = false;
                   }
-                  accountIndex++;
                } while (!isCancelled());
                publishProgress(new ScanStatus(AccountScanManager.Status.readyToScan, AccountStatus.done));
-
-               return accountIndex;
+               return null;
             }
 
 
@@ -155,20 +179,11 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
                   if (si instanceof FoundAccountStatus) {
                      HdKeyNodeWrapper foundAccount = ((FoundAccountStatus) si).account;
                      eventBus.post(new OnAccountFound(foundAccount));
-                     foundAccounts.put(foundAccount.accountIndex, foundAccount);
+                     foundAccounts.add(foundAccount);
                   }
                }
             }
 
-            @Override
-            protected void onCancelled() {
-               super.onCancelled();
-            }
-
-            @Override
-            protected void onCancelled(Integer integer) {
-               super.onCancelled(integer);
-            }
          };
 
          scanAsyncTask.execute();
@@ -193,6 +208,12 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
          currentAccountState = AccountStatus.unknown;
       }
    }
+
+   @Override
+   public Optional<HdKeyNode> getNextUnusedAccount(){
+      return nextUnusedAccount;
+   }
+
 
    @Override
    public void forgetAccounts() {
@@ -242,4 +263,23 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
 
    abstract public UUID createOnTheFlyAccount(HdKeyNode accountRoot, WalletManager walletManager, int accountIndex);
 
+   // returns the next Bip44 account based on the last scanned account
+   @Override
+   public Optional<? extends HdKeyPath> getAccountPathToScan(Optional<? extends HdKeyPath> lastPath, boolean wasUsed){
+      Bip44CoinType bip44CoinType = HdKeyPath.BIP44.getBip44CoinType(getNetwork());
+
+      // this is the first call - no lastPath given
+      if (!lastPath.isPresent()) {
+         return Optional.of(bip44CoinType.getAccount(0));
+      }
+
+      // otherwise use the next bip44 account, as long as the last one had activity on it
+      HdKeyPath last = lastPath.get();
+      if (wasUsed){
+         return Optional.of(bip44CoinType.getAccount(last.getLastIndex() + 1));
+      }
+
+      // if we are already at the bip44 branch and the last account had no activity, then we are done
+      return Optional.absent();
+   }
 }

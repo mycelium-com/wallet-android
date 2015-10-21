@@ -161,7 +161,6 @@
   <string name="scan_qr_code">Digitalizar Código QR</string>
   <string name="going_to_mycelium_com_help">Ir para www.mycelium.com</string>
   <string name="add_dialog_title">Adicionar Endereço</string>
-  <string name="add_key">Adicionar Chave</string>
   <string name="page_locked">Esta página está bloqueada</string>
   <string name="unlock_label">Desbloquear</string>
   <string name="lock_label">Bloquear</string>

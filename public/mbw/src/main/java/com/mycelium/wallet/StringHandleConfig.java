@@ -855,7 +855,7 @@ public class StringHandleConfig implements Serializable {
             if (!Bip39.isValidWordList(words)) {
                return false;
             }
-            InstantMasterseedActivity.callMe(handlerActivity, words);
+            InstantMasterseedActivity.callMe(handlerActivity, words, null);
             handlerActivity.finishOk();
             return true;
          }

@@ -39,6 +39,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.hdpath.Bip44CoinType;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
@@ -48,6 +49,7 @@ import java.util.UUID;
 public class MasterseedScanManager extends AbstractAccountScanManager {
    private Bip39.MasterSeed masterSeed;
    private final String[] words;
+   private final String password;
    private HdKeyNode accountsRoot = null;
 
 
@@ -55,23 +57,29 @@ public class MasterseedScanManager extends AbstractAccountScanManager {
       super(context, network, eventBus);
       this.masterSeed = masterSeed;
       this.words = null;
+      this.password = null;
    }
 
-   public MasterseedScanManager(Context context, NetworkParameters network, String[] words, Bus eventBus){
+   public MasterseedScanManager(Context context, NetworkParameters network, String[] words, String password, Bus eventBus){
       super(context, network, eventBus);
       this.words = words;
+      this.password = password;
    }
-
 
    @Override
    protected boolean onBeforeScan() {
-      // if we only have a wordlist, query the user for a passphrase
       if (masterSeed == null){
-         Optional<String> passphrase = waitForPassphrase();
+         // use the provided passphrase, if it is nor null, ...
+         Optional<String> passphrase = Optional.fromNullable(password);;
+         if (!passphrase.isPresent()) {
+            // .. otherwise query the user for a passphrase
+            passphrase = waitForPassphrase();
+         }
          if (passphrase.isPresent()){
             this.masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get());
             return true;
          }else{
+
             return false;
          }
       }
@@ -80,14 +88,11 @@ public class MasterseedScanManager extends AbstractAccountScanManager {
    }
 
    @Override
-   public Optional<HdKeyNode> getAccountPubKeyNode(int accountIndex){
+   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath){
       // Generate the root private key
+      //todo: caching of intermediary path sections
       HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
-      if (accountsRoot == null) {
-         accountsRoot = root.createChildNode(HdKeyPath.BIP44.getBip44CoinType(getNetwork()));
-      }
-      HdKeyNode childNode = accountsRoot.createHardenedChildNode(accountIndex);
-      return Optional.of(childNode);
+      return Optional.of(root.createChildNode(keyPath));
    }
 
    @Override
@@ -102,4 +107,23 @@ public class MasterseedScanManager extends AbstractAccountScanManager {
       return account;
    }
 
+   @Override
+   public Optional<? extends HdKeyPath> getAccountPathToScan(Optional<? extends HdKeyPath> lastPath, boolean wasUsed) {
+      // this is the first call - no lastPath given
+      if (!lastPath.isPresent()) {
+         return Optional.of(HdKeyPath.BIP32_ROOT);
+      }
+
+      // if the lastPath was the Bip32, we dont care if it wasUsed - always scan the first Bip44 account
+      Bip44CoinType bip44CoinType = HdKeyPath.BIP44.getBip44CoinType(getNetwork());
+      HdKeyPath last = lastPath.get();
+      if (last.equals(HdKeyPath.BIP32_ROOT)){
+         return Optional.of(bip44CoinType.getAccount(0));
+      }
+
+      // otherwise just return the normal bip44 accounts
+      return super.getAccountPathToScan(lastPath, wasUsed);
+   }
+
 }
+

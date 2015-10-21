@@ -178,12 +178,4 @@ public class ColdStorageSummaryActivity extends Activity {
          super.onActivityResult(requestCode, resultCode, data);
       }
    }
-
-   @Override
-   public void onBackPressed() {
-      //delete temporary accounts keys so we do not keep scanned private keys in memory when user presses back
-      _mbwManager.forgetColdStorageWalletManager();
-      super.onBackPressed();
-   }
-
 }

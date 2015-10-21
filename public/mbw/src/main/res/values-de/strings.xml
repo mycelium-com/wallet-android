@@ -220,7 +220,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="scan_qr_code">QR-Code scannen</string>
   <string name="going_to_mycelium_com_help">Gehe zu www.mycelium.com</string>
   <string name="add_dialog_title">Adresse hinzufügen</string>
-  <string name="add_key">Schlüssel hinzufügen</string>
   <string name="page_locked">Diese Seite ist gesperrt</string>
   <string name="unlock_label">Entsperren</string>
   <string name="lock_label">Sperren</string>
@@ -238,7 +237,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="source_repo_label">Quellcode-Repository</string>
   <string name="version_label">Version</string>
   <string name="authors_label">Entwickelt von</string>
-  <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
   <string name="homepage_label">Homepage</string>
   <string name="homepage_url">https://mycelium.com</string>
   <string name="company">Megion Research &amp; Development GmbH</string>
@@ -434,7 +432,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="version_check_failed">Update-Information konnte nicht abgerufen werden.</string>
   <string name="version_uptodate">Ihre Wallet ist mit Version %s auf dem aktuellen Stand.</string>
   <string name="update_check">Suche nach Updates</string>
-  <string name="ignore_update">Ignoriere dieses Update</string>
   <string name="get_from">Download von</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
@@ -513,7 +510,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cick_button_to_show_word">Auf Schaltfläche tippen, um zu starten</string>
   <string name="wordlist_verify_description">Bitte geben Sie die Wörter, die Sie sich gerade aufgeschrieben haben, ein. Eines nach dem anderen, um sicherzustellen, dass alles ordnungsgemäß abgesichert wurde.</string>
   <string name="verify_word_wrong">Sie das falsche Wort eingegeben, bitte versuchen Sie es erneut</string>
-  <string name="verify_wordlist_success">Das Backup Ihrer Wortliste wurde erfolgreich überprüft. Bewahren Sie Ihr Backup an einem sicheren Ort auf. Die Sicherheit Ihrer Bitcoins sind beruht darauf!\n\nSolten Sie noch keine PIN konfiguriert haben, wäre jetzt ein guter Zeitpunkt dafür.\nSie können Ihre PIN in den Einstellungen festlegen</string>
+  <string name="verify_wordlist_success">Das Backup Ihrer Wortliste wurde erfolgreich überprüft. Bewahren Sie Ihr Backup an einem sicheren Ort auf. Die Sicherheit Ihrer Bitcoins beruht darauf!\n\nSollten Sie noch keine PIN konfiguriert haben, wäre jetzt ein guter Zeitpunkt dafür.\nSie können Ihre PIN in den Einstellungen festlegen.</string>
   <string name="verify_wordlist_success_pin_already_set">Ihr Wortlisten Backup wurde erfolgreich überprüft. Bewahren Sie das Backup an einem sicheren Ort auf, die Sicherheit Ihrer Bitcoins hängt davon ab!</string>
   <string name="note_down_password_title">Schreiben Sie Ihr Passwort auf</string>
   <string name="title_wrong_password">Falsches Passwort, bitte versuchen Sie es erneut</string>
@@ -676,7 +673,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="remove_queued_transaction_title">Transaktion gereiht</string>
   <string name="remove_queued_transaction_hint">Ihr Saldo wird nach der nächsten Synchronisation mit dem Netzwerk korrigiert</string>
   <string name="remove_queued_transaction_error">Transaktion kann nicht entfernt werden</string>
-  <string name="createCoinapult">Coinapult Account erstellen&#8230;</string>
   <string name="sendingViaCoinapult">Senden von Bitcoins über Coinapult</string>
   <string name="cashila_tab_new">Neu</string>
   <string name="cashila_tab_pending">Zahlungen</string>
@@ -714,6 +710,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cashila_amount_outstanding">(%s ausstehend)</string>
   <string name="payment_request_unable_to_read_payment_request">Kann die Zahlungsaufforderung nicht lesen</string>
   <string name="payment_request_no_amount_specified">kein Betrag angegeben</string>
+  <string name="payment_request_unable_to_verify">Unmöglich zu verifizieren</string>
+  <string name="payment_request_unsigned_request">Nicht signierte Zahlungsaufforderung</string>
   <string name="payment_request_signature_okay">Gültige Signatur</string>
   <string name="payment_request_invalid_signature">ungültige Signatur</string>
   <string name="payment_request_fetching_payment_request">Abrufen der Zahlungsaufforderung</string>
@@ -725,6 +723,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="payment_request_created">Erstellt</string>
   <string name="payment_request_expires">Gültig bis</string>
   <string name="payment_request_message_to_merchant">Ihre Nachricht an den Händler (optional)</string>
+  <string name="payment_request_error_while_getting_ack">Server des Händlers nicht erreichbar.\n%s\n\nDie Transaktion wird nicht gesendet.</string>
   <string name="label_cold_storage_external_signing">Signieren mit:</string>
   <string name="spending_unconfirmed_warning">Achtung:  Sie geben unbestätigte Bitcoins aus.</string>
   <string name="spending_unconfirmed_title">Unbestätigte Bitcoins ausgeben</string>
@@ -739,6 +738,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="transaction_history_title">Transaktionsverlauf</string>
   <string name="menu_item_cancel_transaction">Transaktion abbrechen</string>
   <string name="block_explorer_title">Block Explorer (%1$s)</string>
+  <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
   <string name="coinapult_mail_hint">Geben Sie eine E-Mail-Adresse ein</string>
   <string name="set_mail_menu_item">Geben Sie eine E-Mail-Adresse ein</string>
   <string name="coinapult_unable_to_create_account">Das Coinapult-Konto konnte nicht erstellt werden</string>

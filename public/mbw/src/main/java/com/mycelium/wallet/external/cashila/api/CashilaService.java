@@ -86,6 +86,7 @@ public class CashilaService {
    public static final String DEEP_LINK_DASHBOARD = "dashboard";
    public static final String DEEP_LINK_ADD_RECIPIENT = "recipients/add";
    public static final String CASHILA_CERT = "sha1/cl8wPAZF71fZyBWNmh5tvVV5UYM=";
+   public static final String CASHILA_CERT_STAGE = "sha1/xxFB1MhSNsKWMxub9YFki5Wm/XM=";
 
    private final String baseUrl;
    private final Bus eventBus;
@@ -106,7 +107,7 @@ public class CashilaService {
       client.networkInterceptors().add(hmacInterceptor);
       CertificatePinner certPinner = new CertificatePinner.Builder()
             .add("cashila.com", CASHILA_CERT)
-            .add("cashila-staging.com", CASHILA_CERT)
+            .add("cashila-staging.com", CASHILA_CERT_STAGE)
             .build();
       client.setCertificatePinner(certPinner);
 

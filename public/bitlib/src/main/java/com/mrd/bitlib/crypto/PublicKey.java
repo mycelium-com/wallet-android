@@ -77,7 +77,7 @@ public class PublicKey implements Serializable {
       return HexUtils.toHex(_pubKeyBytes);
    }
 
-   public boolean verifyStandardBitcoinSignature(Sha256Hash data, byte[] signature) {
+   public boolean verifyStandardBitcoinSignature(Sha256Hash data, byte[] signature, boolean forceLowS) {
       // Decode parameters r and s
       ByteReader reader = new ByteReader(signature);
       Signature params = Signatures.decodeSignatureParameters(reader);
@@ -88,7 +88,12 @@ public class PublicKey implements Serializable {
       if (reader.available() != 1) {
          return false;
       }
-      return Signatures.verifySignature(data.getBytes(), params, getQ());
+      if (forceLowS) {
+         return Signatures.verifySignatureLowS(data.getBytes(), params, getQ());
+      } else {
+         return Signatures.verifySignature(data.getBytes(), params, getQ());
+      }
+
    }
 
    // same as verifyStandardBitcoinSignature, but dont enforce the hash-type check

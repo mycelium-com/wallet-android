@@ -218,7 +218,6 @@
   <string name="scan_qr_code">Läs in QR-kod</string>
   <string name="going_to_mycelium_com_help">Går till www.mycelium.com</string>
   <string name="add_dialog_title">Lägg till adress</string>
-  <string name="add_key">Lägg till nyckel</string>
   <string name="page_locked">Denna sida är låst</string>
   <string name="unlock_label">Lås upp</string>
   <string name="lock_label">Lås</string>
@@ -431,7 +430,6 @@
   <string name="version_check_failed">Kunde inte hämta versionsinformation</string>
   <string name="version_uptodate">Din plånbok är senaste version %s</string>
   <string name="update_check">Letar uppdatering</string>
-  <string name="ignore_update">Ignorera denna uppdatering</string>
   <string name="get_from">Hämta från</string>
   <string name="sign_message">Signera meddelande</string>
   <string name="cant_sign_message">Du kan inte signera ett meddelande med ett HD-konto</string>

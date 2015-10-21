@@ -109,6 +109,28 @@ public class Signatures {
       return bytes;
    }
 
+   // checks the signature and enforces a Low-S Value - to counter the bitcoin
+   // transaction malleability problem, according to Bip62
+   // https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#New_rules, pt5
+   static boolean verifySignatureLowS(byte[] message, Signature signature, Point Q) {
+      BigInteger n = Parameters.n;
+      BigInteger e = calculateE(n, message);
+      BigInteger r = signature.r;
+      BigInteger s = signature.s;
+
+      // r in the range [1,n-1]
+      if (r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0) {
+         return false;
+      }
+
+      // s in the range [1,n/2]
+      if (s.compareTo(BigInteger.ONE) < 0 || s.compareTo(Parameters.MAX_SIG_S) > 0) {
+         return false;
+      }
+
+      return checkSignature(Q, n, e, r, s);
+   }
+
    static boolean verifySignature(byte[] message, Signature signature, Point Q) {
       BigInteger n = Parameters.n;
       BigInteger e = calculateE(n, message);
@@ -125,6 +147,10 @@ public class Signatures {
          return false;
       }
 
+      return checkSignature(Q, n, e, r, s);
+   }
+
+   private static boolean checkSignature(Point Q, BigInteger n, BigInteger e, BigInteger r, BigInteger s) {
       BigInteger c = s.modInverse(n);
 
       BigInteger u1 = e.multiply(c).mod(n);

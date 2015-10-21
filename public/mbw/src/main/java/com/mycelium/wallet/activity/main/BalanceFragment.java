@@ -168,6 +168,7 @@ public class BalanceFragment extends Fragment {
          _mbwManager.reportIgnoredException(ex);
          balance = CurrencyBasedBalance.ZERO_BITCOIN_BALANCE;
       }
+
       if (account.canSpend()) {
          // Show spend button
          _root.findViewById(R.id.btSend).setVisibility(View.VISIBLE);

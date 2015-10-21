@@ -113,18 +113,30 @@ public class CashilaNewFragment extends Fragment {
       cs = ((CashilaPaymentsActivity) getActivity()).getCashilaService();
       eventBus = mbw.getEventBus();
 
-      getRecentRecipientsList();
+      int selItem = 0;
+      if (savedInstanceState != null){
+         selItem = savedInstanceState.getInt("spRecipient", 0);
+      }
+
+      getRecentRecipientsList(selItem);
 
       bcd = (BcdCodedSepaData) getActivity().getIntent().getSerializableExtra("bcd");
       if (bcd != null) {
          initFromBcd(bcd);
       }
 
+
       return rootView;
    }
 
+   @Override
+   public void onSaveInstanceState(Bundle outState) {
+      super.onSaveInstanceState(outState);
+      outState.putInt("spRecipient", spRecipients.getSelectedItemPosition());
+   }
 
-   private void getRecentRecipientsList() {
+
+   private void getRecentRecipientsList(final int selItem) {
       final ProgressDialog progressDialog = ProgressDialog.show(this.getActivity(), getResources().getString(R.string.cashila), getResources().getString(R.string.cashila_fetching), true);
 
       // ensure login and get the list of all recipients
@@ -156,13 +168,14 @@ public class CashilaNewFragment extends Fragment {
                   } else {
                      recipientArrayAdapter = new RecipientArrayAdapter(getActivity(), listCashilaResponse);
                      spRecipients.setAdapter(recipientArrayAdapter);
+                     spRecipients.setSelection(selItem);
                   }
                }
             });
    }
 
    public void refresh() {
-      getRecentRecipientsList();
+      getRecentRecipientsList(spRecipients.getSelectedItemPosition());
    }
 
    private CreateBillPay getBillPayFromBcdEntry(BcdCodedSepaData bcd) {

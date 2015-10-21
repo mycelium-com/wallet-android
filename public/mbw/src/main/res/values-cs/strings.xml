@@ -202,7 +202,6 @@
   <string name="scan_qr_code">Skenovat QR kód</string>
   <string name="going_to_mycelium_com_help">Jděte na www.mycelium.com</string>
   <string name="add_dialog_title">Přidat adresu</string>
-  <string name="add_key">Přidat klíč</string>
   <string name="page_locked">Tato stránka je uzamčena</string>
   <string name="unlock_label">Odemknout</string>
   <string name="lock_label">Uzamknout</string>
@@ -216,7 +215,6 @@
   <string name="pdfwriter_license">Android PDF Writer licence</string>
   <string name="version_label">Verze</string>
   <string name="authors_label">Vytvořeno</string>
-  <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel</string>
   <string name="homepage_label">Domovská stránka</string>
   <string name="homepage_url">https://mycelium.com</string>
   <string name="company">Megion Research &amp; Development GmbH</string>

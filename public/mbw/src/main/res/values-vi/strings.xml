@@ -163,7 +163,6 @@
   <string name="scan_qr_code">Quét mã QR</string>
   <string name="going_to_mycelium_com_help">Đang tới www.mycelium.com</string>
   <string name="add_dialog_title">Thêm địa chỉ</string>
-  <string name="add_key">Thêm khoá</string>
   <string name="page_locked">Trang này bị khóa</string>
   <string name="unlock_label">Mở khóa</string>
   <string name="lock_label">Khóa</string>
@@ -352,7 +351,6 @@
   <string name="version_check_failed">Không thể nhận được thông tin Phiên bản mới</string>
   <string name="version_uptodate">Ví của bạn đã được cập nhật tới phiên bản %s</string>
   <string name="update_check">Kiểm tra Cập Nhật</string>
-  <string name="ignore_update">Bỏ qua bản cập nhật này</string>
   <string name="get_from">Cập nhật từ</string>
   <string name="sign_message">Ký vào tin nhắn</string>
   <string name="enter_message_hint">Vui lòng nhập tin nhắn mà bạn muốn ký ở đây</string>

@@ -107,9 +107,15 @@ Authors
 
 Credits
 =======
+Thanks to all collaborators who provided us with code or helped us with integrations!
+Just to name a few:
+  - Nicolas Bacca from Ledger
+  - Sipa, Marek and others from Trezor
+  - Jani and Aleš from Cashila
+  - Kalle Rosenbaum, Bip120/121
+  - (if you think you should be mentioned here, just notify us)
+
 Thanks to Jethro for tirelessly testing the app during beta development.
-
 Thanks to our numerous volunteer translators who provide high-quality translations in many languages. Your name should be listed here, please contact me so I know you want to be included.
-
 Thanks to Johannes Zweng for his testing and providing pull requests for fixes.
 Thanks to all beta testers to provide early feedback.

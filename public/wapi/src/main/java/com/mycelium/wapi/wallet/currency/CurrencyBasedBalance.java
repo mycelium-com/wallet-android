@@ -44,7 +44,6 @@ public class CurrencyBasedBalance {
    public final ExactCurrencyValue receiving;
    public final boolean isSynchronizing;
 
-
    public CurrencyBasedBalance(ExactCurrencyValue confirmed, ExactCurrencyValue sending, ExactCurrencyValue receiving) {
       this(confirmed, sending, receiving, false);
    }

@@ -41,6 +41,7 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -69,7 +70,11 @@ public class TrezorAccountImportActivity extends TrezorAccountSelectorActivity {
             MbwManager mbwManager = MbwManager.getInstance(TrezorAccountImportActivity.this);
 
             UUID acc = mbwManager.getWalletManager(false)
-                  .createExternalSignatureAccount(item.xPub, (TrezorManager) masterseedScanManager, item.accountIndex);
+                  .createExternalSignatureAccount(
+                        item.xPub,
+                        (TrezorManager) masterseedScanManager,
+                        item.accountHdKeyPath.getLastIndex()
+                  );
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -106,13 +111,17 @@ public class TrezorAccountImportActivity extends TrezorAccountSelectorActivity {
                @Override
                public void run() {
 
-                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getAccountPubKeyNode(accounts.size());
+                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccount();
 
                   MbwManager mbwManager = MbwManager.getInstance(TrezorAccountImportActivity.this);
 
                   if (nextAccount.isPresent()) {
                      UUID acc = mbwManager.getWalletManager(false)
-                           .createExternalSignatureAccount(nextAccount.get(), (TrezorManager) masterseedScanManager, accounts.size());
+                           .createExternalSignatureAccount(
+                                 nextAccount.get(),
+                                 (TrezorManager) masterseedScanManager,
+                                 nextAccount.get().getIndex()
+                           );
 
                      mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
 

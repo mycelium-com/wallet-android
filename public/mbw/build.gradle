@@ -64,8 +64,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 25400
-        versionName '2.5.4'
+        versionCode 25502
+        versionName '2.5.5'
         multiDexEnabled true
     }
 

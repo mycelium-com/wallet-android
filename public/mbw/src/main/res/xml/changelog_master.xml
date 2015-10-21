@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.5.5" versioncode="25500">
+        <change>Offline spending directly from external master-seeds</change>
+        <change>Offline spending from Bip32 root account of a masterseed (hive compatible)</change>
+        <change>Proof-of-Payment, Bip120/121 (thanks Kalle Rosenbaum for the collaboration)</change>
+        <change>Show Ledger AID-settings even if TEE is not enabled</change>
+        <change>Show "Add USD account" in account list menu</change>
+        <change>[bugfix] Cashila, keep selected recipient after screen rotation</change>
+    </release>
     <release version="2.5.4" versioncode="25400">
         <change>Added argentine blue exchange rate based on bluelytics.com.ar</change>
         <change>[bugfix] Fixed wrong url for blockr.com block explorer</change>

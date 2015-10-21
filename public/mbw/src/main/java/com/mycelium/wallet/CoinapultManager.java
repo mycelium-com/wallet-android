@@ -1,5 +1,6 @@
 package com.mycelium.wallet;
 
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import com.coinapult.api.httpclient.*;
@@ -38,7 +39,7 @@ import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import static com.coinapult.api.httpclient.CoinapultClient.*;
+import static com.coinapult.api.httpclient.CoinapultClient.CoinapultBackendException;
 
 public class CoinapultManager implements WalletAccount {
 
@@ -126,7 +127,7 @@ public class CoinapultManager implements WalletAccount {
       try {
          String address;
          Optional<Address> lastCoinapultAddress = metadataStorage.getCoinapultAddress();
-         if (!lastCoinapultAddress.isPresent()){
+         if (!lastCoinapultAddress.isPresent()) {
             //requesting fresh address
             address = coinapultClient.getBitcoinAddress().address;
          } else {
@@ -136,7 +137,7 @@ public class CoinapultManager implements WalletAccount {
             criteria.put("to", lastCoinapultAddress.get().toString());
             com.coinapult.api.httpclient.Transaction.Json search = coinapultClient.search(criteria);
             boolean alreadyUsed = search.containsKey("transaction_id");
-            if (alreadyUsed){
+            if (alreadyUsed) {
                // get a new one
                address = coinapultClient.getBitcoinAddress().address;
             } else {
@@ -336,7 +337,6 @@ public class CoinapultManager implements WalletAccount {
       if (isInvoice) {
          return false;
       }
-
       // other unexpected tx type - but ignore it
       return false;
    }
@@ -383,7 +383,26 @@ public class CoinapultManager implements WalletAccount {
 
    @Override
    public void dropCachedData() {
+      // try to recreate the coinapult account, this fails if it already exists
+      // otherwise it will fix a locked state where the wallet thinks it has an account
+      // but it does not
+      new AddCoinapultAsyncTask().execute();
+   }
 
+   private class AddCoinapultAsyncTask extends AsyncTask<Void, Integer, UUID> {
+      @Override
+      protected UUID doInBackground(Void... params) {
+         try {
+            addUSD(Optional.<String>absent());
+         } catch (CoinapultClient.CoinapultBackendException e) {
+            return null;
+         }
+         return getId();
+      }
+
+      @Override
+      protected void onPostExecute(UUID account) {
+      }
    }
 
    @Override
@@ -410,7 +429,7 @@ public class CoinapultManager implements WalletAccount {
    public boolean isMine(Address address) {
       // there might be more, but currently we only know about this one...
       Optional<Address> receivingAddress = getReceivingAddress();
-      return  receivingAddress.isPresent() && receivingAddress.get().equals(address);
+      return receivingAddress.isPresent() && receivingAddress.get().equals(address);
    }
 
    @Override
@@ -591,14 +610,6 @@ public class CoinapultManager implements WalletAccount {
       }
    }
 
-   public PreparedCoinapult prepareCoinapultTx(Address receivingAddress, ExactFiatValue amountEntered) throws StandardTransactionBuilder.InsufficientFundsException {
-      if (balanceUSD.confirmed.getValue().compareTo(amountEntered.getValue()) < 0) {
-         throw new StandardTransactionBuilder.InsufficientFundsException(getSatoshis(amountEntered), 0);
-      }
-      return new PreparedCoinapult(receivingAddress, amountEntered);
-   }
-
-
    public boolean broadcast(PreparedCoinapult preparedCoinapult) {
       try {
          final com.coinapult.api.httpclient.Transaction.Json send;
@@ -635,6 +646,13 @@ public class CoinapultManager implements WalletAccount {
       return new CurrencyBasedBalance(zero, zero, zero, true);
    }
 
+   public PreparedCoinapult prepareCoinapultTx(Address receivingAddress, ExactFiatValue amountEntered) throws StandardTransactionBuilder.InsufficientFundsException {
+      if (balanceUSD.confirmed.getValue().compareTo(amountEntered.getValue()) < 0) {
+         throw new StandardTransactionBuilder.InsufficientFundsException(getSatoshis(amountEntered), 0);
+      }
+      return new PreparedCoinapult(receivingAddress, amountEntered);
+   }
+
    public boolean setMail(Optional<String> mail) {
       if (!mail.isPresent()) {
          return false;
@@ -652,7 +670,7 @@ public class CoinapultManager implements WalletAccount {
    public boolean verifyMail(String link, String email) {
       try {
          EmailAddress.Json result = coinapultClient.verifyMail(link, email);
-         if (!result.verified){
+         if (!result.verified) {
             logger.logError("Coinapult email error: " + result.error);
          }
          return result.verified;
