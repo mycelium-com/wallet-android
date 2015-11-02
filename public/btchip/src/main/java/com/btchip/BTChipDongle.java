@@ -651,6 +651,7 @@ public class BTChipDongle implements BTChipConstants {
       byte[] path = null;
       if (changePath != null) {
          path = BIP32Utils.splitPath(changePath);
+	 resolvePath(changePath);
          exchangeApdu(BTCHIP_CLA, BTCHIP_INS_HASH_INPUT_FINALIZE_FULL, (byte) 0xFF, (byte) 0x00, path, null);
          oldAPI = ((lastSW == SW_INCORRECT_P1_P2) || (lastSW == SW_WRONG_P1_P2) || (lastSW == SW_CONDITIONS_NOT_SATISFIED));
       } else {
