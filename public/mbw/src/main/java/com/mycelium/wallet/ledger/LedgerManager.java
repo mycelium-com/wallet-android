@@ -237,12 +237,28 @@ public class LedgerManager extends AbstractAccountScanManager implements
                return null;
             }
          } catch (BTChipException e) {
+            if (e.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
+               postErrorMessage("PIN is terminated");
+               return null;
+            }
             if (e.getSW() == SW_HALTED) {
                LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
                try {
                   proxy.close();
                   proxy.init();
-               } catch (Exception ignore) {
+                  int attempts = dongle.getVerifyPinRemainingAttempts();
+                  if (attempts == 0) {
+                     postErrorMessage("PIN is terminated");
+                     return null;
+                  }
+               } 
+               catch (BTChipException e1) {
+                  if (e1.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
+                     postErrorMessage("PIN is terminated");
+                     return null;
+                  }
+               }
+               catch (Exception ignore) {
                }
             }
          }
@@ -300,7 +316,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      // Poor man counter
                      LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
                      try {
-                        proxy.writeNVM(NVM_IMAGE, proxy.requestNVM().get());
+			byte[] updatedNvm = proxy.requestNVM().get();
+                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
+			proxy.setNVM(updatedNvm);
                      } catch (Exception ignore) {
                      }
                   }
@@ -455,15 +473,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
       // is with leading "m/" -> replace the "m" away
       String keyPathString = keyPath.toString().replace("m/", "");
       if (isTEE) {
-         // Check if the PIN has been terminated - in this case, reinitialize
+         // Verify that the TEE is set up properly - PIN cannot be locked here 
+         // as this is called directly after the account creation
          try {
             int attempts = dongle.getVerifyPinRemainingAttempts();
-            if (attempts == 0) {
-               context.deleteFile(NVM_IMAGE);
-               LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
-               proxy.setNVM(null);
-               proxy.init();
-            }
          } catch (BTChipException e) {
             if (e.getSW() == SW_HALTED) {
                LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
@@ -491,7 +504,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      null,
                      null, null);
                try {
-                  proxy.writeNVM(NVM_IMAGE, proxy.requestNVM().get());
+                        byte[] updatedNvm = proxy.requestNVM().get();
+                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
+                        proxy.setNVM(updatedNvm);
                } catch (Exception ignore) {
                }
                try {
@@ -503,7 +518,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   }
                } finally {
                   try {
-                     proxy.writeNVM(NVM_IMAGE, proxy.requestNVM().get());
+                        byte[] updatedNvm = proxy.requestNVM().get();
+                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
+                        proxy.setNVM(updatedNvm);
                   } catch (Exception ignore) {
                   }
                }
@@ -523,7 +540,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      // Poor man counter
                      LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
                      try {
-                        proxy.writeNVM(NVM_IMAGE, proxy.requestNVM().get());
+                        byte[] updatedNvm = proxy.requestNVM().get();
+                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
+                        proxy.setNVM(updatedNvm);
                      } catch (Exception ignore) {
                      }
                   }
