@@ -18,6 +18,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.megiontechnologies.Bitcoins;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
@@ -38,7 +39,7 @@ import java.util.UUID;
 
 public interface WalletAccount {
 
-   void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException;
+   void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    public enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION};
 
@@ -204,7 +205,7 @@ public interface WalletAccount {
     *                                    transaction
     */
    UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws OutputTooSmallException,
-         InsufficientFundsException;
+           InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**
     * Create a new unsigned transaction sending funds to one or more defined script outputs.
@@ -226,7 +227,7 @@ public interface WalletAccount {
     *                                    transaction
     */
    UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException,
-         InsufficientFundsException;
+           InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**
     * Sign an unsigned transaction without broadcasting it.

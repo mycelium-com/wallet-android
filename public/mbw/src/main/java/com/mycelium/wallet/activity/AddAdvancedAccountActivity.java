@@ -45,8 +45,12 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.trezor.activity.TrezorAccountImportActivity;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -55,6 +59,9 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
+
+   public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
+   public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, AddAdvancedAccountActivity.class);
@@ -105,13 +112,26 @@ public class AddAdvancedAccountActivity extends Activity {
          }
       });
 
+      findViewById(R.id.btBuyTrezor).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Utils.openWebsite(activity, BUY_TREZOR_LINK);
+         }
+      });
+
       findViewById(R.id.btLedger).setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-             LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE);
-          }
-       });
-            
+         @Override
+         public void onClick(View view) {
+            LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE);
+         }
+      });
+
+      findViewById(R.id.btBuyLedger).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Utils.openWebsite(activity, BUY_LEDGER_LINK);
+         }
+      });
    }
 
    @Override
@@ -170,7 +190,15 @@ public class AddAdvancedAccountActivity extends Activity {
                if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
                   Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                }
-               returnAccount(hdKeyNode);
+               int depth = hdKeyNode.getDepth();
+               if (depth != 3) {
+                  // only BIP44 account level is accepted here. Unfortunately this will also reject the xpub key from
+                  // our current Mycelium iPhone app which is account level plus one (external chain).
+                  String errorMessage = this.getString(R.string.import_xpub_wrong_depth, depth);
+                  new Toaster(this).toast(errorMessage, false);
+               } else {
+                  returnAccount(hdKeyNode);
+               }
             } else {
                throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
             }
@@ -186,12 +214,12 @@ public class AddAdvancedAccountActivity extends Activity {
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
-      } else if (requestCode == TREZOR_RESULT_CODE && resultCode == Activity.RESULT_OK){
+      } else if (requestCode == TREZOR_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
-         finishOk((UUID)intent.getSerializableExtra("account"));
-      } else if (requestCode == LEDGER_RESULT_CODE && resultCode == Activity.RESULT_OK){
+         finishOk((UUID) intent.getSerializableExtra("account"));
+      } else if (requestCode == LEDGER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
-         finishOk((UUID)intent.getSerializableExtra("account"));    	  
+         finishOk((UUID) intent.getSerializableExtra("account"));
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
@@ -213,7 +241,7 @@ public class AddAdvancedAccountActivity extends Activity {
       finishOk(acc);
    }
 
-   private void returnAccount(HdKeyNode hdKeyNode){
+   private void returnAccount(HdKeyNode hdKeyNode) {
       UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);

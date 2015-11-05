@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.sample;
 
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
@@ -158,6 +159,8 @@ public class CmdLineWallet {
                } catch (InsufficientFundsException e) {
                   print("No more funds");
                } catch (InvalidKeyCipher e) {
+                  throw new RuntimeException(e);
+               } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
                   throw new RuntimeException(e);
                }
             }
@@ -418,6 +421,9 @@ public class CmdLineWallet {
          return;
       } catch (InsufficientFundsException e) {
          print("insufficient funds");
+         return;
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         print("unexpected error: %s" + e.getMessage());
          return;
       }
 

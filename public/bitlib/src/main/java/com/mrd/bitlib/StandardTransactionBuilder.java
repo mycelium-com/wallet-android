@@ -62,6 +62,15 @@ public class StandardTransactionBuilder {
 
    }
 
+   public static class UnableToBuildTransactionException extends Exception {
+      private static final long serialVersionUID = 1L;
+
+      public UnableToBuildTransactionException(String msg) {
+         super(msg);
+      }
+
+   }
+
    public static class SigningRequest implements Serializable {
       private static final long serialVersionUID = 1L;
 
@@ -281,7 +290,7 @@ public class StandardTransactionBuilder {
    public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
-         throws InsufficientFundsException {
+           throws InsufficientFundsException, UnableToBuildTransactionException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
       OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
@@ -333,11 +342,15 @@ public class StandardTransactionBuilder {
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
             unsignedTransaction.getOutputs().length);
-      float estimatedFeePerKb = (long)((float) unsignedTransaction.calculateFee() / ((float) estimateTransactionSize / 1000));
+      long calculatedFee = unsignedTransaction.calculateFee();
+      float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
 
       // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
-         throw new RuntimeException(String.format("Unreasonable high transaction fee of %s satoshi per 1000Byte", estimatedFeePerKb));
+         throw new UnableToBuildTransactionException(
+                 String.format("Unreasonable high transaction fee of %s sat/1000Byte on a %d Bytes tx. Fee: %d sat, Suggested fee: %d sat",
+                         estimatedFeePerKb, estimateTransactionSize, calculatedFee, minerFeeToUse)
+         );
       }
 
       return unsignedTransaction;

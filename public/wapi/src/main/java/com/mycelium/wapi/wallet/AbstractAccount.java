@@ -761,7 +761,7 @@ public abstract class AbstractAccount implements WalletAccount {
    protected abstract void persistContextIfNecessary();
 
    @Override
-   public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException {
+   public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
       createUnsignedTransaction(Arrays.asList(receiver), kbMinerFee);
    }
 
@@ -845,6 +845,10 @@ public abstract class AbstractAccount implements WalletAccount {
          } catch (InsufficientFundsException e) {
             // We cannot send this amount, try again with a little higher fee
             continue;
+         } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+            // something unexpected happened while building the max-amount tx
+            // be cautious here and don't allow spending
+            return ExactBitcoinValue.ZERO;
          }
       }
    }
@@ -856,7 +860,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
    @Override
    public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
-         throws OutputTooSmallException, InsufficientFundsException {
+           throws OutputTooSmallException, InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
 
       // Determine the list of spendable outputs
@@ -874,7 +878,7 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
-   public UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException, InsufficientFundsException {
+   public UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException, InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
 
       // Determine the list of spendable outputs

@@ -127,7 +127,6 @@ public enum CurrencyCode {
    LRD("LRD", "Liberian Dollar"), //
    LSL("LSL", "Lesotho Loti"), //
    LTL("LTL", "Lithuanian Litas"), //
-   LVL("LVL", "Latvian Lats"), //
    LYD("LYD", "Libyan Dinar"), //
    MAD("MAD", "Moroccan Dirham"), //
    MDL("MDL", "Moldovan Leu"), //

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.5.6" versioncode="25600">
+        <change>Improve error handling for ledger devices (report wrong pin correctly)</change>
+        <change>[bugfix] Importing HD accounts now verifies that the extended key is an account-level key according to BIP44</change>
+        <change>[bugfix] Fix crash bug while building unsigned transaction</change>
+    </release>
     <release version="2.5.5" versioncode="25500">
         <change>Offline spending directly from external master-seeds</change>
         <change>Offline spending from Bip32 root account of a masterseed (hive compatible)</change>

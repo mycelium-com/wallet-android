@@ -53,6 +53,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.megiontechnologies.Bitcoins;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
@@ -591,6 +592,12 @@ public class SendMainActivity extends Activity {
       } catch (OutputTooSmallException e1) {
          Toast.makeText(this, getResources().getString(R.string.amount_too_small), Toast.LENGTH_LONG).show();
          return TransactionStatus.OutputTooSmall;
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         Toast.makeText(this, getResources().getString(R.string.unable_to_build_tx), Toast.LENGTH_LONG).show();
+         // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+         // debug it
+         _mbwManager.reportIgnoredException("MinerFeeException", e);
+         return TransactionStatus.MissingArguments;
       }
    }
 

@@ -7,14 +7,14 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/add_unrelated_account_title"
-                android:textSize="24sp" />
+                android:textSize="24sp"/>
 
 
         <TextView
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="20dp"
-                android:text="@string/scan_desc" />
+                android:text="@string/scan_desc"/>
 
         <Button
                 android:id="@+id/btScan"
@@ -42,8 +42,7 @@
                 android:layout_marginTop="5dp"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
-                android:text="@string/scan" />
-
+                android:text="@string/scan"/>
 
 
         <TextView
@@ -51,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:text="@string/clipboard_desc" />
+                android:text="@string/clipboard_desc"/>
 
         <Button
                 android:id="@+id/btClipboard"
@@ -61,7 +60,7 @@
                 android:layout_marginTop="5dp"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
-                android:text="@string/clipboard" />
+                android:text="@string/clipboard"/>
 
 
         <TextView
@@ -69,41 +68,74 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:text="@string/trezor_import_account" />
+                android:text="@string/trezor_import_account"/>
 
-        <Button
-                android:id="@+id/btTrezor"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="5dp"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
-                android:text="@string/trezor" />
+                android:layout_height="wrap_content">
 
-        <TextView
+                    <Button
+                        android:id="@+id/btTrezor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="30dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/trezor"/>
+
+                    <Button
+                        android:id="@+id/btBuyTrezor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="30dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/buy_one"/>
+            </LinearLayout>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:text="@string/ledger_import_account" />
+                android:text="@string/ledger_import_account"/>
 
-        <Button
-                android:id="@+id/btLedger"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="5dp"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
-                android:text="@string/ledger" />
+                >
 
-        <TextView
+                    <Button
+                        android:id="@+id/btLedger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="30dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/ledger"/>
+
+                    <Button
+                        android:id="@+id/btBuyLedger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="30dp"
+                        android:paddingRight="30dp"
+                        android:text="@string/buy_one"/>
+            </LinearLayout>
+
+            <TextView
                 android:layout_marginTop="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/new_random_key_desc" />
+                android:text="@string/new_random_key_desc"/>
 
         <Button
                 android:id="@+id/btGenerateNewSingleKey"
@@ -114,7 +146,7 @@
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
                 android:layout_marginBottom="30dp"
-                android:text="@string/generate_new_key" />
+                android:text="@string/generate_new_key"/>
     </LinearLayout>
 
 </ScrollView>

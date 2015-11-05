@@ -47,6 +47,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
@@ -79,6 +80,8 @@ public class TradeActivityUtil {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
          return false;
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         return false;
       }
       return true;
    }
@@ -98,6 +101,8 @@ public class TradeActivityUtil {
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
+         throw new RuntimeException(e);
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
          throw new RuntimeException(e);
       }
    }

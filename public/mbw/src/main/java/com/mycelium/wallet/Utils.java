@@ -47,6 +47,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.StringRes;
 import android.text.ClipboardManager;
@@ -827,6 +828,16 @@ public class Utils {
 
    public static boolean isValidEmailAddress(String value) {
       return android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
+   }
+
+   public static boolean openWebsite(Context context, String uri) {
+      Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+      if (browserIntent.resolveActivity(context.getPackageManager()) != null) {
+         context.startActivity(browserIntent);
+         return true;
+      } else {
+         return false;
+      }
    }
 
 

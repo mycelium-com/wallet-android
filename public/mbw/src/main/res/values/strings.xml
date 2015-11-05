@@ -42,6 +42,7 @@
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
+    <string name="unable_to_build_tx">Unable to build transaction</string>
     <string name="amount_too_small_short">Amount too small</string>
     <string name="miner_fee_label">Miner fee:</string>
     <string name="miner_fee_title">Miner Fee</string>
@@ -847,4 +848,6 @@
     <string name="pop_success">Proof was successful</string>
     <string name="pop_no_matching_transactions">No transactions matching the PoP request were found. You may select a non-matching transaction.</string>
     <string name="pop_transaction_info_advice">Check payment information to prove below</string>
+    <string name="import_xpub_wrong_depth">Can only import account level (3) xpub addresses.\nThis was level %1$s.</string>
+    <string name="buy_one">Buy one…</string>
 </resources>

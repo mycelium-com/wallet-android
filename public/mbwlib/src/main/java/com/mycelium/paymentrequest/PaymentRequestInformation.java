@@ -34,7 +34,9 @@
 
 package com.mycelium.paymentrequest;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.*;
 import com.squareup.wire.Wire;
@@ -65,7 +67,7 @@ public class PaymentRequestInformation implements Serializable {
    private final PkiVerificationData pkiVerificationData;
    private final byte[] rawPaymentRequest;
 
-   public static PaymentRequestInformation fromRawPaymentRequest(byte[] rawPaymentRequest, KeyStore keyStore, NetworkParameters networkParameters) {
+   public static PaymentRequestInformation fromRawPaymentRequest(byte[] rawPaymentRequest, KeyStore keyStore, final NetworkParameters networkParameters) {
 
       if (rawPaymentRequest.length > MAX_MESSAGE_SIZE) {
          throw new PaymentRequestException("payment request too large");
@@ -98,6 +100,22 @@ public class PaymentRequestInformation implements Serializable {
             throw new PaymentRequestException("no outputs specified");
          };
 
+         // check if we are able to parse all output scripts
+         // we might need to improve this later on to provide some flexibility, but until there is are use-cases
+         // prevent users from sending coins to maybe unspendable outputs
+         OutputList transactionOutputs = getTransactionOutputs(paymentDetails);
+         boolean containsStrangeOutput = Iterables.any(transactionOutputs, new Predicate<TransactionOutput>() {
+            @Override
+            public boolean apply(TransactionOutput input) {
+               // search if we got a strange output or a null address as destination
+               return input.script instanceof ScriptOutputStrange ||
+                       input.script.getAddress(networkParameters).equals(Address.getNullAddress(networkParameters));
+            }
+         });
+
+         if (containsStrangeOutput) {
+            throw new PaymentRequestException("unable to parse one of the output scripts");
+         }
 
          X509Certificates certificates;
          String pki_type = Wire.get(paymentRequest.pki_type, PaymentRequest.DEFAULT_PKI_TYPE);
@@ -226,6 +244,10 @@ public class PaymentRequestInformation implements Serializable {
    }
 
    public OutputList getOutputs() {
+      return getTransactionOutputs(this.paymentDetails);
+   }
+
+   private static OutputList getTransactionOutputs(PaymentDetails paymentDetails) {
       OutputList ret = new OutputList();
       for (Output out : paymentDetails.outputs) {
          ret.add(out.amount, ScriptOutput.fromScriptBytes(out.script.toByteArray()));

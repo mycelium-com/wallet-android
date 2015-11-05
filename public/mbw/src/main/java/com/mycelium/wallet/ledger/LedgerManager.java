@@ -132,12 +132,12 @@ public class LedgerManager extends AbstractAccountScanManager implements
    public void setTransportFactory(BTChipTransportFactory transportFactory) {
       this.transportFactory = transportFactory;
    }
-   
+
    private boolean isTee() {
-	   if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
-		   return false;
-	   }
-	   return ((LedgerTransportTEEProxy)getTransport().getTransport()).hasTeeImplementation();
+      if (!(getTransport().getTransport() instanceof LedgerTransportTEEProxy)) {
+         return false;
+      }
+      return ((LedgerTransportTEEProxy) getTransport().getTransport()).hasTeeImplementation();
    }
 
    public BTChipTransportFactory getTransport() {
@@ -196,12 +196,12 @@ public class LedgerManager extends AbstractAccountScanManager implements
       }
    }
 
-   public void enterPin(String pin){
+   public void enterPin(String pin) {
       pinRequestEntry.clear();
       pinRequestEntry.offer(pin);
    }
 
-   public void enterTransaction2FaPin(String tx2FaPin){
+   public void enterTransaction2FaPin(String tx2FaPin) {
       tx2FaEntry.clear();
       tx2FaEntry.offer(tx2FaPin);
    }
@@ -251,14 +251,12 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      postErrorMessage("PIN is terminated");
                      return null;
                   }
-               } 
-               catch (BTChipException e1) {
+               } catch (BTChipException e1) {
                   if (e1.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
                      postErrorMessage("PIN is terminated");
                      return null;
                   }
-               }
-               catch (Exception ignore) {
+               } catch (Exception ignore) {
                }
             }
          }
@@ -316,9 +314,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      // Poor man counter
                      LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
                      try {
-			byte[] updatedNvm = proxy.requestNVM().get();
+                        byte[] updatedNvm = proxy.requestNVM().get();
                         proxy.writeNVM(NVM_IMAGE, updatedNvm);
-			proxy.setNVM(updatedNvm);
+                        proxy.setNVM(updatedNvm);
                      } catch (Exception ignore) {
                      }
                   }
@@ -504,9 +502,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      null,
                      null, null);
                try {
-                        byte[] updatedNvm = proxy.requestNVM().get();
-                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
-                        proxy.setNVM(updatedNvm);
+                  byte[] updatedNvm = proxy.requestNVM().get();
+                  proxy.writeNVM(NVM_IMAGE, updatedNvm);
+                  proxy.setNVM(updatedNvm);
                } catch (Exception ignore) {
                }
                try {
@@ -518,9 +516,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   }
                } finally {
                   try {
-                        byte[] updatedNvm = proxy.requestNVM().get();
-                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
-                        proxy.setNVM(updatedNvm);
+                     byte[] updatedNvm = proxy.requestNVM().get();
+                     proxy.writeNVM(NVM_IMAGE, updatedNvm);
+                     proxy.setNVM(updatedNvm);
                   } catch (Exception ignore) {
                   }
                }
@@ -612,16 +610,16 @@ public class LedgerManager extends AbstractAccountScanManager implements
       editor.putBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, disabled);
       editor.commit();
    }
-   
+
    public String getUnpluggedAID() {
-	   return Dump.dump(aid);
+      return Dump.dump(aid);
    }
-   
+
    public void setUnpluggedAID(String aid) {
-	   SharedPreferences.Editor editor = getEditor();
-	   this.aid = Dump.hexToBin(aid);
-	   editor.putString(Constants.LEDGER_UNPLUGGED_AID_SETTING, aid);
-	   editor.commit();
+      SharedPreferences.Editor editor = getEditor();
+      this.aid = Dump.hexToBin(aid);
+      editor.putString(Constants.LEDGER_UNPLUGGED_AID_SETTING, aid);
+      editor.commit();
    }
 
    private SharedPreferences.Editor getEditor() {

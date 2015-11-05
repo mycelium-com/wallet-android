@@ -47,6 +47,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.model.Address;
@@ -458,12 +459,17 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.ValueTooSmall;
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+         // debug it
+         _mbwManager.reportIgnoredException("MinerFeeException", e);
+         return AmountValidation.Invalid;
       }
       return AmountValidation.Ok;
    }
 
    private enum AmountValidation {
-      Ok, ValueTooSmall, NotEnoughFunds
+      Ok, ValueTooSmall, Invalid, NotEnoughFunds
    }
 
    private AmountValidation checkTransaction() {
