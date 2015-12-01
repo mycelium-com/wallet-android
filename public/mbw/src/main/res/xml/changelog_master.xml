@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.5.7" versioncode="25700">
+        <change>Improve miner fee logic to not overpay on small transactions</change>
+    </release>
     <release version="2.5.6" versioncode="25600">
         <change>Improve error handling for ledger devices (report wrong pin correctly)</change>
         <change>[bugfix] Importing HD accounts now verifies that the extended key is an account-level key according to BIP44</change>

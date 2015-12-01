@@ -27,12 +27,18 @@ import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.util.*;
+import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
 import java.util.*;
 
 public class StandardTransactionBuilder {
+
+   // 1000sat per 1000Bytes, from https://github.com/bitcoin/bitcoin/blob/849a7e645323062878604589df97a1cd75517eb1/src/main.cpp#L78
+   private static final long MIN_RELAY_FEE = 1000;
 
    public static class InsufficientFundsException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
@@ -97,16 +103,16 @@ public class StandardTransactionBuilder {
       private SigningRequest[] _signingRequests;
       private NetworkParameters _network;
 
-      public TransactionOutput[] getOutputs(){
+      public TransactionOutput[] getOutputs() {
          return _outputs;
       }
 
-      public UnspentTransactionOutput[] getFundingOutputs(){
+      public UnspentTransactionOutput[] getFundingOutputs() {
          return _funding;
       }
 
       protected UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-                                  IPublicKeyRing keyRing, NetworkParameters network) {
+                                    IPublicKeyRing keyRing, NetworkParameters network) {
          _network = network;
          _outputs = outputs.toArray(new TransactionOutput[]{});
          _funding = funding.toArray(new UnspentTransactionOutput[]{});
@@ -273,7 +279,7 @@ public class StandardTransactionBuilder {
 
    /**
     * Create an unsigned transaction and automatically calculate the miner fee.
-    * <p/>
+    * <p>
     * If null is specified as the change address the 'richest' address that is part of the funding is selected as the
     * change address. This way the change always goes to the address contributing most, and the change wil lbe less
     * than the contribution.
@@ -290,13 +296,13 @@ public class StandardTransactionBuilder {
    public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
-           throws InsufficientFundsException, UnableToBuildTransactionException {
+         throws InsufficientFundsException, UnableToBuildTransactionException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
       OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
       long fee = oldOutputs.getFee();
       long outputSum = oldOutputs.getOutputSum();
-       //todo extract coinselector interface with 2 implementations, oldest and pruning
+      //todo extract coinselector interface with 2 implementations, oldest and pruning
       List<UnspentTransactionOutput> funding = pruneRedundantOutputs(oldOutputs.getAllFunding(), fee + outputSum);
       fee = estimateFee(funding.size(), _outputs.size() + 1, minerFeeToUse);
 
@@ -348,8 +354,8 @@ public class StandardTransactionBuilder {
       // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
          throw new UnableToBuildTransactionException(
-                 String.format("Unreasonable high transaction fee of %s sat/1000Byte on a %d Bytes tx. Fee: %d sat, Suggested fee: %d sat",
-                         estimatedFeePerKb, estimateTransactionSize, calculatedFee, minerFeeToUse)
+               String.format("Unreasonable high transaction fee of %s sat/1000Byte on a %d Bytes tx. Fee: %d sat, Suggested fee: %d sat",
+                     estimatedFeePerKb, estimateTransactionSize, calculatedFee, minerFeeToUse)
          );
       }
 
@@ -368,9 +374,9 @@ public class StandardTransactionBuilder {
       for (int i = 0; i < largestToSmallest.size(); i++) {
          UnspentTransactionOutput output = largestToSmallest.get(i);
          target += output.value;
-         if (target >= outputSum){
+         if (target >= outputSum) {
 
-            List<UnspentTransactionOutput> ret = largestToSmallest.subList(0, i+1);
+            List<UnspentTransactionOutput> ret = largestToSmallest.subList(0, i + 1);
             Collections.shuffle(ret);
             return ret;
          }
@@ -398,8 +404,9 @@ public class StandardTransactionBuilder {
       for (Address address : index.keys()) {
          Collection<UnspentTransactionOutput> unspentTransactionOutputs = index.get(address);
          long newSum = sum(unspentTransactionOutputs);
-         if (newSum > maxSum)
+         if (newSum > maxSum) {
             ret = address;
+         }
          maxSum = newSum;
       }
       return ret;
@@ -440,7 +447,7 @@ public class StandardTransactionBuilder {
 
          // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
          // choose them as the last possible option
-         int height = output.height > 0 ? output.height : Integer.MAX_VALUE-1;
+         int height = output.height > 0 ? output.height : Integer.MAX_VALUE - 1;
 
          if (height < minHeight) {
             minHeight = height;
@@ -495,10 +502,16 @@ public class StandardTransactionBuilder {
    }
 
    private static long estimateFee(int inputs, int outputs, long minerFeeToUse) {
-      int txSize = estimateTransactionSize(inputs, outputs);
+      // check if our estimation leads to a small fee that's below the default bitcoind-MIN_RELAY_FEE
+      // if so, use the MIN_RELAY_FEE
+      if (minerFeeToUse < MIN_RELAY_FEE) {
+         minerFeeToUse = MIN_RELAY_FEE;
+      }
+
       // fee is based on the size of the transaction, we have to pay for
       // every 1000 bytes
-      long requiredFee = (1 + (txSize / 1000)) * minerFeeToUse;
+      int txSize = estimateTransactionSize(inputs, outputs);
+      long requiredFee = (long) (((float) txSize / 1000.0) * minerFeeToUse);
       return requiredFee;
    }
 
