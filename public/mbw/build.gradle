@@ -39,6 +39,13 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.2.0'
     compile 'com.android.support:multidex:1.0.1'
 
+    compile ('com.google.code.findbugs:annotations:3.0.1') {
+        //transitive = false
+        //exclude group: 'javax/annotation/**'
+        // with these excludes stuff works. not sure which can be removed.
+        exclude module: 'jsr305'
+        exclude module: 'jcip-annotations'
+    }
 }
 
 def commonDebugKeystore = file("../../keystore_debug")
@@ -64,8 +71,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 25700
-        versionName '2.5.7'
+        versionCode 25805
+        versionName '2.5.8'
         multiDexEnabled true
     }
 

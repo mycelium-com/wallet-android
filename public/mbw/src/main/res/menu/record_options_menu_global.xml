@@ -8,9 +8,9 @@
             android:title="@string/add_key"
             yourapp:showAsAction="ifRoom|withText"/>
     <item
-            android:id="@+id/miAddUsdAccount"
+            android:id="@+id/miAddFiatAccount"
             android:icon="@drawable/holo_dark_ic_action_new_usd_account"
-            android:title="@string/add_usd_key"
+            android:title="@string/add_fiat_key"
             yourapp:showAsAction="ifRoom|withText"/>
     <item
             android:id="@+id/miLockKeys"

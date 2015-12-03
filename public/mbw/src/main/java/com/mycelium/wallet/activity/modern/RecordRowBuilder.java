@@ -53,6 +53,8 @@ import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class RecordRowBuilder {
@@ -149,9 +151,9 @@ public class RecordRowBuilder {
 
       // Set balance
       if (walletAccount.isActive()) {
-         Balance balance = walletAccount.getBalance();
+         CurrencyBasedBalance balance = walletAccount.getCurrencyBasedBalance();
          rowView.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
-         String balanceString = mbwManager.getBtcValueString(balance.confirmed + balance.pendingChange);
+         String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
          TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
@@ -182,7 +184,7 @@ public class RecordRowBuilder {
       return rowView;
    }
 
-   public View buildTotalView(LinearLayout parent, long balanceSum) {
+   public View buildTotalView(LinearLayout parent, CurrencySum balanceSum) {
       View rowView = inflater.inflate(R.layout.record_row_total, parent, false);
       ToggleableCurrencyButton tcdBalance = ((ToggleableCurrencyButton) rowView.findViewById(R.id.tcdBalance));
       tcdBalance.setEventBus(mbwManager.getEventBus());

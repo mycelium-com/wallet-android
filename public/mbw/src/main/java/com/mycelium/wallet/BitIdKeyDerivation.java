@@ -39,6 +39,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 /**
 * Created by Andreas on 20.06.2015.
 */
-public interface BitidKeyDerivation {
+public interface BitIdKeyDerivation {
   InMemoryPrivateKey deriveKey(int accountIndex, String site);
 }

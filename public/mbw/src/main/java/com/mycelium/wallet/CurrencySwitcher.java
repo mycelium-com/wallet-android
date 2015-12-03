@@ -34,20 +34,18 @@
 
 package com.mycelium.wallet;
 
-import android.content.Context;
+import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.currency.CurrencySum;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CurrencySwitcher {
-   public static final String BTC="BTC";
-
    private final ExchangeRateManager exchangeRateManager;
 
-   private Context applicationContext;
    private List<String> fiatCurrencies;
    private CoinUtil.Denomination bitcoinDenomination;
 
@@ -57,53 +55,51 @@ public class CurrencySwitcher {
    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
    private String currentCurrency;
 
-   public CurrencySwitcher(final Context applicationContext, final ExchangeRateManager exchangeRateManager, final List<String> fiatCurrencies, final String currentCurrency, final CoinUtil.Denomination bitcoinDenomination) {
-      this.applicationContext = applicationContext;
+   public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<String> fiatCurrencies, final String currentCurrency, final CoinUtil.Denomination bitcoinDenomination) {
       this.exchangeRateManager = exchangeRateManager;
-      this.fiatCurrencies = fiatCurrencies;
+      ArrayList<String> currencies = Lists.newArrayList(fiatCurrencies);
+      Collections.sort(currencies);
+      this.fiatCurrencies = currencies;
       this.bitcoinDenomination = bitcoinDenomination;
 
       this.currentCurrency = currentCurrency;
 
       // if BTC is selected or current currency is not in list of available currencies (e.g. after update)
       // select a default one or none
-      if (currentCurrency.equals(BTC) || !fiatCurrencies.contains(currentCurrency) ){
-         if (fiatCurrencies.size()==0){
+      if (currentCurrency.equals(CurrencyValue.BTC) || !fiatCurrencies.contains(currentCurrency)) {
+         if (fiatCurrencies.size() == 0) {
             this.currentFiatCurrency = "";  // no fiat currency selected
-         }else {
-            this.currentFiatCurrency = fiatCurrencies.get(0);
+         } else {
+            this.currentFiatCurrency = currencies.get(0);
          }
-      }else {
+      } else {
          this.currentFiatCurrency = currentCurrency;
       }
    }
 
-   public void setCurrency(final String fiatCurrency){
-      if (!fiatCurrency.equals(CurrencySwitcher.BTC)) {
-         currentFiatCurrency = fiatCurrency;
+   public void setCurrency(final String setToCurrency) {
+      if (!setToCurrency.equals(CurrencyValue.BTC)) {
+         currentFiatCurrency = setToCurrency;
       }
-      currentCurrency = fiatCurrency;
+      currentCurrency = setToCurrency;
    }
 
-   public String getCurrentFiatCurrency(){
+   public String getCurrentFiatCurrency() {
       return currentFiatCurrency;
    }
 
-   public String getCurrentCurrency(){
+   public String getCurrentCurrency() {
       return currentCurrency;
    }
 
-   public String getCurrentCurrencyIncludingDenomination(){
-
-      if (currentCurrency.equals(BTC)){
+   public String getCurrentCurrencyIncludingDenomination() {
+      if (currentCurrency.equals(CurrencyValue.BTC)) {
          // use denomination only for btc
          return bitcoinDenomination.getUnicodeName();
-      }else {
+      } else {
          return currentCurrency;
       }
    }
-
-
 
 
    public List<String> getCurrencyList() {
@@ -111,15 +107,19 @@ public class CurrencySwitcher {
       return new ArrayList<String>(fiatCurrencies);
    }
 
-   public int getFiatCurrenciesCount(){
+   public int getFiatCurrenciesCount() {
       return fiatCurrencies.size();
    }
 
-   public int getCurrenciesCount(){
+   public int getCurrenciesCount() {
       return fiatCurrencies.size() + 1;  // BTC is always available
    }
 
-   public void setCurrencyList(final List<String> currencies) {
+   public void setCurrencyList(final Set<String> fiatCurrencies) {
+      // convert the set to a list and sort it
+      ArrayList<String> currencies = Lists.newArrayList(fiatCurrencies);
+      Collections.sort(currencies);
+
       //if we de-selected our current active currency, we switch it
       if (!currencies.contains(currentFiatCurrency)) {
          if (currencies.isEmpty()) {
@@ -130,7 +130,7 @@ public class CurrencySwitcher {
          }
       }
       //copy to prevent changes by caller
-      fiatCurrencies = new ArrayList<String>(currencies);
+      this.fiatCurrencies = new ArrayList<String>(currencies);
    }
 
    public String getNextCurrency(boolean includeBitcoin) {
@@ -146,15 +146,15 @@ public class CurrencySwitcher {
 
       if (index >= currencies.size()) {
          // we are at the end of the fiat-list. return BTC if we should include Bitcoin, otherwise wrap around
-         if (includeBitcoin){
+         if (includeBitcoin) {
             // only set currentCurrency, but leave currentFiat currency as it was
-            currentCurrency = CurrencySwitcher.BTC;
-         }else {
+            currentCurrency = CurrencyValue.BTC;
+         } else {
             index -= currencies.size(); //wrap around
             currentCurrency = currencies.get(index);
             currentFiatCurrency = currentCurrency;
          }
-      }else{
+      } else {
          currentCurrency = currencies.get(index);
          currentFiatCurrency = currentCurrency;
       }
@@ -181,7 +181,7 @@ public class CurrencySwitcher {
       String valueString = CoinUtil.valueString(satoshis, d, true);
       if (includeUnit) {
          return valueString + " " + d.getUnicodeName();
-      }else{
+      } else {
          return valueString;
       }
    }
@@ -191,14 +191,14 @@ public class CurrencySwitcher {
       String valueString = CoinUtil.valueString(satoshis, d, precision);
       if (includeUnit) {
          return valueString + " " + d.getUnicodeName();
-      }else{
+      } else {
          return valueString;
       }
    }
 
 
-   public boolean isFiatExchangeRateAvailable(){
-      if (Strings.isNullOrEmpty(currentFiatCurrency)){
+   public boolean isFiatExchangeRateAvailable() {
+      if (Strings.isNullOrEmpty(currentFiatCurrency)) {
          // we dont even have a fiat currency...
          return false;
       }
@@ -208,80 +208,100 @@ public class CurrencySwitcher {
       return rate != null && rate.price != null;
    }
 
-   public String getFormattedFiatValue(long satoshis, boolean includeCurrencyCode){
-
-      if (Strings.isNullOrEmpty(currentFiatCurrency)){
+   public String getFormattedFiatValue(CurrencyValue value, boolean includeCurrencyCode) {
+      if (value == null){
          return "";
       }
 
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(getCurrentFiatCurrency());
-      if (rate == null){
+      CurrencyValue targetCurrency = getAsFiatValue(value);
+
+      if (Strings.isNullOrEmpty(currentFiatCurrency)) {
+         return "";
+      }
+
+      if (targetCurrency == null) {
          //todo
          return "";
-      }else {
-         if (rate.price != null) {
-            String fiatValueAsString = Utils.getFiatValueAsString(satoshis, rate.price);
-            if (includeCurrencyCode) {
-               return fiatValueAsString + " " + currentFiatCurrency;
-            } else {
-               return fiatValueAsString;
-            }
+      } else {
+         if (includeCurrencyCode) {
+            return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination());
          } else {
-            // no valid price available
-            return "";
+            return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination());
          }
       }
    }
 
-   public String getFormattedFiatValue(long satoshis, boolean includeCurrencyCode, int precision){
-
-      if (Strings.isNullOrEmpty(currentFiatCurrency)){
+   public String getFormattedFiatValue(CurrencyValue value, boolean includeCurrencyCode, int precision) {
+      if (Strings.isNullOrEmpty(currentFiatCurrency)) {
          return "";
       }
 
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(getCurrentFiatCurrency());
-      if (rate == null){
-         //todo
+      CurrencyValue targetCurrency = getAsFiatValue(value);
+
+      if (targetCurrency == null) {
          return "";
-      }else {
-         if (rate.price != null) {
-            String fiatValueAsString = Utils.getFiatValueAsString(satoshis, rate.price, precision);
-            if (includeCurrencyCode) {
-               return fiatValueAsString + " " + currentFiatCurrency;
-            } else {
-               return fiatValueAsString;
-            }
+      } else {
+         if (includeCurrencyCode) {
+            return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination(), precision);
          } else {
-            // no valid price available
-            return "";
+            return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination(), precision);
          }
       }
    }
 
-   public String getFormattedValue(long satoshis, boolean includeCurrencyCode){
-      if (currentCurrency.equals(BTC)){
-         return getBtcValueString(satoshis, includeCurrencyCode);
-      }else{
-         return getFormattedFiatValue(satoshis, includeCurrencyCode);
+   public String getFormattedValue(CurrencyValue currencyValue, boolean includeCurrencyCode) {
+      if (currencyValue == null){
+         return "";
+      }
+      CurrencyValue targetCurrency = getAsValue(currencyValue);
+      if (includeCurrencyCode) {
+         return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination());
+      } else {
+         return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination());
       }
    }
 
-   public String getFormattedValue(long satoshis, boolean includeCurrencyCode, int precision){
-      if (currentCurrency.equals(BTC)){
-         return getBtcValueString(satoshis, includeCurrencyCode, precision);
-      }else{
-         return getFormattedFiatValue(satoshis, includeCurrencyCode, precision);
+   public String getFormattedValue(CurrencyValue currencyValue, boolean includeCurrencyCode, int precision) {
+      if (currencyValue == null){
+         return "";
       }
+      CurrencyValue targetCurrency = getAsValue(currencyValue);
+      if (includeCurrencyCode) {
+         return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination(), precision);
+      } else {
+         return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination(), precision);
+      }
+   }
+
+   public CurrencyValue getAsFiatValue(CurrencyValue value){
+      if (value == null){
+         return null;
+      }
+      if (Strings.isNullOrEmpty(currentFiatCurrency)) {
+         return null;
+      }
+      return CurrencyValue.fromValue(value, getCurrentFiatCurrency(), exchangeRateManager);
+   }
+
+   public CurrencyValue getAsValue(CurrencyValue value){
+      if (value == null){
+         return null;
+      }
+      return CurrencyValue.fromValue(value, getCurrentCurrency(), exchangeRateManager);
    }
 
    /**
     * Get the exchange rate price for the currently selected currency.
-    * <p/>
+    * <p>
     * Returns null if the current rate is too old or for a different currency.
     * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
     */
    public synchronized Double getExchangeRatePrice() {
       ExchangeRate rate = exchangeRateManager.getExchangeRate(currentFiatCurrency);
       return rate == null ? null : rate.price;
+   }
+
+   public CurrencyValue getValueFromSum(CurrencySum sum) {
+      return sum.getSumAsCurrency(currentCurrency, exchangeRateManager);
    }
 }

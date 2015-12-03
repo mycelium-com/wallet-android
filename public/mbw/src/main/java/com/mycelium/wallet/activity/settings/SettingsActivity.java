@@ -219,7 +219,7 @@ public class SettingsActivity extends PreferenceActivity {
          llDialog.addView(tvInfo);
          llDialog.addView(aidEdit);
          b.setView(llDialog);
-         AlertDialog dialog = b.show();
+         b.show();
          return true;
       }
    };
@@ -491,7 +491,6 @@ public class SettingsActivity extends PreferenceActivity {
    @SuppressWarnings("deprecation")
    private void setupLocalTraderSettings() {
       if (!_ltManager.hasLocalTraderAccount()) {
-         PreferenceScreen myceliumPreferences = (PreferenceScreen) findPreference("myceliumPreferences");
          PreferenceCategory localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
          CheckBoxPreference disableLt = (CheckBoxPreference) findPreference("ltDisable");
          if (localTraderPrefs != null) {

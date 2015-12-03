@@ -24,6 +24,7 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
+// OutPoint denotes a particular output of a given transaction.
 public class OutPoint implements Serializable {
    private static final long serialVersionUID = 1L;
    

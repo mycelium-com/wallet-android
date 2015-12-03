@@ -60,22 +60,25 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.CoinapultManager;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
+import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
+import com.mycelium.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
@@ -164,14 +167,15 @@ public class AccountsFragment extends Fragment {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       ActivityCompat.invalidateOptionsMenu(getActivity());
-      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAccountActivity.RESULT_COINAPULT) {
-         UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         _mbwManager.setSelectedAccount(accountid);
-         _mbwManager.getMetadataStorage().storeAccountLabel(accountid,"coinapultUSD");
-         _focusedAccount = _mbwManager.getCoinapultManager();
+      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
+         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+         CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+         _mbwManager.setSelectedAccount(accountId);
+         _focusedAccount = account;
          update();
          return;
       }
+
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
@@ -369,21 +373,23 @@ public class AccountsFragment extends Fragment {
 
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
 
-         Long spendableBalance = 0L;
+         CurrencySum totalSpendableBalance = new CurrencySum();
          String activeTitle = getString(R.string.active_hd_accounts_name) + (activeHdRecords.isEmpty() ? " " + getString(R.string.active_accounts_empty) : "");
-         LinearLayout activeHdAccountsView = createAccountViewList(activeTitle, activeHdRecords, selectedAccount, getSpendableBalance(activeHdAccounts));
+         CurrencySum spendableBalanceHdAccounts = getSpendableBalance(activeHdAccounts);
+         LinearLayout activeHdAccountsView = createAccountViewList(activeTitle, activeHdRecords, selectedAccount, spendableBalanceHdAccounts);
          llRecords.addView(activeHdAccountsView);
 
-         spendableBalance = getSpendableBalance(activeHdAccounts);
+         totalSpendableBalance.add(spendableBalanceHdAccounts);
 
          if (!activeOtherRecords.isEmpty()) {
-            LinearLayout activeOtherAccountsView = createAccountViewList(getString(R.string.active_other_accounts_name), activeOtherRecords, selectedAccount, getSpendableBalance(activeOtherAccounts));
+            CurrencySum spendableBalanceOtherAccounts = getSpendableBalance(activeOtherAccounts);
+            LinearLayout activeOtherAccountsView = createAccountViewList(getString(R.string.active_other_accounts_name), activeOtherRecords, selectedAccount, spendableBalanceOtherAccounts);
             llRecords.addView(activeOtherAccountsView);
 
-            spendableBalance += getSpendableBalance(activeOtherAccounts);
+            totalSpendableBalance.add(spendableBalanceOtherAccounts);
 
             // only show a totals row, if both account type exits
-            LinearLayout activeOtherSum = createActiveAccountBalanceSumView(spendableBalance);
+            LinearLayout activeOtherSum = createActiveAccountBalanceSumView(totalSpendableBalance);
             llRecords.addView(activeOtherSum);
          }
 
@@ -394,7 +400,7 @@ public class AccountsFragment extends Fragment {
       }
    }
 
-   private LinearLayout createActiveAccountBalanceSumView(Long spendableBalance) {
+   private LinearLayout createActiveAccountBalanceSumView(CurrencySum spendableBalance) {
       LinearLayout outer = new LinearLayout(getActivity());
       outer.setOrientation(LinearLayout.VERTICAL);
       outer.setLayoutParams(_outerLayoutParameters);
@@ -418,15 +424,15 @@ public class AccountsFragment extends Fragment {
       return outer;
    }
 
-   private long getSpendableBalance(List<WalletAccount> accounts) {
-      long balanceSum = 0;
+   private CurrencySum getSpendableBalance(List<WalletAccount> accounts) {
+      CurrencySum currencySum = new CurrencySum();
       for (WalletAccount account : accounts) {
-         balanceSum += account.getBalance().getSpendableBalance();
+         currencySum.add(account.getCurrencyBasedBalance().confirmed);
       }
-      return balanceSum;
+      return currencySum;
    }
 
-   private LinearLayout createAccountViewList(String title, List<WalletAccount> accounts, WalletAccount selectedAccount, Long spendableBalance) {
+   private LinearLayout createAccountViewList(String title, List<WalletAccount> accounts, WalletAccount selectedAccount, CurrencySum spendableBalance) {
       LinearLayout outer = new LinearLayout(getActivity());
       outer.setOrientation(LinearLayout.VERTICAL);
       outer.setLayoutParams(_outerLayoutParameters);
@@ -464,18 +470,17 @@ public class AccountsFragment extends Fragment {
       return outer;
    }
 
-   private TextView createTitle(ViewGroup root, String title, Long balance) {
+   private TextView createTitle(ViewGroup root, String title, CurrencySum balance) {
       View view = _layoutInflater.inflate(R.layout.accounts_title_view, root, true);
       TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
       tvTitle.setText(title);
 
       ToggleableCurrencyDisplay tvBalance = (ToggleableCurrencyDisplay) view.findViewById(R.id.tvBalance);
       if (balance != null) {
-         CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
          tvBalance.setEventBus(_mbwManager.getEventBus());
          tvBalance.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
          tvBalance.setValue(balance);
-      }else{
+      } else {
          tvBalance.setVisibility(View.GONE);
       }
 
@@ -555,11 +560,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_active);
       }
 
-      if (account.isActive() && !(account instanceof CoinapultManager)) {
+      if (account.isActive() && !(account instanceof CoinapultAccount)) {
          menus.add(R.menu.record_options_menu_outputs);
       }
 
-      if (account instanceof CoinapultManager) {
+      if (account instanceof CoinapultAccount) {
          menus.add(R.menu.record_options_menu_set_coinapult_mail);
       }
 
@@ -660,7 +665,7 @@ public class AccountsFragment extends Fragment {
          }
 
          @Override
-         public void onDestroyActionMode (ActionMode actionMode){
+         public void onDestroyActionMode(ActionMode actionMode) {
             currentActionMode = null;
             // Loose focus
             if (_focusedAccount != null) {
@@ -668,15 +673,13 @@ public class AccountsFragment extends Fragment {
                update();
             }
          }
-      }
-
-            ;
-      currentActionMode=parent.startSupportActionMode(actionMode);
+      };
+      currentActionMode = parent.startSupportActionMode(actionMode);
       // Late set the focused record. We have to do this after
       // startSupportActionMode above, as it calls onDestroyActionMode when
       // starting for some reason, and this would clear the focus and force
       // an update.
-      _focusedAccount=account;
+      _focusedAccount = account;
 
       update();
    }
@@ -690,7 +693,9 @@ public class AccountsFragment extends Fragment {
       final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
       mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
       String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-      if (!email.isEmpty()) mailField.setText(email);
+      if (!email.isEmpty()) {
+         mailField.setText(email);
+      }
       b.setView(diaView);
       b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
          @Override
@@ -698,11 +703,14 @@ public class AccountsFragment extends Fragment {
             String mailText = mailField.getText().toString();
             if (Utils.isValidEmailAddress(mailText)) {
                Optional<String> mail;
-               if (mailText.isEmpty()) mail = Optional.absent();
-               else mail = Optional.of(mailText);
+               if (mailText.isEmpty()) {
+                  mail = Optional.absent();
+               } else {
+                  mail = Optional.of(mailText);
+               }
                _progress.setCancelable(false);
                _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-               _progress.setMessage(getString(R.string.setting_coinapult_email));
+               _progress.setMessage(getString(R.string.coinapult_setting_email));
                _progress.show();
                _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
                new SetCoinapultMailAsyncTask(mail).execute();
@@ -732,7 +740,7 @@ public class AccountsFragment extends Fragment {
 
       // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
       String clipboardString = Utils.getClipboardString(getActivity());
-      if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")){
+      if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")) {
          verificationTextField.setText(clipboardString);
       }
 
@@ -743,7 +751,7 @@ public class AccountsFragment extends Fragment {
             String verification = verificationTextField.getText().toString();
             _progress.setCancelable(false);
             _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progress.setMessage(getString(R.string.verifying_coinapult_email));
+            _progress.setMessage(getString(R.string.coinapult_verifying_email));
             _progress.show();
             new VerifyCoinapultMailAsyncTask(verification, email).execute();
             dialog.dismiss();
@@ -776,9 +784,9 @@ public class AccountsFragment extends Fragment {
       protected void onPostExecute(Boolean success) {
          _progress.dismiss();
          if (success) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.set_coinapult_mail_please_verify);
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_please_verify);
          } else {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.set_coinapult_mail_failed);
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_failed);
          }
       }
    }
@@ -801,15 +809,15 @@ public class AccountsFragment extends Fragment {
       protected void onPostExecute(Boolean success) {
          _progress.dismiss();
          if (success) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.verify_coinapult_mail_success);
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_success);
          } else {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.verify_coinapult_mail_error);
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_error);
          }
       }
    }
 
 
-   private void verifySingleKeyBackup(){
+   private void verifySingleKeyBackup() {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
@@ -851,9 +859,9 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            if (_focusedAccount instanceof CoinapultManager) {
-               CoinapultManager focusedAccount = (CoinapultManager) _focusedAccount;
-               MessageSigningActivity.callMe(getActivity(), focusedAccount.getAccountKey());
+            if (_focusedAccount instanceof CoinapultAccount) {
+               CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
+               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
             } else if (_focusedAccount instanceof SingleAddressAccount) {
                MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
             } else {
@@ -874,7 +882,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
       } else if (account instanceof Bip44Account) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
-      } else {
+      } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
       }
    }
@@ -893,8 +901,9 @@ public class AccountsFragment extends Fragment {
       if (item.getItemId() == R.id.miAddRecord) {
          AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
          return true;
-      } else if (item.getItemId() == R.id.miAddUsdAccount) {
-         AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE, true);
+      } else if (item.getItemId() == R.id.miAddFiatAccount) {
+         Intent intent = AddCoinapultAccountActivity.getIntent(getActivity());
+         this.startActivityForResult(intent, ADD_RECORD_RESULT_CODE);
          return true;
       } else if (item.getItemId() == R.id.miLockKeys) {
          lock();
@@ -1068,7 +1077,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      if (_focusedAccount instanceof CoinapultManager){
+      if (_focusedAccount instanceof CoinapultAccount) {
          _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
 
             @Override
@@ -1192,6 +1201,11 @@ public class AccountsFragment extends Fragment {
          });
       }
    };
+
+   @Subscribe()
+   public void onExtraAccountsChanged(ExtraAccountsChanged event) {
+      update();
+   }
 
    @Subscribe
    public void addressChanged(ReceivingAddressChanged event) {

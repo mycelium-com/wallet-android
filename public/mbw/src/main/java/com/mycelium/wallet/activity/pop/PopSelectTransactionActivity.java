@@ -190,7 +190,7 @@ public class PopSelectTransactionActivity extends ActionBarActivity implements A
          List<TransactionSummary> list = new ArrayList<TransactionSummary>();
 
          for (TransactionSummary transactionSummary : history) {
-            if (transactionSummary.value >= 0L) {
+            if (transactionSummary.isIncoming) {
                // We are only interested in payments
                continue;
             }

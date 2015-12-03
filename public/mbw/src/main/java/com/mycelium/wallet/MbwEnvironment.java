@@ -46,7 +46,7 @@ public abstract class MbwEnvironment {
 
    private String _brand;
 
-   public static MbwEnvironment determineEnvironment(Context applicationContext) {
+   public static MbwEnvironment verifyEnvironment(Context applicationContext) {
       // Set up environment
       String network = applicationContext.getResources().getString(R.string.network);
       String brand = applicationContext.getResources().getString(R.string.brand);

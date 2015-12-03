@@ -52,7 +52,7 @@ import android.widget.Toast;
 import com.coinapult.api.httpclient.CoinapultClient;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.CoinapultManager;
+import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -69,15 +69,8 @@ import java.util.UUID;
 
 public class AddAccountActivity extends Activity {
 
-   public static final int RESULT_COINAPULT = 2;
-
    public static void callMe(Fragment fragment, int requestCode) {
-      callMe(fragment, requestCode, false);
-   }
-
-   public static void callMe(Fragment fragment, int requestCode, boolean addCoinapult) {
       Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
-      intent.putExtra("coinapult", addCoinapult);
       fragment.startActivityForResult(intent, requestCode);
    }
 
@@ -93,7 +86,6 @@ public class AddAccountActivity extends Activity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_account_activity);
-      final Activity activity = AddAccountActivity.this;
       _mbwManager = MbwManager.getInstance(this);
       _toaster = new Toaster(this);
 
@@ -101,7 +93,7 @@ public class AddAccountActivity extends Activity {
       findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
       final View coinapultUSD = findViewById(R.id.btCoinapultCreate);
       coinapultUSD.setOnClickListener(createCoinapultAccount);
-      coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
+      //coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
       if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
          findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
       } else {
@@ -109,9 +101,6 @@ public class AddAccountActivity extends Activity {
       }
 
       _progress = new ProgressDialog(this);
-      if (getIntent().getBooleanExtra("coinapult", false)){
-         createCoinapultAccountProtected();
-      }
    }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -142,25 +131,14 @@ public class AddAccountActivity extends Activity {
    View.OnClickListener createCoinapultAccount = new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-         createCoinapultAccountProtected();
+         Intent intent = AddCoinapultAccountActivity.getIntent(AddAccountActivity.this);
+         intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+         AddAccountActivity.this.startActivity(intent);
+         AddAccountActivity.this.finish();
+
       }
    };
 
-   private void createCoinapultAccountProtected() {
-      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
-            AddAccountActivity.this, Feature.COINAPULT_NEW_ACCOUNT, true, new Runnable() {
-               @Override
-               public void run() {
-                  _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
-                     @Override
-                     public void run() {
-                        createCoinapultAccount();
-                     }
-                  });
-               }
-            }
-      );
-   }
 
    private void createNewHdAccount() {
       final WalletManager wallet = _mbwManager.getWalletManager(false);
@@ -175,34 +153,6 @@ public class AddAccountActivity extends Activity {
       _progress.setMessage(getString(R.string.hd_account_creation_started));
       _progress.show();
       new HdCreationAsyncTask(_mbwManager.getEventBus()).execute();
-   }
-
-   private void createCoinapultAccount() {
-
-      AlertDialog.Builder b = new AlertDialog.Builder(this);
-      b.setTitle(getString(R.string.coinapult_tos_question));
-      View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_tos, null);
-      b.setView(diaView);
-      b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            // Create the account initially without set email address
-            // if needed, the user can later set and verify it via account menu.
-            new AddCoinapultAsyncTask(_mbwManager.getEventBus(), Optional.<String>absent()).execute();
-         }
-      });
-      b.setNegativeButton(getString(R.string.dontagree), null);
-
-      AlertDialog dialog = b.create();
-
-      TextView link = (TextView) diaView.findViewById(R.id.tosLink);
-      link.setClickable(true);
-      link.setMovementMethod(LinkMovementMethod.getInstance());
-      String linkUrl = getString(R.string.coinapult_tos_link_url);
-      String text = "<a href='" + linkUrl + "'> " + link.getText() + "</a>";
-      link.setText(Html.fromHtml(text));
-
-      dialog.show();
    }
 
    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
@@ -229,54 +179,6 @@ public class AddAccountActivity extends Activity {
       }
    }
 
-   private class AddCoinapultAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private Bus bus;
-      private Optional<String> mail;
-      private CoinapultManager coinapultManager;
-      private final ProgressDialog progressDialog;
-
-      public AddCoinapultAsyncTask(Bus bus, Optional<String> mail) {
-         this.bus = bus;
-         this.mail = mail;
-         progressDialog = ProgressDialog.show(AddAccountActivity.this, getString(R.string.coinapult), getString(R.string.createCoinapult));
-         progressDialog.setCancelable(false);
-         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-         progressDialog.show();
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, true);
-         coinapultManager = _mbwManager.getCoinapultManager();
-         try {
-            coinapultManager.addUSD(mail);
-            // save the mail address locally for later verification
-            if (mail.isPresent()) {
-               _mbwManager.getMetadataStorage().setCoinapultMail(mail.get());
-            }
-         } catch (CoinapultClient.CoinapultBackendException e) {
-            return null;
-         }
-         return coinapultManager.getId();
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-         progressDialog.dismiss();
-         if (account != null) {
-            _mbwManager.setExtraAccount(Optional.of(coinapultManager));
-            bus.post(new AccountChanged(account));
-            Intent result = new Intent();
-            result.putExtra(RESULT_KEY, coinapultManager.getId());
-            setResult(RESULT_COINAPULT, result);
-            finish();
-         } else {
-            // something went wrong - clean up the half ready coinapultManager
-            Toast.makeText(AddAccountActivity.this, R.string.coinapult_unable_to_create_account, Toast.LENGTH_SHORT).show();
-            _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, false);
-         }
-      }
-   }
 
    @com.squareup.otto.Subscribe
    public void hdAccountCreated(HdAccountCreated event) {

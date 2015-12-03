@@ -20,11 +20,7 @@
 package com.btchip;
 
 import com.btchip.comm.BTChipTransport;
-import com.btchip.utils.BIP32Utils;
-import com.btchip.utils.BufferUtils;
-import com.btchip.utils.CoinFormatUtils;
-import com.btchip.utils.Dump;
-import com.btchip.utils.VarintUtils;
+import com.btchip.utils.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -366,7 +362,7 @@ public class BTChipDongle implements BTChipConstants {
          throw new BTChipException("Truncated response");
       }
       lastSW = ((int) (response[response.length - 2] & 0xff) << 8) |
-              (int) (response[response.length - 1] & 0xff);
+            (int) (response[response.length - 1] & 0xff);
       byte[] result = new byte[response.length - 2];
       System.arraycopy(response, 0, result, 0, response.length - 2);
       return result;

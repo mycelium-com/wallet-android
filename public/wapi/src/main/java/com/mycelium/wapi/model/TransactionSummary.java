@@ -19,20 +19,23 @@ package com.mycelium.wapi.model;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 
 public class TransactionSummary implements Comparable<TransactionSummary> {
    public final Sha256Hash txid;
-   public final long value;
+   public final CurrencyValue value;
+   public final boolean isIncoming;
    public final long time;
    public final int height;
    public final int confirmations;
    public final boolean isQueuedOutgoing;
    public final Optional<Address> destinationAddress;
 
-   public TransactionSummary(Sha256Hash txid, long value, long time, int height, int confirmations, boolean isQueuedOutgoing, Optional<Address> destinationAddress) {
+   public TransactionSummary(Sha256Hash txid, CurrencyValue value, boolean isIncoming, long time, int height, int confirmations, boolean isQueuedOutgoing, Optional<Address> destinationAddress) {
       this.txid = txid;
       this.value = value;
+      this.isIncoming = isIncoming;
       this.time = time;
       this.height = height;
       this.confirmations = confirmations;

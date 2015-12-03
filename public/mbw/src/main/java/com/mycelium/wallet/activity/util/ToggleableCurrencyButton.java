@@ -95,7 +95,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
 
 
    public void switchToNextCurrency(){
-      String nextCurrency = Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
+      Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
       if (eventBus != null){
          // update UI via event bus, also inform other parts of the app about the change
          eventBus.post(new SelectedCurrencyChanged());

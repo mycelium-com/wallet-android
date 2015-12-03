@@ -42,7 +42,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.GpsLocationFetcher;
@@ -188,9 +187,8 @@ public class ChangeLocationActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == ENTER_LOCATION_REQUEST_CODE && resultCode == RESULT_OK) {
          _chosenAddress = (GpsLocationEx) intent.getSerializableExtra("location");
-      } else {
-         // We didn't like what we got, bail
       }
+      // else  We didn't like what we got, bail...
    }
 
 }

@@ -16,6 +16,7 @@ import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -70,10 +71,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // Determine Color
       int color;
-      if (record.value < 0) {
-         color = _context.getResources().getColor(R.color.red);
-      } else {
+      if (record.isIncoming) {
          color = _context.getResources().getColor(R.color.green);
+      } else {
+         color = _context.getResources().getColor(R.color.red);
       }
 
       // Set Date
@@ -83,25 +84,40 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // Set value
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(_mbwManager.getBtcValueString(record.value));
+      tvAmount.setText(Utils.getFormattedValueWithUnit(record.value, _mbwManager.getBitcoinDenomination()));
       tvAmount.setTextColor(color);
 
-      // Set fiat value
+      // Set alternative value
       TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
-      Double rate = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      if (_mbwManager.hasFiatCurrency() && rate == null) {
-         _mbwManager.getExchangeRateManager().requestRefresh();
-      }
-      if (!_mbwManager.hasFiatCurrency() || rate == null) {
-         tvFiat.setVisibility(View.GONE);
-      } else {
-         tvFiat.setVisibility(View.VISIBLE);
-         String currency = _mbwManager.getFiatCurrency();
-         String converted = Utils.getFiatValueAsString(record.value, rate);
-         tvFiat.setText(_context.getResources().getString(R.string.approximate_fiat_value, currency, converted));
-         tvFiat.setTextColor(color);
+      String alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
+
+      // if the current selected currency is the same as the transactions
+      if (alternativeCurrency.equals(record.value.getCurrency())) {
+         if (record.value.isBtc()) {
+            // use the current selected fiat currency
+            alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
+         } else {
+            // always show BTC
+            alternativeCurrency = CurrencyValue.BTC;
+         }
       }
 
+      if (!alternativeCurrency.equals("")) {
+         CurrencyValue alternativeCurrencyValue = CurrencyValue.fromValue(
+               record.value,
+               alternativeCurrency,
+               _mbwManager.getExchangeRateManager());
+
+         if (alternativeCurrencyValue.getValue() == null) {
+            tvFiat.setVisibility(View.GONE);
+         } else {
+            tvFiat.setVisibility(View.VISIBLE);
+            tvFiat.setText(Utils.getFormattedValueWithUnit(alternativeCurrencyValue, _mbwManager.getBitcoinDenomination()));
+            tvFiat.setTextColor(color);
+         }
+      } else {
+         tvFiat.setVisibility(View.GONE);
+      }
 
       // Show destination address and address label, if this address is in our address book
       TextView tvAddressLabel = (TextView) rowView.findViewById(R.id.tvAddressLabel);

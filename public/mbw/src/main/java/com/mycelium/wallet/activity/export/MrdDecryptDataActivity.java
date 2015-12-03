@@ -173,12 +173,11 @@ public class MrdDecryptDataActivity extends Activity implements TaskExecutionSer
       if (getPassword().length() != MrdExport.V1.V1_PASSPHRASE_LENGTH + 1) {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_key_enter_password);
          findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.transparent));
-      } else if (MrdExport.isChecksumValid(getPassword())) {
-         // Leave the status at what it is, it is updated by the progress
-      } else {
+      } else if (!MrdExport.isChecksumValid(getPassword())) {
          ((TextView) findViewById(R.id.tvStatus)).setText(R.string.import_decrypt_key_invalid_checksum);
          findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.red));
       }
+      // else Leave the status at what it is, it is updated by the progress
 
    }
 

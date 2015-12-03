@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:padding="10dp"
+        >
 
     <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/coinapult_tos_question"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/coinapult_tos_link"
-            android:id="@+id/tosLink"
+            android:id="@+id/tvTosLink"
             android:layout_gravity="center_horizontal"
-            android:padding="5dp"
-            android:gravity="center_vertical"/>
+            android:layout_marginTop="5dp"
+            android:gravity="center"/>
 
     <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/coinapult_threshold_warning"
-            android:padding="5dp"/>
+            android:id="@+id/tvThreshold"
+            android:textSize="13sp"
+            android:textColor="@color/lightgrey"
+            tools:text="@string/coinapult_threshold_warning"
+            android:layout_marginTop="5dp"/>
 </LinearLayout>

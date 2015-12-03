@@ -126,7 +126,7 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
    }
 
    public void setCompletions(String[] completions) {
-      _completions = completions;
+      _completions = completions.clone();
       showCompletionButtons();
    }
 

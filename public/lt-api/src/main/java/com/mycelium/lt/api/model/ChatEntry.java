@@ -42,6 +42,7 @@ public class ChatEntry implements Serializable {
    public static final int EVENT_SUBTYPE_OWNER_STOPPED = 12;
    public static final int EVENT_SUBTYPE_PEER_STOPPED = 13;
    public static final int EVENT_SUBTYPE_TRADE_LOCATION = 14;
+   public static final int EVENT_SUBTYPE_CASH_ONLY_WARNING = 15;
 
    @JsonProperty
    public long time;

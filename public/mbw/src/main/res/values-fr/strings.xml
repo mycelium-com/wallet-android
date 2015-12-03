@@ -682,8 +682,8 @@
   <string name="remove_queued_transaction_title">Transaction en attente</string>
   <string name="remove_queued_transaction_hint">Votre solde sera corrigé après la prochaine synchronisation avec le réseau</string>
   <string name="remove_queued_transaction_error">Impossible de supprimer la transaction</string>
-  <string name="sendingViaCoinapult">Envoi de Bitcoins via Coinapult</string>
-  <string name="AddCoinapultNotes">Un compte Coinapult vous permet de stocker de la valeur en dollars américains et de la dépenser instantanément à n\'importe quelle adresse bitcoin.
+  <string name="coinapult_sending_via_coinapult">Envoi de Bitcoins via Coinapult</string>
+  <string name="coinapult_account_notes">Un compte Coinapult vous permet de stocker de la valeur en dollars américains et de la dépenser instantanément à n\'importe quelle adresse bitcoin.
         Lorsque vous utilisez vos clés privées pour y accéder, elles sont sous le contrôle de Coinapult, à la différence de vos fonds sur des comptes HD normaux.</string>
   <string name="cashila_tab_new">Nouveau</string>
   <string name="cashila_tab_pending">Paiements</string>
@@ -768,18 +768,17 @@
   <string name="coinapult_mail_hint">Entrez l\'adresse e-mail</string>
   <string name="coinapult_mail_description">Si vous fournissez votre adresse e-mail, vous pouvez déposer un ticket de support avec Coinapult en envoyant un email à support@coinapult.com depuis l\'e-mail que vous spécifiez.</string>
   <string name="coinapult_threshold_warning">Attention : Les comptes Coinapult ne peuvent pas traiter la conversion de transactions inférieures à 1,00 $ US en valeur. Si moins de 1 USD est envoyé à votre compte  Coinapult, la conversion échouera. Les bitcoins seront remboursables par l\'intermédiaire de Coinapult à support@coinapult.com.</string>
-  <string name="amount_too_small_coinapult">Montant trop faible, le retrait minimal est de %1$s USD.</string>
-  <string name="set_mail_menu_item">Définir l\'adresse e-mail</string>
-  <string name="set_coinapult_mail_failed">La configuration de l\'adresse e-mail a échoué, veuillez vérifier l\'orthographe et assurez-vous que votre appareil dispose d\'une connexion internet.</string>
-  <string name="setting_coinapult_email">Envoi de l\'adresse e-mail à Coinapult&#8230;</string>
-  <string name="set_coinapult_mail_please_verify">Votre adresse e-mail a été créée, vous recevrez un e-mail avec un lien de confirmation. Veuillez copier ce lien et choisissez « Vérifier l\'email » dans les paramètres de compte, pour coller le lien et vérifier que l\'adresse e-mail est correcte.</string>
-  <string name="verify_mail_menu_title">Vérifier l\'e-mail</string>
+  <string name="coinapult_set_mail_menu_item">Définir l\'adresse e-mail</string>
+  <string name="coinapult_set_mail_failed">La configuration de l\'adresse e-mail a échoué, veuillez vérifier l\'orthographe et assurez-vous que votre appareil dispose d\'une connexion internet.</string>
+  <string name="coinapult_setting_email">Envoi de l\'adresse e-mail à Coinapult&#8230;</string>
+  <string name="coinapult_set_mail_please_verify">Votre adresse e-mail a été créée, vous recevrez un e-mail avec un lien de confirmation. Veuillez copier ce lien et choisissez « Vérifier l\'email » dans les paramètres de compte, pour coller le lien et vérifier que l\'adresse e-mail est correcte.</string>
+  <string name="coinapult_verify_mail_menu_title">Vérifier l\'e-mail</string>
   <string name="coinapult_mail_verification">Vérifier votre adresse e-mail Coinapult</string>
   <string name="coinapult_mail_verification_description">Veuillez coller le lien de vérification Coinapult de votre e-mail dans le champ de texte ci-dessous.</string>
   <string name="coinapult_mail_verification_hint">collez le lien de vérification complet</string>
-  <string name="verifying_coinapult_email">Envoi du lien de vérification à Coinapult&#8230;</string>
-  <string name="verify_coinapult_mail_success">Votre adresse e-mail Coinapult a été vérifiée avec succès.</string>
-  <string name="verify_coinapult_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
+  <string name="coinapult_verifying_email">Envoi du lien de vérification à Coinapult&#8230;</string>
+  <string name="coinapult_verify_mail_success">Votre adresse e-mail Coinapult a été vérifiée avec succès.</string>
+  <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
   <string name="copy">Copier</string>

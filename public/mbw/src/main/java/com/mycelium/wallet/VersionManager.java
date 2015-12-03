@@ -315,7 +315,7 @@ public class VersionManager {
          text.setText(msg);
          text.setMovementMethod(LinkMovementMethod.getInstance());
 
-         int padding = (int) (context.getResources().getDisplayMetrics().density * 10f + 0.5f);
+         int padding = (int) (context.getResources().getDisplayMetrics().density * 10.0 + 0.5);
          text.setPadding(padding, padding, padding, padding);
 
          AlertDialog.Builder dialog = new AlertDialog.Builder(context);

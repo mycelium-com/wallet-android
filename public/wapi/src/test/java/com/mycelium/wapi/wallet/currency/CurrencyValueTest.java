@@ -31,7 +31,7 @@ public class CurrencyValueTest extends TestCase {
    };
 
    // Starting with an exact BTC amount
-   public void testExchangeRateHandlingExactBtc(){
+   public void testExchangeRateHandlingExactBtc() {
       ExactCurrencyValue btc = ExactBitcoinValue.from(BigDecimal.ONE);
       CurrencyValue usd = CurrencyValue.fromValue(btc, "USD", fakeExchangeRate);
       CurrencyValue eur = CurrencyValue.fromValue(btc, "EUR", fakeExchangeRate);
@@ -60,7 +60,7 @@ public class CurrencyValueTest extends TestCase {
 
 
    // Starting with an exact Fiat amount
-   public void testExchangeRateHandlingExactFiat(){
+   public void testExchangeRateHandlingExactFiat() {
       ExactCurrencyValue usd = ExactFiatValue.from(BigDecimal.valueOf(10L), "USD");
       CurrencyValue eur = CurrencyValue.fromValue(usd, "EUR", fakeExchangeRate);
       CurrencyValue btc = CurrencyValue.fromValue(usd, CurrencyValue.BTC, fakeExchangeRate);
@@ -87,4 +87,13 @@ public class CurrencyValueTest extends TestCase {
       assertTrue(BigDecimal.valueOf(40L).compareTo(eur1.getValue()) == 0);
    }
 
+   public void testIsNullOrZero() throws Exception {
+      assertFalse(CurrencyValue.isNullOrZero(ExactBitcoinValue.from(BigDecimal.ONE)));
+      assertFalse(CurrencyValue.isNullOrZero(ExactCurrencyValue.from(BigDecimal.ONE, "EUR")));
+
+      assertTrue(CurrencyValue.isNullOrZero(null));
+      assertTrue(CurrencyValue.isNullOrZero(ExactCurrencyValue.from(null, "EUR")));
+      assertTrue(CurrencyValue.isNullOrZero(ExactBitcoinValue.from(0L)));
+      assertTrue(CurrencyValue.isNullOrZero(ExactBitcoinValue.ZERO));
+   }
 }

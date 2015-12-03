@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="10dp"
+        >
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/coinapult_add_locks_account"
+                android:textSize="24sp"
+                android:layout_marginBottom="10dp"
+                />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:textSize="14sp"
+                android:text="@string/coinapult_account_notes"/>
+
+        <TextView
+                android:id="@+id/tvInfoBackup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="15dp"
+                android:paddingLeft="10dp"
+                android:textSize="14sp"
+                android:paddingRight="10dp"
+                android:text="@string/coinapult_backup_info"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/coinapult_tos_link"
+                    android:id="@+id/tvTosLink"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="14sp"
+                    android:paddingTop="10dp"
+                    android:gravity="center"/>
+
+        <TextView
+                android:id="@+id/tvWarningNoBackup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/red"
+                android:text="Note: When you store funds in Coinapult accounts, you are trusting a third party.\n"
+                />
+
+        <Button
+                android:id="@+id/btCoinapultAddUSD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                tools:text="USD Account"
+                android:layout_marginBottom="20dp"/>
+
+        <Button
+                android:id="@+id/btCoinapultAddEUR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                tools:text="EUR Account"
+                android:layout_marginBottom="20dp"/>
+
+        <Button
+                android:id="@+id/btCoinapultAddGBP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                tools:text="GBP Account"
+                android:layout_marginBottom="20dp"/>
+
+    </LinearLayout>
+</ScrollView>

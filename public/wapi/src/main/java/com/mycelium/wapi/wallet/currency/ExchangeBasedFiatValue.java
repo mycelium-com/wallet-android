@@ -47,8 +47,14 @@ public class ExchangeBasedFiatValue extends ExchangeBasedCurrencyValue {
       this.value = value;
    }
 
+   protected ExchangeBasedFiatValue(String currency, BigDecimal value) {
+      super(currency, null, null, null);
+      this.value = value;
+   }
+
    @Override
    public BigDecimal getValue() {
       return value;
    }
+
 }

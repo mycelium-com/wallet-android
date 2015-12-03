@@ -51,7 +51,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
@@ -60,8 +62,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 
 //todo HD for the future: keep receiving slots for 20 addresses. assign a name
 
@@ -69,10 +72,21 @@ public class ReceiveCoinsActivity extends Activity {
 
    private static final int GET_AMOUNT_RESULT_CODE = 1;
 
+   @InjectView(R.id.tvAmountLabel) TextView tvAmountLabel;
+   @InjectView(R.id.tvAmount) TextView tvAmount;
+   @InjectView(R.id.tvWarning) TextView tvWarning;
+   @InjectView(R.id.tvTitle) TextView tvTitle;
+   @InjectView(R.id.tvAddress1) TextView tvAddress1;
+   @InjectView(R.id.tvAddress2) TextView tvAddress2;
+   @InjectView(R.id.tvAddress3) TextView tvAddress3;
+   @InjectView(R.id.ivNfc) ImageView ivNfc;
+   @InjectView(R.id.ivQrCode) QrImageView ivQrCode;
+   @InjectView(R.id.btShare) Button btShare;
+
    private MbwManager _mbwManager;
    private Address _address;
    private boolean _havePrivateKey;
-   private Long _amount;
+   private CurrencyValue _amount;
 
    public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey) {
       Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
@@ -90,6 +104,7 @@ public class ReceiveCoinsActivity extends Activity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.receive_coins_activity);
+      ButterKnife.inject(this);
 
       _mbwManager = MbwManager.getInstance(getApplication());
 
@@ -99,17 +114,12 @@ public class ReceiveCoinsActivity extends Activity {
 
       // Load saved state
       if (savedInstanceState != null) {
-         _amount = savedInstanceState.getLong("amount", -1);
-         if (_amount == -1) {
-            _amount = null;
-         }
+         _amount = (CurrencyValue) savedInstanceState.getSerializable("amount");
       }
 
-      // Enter Amount
-      findViewById(R.id.btEnterAmount).setOnClickListener(amountClickListener);
 
       // Amount Hint
-      ((TextView) findViewById(R.id.tvAmount)).setHint(getResources().getString(R.string.amount_hint_denomination,
+      tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
             _mbwManager.getBitcoinDenomination().toString()));
 
       shareByNfc();
@@ -117,7 +127,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    @TargetApi(16)
    protected void shareByNfc() {
-      if (Build.VERSION.SDK_INT < 16){
+      if (Build.VERSION.SDK_INT < 16) {
          // the function isNdefPushEnabled is only available for SdkVersion >= 16
          // We would be theoretically able to push the message over Ndef, but it is not
          // possible to check if Ndef/NFC is available or not - so dont try it at all, if
@@ -126,8 +136,7 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-      View ivNfc = findViewById(R.id.ivNfc);
-      if (nfc!=null && nfc.isNdefPushEnabled() ) {
+      if (nfc != null && nfc.isNdefPushEnabled()) {
          nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
             @Override
             public NdefMessage createNdefMessage(NfcEvent event) {
@@ -150,7 +159,7 @@ public class ReceiveCoinsActivity extends Activity {
    @Override
    protected void onSaveInstanceState(Bundle outState) {
       if (_amount != null) {
-         outState.putLong("amount", _amount);
+         outState.putSerializable("amount", _amount);
       }
       super.onSaveInstanceState(outState);
    }
@@ -161,38 +170,50 @@ public class ReceiveCoinsActivity extends Activity {
       super.onResume();
    }
 
+   BitcoinValue getBitcoinAmount() {
+      if (_amount == null) {
+         return null;
+      }
+
+      if (!_amount.isBtc()) {
+         // convert the amount to btc, but only once and stay within btc for all next calls
+         _amount = ExchangeBasedBitcoinValue.fromValue(_amount, _mbwManager.getExchangeRateManager());
+      }
+
+      return (BitcoinValue) _amount;
+   }
+
    private void updateUi() {
       final String qrText = getPaymentUri();
 
       if (_amount == null) {
-         ((TextView) findViewById(R.id.tvTitle)).setText(R.string.bitcoin_address_title);
-         ((Button) findViewById(R.id.btShare)).setText(R.string.share_bitcoin_address);
-         ((TextView) findViewById(R.id.tvAmountLabel)).setText(R.string.optional_amount);
-         ((TextView) findViewById(R.id.tvAmount)).setText("");
+         tvTitle.setText(R.string.bitcoin_address_title);
+         btShare.setText(R.string.share_bitcoin_address);
+         tvAmountLabel.setText(R.string.optional_amount);
+         tvAmount.setText("");
       } else {
-         ((TextView) findViewById(R.id.tvTitle)).setText(R.string.payment_request);
-         ((Button) findViewById(R.id.btShare)).setText(R.string.share_payment_request);
-         ((TextView) findViewById(R.id.tvAmountLabel)).setText(R.string.amount_title);
-         ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amount));
+         tvTitle.setText(R.string.payment_request);
+         btShare.setText(R.string.share_payment_request);
+         tvAmountLabel.setText(R.string.amount_title);
+         tvAmount.setText(
+               Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
+         );
       }
 
       // QR code
-      ImageView imageView = (ImageView) findViewById(R.id.ivQrCode);
-      //two-step cast to not confuse lint
-      QrImageView iv = (QrImageView) imageView;
-      iv.setQrCode(qrText);
+      ivQrCode.setQrCode(qrText);
 
       // Show warning if the record has no private key
       if (_havePrivateKey) {
-         findViewById(R.id.tvWarning).setVisibility(View.GONE);
+         tvWarning.setVisibility(View.GONE);
       } else {
-         findViewById(R.id.tvWarning).setVisibility(View.VISIBLE);
+         tvWarning.setVisibility(View.VISIBLE);
       }
 
       String[] addressStrings = Utils.stringChopper(getBitcoinAddress(), 12);
-      ((TextView) findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
-      ((TextView) findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
-      ((TextView) findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
+      tvAddress1.setText(addressStrings[0]);
+      tvAddress2.setText(addressStrings[1]);
+      tvAddress3.setText(addressStrings[2]);
 
       updateAmount();
    }
@@ -200,18 +221,20 @@ public class ReceiveCoinsActivity extends Activity {
    private void updateAmount() {
       if (_amount == null) {
          // No amount to show
-         ((TextView) findViewById(R.id.tvAmount)).setText("");
+         tvAmount.setText("");
       } else {
          // Set Amount
-         ((TextView) findViewById(R.id.tvAmount)).setText(_mbwManager.getBtcValueString(_amount));
+         tvAmount.setText(
+               Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
+         );
       }
    }
 
    private String getPaymentUri() {
       final StringBuilder uri = new StringBuilder("bitcoin:");
-       uri.append(getBitcoinAddress());
+      uri.append(getBitcoinAddress());
       if (_amount != null) {
-         uri.append("?amount=").append(CoinUtil.valueString(_amount, false));
+         uri.append("?amount=").append(CoinUtil.valueString(getBitcoinAmount().getLongValue(), false));
       }
       return uri.toString();
    }
@@ -221,8 +244,8 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    public void shareRequest(View view) {
-       Intent s = new Intent(android.content.Intent.ACTION_SEND);
-       s.setType("text/plain");
+      Intent s = new Intent(android.content.Intent.ACTION_SEND);
+      s.setType("text/plain");
       if (_amount == null) {
          s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.bitcoin_address_title));
          s.putExtra(Intent.EXTRA_TEXT, getBitcoinAddress());
@@ -236,7 +259,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    public void copyToClipboard(View view) {
       String text;
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          text = getBitcoinAddress();
       } else {
          text = getPaymentUri();
@@ -248,19 +271,20 @@ public class ReceiveCoinsActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
          // Get result from address chooser (may be null)
-         _amount = (Long) intent.getSerializableExtra(GetAmountActivity.AMOUNT_SATOSHI);
+         _amount = (CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
    }
 
-   private OnClickListener amountClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         ExactBitcoinValue amountToSend = ExactBitcoinValue.from(_amount);
-         GetAmountActivity.callMe(ReceiveCoinsActivity.this, amountToSend, GET_AMOUNT_RESULT_CODE);
+   @OnClick(R.id.btEnterAmount)
+   public void onEnterClick() {
+      if (_amount == null) {
+         GetAmountActivity.callMe(ReceiveCoinsActivity.this, null, GET_AMOUNT_RESULT_CODE);
+      } else {
+         // call the amount activity with the exact amount, so that the user sees the same amount he had entered
+         // it in non-BTC
+         GetAmountActivity.callMe(ReceiveCoinsActivity.this, _amount.getExactValueIfPossible(), GET_AMOUNT_RESULT_CODE);
       }
-   };
-
+   }
 }

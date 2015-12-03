@@ -39,6 +39,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -67,10 +68,16 @@ public class DataExport {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
       String date = df.format(new Date(summary.time * 1000)); //summary holds time in seconds, date expects milli-seconds
-      //todo: is this correct, using the isQueuedOutgoing (formerly isOutgoing)? seems like its actually just for not-confirmed tx
-      long value = (summary.isQueuedOutgoing ? summary.value * -1 : summary.value); //show outgoing as negative amount
+      BigDecimal value = (summary.isIncoming ? summary.value.getValue() : summary.value.getValue().negate()); //show outgoing as negative amount
       String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
-      return escape(accountLabel) + "," + summary.txid + "," + destination + "," + date + "," + value + "," + escape(txLabel) + "\n";
+      return
+            escape(accountLabel) + "," +
+                  summary.txid + "," +
+                  destination + "," +
+                  date + "," +
+                  value + "," +
+                  summary.value.getCurrency() + "," +
+                  escape(txLabel) + "\n";
    }
 
    private static String escape(String input) {

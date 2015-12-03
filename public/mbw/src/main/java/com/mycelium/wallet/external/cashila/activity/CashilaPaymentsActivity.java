@@ -82,13 +82,6 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    private MbwManager mbw;
    private boolean warningsShown;
 
-
-   public static Intent getIntent(Context context, BcdCodedSepaData bcdQrCode) {
-      Intent intent = new Intent(context, CashilaPaymentsActivity.class);
-      intent.putExtra("bcd", bcdQrCode);
-      return intent;
-   }
-
    public static Intent getIntent(Context context) {
       return new Intent(context, CashilaPaymentsActivity.class);
    }

@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.pop;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.currency.BitcoinValue;
 
 class PopUtils {
    public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, TransactionSummary transactionSummary) {
@@ -44,7 +45,14 @@ class PopUtils {
          return false;
       }
       Long amountSatoshis = popRequest.getAmountSatoshis();
-      if (amountSatoshis != null && amountSatoshis != -transactionSummary.value) {
+      Long txSatoshis;
+      if (transactionSummary.value.isBtc()) {
+         txSatoshis = ((BitcoinValue) transactionSummary.value).getLongValue();
+      } else {
+         txSatoshis = -1L;
+      }
+
+      if (amountSatoshis != null && !amountSatoshis.equals(txSatoshis)) {
          return false;
       }
       if (popRequest.getLabel() != null) {

@@ -56,6 +56,7 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.paymentrequest.PkiVerificationData;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Subscribe;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -269,7 +270,10 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
             CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
             if (currencySwitcher.isFiatExchangeRateAvailable()){
                tvFiatAmount.setVisibility(View.VISIBLE);
-               tvFiatAmount.setText(String.format("(~%s)", currencySwitcher.getFormattedFiatValue(totalAmount, true)));
+               tvFiatAmount.setText(
+                     String.format("(~%s)",
+                     currencySwitcher.getFormattedFiatValue(ExactBitcoinValue.from(totalAmount), true))
+               );
             } else {
                tvFiatAmount.setVisibility(View.GONE);
             }

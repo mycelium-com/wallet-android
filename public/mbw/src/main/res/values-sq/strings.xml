@@ -676,8 +676,8 @@
   <string name="remove_queued_transaction_title">Transaksion në listë</string>
   <string name="remove_queued_transaction_hint">Bilanci juaj do të korrektohet kur të sinkronizohet me rrjetin</string>
   <string name="remove_queued_transaction_error">E pamundur të fshihet transaksioni</string>
-  <string name="sendingViaCoinapult">Duke dërguar Bitcoins nëpërmjet Coinapult</string>
-  <string name="AddCoinapultNotes">Një Coinapult Llogari ju lejon që të ruani bitcoins në një USD vlerë dhe të shpenzoni në cilën do bitcoin adresë.
+  <string name="coinapult_sending_via_coinapult">Duke dërguar Bitcoins nëpërmjet Coinapult</string>
+  <string name="coinapult_account_notes">Një Coinapult Llogari ju lejon që të ruani bitcoins në një USD vlerë dhe të shpenzoni në cilën do bitcoin adresë.
         Përderisa ju përdorni çelësat privat tuaj për tu qasur, ato janë nën kontroll nga Coinapult, ndryshe nga fondet që i keni në një normal HD llogari.</string>
   <string name="cashila_tab_new">E re</string>
   <string name="cashila_tab_pending">Pagesat</string>
@@ -724,8 +724,8 @@
   <string name="spending_unconfirmed_description">Transaksioni juaj përdor fonde të cilat akoma nuk janë përfshirë në asnjë bitcoin bllok. Nëse pët ndonjë arsye transaksioni që ju dergoj këto fonde dështon apo qëndron i pakonfirumar, gjithashtu edhe transaksioni juaj do të dështoj apo qëndroj i pakonfirmuar.</string>
   <string name="coinapult_mail_verification_description">Ju lutem vendosni linkun e verifikimit nga Coinapult email në fushën më poshtë.</string>
   <string name="coinapult_mail_verification_hint">vendosni komplet linkun e verifikimit</string>
-  <string name="verifying_coinapult_email">Duke dërguar linkun për verifikim tek Coinapult&#8230;</string>
-  <string name="verify_coinapult_mail_success">Coinapult email adresa juaj është verifikuar me sukses.</string>
-  <string name="verify_coinapult_mail_error">Një gabim është shkaktuar gjatë verifikimit të email adresës. Ju lutem siguroheni që keni kopjuar komplet dhe në rregull linkun e verifikimit.</string>
+  <string name="coinapult_verifying_email">Duke dërguar linkun për verifikim tek Coinapult&#8230;</string>
+  <string name="coinapult_verify_mail_success">Coinapult email adresa juaj është verifikuar me sukses.</string>
+  <string name="coinapult_verify_mail_error">Një gabim është shkaktuar gjatë verifikimit të email adresës. Ju lutem siguroheni që keni kopjuar komplet dhe në rregull linkun e verifikimit.</string>
   <string name="copy">Kopjo</string>
 </resources>

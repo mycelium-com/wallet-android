@@ -679,8 +679,8 @@
   <string name="remove_queued_transaction_title">Συναλλαγή σε σειρά προτεραιότητας</string>
   <string name="remove_queued_transaction_hint">Το υπόλοιπό σας θα διορθωθεί μετά τον επόμενο συγχρονισμό με το δίκτυο</string>
   <string name="remove_queued_transaction_error">Αδυναμία διαγραφής συναλλαγής</string>
-  <string name="sendingViaCoinapult">Αποστολή Bitcoins μέσω Coinapult</string>
-  <string name="AddCoinapultNotes">Ο λογαρισμός Coinapult σας επιτρέπει να έχετε κεφάλαια σε Δολλάρια Αμερικής και να τα ξοδεύετε άμεσα προς οποιαδήποτε διεύθυνση bitcoin.
+  <string name="coinapult_sending_via_coinapult">Αποστολή Bitcoins μέσω Coinapult</string>
+  <string name="coinapult_account_notes">Ο λογαρισμός Coinapult σας επιτρέπει να έχετε κεφάλαια σε Δολλάρια Αμερικής και να τα ξοδεύετε άμεσα προς οποιαδήποτε διεύθυνση bitcoin.
         Παρότι χρησιμοποιείτε τα μυστικά κλειδιά σας να για να έχετε πρόσβαση, αυτά είναι υπό τον έλεγχο του Coinapult, σε αντίθεση με τα κεφάλαια σε κανονικούς HD λογαρισμούς.</string>
   <string name="cashila_tab_new">Δημιουργία</string>
   <string name="cashila_tab_pending">Πληρωμές</string>
@@ -765,18 +765,17 @@
   <string name="coinapult_mail_hint">Εισαγάγετε διεύθυνση email</string>
   <string name="coinapult_mail_description">Εαν εισαγάγετε το email σας, μπορείτε να υποβάλετε αίτημα υποστήριξης στο Coinapult αποστέλλωντας ένα μήνυμα στό support@coinapult.com από το επιλεγμένο σας email.</string>
   <string name="coinapult_threshold_warning">Προειδοποίηση: Οι λογαριασμοί Coinapult δεν μπορούν να πραγματοποιήσουν μετατροπές συναλλάγματος σε αξίες μικρότερες του $1.00. Εάν αποσταλλεί μικρότερο ποσό στο λογαρισμό σας, η μετατροπή θα αποτύχει. Θα μπορείτε να εξαργυρώσετε τα bitcoins μέσω του Coinapult επικοινωνώντας στο support@coinapult.com.</string>
-  <string name="amount_too_small_coinapult">Ποσό πολύ μικρό. Το ελάχιστο ποσό ανάληψης είναι %1$s USD.</string>
-  <string name="set_mail_menu_item">Ορισμός διεύθυνσης email</string>
-  <string name="set_coinapult_mail_failed">H ρύθμιση του email απέτυχε, παρακαλώ βεβαιωθείτε για τη σωστή ορθογραφία και επιβεβαιώστε ότι η συσκευή σας έχει λειτουργική σύνδεση στο διαδίκτυο.</string>
-  <string name="setting_coinapult_email">Αποστολή διεύθυνσης email στο Coinapult&#8230;</string>
-  <string name="set_coinapult_mail_please_verify">To email σας ρυθμίστηκε. Θα λάβετε έναν σύνδεσμο επιβεβαίωσης με mail. Παρακαλώ αντιγράψτε αυτόν τον σύνδεσμο και επιλέξτε \"Επιβεβαίωση email\" από τις ρυθμίσεις λογαριασμού, για να επικολλήσετε τον σύνδεσμο και να επιβεβαιώσετε το email σας.</string>
-  <string name="verify_mail_menu_title">Επιβεβαίωση διεύθυνσης email</string>
+  <string name="coinapult_set_mail_menu_item">Ορισμός διεύθυνσης email</string>
+  <string name="coinapult_set_mail_failed">H ρύθμιση του email απέτυχε, παρακαλώ βεβαιωθείτε για τη σωστή ορθογραφία και επιβεβαιώστε ότι η συσκευή σας έχει λειτουργική σύνδεση στο διαδίκτυο.</string>
+  <string name="coinapult_setting_email">Αποστολή διεύθυνσης email στο Coinapult&#8230;</string>
+  <string name="coinapult_set_mail_please_verify">To email σας ρυθμίστηκε. Θα λάβετε έναν σύνδεσμο επιβεβαίωσης με mail. Παρακαλώ αντιγράψτε αυτόν τον σύνδεσμο και επιλέξτε \"Επιβεβαίωση email\" από τις ρυθμίσεις λογαριασμού, για να επικολλήσετε τον σύνδεσμο και να επιβεβαιώσετε το email σας.</string>
+  <string name="coinapult_verify_mail_menu_title">Επιβεβαίωση διεύθυνσης email</string>
   <string name="coinapult_mail_verification">Επιβεβαιώστε τη διεύθυνση email σας στο coinapult</string>
   <string name="coinapult_mail_verification_description">Παρακαλώ αντιγράψτε τον σύνδεσμο επαλήθευσης από το coinapult email σας στο παρακάτω πεδίο.</string>
   <string name="coinapult_mail_verification_hint">Αντιγράψτε ολόκληρο τον σύνδεσμο επαλήθευσης</string>
-  <string name="verifying_coinapult_email">Αποστολή συνδέσμου επαλήθευσης στο coinapult&#8230;</string>
-  <string name="verify_coinapult_mail_success">Το email σας στο coinapult επιβεβαιώθηκε.</string>
-  <string name="verify_coinapult_mail_error">Παρουσιάστηκε σφάλμα κατά την επαλήθευση του email σας. Παρακαλώ βεβαιωθείτε ότι αντιγράψατε τον σωστό σύνδεσμο ολόκληρο.</string>
+  <string name="coinapult_verifying_email">Αποστολή συνδέσμου επαλήθευσης στο coinapult&#8230;</string>
+  <string name="coinapult_verify_mail_success">Το email σας στο coinapult επιβεβαιώθηκε.</string>
+  <string name="coinapult_verify_mail_error">Παρουσιάστηκε σφάλμα κατά την επαλήθευση του email σας. Παρακαλώ βεβαιωθείτε ότι αντιγράψατε τον σωστό σύνδεσμο ολόκληρο.</string>
   <string name="coinapult_unable_to_create_account">Αδυναμία δημιουργίας λογαριασμού coinapult</string>
   <string name="coinapult_failed_to_broadcast">Αποτυχία αποστολής συναλλαγής coinapult</string>
   <string name="copy">Αντιγραφή</string>

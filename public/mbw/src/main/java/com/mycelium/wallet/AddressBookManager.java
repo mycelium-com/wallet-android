@@ -269,9 +269,10 @@ public class AddressBookManager {
                sb.append('(');
             } else if (c == ')') {
                sb.append(')');
-            } else {
-               // decode error, ignore this character
             }
+            // else {
+               // decode error, ignore this character
+            // }
          } else {
             if (c == '/') {
                slash = true;

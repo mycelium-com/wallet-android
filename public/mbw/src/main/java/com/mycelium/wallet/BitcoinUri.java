@@ -34,14 +34,13 @@
 
 package com.mycelium.wallet;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-
 import android.net.Uri;
-
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * This is a crude implementation of a Bitcoin URI, but for now it works for our
@@ -56,8 +55,8 @@ public class BitcoinUri implements Serializable {
    public final String callbackURL;
 
    // returns a BitcoinUriWithAddress if address != null
-   public static BitcoinUri from(Address address, Long amount, String label, String callbackURL){
-      if (address != null){
+   public static BitcoinUri from(Address address, Long amount, String label, String callbackURL) {
+      if (address != null) {
          return new BitcoinUriWithAddress(address, amount, label, callbackURL);
       } else {
          return new BitcoinUri(null, amount, label, callbackURL);
@@ -108,7 +107,12 @@ public class BitcoinUri implements Serializable {
          }
 
          // Label
+         // Bip21 defines "?label" and "?message" - lets try "label" first and if it does not
+         // exist, lets use "message"
          String label = u.getQueryParameter("label");
+         if (label == null) {
+            label = u.getQueryParameter("message");
+         }
 
          // Payment Uri
          String paymentUri = u.getQueryParameter("r");
@@ -125,15 +129,21 @@ public class BitcoinUri implements Serializable {
       return new BitcoinUri(address, null, null);
    }
 
-    public String toString() {
-       Uri.Builder builder = new Uri.Builder()
-             .scheme("bitcoin")
-             .authority(address == null ? "" : address.toString());
-       if (amount != null) builder.appendQueryParameter("amount", amount.toString());
-       if (label != null) builder.appendQueryParameter("label", label);
-       if (callbackURL != null) builder.appendQueryParameter("r", callbackURL);
+   public String toString() {
+      Uri.Builder builder = new Uri.Builder()
+            .scheme("bitcoin")
+            .authority(address == null ? "" : address.toString());
+      if (amount != null) {
+         builder.appendQueryParameter("amount", amount.toString());
+      }
+      if (label != null) {
+         builder.appendQueryParameter("label", label);
+      }
+      if (callbackURL != null) {
+         builder.appendQueryParameter("r", callbackURL);
+      }
       //todo: this can probably be solved nicer with some opaque flags or something
-       return builder.toString().replace("/", "");
-    }
+      return builder.toString().replace("/", "");
+   }
 
 }

@@ -44,15 +44,13 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.*;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.CoinapultTransactionSummary;
+import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -70,7 +68,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
-import java.text.DateFormat;
 import java.util.*;
 
 public class TransactionHistoryFragment extends Fragment {

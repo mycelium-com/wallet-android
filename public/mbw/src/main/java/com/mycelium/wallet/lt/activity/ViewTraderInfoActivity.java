@@ -66,7 +66,7 @@ public class ViewTraderInfoActivity extends FragmentActivity {
    protected void onResume() {
       FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
       ft.replace(R.id.flTraderInfo, TraderInfoFragment.createInstance(_traderInfo));
-      ft.commit();
+      ft.commitAllowingStateLoss();
       super.onResume();
    }
 

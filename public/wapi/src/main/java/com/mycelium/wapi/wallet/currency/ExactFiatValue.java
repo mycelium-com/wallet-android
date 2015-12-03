@@ -41,7 +41,7 @@ public class ExactFiatValue extends ExactCurrencyValue {
    final protected String currency;
    final protected BigDecimal value;
 
-   public ExactFiatValue(String currency, BigDecimal value) {
+   public ExactFiatValue(BigDecimal value, String currency) {
       this.currency = currency;
       this.value = value;
    }

@@ -3,9 +3,9 @@
 
     <item
             android:id="@+id/miSetMail"
-            android:title="@string/set_mail_menu_item" />
+            android:title="@string/coinapult_set_mail_menu_item" />
 
     <item
             android:id="@+id/miVerifyMail"
-            android:title="@string/verify_mail_menu_title" />
+            android:title="@string/coinapult_verify_mail_menu_title" />
 </menu>

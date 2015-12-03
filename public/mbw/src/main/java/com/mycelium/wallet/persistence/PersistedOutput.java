@@ -54,7 +54,7 @@ public class PersistedOutput implements Serializable {
       this.address = address;
       this.height = height;
       this.value = value;
-      this.script = script;
+      this.script = script.clone();
       this.isCoinBase = isCoinBase;
    }
 

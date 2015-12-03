@@ -1,4 +1,4 @@
-package com.mycelium.wallet;
+package com.mycelium.wallet.coinapult;
 
 import com.coinapult.api.httpclient.Transaction;
 import com.google.common.base.Optional;
@@ -7,13 +7,14 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 public class CoinapultTransactionSummary extends TransactionSummary {
 
    public final Transaction.Json input;
 
-   public CoinapultTransactionSummary(Optional<Address> address, long satoshis, Transaction.Json input) {
-      super(getTxid(input), satoshis, showTime(input), -1, confs(input), false, address);
+   public CoinapultTransactionSummary(Optional<Address> address, CurrencyValue value, boolean isIncoming, Transaction.Json input) {
+      super(getTxid(input), value, isIncoming, showTime(input), -1, confs(input), false, address);
       this.input = input;
    }
 

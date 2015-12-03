@@ -126,12 +126,13 @@ public class InstantWalletActivity extends Activity {
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == REQUEST_SCAN) {
-         if (resultCode == RESULT_OK) {
-            // We don't call finish() here, so that this activity stays on the back stack.
-            // So the user can click back and scan the next cold storage.
-         } else {
+         if (resultCode != RESULT_OK) {
             ScanActivity.toastScanError(resultCode, intent, this);
          }
+         // else {
+            // We don't call finish() here, so that this activity stays on the back stack.
+            // So the user can click back and scan the next cold storage.
+         // }
       } else if (requestCode == REQUEST_TREZOR){
          if (resultCode == RESULT_OK) {
             finish();

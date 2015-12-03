@@ -555,9 +555,8 @@ public class CreateOrEditAdActivity extends Activity {
       } else if (requestCode == ENTER_MIN_AMOUNT_REQUEST_CODE && resultCode == RESULT_OK) {
          _minAmount = (Integer) intent.getSerializableExtra("amount");
          enableUi();
-      } else {
-         // We didn't like what we got, bail
       }
+      // else: We didn't like what we got, bail
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {

@@ -49,7 +49,7 @@ import java.util.*;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
 
-   private static final int MAX_RATE_AGE_MS = 1000 * 60;
+   private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60;
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
 
    public interface Observer {
@@ -68,11 +68,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private final List<Observer> _subscribers;
    private String _currentExchangeSourceName;
 
-   public ExchangeRateManager(Context applicationContext, Wapi api, List<String> fiatCurrencies) {
+   public ExchangeRateManager(Context applicationContext, Wapi api) {
       _applicationContext = applicationContext;
       _api = api;
-      setCurrencyList(fiatCurrencies);
-
       _latestRates = null;
       _latestRatesTime = 0;
       _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
@@ -174,7 +172,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     * Get the names of the currently available exchange rates. May be empty the
     * first time the app is running
     */
-   public List<String> getExchangeSourceNames() {
+   public synchronized List<String> getExchangeSourceNames() {
       List<String> result = new LinkedList<String>();
       //check whether we have any rates
       if (_latestRates.isEmpty()) return result;
@@ -238,16 +236,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    }
 
    // set for which fiat currencies we should get fx rates for
-   public void setCurrencyList(List<String> currencies) {
+   public void setCurrencyList(Set<String> currencies) {
 
       synchronized (_requestLock) {
          // copy list to prevent changes from outside
          ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<String>().addAll(currencies);
-         // always also fetch USD, even if not asked by the user, as some external services depend on a valid USD
-         // exchange rate
-         if (!currencies.contains("USD")){
-            listBuilder.add("USD");
-         }
          _fiatCurrencies = listBuilder.build();
       }
 

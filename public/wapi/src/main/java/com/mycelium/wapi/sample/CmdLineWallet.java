@@ -350,7 +350,7 @@ public class CmdLineWallet {
          List<TransactionSummary> list = account.getTransactionHistory(0, 5000);
          int index = 0;
          for (TransactionSummary s : list) {
-            print("#"+(++index)+" Value: " + s.value + " Confirmations: " + s.confirmations + " Time: "
+            print("#"+(++index)+" Value: " + s.value.toString() + " Confirmations: " + s.confirmations + " Time: "
                   + new Date(s.time * 1000).toString() + " ID: " + s.txid.toString());
          }
       }
@@ -383,7 +383,7 @@ public class CmdLineWallet {
       }
       // Determine max amount
       ExactBitcoinValue exactCurrencyValue = (ExactBitcoinValue) account.calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE);
-      long maxAmount = exactCurrencyValue.getAsBitcoin().getLongValue();
+      long maxAmount = exactCurrencyValue.getLongValue();
       if (maxAmount == 0) {
          print("Not enough funds");
          return;

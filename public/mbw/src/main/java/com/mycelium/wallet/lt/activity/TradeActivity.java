@@ -58,18 +58,10 @@ import android.os.Handler;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
@@ -95,7 +87,6 @@ import com.mycelium.wallet.lt.api.*;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 public class TradeActivity extends Activity {
-
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
    protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
    private static final int SIGN_TX_REQUEST_CODE = 3;
@@ -553,6 +544,10 @@ public class TradeActivity extends Activity {
 
       // Chat
       _chatAdapter.clear();
+      // add a scary warning to the top of the chat
+      ChatEntry scaryWarning = new ChatEntry(0L, ChatEntry.TYPE_EVENT, ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING, "");
+      _chatAdapter.add(scaryWarning);
+      // add all the persisted messages
       for (ChatEntry chatEntry : tradeSession.chatEntries) {
          _chatAdapter.add(chatEntry);
       }
@@ -669,16 +664,7 @@ public class TradeActivity extends Activity {
          }
          ChatEntry o = getItem(position);
 
-         // Date, format depending on whether it is the same day or earlier
-         Date date = new Date(o.time);
-         String dateString;
-         if (date.before(_midnight)) {
-            dateString = _dayFormat.format(date) + "\n" + _hourFormat.format(date);
-         } else {
-            dateString = _hourFormat.format(date);
-         }
-         TextView tvDate = (TextView) v.findViewById(R.id.tvDate);
-         tvDate.setText(dateString);
+         addDateString(v, o);
 
          // Message text and color
          TextView tvMessage = (TextView) v.findViewById(R.id.tvMessage);
@@ -717,8 +703,51 @@ public class TradeActivity extends Activity {
          tvMessage.setText(text);
          v.setBackgroundColor(color);
 
+         ImageView ivExtra = (ImageView) v.findViewById(R.id.ivExtra);
+         if(o.subtype == ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING) {
+            ivExtra.setImageResource(R.drawable.lt_local_only_warning);
+            ivExtra.setVisibility(View.VISIBLE);
+            ivExtra.setOnClickListener(new OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                  AlertDialog.Builder builder = new AlertDialog.Builder(TradeActivity.this);
+                  builder.setMessage(getString(R.string.lt_cash_only_warning));
+                  builder.setPositiveButton(R.string.button_ok, null);
+                  builder.show();
+               }
+            });
+         } else {
+            ivExtra.setVisibility(View.GONE);
+            ivExtra.setOnClickListener(null);
+         }
+
          v.setTag(o);
          return v;
+      }
+
+      /**
+       * Date, format depending on whether it is the same day or earlier
+       * If the date is 0, the date is hidden.
+       * @param chatEntryRow the R.layout.lt_chat_entry_row
+       * @param chatEntry the ChatEntry
+       */
+      private void addDateString(View chatEntryRow, ChatEntry chatEntry) {
+         TextView tvDate = (TextView) chatEntryRow.findViewById(R.id.tvDate);
+         long unixTime = chatEntry.time;
+         if(unixTime > 0) {
+            // we have a date
+            Date date = new Date(chatEntry.time);
+            String dateString;
+            if (date.before(_midnight)) {
+               dateString = _dayFormat.format(date) + "\n" + _hourFormat.format(date);
+            } else {
+               dateString = _hourFormat.format(date);
+            }
+            tvDate.setText(dateString);
+            tvDate.setVisibility(View.VISIBLE);
+         } else {
+            tvDate.setVisibility(View.GONE);
+         }
       }
    }
 
@@ -732,7 +761,6 @@ public class TradeActivity extends Activity {
    }
 
    class MyListener extends TradeSessionChangeMonitor.Listener {
-
       protected MyListener(UUID tradeSessionId, long lastChange) {
          super(tradeSessionId, lastChange);
       }
@@ -745,17 +773,15 @@ public class TradeActivity extends Activity {
          // Tell other listeners that we have taken care of audibly notifying up
          // till this timestamp
          _ltManager.setLastNotificationSoundTimestamp(tradeSession.lastChange);
-         if (tradeSession.confidence != null && tradeSession.confidence > 0) {
-            // While displaying confidence we do not play a notification sound
-         } else {
+         if (tradeSession.confidence == null || tradeSession.confidence <= 0) {
             if (_dingOnUpdates && _updateSound != null && _ltManager.getPlaySoundOnTradeNotification()) {
                _updateSound.play();
             }
             _dingOnUpdates = true;
          }
+         // else: While displaying confidence we do not play a notification sound
          updateUi();
       }
-
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
@@ -789,7 +815,6 @@ public class TradeActivity extends Activity {
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
       @Override
       public void onLtError(int errorCode) {
          Toast.makeText(TradeActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
@@ -807,7 +832,5 @@ public class TradeActivity extends Activity {
       public void onLtBtcReleased(Boolean success, ReleaseBtc request) {
          _mbwManager.getWalletManager(false).startSynchronization();
       }
-
    };
-
 }

@@ -46,14 +46,11 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.QrImageView;
-import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
 
 public class ExportAsQrCodeActivity extends Activity {
 
@@ -64,13 +61,15 @@ public class ExportAsQrCodeActivity extends Activity {
    private Switch swSelectData;
    private boolean hasWarningAccepted = false;
 
-   public static Intent getIntent(Activity activity, ExportableAccount.Data accountData){
+   public static Intent getIntent(Activity activity, ExportableAccount.Data accountData) {
       Intent intent = new Intent(activity, ExportAsQrCodeActivity.class);
       intent.putExtra(ACCOUNT, accountData);
       return intent;
    }
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -84,7 +83,7 @@ public class ExportAsQrCodeActivity extends Activity {
       accountData = (ExportableAccount.Data) getIntent().getSerializableExtra(ACCOUNT);
       if (accountData == null ||
             (!accountData.publicData.isPresent() && !accountData.privateData.isPresent())
-            ){
+            ) {
          finish();
          return;
       }
@@ -99,7 +98,7 @@ public class ExportAsQrCodeActivity extends Activity {
                updateData();
             }
          });
-      }else{
+      } else {
          swSelectData.setVisibility(View.GONE);
          findViewById(R.id.tvShow).setVisibility(View.GONE);
       }
@@ -118,9 +117,9 @@ public class ExportAsQrCodeActivity extends Activity {
    }
 
    private void updateData() {
-      if (isPrivateDataSelected()){
+      if (isPrivateDataSelected()) {
          showPrivateData();
-      }else{
+      } else {
          showPublicData();
       }
    }
@@ -128,12 +127,12 @@ public class ExportAsQrCodeActivity extends Activity {
    private boolean isPrivateDataSelected() {
       if (accountData.privateData.isPresent()) {
          return swSelectData.isChecked();
-      }else {
+      } else {
          return false;
       }
    }
 
-   private void setWarningVisibility(boolean showWarning){
+   private void setWarningVisibility(boolean showWarning) {
       if (showWarning) {
          findViewById(R.id.llPrivKeyWarning).setVisibility(View.VISIBLE);
          findViewById(R.id.ivQrCode).setVisibility(View.GONE);
@@ -151,41 +150,43 @@ public class ExportAsQrCodeActivity extends Activity {
       }
    }
 
-   private void showPrivateData(){
+   private void showPrivateData() {
 
       if (hasWarningAccepted) {
          setWarningVisibility(false);
          String privateData = accountData.privateData.get();
          showData(privateData);
-      }else{
+      } else {
          setWarningVisibility(true);
       }
-      ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_privkey));
+      ((TextView) findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_privkey));
 
    }
 
-   private void showPublicData(){
+   private void showPublicData() {
       setWarningVisibility(false);
       String publicData = accountData.publicData.get();
       showData(publicData);
-      ((TextView)findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_pubkey));
+      ((TextView) findViewById(R.id.tvWarning)).setText(this.getString(R.string.export_warning_pubkey));
 
    }
 
-   private void showData(final String data){
+   private void showData(final String data) {
       // Set QR code
       QrImageView iv = (QrImageView) findViewById(R.id.ivQrCode);
       iv.setQrCode(data);
 
       // split the date in fragments with 8chars and a newline after three parts
-      String fragmentedData = "";
-      int cnt=0;
-      for (String part : Utils.stringChopper(data, 8)){
+      StringBuilder builder = new StringBuilder();
+      int cnt = 0;
+      for (String part : Utils.stringChopper(data, 8)) {
          cnt++;
-         fragmentedData += part + (cnt%3==0 ? "\n":" ");
+         builder.append(part);
+         builder.append(cnt % 3 == 0 ? "\n" : " ");
       }
+      String fragmentedData = builder.toString();
 
-      ((TextView)findViewById(R.id.tvShowData)).setText(fragmentedData);
+      ((TextView) findViewById(R.id.tvShowData)).setText(fragmentedData);
       findViewById(R.id.btCopyToClipboard).setOnClickListener(new OnClickListener() {
 
          @Override
@@ -226,7 +227,7 @@ public class ExportAsQrCodeActivity extends Activity {
          });
          AlertDialog alertDialog = builder.create();
          alertDialog.show();
-      }else{
+      } else {
          Utils.setClipboardString(data, ExportAsQrCodeActivity.this);
          Toast.makeText(ExportAsQrCodeActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
       }
@@ -251,7 +252,7 @@ public class ExportAsQrCodeActivity extends Activity {
          });
          AlertDialog alertDialog = builder.create();
          alertDialog.show();
-      }else{
+      } else {
          Intent s = new Intent(android.content.Intent.ACTION_SEND);
          s.setType("text/plain");
          s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.xpub_title));

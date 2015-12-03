@@ -210,10 +210,11 @@ public class BitIDAuthenticationActivity extends ActionBarActivity {
             }
          }
       } else if (code >= 500 && code < 600) {
-         //server-side error
+         // server-side error
          userInfo = getString(R.string.bitid_error);
       } else {
-         //redirect or strange status code
+         // redirect or strange status code
+         // return same error, maybe refine later
          userInfo = getString(R.string.bitid_error);
       }
       errorView.setText(userInfo);

@@ -139,12 +139,12 @@ public class SendRequestActivity extends Activity {
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == CREATE_TRADER_RESULT_CODE) {
-         if (resultCode == RESULT_OK) {
-            // great, we will try and create the trade on resume
-         } else {
+         if (resultCode != RESULT_OK) {
             // Creation failed, bail out
             finish();
          }
+         // else: great, we will try and create the trade on resume
+         
       } else if (requestCode == SOLVE_CAPTCHA_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
             // great, we will try and create the trade on resume

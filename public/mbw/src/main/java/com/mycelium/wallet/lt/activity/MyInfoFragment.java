@@ -118,7 +118,7 @@ public class MyInfoFragment extends Fragment {
          viTraderInfo.setVisibility(View.VISIBLE);
          FragmentTransaction ft = getFragmentManager().beginTransaction();
          ft.replace(R.id.flTraderInfo, TraderInfoFragment.createInstance(info));
-         ft.commit();
+         ft.commitAllowingStateLoss();
       }
    }
 

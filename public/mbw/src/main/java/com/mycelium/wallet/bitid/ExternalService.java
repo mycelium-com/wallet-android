@@ -51,7 +51,7 @@ public enum ExternalService {
    private final String testnetApi;
    private final int welcomeMessageId;
 
-   private ExternalService(String prodnetHost, String testnetHost, String prodnetApi, String testnetApi, int welcomeMessageId) {
+   ExternalService(String prodnetHost, String testnetHost, String prodnetApi, String testnetApi, int welcomeMessageId) {
       this.prodnetHost = prodnetHost;
       this.testnetHost = testnetHost;
       this.prodnetApi = prodnetApi;
@@ -76,12 +76,7 @@ public enum ExternalService {
             .setTitle(context.getString(R.string.cashila_title_paired))
             .setMessage(context.getString(welcomeMessageId))
             .setIcon(android.R.drawable.ic_dialog_alert)
-            .setPositiveButton(context.getString(R.string.ok),new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                  //dont do anything for now
-               }
-            })
+            .setPositiveButton(context.getString(R.string.ok), null)
             .show();
    }
 }

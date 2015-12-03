@@ -62,6 +62,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.okhttp.*;
 
 import java.io.IOException;
@@ -163,7 +164,10 @@ public class PopActivity extends Activity {
       // Set amount
       long amountSatoshis = getPaymentAmountSatoshis(transactionSummary);
       String value = _mbwManager.getBtcValueString(amountSatoshis);
-      String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(amountSatoshis, true);
+      String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(
+            ExactBitcoinValue.from(amountSatoshis),
+            true
+      );
       String fiatAppendment = "";
       if (!Strings.isNullOrEmpty(fiatValue)) {
          fiatAppendment = " (" + fiatValue + ")";
@@ -207,10 +211,10 @@ public class PopActivity extends Activity {
    }
 
    private long getPaymentAmountSatoshis(TransactionSummary transactionSummary) {
-      long amountSatoshis = transactionSummary.value;
-      if (amountSatoshis < 0) {
-         amountSatoshis = -amountSatoshis;
+      if (!(transactionSummary.value.isBtc())) {
+         return 0;
       }
+      long amountSatoshis = ((ExactBitcoinValue) transactionSummary.value).getLongValue();
       TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transactionSummary.txid);
       amountSatoshis -= getFee(transactionDetails);
       return amountSatoshis;

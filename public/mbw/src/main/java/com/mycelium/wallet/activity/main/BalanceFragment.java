@@ -58,6 +58,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -180,8 +181,8 @@ public class BalanceFragment extends Fragment {
       updateUiKnownBalance(balance);
 
       // Set BTC rate
-      if (!_mbwManager.hasFiatCurrency() || _exchangeRatePrice == null) {
-         // No rate or no fiat set
+      if (!_mbwManager.hasFiatCurrency()) {
+         // No fiat currency selected by user
          _root.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
       } else if (_exchangeRatePrice == null) {
          // We have no price, exchange not available
@@ -199,26 +200,18 @@ public class BalanceFragment extends Fragment {
 
    private void updateUiKnownBalance(CurrencyBasedBalance balance) {
       // Set Balance
-      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager);
+      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
       ((ProgressBar) _root.findViewById(R.id.pbProgress)).setVisibility( (balance.isSynchronizing ? View.VISIBLE : View.GONE));
 
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc());
-      BigDecimal btcValue;
-      if (balance.confirmed.isBtc()) {
-         btcValue = balance.confirmed.getValue();
-      } else {
-         btcValue = balance.confirmed.getBitcoinValue(_mbwManager.getExchangeRateManager()).getValue();
-      }
-      Long satoshis = btcValue == null ? 0 : Bitcoins.nearestValue(btcValue).getLongValue();
-      
-      _tcdFiatDisplay.setValue(satoshis);
+      _tcdFiatDisplay.setValue(balance.confirmed);
 
       // Show/Hide Receiving
       if (balance.receiving.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager);
+         String receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = (TextView) _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -231,7 +224,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       if (balance.sending.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager);
+         String sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -252,11 +245,16 @@ public class BalanceFragment extends Fragment {
             ) {
          tv.setVisibility(View.GONE);
       } else {
-         tv.setVisibility(View.VISIBLE);
-         long satoshis = value.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
-         String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
-         String currency = _mbwManager.getFiatCurrency();
-         tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+         try {
+            long satoshis = value.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
+            tv.setVisibility(View.VISIBLE);
+            String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
+            String currency = _mbwManager.getFiatCurrency();
+            tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+         }catch (IllegalArgumentException ex){
+            // something failed while calculating the bitcoin amount
+            tv.setVisibility(View.GONE);
+         }
       }
 
    }

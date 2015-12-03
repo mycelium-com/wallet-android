@@ -40,11 +40,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
@@ -57,10 +59,7 @@ import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue;
+import com.mycelium.wapi.wallet.currency.*;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -68,14 +67,20 @@ import java.util.UUID;
 
 
 public class GetAmountActivity extends Activity implements NumberEntryListener {
-
    public static final String AMOUNT = "amount";
-   public static final String ENTEREDAMOUNT = "enteredamount";
+   public static final String ENTERED_AMOUNT = "enteredamount";
    public static final String ACCOUNT = "account";
    public static final String KB_MINER_FEE = "kbMinerFee";
    public static final String IS_COLD_STORAGE = "isColdStorage";
-   public static final String SENDMODE = "sendmode";
-   public static final String AMOUNT_SATOSHI = "amountSatoshi";
+   public static final String SEND_MODE = "sendmode";
+
+   @InjectView(R.id.btCurrency) Button btCurrency;
+   @InjectView(R.id.btPaste) Button btPaste;
+   @InjectView(R.id.btMax) Button btMax;
+   @InjectView(R.id.btOk) Button btOk;
+   @InjectView(R.id.tvMaxAmount) TextView tvMaxAmount;
+   @InjectView(R.id.tvAmount) TextView tvAmount;
+   @InjectView(R.id.tvAlternateAmount) TextView tvAlternateAmount;
 
    private boolean isSendMode;
 
@@ -89,17 +94,17 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public static void callMe(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Long kbMinerFee, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class);
       intent.putExtra(ACCOUNT, account);
-      intent.putExtra(ENTEREDAMOUNT, amountToSend);
+      intent.putExtra(ENTERED_AMOUNT, amountToSend);
       intent.putExtra(KB_MINER_FEE, kbMinerFee);
       intent.putExtra(IS_COLD_STORAGE, isColdStorage);
-      intent.putExtra(SENDMODE, true);
+      intent.putExtra(SEND_MODE, true);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
    public static void callMe(Activity currentActivity, CurrencyValue amountToSend, int requestCode) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class);
-      intent.putExtra(ENTEREDAMOUNT, amountToSend);
-      intent.putExtra(SENDMODE, false);
+      intent.putExtra(ENTERED_AMOUNT, amountToSend);
+      intent.putExtra(SEND_MODE, false);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -109,11 +114,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_amount_activity);
+      ButterKnife.inject(this);
+
       _mbwManager = MbwManager.getInstance(getApplication());
 
       initNumberEntry(savedInstanceState);
 
-      isSendMode = getIntent().getBooleanExtra(SENDMODE, false);
+      isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
       if (isSendMode) {
          initSendMode();
       }
@@ -135,105 +142,96 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
-      if (_amount == null || _amount.getValue() == null){
+      if (_amount == null || _amount.getValue() == null) {
          _amount = ExactCurrencyValue.from(null, _maxSpendableAmount.getCurrency());
          updateUI();
       }
 
       // Max Button
-      findViewById(R.id.btMax).setOnClickListener(maxClickListener);
-
-      findViewById(R.id.tvMaxAmount).setVisibility(View.VISIBLE);
-      findViewById(R.id.btMax).setVisibility(View.VISIBLE);
+      tvMaxAmount.setVisibility(View.VISIBLE);
+      btMax.setVisibility(View.VISIBLE);
    }
 
    private void initListeners() {
-      // Make both currency button and invisible right button at top a listener
-      // switch currency
-      Button btCurrency = (Button) findViewById(R.id.btCurrency);
+      // set the text for the currency button
       btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
       btCurrency.setEnabled(_mbwManager.getCurrencySwitcher().getExchangeRatePrice() != null);
-      btCurrency.setOnClickListener(switchCurrencyListener);
-      findViewById(R.id.btRight).setOnClickListener(switchCurrencyListener);
-
-      // Make both paste button and invisible left button at top a listener to
-      // paste from clipboard
-      Button btPaste = (Button) findViewById(R.id.btPaste);
-      btPaste.setOnClickListener(pasteListener);
-      findViewById(R.id.btLeft).setOnClickListener(pasteListener);
-
-      // Ok Button
-      findViewById(R.id.btOk).setOnClickListener(onClickOkButton);
    }
 
    private void initNumberEntry(Bundle savedInstanceState) {
-      _amount = (CurrencyValue) getIntent().getSerializableExtra(ENTEREDAMOUNT);
+      _amount = (CurrencyValue) getIntent().getSerializableExtra(ENTERED_AMOUNT);
       // Load saved state
       if (savedInstanceState != null) {
-         _amount = (CurrencyValue) savedInstanceState.getSerializable(ENTEREDAMOUNT);
+         _amount = (CurrencyValue) savedInstanceState.getSerializable(ENTERED_AMOUNT);
       }
-      // Set amount
+
+      // Init the number pad
       String amountString;
       if (_amount != null) {
-         amountString = Utils.getFormattedValue(_amount, _mbwManager);
+         amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
+         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
       } else {
          amountString = "";
       }
-      TextView tvAmount = (TextView) findViewById(R.id.tvAmount);
-      tvAmount.setText(amountString);
-
       _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
+
    }
 
-   private OnClickListener onClickOkButton = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         if (_amount == null){
-            return;
-         }
-
-         // Return the number of satoshis
-         Intent result = new Intent();
-         result.putExtra(AMOUNT, _amount);
-         Bitcoins amountBtc = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager());
-         if (amountBtc != null) {
-            long longValue = amountBtc.getLongValue();
-            result.putExtra(AMOUNT_SATOSHI, longValue);
-         }
-         setResult(RESULT_OK, result);
-         GetAmountActivity.this.finish();
+   @OnClick(R.id.btOk)
+   void onOkClick() {
+      if (_amount == null) {
+         return;
       }
-   };
 
-   private OnClickListener maxClickListener = new OnClickListener() {
+      // Return the entered value and set a positive result code
+      Intent result = new Intent();
+      result.putExtra(AMOUNT, _amount);
+      setResult(RESULT_OK, result);
+      GetAmountActivity.this.finish();
+   }
 
-      @Override
-      public void onClick(View arg0) {
-         maximizeAmount();
+   @OnClick(R.id.btMax)
+   void onMaxButtonClick() {
+      if (CurrencyValue.isNullOrZero(_maxSpendableAmount)) {
+         String msg = getResources().getString(R.string.insufficient_funds);
+         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+      } else {
+         _amount = _maxSpendableAmount;
+         // set the current shown currency to the amounts currency
+         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
+         updateUI();
+         checkEntry();
       }
-   };
+   }
 
-   private final OnClickListener switchCurrencyListener = new OnClickListener() {
 
-      @Override
-      public void onClick(View arg0) {
-         switchCurrency();
+   @OnClick({R.id.btRight, R.id.btCurrency})
+   void onSwitchCurrencyClick() {
+      String targetCurrency = _mbwManager.getNextCurrency(true);
+      CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+
+      // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
+      // if there is no exchange rate at all available, we will get to BTC and stay there
+      while (!targetCurrency.equals(CurrencyValue.BTC) && !currencySwitcher.isFiatExchangeRateAvailable()) {
+         targetCurrency = _mbwManager.getNextCurrency(true);
       }
-   };
 
-   private final OnClickListener pasteListener = new OnClickListener() {
+      _amount = CurrencyValue.fromValue(_amount, targetCurrency, _mbwManager.getExchangeRateManager());
 
-      @Override
-      public void onClick(View arg0) {
-         BigDecimal clipboardValue = getAmountFromClipboard();
-         if (clipboardValue == null) {
-            return;
-         }
-         setEnteredAmount(clipboardValue);
-         _numberEntry.setEntry(clipboardValue, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+      updateUI();
+   }
+
+
+   @OnClick({R.id.btLeft, R.id.btPaste})
+   void onPasteButtonClick() {
+      BigDecimal clipboardValue = getAmountFromClipboard();
+      if (clipboardValue == null) {
+         return;
       }
-   };
+      setEnteredAmount(clipboardValue);
+      _numberEntry.setEntry(clipboardValue, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+   }
+
 
    private boolean enablePaste() {
       return getAmountFromClipboard() != null;
@@ -245,7 +243,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return null;
       }
       String number = content.trim();
-      if (_amount.isBtc()) {
+      if (CurrencyValue.BTC.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
          number = Utils
                .truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
          if (number == null) {
@@ -269,74 +267,53 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
    }
 
-   private void switchCurrency() {
-      String targetCurrency = _mbwManager.getNextCurrency(true);
-      CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-
-      // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
-      // if there is no exchange rate at all available, we will get to BTC and stay there
-      while (!targetCurrency.equals(CurrencySwitcher.BTC) && !currencySwitcher.isFiatExchangeRateAvailable()) {
-         targetCurrency = _mbwManager.getNextCurrency(true);
-      }
-
-      _amount = CurrencyValue.fromValue(_amount, targetCurrency, _mbwManager.getExchangeRateManager());
-
-      updateUI();
-   }
-
    private void updateUI() {
       //update buttons and views
-      Button btCurrency = (Button) findViewById(R.id.btCurrency);
 
       // Show maximum spendable amount
       if (isSendMode) {
          showMaxAmount();
       }
+      // Set current currency name button
+      btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
 
-      if (_amount.isBtc()) {
-         // Set BTC button
-         btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
-      } else {
-         // Set Fiat button
-         btCurrency.setText(_amount.getCurrency());
-      }
-
-      //update amount
-      int showDecimalPlaces;
-      BigDecimal newAmount = null;
-      if (_amount.isBtc()) {
-         //just good ol bitcoins
-         showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-         if (_amount.getValue() != null) {
-            int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-            newAmount = _amount.getValue().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
+      if (_amount != null) {
+         //update amount
+         int showDecimalPlaces;
+         BigDecimal newAmount = null;
+         if ( _mbwManager.getCurrencySwitcher().getCurrentCurrency().equals(CurrencyValue.BTC)) {
+            //just good ol bitcoins
+            showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+            if (_amount.getValue() != null) {
+               int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+               newAmount = _amount.getValue().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
+            }
+         } else {
+            //take what was typed in
+            showDecimalPlaces = 2;
+            newAmount = _amount.getValue();
          }
+         _numberEntry.setEntry(newAmount, showDecimalPlaces);
       } else {
-         //take what was typed in
-         showDecimalPlaces = 2;
-         newAmount = _amount.getValue();
+         tvAmount.setText("");
       }
-
-      _numberEntry.setEntry(newAmount, showDecimalPlaces);
 
       // Check whether we can show the paste button
-      findViewById(R.id.btPaste).setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
+      btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
    }
 
    private void showMaxAmount() {
       CurrencyValue maxSpendable = CurrencyValue.fromValue(_maxSpendableAmount,
             _amount.getCurrency(), _mbwManager.getExchangeRateManager());
-
       String maxBalanceString = getResources().getString(R.string.max_btc,
-            Utils.getFormattedValueWithUnit(maxSpendable, _mbwManager));
-
-      ((TextView) findViewById(R.id.tvMaxAmount)).setText(maxBalanceString);
+            Utils.getFormattedValueWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+      tvMaxAmount.setText(maxBalanceString);
    }
 
    @Override
    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable(ENTEREDAMOUNT, _amount);
+      savedInstanceState.putSerializable(ENTERED_AMOUNT, _amount);
    }
 
    @Override
@@ -345,11 +322,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       _mbwManager.getExchangeRateManager().requestOptionalRefresh();
 
-      findViewById(R.id.btCurrency).setEnabled(
-            _mbwManager.hasFiatCurrency()
-                  && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable());
+      btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
+                  && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
+      );
 
-      findViewById(R.id.btPaste).setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
+      btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
       super.onResume();
    }
 
@@ -372,34 +349,34 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void setEnteredAmount(BigDecimal value) {
       // handle denomination
-      if (_amount.isBtc()) {
+      String currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
+      if (currentCurrency.equals(CurrencyValue.BTC)) {
          Long satoshis;
          int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          satoshis = value.movePointRight(decimals).longValue();
-         if (satoshis >= Bitcoins.MAX_VALUE){
+         if (satoshis >= Bitcoins.MAX_VALUE) {
             // entered value is equal or larger then total amount of bitcoins ever existing
             return;
          }
 
          _amount = ExactBitcoinValue.from(satoshis);
       } else {
-         _amount = ExactCurrencyValue.from(value, _amount.getCurrency());
+         _amount = ExactCurrencyValue.from(value, currentCurrency);
       }
 
       if (isSendMode) {
          // enable/disable Max button
-         findViewById(R.id.btMax).setEnabled(_maxSpendableAmount.getExactValue() != _amount.getExactValue());
+         btMax.setEnabled(_maxSpendableAmount.getExactValue() != _amount.getExactValue());
       }
    }
 
 
    private void updateAmountsDisplay(String amountText) {
       // update main-currency display
-      ((TextView) findViewById(R.id.tvAmount)).setText(amountText);
+      tvAmount.setText(amountText);
 
 
       // Set alternate amount if we can
-      TextView tvAlternateAmount = ((TextView) findViewById(R.id.tvAlternateAmount));
       if (!_mbwManager.hasFiatCurrency() || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()) {
          tvAlternateAmount.setText("");
       } else {
@@ -411,38 +388,31 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                   _amount, currency, _mbwManager.getExchangeRateManager());
          } else {
             // Show BTC as alternate amount
-            convertedAmount = ExchangeBasedCurrencyValue.fromValue(
-                  _amount, "BTC", _mbwManager.getExchangeRateManager());
+            try {
+               convertedAmount = ExchangeBasedCurrencyValue.fromValue(
+                     _amount, "BTC", _mbwManager.getExchangeRateManager());
+            } catch (IllegalArgumentException ex){
+               // something failed while calculating the bitcoin amount
+               convertedAmount = ExactBitcoinValue.ZERO;
+            }
          }
-         tvAlternateAmount.setText(Utils.getFormattedValueWithUnit(convertedAmount, _mbwManager));
-      }
-   }
-
-   private void maximizeAmount() {
-      if (_maxSpendableAmount.isZero()) {
-         String msg = getResources().getString(R.string.insufficient_funds);
-         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-      } else {
-         _amount = _maxSpendableAmount;
-         updateUI();
-         checkEntry();
+         tvAlternateAmount.setText(Utils.getFormattedValueWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
       }
    }
 
    private void checkEntry() {
-      if (_amount.getValue() == null || _amount.isZero()) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          // Nothing entered
-         ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
-         findViewById(R.id.btOk).setEnabled(false);
+         tvAmount.setTextColor(getResources().getColor(R.color.white));
+         btOk.setEnabled(false);
          return;
       }
       if (isSendMode && _amount.getValue() != null) {
          AmountValidation result = checkTransaction();
          // Enable/disable Ok button
-         findViewById(R.id.btOk).setEnabled(result == AmountValidation.Ok
-               && !_amount.isZero());
+         btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
       } else {
-         findViewById(R.id.btOk).setEnabled(true);
+         btOk.setEnabled(true);
       }
    }
 
@@ -451,7 +421,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     * that we have enough funds to send it.
     */
    private AmountValidation checkSendAmount(Bitcoins satoshis) {
-      if (satoshis == null) return AmountValidation.Ok; //entering a fiat value + exchange is not availible
+      if (satoshis == null) {
+         return AmountValidation.Ok; //entering a fiat value + exchange is not availible
+      }
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
@@ -473,14 +445,20 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private AmountValidation checkTransaction() {
-      Bitcoins satoshis = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager());
+      Bitcoins satoshis;
+      try {
+         satoshis = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager());
+      } catch (IllegalArgumentException ex){
+         // something failed while calculating the bitcoin amount
+         return AmountValidation.Invalid;
+      }
       // Check whether we have sufficient funds, and whether the output is too small
       AmountValidation result = checkSendAmount(satoshis);
 
       if (result == AmountValidation.Ok) {
-         ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.white));
+         tvAmount.setTextColor(getResources().getColor(R.color.white));
       } else {
-         ((TextView) findViewById(R.id.tvAmount)).setTextColor(getResources().getColor(R.color.red));
+         tvAmount.setTextColor(getResources().getColor(R.color.red));
          if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
             if (_account.getBalance().getSpendableBalance() < satoshis.getLongValue()) {
@@ -493,10 +471,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                String msg = getResources().getString(R.string.insufficient_funds_for_fee);
                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             }
-         } else {
+         }
+         // else {
             // The amount we want to send is not large enough for the network to
             // accept it. Don't Toast about it, it's just annoying
-         }
+         // }
       }
       return result;
    }
@@ -513,7 +492,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void updateExchangeRateDisplay() {
       Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      findViewById(R.id.btCurrency).setEnabled(exchangeRatePrice != null);
+      btCurrency.setEnabled(exchangeRatePrice != null);
       if (exchangeRatePrice != null) {
          updateAmountsDisplay(_numberEntry.getEntry());
       }

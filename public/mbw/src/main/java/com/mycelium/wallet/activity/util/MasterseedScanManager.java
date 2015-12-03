@@ -62,7 +62,7 @@ public class MasterseedScanManager extends AbstractAccountScanManager {
 
    public MasterseedScanManager(Context context, NetworkParameters network, String[] words, String password, Bus eventBus){
       super(context, network, eventBus);
-      this.words = words;
+      this.words = words.clone();
       this.password = password;
    }
 

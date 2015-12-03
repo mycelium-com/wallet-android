@@ -83,7 +83,7 @@ public class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> 
       if (o.value != null) {
          // Set String value
          v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_row, null));
-         ((TextView) v.findViewById(R.id.tvValue)).setText(o.value);
+         ((TextView) v.findViewById(R.id.tvDisplayValue)).setText(o.value);
       } else if (o.rating != null) {
          // Set Rating
          v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_rating_row, null));

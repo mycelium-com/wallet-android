@@ -59,6 +59,7 @@
         <activity android:name=".activity.modern.GetFromAddressBookActivity" />
         <activity android:name=".activity.AddAccountActivity" />
         <activity android:name=".activity.AddAdvancedAccountActivity" />
+        <activity android:name=".activity.AddCoinapultAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
         <activity android:name=".activity.TransactionDetailsActivity" />
         <activity android:name=".activity.settings.SettingsActivity" />

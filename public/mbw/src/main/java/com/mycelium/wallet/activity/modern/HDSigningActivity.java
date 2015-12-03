@@ -95,8 +95,6 @@ public class HDSigningActivity extends Activity {
       ll.setLayoutParams(WCWC);
       ll.setPadding(10, 10, 10, 10);
 
-      String addressString = address.toString();
-
       // Add address chunks
       AddressLabel addressLabel = new AddressLabel(this);
       addressLabel.setAddress(address);

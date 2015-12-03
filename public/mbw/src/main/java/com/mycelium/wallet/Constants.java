@@ -131,6 +131,4 @@ public class Constants {
    public static final int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
    // Force user to read the warnings about additional backups
    public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
-   public static final BigDecimal COINAPULT_MINIMUM_AMOUNT = BigDecimal.ONE;
-   
 }

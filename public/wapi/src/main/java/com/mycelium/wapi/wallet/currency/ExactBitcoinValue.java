@@ -74,6 +74,11 @@ public class ExactBitcoinValue extends ExactCurrencyValue implements BitcoinValu
    }
 
    @Override
+   public long getLongValue() {
+      return getAsBitcoin().getLongValue();
+   }
+
+   @Override
    public Bitcoins getAsBitcoin() {
       return value;
    }

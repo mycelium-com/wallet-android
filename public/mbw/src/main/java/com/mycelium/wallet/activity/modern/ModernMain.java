@@ -59,6 +59,7 @@ import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wapi.api.response.Feature;
@@ -67,6 +68,7 @@ import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -75,6 +77,8 @@ public class ModernMain extends ActionBarActivity {
 
    public static final int GENERIC_SCAN_REQUEST = 4;
    private static final int REQUEST_SETTING_CHANGED = 5;
+   public static final int MIN_AUTOSYNC_INTERVAL = 1 * 60 * 1000;
+   public static final String LAST_SYNC = "LAST_SYNC";
    private MbwManager _mbwManager;
 
    ViewPager mViewPager;
@@ -83,6 +87,7 @@ public class ModernMain extends ActionBarActivity {
    ActionBar.Tab mAccountsTab;
    private MenuItem refreshItem;
    private Toaster _toaster;
+   private long _lastSync = 0;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -137,12 +142,22 @@ public class ModernMain extends ActionBarActivity {
 
       _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
 
+      if (savedInstanceState != null) {
+         _lastSync = savedInstanceState.getLong(LAST_SYNC, 0);
+      }
+
+   }
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      super.onSaveInstanceState(outState);
+      outState.putLong(LAST_SYNC, _lastSync);
    }
 
    private void checkTorState() {
-      if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR){
+      if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR) {
          OrbotHelper obh = new OrbotHelper(this);
-         if (!obh.isOrbotRunning()){
+         if (!obh.isOrbotRunning()) {
             obh.requestOrbotStart(this);
          }
       }
@@ -153,16 +168,21 @@ public class ModernMain extends ActionBarActivity {
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
 
-      // Start WAPI & classic synchronization as a delayed action. This way we don't immediately block the account
+      // Start WAPI as a delayed action. This way we don't immediately block the account
       // while synchronizing
       Handler h = new Handler();
-      h.postDelayed(new Runnable() {
-         @Override
-         public void run() {
-            _mbwManager.getVersionManager().checkForUpdate();
-            _mbwManager.getWalletManager(false).startSynchronization();
-         }
-      }, 5);
+      if (_lastSync == 0 || new Date().getTime() - _lastSync > MIN_AUTOSYNC_INTERVAL) {
+         h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+               _mbwManager.getVersionManager().checkForUpdate();
+               _mbwManager.getWalletManager(false).startSynchronization();
+               _mbwManager.getExchangeRateManager().requestRefresh();
+            }
+         }, 70);
+         _lastSync = new Date().getTime();
+      }
+
 
       supportInvalidateOptionsMenu();
       super.onResume();
@@ -222,7 +242,7 @@ public class ModernMain extends ActionBarActivity {
       final boolean isRecords = tabIdx == 0;
       final boolean locked = _mbwManager.isKeyManagementLocked();
       Preconditions.checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isRecords && !locked);
-      Preconditions.checkNotNull(menu.findItem(R.id.miAddUsdAccount)).setVisible(isRecords && !locked && !_mbwManager.hasUsdAccount());
+      Preconditions.checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isRecords);
 
       // Lock menu
       final boolean hasPin = _mbwManager.isPinProtected();
@@ -273,13 +293,15 @@ public class ModernMain extends ActionBarActivity {
       } else if (itemId == R.id.miBackup) {
          Utils.pinProtectedWordlistBackup(this);
          return true;
-      //with wordlists, we just need to backup and verify in one step
-      //} else if (itemId == R.id.miVerifyBackup) {
-      //   VerifyBackupActivity.callMe(this);
-      //   return true;
+         //with wordlists, we just need to backup and verify in one step
+         //} else if (itemId == R.id.miVerifyBackup) {
+         //   VerifyBackupActivity.callMe(this);
+         //   return true;
       } else if (itemId == R.id.miRefresh) {
          //switch server every third time the refresh button gets hit
-         if (new Random().nextInt(3) == 0) _mbwManager.switchServer();
+         if (new Random().nextInt(3) == 0) {
+            _mbwManager.switchServer();
+         }
          _mbwManager.getWalletManager(false).startSynchronization();
       } else if (itemId == R.id.miExplore) {
          _mbwManager.getExploreHelper().redirectToCoinmap(this);
@@ -291,7 +313,7 @@ public class ModernMain extends ActionBarActivity {
       } else if (itemId == R.id.miRescanTransactions) {
          _mbwManager.getSelectedAccount().dropCachedData();
          _mbwManager.getWalletManager(false).startSynchronization();
-      } else if ( itemId == R.id.miSepaSend) {
+      } else if (itemId == R.id.miSepaSend) {
          _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
             @Override
             public void run() {
@@ -348,12 +370,12 @@ public class ModernMain extends ActionBarActivity {
 
             if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
                ivTorIcon.setVisibility(View.VISIBLE);
-               if (_mbwManager.getTorManager().getInitState()==100) {
+               if (_mbwManager.getTorManager().getInitState() == 100) {
                   ivTorIcon.setImageResource(R.drawable.tor);
-               }else{
+               } else {
                   ivTorIcon.setImageResource(R.drawable.tor_gray);
                }
-            }else{
+            } else {
                ivTorIcon.setVisibility(View.GONE);
             }
 
@@ -392,7 +414,7 @@ public class ModernMain extends ActionBarActivity {
    public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
       _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
 
-      if (_mbwManager.getSelectedAccount() instanceof CoinapultManager){
+      if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
          _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.COINAPULT);
       }
    }

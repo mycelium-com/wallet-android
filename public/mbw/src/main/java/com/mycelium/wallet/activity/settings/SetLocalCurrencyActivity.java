@@ -34,10 +34,7 @@
 
 package com.mycelium.wallet.activity.settings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -49,6 +46,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.google.common.collect.Sets;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.api.lib.CurrencyCode;
@@ -61,7 +59,7 @@ public class SetLocalCurrencyActivity extends Activity {
    }
 
    private Map<String, String> _currencySelectionToCurrencyMap;
-   private List<String> _currencies;
+   private Set<String> _currencies;
    private ArrayAdapter<String> _adapter;
 
    @Override
@@ -110,7 +108,7 @@ public class SetLocalCurrencyActivity extends Activity {
       ListView listview = (ListView) findViewById(R.id.lvCurrencies);
       listview.setAdapter(_adapter);
 
-      _currencies = MbwManager.getInstance(this).getCurrencyList();
+      _currencies = Sets.newHashSet(MbwManager.getInstance(this).getCurrencyList());
    }
 
    View.OnClickListener itemClicked = new View.OnClickListener() {
@@ -147,9 +145,6 @@ public class SetLocalCurrencyActivity extends Activity {
 
    private void setCurrency(String currency, boolean isSelected) {
       if (isSelected) {
-         //should not happen - should be fail instead?
-         if (_currencies.contains(currency)) return;
-
          _currencies.add(currency);
       } else {
          _currencies.remove(currency);

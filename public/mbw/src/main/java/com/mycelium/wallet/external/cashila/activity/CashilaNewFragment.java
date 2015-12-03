@@ -84,7 +84,6 @@ public class CashilaNewFragment extends Fragment {
    private CashilaService cs;
    private MbwManager mbw;
    private Bus eventBus;
-   private BcdCodedSepaData bcd;
 
 
    /**
@@ -114,17 +113,11 @@ public class CashilaNewFragment extends Fragment {
       eventBus = mbw.getEventBus();
 
       int selItem = 0;
-      if (savedInstanceState != null){
+      if (savedInstanceState != null) {
          selItem = savedInstanceState.getInt("spRecipient", 0);
       }
 
       getRecentRecipientsList(selItem);
-
-      bcd = (BcdCodedSepaData) getActivity().getIntent().getSerializableExtra("bcd");
-      if (bcd != null) {
-         initFromBcd(bcd);
-      }
-
 
       return rootView;
    }
@@ -178,33 +171,6 @@ public class CashilaNewFragment extends Fragment {
       getRecentRecipientsList(spRecipients.getSelectedItemPosition());
    }
 
-   private CreateBillPay getBillPayFromBcdEntry(BcdCodedSepaData bcd) {
-      throw new UnsupportedOperationException();
-      /*
-      if (bcd == null){
-         return null;
-      }
-
-      BigDecimal amount = getAmount();
-      if (amount == null)  {
-         return null;
-      }
-
-      CreateBillPay newBillPay = new CreateBillPayNew(
-            bcd.recipient,
-            bcd.iban,
-            bcd.bic,
-            "", // bcd is missing address data
-            "",
-            "",
-            bcd.iban.substring(0,2),
-            amount , "EUR",
-            etReference.getText().toString(),
-            mbw.getSelectedAccount().getReceivingAddress());
-      return newBillPay;
-      */
-   }
-
    private CreateBillPay getBillPayFromUserEntry() {
       BillPayRecentRecipient selectedItem = (BillPayRecentRecipient) spRecipients.getSelectedItem();
       if (selectedItem == null) {
@@ -217,7 +183,7 @@ public class CashilaNewFragment extends Fragment {
       }
 
       Optional<Address> receivingAddress = mbw.getSelectedAccount().getReceivingAddress();
-      if (!receivingAddress.isPresent()){
+      if (!receivingAddress.isPresent()) {
          return null;
       }
 
@@ -230,11 +196,7 @@ public class CashilaNewFragment extends Fragment {
    }
 
    private CreateBillPay getBillPay() {
-      if (bcd != null) {
-         return getBillPayFromBcdEntry(bcd);
-      } else {
-         return getBillPayFromUserEntry();
-      }
+      return getBillPayFromUserEntry();
    }
 
    private BigDecimal getAmount() {
@@ -347,21 +309,6 @@ public class CashilaNewFragment extends Fragment {
    public void onPause() {
       mbw.getVersionManager().closeDialog();
       super.onPause();
-   }
-
-   public void initFromBcd(BcdCodedSepaData bcd) {
-      etAmount.setText(bcd.amount.toString());
-      etReference.setText(bcd.reference);
-
-      ViewGroup parent = (ViewGroup) spRecipients.getParent();
-      parent.removeAllViews();
-
-      View view = getActivity().getLayoutInflater().inflate(R.layout.ext_cashila_new_recipient, parent, true);
-
-      ((TextView) view.findViewById(R.id.tvName)).setText(bcd.recipient);
-      ((TextView) view.findViewById(R.id.tvInfo)).setText(bcd.bic);
-      ((TextView) view.findViewById(R.id.tvIban)).setText(bcd.iban);
-      ((TextView) view.findViewById(R.id.tvDisplayText)).setText(bcd.displayText);
    }
 
    // Adapter for Recipient Spinner

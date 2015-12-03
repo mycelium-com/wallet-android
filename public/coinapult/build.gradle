@@ -18,7 +18,10 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-core:2.1.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.0'
-    compile 'com.google.http-client:google-http-client-jackson2:1.19.0'
+    compile ('com.google.http-client:google-http-client-jackson2:1.19.0') {
+        // jackson comes with an older version of findbugs than required elsewhere
+        exclude group: 'com.google.code.findbugs'
+    }
 
     compile 'com.madgag.spongycastle:core:1.51.0.0'
     compile 'com.madgag.spongycastle:prov:1.51.0.0'

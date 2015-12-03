@@ -66,7 +66,7 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
       if (obj == this) {
          return true;
       }
-      if (!(obj instanceof TransactionStatus)) {
+      if (!(obj instanceof TransactionEx)) {
          return false;
       }
       TransactionEx other = (TransactionEx) obj;

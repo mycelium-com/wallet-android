@@ -107,6 +107,7 @@ Authors
  - Dmitry Murashchik
  - Constantin Vennekel
  - Leo Wandersleb
+ - Daniel Krawisz
 
 Credits
 =======

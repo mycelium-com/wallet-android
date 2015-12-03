@@ -55,7 +55,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -67,13 +66,12 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class TradeHistoryFragment extends Fragment {
-
-   public static final String PARAMETER_IS_BUY = "isBuy";
-
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
+   // TODO: 11/26/15 why exactly should this warning be suppressed? Could we agree to always set a reason for ignoring warnings. I'd like to remove it. It does nothing as far as I can see.
    @SuppressWarnings("unused")
    private TradeSession _selectedTradeSession;
    private Wrapper _myAdapter;
@@ -117,8 +115,7 @@ public class TradeHistoryFragment extends Fragment {
       super.onPause();
    }
 
-   OnItemClickListener itemListClickListener = new OnItemClickListener() {
-
+   private OnItemClickListener itemListClickListener = new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
          _selectedTradeSession = (TradeSession) view.getTag();
@@ -126,7 +123,7 @@ public class TradeHistoryFragment extends Fragment {
       }
    };
 
-   private class TradeSessionsAdapter extends ArrayAdapter<TradeSession> {
+   private final class TradeSessionsAdapter extends ArrayAdapter<TradeSession> {
       private Context _context;
       private Date _midnight;
       private DateFormat _dayFormat;
@@ -192,7 +189,7 @@ public class TradeHistoryFragment extends Fragment {
       private List<TradeSession> _toAdd;
       private GetFinalTradeSessions _request;
 
-      private Wrapper(Context ctxt, ArrayList<TradeSession> list) {
+      private Wrapper(Context ctxt, List<TradeSession> list) {
          super(new TradeSessionsAdapter(ctxt, list));
          rotate = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
          rotate.setDuration(600);
@@ -211,7 +208,6 @@ public class TradeHistoryFragment extends Fragment {
          }
 
          public void onLtFinalTradeSessionsFetched(List<TradeSession> list, GetFinalTradeSessions request) {
-
             synchronized (_fetched) {
                if (_request != request) {
                   return;
@@ -222,7 +218,6 @@ public class TradeHistoryFragment extends Fragment {
                _fetched.notify();
             }
          }
-
       };
 
       public void detach() {
@@ -239,6 +234,9 @@ public class TradeHistoryFragment extends Fragment {
       }
 
       @Override
+      @SuppressFBWarnings(
+            justification = "looping happens anyway, but in a higher level",
+            value = "WA_NOT_IN_LOOP")
       protected boolean cacheInBackground() {
          if (!_ltManager.hasLocalTraderAccount()) {
             return false;

@@ -32,28 +32,28 @@ public class Page {
 	}
 	
 	private String getFontReferences() {
-		String result = "";
+		StringBuilder builder = new StringBuilder();
 		if (!mPageFonts.isEmpty()) {
-			result = "    /Font <<\n";
+			builder.append("    /Font <<\n");
 			int x = 0;
 			for (IndirectObject lFont : mPageFonts) {
-				result += "      /F" + Integer.toString(++x) + " " + lFont.getIndirectReference() + "\n";
+				builder.append("      /F" + Integer.toString(++x) + " " + lFont.getIndirectReference() + "\n");
 			}
-			result += "    >>\n";
+			builder.append("    >>\n");
 		}
-		return result;
+		return builder.toString();
 	}
 
 	private String getXObjectReferences() {
-		String result = "";
+		StringBuilder builder = new StringBuilder("");
 		if (!mXObjects.isEmpty()) {
-			result = "    /XObject <<\n";
+			builder.append("    /XObject <<\n");
 			for (XObjectImage xObj : mXObjects) {
-				result += "      " + xObj.asXObjectReference() + "\n";
+				builder.append("      ").append(xObj.asXObjectReference()).append("\n");
 			}
-			result += "    >>\n";
+			builder.append("    >>\n");
 		}
-		return result;
+		return builder.toString();
 	}
 	
 	public void render(String pagesIndirectReference) {

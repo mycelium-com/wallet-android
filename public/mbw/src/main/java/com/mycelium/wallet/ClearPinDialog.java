@@ -86,7 +86,7 @@ public class ClearPinDialog extends PinDialog {
       return new View.OnClickListener() {
          @Override
          public void onClick(View v) {
-            AlertDialog d = new AlertDialog.Builder(ClearPinDialog.this.getContext())
+            new AlertDialog.Builder(ClearPinDialog.this.getContext())
                   .setPositiveButton(context.getString(R.string.yes), new OnClickListener() {
                      @Override
                      public void onClick(DialogInterface dialog, int which) {

@@ -315,8 +315,6 @@ public class CashilaPendingFragment extends Fragment {
                      } else if (itemId == R.id.miPayNow) {
                         payNow(billPay);
                         return true;
-                     } else {
-                        // ...
                      }
 
                      return false;

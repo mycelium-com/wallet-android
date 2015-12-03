@@ -60,7 +60,8 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
 
    //todo make sure proxy is set before this. require as dependency?
    public static HttpErrorCollector registerInVM(Context applicationContext, WapiClient wapi) {
-      MbwEnvironment env = MbwEnvironment.determineEnvironment(applicationContext);
+      // just call this function to ensure all settings are correct
+      MbwEnvironment.verifyEnvironment(applicationContext);
       String version = VersionManager.determineVersion(applicationContext);
       return registerInVM(applicationContext, version, wapi);
    }

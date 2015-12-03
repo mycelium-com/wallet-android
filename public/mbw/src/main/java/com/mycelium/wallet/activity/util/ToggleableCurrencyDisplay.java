@@ -47,6 +47,8 @@ import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.wallet.currency.CurrencySum;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -59,7 +61,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    protected TextView tvValue;
    protected LinearLayout llContainer;
 
-   protected long satoshis;
+   protected CurrencyValue currentValue;
    protected boolean fiatOnly = false;
    protected boolean hideOnNoExchangeRate = false;
    private int precision = -1;
@@ -81,16 +83,14 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       init(context);
    }
 
-   void parseXML(Context context, AttributeSet attrs){
+   void parseXML(Context context, AttributeSet attrs) {
       TypedArray a = context.obtainStyledAttributes(attrs,
             R.styleable.ToggleableCurrencyButton);
 
       final int N = a.getIndexCount();
-      for (int i = 0; i < N; ++i)
-      {
+      for (int i = 0; i < N; ++i) {
          int attr = a.getIndex(i);
-         switch (attr)
-         {
+         switch (attr) {
             case R.styleable.ToggleableCurrencyButton_fiatOnly:
                fiatOnly = a.getBoolean(attr, false);
                break;
@@ -110,28 +110,28 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    }
 
-   protected void init(Context context){
-      LayoutInflater mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+   protected void init(Context context) {
+      LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
       View view;
       view = mInflater.inflate(R.layout.toggleable_currency_display, this, true);
 
       tvCurrency = (TextView) view.findViewById(R.id.tvCurrency);
-      tvValue = (TextView) view.findViewById(R.id.tvValue);
+      tvValue = (TextView) view.findViewById(R.id.tvDisplayValue);
       llContainer = (LinearLayout) view.findViewById(R.id.llContainer);
    }
 
-   private void setTextSize(int size){
+   private void setTextSize(int size) {
       tvCurrency.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
       tvValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
    }
 
-   private void setTextColor(int color){
+   private void setTextColor(int color) {
       tvCurrency.setTextColor(color);
       tvValue.setTextColor(color);
    }
 
-   protected void updateUi(){
+   protected void updateUi() {
       Preconditions.checkNotNull(currencySwitcher);
 
       if (fiatOnly) {
@@ -139,43 +139,47 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       } else {
          // Switch to BTC if no fiat fx rate is available
          if (!currencySwitcher.isFiatExchangeRateAvailable()) {
-            currencySwitcher.setCurrency(CurrencySwitcher.BTC);
+            currencySwitcher.setCurrency(CurrencyValue.BTC);
          }
 
          llContainer.setVisibility(VISIBLE);
          String formattedValue;
-         if (precision>=0){
-            formattedValue = currencySwitcher.getFormattedValue(satoshis, false, precision);
-         }else {
-            formattedValue = currencySwitcher.getFormattedValue(satoshis, false);
+         if (precision >= 0) {
+            formattedValue = currencySwitcher.getFormattedValue(currentValue, false, precision);
+         } else {
+            formattedValue = currencySwitcher.getFormattedValue(currentValue, false);
          }
 
          tvValue.setText(formattedValue);
-         tvCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
+         String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
+         tvCurrency.setText(currentCurrency);
       }
    }
 
    private void showFiat() {
-      if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()){
+      if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()) {
          // hide everything
          llContainer.setVisibility(GONE);
       } else {
          llContainer.setVisibility(VISIBLE);
-         tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
          String formattedFiatValue;
-         if (precision >= 0){
-            formattedFiatValue = currencySwitcher.getFormattedFiatValue(satoshis, false, precision);
+
+         // convert to the target fiat currency, if needed
+         CurrencyValue valueToShow = currencySwitcher.getAsFiatValue(currentValue);
+
+         if (precision >= 0) {
+            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false, precision);
          } else {
-            formattedFiatValue = currencySwitcher.getFormattedFiatValue(satoshis, false);
+            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false);
          }
 
+         tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
          tvValue.setText(formattedFiatValue);
       }
    }
 
-   public void setEventBus(Bus eventBus){
+   public void setEventBus(Bus eventBus) {
       this.eventBus = eventBus;
-
       this.eventBus.register(this);
    }
 
@@ -184,18 +188,23 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       super.onDetachedFromWindow();
 
       // unregister from the event bus
-      if (eventBus != null){
+      if (eventBus != null) {
          eventBus.unregister(this);
       }
    }
 
-   public void setCurrencySwitcher(CurrencySwitcher currencySwitcher){
+   public void setCurrencySwitcher(CurrencySwitcher currencySwitcher) {
       this.currencySwitcher = currencySwitcher;
       updateUi();
    }
 
-   public void setValue(long satoshis){
-      this.satoshis = satoshis;
+   public void setValue(CurrencyValue value) {
+      this.currentValue = value;
+      updateUi();
+   }
+
+   public void setValue(CurrencySum sum) {
+      this.currentValue = currencySwitcher.getValueFromSum(sum);
       updateUi();
    }
 
@@ -204,12 +213,12 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    }
 
    @Subscribe
-   public void onExchangeRateChange(ExchangeRatesRefreshed event){
+   public void onExchangeRateChange(ExchangeRatesRefreshed event) {
       updateUi();
    }
 
    @Subscribe
-   public void onSelectedCurrencyChange(SelectedCurrencyChanged event){
+   public void onSelectedCurrencyChange(SelectedCurrencyChanged event) {
       updateUi();
    }
 

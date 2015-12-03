@@ -673,7 +673,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="remove_queued_transaction_title">Transaktion gereiht</string>
   <string name="remove_queued_transaction_hint">Ihr Saldo wird nach der nächsten Synchronisation mit dem Netzwerk korrigiert</string>
   <string name="remove_queued_transaction_error">Transaktion kann nicht entfernt werden</string>
-  <string name="sendingViaCoinapult">Senden von Bitcoins über Coinapult</string>
+  <string name="coinapult_sending_via_coinapult">Senden von Bitcoins über Coinapult</string>
   <string name="cashila_tab_new">Neu</string>
   <string name="cashila_tab_pending">Zahlungen</string>
   <string name="cashila_sepa_transfer">SEPA-Überweisung</string>
@@ -740,7 +740,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="block_explorer_title">Block Explorer (%1$s)</string>
   <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
   <string name="coinapult_mail_hint">Geben Sie eine E-Mail-Adresse ein</string>
-  <string name="set_mail_menu_item">Geben Sie eine E-Mail-Adresse ein</string>
+  <string name="coinapult_set_mail_menu_item">Geben Sie eine E-Mail-Adresse ein</string>
   <string name="coinapult_unable_to_create_account">Das Coinapult-Konto konnte nicht erstellt werden</string>
   <string name="copy">Kopieren</string>
 </resources>

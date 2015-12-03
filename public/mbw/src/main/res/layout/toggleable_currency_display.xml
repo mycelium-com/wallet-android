@@ -12,7 +12,7 @@
 
     <TextView
         tools:text="1.5"
-        android:id="@+id/tvValue"
+        android:id="@+id/tvDisplayValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="22sp" />

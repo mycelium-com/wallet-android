@@ -123,9 +123,9 @@ public final class Bitcoins implements Serializable {
       return toBigDecimal().multiply(BigDecimal.valueOf(satoshis));
    }
 
-    protected Bitcoins parse(String input) {
-        return Bitcoins.valueOf(input);
-    }
+   protected Bitcoins parse(String input) {
+      return Bitcoins.valueOf(input);
+   }
 
    @Override
    public String toString() {

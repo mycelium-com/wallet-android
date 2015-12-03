@@ -84,15 +84,18 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.currency.BitcoinValue;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.PrettyTime;
 
@@ -101,12 +104,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @SuppressWarnings("deprecation")
 public class Utils {
@@ -238,7 +236,7 @@ public class Utils {
    public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
       MbwManager mbwManager = MbwManager.getInstance(context);
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
-      String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max(blocks, 1) * 10 * 60 * 1000));
+      String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max((long)blocks, 1L) * 10 * 60 * 1000));
       return ret;
    }
 
@@ -270,7 +268,8 @@ public class Utils {
     * Show a dialog with a buttons that displays a message. Click the message
     * or the back button to make it disappear.
     */
-   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner, @StringRes int okayButtonText, final Runnable postRunner) {
+   public static void showSimpleMessageDialog(final Context context, String message, final Runnable okayRunner,
+                                              @StringRes int okayButtonText, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
@@ -304,7 +303,7 @@ public class Utils {
 
    /**
     * Show an optional message/
-    * <p/>
+    * <p>
     * The user can check a "never shot this again" check box and the message
     * will never get displayed again.
     *
@@ -472,7 +471,7 @@ public class Utils {
 
    /**
     * Truncate and transform a decimal string to a maximum number of digits
-    * <p/>
+    * <p>
     * The string will be truncated and verified to be a valid decimal number
     * with one comma or dot separator. A comma separator will be converted to a
     * dot. The resulting string will have at most the number of decimals
@@ -690,9 +689,15 @@ public class Utils {
          @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            if (input instanceof Bip44Account) return 0;
-            if (input instanceof SingleAddressAccount) return 1;
-            if (input instanceof CoinapultManager) return 3; //coinapult last
+            if (input instanceof Bip44Account) {
+               return 0;
+            }
+            if (input instanceof SingleAddressAccount) {
+               return 1;
+            }
+            if (input instanceof CoinapultAccount) {
+               return 3; //coinapult last
+            }
             return 2;
          }
       });
@@ -734,20 +739,19 @@ public class Utils {
 
       //trezor account
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-    	 int accountType = ((Bip44AccountExternalSignature)walletAccount).getAccountType();
-    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
-    		 return resources.getDrawable(R.drawable.ledger_icon);
-    	 }
-    	 else {
-    		 return resources.getDrawable(R.drawable.trezor_icon_only);
-    	 }
-         
+         int accountType = ((Bip44AccountExternalSignature) walletAccount).getAccountType();
+         if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+            return resources.getDrawable(R.drawable.ledger_icon);
+         } else {
+            return resources.getDrawable(R.drawable.trezor_icon_only);
+         }
+
       }
       //regular HD account
       if (walletAccount instanceof Bip44Account) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultManager) {
+      if (walletAccount instanceof CoinapultAccount) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
@@ -761,14 +765,13 @@ public class Utils {
 
    public static String getNameForNewAccount(WalletAccount account, Context context) {
       if (account instanceof Bip44AccountExternalSignature) {
-    	 String baseName;
-    	 int accountType = ((Bip44AccountExternalSignature)account).getAccountType();
-    	 if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
-    		 baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
-    	 }
-    	 else {
-    		 baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
-    	 }
+         String baseName;
+         int accountType = ((Bip44AccountExternalSignature) account).getAccountType();
+         if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+            baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
+         } else {
+            baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
+         }
          return baseName + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
       } else if (account instanceof Bip44PubOnlyAccount) {
          return context.getString(R.string.account_prefix_imported);
@@ -779,9 +782,13 @@ public class Utils {
       }
    }
 
-   public  static boolean isAllowedForLocalTrader(WalletAccount account) {
-      if (account instanceof CoinapultManager) return false; //we do not support coinapult accs in lt (yet)
-      if (!account.getReceivingAddress().isPresent()) return false;  // the account has no valid receiving address (should not happen) - dont use it
+   public static boolean isAllowedForLocalTrader(WalletAccount account) {
+      if (account instanceof CoinapultAccount) {
+         return false; //we do not support coinapult accs in lt (yet)
+      }
+      if (!account.getReceivingAddress().isPresent()) {
+         return false;  // the account has no valid receiving address (should not happen) - dont use it
+      }
       return true; //all other account types including trezor accs are fine
    }
 
@@ -801,28 +808,98 @@ public class Utils {
       return format.format(date);
    }
 
-   public static String getFormattedValue(CurrencyValue value, MbwManager mbw){
+   public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination) {
+      if (value == null) {
+         return "";
+      }
+
       BigDecimal val = value.getValue();
-      if (val == null){
+      if (val == null) {
          return "";
       }
       if (value.isBtc()) {
-         return CoinUtil.valueString(val, mbw.getBitcoinDenomination(), false);
+         return CoinUtil.valueString(val, denomination, false);
       } else {
+
          return FIAT_FORMAT.format(val);
       }
    }
 
-   public static String getFormattedValueWithUnit(CurrencyValue value, MbwManager mbw){
+   public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
+      if (value == null) {
+         return "";
+      }
+
       BigDecimal val = value.getValue();
-      if (val == null){
+      if (val == null) {
+         return "";
+      }
+      if (value.isBtc()) {
+         return CoinUtil.valueString(
+               ((BitcoinValue) value).getLongValue(),
+               denomination, precision
+         );
+      } else {
+         if (!formatCache.containsKey(precision)) {
+            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
+            fiatFormat.setMaximumFractionDigits(precision);
+            formatCache.put(precision, fiatFormat);
+         }
+         return formatCache.get(precision).format(val);
+      }
+   }
+
+   public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination) {
+      if (value == null) {
          return "";
       }
 
       if (value.isBtc()) {
-         return String.format("%s %s", CoinUtil.valueString(val, mbw.getBitcoinDenomination(), false), mbw.getBitcoinDenomination().getUnicodeName());
+         return getFormattedValueWithUnit((BitcoinValue) value, denomination);
       } else {
+         BigDecimal val = value.getValue();
+         if (val == null) {
+            return "";
+         }
          return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
+      }
+   }
+
+   // prevent ambiguous call for ExactBitcoinValue
+   public static String getFormattedValueWithUnit(ExactBitcoinValue value, CoinUtil.Denomination denomination) {
+      return getFormattedValueWithUnit((BitcoinValue)value, denomination);
+   }
+
+   public static String getFormattedValueWithUnit(BitcoinValue value, CoinUtil.Denomination denomination) {
+      BigDecimal val = value.getValue();
+      if (val == null) {
+         return "";
+      }
+      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName());
+   }
+
+
+      public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
+      if (value == null) {
+         return "";
+      }
+
+      BigDecimal val = value.getValue();
+      if (val == null) {
+         return "";
+      }
+
+      if (value.isBtc()) {
+         return String.format("%s %s", CoinUtil.valueString(((BitcoinValue) value).getLongValue(),
+                     denomination, precision), denomination.getUnicodeName()
+         );
+      } else {
+         if (!formatCache.containsKey(precision)) {
+            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
+            fiatFormat.setMaximumFractionDigits(precision);
+            formatCache.put(precision, fiatFormat);
+         }
+         return String.format("%s %s", formatCache.get(precision).format(val), value.getCurrency());
       }
    }
 

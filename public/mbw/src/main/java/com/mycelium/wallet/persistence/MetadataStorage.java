@@ -84,9 +84,9 @@ public class MetadataStorage extends GenericMetadataStorage {
    public Optional<UUID> getAccountByLabel(String label) {
       Optional<String> account = getFirstKeyForCategoryValue(ACCOUNTLABEL_CATEGORY, label);
 
-      if (account.isPresent()){
+      if (account.isPresent()) {
          return Optional.of(UUID.fromString(account.get()));
-      }else{
+      } else {
          return Optional.absent();
       }
    }
@@ -98,7 +98,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    // Removes all metadata (account label,...) from the database
-   public void deleteAccountMetadata(UUID account){
+   public void deleteAccountMetadata(UUID account) {
       deleteAllByKey(account.toString());
    }
 
@@ -125,9 +125,9 @@ public class MetadataStorage extends GenericMetadataStorage {
    public Optional<Address> getAddressByLabel(String label) {
       Optional<String> address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label);
 
-      if (address.isPresent()){
+      if (address.isPresent()) {
          return Optional.of(Address.fromString(address.get()));
-      }else{
+      } else {
          return Optional.absent();
       }
    }
@@ -138,16 +138,16 @@ public class MetadataStorage extends GenericMetadataStorage {
       }
    }
 
-   public void setIgnoreLegacyWarning(UUID account, Boolean ignore){
+   public void setIgnoreLegacyWarning(UUID account, Boolean ignore) {
       storeKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), ignore ? "1" : "0");
    }
 
-   public Boolean getIgnoreLegacyWarning(UUID account){
-      return  "1".equals(getKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), "0"));
+   public Boolean getIgnoreLegacyWarning(UUID account) {
+      return "1".equals(getKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), "0"));
    }
 
-   public boolean firstMasterseedBackupFinished(){
-    return  getMasterSeedBackupState().equals(BackupState.VERIFIED);
+   public boolean firstMasterseedBackupFinished() {
+      return getMasterSeedBackupState().equals(BackupState.VERIFIED);
    }
 
    public BackupState getMasterSeedBackupState() {
@@ -179,15 +179,15 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(PAIRED_SERVICES_CATEGORY.of(serviceName), Boolean.toString(paired));
    }
 
-   public void deleteMasterKeyBackupAgeMs(){
+   public void deleteMasterKeyBackupAgeMs() {
       deleteByKeyCategory(SEED_BACKUPSTATE);
    }
 
-   public Optional<Long> getMasterKeyBackupAgeMs(){
+   public Optional<Long> getMasterKeyBackupAgeMs() {
       Optional<String> lastBackup = getKeyCategoryValueEntry(SEED_BACKUPSTATE);
       if (lastBackup.isPresent()) {
          return Optional.of(Calendar.getInstance().getTimeInMillis() - Long.valueOf(lastBackup.get()));
-      }else{
+      } else {
          return Optional.absent();
       }
    }
@@ -196,8 +196,8 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(SEED_BACKUPSTATE, state.toString());
 
       // if this is the first verified backup, remember the date
-      if (state == BackupState.VERIFIED && getMasterSeedBackupState() != BackupState.VERIFIED){
-         storeKeyCategoryValueEntry(SEED_BACKUPSTATE, String.valueOf(Calendar.getInstance().getTimeInMillis()) );
+      if (state == BackupState.VERIFIED && getMasterSeedBackupState() != BackupState.VERIFIED) {
+         storeKeyCategoryValueEntry(SEED_BACKUPSTATE, String.valueOf(Calendar.getInstance().getTimeInMillis()));
       }
    }
 
@@ -209,28 +209,28 @@ public class MetadataStorage extends GenericMetadataStorage {
       deleteByKeyCategory(PIN_RESET_BLOCKHEIGHT);
    }
 
-   public Optional<Integer> getResetPinStartBlockHeight(){
+   public Optional<Integer> getResetPinStartBlockHeight() {
       Optional<String> resetIn = getKeyCategoryValueEntry(PIN_RESET_BLOCKHEIGHT);
-      if (resetIn.isPresent()){
+      if (resetIn.isPresent()) {
          return Optional.of(Integer.valueOf(resetIn.get()));
-      }else{
+      } else {
          return Optional.absent();
       }
    }
 
-   public void setLastPinSetBlockheight(int blockChainHeight){
+   public void setLastPinSetBlockheight(int blockChainHeight) {
       storeKeyCategoryValueEntry(PIN_BLOCKHEIGHT, String.valueOf(blockChainHeight));
    }
 
-   public void clearLastPinSetBlockheight(){
+   public void clearLastPinSetBlockheight() {
       deleteByKeyCategory(PIN_BLOCKHEIGHT);
    }
 
-   public Optional<Integer> getLastPinSetBlockheight(){
+   public Optional<Integer> getLastPinSetBlockheight() {
       Optional<String> lastSet = getKeyCategoryValueEntry(PIN_BLOCKHEIGHT);
-      if (lastSet.isPresent()){
+      if (lastSet.isPresent()) {
          return Optional.of(Integer.valueOf(lastSet.get()));
-      }else{
+      } else {
          return Optional.absent();
       }
    }
@@ -243,13 +243,21 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(ARCHIVED.of(uuid.toString()), archived ? "1" : "0");
    }
 
-   public void storeCoinapultAddress(Address address) {
-      storeKeyCategoryValueEntry(COINAPULT.of("last"),address.toString());
+   public void storeCoinapultCurrencies(String currencies) {
+      storeKeyCategoryValueEntry(COINAPULT.of("currencies"), currencies);
    }
 
-   public Optional<Address> getCoinapultAddress() {
-      Optional<String> last = getKeyCategoryValueEntry(COINAPULT.of("last"));
-      if (!last.isPresent()){
+   public String getCoinapultCurrencies() {
+      return getKeyCategoryValueEntry(COINAPULT.of("currencies"), "");
+   }
+
+   public void storeCoinapultAddress(Address address, String forCurrency) {
+      storeKeyCategoryValueEntry(COINAPULT.of("last" + forCurrency), address.toString());
+   }
+
+   public Optional<Address> getCoinapultAddress(String forCurrency) {
+      Optional<String> last = getKeyCategoryValueEntry(COINAPULT.of("last" + forCurrency));
+      if (!last.isPresent()) {
          return Optional.absent();
       }
       return Optional.of(Address.fromString(last.get()));
@@ -272,21 +280,23 @@ public class MetadataStorage extends GenericMetadataStorage {
       UNKNOWN(0), VERIFIED(1), IGNORED(2);
 
       private final int _index;
+
       private BackupState(int index) {
          _index = index;
       }
 
-      public static BackupState fromString(String state){
+      public static BackupState fromString(String state) {
          return fromInt(Integer.parseInt(state));
       }
 
-      public String toString(){
+      public String toString() {
          return Integer.toString(_index);
       }
 
       public int toInt() {
          return _index;
       }
+
       public static BackupState fromInt(int integer) {
          switch (integer) {
             case 0:

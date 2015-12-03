@@ -18,8 +18,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.*;
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -54,16 +53,30 @@ public class WalletManager {
    private static final long MAX_AGE_FEE_ESTIMATION = 2 * 60 * 60 * 1000;
 
    //if there are more external account types, expand this to a list
-   private Optional<? extends WalletAccount> extraAccount;
+   private final Set<AccountProvider> _extraAccountProviders = new HashSet<AccountProvider>();
+   private final Set<String> _extraAccountsCurrencies = new HashSet<String>();
+   private final HashMap<UUID, WalletAccount> _extraAccounts = new HashMap<UUID, WalletAccount>();
 
-   public void setExtraAccount(Optional<? extends WalletAccount> extraAccount) {
-      this.extraAccount = extraAccount;
-      if (extraAccount.isPresent()) {
-         WalletAccount key = extraAccount.get();
-         if (!_allAccounts.containsKey(key.getId())) {
-            _allAccounts.put(key.getId(), key);
+   public void addExtraAccounts(AccountProvider accountProvider) {
+      _extraAccountProviders.add(accountProvider);
+      refreshExtraAccounts();
+   }
+
+   public void refreshExtraAccounts() {
+      _extraAccounts.clear();
+      _extraAccountsCurrencies.clear();
+      for (AccountProvider accounts : _extraAccountProviders) {
+         for (WalletAccount account : accounts.getAccounts().values()) {
+            if (!_extraAccounts.containsKey(account.getId())) {
+               _extraAccounts.put(account.getId(), account);
+               _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
+            }
          }
       }
+   }
+
+   public Set<String> getAllActiveFiatCurrencies(){
+      return ImmutableSet.copyOf(_extraAccountsCurrencies);
    }
 
    /**
@@ -135,7 +148,7 @@ public class WalletManager {
 
    private final SecureKeyValueStore _secureKeyValueStore;
    private WalletManagerBacking _backing;
-   private final Map<UUID, WalletAccount> _allAccounts;
+   private final Map<UUID, WalletAccount> _walletAccounts;
    private final List<Bip44Account> _bip44Accounts;
    private final Collection<Observer> _observers;
    private State _state;
@@ -169,7 +182,7 @@ public class WalletManager {
       _wapi = wapi;
       _signatureProviders = signatureProviders;
       _logger = _wapi.getLogger();
-      _allAccounts = Maps.newHashMap();
+      _walletAccounts = Maps.newHashMap();
       _bip44Accounts = new ArrayList<Bip44Account>();
       _state = State.READY;
       _accountEventManager = new AccountEventManager();
@@ -218,8 +231,8 @@ public class WalletManager {
     */
    public UUID createSingleAddressAccount(Address address) {
       UUID id = SingleAddressAccount.calculateId(address);
-      synchronized (_allAccounts) {
-         if (_allAccounts.containsKey(id)) {
+      synchronized (_walletAccounts) {
+         if (_walletAccounts.containsKey(id)) {
             return id;
          }
          _backing.beginTransaction();
@@ -267,9 +280,9 @@ public class WalletManager {
 
       final UUID id = keyManager.getAccountId();
 
-      synchronized (_allAccounts){
+      synchronized (_walletAccounts){
          // check if it already exists
-         if (_allAccounts.containsKey(id)) {
+         if (_walletAccounts.containsKey(id)) {
             return id;
          }
          _backing.beginTransaction();
@@ -317,12 +330,12 @@ public class WalletManager {
       Bip44AccountKeyManager keyManager = Bip44PubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode, _network, accountIndex, newSubKeyStore);
       final UUID id = keyManager.getAccountId();
 
-      synchronized (_allAccounts) {
+      synchronized (_walletAccounts) {
          _backing.beginTransaction();
          try {
 
             // check if it already exists
-            if (_allAccounts.containsKey(id)) {
+            if (_walletAccounts.containsKey(id)) {
                return id;
             }
 
@@ -375,8 +388,8 @@ public class WalletManager {
     * @param id the ID of the account to delete.
     */
    public void deleteUnrelatedAccount(UUID id, KeyCipher cipher) throws InvalidKeyCipher {
-      synchronized (_allAccounts) {
-         WalletAccount account = _allAccounts.get(id);
+      synchronized (_walletAccounts) {
+         WalletAccount account = _walletAccounts.get(id);
          if (account instanceof AbstractAccount) {
             AbstractAccount abstractAccount = (AbstractAccount) account;
             abstractAccount.setEventHandler(null);
@@ -385,7 +398,7 @@ public class WalletManager {
             SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
             singleAddressAccount.forgetPrivateKey(cipher);
             _backing.deleteSingleAddressAccountContext(id);
-            _allAccounts.remove(id);
+            _walletAccounts.remove(id);
          } else if (account instanceof Bip44Account) {
             Bip44Account hdAccount = (Bip44Account) account;
             if (hdAccount.isDerivedFromInternalMasterseed()) {
@@ -394,7 +407,7 @@ public class WalletManager {
             hdAccount.clearBacking();
             _bip44Accounts.remove(hdAccount);
             _backing.deleteBip44AccountContext(id);
-            _allAccounts.remove(id);
+            _walletAccounts.remove(id);
          }
       }
    }
@@ -416,8 +429,8 @@ public class WalletManager {
     * @return the IDs of the accounts managed by the wallet manager
     */
    public List<UUID> getAccountIds() {
-      List<UUID> list = new ArrayList<UUID>(_allAccounts.size());
-      for (WalletAccount account : _allAccounts.values()) {
+      List<UUID> list = new ArrayList<UUID>(_walletAccounts.size() + _extraAccounts.size());
+      for (WalletAccount account : getAllAccounts()) {
          list.add(account.getId());
       }
       return list;
@@ -478,9 +491,8 @@ public class WalletManager {
       return filterAndConvert(Predicates.and(ACTIVE_CAN_SPEND, HAS_BALANCE));
    }
 
-   private List<WalletAccount> filterAndConvert(Predicate<Map.Entry<UUID, WalletAccount>> filter) {
-      Set<UUID> uuids = Maps.filterEntries(_allAccounts, filter).keySet();
-      return Lists.transform(Lists.newArrayList(uuids), key2Account);
+   private List<WalletAccount> filterAndConvert(Predicate<WalletAccount> filter) {
+      return Lists.newArrayList(Iterables.filter(getAllAccounts(), filter));
    }
 
    /**
@@ -490,7 +502,7 @@ public class WalletManager {
     * @return true if the wallet manager has an account with the specified ID
     */
    public boolean hasAccount(UUID id) {
-      return _allAccounts.containsKey(id);
+      return _walletAccounts.containsKey(id) || _extraAccounts.containsKey(id);
    }
 
    /**
@@ -500,7 +512,10 @@ public class WalletManager {
     * @return a wallet account
     */
    public WalletAccount getAccount(UUID id) {
-      WalletAccount normalAccount = _allAccounts.get(id);
+      WalletAccount normalAccount = _walletAccounts.get(id);
+      if (normalAccount == null){
+         normalAccount = _extraAccounts.get(id);
+      }
       return Preconditions.checkNotNull(normalAccount);
    }
 
@@ -529,13 +544,13 @@ public class WalletManager {
       int Bip44Accounts = 0;
       int simpleAccounts = 0;
       for (UUID id : getAccountIds()) {
-         if (_allAccounts.get(id) instanceof Bip44Account) {
+         if (_walletAccounts.get(id) instanceof Bip44Account) {
             Bip44Accounts++;
-         } else if (_allAccounts.get(id) instanceof SingleAddressAccount) {
+         } else if (_walletAccounts.get(id) instanceof SingleAddressAccount) {
             simpleAccounts++;
          }
       }
-      sb.append("Accounts: ").append(_allAccounts.size()).append(" Active: ").append(getActiveAccounts().size())
+      sb.append("Accounts: ").append(_walletAccounts.size()).append(" Active: ").append(getActiveAccounts().size())
             .append(" HD: ").append(Bip44Accounts).append(" Simple:").append(simpleAccounts);
       return sb.toString();
    }
@@ -558,7 +573,7 @@ public class WalletManager {
     * @return the account UUID if found.
     */
    public synchronized Optional<UUID> getAccountByAddress(Address address) {
-      for (WalletAccount account : _allAccounts.values()) {
+      for (WalletAccount account : getAllAccounts()) {
          if (account.isMine(address)) {
             return Optional.of(account.getId());
          }
@@ -573,7 +588,9 @@ public class WalletManager {
     * @return true if any account in the wallet manager has the private key for the specified address
     */
    public synchronized boolean hasPrivateKeyForAddress(Address address) {
-      for (WalletAccount account : _allAccounts.values()) {
+
+      // dont use getAccountByAddress here, as we might have the same address in an pub-only account and a normal account too
+      for (WalletAccount account : getAllAccounts()) {
          if (account.isMine(address) && account.canSpend()) {
             return true;
          }
@@ -666,12 +683,12 @@ public class WalletManager {
    }
 
    public void addAccount(WalletAccount account) {
-      synchronized (_allAccounts) {
+      synchronized (_walletAccounts) {
          if (account instanceof AbstractAccount) {
             AbstractAccount abstractAccount = (AbstractAccount) account;
             abstractAccount.setEventHandler(_accountEventManager);
          }
-         _allAccounts.put(account.getId(), account);
+         _walletAccounts.put(account.getId(), account);
          _logger.logInfo("Account Added: " + account.getId());
       }
    }
@@ -685,7 +702,7 @@ public class WalletManager {
       public void run() {
          try {
             setStateAndNotify(State.SYNCHRONIZING);
-            synchronized (_allAccounts) {
+            synchronized (_walletAccounts) {
                fetchFeeEstimation();
 
                // If we have any lingering outgoing transactions broadcast them
@@ -719,7 +736,7 @@ public class WalletManager {
       }
 
       private boolean broadcastOutgoingTransactions() {
-         for (WalletAccount account : _allAccounts.values()) {
+         for (WalletAccount account : getAllAccounts()) {
             if (account.isArchived()) {
                continue;
             }
@@ -734,7 +751,7 @@ public class WalletManager {
 
       private boolean synchronize() {
          try {
-            for (WalletAccount account : _allAccounts.values()) {
+            for (WalletAccount account : getAllAccounts()) {
                if (account.isArchived()) {
                   continue;
                }
@@ -762,6 +779,10 @@ public class WalletManager {
 
    }
 
+   private Iterable<WalletAccount> getAllAccounts() {
+      return Iterables.concat(_walletAccounts.values(), _extraAccounts.values());
+   }
+
    private class AccountEventManager implements AbstractAccount.EventHandler {
       @Override
       public void onEvent(UUID accountId, Event event) {
@@ -775,6 +796,13 @@ public class WalletManager {
 
    public void setActiveAccount(UUID accountId){
       _activeAccountId = accountId;
+      if (hasAccount(accountId)) {
+         WalletAccount account = getAccount(_activeAccountId);
+         if (account != null && account.onlySyncWhenActive()) {
+            // this account might not be synchronized - start a background sync
+            startSynchronization();
+         }
+      }
    }
 
    /**
@@ -818,33 +846,33 @@ public class WalletManager {
       _secureKeyValueStore.encryptAndStoreValue(MASTER_SEED_ID, masterSeed.toBytes(false), cipher);
    }
 
-   private static final Predicate<Map.Entry<UUID, WalletAccount>> IS_ARCHIVE = new Predicate<Map.Entry<UUID, WalletAccount>>() {
+   private static final Predicate<WalletAccount> IS_ARCHIVE = new Predicate<WalletAccount>() {
       @Override
-      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
-         return input.getValue().isArchived();
+      public boolean apply(WalletAccount input) {
+         return input.isArchived();
       }
    };
 
-   private static final Predicate<Map.Entry<UUID, WalletAccount>> ACTIVE_CAN_SPEND = new Predicate<Map.Entry<UUID, WalletAccount>>() {
+   private static final Predicate<WalletAccount> ACTIVE_CAN_SPEND = new Predicate<WalletAccount>() {
       @Override
-      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
-         return input.getValue().isActive() && input.getValue().canSpend();
+      public boolean apply(WalletAccount input) {
+         return input.isActive() && input.canSpend();
       }
    };
 
-   private static final Predicate<Map.Entry<UUID, WalletAccount>> MAIN_SEED_HD_ACCOUNT = new Predicate<Map.Entry<UUID, WalletAccount>>() {
+   private static final Predicate<WalletAccount> MAIN_SEED_HD_ACCOUNT = new Predicate<WalletAccount>() {
       @Override
-      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
+      public boolean apply(WalletAccount input) {
          // todo: if relevant also check if this account is derived from the main-masterseed
-         return input.getValue() instanceof Bip44Account &&
-               input.getValue().isDerivedFromInternalMasterseed();
+         return input instanceof Bip44Account &&
+               input.isDerivedFromInternalMasterseed();
       }
    };
 
-   private static final Predicate<Map.Entry<UUID, WalletAccount>> HAS_BALANCE = new Predicate<Map.Entry<UUID, WalletAccount>>() {
+   private static final Predicate<WalletAccount> HAS_BALANCE = new Predicate<WalletAccount>() {
       @Override
-      public boolean apply(Map.Entry<UUID, WalletAccount> input) {
-         return input.getValue().getBalance().getSpendableBalance() > 0;
+      public boolean apply(WalletAccount input) {
+         return input.getBalance().getSpendableBalance() > 0;
       }
    };
 
@@ -874,9 +902,9 @@ public class WalletManager {
       //we do not remove used accounts
       if (last.hasHadActivity()) return false;
       //if its unused, we can remove it from the manager
-      synchronized (_allAccounts) {
+      synchronized (_walletAccounts) {
          _bip44Accounts.remove(last);
-         _allAccounts.remove(last.getId());
+         _walletAccounts.remove(last.getId());
          _backing.deleteBip44AccountContext(last.getId());
          return true;
       }
@@ -898,7 +926,7 @@ public class WalletManager {
       // Generate the root private key
       HdKeyNode root = HdKeyNode.fromSeed(mastrSeed.getBip32Seed());
 
-      synchronized (_allAccounts) {
+      synchronized (_walletAccounts) {
          // Determine the next BIP44 account index
          int accountIndex = getNextBip44Index();
 

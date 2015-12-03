@@ -328,6 +328,7 @@ public class TradeSessionDb {
          ObjectInputStream in = new ObjectInputStream(bin);
          TradeSession session;
          try {
+            // readObject might be dangerous if blob comes from an untrusted source
             session = (TradeSession) in.readObject();
          } catch (ClassNotFoundException e) {
             return null;

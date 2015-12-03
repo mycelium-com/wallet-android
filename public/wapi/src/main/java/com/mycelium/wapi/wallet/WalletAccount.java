@@ -335,6 +335,14 @@ public interface WalletAccount {
     */
    boolean onlySyncWhenActive();
 
+
+   /**
+    * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
+    * @return
+    */
+   String getAccountDefaultCurrency();
+
+
    /**
     * Class representing a receiver of funds
     */

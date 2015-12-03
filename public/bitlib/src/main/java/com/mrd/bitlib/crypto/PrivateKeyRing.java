@@ -50,6 +50,7 @@ public class PrivateKeyRing extends PublicKeyRing implements IPrivateKeyRing {
    /**
     * Find a Bitcoin signer by public key
     */
+   @Override
    public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
       return _privateKeys.get(publicKey);
    }

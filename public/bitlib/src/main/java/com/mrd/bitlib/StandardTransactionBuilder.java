@@ -111,8 +111,8 @@ public class StandardTransactionBuilder {
          return _funding;
       }
 
-      protected UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-                                    IPublicKeyRing keyRing, NetworkParameters network) {
+      public UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
+                                  IPublicKeyRing keyRing, NetworkParameters network) {
          _network = network;
          _outputs = outputs.toArray(new TransactionOutput[]{});
          _funding = funding.toArray(new UnspentTransactionOutput[]{});
@@ -251,7 +251,7 @@ public class StandardTransactionBuilder {
       }
    }
 
-   private static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
+   public static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
       ScriptOutput script;
       if (sendTo.isMultisig(network)) {
          script = new ScriptOutputP2SH(sendTo.getTypeSpecificBytes());
@@ -299,11 +299,11 @@ public class StandardTransactionBuilder {
          throws InsufficientFundsException, UnableToBuildTransactionException {
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
-      OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
-      long fee = oldOutputs.getFee();
-      long outputSum = oldOutputs.getOutputSum();
-      //todo extract coinselector interface with 2 implementations, oldest and pruning
-      List<UnspentTransactionOutput> funding = pruneRedundantOutputs(oldOutputs.getAllFunding(), fee + outputSum);
+      OldestOutputsFirst oldestOutputsFirst = new OldestOutputsFirst(minerFeeToUse, unspent);
+      long fee = oldestOutputsFirst.getFee();
+      long outputSum = oldestOutputsFirst.getOutputSum();
+      List<UnspentTransactionOutput> funding = pruneRedundantOutputs(oldestOutputsFirst.getAllNeededFundings(), fee + outputSum);
+      // the number of inputs might have changed - recalculate the fee
       fee = estimateFee(funding.size(), _outputs.size() + 1, minerFeeToUse);
 
       long found = 0;
@@ -501,26 +501,36 @@ public class StandardTransactionBuilder {
       return estimate;
    }
 
-   private static long estimateFee(int inputs, int outputs, long minerFeeToUse) {
-      // check if our estimation leads to a small fee that's below the default bitcoind-MIN_RELAY_FEE
-      // if so, use the MIN_RELAY_FEE
-      if (minerFeeToUse < MIN_RELAY_FEE) {
-         minerFeeToUse = MIN_RELAY_FEE;
-      }
-
+   /**
+    * Returns the estimate needed fee in satoshis for a default P2PKH transaction with a certain number
+    * of inputs and outputs and the specified per-kB-fee
+    *
+    * @param inputs  number of inputs
+    * @param outputs number of outputs
+    * @param minerFeePerKb miner fee in satoshis per kB
+    **/
+   public static long estimateFee(int inputs, int outputs, long minerFeePerKb) {
       // fee is based on the size of the transaction, we have to pay for
       // every 1000 bytes
       int txSize = estimateTransactionSize(inputs, outputs);
-      long requiredFee = (long) (((float) txSize / 1000.0) * minerFeeToUse);
+      long requiredFee = (long) (((float) txSize / 1000.0) * minerFeePerKb);
+
+      // check if our estimation leads to a small fee that's below the default bitcoind-MIN_RELAY_FEE
+      // if so, use the MIN_RELAY_FEE
+      if (requiredFee < MIN_RELAY_FEE) {
+         requiredFee = MIN_RELAY_FEE;
+      }
+
       return requiredFee;
    }
 
-   private class OldOutputs {
+   // todo: generalize this into a interface and provide different coin-selectors
+   private class OldestOutputsFirst {
       private List<UnspentTransactionOutput> allFunding;
       private long fee;
       private long outputSum;
 
-      public OldOutputs(long minerFeeToUse, List<UnspentTransactionOutput> unspent) throws InsufficientFundsException {
+      public OldestOutputsFirst(long minerFeeToUse, List<UnspentTransactionOutput> unspent) throws InsufficientFundsException {
          // Find the funding for this transaction
          allFunding = new LinkedList<UnspentTransactionOutput>();
          fee = minerFeeToUse;
@@ -540,7 +550,7 @@ public class StandardTransactionBuilder {
          }
       }
 
-      public List<UnspentTransactionOutput> getAllFunding() {
+      public List<UnspentTransactionOutput> getAllNeededFundings() {
          return allFunding;
       }
 

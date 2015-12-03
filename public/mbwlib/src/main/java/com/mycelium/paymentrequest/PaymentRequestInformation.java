@@ -77,7 +77,7 @@ public class PaymentRequestInformation implements Serializable {
          Wire wire = new Wire();
 
          PaymentRequest paymentRequest = wire.parseFrom(rawPaymentRequest, PaymentRequest.class);
-         if (paymentRequest == null){
+         if (paymentRequest == null) {
             throw new PaymentRequestException("unable to parse the payment request");
          }
 
@@ -87,7 +87,7 @@ public class PaymentRequestInformation implements Serializable {
          }
 
          PaymentDetails paymentDetails = wire.parseFrom(paymentRequest.serialized_payment_details.toByteArray(), PaymentDetails.class);
-         if (paymentDetails == null){
+         if (paymentDetails == null) {
             throw new PaymentRequestException("unable to parse the payment details");
          }
 
@@ -96,9 +96,10 @@ public class PaymentRequestInformation implements Serializable {
             throw new PaymentRequestException("wrong network: " + Wire.get(paymentDetails.network, PaymentDetails.DEFAULT_NETWORK));
          }
 
-         if (Wire.get(paymentDetails.outputs, PaymentDetails.DEFAULT_OUTPUTS).size() == 0){
+         if (Wire.get(paymentDetails.outputs, PaymentDetails.DEFAULT_OUTPUTS).size() == 0) {
             throw new PaymentRequestException("no outputs specified");
-         };
+         }
+         ;
 
          // check if we are able to parse all output scripts
          // we might need to improve this later on to provide some flexibility, but until there is are use-cases
@@ -109,7 +110,7 @@ public class PaymentRequestInformation implements Serializable {
             public boolean apply(TransactionOutput input) {
                // search if we got a strange output or a null address as destination
                return input.script instanceof ScriptOutputStrange ||
-                       input.script.getAddress(networkParameters).equals(Address.getNullAddress(networkParameters));
+                     input.script.getAddress(networkParameters).equals(Address.getNullAddress(networkParameters));
             }
          });
 
@@ -233,7 +234,6 @@ public class PaymentRequestInformation implements Serializable {
          throw new PaymentRequestException("unsupported signature algorithm");
       }
    }
-
 
 
    public PaymentRequestInformation(PaymentRequest paymentRequest, PaymentDetails paymentDetails, PkiVerificationData pkiVerificationData, byte[] rawPaymentRequest) {

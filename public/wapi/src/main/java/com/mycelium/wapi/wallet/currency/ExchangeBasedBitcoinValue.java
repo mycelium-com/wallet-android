@@ -43,8 +43,12 @@ public class ExchangeBasedBitcoinValue extends ExchangeBasedCurrencyValue implem
 
    private final Bitcoins value;
 
-   public static BitcoinValue fromValue(ExactCurrencyValue currencyValue, ExchangeRateProvider exchangeRateManager) {
-      return (BitcoinValue) ExchangeBasedCurrencyValue.fromValue(currencyValue, BTC, exchangeRateManager);
+   public static CurrencyValue fromValue(CurrencyValue currencyValue, ExchangeRateProvider exchangeRateManager) {
+      return ExchangeBasedCurrencyValue.fromValue(currencyValue, BTC, exchangeRateManager);
+   }
+
+   protected ExchangeBasedBitcoinValue(String currency, BigDecimal value) {
+      this(currency, value, null, null, null);
    }
 
    protected ExchangeBasedBitcoinValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue, ExchangeRate usedSourceExchangeRate, ExchangeRate usedTargetExchangeRate) {
@@ -70,6 +74,11 @@ public class ExchangeBasedBitcoinValue extends ExchangeBasedCurrencyValue implem
    @Override
    public Bitcoins getAsBitcoin() {
       return value;
+   }
+
+   @Override
+   public long getLongValue() {
+      return getAsBitcoin().getLongValue();
    }
 
    @Override

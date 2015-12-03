@@ -44,7 +44,7 @@ public class LedgerPin2FADialog extends Dialog {
    public LedgerPin2FADialog(Context context, String address, byte[] keycardIndexes) {
       super(context);
       this.address = address;
-      this.keycardIndexes = keycardIndexes;
+      this.keycardIndexes = keycardIndexes.clone();
       this.setCanceledOnTouchOutside(false);
       enteredPin = "";
       loadLayout();

@@ -27,6 +27,14 @@ import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
 
+/**
+ * Transaction represents a raw Bitcoin transaction. In other words, it contains only the information found in the
+ * byte string representing a Bitcoin transaction. It contains no contextual information, such as the height
+ * of the transaction in the block chain or the outputs that its inputs redeem.
+ *
+ * Implements Serializable and is inserted directly in and out of the database. Therefore it cannot be changed
+ * without messing with the database.
+ */
 public class Transaction implements Serializable {
    private static final long serialVersionUID = 1L;
    public static class TransactionParsingException extends Exception {

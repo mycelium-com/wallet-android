@@ -30,9 +30,9 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
@@ -205,9 +205,9 @@ public abstract class AbstractAccount implements WalletAccount {
 
             // we need to fetch associated transactions, to see the outgoing tx in the history
             ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(l.script);
-            if (scriptOutput != null){
+            if (scriptOutput != null) {
                Address address = scriptOutput.getAddress(_network);
-               if (!address.equals(Address.getNullAddress(_network))){
+               if (!address.equals(Address.getNullAddress(_network))) {
                   addressesToDiscover.add(address);
                }
             }
@@ -259,7 +259,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
       // if we removed some UTXO because of an sync, it means that there are transactions
       // we dont yet know about. Run a discover for all addresses related to the UTXOs we removed
-      if (addressesToDiscover.size() > 0){
+      if (addressesToDiscover.size() > 0) {
          try {
             doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover));
          } catch (WapiException ign) {
@@ -515,15 +515,15 @@ public abstract class AbstractAccount implements WalletAccount {
          TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
 
          BroadcastResult result = broadcastTransaction(TransactionEx.toTransaction(tex));
-         if (result == BroadcastResult.SUCCESS){
+         if (result == BroadcastResult.SUCCESS) {
             broadcastedIds.add(tex.txid);
             _backing.removeOutgoingTransaction(tex.txid);
-         }else{
+         } else {
             if (result == BroadcastResult.REJECTED) {
                // invalid tx
                _backing.deleteTransaction(tex.txid);
                _backing.removeOutgoingTransaction(tex.txid);
-            }else{
+            } else {
                // No connection --> retry next sync
             }
          }
@@ -535,7 +535,7 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
-   public TransactionEx getTransaction(Sha256Hash txid){
+   public TransactionEx getTransaction(Sha256Hash txid) {
       return _backing.getTransaction(txid);
    }
 
@@ -557,11 +557,11 @@ public abstract class AbstractAccount implements WalletAccount {
                postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
                return BroadcastResult.REJECTED;
             }
-         }else if (response.getErrorCode() == Wapi.ERROR_CODE_NO_SERVER_CONNECTION){
+         } else if (response.getErrorCode() == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
             postEvent(Event.SERVER_CONNECTION_ERROR);
             _logger.logError("Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
             return BroadcastResult.NO_SERVER_CONNECTION;
-         }else{
+         } else {
             postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
             _logger.logError("Server connection failed with error: " + response.getErrorCode());
             return BroadcastResult.REJECTED;
@@ -648,7 +648,9 @@ public abstract class AbstractAccount implements WalletAccount {
    @Override
    public synchronized boolean deleteTransaction(Sha256Hash transactionId) {
       TransactionEx tex = _backing.getTransaction(transactionId);
-      if (tex == null) return false;
+      if (tex == null) {
+         return false;
+      }
       Transaction tx = TransactionEx.toTransaction(tex);
       _backing.beginTransaction();
       try {
@@ -675,7 +677,7 @@ public abstract class AbstractAccount implements WalletAccount {
    public synchronized boolean cancelQueuedTransaction(Sha256Hash transaction) {
       Map<Sha256Hash, byte[]> outgoingTransactions = _backing.getOutgoingTransactions();
 
-      if (!outgoingTransactions.containsKey(transaction)){
+      if (!outgoingTransactions.containsKey(transaction)) {
          return false;
       }
 
@@ -705,7 +707,7 @@ public abstract class AbstractAccount implements WalletAccount {
          // remove it from the backing
          _backing.deleteTransaction(transaction);
          _backing.setTransactionSuccessful();
-      }finally {
+      } finally {
          _backing.endTransaction();
       }
 
@@ -809,17 +811,25 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
-   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
+   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs());
       long satoshis = 0;
+
+      // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
       for (UnspentTransactionOutput output : spendableOutputs) {
          satoshis += output.value;
       }
+
+      // we will use all of the available inputs and it will be only one output
+      // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
+      // output into its estimate - so add one here too to arrive at the same tx fee
+      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 2, minerFeePerKbToUse);
+
       // Iteratively figure out whether we can send everything by subtracting
-      // the miner fee for every iteration
+      // the miner fee for every iteration and thus reduce the suggested max amount
       while (true) {
-         satoshis -= minerFeeToUse;
+         satoshis -= feeToUse;
          if (satoshis <= 0) {
             return ExactBitcoinValue.ZERO;
          }
@@ -839,7 +849,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
          // Try to create an unsigned transaction
          try {
-            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeeToUse);
+            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
             // We have enough to pay the fees, return the amount as the maximum
             return ExactBitcoinValue.from(satoshis);
          } catch (InsufficientFundsException e) {
@@ -860,7 +870,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
    @Override
    public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
-           throws OutputTooSmallException, InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
+         throws OutputTooSmallException, InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
 
       // Determine the list of spendable outputs
@@ -911,20 +921,20 @@ public abstract class AbstractAccount implements WalletAccount {
       long sendingBalance = balance.getSendingBalance();
       long receivingBalance = balance.getReceivingBalance();
 
-      if (spendableBalance < 0){
+      if (spendableBalance < 0) {
          throw new IllegalArgumentException(String.format("spendableBalance < 0: %d; account: %s", spendableBalance, this.getClass().toString()));
       }
-      if (sendingBalance < 0){
+      if (sendingBalance < 0) {
          throw new IllegalArgumentException(String.format("sendingBalance < 0: %d; account: %s", sendingBalance, this.getClass().toString()));
       }
-      if (receivingBalance < 0){
+      if (receivingBalance < 0) {
          throw new IllegalArgumentException(String.format("receivingBalance < 0: %d; account: %s", receivingBalance, this.getClass().toString()));
       }
 
       ExactCurrencyValue confirmed = ExactBitcoinValue.from(spendableBalance);
       ExactCurrencyValue sending = ExactBitcoinValue.from(sendingBalance);
       ExactCurrencyValue receiving = ExactBitcoinValue.from(receivingBalance);
-      return new CurrencyBasedBalance(confirmed,sending, receiving);
+      return new CurrencyBasedBalance(confirmed, sending, receiving);
    }
 
    /**
@@ -955,12 +965,12 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    protected TransactionSummary transform(Transaction tx, int time, int height, int blockChainHeight) {
-      long value = 0;
+      long satoshis = 0;
       Address destAddress = null;
       for (TransactionOutput output : tx.outputs) {
          if (isMine(output.script)) {
-            value += output.value;
-         }else{
+            satoshis += output.value;
+         } else {
             destAddress = output.script.getAddress(_network);
          }
       }
@@ -976,7 +986,7 @@ public abstract class AbstractAccount implements WalletAccount {
                continue;
             }
             if (isMine(funding)) {
-               value -= funding.value;
+               satoshis -= funding.value;
             }
          }
       }
@@ -990,13 +1000,21 @@ public abstract class AbstractAccount implements WalletAccount {
 
       // only track a destinationAddress if it is an outgoing transaction (i.e. send money to someone)
       // to prevent the user that he tries to return money to an address he got bitcoin from.
-      if (value >= 0){
+      if (satoshis >= 0) {
          destAddress = null;
       }
 
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getHash());
 
-      return new TransactionSummary(tx.getHash(), value, time, height, confirmations, isQueuedOutgoing, com.google.common.base.Optional.fromNullable(destAddress));
+      return new TransactionSummary(
+            tx.getHash(),
+            ExactBitcoinValue.from(Math.abs(satoshis)),
+            satoshis >= 0,
+            time,
+            height,
+            confirmations,
+            isQueuedOutgoing,
+            com.google.common.base.Optional.fromNullable(destAddress));
    }
 
    @Override
@@ -1139,7 +1157,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
 
    @Override
-   public TransactionSummary getTransactionSummary(Sha256Hash txid){
+   public TransactionSummary getTransactionSummary(Sha256Hash txid) {
       TransactionEx tx = _backing.getTransaction(txid);
       return transform(tx, tx.height);
    }
@@ -1208,8 +1226,8 @@ public abstract class AbstractAccount implements WalletAccount {
             TransactionEx inTxEx = _backing.getTransaction(input.outPoint.hash);
             Transaction inTx = Transaction.fromByteReader(new ByteReader(inTxEx.binary));
             UnspentTransactionOutput unspentOutput = new UnspentTransactionOutput(input.outPoint, inTxEx.height,
-                    inTx.outputs[input.outPoint.index].value,
-                    inTx.outputs[input.outPoint.index].script);
+                  inTx.outputs[input.outPoint.index].value,
+                  inTx.outputs[input.outPoint.index].script);
 
             funding.add(unspentOutput);
          }
@@ -1219,7 +1237,7 @@ public abstract class AbstractAccount implements WalletAccount {
          PopBuilder popBuilder = new PopBuilder(_network);
 
          UnsignedTransaction unsignedTransaction = popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
-                 new PublicKeyRing(), _network);
+               new PublicKeyRing(), _network);
 
          return unsignedTransaction;
       } catch (TransactionParsingException e) {
@@ -1232,7 +1250,7 @@ public abstract class AbstractAccount implements WalletAccount {
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
       byteBuffer.put((byte) Script.OP_RETURN);
 
-      byteBuffer.put((byte)1).put((byte)0); // version 1, little endian
+      byteBuffer.put((byte) 1).put((byte) 0); // version 1, little endian
 
       byteBuffer.put(txidToProve.getBytes()); // txid
 
@@ -1249,5 +1267,10 @@ public abstract class AbstractAccount implements WalletAccount {
    @Override
    public boolean onlySyncWhenActive() {
       return false;
+   }
+
+   @Override
+   public String getAccountDefaultCurrency() {
+      return CurrencyValue.BTC;
    }
 }

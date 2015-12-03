@@ -42,12 +42,17 @@ public abstract class ExactCurrencyValue extends CurrencyValue {
       if (currency.equals(CurrencyValue.BTC)) {
          return new ExactBitcoinValue(value);
       } else {
-         return new ExactFiatValue(currency, value);
+         return new ExactFiatValue(value, currency);
       }
    }
 
    @Override
    public ExactCurrencyValue getExactValue() {
       return this;
+   }
+
+   @Override
+   boolean hasExactValue() {
+      return true;
    }
 }
