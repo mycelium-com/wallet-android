@@ -143,7 +143,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null || _amount.getValue() == null) {
-         _amount = ExactCurrencyValue.from(null, _maxSpendableAmount.getCurrency());
+         _amount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
          updateUI();
       }
 
@@ -167,7 +167,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // Init the number pad
       String amountString;
-      if (_amount != null) {
+      if (!CurrencyValue.isNullOrZero(_amount)) {
          amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
       } else {
@@ -179,7 +179,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    @OnClick(R.id.btOk)
    void onOkClick() {
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          return;
       }
 
@@ -381,7 +381,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          tvAlternateAmount.setText("");
       } else {
          CurrencyValue convertedAmount;
-         if (_amount.isBtc()) {
+         if (CurrencyValue.BTC.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
             // Show Fiat as alternate amount
             String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
             convertedAmount = ExchangeBasedCurrencyValue.fromValue(
@@ -407,7 +407,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          btOk.setEnabled(false);
          return;
       }
-      if (isSendMode && _amount.getValue() != null) {
+      if (isSendMode && !CurrencyValue.isNullOrZero(_amount)) {
          AmountValidation result = checkTransaction();
          // Enable/disable Ok button
          btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
