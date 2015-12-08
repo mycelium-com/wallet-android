@@ -486,11 +486,11 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="account_contains_one_address_info">Enthält eine Adresse.</string>
   <string name="verify_backup_ok_message">Das Backup wurde erfolgreich überprüft.</string>
   <string name="wordlist_import_invalid_checksum">Die Prüfsumme Ihrer Wortliste ist ungültig, bitte stellen Sie sicher, dass Sie alle Wörter korrekt eingegeben haben.</string>
-  <string name="checkbox_wordlist_password">Ich habe ein Passwort</string>
+  <string name="checkbox_wordlist_passphrase">Ich habe ein Passwort</string>
   <string name="wordlist_length_12">12 Wörter</string>
   <string name="wordlist_length_18">18 Wörter</string>
   <string name="wordlist_length_24">24 Wörter</string>
-  <string name="recover_seed_password_info">Wählen Sie diese Option nur, wenn Sie verstehen, was sie bedeutet. \n Ein normales Mycelium Backup enthält niemals ein Passwort - dies ist nicht Ihre PIN.</string>
+  <string name="recover_seed_passphrase_info">Wählen Sie diese Option nur, wenn Sie verstehen, was sie bedeutet. \n Ein normales Mycelium Backup enthält niemals ein Passwort - dies ist nicht Ihre PIN.</string>
   <string name="import_wordlist_questions">Bitte wählen Sie die Länge der zu importierenden Wortliste um anzugeben, ob sie mittels Kennwort geschützt ist.</string>
   <string name="type_password_title">Geben Sie Ihr Passwort ein</string>
   <string name="clipboard_not_available">Inhalt der Zwischenablage nicht gültig</string>

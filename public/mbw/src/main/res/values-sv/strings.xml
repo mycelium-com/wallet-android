@@ -482,11 +482,11 @@
   <string name="account_contains_one_address_info">Innehåller en adress.</string>
   <string name="verify_backup_ok_message">Verifiering av säkerhetskopian lyckades.</string>
   <string name="wordlist_import_invalid_checksum">Checksumman för din lista av ord är ogiltig, säkerställ att du har matat in alla ord korrekt.</string>
-  <string name="checkbox_wordlist_password">Jag har ett lösenord</string>
+  <string name="checkbox_wordlist_passphrase">Jag har ett lösenord</string>
   <string name="wordlist_length_12">12 ord</string>
   <string name="wordlist_length_18">18 ord</string>
   <string name="wordlist_length_24">24 ord</string>
-  <string name="recover_seed_password_info">Välj endast detta alternativ om du förstår innebörden.\nEn normal säkerhetskopia av Mycelium innehåller aldrig ett lösenord - detta är inte din PIN-kod.</string>
+  <string name="recover_seed_passphrase_info">Välj endast detta alternativ om du förstår innebörden.\nEn normal säkerhetskopia av Mycelium innehåller aldrig ett lösenord - detta är inte din PIN-kod.</string>
   <string name="import_wordlist_questions">Välj längden på listan av ord att återskapa och indikera huruvida den är skyddad av ett lösenord.</string>
   <string name="type_password_title">Ange ditt lösenord</string>
   <string name="clipboard_not_available">Urklipp är inte giltig</string>

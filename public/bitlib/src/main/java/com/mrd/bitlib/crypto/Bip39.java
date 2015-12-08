@@ -46,14 +46,14 @@ public class Bip39 {
       private static final long serialVersionUID = 1L;
 
       private final byte[] _bip39RawEntropy;
-      private final String _bip39Password;
+      private final String _bip39Passphrase;
       private final byte[] _bip32MasterSeed;
       private final byte _wordListType;
 
 
-      private MasterSeed(byte[] bip39RawEntropy, String bip39Password, byte[] bip32MasterSeed) {
+      private MasterSeed(byte[] bip39RawEntropy, String bip39Passphrase, byte[] bip32MasterSeed) {
          _bip39RawEntropy = bip39RawEntropy;
-         _bip39Password = bip39Password;
+         _bip39Passphrase = bip39Passphrase;
          _bip32MasterSeed = bip32MasterSeed;
          _wordListType = ENGLISH_WORD_LIST_TYPE;
       }
@@ -66,8 +66,8 @@ public class Bip39 {
          return Arrays.asList(rawEntropyToWords(_bip39RawEntropy));
       }
 
-      public String getBip39Password() {
-         return _bip39Password;
+      public String getBip39Passphrase() {
+         return _bip39Passphrase;
       }
 
       public byte[] getBip32Seed() {
@@ -94,9 +94,9 @@ public class Bip39 {
          // Add the raw entropy
          putByteArray(_bip39RawEntropy, writer);
 
-         // Add the password
+         // Add the passphrase
          try {
-            putByteArray(_bip39Password.getBytes("UTF-8"), writer);
+            putByteArray(_bip39Passphrase.getBytes("UTF-8"), writer);
          } catch (UnsupportedEncodingException e) {
             // Never happens
             throw new RuntimeException(e);
@@ -132,10 +132,10 @@ public class Bip39 {
                   bip39RawEntropy.length != 256 / 8) {
                return Optional.absent();
             }
-            String bip39Password;
+            String bip39Passphrase;
             try {
-               byte[] bip39PasswordBytes = getByteArray(reader);
-               bip39Password = new String(bip39PasswordBytes, "UTF-8");
+               byte[] bip39PassphraseBytes = getByteArray(reader);
+               bip39Passphrase = new String(bip39PassphraseBytes, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                // Never happens
                throw new RuntimeException(e);
@@ -143,13 +143,13 @@ public class Bip39 {
 
             if (compressed) {
                // We are using compressed form, so we have to calculate the actual master seed
-               return Optional.of(generateSeedFromWordList(rawEntropyToWords(bip39RawEntropy), bip39Password));
+               return Optional.of(generateSeedFromWordList(rawEntropyToWords(bip39RawEntropy), bip39Passphrase));
             } else {
                byte[] bip32MasterSeed = getByteArray(reader);
                if (bip32MasterSeed.length != BIP32_SEED_LENGTH) {
                   return Optional.absent();
                }
-               return Optional.of(new MasterSeed(bip39RawEntropy, bip39Password, bip32MasterSeed));
+               return Optional.of(new MasterSeed(bip39RawEntropy, bip39Passphrase, bip32MasterSeed));
             }
          } catch (ByteReader.InsufficientBytesException e) {
             return Optional.absent();
@@ -404,11 +404,11 @@ public class Bip39 {
     * This method does not check whether the check sum of the word list id valid
     *
     * @param wordList the word list
-    * @param password the optional password
+    * @param passphrase the optional passphrase
     * @return the BIP32 master seed
     */
-   public static MasterSeed generateSeedFromWordList(String[] wordList, String password) {
-      return generateSeedFromWordList(new ArrayList<String>(Arrays.asList(wordList)), password);
+   public static MasterSeed generateSeedFromWordList(String[] wordList, String passphrase) {
+      return generateSeedFromWordList(new ArrayList<String>(Arrays.asList(wordList)), passphrase);
    }
 
    /**
@@ -417,13 +417,13 @@ public class Bip39 {
     * This method does not check whether the check sum of the word list id valid
     *
     * @param wordList the word list
-    * @param password the optional password
+    * @param passphrase the optional passphrase
     * @return the BIP32 master seed
     */
-   public static MasterSeed generateSeedFromWordList(List<String> wordList, String password) {
-      // Null password defaults to the empty string
-      if (password == null) {
-         password = "";
+   public static MasterSeed generateSeedFromWordList(List<String> wordList, String passphrase) {
+      // Null passphrase defaults to the empty string
+      if (passphrase == null) {
+         passphrase = "";
       }
 
       // Concatenate all words using a single space as separator
@@ -433,8 +433,8 @@ public class Bip39 {
       }
       String mnemonic = sb.toString().trim();
 
-      // The salt is is the password with a prefix
-      String salt = BASE_SALT + password;
+      // The salt is is the passphrase with a prefix
+      String salt = BASE_SALT + passphrase;
 
       // Calculate and return the seed
       byte[] seed;
@@ -447,7 +447,7 @@ public class Bip39 {
          // HMAC-SHA512 should be supported by every system we run on
          throw new RuntimeException(e);
       }
-      MasterSeed masterSeed = new MasterSeed(wordListToRawEntropy(wordList.toArray(new String[0])), password, seed);
+      MasterSeed masterSeed = new MasterSeed(wordListToRawEntropy(wordList.toArray(new String[0])), passphrase, seed);
       return masterSeed;
    }
 

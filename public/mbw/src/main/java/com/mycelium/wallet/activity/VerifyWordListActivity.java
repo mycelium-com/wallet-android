@@ -83,7 +83,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
       }
 
       wordlist = masterSeed.getBip39WordList();
-      password = masterSeed.getBip39Password();
+      password = masterSeed.getBip39Passphrase();
       currentWordIndex = 0;
 
       _wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);

@@ -454,7 +454,7 @@
   <string name="account_contains_one_key_info">包含一個私鑰。</string>
   <string name="verify_backup_ok_message">備份驗證成功。</string>
   <string name="wordlist_import_invalid_checksum">單詞列表校驗碼無效，請確保您正確地輸入了所有單詞。</string>
-  <string name="checkbox_wordlist_password">我有一個密碼</string>
+  <string name="checkbox_wordlist_passphrase">我有一個密碼</string>
   <string name="wordlist_length_12">12 個單詞</string>
   <string name="wordlist_length_18">18 個單詞</string>
   <string name="wordlist_length_24">24 個單詞</string>

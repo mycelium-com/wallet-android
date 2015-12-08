@@ -480,11 +480,11 @@
   <string name="account_contains_one_address_info">１個のアドレスを含みます。</string>
   <string name="verify_backup_ok_message">バックアップの確認に成功しました。</string>
   <string name="wordlist_import_invalid_checksum">ワードリストのチェックサムは無効です。すべてのワードが正しいかご確認下さい。</string>
-  <string name="checkbox_wordlist_password">パスワードがあります</string>
+  <string name="checkbox_wordlist_passphrase">パスワードがあります</string>
   <string name="wordlist_length_12">12ワード</string>
   <string name="wordlist_length_18">18ワード</string>
   <string name="wordlist_length_24">24ワード</string>
-  <string name="recover_seed_password_info">意味がわからなければ、この選択はしないで下さい。\n通常のMyceliumバックアップはパスワードは決して含みません。これはピンナンバーではありません。</string>
+  <string name="recover_seed_passphrase_info">意味がわからなければ、この選択はしないで下さい。\n通常のMyceliumバックアップはパスワードは決して含みません。これはピンナンバーではありません。</string>
   <string name="import_wordlist_questions">復元するためワードリストの長さを選択し、パスワードによって保護されるかどうかを決定してください。</string>
   <string name="type_password_title">パスワードを入力してください</string>
   <string name="clipboard_not_available">クリップボードは無効です。</string>

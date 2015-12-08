@@ -82,7 +82,7 @@ public class BackupWordListActivity extends ActionBarActivity {
       }
 
       wordlist = masterSeed.getBip39WordList();
-      password = masterSeed.getBip39Password();
+      password = masterSeed.getBip39Passphrase();
       currentWordIndex = 0;
 
       btnNextWord = (Button)findViewById(R.id.btOkay);

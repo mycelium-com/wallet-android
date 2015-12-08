@@ -146,7 +146,7 @@ public class Bip39Test {
          String[] wordList = TEST_VECTORS[i * 3 + 1].split(" ");
          Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, "TREZOR");
          assertEquals(TEST_VECTORS[i * 3 + 2], HexUtils.toHex(masterSeed.getBip32Seed()));
-         assertEquals(masterSeed.getBip39Password(), "TREZOR");
+         assertEquals(masterSeed.getBip39Passphrase(), "TREZOR");
       }
    }
 
@@ -174,11 +174,11 @@ public class Bip39Test {
    }
 
    @Test
-   public void testNoPassword() {
+   public void testNoPassphrase() {
       String[] wordList = TEST_NO_PASSWORD_WORDS.split(" ");
       Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, "");
       assertEquals(TEST_NO_PASSWORD_SEED, HexUtils.toHex(masterSeed.getBip32Seed()));
-      assertTrue(masterSeed.getBip39Password().length() == 0);
+      assertTrue(masterSeed.getBip39Passphrase().length() == 0);
    }
 
 }

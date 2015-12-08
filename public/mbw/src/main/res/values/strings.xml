@@ -504,11 +504,11 @@
     <string name="account_contains_one_address_info">Contains one address.</string>
     <string name="verify_backup_ok_message">The backup was successfully verified.</string>
     <string name="wordlist_import_invalid_checksum">The checksum of your word list is invalid, please make sure you entered all words correctly.</string>
-    <string name="checkbox_wordlist_password">I have a password</string>
+    <string name="checkbox_wordlist_passphrase">I have a passphrase</string>
     <string name="wordlist_length_12">12 words</string>
     <string name="wordlist_length_18">18 words</string>
     <string name="wordlist_length_24">24 words</string>
-    <string name="recover_seed_password_info">Only select this option if you understand what it means.\nA normal Mycelium backup never includes a password - this is not your PIN.</string>
+    <string name="recover_seed_passphrase_info">Only select this option if you understand what it means.\nA normal Mycelium backup never includes a passphrase - this is not your PIN.</string>
     <string name="import_wordlist_questions">Please select the length of the word list to restore and indicate whether it is protected by a password.</string>
     <string name="type_password_title">Enter Your Password</string>
     <string name="clipboard_not_available">Clipboard not valid</string>
