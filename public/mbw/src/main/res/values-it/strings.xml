@@ -467,7 +467,7 @@
   <string name="account_contains_one_address_info">Contiene un indirizzo.</string>
   <string name="verify_backup_ok_message">Backup verificato con successo.</string>
   <string name="wordlist_import_invalid_checksum">Il checksum della tua wordlist non è valido, assicurati di aver inserito correttamente tutte le parole.</string>
-  <string name="checkbox_wordlist_password">Ho una password</string>
+  <string name="checkbox_wordlist_passphrase">Ho una password</string>
   <string name="wordlist_length_12">12 parole</string>
   <string name="wordlist_length_18">18 parole</string>
   <string name="wordlist_length_24">24 parole</string>

@@ -84,7 +84,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
    private ProgressDialog _progress;
    private TextView enterWordInfo;
    private List<String> enteredWords;
-   private boolean usesPassword;
+   private boolean usesPassphrase;
    private int numberOfWords;
    private int currentWordNum;
    private WordAutoCompleterFragment _wordAutoCompleter;
@@ -116,7 +116,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
 
    private void askForWordNumber() {
       final View checkBoxView = View.inflate(this, R.layout.wordlist_checkboxes, null);
-      final CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkboxWordlistPassword);
+      final CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkboxWordlistPassphrase);
       final RadioButton words12 = (RadioButton) checkBoxView.findViewById(R.id.wordlist12);
       final RadioButton words18 = (RadioButton) checkBoxView.findViewById(R.id.wordlist18);
       final RadioButton words24 = (RadioButton) checkBoxView.findViewById(R.id.wordlist24);
@@ -125,9 +125,9 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
          @Override
          public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
-               checkBoxView.findViewById(R.id.tvPasswordInfo).setVisibility(View.VISIBLE);
+               checkBoxView.findViewById(R.id.tvPassphraseInfo).setVisibility(View.VISIBLE);
             } else {
-               checkBoxView.findViewById(R.id.tvPasswordInfo).setVisibility(View.GONE);
+               checkBoxView.findViewById(R.id.tvPassphraseInfo).setVisibility(View.GONE);
             }
          }
       });
@@ -139,7 +139,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
             .setCancelable(false)
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
-                  usesPassword = checkBox.isChecked();
+                  usesPassphrase = checkBox.isChecked();
                   if (words12.isChecked()) {
                      numberOfWords = 12;
                   } else if (words18.isChecked()) {
@@ -188,14 +188,14 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
       enteredWords.add(selection);
       enterWordInfo.setText(enteredWords.toString());
       if (checkIfDone()) {
-         askForPassword();
+         askForPassphrase();
       } else {
          findViewById(R.id.btDeleteLastWord).setEnabled(true);
       }
    }
 
-   private void askForPassword() {
-      if (usesPassword) {
+   private void askForPassphrase() {
+      if (usesPassphrase) {
          final EditText pass = new EditText(this);
 
          AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -320,7 +320,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putBoolean("usepass", usesPassword);
+      savedInstanceState.putBoolean("usepass", usesPassphrase);
       savedInstanceState.putInt("index", currentWordNum);
       savedInstanceState.putInt("total", numberOfWords);
       savedInstanceState.putStringArray("entered", enteredWords.toArray(new String[enteredWords.size()]));
@@ -331,7 +331,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
       super.onRestoreInstanceState(savedInstanceState);
       enteredWords = new ArrayList<String>(Arrays.asList(savedInstanceState.getStringArray("entered")));
       enterWordInfo.setText(enteredWords.toString());
-      usesPassword = savedInstanceState.getBoolean("usepass");
+      usesPassphrase = savedInstanceState.getBoolean("usepass");
       numberOfWords = savedInstanceState.getInt("total");
       currentWordNum = savedInstanceState.getInt("index");
       findViewById(R.id.btDeleteLastWord).setEnabled(currentWordNum > 1);

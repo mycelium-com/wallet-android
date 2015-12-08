@@ -482,11 +482,11 @@
   <string name="account_contains_one_address_info">Përmban një adresë.</string>
   <string name="verify_backup_ok_message">Kopja rezervë u verifikua me sukses.</string>
   <string name="wordlist_import_invalid_checksum">\"Checksum\" i listës së fjalëve tuaja është jovalid, ju lutem sigurohuni që fjalët që shënuat janë korrekt.</string>
-  <string name="checkbox_wordlist_password">Kam fjalëkalim</string>
+  <string name="checkbox_wordlist_passphrase">Kam fjalëkalim</string>
   <string name="wordlist_length_12">12 fjalë</string>
   <string name="wordlist_length_18">18 fjalë</string>
   <string name="wordlist_length_24">24 fjalë</string>
-  <string name="recover_seed_password_info">Zgjedhni këtë opsion vetëm kur e kuptoni çfarë do të thotë.\nNjë kopje rezervë e Mycelium kurrë nuk përmban një fjalëkalim - ky nuk është PIN-i juaj.</string>
+  <string name="recover_seed_passphrase_info">Zgjedhni këtë opsion vetëm kur e kuptoni çfarë do të thotë.\nNjë kopje rezervë e Mycelium kurrë nuk përmban një fjalëkalim - ky nuk është PIN-i juaj.</string>
   <string name="import_wordlist_questions">Ju lutem zgjedhni gjatësin e listës së fjalëve për të rikthyer dhe të tregojë nëse është i mbrojtur me fjalëkalim.</string>
   <string name="type_password_title">Shkruaj fjalëkalimin tuaj</string>
   <string name="clipboard_not_available">Memorja jovalide</string>

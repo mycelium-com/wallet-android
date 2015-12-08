@@ -482,11 +482,11 @@
   <string name="account_contains_one_address_info">Περιέχει μια διεύθυνση.</string>
   <string name="verify_backup_ok_message">Το αντίγραφο ασφαλείας επιβεβαιώθηκε επιτυχώς.</string>
   <string name="wordlist_import_invalid_checksum">Το ψηφίο επιβεβαίωσης της λίστας λέξεών σας είναι μη έγκυρο, παρακαλώ σιγουρευτείτε ότι εισαγάγατε όλες τις λέξεις σωστά.</string>
-  <string name="checkbox_wordlist_password">Έχω κωδικό πρόσβασης</string>
+  <string name="checkbox_wordlist_passphrase">Έχω κωδικό πρόσβασης</string>
   <string name="wordlist_length_12">12 λέξεις</string>
   <string name="wordlist_length_18">18 λέξεις</string>
   <string name="wordlist_length_24">24 λέξεις</string>
-  <string name="recover_seed_password_info">Τσεκάρετε αυτή την επιλογή μόνο εάν κατανοείτε τι σημαίνει.\nΈνα κανονικό αντίγραφο ασφαλείας του Mycelium ποτέ δεν περιλαμβάνει κωδικό πρόσβασης - αυτός δεν είναι o κωδικός PIN.</string>
+  <string name="recover_seed_passphrase_info">Τσεκάρετε αυτή την επιλογή μόνο εάν κατανοείτε τι σημαίνει.\nΈνα κανονικό αντίγραφο ασφαλείας του Mycelium ποτέ δεν περιλαμβάνει κωδικό πρόσβασης - αυτός δεν είναι o κωδικός PIN.</string>
   <string name="import_wordlist_questions">Παρακαλώ επιλέξτε το μέγεθος της λίστας λέξεων γι\' αποκατάσταση, και υποδείξτε εάν προστατεύεται από κωδικό πρόσβασης.</string>
   <string name="type_password_title">Εισαγάγετε τον Κωδικό Πρόσβασης</string>
   <string name="clipboard_not_available">Μη έγκυρο πρόχειρο</string>

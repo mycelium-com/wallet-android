@@ -484,11 +484,11 @@
   <string name="account_contains_one_address_info">Contient une adresse.</string>
   <string name="verify_backup_ok_message">La sauvegarde a été vérifiée avec succès.</string>
   <string name="wordlist_import_invalid_checksum">Le checksum de votre liste de mots a échoué, veuillez vérifier que vous avez entré tous les mots correctement.</string>
-  <string name="checkbox_wordlist_password">J\'ai un mot de passe</string>
+  <string name="checkbox_wordlist_passphrase">J\'ai un mot de passe</string>
   <string name="wordlist_length_12">12 mots</string>
   <string name="wordlist_length_18">18 mots</string>
   <string name="wordlist_length_24">24 mots</string>
-  <string name="recover_seed_password_info">Sélectionnez uniquement cette option si vous comprenez ce qu\'elle signifie.\nUne sauvegarde normale de Mycelium n\'inclut jamais un mot de passe - ce n\'est pas votre code d\'accès.</string>
+  <string name="recover_seed_passphrase_info">Sélectionnez uniquement cette option si vous comprenez ce qu\'elle signifie.\nUne sauvegarde normale de Mycelium n\'inclut jamais un mot de passe - ce n\'est pas votre code d\'accès.</string>
   <string name="import_wordlist_questions">Veuillez sélectionner la longueur de votre liste de mots à restaurer et indiquer si cette liste est protégée par un mot de passe.</string>
   <string name="type_password_title">Entrer votre mot de passe</string>
   <string name="clipboard_not_available">Presse-papier non valide</string>

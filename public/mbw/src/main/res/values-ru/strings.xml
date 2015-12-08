@@ -484,11 +484,11 @@
   <string name="account_contains_one_address_info">Содержит один адрес.</string>
   <string name="verify_backup_ok_message">Резервная Копия успешно проверена.</string>
   <string name="wordlist_import_invalid_checksum">Контрольная сумма вашего списка слов является недействительной, пожалуйста, убедитесь, что вы правильно ввели все слова.</string>
-  <string name="checkbox_wordlist_password">У меня есть пароль</string>
+  <string name="checkbox_wordlist_passphrase">У меня есть пароль</string>
   <string name="wordlist_length_12">12 слов</string>
   <string name="wordlist_length_18">18 слов</string>
   <string name="wordlist_length_24">24 слов</string>
-  <string name="recover_seed_password_info">ВЫберете эту опцию, если вы понимаете, что она значит.\nОбычная резервная копия Mycelium не содержит вашего пароля и это не ваш PIN.</string>
+  <string name="recover_seed_passphrase_info">ВЫберете эту опцию, если вы понимаете, что она значит.\nОбычная резервная копия Mycelium не содержит вашего пароля и это не ваш PIN.</string>
   <string name="import_wordlist_questions">Пожалуйста, выбере размер списка слов для восстановления, и укажите, надо ли использовать защиту паролем.</string>
   <string name="type_password_title">Введите свой пароль</string>
   <string name="clipboard_not_available">В буфере обмена нет правильных данных</string>
