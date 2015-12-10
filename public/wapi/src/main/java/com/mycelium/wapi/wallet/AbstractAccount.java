@@ -925,10 +925,10 @@ public abstract class AbstractAccount implements WalletAccount {
          throw new IllegalArgumentException(String.format("spendableBalance < 0: %d; account: %s", spendableBalance, this.getClass().toString()));
       }
       if (sendingBalance < 0) {
-         throw new IllegalArgumentException(String.format("sendingBalance < 0: %d; account: %s", sendingBalance, this.getClass().toString()));
+         sendingBalance = 0;
       }
       if (receivingBalance < 0) {
-         throw new IllegalArgumentException(String.format("receivingBalance < 0: %d; account: %s", receivingBalance, this.getClass().toString()));
+         receivingBalance = 0;
       }
 
       ExactCurrencyValue confirmed = ExactBitcoinValue.from(spendableBalance);

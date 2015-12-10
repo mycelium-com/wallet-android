@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <!-- remove that entry again, before the next release -->
-    <release version="2.5.8 - Announcement" versioncode="25805">
+    <release version="2.5.9 - Announcement" versioncode="25901">
         <change>EUR and GBP Lock Accounts now available. Test out the new feature for a chance to win a $500 grand prize and $7000 in other cash prizes!&lt;br/&gt;&lt;br/&gt;&lt;b&gt;&lt;a href="https://medium.com/@Coinapult/chance-to-win-500-cash-with-the-2015-coinapult-holiday-giveaway-80ac9b51d96"&gt;Click here to learn more about the Coinapult Holiday Giveaway!&lt;/a&gt;&lt;/b&gt;</change>
+    </release>
+    <release version="2.5.9" versioncode="25900">
+        <change>Update translations</change>
+        <change>[bugfix] Fix crash while entering amount and fx rate updates</change>
     </release>
     <release version="2.5.8" versioncode="25800">
         <change>Enable EUR, GBP and USD accounts for coinapult</change>

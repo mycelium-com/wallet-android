@@ -48,11 +48,11 @@ public class ExchangeBasedBitcoinValue extends ExchangeBasedCurrencyValue implem
    }
 
    protected ExchangeBasedBitcoinValue(String currency, BigDecimal value) {
-      this(currency, value, null, null, null);
+      this(currency, value, null);
    }
 
-   protected ExchangeBasedBitcoinValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue, ExchangeRate usedSourceExchangeRate, ExchangeRate usedTargetExchangeRate) {
-      super(currency, basedOnExactValue, usedSourceExchangeRate, usedTargetExchangeRate);
+   protected ExchangeBasedBitcoinValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue) {
+      super(currency, basedOnExactValue);
       if (value != null) {
          this.value = Bitcoins.nearestValue(value);
       } else {
@@ -60,8 +60,8 @@ public class ExchangeBasedBitcoinValue extends ExchangeBasedCurrencyValue implem
       }
    }
 
-   protected ExchangeBasedBitcoinValue(String currency, Long satoshis, ExactCurrencyValue basedOnExactValue, ExchangeRate usedSourceExchangeRate, ExchangeRate usedTargetExchangeRate) {
-      super(currency, basedOnExactValue, usedSourceExchangeRate, usedTargetExchangeRate);
+   protected ExchangeBasedBitcoinValue(String currency, Long satoshis, ExactCurrencyValue basedOnExactValue) {
+      super(currency, basedOnExactValue);
       if (satoshis != null) {
          this.value = Bitcoins.valueOf(satoshis);
       } else {

@@ -217,7 +217,6 @@ public class AddCoinapultAccountActivity extends Activity {
 
       @Override
       protected void onPostExecute(UUID account) {
-         progressDialog.dismiss();
          if (account != null) {
             _mbwManager.addExtraAccounts(coinapultManager);
             bus.post(new AccountChanged(account));
@@ -229,6 +228,9 @@ public class AddCoinapultAccountActivity extends Activity {
             // something went wrong - clean up the half ready coinapultManager
             Toast.makeText(AddCoinapultAccountActivity.this, R.string.coinapult_unable_to_create_account, Toast.LENGTH_SHORT).show();
             _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, alreadyHadCoinapultAccount);
+         }
+         if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
          }
          setButtonEnabled();
       }

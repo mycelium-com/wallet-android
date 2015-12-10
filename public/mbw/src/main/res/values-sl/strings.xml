@@ -482,11 +482,9 @@
   <string name="account_contains_one_address_info">Vsebuje en naslov.</string>
   <string name="verify_backup_ok_message">Rezervna kopija je bila uspešno preverjena.</string>
   <string name="wordlist_import_invalid_checksum">Kontrolna vsota vnesenega niza besed je neveljavna. Prosimo, preverite, da ste pravilno vnesli besede.</string>
-  <string name="checkbox_wordlist_passphrase">Imam geslo</string>
   <string name="wordlist_length_12">12 besed</string>
   <string name="wordlist_length_18">18 besed</string>
   <string name="wordlist_length_24">24 besed</string>
-  <string name="recover_seed_passphrase_info">Izberite to možnost le, če razumete, kaj pomeni.\nObičajna rezervna kopija v Myceliumu nikoli ne vsebuje gesla - to ni vaša PIN-koda.</string>
   <string name="import_wordlist_questions">Prosimo, izberite dolžino niza besed, ki ga želite uporabiti, in označite, ali je niz zaščiten z geslom.</string>
   <string name="type_password_title">Vnesite svoje geslo</string>
   <string name="clipboard_not_available">Odložišče ni na voljo ali veljavno.</string>

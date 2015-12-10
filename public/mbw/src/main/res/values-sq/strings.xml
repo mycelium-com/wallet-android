@@ -482,11 +482,9 @@
   <string name="account_contains_one_address_info">Përmban një adresë.</string>
   <string name="verify_backup_ok_message">Kopja rezervë u verifikua me sukses.</string>
   <string name="wordlist_import_invalid_checksum">\"Checksum\" i listës së fjalëve tuaja është jovalid, ju lutem sigurohuni që fjalët që shënuat janë korrekt.</string>
-  <string name="checkbox_wordlist_passphrase">Kam fjalëkalim</string>
   <string name="wordlist_length_12">12 fjalë</string>
   <string name="wordlist_length_18">18 fjalë</string>
   <string name="wordlist_length_24">24 fjalë</string>
-  <string name="recover_seed_passphrase_info">Zgjedhni këtë opsion vetëm kur e kuptoni çfarë do të thotë.\nNjë kopje rezervë e Mycelium kurrë nuk përmban një fjalëkalim - ky nuk është PIN-i juaj.</string>
   <string name="import_wordlist_questions">Ju lutem zgjedhni gjatësin e listës së fjalëve për të rikthyer dhe të tregojë nëse është i mbrojtur me fjalëkalim.</string>
   <string name="type_password_title">Shkruaj fjalëkalimin tuaj</string>
   <string name="clipboard_not_available">Memorja jovalide</string>
@@ -658,10 +656,6 @@
   <string name="hd_account_selector_no_account_found">Nuk është gjetur asnjë llogari aktive.</string>
   <string name="masterseed_optional_passphrase_hint">Ky fjalëkalim ju lejon të derivoni llogari të ndryshme nga i njejti master seed.\nNëse nuk jeni të sigurtë se çfarë do të thotë kjo, lerëni të zbrazët.</string>
   <string name="tx_details_num_confirmations">Konfirmime</string>
-  <string name="coinapult_tos_link">Hapë Termat dhe Kushtet të Coinapult</string>
-  <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
-  <string name="coinapult_tos_question">Për të krijuar një Coinapult Llogari ju duhet t\'i pranoni Termat dhe Kushtet</string>
-  <string name="coinapult_mail_question">Doni të jepni email adresën tuaj?</string>
   <string name="dontagree">Nuk pajtohem</string>
   <string name="agree">Pajtohem</string>
   <string name="lt_warning_watch_only_account">Llogaria aktuale është vetëm-vëzhgo - zgjedhni tjetër llogari.</string>
@@ -676,9 +670,6 @@
   <string name="remove_queued_transaction_title">Transaksion në listë</string>
   <string name="remove_queued_transaction_hint">Bilanci juaj do të korrektohet kur të sinkronizohet me rrjetin</string>
   <string name="remove_queued_transaction_error">E pamundur të fshihet transaksioni</string>
-  <string name="coinapult_sending_via_coinapult">Duke dërguar Bitcoins nëpërmjet Coinapult</string>
-  <string name="coinapult_account_notes">Një Coinapult Llogari ju lejon që të ruani bitcoins në një USD vlerë dhe të shpenzoni në cilën do bitcoin adresë.
-        Përderisa ju përdorni çelësat privat tuaj për tu qasur, ato janë nën kontroll nga Coinapult, ndryshe nga fondet që i keni në një normal HD llogari.</string>
   <string name="cashila_tab_new">E re</string>
   <string name="cashila_tab_pending">Pagesat</string>
   <string name="cashila_sepa_transfer">Transfer SEPA</string>
@@ -724,8 +715,8 @@
   <string name="spending_unconfirmed_description">Transaksioni juaj përdor fonde të cilat akoma nuk janë përfshirë në asnjë bitcoin bllok. Nëse pët ndonjë arsye transaksioni që ju dergoj këto fonde dështon apo qëndron i pakonfirumar, gjithashtu edhe transaksioni juaj do të dështoj apo qëndroj i pakonfirmuar.</string>
   <string name="coinapult_mail_verification_description">Ju lutem vendosni linkun e verifikimit nga Coinapult email në fushën më poshtë.</string>
   <string name="coinapult_mail_verification_hint">vendosni komplet linkun e verifikimit</string>
-  <string name="coinapult_verifying_email">Duke dërguar linkun për verifikim tek Coinapult&#8230;</string>
-  <string name="coinapult_verify_mail_success">Coinapult email adresa juaj është verifikuar me sukses.</string>
-  <string name="coinapult_verify_mail_error">Një gabim është shkaktuar gjatë verifikimit të email adresës. Ju lutem siguroheni që keni kopjuar komplet dhe në rregull linkun e verifikimit.</string>
+  <string name="coinapult_tos_link">Hapë Termat dhe Kushtet të Coinapult</string>
+  <string name="coinapult_tos_question">Për të krijuar një Coinapult Llogari ju duhet t\'i pranoni Termat dhe Kushtet</string>
+  <string name="coinapult_mail_question">Doni të jepni email adresën tuaj?</string>
   <string name="copy">Kopjo</string>
 </resources>

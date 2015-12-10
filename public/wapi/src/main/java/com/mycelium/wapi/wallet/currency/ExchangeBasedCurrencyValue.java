@@ -42,8 +42,6 @@ import java.math.RoundingMode;
 public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
    private final String currency;
    private final ExactCurrencyValue basedOnExactValue;
-   private final ExchangeRate usedSourceExchangeRate;
-   private final ExchangeRate usedTargetExchangeRate;
 
    static public CurrencyValue fromValue(CurrencyValue currencyValue, String targetCurrency, ExchangeRateProvider exchangeRateManager) {
       if (currencyValue instanceof ExchangeBasedCurrencyValue) {
@@ -88,9 +86,9 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
 
          if (fx.getSourcePrice() == null || fx.getTargetPrice() == null) {
             if (targetCurrency.equals(CurrencyValue.BTC)) {
-               return new ExchangeBasedBitcoinValue(targetCurrency, (Long) null, value.getExactValue(), fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+               return new ExchangeBasedBitcoinValue(targetCurrency, (Long) null, value.getExactValue());
             } else {
-               return new ExchangeBasedFiatValue(targetCurrency, null, value.getExactValue(), fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+               return new ExchangeBasedFiatValue(targetCurrency, null, value.getExactValue());
             }
          }
 
@@ -100,9 +98,9 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
             newValue = fromValueDecimal.divide(fx.getSourcePrice(), 8, RoundingMode.HALF_UP).multiply(fx.getTargetPrice());
          }
          if (targetCurrency.equals(CurrencyValue.BTC)) {
-            return new ExchangeBasedBitcoinValue(targetCurrency, newValue, value.getExactValue(), fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+            return new ExchangeBasedBitcoinValue(targetCurrency, newValue, value.getExactValue());
          } else {
-            return new ExchangeBasedFiatValue(targetCurrency, newValue, value.getExactValue(), fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+            return new ExchangeBasedFiatValue(targetCurrency, newValue, value.getExactValue());
          }
       }
    }
@@ -116,9 +114,9 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
 
          if (fx.getSourcePrice() == null || fx.getTargetPrice() == null) {
             if (targetCurrency.equals(CurrencyValue.BTC)) {
-               return new ExchangeBasedBitcoinValue(targetCurrency, (Long) null, exactValue, fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+               return new ExchangeBasedBitcoinValue(targetCurrency, (Long) null, exactValue);
             } else {
-               return new ExchangeBasedFiatValue(targetCurrency, null, exactValue, fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+               return new ExchangeBasedFiatValue(targetCurrency, null, exactValue);
             }
          }
 
@@ -128,18 +126,16 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
             newValue = exactDecimal.multiply(fx.getRate());
          }
          if (targetCurrency.equals(CurrencyValue.BTC)) {
-            return new ExchangeBasedBitcoinValue(targetCurrency, newValue, exactValue, fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+            return new ExchangeBasedBitcoinValue(targetCurrency, newValue, exactValue);
          } else {
-            return new ExchangeBasedFiatValue(targetCurrency, newValue, exactValue, fx.getSourceExchangeRate(), fx.getTargetExchangeRate());
+            return new ExchangeBasedFiatValue(targetCurrency, newValue, exactValue);
          }
       }
    }
 
-   protected ExchangeBasedCurrencyValue(String currency, ExactCurrencyValue basedOnExactValue, ExchangeRate usedSourceExchangeRate, ExchangeRate usedTargetExchangeRate) {
+   protected ExchangeBasedCurrencyValue(String currency, ExactCurrencyValue basedOnExactValue) {
       this.currency = currency;
       this.basedOnExactValue = basedOnExactValue;
-      this.usedSourceExchangeRate = usedSourceExchangeRate;
-      this.usedTargetExchangeRate = usedTargetExchangeRate;
    }
 
    @Override
@@ -174,7 +170,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
 
       // multiply the source value by this rate, to get the target value
       public BigDecimal getRate() {
-         return (getTargetPrice()).divide(getSourcePrice(), 8, RoundingMode.HALF_UP);
+         return getTargetPrice().divide(getSourcePrice(), 10, RoundingMode.HALF_UP);
       }
 
       public BigDecimal getSourcePrice() {

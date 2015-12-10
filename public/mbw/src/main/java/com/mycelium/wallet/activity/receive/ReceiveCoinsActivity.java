@@ -158,7 +158,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
-      if (_amount != null) {
+      if (!CurrencyValue.isNullOrZero(_amount)) {
          outState.putSerializable("amount", _amount);
       }
       super.onSaveInstanceState(outState);
@@ -171,7 +171,7 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    BitcoinValue getBitcoinAmount() {
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          return null;
       }
 
@@ -186,7 +186,7 @@ public class ReceiveCoinsActivity extends Activity {
    private void updateUi() {
       final String qrText = getPaymentUri();
 
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          tvTitle.setText(R.string.bitcoin_address_title);
          btShare.setText(R.string.share_bitcoin_address);
          tvAmountLabel.setText(R.string.optional_amount);
@@ -219,7 +219,7 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    private void updateAmount() {
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          // No amount to show
          tvAmount.setText("");
       } else {
@@ -233,7 +233,7 @@ public class ReceiveCoinsActivity extends Activity {
    private String getPaymentUri() {
       final StringBuilder uri = new StringBuilder("bitcoin:");
       uri.append(getBitcoinAddress());
-      if (_amount != null) {
+      if (!CurrencyValue.isNullOrZero(_amount)) {
          uri.append("?amount=").append(CoinUtil.valueString(getBitcoinAmount().getLongValue(), false));
       }
       return uri.toString();
@@ -246,7 +246,7 @@ public class ReceiveCoinsActivity extends Activity {
    public void shareRequest(View view) {
       Intent s = new Intent(android.content.Intent.ACTION_SEND);
       s.setType("text/plain");
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.bitcoin_address_title));
          s.putExtra(Intent.EXTRA_TEXT, getBitcoinAddress());
          startActivity(Intent.createChooser(s, getResources().getString(R.string.share_bitcoin_address)));
@@ -279,7 +279,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    @OnClick(R.id.btEnterAmount)
    public void onEnterClick() {
-      if (_amount == null) {
+      if (CurrencyValue.isNullOrZero(_amount)) {
          GetAmountActivity.callMe(ReceiveCoinsActivity.this, null, GET_AMOUNT_RESULT_CODE);
       } else {
          // call the amount activity with the exact amount, so that the user sees the same amount he had entered

@@ -14,7 +14,6 @@ public class CurrencySum {
       CurrencyValue newValue;
       if (!buckets.containsKey(exactValue.getCurrency())) {
          newValue = exactValue;
-         buckets.put(exactValue.getCurrency(), newValue);
       } else {
          CurrencyValue existing = buckets.get(exactValue.getCurrency());
          newValue = existing.add(exactValue, null);

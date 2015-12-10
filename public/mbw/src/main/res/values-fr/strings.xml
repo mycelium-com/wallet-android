@@ -218,6 +218,7 @@
   <string name="scan_qr_code">Numériser le code QR</string>
   <string name="going_to_mycelium_com_help">En route pour www.mycelium.com</string>
   <string name="add_dialog_title">Ajouter une adresse</string>
+  <string name="add_key">Ajouter un compte</string>
   <string name="page_locked">Cette page est verrouillée</string>
   <string name="unlock_label">Déverrouiller</string>
   <string name="lock_label">Verrouiller</string>
@@ -430,6 +431,7 @@
   <string name="version_check_failed">Impossible de recevoir l\'information de version</string>
   <string name="version_uptodate">Votre portefeuille est à jour avec la version %s</string>
   <string name="update_check">Vérification d\'une mise à jour</string>
+  <string name="ignore_update">Je mettrai à jour plus tard</string>
   <string name="get_from">Obtenir de</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
@@ -484,11 +486,9 @@
   <string name="account_contains_one_address_info">Contient une adresse.</string>
   <string name="verify_backup_ok_message">La sauvegarde a été vérifiée avec succès.</string>
   <string name="wordlist_import_invalid_checksum">Le checksum de votre liste de mots a échoué, veuillez vérifier que vous avez entré tous les mots correctement.</string>
-  <string name="checkbox_wordlist_passphrase">J\'ai un mot de passe</string>
   <string name="wordlist_length_12">12 mots</string>
   <string name="wordlist_length_18">18 mots</string>
   <string name="wordlist_length_24">24 mots</string>
-  <string name="recover_seed_passphrase_info">Sélectionnez uniquement cette option si vous comprenez ce qu\'elle signifie.\nUne sauvegarde normale de Mycelium n\'inclut jamais un mot de passe - ce n\'est pas votre code d\'accès.</string>
   <string name="import_wordlist_questions">Veuillez sélectionner la longueur de votre liste de mots à restaurer et indiquer si cette liste est protégée par un mot de passe.</string>
   <string name="type_password_title">Entrer votre mot de passe</string>
   <string name="clipboard_not_available">Presse-papier non valide</string>
@@ -626,6 +626,7 @@
   <string name="ledger_enter_transaction_pin">Entrez le 2FA de portefeuille Ledger</string>
   <string name="ledger_enter_2fa_pin">Confirmez l\'adresse de sortie à l\'aide de votre carte de sécurité</string>
   <string name="ledger_please_wait">Veuillez patienter...</string>
+  <string name="ledger_check_unplugged_aid">AID invalide, veuillez revérifier</string>
   <string name="pref_ledger_title">Portefeuille matériel Ledger</string>
   <string name="ledger_disable_tee_preference">Désactiver le support TEE</string>
   <string name="ledger_disable_tee_preference_summary">Désactivez la compatibilité avec le Trusted Execution Environment si vous comptez utiliser un portefeuille matériel Ledger différent</string>
@@ -664,10 +665,6 @@
   <string name="hd_account_selector_no_account_found">Aucun compte actif trouvé.</string>
   <string name="masterseed_optional_passphrase_hint">Ces mots de passe permettent de dériver différents comptes à partir de la même master seed.\nSi vous n\'êtes pas sûr de ce que ceci signifie, laissez-les vide.</string>
   <string name="tx_details_num_confirmations">Confirmations</string>
-  <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
-  <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
-  <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
-  <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
   <string name="dontagree">Je ne suis pas d\'accord</string>
   <string name="agree">J\'accepte</string>
   <string name="lt_warning_watch_only_account">Le compte actuel est en mode lecture - sélectionnez un compte différent.</string>
@@ -682,9 +679,6 @@
   <string name="remove_queued_transaction_title">Transaction en attente</string>
   <string name="remove_queued_transaction_hint">Votre solde sera corrigé après la prochaine synchronisation avec le réseau</string>
   <string name="remove_queued_transaction_error">Impossible de supprimer la transaction</string>
-  <string name="coinapult_sending_via_coinapult">Envoi de Bitcoins via Coinapult</string>
-  <string name="coinapult_account_notes">Un compte Coinapult vous permet de stocker de la valeur en dollars américains et de la dépenser instantanément à n\'importe quelle adresse bitcoin.
-        Lorsque vous utilisez vos clés privées pour y accéder, elles sont sous le contrôle de Coinapult, à la différence de vos fonds sur des comptes HD normaux.</string>
   <string name="cashila_tab_new">Nouveau</string>
   <string name="cashila_tab_pending">Paiements</string>
   <string name="cashila_sepa_transfer">Transfert SEPA</string>
@@ -767,19 +761,29 @@
   <string name="lt_account_not_allowed">Le type de compte sélectionné ne fonctionne pas avec Marchand Local. Vous devez sélectionner un autre compte pour effectuer cet échange.</string>
   <string name="coinapult_mail_hint">Entrez l\'adresse e-mail</string>
   <string name="coinapult_mail_description">Si vous fournissez votre adresse e-mail, vous pouvez déposer un ticket de support avec Coinapult en envoyant un email à support@coinapult.com depuis l\'e-mail que vous spécifiez.</string>
-  <string name="coinapult_threshold_warning">Attention : Les comptes Coinapult ne peuvent pas traiter la conversion de transactions inférieures à 1,00 $ US en valeur. Si moins de 1 USD est envoyé à votre compte  Coinapult, la conversion échouera. Les bitcoins seront remboursables par l\'intermédiaire de Coinapult à support@coinapult.com.</string>
-  <string name="coinapult_set_mail_menu_item">Définir l\'adresse e-mail</string>
-  <string name="coinapult_set_mail_failed">La configuration de l\'adresse e-mail a échoué, veuillez vérifier l\'orthographe et assurez-vous que votre appareil dispose d\'une connexion internet.</string>
-  <string name="coinapult_setting_email">Envoi de l\'adresse e-mail à Coinapult&#8230;</string>
-  <string name="coinapult_set_mail_please_verify">Votre adresse e-mail a été créée, vous recevrez un e-mail avec un lien de confirmation. Veuillez copier ce lien et choisissez « Vérifier l\'email » dans les paramètres de compte, pour coller le lien et vérifier que l\'adresse e-mail est correcte.</string>
-  <string name="coinapult_verify_mail_menu_title">Vérifier l\'e-mail</string>
   <string name="coinapult_mail_verification">Vérifier votre adresse e-mail Coinapult</string>
   <string name="coinapult_mail_verification_description">Veuillez coller le lien de vérification Coinapult de votre e-mail dans le champ de texte ci-dessous.</string>
   <string name="coinapult_mail_verification_hint">collez le lien de vérification complet</string>
-  <string name="coinapult_verifying_email">Envoi du lien de vérification à Coinapult&#8230;</string>
-  <string name="coinapult_verify_mail_success">Votre adresse e-mail Coinapult a été vérifiée avec succès.</string>
-  <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
+  <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
+  <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
+  <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
   <string name="copy">Copier</string>
+  <string name="lt_confirm_backup_trader_message">Vous êtes sur le point d\'exporter des données sensibles de votre compte de commerçant local. Toute personne qui accède à ces clés peut utiliser votre compte de commerçant local et agir en votre nom. Voulez-vous continuer ?</string>
+  <string name="masterseed">Masterseed</string>
+  <string name="bip32_root_account">Compte racine</string>
+  <string name="pop_amount_title">Montant payé</string>
+  <string name="pop_date">Heure/Date</string>
+  <string name="pop_transaction_id">Hash</string>
+  <string name="pop_transaction_amount">Montant</string>
+  <string name="pop_transaction_label">Étiquette</string>
+  <string name="pop_no_transaction_selected">Aucune transaction sélectionnée</string>
+  <string name="pop_send_pop">Preuve de paiement</string>
+  <string name="pop_invalid_pop">La preuve de paiement n\'est pas valide</string>
+  <string name="pop_message_from_server">Message du serveur :</string>
+  <string name="pop_no_matching_transaction">Aucun paiement correspondant au critère n\'a été trouvé. Veuillez sélectionner manuellement une transaction à prouver.</string>
+  <string name="pop_matching_transactions">Transactions correspondantes</string>
+  <string name="pop_non_matching_transactions">Autres transactions</string>
+  <string name="pop_success">La preuve a été vérifiée</string>
 </resources>

@@ -2,6 +2,8 @@ package com.mycelium.wapi.wallet.currency;
 
 import com.google.common.collect.ImmutableMap;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.currency.test.AssertHelper;
+import junit.framework.AssertionFailedError;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -60,7 +62,7 @@ public class CurrencySumTest {
       currencySum.add(f2);
       currencySum.add(f3);
 
-      assertEquals(3, currencySum.getAllValues().size());
+      assertEquals("We should have 3 currencies: BTC, USD and EUR", 3, currencySum.getAllValues().size());
       assertEquals(BigDecimal.valueOf(3), currencySum.getAllValues().get(CurrencyValue.BTC).getValue());
       assertEquals(BigDecimal.valueOf(7), currencySum.getAllValues().get("USD").getValue());
       assertEquals(BigDecimal.valueOf(5), currencySum.getAllValues().get("EUR").getValue());
@@ -68,6 +70,11 @@ public class CurrencySumTest {
 
    @Test
    public void testGetSumAsCurrency() throws Exception {
+      // 1 BTC = 7 USD = 5 EUR
+      // b1 + b2 = 3 BTC
+      // f1 + f2 = 7 USD = 1 BTC
+      // f3 = 5 EUR = 1 BTC
+      // sum = 5 BTC = 35 USD
       ExactCurrencyValue b1 = ExactCurrencyValue.from(BigDecimal.ONE, CurrencyValue.BTC);
       ExactCurrencyValue b2 = ExactCurrencyValue.from(BigDecimal.valueOf(2L), CurrencyValue.BTC);
       ExactCurrencyValue f1 = ExactFiatValue.from(BigDecimal.valueOf(3L), "USD");
@@ -82,11 +89,11 @@ public class CurrencySumTest {
       currencySum.add(f3);
 
       CurrencyValue sumAsCurrency = currencySum.getSumAsCurrency(CurrencyValue.BTC, fx);
-      assertEquals(BigDecimal.valueOf(5), sumAsCurrency.getValue());
+      AssertHelper.assertRoundedEqualValue(BigDecimal.valueOf(5), sumAsCurrency.getValue(), 8);
       assertEquals(sumAsCurrency.getCurrency(), "BTC");
 
       CurrencyValue sumAsCurrencyUSD = currencySum.getSumAsCurrency("USD", fx);
-      assertEquals(BigDecimal.valueOf(35), sumAsCurrencyUSD.getValue());
+      AssertHelper.assertRoundedEqualValue(BigDecimal.valueOf(35), sumAsCurrencyUSD.getValue(), 8);
       assertEquals("USD", sumAsCurrencyUSD.getCurrency());
    }
 
@@ -106,7 +113,7 @@ public class CurrencySumTest {
       currencySum.add(ExchangeBasedCurrencyValue.fromExactValue(f3, "BTC", fx));
 
       CurrencyValue sumAsCurrency = currencySum.getSumAsCurrency(CurrencyValue.BTC, fx);
-      assertEquals(BigDecimal.valueOf(5), sumAsCurrency.getValue());
+      AssertHelper.assertRoundedEqualValue(BigDecimal.valueOf(5), sumAsCurrency.getValue(), 7);
       assertEquals(sumAsCurrency.getCurrency(), "BTC");
 
       // use a different FX rate, it should always use the exact values for added currencies
@@ -117,7 +124,7 @@ public class CurrencySumTest {
       // 5 EUR -> 0.5 BTC -> 7 USD
       // -> 56 USD
       CurrencyValue sumAsCurrencyUSD = currencySum.getSumAsCurrency("USD", fxLater);
-      assertEquals(56.0, sumAsCurrencyUSD.getValue().doubleValue(), 0.00001);
+      AssertHelper.assertRoundedEqualValue(BigDecimal.valueOf(56), sumAsCurrencyUSD.getValue(), 7);
       assertEquals("USD", sumAsCurrencyUSD.getCurrency());
    }
 }

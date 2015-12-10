@@ -881,7 +881,9 @@ public class SendMainActivity extends Activity {
 
          CoinUtil.Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
          //show fee lvl on button - show the fees in mBtc if Btc is the denomination
-         CoinUtil.Denomination feeDenomination = bitcoinDenomination == CoinUtil.Denomination.BTC ? CoinUtil.Denomination.mBTC : bitcoinDenomination;
+         CoinUtil.Denomination feeDenomination =
+               (bitcoinDenomination == CoinUtil.Denomination.BTC) ? CoinUtil.Denomination.mBTC : bitcoinDenomination;
+
          String feeString = CoinUtil.valueString(fee, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
          btFeeLvl.setText(_fee.getMinerFeeName(this));
 

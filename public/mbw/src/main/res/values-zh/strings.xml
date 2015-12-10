@@ -456,7 +456,6 @@
   <string name="account_contains_one_key_info">包含一个私钥。</string>
   <string name="verify_backup_ok_message">备份验证成功。</string>
   <string name="wordlist_import_invalid_checksum">单词列表校验码无效，请确保您正确地输入了所有单词。</string>
-  <string name="checkbox_wordlist_passphrase">我有一个密码</string>
   <string name="wordlist_length_12">12 个字</string>
   <string name="wordlist_length_18">18 个字</string>
   <string name="wordlist_length_24">24 个单词</string>

@@ -377,7 +377,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
 
       // Set alternate amount if we can
-      if (!_mbwManager.hasFiatCurrency() || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()) {
+      if (!_mbwManager.hasFiatCurrency()
+            || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
+            || CurrencyValue.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
       } else {
          CurrencyValue convertedAmount;

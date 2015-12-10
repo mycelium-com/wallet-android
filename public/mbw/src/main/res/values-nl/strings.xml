@@ -484,11 +484,9 @@
   <string name="account_contains_one_address_info">Bevat één adres.</string>
   <string name="verify_backup_ok_message">De back-up is met succes geverifieerd.</string>
   <string name="wordlist_import_invalid_checksum">De checksum van uw woordenlijst is ongeldig, zorg ervoor dat u alle woorden correct hebt ingevoerd.</string>
-  <string name="checkbox_wordlist_passphrase">Ik heb een wachtwoord</string>
   <string name="wordlist_length_12">12 woorden</string>
   <string name="wordlist_length_18">18 woorden</string>
   <string name="wordlist_length_24">24 woorden</string>
-  <string name="recover_seed_passphrase_info">Selecteer deze optie alleen als u begrijpt wat het betekent.\nEen normale Mycelium back-up heeft nooit een wachtwoord - dit is niet uw PIN.</string>
   <string name="import_wordlist_questions">Selecteer de lengte van de woordenlijst die u wenst te herstellen en geef aan of deze beveiligd is met een wachtwoord.</string>
   <string name="type_password_title">Voer uw wachtwoord in</string>
   <string name="clipboard_not_available">Klembord niet beschikbaar</string>

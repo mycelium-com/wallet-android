@@ -486,11 +486,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="account_contains_one_address_info">Enthält eine Adresse.</string>
   <string name="verify_backup_ok_message">Das Backup wurde erfolgreich überprüft.</string>
   <string name="wordlist_import_invalid_checksum">Die Prüfsumme Ihrer Wortliste ist ungültig, bitte stellen Sie sicher, dass Sie alle Wörter korrekt eingegeben haben.</string>
-  <string name="checkbox_wordlist_passphrase">Ich habe ein Passwort</string>
   <string name="wordlist_length_12">12 Wörter</string>
   <string name="wordlist_length_18">18 Wörter</string>
   <string name="wordlist_length_24">24 Wörter</string>
-  <string name="recover_seed_passphrase_info">Wählen Sie diese Option nur, wenn Sie verstehen, was sie bedeutet. \n Ein normales Mycelium Backup enthält niemals ein Passwort - dies ist nicht Ihre PIN.</string>
   <string name="import_wordlist_questions">Bitte wählen Sie die Länge der zu importierenden Wortliste um anzugeben, ob sie mittels Kennwort geschützt ist.</string>
   <string name="type_password_title">Geben Sie Ihr Passwort ein</string>
   <string name="clipboard_not_available">Inhalt der Zwischenablage nicht gültig</string>
@@ -655,10 +653,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="hd_account_selector_no_account_found">Es wurden keine aktive Konten gefunden.</string>
   <string name="masterseed_optional_passphrase_hint">Mit diesem Passwort können Sie verschiedene Accounts vom gleichen Master Seed ableiten.\nFalls Sie nicht sicher sind, was das bedeutet, lassen Sie das Feld frei.</string>
   <string name="tx_details_num_confirmations">Bestätigungen</string>
-  <string name="coinapult_tos_link">Die allgemeinen Geschäftsbedingungen von Coinapult einsehen</string>
-  <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
-  <string name="coinapult_tos_question">Um ein Coinapult Konto zu erstellen, müssen Sie den allgemeinen Geschäftsbedingungen von Coinapult zustimmen</string>
-  <string name="coinapult_mail_question">Möchten Sie Ihre E-Mail-Adresse eingeben?</string>
   <string name="dontagree">Ich stimme nicht zu</string>
   <string name="agree">Ich stimme zu</string>
   <string name="lt_warning_watch_only_account">Aktueller Account nur im Lesemodus verfügbar - bitte wählen Sie einen anderen Account.</string>
@@ -673,7 +667,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="remove_queued_transaction_title">Transaktion gereiht</string>
   <string name="remove_queued_transaction_hint">Ihr Saldo wird nach der nächsten Synchronisation mit dem Netzwerk korrigiert</string>
   <string name="remove_queued_transaction_error">Transaktion kann nicht entfernt werden</string>
-  <string name="coinapult_sending_via_coinapult">Senden von Bitcoins über Coinapult</string>
   <string name="cashila_tab_new">Neu</string>
   <string name="cashila_tab_pending">Zahlungen</string>
   <string name="cashila_sepa_transfer">SEPA-Überweisung</string>
@@ -740,7 +733,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="block_explorer_title">Block Explorer (%1$s)</string>
   <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
   <string name="coinapult_mail_hint">Geben Sie eine E-Mail-Adresse ein</string>
-  <string name="coinapult_set_mail_menu_item">Geben Sie eine E-Mail-Adresse ein</string>
   <string name="coinapult_unable_to_create_account">Das Coinapult-Konto konnte nicht erstellt werden</string>
+  <string name="coinapult_tos_link">Die allgemeinen Geschäftsbedingungen von Coinapult einsehen</string>
+  <string name="coinapult_tos_question">Um ein Coinapult Konto zu erstellen, müssen Sie den allgemeinen Geschäftsbedingungen von Coinapult zustimmen</string>
+  <string name="coinapult_mail_question">Möchten Sie Ihre E-Mail-Adresse eingeben?</string>
   <string name="copy">Kopieren</string>
 </resources>

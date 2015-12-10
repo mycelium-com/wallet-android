@@ -42,13 +42,13 @@ public class ExchangeBasedFiatValue extends ExchangeBasedCurrencyValue {
 
    private final BigDecimal value;
 
-   protected ExchangeBasedFiatValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue, ExchangeRate usedSourceExchangeRate, ExchangeRate usedTargetExchangeRate) {
-      super(currency, basedOnExactValue, usedSourceExchangeRate, usedTargetExchangeRate);
+   protected ExchangeBasedFiatValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue) {
+      super(currency, basedOnExactValue);
       this.value = value;
    }
 
    protected ExchangeBasedFiatValue(String currency, BigDecimal value) {
-      super(currency, null, null, null);
+      super(currency, null);
       this.value = value;
    }
 
