@@ -606,9 +606,9 @@
     <string name="account_balance_sending_amount">(enviando %s)</string>
     <string name="trezor_cold_storage_header">Armazenamento Frio em Trezor</string>
     <string name="connect_your_trezor_info">Isso só funciona se o seu telefone tiver suporte a USB-OTG (on-the-go).\n\nPara conectar a Trezor você precisa de um adaptador USB-OTG ou um cabo. Conecte a Trezor com seu próprio cabo USB no lado do cliente e conecte o lado do host em seu telefone.</string>
-    <string name="select_trezor_account_to_spend_from">Select account to spend from</string>
-    <string name="trezor_passphrase_description">Enter optional passphrase</string>
-    <string name="trezor_show_passphrase">Mostrar passphrase</string>
+    <string name="select_trezor_account_to_spend_from">Selecione a conta para gastar</string>
+    <string name="trezor_passphrase_description">Insira uma frase secreta opcional</string>
+    <string name="trezor_show_passphrase">Mostrar frase secreta</string>
     <string name="trezor">Trezor</string>
     <string name="trezor_import_account">Importar uma Conta-Trezor-HD</string>
     <string name="trezor_import_account_caption">Importar Conta</string>
@@ -620,13 +620,13 @@
     <string name="trezor_fee">Taxa:</string>
     <string name="trezor_total">Total:</string>
     <string name="trezor_please_plug_in">Por favor conect seu Trezor</string>
-    <string name="trezor_next_unused_account_info">This option will import the next unused account from this trezor. It will only show up in MyTrezor if you send funds to it.</string>
+    <string name="trezor_next_unused_account_info">Essa opção irá importar a próxima conta não-utilizada deste Trezor. A conta só aparecerá no MyTrezor se você enviar fundos para ela.</string>
     <string name="trezor_next_unused_account_button">Importar próxima conta não-utilizada…</string>
     <string name="trezor_new_firmware">Um novo firmware da Trezor está disponível…</string>
-    <string name="trezor_new_firmware_description">A new trezor firmware is available.\nPlease use MyTrezor.com on a PC to update your trezor.</string>
+    <string name="trezor_new_firmware_description">Um novo firmware está disponível para a Trezor.\nPor favor visite o site MyTrezor.com em um desktop para atualizar o seu trezor.</string>
     <string name="trezor_unnamed">(sem nome)</string>
 
-    <string name="ledger_initial_status">Please connect or tap and hold your Ledger Wallet</string>
+    <string name="ledger_initial_status">Por favor conecte ou encoste e segure a sua carteira Ledger</string>
     <string name="ledger_scanning_status">Carteira Ledger ok - escaneando Contas</string>
     <string name="ledger_cold_storage_header">Carteira Ledger</string>
     <string name="connect_your_ledger_info">Ledger Nano only works if your phone supports USB-OTG (on-the-go).\n\nTo connect Ledger Nano you need a USB-OTG-adapter or cable. Plug Ledger Nano on the client-side and connect the host-side with your phone.</string>
@@ -638,7 +638,7 @@
     <string name="ledger_to">Para:</string>
     <string name="ledger_fee">Taxa:</string>
     <string name="ledger_total">Total:</string>
-    <string name="ledger_please_plug_in">Please connect or tap and hold your Ledger Wallet</string>
+    <string name="ledger_please_plug_in">Por favor conecte ou encoste e segure a sua carteira Ledger</string>
     <string name="ledger">Ledger</string>
     <string name="ledger_next_unused_account_info">This option will import the next unused account from this Ledger Wallet</string>
     <string name="ledger_next_unused_account_button">Import next unused account…</string>
@@ -754,7 +754,7 @@
     <string name="cashila_sepa_payment_title">Sepa Payment</string>
     <string name="cashila_uploaded_title">Enviado</string>
     <string name="cashila_no_recipients">It seems, you never used cashila before and have no existing recipients.\n\nTap OK to create a new recipient on their website.</string>
-    <string name="cashila_amount_outstanding">(%s outstanding)</string>
+    <string name="cashila_amount_outstanding">(%s em aberto)</string>
 
 
     <string name="payment_request_unable_to_read_payment_request">Não foi possível ler a requisição de pagamento</string>
@@ -777,10 +777,10 @@
     <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
 
     <string name="label_cold_storage_external_signing">Assinar com:</string>
-    <string name="spending_unconfirmed_warning">Warning: spending unconfirmed funds</string>
+    <string name="spending_unconfirmed_warning">Aviso: gastando fundos não-confirmados</string>
     <string name="spending_unconfirmed_title">Gastando fundos não-confirmados</string>
-    <string name="spending_unconfirmed_description">Your transaction uses funds which have not been included in a bitcoin block yet. If for any reason the transaction which sends these coins to you fails or stays unconfirmed, your transaction will fail or stay unconfirmed as well.</string>
-    <string name="label_unverified_recipient">unverified Recipient</string>
+    <string name="spending_unconfirmed_description">A sua transação está usando fundos que ainda não foram incluídos em um bloco na cadeia de blocos (blockchain). Se por qualquer motivo a transação que enviar esses bitcoins para você falhar ou permanecer não-confirmada, sua transação não funcionará ou também permanecerá não-confirmada.</string>
+    <string name="label_unverified_recipient">Recipiente não-verificado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
     <string name="data_not_available_short">n/a</string>
     <string name="accept">Aceitar</string>
@@ -818,9 +818,9 @@
     <string name="coinapult_mail_verification_hint">paste complete verification link</string>
     <string name="verifying_coinapult_email">Enviando link de verificação para a coinapult…</string>
     <string name="verify_coinapult_mail_success">Seu endereço de e-mail coinapult foi verificado com sucesso.</string>
-    <string name="verify_coinapult_mail_error">An error occured verifying your email address. Please make sure you copy the complete and correct verification link.</string>
+    <string name="verify_coinapult_mail_error">Ocorreu um erro na sua verificação do e-mail. Por favor certifique-se de que você copiou corretamente o link de verificação.</string>
     <string name="coinapult_unable_to_create_account">Não foi possível criar uma conta coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Failed to broadcast coinapult transaction</string>
+    <string name="coinapult_failed_to_broadcast">Erro ao transmitir transação coinapult</string>
     <string name="copy">Copiar</string>
     <string name="lt_backup_lt_id">Fazer Backup da Identidade de Trader</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
