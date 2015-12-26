@@ -94,7 +94,7 @@
     <string name="pref_exchange_source_summary">Selecione a fonte para obter as taxas de corretagem entre Bitcoin e moedas fiduciárias</string>
     <string name="pref_bitcoin_denomination">Denominação Bitcoin</string>
     <string name="pref_bitcoin_denomination_with_denomination">Denominação (%1$s)</string>
-    <string name="pref_bitcoin_denomination_summary">Definir denominação Bitcoin preferida. BTC, mBTC, or μBTC</string>
+    <string name="pref_bitcoin_denomination_summary">Definir denominação Bitcoin preferida. BTC, mBTC ou μBTC</string>
     <string name="pref_advanced_settings">Configurações avançadas</string>
     <string name="pref_socks_proxy">Proxy Socks</string>
     <string name="pref_socks_proxy_enabled">Proxy Socks (Habilitado)</string>
@@ -245,7 +245,7 @@
     <string name="source_repo_label">Repositório do Código-fonte</string>
     <string name="version_label">Versão</string>
     <string name="authors_label">Desenvolvido por</string>
-    <string name="homepage_label">Homepage</string>
+    <string name="homepage_label">Site</string>
     <string name="homepage_url">https://mycelium.com</string>
     <string name="company">Megion Research &amp; Development GmbH</string>
     <string name="company_header">Esse app é fornecido gratuitamente para você por</string>
@@ -467,11 +467,11 @@
     <string name="bitid_authentication">Entrar usando BitID</string>
     <string name="sign_bitid">Entrar</string>
     <string name="bitid_question">%1$s\n\n quer que você se autentique usando o protocolo bitid. Você quer assinar essa requisição?</string>
-    <string name="bitid_unsecure_warning">Warning: This website will receive the callback via http. For sensitive data, https should be used.</string>
+    <string name="bitid_unsecure_warning">Aviso: Esse site irá receber o callback através de http. Para dados sensíveis, o https deveria ser utilizado.</string>
     <string name="bitid_processing">A assinatura está sendo enviada.</string>
     <string name="bitid_success">Logado com sucesso em %1$s!</string>
-    <string name="bitid_error">Authentication failed!\nAn error occurred while contacting the server. We are sorry!</string>
-    <string name="bitid_expired">Authentication failed, the nonce has expired.\nPlease refresh the website and scan again.</string>
+    <string name="bitid_error">Falha na autenticação!\nOcorreu um erro durante a conexão com o servidor.</string>
+    <string name="bitid_expired">Falha na autenticação, o nonce expirou.\nPor favor atualize o site e escaneie novamente.</string>
     <string name="bitid_errorheader">Falha na autenticação, com o erro:\n</string>
     <string name="bitid_timeout">A conexão expirou, tente novamente mais tarde.</string>
     <string name="bitid_noconnection">Não foi possível conectar com o servidor, verifique sua conexão.</string>
@@ -549,7 +549,7 @@
     <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
     <string name="select_key_for_signing">Selecione uma Chave para Assinar</string>
     <string name="playstore_link_label">Link na Play Store</string>
-    <string name="direct_apk_link_label">Direct\ndownload</string>
+    <string name="direct_apk_link_label">Download\ndireto</string>
     <string name="hide_unused_account_menu">Apagar Conta</string>
     <string name="dont_allow_hiding_used_notification">Você não pode esconder uma conta usada, mas você pode arquivá-la</string>
     <string name="pref_miner_fee_title">Taxa do Minerador (%1$s)</string>
@@ -558,24 +558,24 @@
     <string name="miner_fee_economic_name">Econômica</string>
     <string name="miner_fee_normal_name">Normal</string>
     <string name="miner_fee_priority_name">Alta prioridade</string>
-    <string name="miner_fee_lowprio_desc">Warning: Using the low-prio fee schedule is experimental and may result in transactions that never confirm. Use at your own risk.</string>
-    <string name="miner_fee_economic_desc">Warning: Using the economic miner fee might take a very long time to confirm. Use at your own risk.</string>
-    <string name="miner_fee_normal_desc">With the normal miner fee schedule you can expect your transactions to confirm within the next few blocks.</string>
-    <string name="miner_fee_priority_desc">With the priority fee schedule you can expect your transaction to confirm within one or two blocks.</string>
+    <string name="miner_fee_lowprio_desc">Aviso: O uso de taxa de baixa prioridade é experimental e pode fazer com que a transação nunca seja confirmada. Use por sua conta e risco.</string>
+    <string name="miner_fee_economic_desc">Aviso: Usar uma taxa econômica pode fazer com que a transação leve muito tempo para ser confirmada. Use por sua conta e risco.</string>
+    <string name="miner_fee_normal_desc">Com uma taxa normal, sua transação será confirmada dentro de alguns blocos.</string>
+    <string name="miner_fee_priority_desc">Com uma taxa de alta prioridade, sua transação será confirmada em cerca de um ou dois blocos.</string>
     <string name="backup_menu_entry">Criar Backup</string>
     <string name="lt_copied_to_clipboard">A mensagem do chat foi copiada para a área de transferência</string>
     <string name="total_balance_title">Total:</string>
     <string name="additional_backup_words_title">Backup adicional da semente mestre</string>
-    <string name="wordlist_additional_backup_not_possible_pin_too_new">Sorry, an additional backup is currently not possible.\nYour PIN was recently changed.\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed shortly after setting a new PIN.\n\n You have to wait for at least %1$d blocks (~ %2$s)</string>
-    <string name="wordlist_additional_backup_not_possible_no_pin">Sorry, an additional backup is currently not possible.\nYou haven\'t set a PIN\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed without having set a PIN-Code.\n\nPlease go to Settings and configure a PIN.</string>
-    <string name="wordlist_additional_backup_description">WARNING - an additional backup is risky.\n\nYou already have exported your master seed before. If you have lost the old backup and you are not sure who might have access to it, it is very dangerous to continue to use this master seed.\n\n\nOnly keep using this master seed if you are sure all backups are safe!</string>
+    <string name="wordlist_additional_backup_not_possible_pin_too_new">Desculpe, não é possível fazer um backup adicional.\nO seu PIN acabou de ser modificado.\n\nPara aumentar a segurança de seus fundos, não é possível exportar a semente mestre logo após um código PIN ter sido definido.\n\n Você precisa aguardar por pelo menos %1$d blocos (~ %2$s)</string>
+    <string name="wordlist_additional_backup_not_possible_no_pin">Desculpe, não é possível fazer um backup adicional.\nVocê não definiu um PIN\n\nPara aumentar a segurança de seus fundos, não é possível exportar a semente mestre sem antes definir um código PIN.\n\nEntre nas Configurações e defina um código PIN.</string>
+    <string name="wordlist_additional_backup_description">AVISO - é arriscado fazer um backup adicional.\n\nVocê já exportou sua semente mestre anteriormente. Se você perdeu o backup antigo e você não tem certeza de quem possa ter tido acesso a ele, é muito perigoso continuar a usar essa semente mestre.\n\n\nSomente continue usando essa semente mestre se você tem certeza que todos os backups estão seguros!</string>
     <string name="wordlist_start_with_additional_wordlist_backup">Ok, Eu entendi</string>
     <string name="pin_pad_clear">CLR</string>
     <string name="pin_pad_backspace">DEL</string>
-    <string name="pin_resettable_pin_info">If you forget your pin, you have the option to reset it after a waiting period of %s.</string>
-    <string name="pin_unresettable_pin_info">Se você esquecer o seu pin, a única opção é recuperá-lo a partir de seu backup.</string>
+    <string name="pin_resettable_pin_info">Se você esquecer o seu PIN, você tem a opção de resetá-lo após esperar um período de %s.</string>
+    <string name="pin_unresettable_pin_info">Se você esquecer o seu PIN, a única opção é recuperá-lo a partir de seu backup.</string>
     <string name="pin_forgotten_button">Eu esqueci o PIN</string>
-    <string name="pin_forgotten_reset_pin_dialog_title">Resetar Pin</string>
+    <string name="pin_forgotten_reset_pin_dialog_title">Resetar PIN</string>
     <string name="pin_forgotten_reset_pin_dialog_content">Por questões de segurança, você terá que esperar cerca de %1$s até que o PIN seja removido.\n\nVocê quer iniciar o procedimento de reset do PIN agora?</string>
     <string name="pin_forgotten_reset_wait_button_text">Aguarde %s</string>
     <string name="pin_forgotten_abort_pin_reset">Uma resetagem do PIN está em andamento. Você precisa aguardar por %1$s até que você possa resetar o PIN.\n\nVocê quer abortar a resetagem do PIN em andamento?</string>
@@ -596,7 +596,7 @@
     <string name="new_random_key_desc">Gerar uma nova chave aleatória</string>
     <string name="generate_new_key">Gerar</string>
     <string name="new_bitcoin_address_created">Uma nova chave privada aleatória foi gerada com os seguintes endereços Bitcoin:</string>
-    <string name="shuffle">Misturar</string>
+    <string name="shuffle">Gerar (embaralhar)</string>
     <string name="toast_warning_low_fee">pode demorar mais para confirmar</string>
     <string name="searching_for_trezor_status">Procurando Trezor…</string>
     <string name="account_number">Conta %d</string>
@@ -613,7 +613,7 @@
     <string name="trezor_import_account">Importar uma Conta-Trezor-HD</string>
     <string name="trezor_import_account_caption">Importar Conta</string>
     <string name="trezor_name">Trezor:</string>
-    <string name="trezor_select_account_to_import">Seleciona uma conta para importar</string>
+    <string name="trezor_select_account_to_import">Selecione uma conta para importar</string>
     <string name="trezor_verify_transaction_on_trezor">Verifique e confirme a \ntransação em sua Trezor</string>
     <string name="trezor_amount">Quantia:</string>
     <string name="trezor_to">Para:</string>
@@ -644,29 +644,29 @@
     <string name="ledger_next_unused_account_button">Importar próxima conta não-utilizada…</string>
     <string name="ledger_powercycle">Desconecte a sua Carteira Ledger, e a conecte em outro aplicativo / computador para o segundo fator de teclado, e então conecte-a novamente para continuar</string>
     <string name="ledger_enter_pin">Insira o PIN da Carteira Ledger</string>
-    <string name="ledger_enter_transaction_pin">Insira a 2FA da Carteira Ledger</string>
+    <string name="ledger_enter_transaction_pin">Insira o segundo fator de autenticação (2FA) da Carteira Ledger</string>
     <string name="ledger_enter_2fa_pin">Confirme o endereço de saída (output) usando seu Cartão de Segurança</string>
-    <string name="ledger_please_wait">Por favor aguarde ...</string>
-    <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
-    <string name="ledger_set_unplugged_aid_title">Set Ledger Unplugged AID</string>
+    <string name="ledger_please_wait">Por favor, aguarde...</string>
+    <string name="ledger_unplugged_aid">Identificador de aplicação (AID) do Ledger Unplugged</string>
+    <string name="ledger_set_unplugged_aid_title">Definir AID do Ledger Unplugged</string>
     <string name="ledger_check_unplugged_aid">AID inválido, por favor verifique</string>
     <string name="pref_ledger_title">Carteira Hardware Ledger</string>
     <string name="ledger_disable_tee_preference">Desabilitar suporte a TEE</string>
-    <string name="ledger_disable_tee_preference_summary">Disable Trusted Execution Environment support if present to use a different Ledger Hardware Wallet</string>
-    <string name="ledger_unplugged_aid_preference">Set Ledger Unplugged AID</string>
-    <string name="ledger_unplugged_aid_preference_summary">Support a different AID for Ledger Unplugged custom builds</string>
+    <string name="ledger_disable_tee_preference_summary">Desabilitar suporte a Ambiente de Execução Confiável (TEE - Trusted Execution Environment) se presente para usar uma carteira Ledger diferente</string>
+    <string name="ledger_unplugged_aid_preference">Definir identificador de aplicação (AID) do Ledger Unplugged</string>
+    <string name="ledger_unplugged_aid_preference_summary">Suporte para identificador de aplicação (AID) diferente para builds customizados do Ledger Unplugged</string>
 
     <string name="select_local_currencies">Escolha suas moedas</string>
     <string name="show_public_or_private_data">Mostrar</string>
     <string name="show_private_data">privado</string>
     <string name="show_public_data">público</string>
-    <string name="export_warning_pubkey">Warning: whoever knows this code knows all your transactions and balance for this account, but won\'t be able to spend bitcoin with it</string>
-    <string name="export_warning_privkey">Warning: whoever knows this code can spend all your current and future bitcoin from this account</string>
-    <string name="reset_pin_button">Resetar Pin</string>
-    <string name="wrong_pin_message">Você inseriu um pin errado.\n\n Se você esqueceu seu pin, você pode resetá-lo.</string>
+    <string name="export_warning_pubkey">Aviso: quem tiver acesso a esse código terá conhecimento de todas suas transações e do saldo dessa conta, mas não será capaz de gastar os bitcoins dela</string>
+    <string name="export_warning_privkey">Aviso: quem tiver acesso a esse código poderá gastar todos os bitcoins dessa conta (agora e no futuro)</string>
+    <string name="reset_pin_button">Resetar PIN</string>
+    <string name="wrong_pin_message">Você inseriu um pin errado.\n\n Se você esqueceu seu PIN, você pode resetá-lo.</string>
     <string name="pref_no_fiat_selected">Nenhuma moeda fiduciária selecionada</string>
     <string name="useTor">Usar rede Tor</string>
-    <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.</string>
+    <string name="useTorDescription">Usar a rede tor para se comunicar com os servidores.\nIsso melhora a sua privacidade e pode contornar Firewalls restritivos. No entanto, isso pode tornar o aplicativo mais lento.</string>
     <string name="useTorOnlyExternalTor">Usar rede tor (tor externo)</string>
     <string name="useTorOnlyHttps">Usar rede tor (apenas https)</string>
     <string name="useTorBoth">Usar rede tor (ambos)</string>
@@ -707,7 +707,7 @@
     <string name="refresh">atualizar</string>
     <string name="xpriv_title">Chave privada estendida</string>
     <string name="share_xpriv">Compartilhar a chave privada estendida</string>
-    <string name="export_share_warning">Warning: You are about to share your private account data. Whoever gets hold of it can access all current and future funds in your account. Do you want to continue?</string>
+    <string name="export_share_warning">Aviso: Você está prestes a compartilhar dados de conta privados. Quem tiver acesso a eles poderá acessar todos seus fundos atuais e futuros da sua conta. Você quer continuar?</string>
     <string name="xpub_title">Chave pública estendida</string>
     <string name="share_xpub">Compartilhar a chave pública estendida</string>
     <string name="share_account_data">Compartilhar Dados de Conta</string>
@@ -717,8 +717,8 @@
     <string name="remove_queued_transaction_error">Não foi possível remover a transação</string>
     <string name="createCoinapult">Criando uma conta Coinapult…</string>
     <string name="sendingViaCoinapult">Enviando Bitcoins através da Coinapult</string>
-    <string name="AddCoinapultNotes">A Coinapult account allows you to store value in USD and spend instantly to any bitcoin address.
-        While you use your private keys to access it, they are under control by Coinapult, unlike your funds on normal HD accounts.</string>
+    <string name="AddCoinapultNotes">Uma conta Coinapult permite que você armazene seu dinheiro em dólares americanos (USD) e gaste-os instantaneamente em qualquer endereço bitcoin.
+        Embora você utilize as suas chaves privadas para acessá-la, elas estão sob controle da Coinapult, ao contrário dos seus fundos na contas HD normais.</string>
 
     <!-- Cashila -->
     <string name="cashila_tab_new">Novo</string>
@@ -733,9 +733,9 @@
     <string name="cashila_status_uploaded">enviado</string>
     <string name="cashila_status_transcribed">transcrito</string>
     <string name="cashila_title_paired">Carteira pareada com o serviço</string>
-    <string name="cashila_welcome_message_cashila">You have paired your wallet with the external service Cashila.\nThis will add options to your main screen menu and your send dialog for directly invoking SEPA money transfers from within your bitcoin wallet.\nPlease understand that you have to trust Cashila, and that the money is no longer under your control as soon as you made a payment to Cashila.\n\nPlease visit www.cashila.com for more info.</string>
+    <string name="cashila_welcome_message_cashila">Você pareou sua carteira com o serviço externo Cashila.\nIsso irá adicionar opções ao seu menu da tela principal e na sua tela de envio para invocar diretamente transferências SEPA de dinheiro a partir de sua carteira bitcoin.\nPor favor entenda que você deve confiar no Cashila, e que o dinheiro não está mais sob seu controle assim que você fizer um pagamento para o Cashila.\n\nPor favor visite www.cashila.com para maiores informações.</string>
     <string name="cashila_fee">"Taxa: %s"</string>
-    <string name="cashila_account_needs_pairing">Your Cashila account is not linked with your current Identity account - please pair your accounts</string>
+    <string name="cashila_account_needs_pairing">Sua conta Cashila não está vinculada à sua conta de Identidade atual - por favor, faça o pareamento de suas contas</string>
     <string name="cashila_fetching">Recuperando últimos pagamentos…</string>
     <string name="cashila">Cashila</string>
     <string name="cashila_amount_not_valid">Quantia inválida</string>
@@ -751,9 +751,9 @@
     <string name="cashila_reference_text">Texto de referência</string>
     <string name="cashila_enqueue_payment">Colocar pagamento na fila</string>
     <string name="cashila_pay_now">Pagar agora</string>
-    <string name="cashila_sepa_payment_title">Pagamento Sepa</string>
+    <string name="cashila_sepa_payment_title">Pagamento SEPA</string>
     <string name="cashila_uploaded_title">Enviado</string>
-    <string name="cashila_no_recipients">Parece que você nunca usou o cashila antes e não possui recipientes.\n\nToque em OK para criar um novo recipiente no site.</string>
+    <string name="cashila_no_recipients">Parece que você nunca usou o Cashila antes e não possui recipientes.\n\nToque em OK para criar um novo recipiente no site.</string>
     <string name="cashila_amount_outstanding">(%s em aberto)</string>
 
 
@@ -805,7 +805,7 @@
     <string name="lt_warning_wrong_account_type">O Trader Local não funciona com o tipo de conta selecionado, por favor escolha outra conta.</string>
     <string name="lt_account_not_allowed">O tipo de conta selecionado não funciona com o trader local. Você precisa selecionar outra conta para realizar esse trade.</string>
     <string name="coinapult_mail_hint">Insira o endereço de e-mail</string>
-    <string name="coinapult_mail_description">If you provide your email address, you can file a support ticket with Coinapult by sending an email to support@coinapult.com from the email you specify.</string>
+    <string name="coinapult_mail_description">Se você fornecer seu endereço de e-mail, você poderá abrir um pedido de suporte com a Coinapult enviando um e-mail para support@coinapult.com a partir do seu e-mail de cadastro.</string>
     <string name="coinapult_threshold_warning">Aviso: As contas Coinapult não são capazes de completar transações que possuem valor menor que USD1,00. Se menos de 1 USD for enviado para sua conta Coinapult, a conversão não irá funcionar. Os bitcoins poderão ser reembolsados da Coinapult através do e-mail support@coinapult.com.</string>
     <string name="amount_too_small_coinapult">Quantia muito baixa, a retirada mínima é de %1$s USD.</string>
     <string name="set_mail_menu_item">Definir endereço de e-mail</string>
@@ -813,14 +813,14 @@
     <string name="setting_coinapult_email">Enviando endereço de e-mail para Coinapult…</string>
     <string name="set_coinapult_mail_please_verify">O seu endereço de e-mail foi definido, você irá receber um e-mail com um link de confirmação. Por favor copie esse link e escolha \'verificar e-mail\' nas configurações de conta, para colar o link e verificar que o endereço de e-mail está correto.</string>
     <string name="verify_mail_menu_title">Verificar endereço de e-mail</string>
-    <string name="coinapult_mail_verification">Verificar seu endereço de e-mail da coinapult</string>
-    <string name="coinapult_mail_verification_description">Por favor cole o link de verificação do seu e-mail coinapult na caixa de texto abaixo.</string>
+    <string name="coinapult_mail_verification">Verificar seu endereço de e-mail da Coinapult</string>
+    <string name="coinapult_mail_verification_description">Por favor, cole o link de verificação do seu e-mail Coinapult na caixa de texto abaixo.</string>
     <string name="coinapult_mail_verification_hint">cole todo o link de verificação</string>
-    <string name="verifying_coinapult_email">Enviando link de verificação para a coinapult…</string>
-    <string name="verify_coinapult_mail_success">Seu endereço de e-mail coinapult foi verificado com sucesso.</string>
+    <string name="verifying_coinapult_email">Enviando link de verificação para a Coinapult…</string>
+    <string name="verify_coinapult_mail_success">Seu endereço de e-mail Coinapult foi verificado com sucesso.</string>
     <string name="verify_coinapult_mail_error">Ocorreu um erro na sua verificação do e-mail. Por favor certifique-se de que você copiou corretamente o link de verificação.</string>
-    <string name="coinapult_unable_to_create_account">Não foi possível criar uma conta coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Erro ao transmitir transação coinapult</string>
+    <string name="coinapult_unable_to_create_account">Não foi possível criar uma conta Coinapult</string>
+    <string name="coinapult_failed_to_broadcast">Erro ao transmitir transação Coinapult</string>
     <string name="copy">Copiar</string>
     <string name="lt_backup_lt_id">Fazer Backup da Identidade de Trader</string>
     <string name="lt_confirm_backup_trader_message">Você está prestes a exportar dados sensíveis de sua conta de trader local. Qualquer pessoa que obter acesso a essas chaves poderá usar sua conta de trader local e agir em seu nome. Você gostaria de continuar?</string>
