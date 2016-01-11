@@ -83,13 +83,14 @@ public class AdsFragment extends Fragment {
    private ActionMode _currentActionMode;
    private List<Ad> _ads;
    private Ad _selectedAd;
+   private ListView _lvAds;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_ads_fragment, container, false));
       setHasOptionsMenu(true);
-      ListView adList = (ListView) ret.findViewById(R.id.lvAds);
-      adList.setOnItemClickListener(itemListClickListener);
+      _lvAds = (ListView) ret.findViewById(R.id.lvAds);
+      _lvAds.setOnItemClickListener(itemListClickListener);
       return ret;
    }
 
@@ -168,17 +169,16 @@ public class AdsFragment extends Fragment {
       if (_ads == null) {
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
-         findViewById(R.id.lvAds).setVisibility(View.GONE);
+         _lvAds.setVisibility(View.GONE);
       } else if (_ads.size() == 0) {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
-         findViewById(R.id.lvAds).setVisibility(View.GONE);
+         _lvAds.setVisibility(View.GONE);
       } else {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvNoRecords).setVisibility(View.GONE);
-         findViewById(R.id.lvAds).setVisibility(View.VISIBLE);
-         ListView list = (ListView) findViewById(R.id.lvAds);
-         list.setAdapter(new AdsAdapter(getActivity(), _ads));
+         _lvAds.setVisibility(View.VISIBLE);
+         _lvAds.setAdapter(new AdsAdapter(getActivity(), _ads));
       }
    }
 
@@ -199,24 +199,28 @@ public class AdsFragment extends Fragment {
    OnItemClickListener itemListClickListener = new OnItemClickListener() {
 
       @Override
-      public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
+      public void onItemClick(AdapterView<?> listView, final View view, final int position, long id) {
          _selectedAd = (Ad) view.getTag();
          ActionBarActivity parent = (ActionBarActivity) getActivity();
          _currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                actionMode.getMenuInflater().inflate(R.menu.lt_ads_context_menu, menu);
+               updateActionBar(actionMode, menu);
                return true;
             }
 
-            @SuppressWarnings("deprecation")
             @Override
             public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+               updateActionBar(actionMode, menu);
+               return true;
+            }
+
+            private void updateActionBar(ActionMode actionMode, Menu menu) {
                _currentActionMode = actionMode;
-               view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
                menu.findItem(R.id.miDeactivate).setVisible(_selectedAd.isActive);
                menu.findItem(R.id.miActivate).setVisible(!_selectedAd.isActive);
-               return true;
+               _lvAds.setItemChecked(position, true);
             }
 
             @Override
@@ -240,10 +244,9 @@ public class AdsFragment extends Fragment {
                return false;
             }
 
-            @SuppressWarnings("deprecation")
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
-               view.setBackgroundDrawable(null);
+               _lvAds.setItemChecked(position, false);
                _currentActionMode = null;
             }
          });
@@ -324,7 +327,7 @@ public class AdsFragment extends Fragment {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_row, null));
+            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_row, parent, false));
          }
          Ad o = getItem(position);
          char sign = o.premium >= 0 ? '+' : '-';

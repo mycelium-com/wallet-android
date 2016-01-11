@@ -19,6 +19,7 @@ package com.google.zxing.client.android.camera;
 import java.io.IOException;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -57,7 +58,8 @@ public final class CameraManager {
    private int requestedFramingRectWidth;
    private int requestedFramingRectHeight;
    private RotationUtil _rotationHelper;
-   
+   private int cameraId;
+
    /**
     * Preview frames are delivered here, which we pass on to the registered
     * handler. Make sure to clear the handler so it will only receive one
@@ -65,8 +67,9 @@ public final class CameraManager {
     */
    private final PreviewCallback previewCallback;
 
-   public CameraManager(Context context) {
+   public CameraManager(Context context, int cameraId) {
       this.context = context;
+      this.cameraId = cameraId;
       this.configManager = new CameraConfigurationManager(context);
       previewCallback = new PreviewCallback(configManager);
       _rotationHelper = new RotationUtil(context);
@@ -86,7 +89,13 @@ public final class CameraManager {
       Camera theCamera = camera;
       if (theCamera == null) {
          try {
-            theCamera = OpenCameraInterface.open();
+            final OpenCameraInterface.CameraWrapper openCamera = OpenCameraInterface.open(cameraId);
+            if (openCamera == null) {
+               throw new IOException();
+            }
+            theCamera = openCamera.camera;
+            // remember the index of the opened camera
+            cameraId = openCamera.cameraIndex;
          } catch (NoSuchMethodError e) {
             theCamera = Camera.open();
          }
@@ -349,4 +358,22 @@ public final class CameraManager {
       return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top, rect.width(), rect.height(), false);
    }
 
+   public int getCameraId() {
+      return cameraId;
+   }
+
+   public boolean hasFlash() {
+      // we assume the FEATURE_CAMERA_FLASH applies only to the back facing camera
+      // TODO: With API21, Camera2 can provide availability of front side flashes separately.
+      boolean backFacing;
+      if (cameraId == -1) {
+         backFacing = true;
+      } else {
+         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+         Camera.getCameraInfo(cameraId, cameraInfo);
+         backFacing = cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK;
+      }
+      boolean hasFlash = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+      return backFacing && hasFlash;
+   }
 }

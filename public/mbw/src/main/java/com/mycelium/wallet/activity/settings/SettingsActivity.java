@@ -224,6 +224,16 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
+   private final OnPreferenceClickListener onClickCashilaEnable = new OnPreferenceClickListener() {
+
+      @Override
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.getMetadataStorage().setCashilaIsEnabled(p.isChecked());
+         return true;
+      }
+   };
+
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
@@ -236,6 +246,7 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _blockExplorer;
    private CheckBoxPreference _ledgerDisableTee;
    private Preference _ledgerSetUnpluggedAID;
+   private CheckBoxPreference _enableCashila;
 
    @VisibleForTesting
    static boolean isNumber(String text) {
@@ -475,6 +486,11 @@ public class SettingsActivity extends PreferenceActivity {
       _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
 
       applyLocalTraderEnablement();
+
+      // external Services
+      _enableCashila = (CheckBoxPreference) findPreference("enableCashilaButton");
+      _enableCashila.setChecked(_mbwManager.getMetadataStorage().getCashilaIsEnabled());
+      _enableCashila.setOnPreferenceClickListener(onClickCashilaEnable);
    }
 
    @Override

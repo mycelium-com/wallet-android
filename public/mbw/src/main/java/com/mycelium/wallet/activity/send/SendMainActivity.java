@@ -72,7 +72,6 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
-import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -274,6 +273,8 @@ public class SendMainActivity extends Activity {
          }
       }
 
+      // Hide the sepa button, if it isnt wanted
+      btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : View.GONE);
 
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
@@ -307,13 +308,7 @@ public class SendMainActivity extends Activity {
          return;
       }
 
-      // SEPA transfer for if cashila account is paired
-      if (_mbwManager.isWalletPaired(ExternalService.CASHILA)) {
-         btSepaTransfer.setVisibility(View.VISIBLE);
-      } else {
-         btSepaTransfer.setVisibility(View.GONE);
-      }
-
+      // the activity got called to fulfill a sepa-payment
       _sepaPayment = (BillPay) getIntent().getSerializableExtra(SEPA_PAYMENT);
       if (_sepaPayment != null) {
          showSepaInfo(_sepaPayment);

@@ -92,19 +92,15 @@ public class LtMainActivity extends ActionBarActivity {
       return intent;
    }
 
-   @SuppressWarnings("unused")
-   private static final String TAG = "LtMainActivity";
-
    private ViewPager _viewPager;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   ActionBar.Tab _myBuyBitcoinTab;
-   ActionBar.Tab _mySellBitcoinTab;
-   ActionBar.Tab _myActiveTradesTab;
-   ActionBar.Tab _myTradeHistoryTab;
-   ActionBar.Tab _myAdsTab;
-   ActionBar.Tab _myTraderInfoTab;
-   ActionBar _actionBar;
+   private Tab _myBuyBitcoinTab;
+   private Tab _mySellBitcoinTab;
+   private Tab _myActiveTradesTab;
+   private Tab _myTradeHistoryTab;
+   private Tab _myAdsTab;
+   private Tab _myTraderInfoTab;
    private boolean _hasWelcomed;
    private Ringtone _updateSound;
 
@@ -119,49 +115,49 @@ public class LtMainActivity extends ActionBarActivity {
 
       setContentView(_viewPager);
 
-      _actionBar = getSupportActionBar();
-      _actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
       // to provide up navigation from actionbar, in case the modern main
       // activity is not on the stack
-      _actionBar.setDisplayHomeAsUpEnabled(true);
+      actionBar.setDisplayHomeAsUpEnabled(true);
 
       TabsAdapter tabsAdapter = new TabsAdapter(this, _viewPager);
 
       // Add Buy Bitcoin tab
-      _myBuyBitcoinTab = _actionBar.newTab();
+      _myBuyBitcoinTab = actionBar.newTab();
       _myBuyBitcoinTab.setText(getResources().getString(R.string.lt_buy_bitcoin_tab));
       tabsAdapter.addTab(_myBuyBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(true));
 
       // Add Sell Bitcoin tab
-      _mySellBitcoinTab = _actionBar.newTab();
+      _mySellBitcoinTab = actionBar.newTab();
       _mySellBitcoinTab.setText(getResources().getString(R.string.lt_sell_bitcoin_tab));
       tabsAdapter.addTab(_mySellBitcoinTab, AdSearchFragment.class, AdSearchFragment.createArgs(false));
 
       // Add Active Trades tab
-      _myActiveTradesTab = _actionBar.newTab();
+      _myActiveTradesTab = actionBar.newTab();
       _myActiveTradesTab.setText(getResources().getString(R.string.lt_active_trades_tab));
       tabsAdapter.addTab(_myActiveTradesTab, ActiveTradesFragment.class, null);
 
       // Add Historic Trades tab
-      _myTradeHistoryTab = _actionBar.newTab();
+      _myTradeHistoryTab = actionBar.newTab();
       _myTradeHistoryTab.setText(getResources().getString(R.string.lt_trade_history_tab));
       tabsAdapter.addTab(_myTradeHistoryTab, TradeHistoryFragment.class, null);
 
       // Add Ads tab
-      _myAdsTab = _actionBar.newTab();
+      _myAdsTab = actionBar.newTab();
       _myAdsTab.setText(getResources().getString(R.string.lt_my_ads_tab));
       _myAdsTab.setTag(tabsAdapter.getCount());
       tabsAdapter.addTab(_myAdsTab, AdsFragment.class, null);
 
       // Add Trader Info tab
-      _myTraderInfoTab = _actionBar.newTab();
+      _myTraderInfoTab = actionBar.newTab();
       _myTraderInfoTab.setText(getResources().getString(R.string.lt_my_trader_info_tab));
       _myTraderInfoTab.setTag(tabsAdapter.getCount());
       tabsAdapter.addTab(_myTraderInfoTab, MyInfoFragment.class, null);
 
       // Load the tab to select from intent
       TAB_TYPE tabToSelect = TAB_TYPE.values()[getIntent().getIntExtra(TAB_TO_SELECT, TAB_TYPE.DEFAULT.ordinal())];
-      _actionBar.selectTab(enumToTab(tabToSelect));
+      actionBar.selectTab(enumToTab(tabToSelect));
 
       _updateSound = RingtoneManager
             .getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));

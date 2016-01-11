@@ -648,7 +648,6 @@
   <string name="remove_queued_transaction_error">Не удаётся удалить транзакцию</string>
   <string name="cashila_tab_new">Новое</string>
   <string name="cashila_tab_pending">Платежи</string>
-  <string name="cashila_sepa_transfer">SEPA платёж</string>
   <string name="cashila_status_received">получено</string>
   <string name="cashila_status_chained">сцепленно</string>
   <string name="cashila_status_confirmed">подтверждено</string>

@@ -39,6 +39,7 @@
   <string name="insufficient_funds">Nedostatek prostředků</string>
   <string name="insufficient_funds_for_fee">Nedostatek prostředků k zaplacení poplatku</string>
   <string name="amount_too_small">Částka pro odeslání je příliš nízká</string>
+  <string name="unable_to_build_tx">Nelze sestavit transakci</string>
   <string name="amount_too_small_short">Částka je příliš nízká</string>
   <string name="miner_fee_label">Poplatek sítě:</string>
   <string name="miner_fee_title">Poplatek sítě</string>
@@ -219,6 +220,7 @@
   <string name="going_to_mycelium_com_help">Jděte na www.mycelium.com</string>
   <string name="add_dialog_title">Přidat adresu</string>
   <string name="add_key">Přidat účet</string>
+  <string name="add_fiat_key">Přidat účet</string>
   <string name="page_locked">Tato stránka je uzamčena</string>
   <string name="unlock_label">Odemknout</string>
   <string name="lock_label">Uzamknout</string>
@@ -484,9 +486,11 @@
   <string name="account_contains_one_address_info">Obsahuje jednu adresu.</string>
   <string name="verify_backup_ok_message">Záloha byla úspěšně ověřena.</string>
   <string name="wordlist_import_invalid_checksum">Kontrolní součet vašeho seznamu slov je neplatný, ujistěte se, že jste slova zadali správně.</string>
+  <string name="checkbox_wordlist_passphrase">Mám heslo</string>
   <string name="wordlist_length_12">12 slov</string>
   <string name="wordlist_length_18">18 slov</string>
   <string name="wordlist_length_24">24 slov</string>
+  <string name="recover_seed_passphrase_info">Tuto možnost zvolte pouze pokud víte, co znamená.\nObyčejná záloha Mycelium nikdy nezahrnuje heslo - není to váš PIN kód.</string>
   <string name="import_wordlist_questions">Zvolte prosím délku seznamu slov pro obnovu a označte, zda je chráněn heslem.</string>
   <string name="type_password_title">Zadejte své heslo</string>
   <string name="clipboard_not_available">Schránka není platná</string>
@@ -682,7 +686,6 @@
   <string name="remove_queued_transaction_error">Transakci nelze odstranit</string>
   <string name="cashila_tab_new">Nová</string>
   <string name="cashila_tab_pending">Platby</string>
-  <string name="cashila_sepa_transfer">SEPA převod</string>
   <string name="cashila_status_received">přijato</string>
   <string name="cashila_status_chained">spárováno</string>
   <string name="cashila_status_confirmed">potvrzeno</string>
@@ -712,7 +715,6 @@
   <string name="cashila_pay_now">Zaplatit</string>
   <string name="cashila_sepa_payment_title">SEPA platba</string>
   <string name="cashila_uploaded_title">Nahráno</string>
-  <string name="cashila_no_recipients">Zdá se, že jste službu Cashila nikdy nepoužili a nemáte tak žádné existující příjemce.\n\nPro vytvoření nového příjemce na jejich stránkách klepněte na OK.</string>
   <string name="cashila_amount_outstanding">(nezaplaceno %s)</string>
   <string name="payment_request_unable_to_read_payment_request">Nelze přečíst žádost o platbu</string>
   <string name="payment_request_not_sent_expired">Platba nebyla odeslána - žádost o platbu již vypršela!</string>
@@ -760,16 +762,32 @@
   <string name="block_explorer_summary">Podrobnosti o transakci jsou vyhledávány pomocí %1$s Block Exploreru</string>
   <string name="lt_warning_wrong_account_type">Místní obchodník nefunguje s vybraným typem účtu, zvolte prosím jiný účet.</string>
   <string name="lt_account_not_allowed">Vybraný typ účtu nefunguje s Místním obchodníkem. Pro provedení tohoto obchodu musíte zvolit jiný účet.</string>
+  <string name="coinapult_sending_via_coinapult">Odesílám Bitcoiny přes Coinapult</string>
+  <string name="coinapult_account_notes">Účet Coinapult vám umožňuje držet peníze v někoika měnách a okamžitě utrácet na jakoukoli BTC adresu.\nSoukromé klíče používáte k přístupu, jsou však pod kontrolou Coinapultu, na rozdíl od normálních HD účtů.</string>
   <string name="coinapult_mail_hint">Zadejte mailovou adresu</string>
   <string name="coinapult_mail_description">Zadáte-li svou mailovou adresu, můžete podat lístek podpory Coinapultu posláním mailu na support@coinapult.com z uvedené adresy.</string>
+  <string name="coinapult_threshold_warning">Varování: Účty Coinapult nemohou dokončit převod transakcí, které jsou menší než %1$s hodnoty.</string>
+  <string name="coinapult_amount_too_small">Příliš nízká částka, min. výběr je %1$s %2$s.</string>
+  <string name="coinapult_set_mail_menu_item">Nastavit mailovou adresu</string>
+  <string name="coinapult_set_mail_failed">Nastavení mailové adresy selhalo, zkontrolujte, že jste ji zadali správně, a ujistěte se, že je vaše zařízení připojeno k internetu.</string>
+  <string name="coinapult_setting_email">Odesílám mailovou adresu Coinapultu&#8230;</string>
+  <string name="coinapult_set_mail_please_verify">Mailová adresa byla nastavena, obdržíte zprávu s odkazem pro potvrzení. Odkaz si zkopírujte, v nastavení účtu zvolte „Ověřit mail“, vložte odkaz a zkontrolujte, že je mailová adresa správně.</string>
+  <string name="coinapult_verify_mail_menu_title">Ověření mailové adresy</string>
   <string name="coinapult_mail_verification">Ověřte vaši Coinapult mailovou adresu</string>
   <string name="coinapult_mail_verification_description">Vložte prosím ověřovací odkaz z Coinapult mailu do políčka níže.</string>
   <string name="coinapult_mail_verification_hint">vložte celý ověřovací odkaz</string>
+  <string name="coinapult_verifying_email">Odesílám ověřovací odkaz na Coinapult&#8230;</string>
+  <string name="coinapult_verify_mail_success">Váš Coinapult mail byl úspěšně ověřen.</string>
+  <string name="coinapult_verify_mail_error">Při ověřování vaší mailové adresy se vyskytla chyba. Ujistěte se, že jste zkopírovali celý a správný ověřovací odkaz.</string>
   <string name="coinapult_unable_to_create_account">Nelze vytvořit účet Coinapult</string>
   <string name="coinapult_failed_to_broadcast">Odesílání transakce na Coinapult selhalo</string>
+  <string name="coinapult_add_locks_account">Přidat účet Coinapult Locks</string>
   <string name="coinapult_tos_link">Otevřít smluvní podmínky Coinapult</string>
   <string name="coinapult_tos_question">Pro vytvoření účtu Coinapult musíte souhlasit s jejich obchodními podmínkami</string>
   <string name="coinapult_mail_question">Chcete poskytnout svou mailovou adresu?</string>
+  <string name="coinapult_create_account">Vytvářím účet Coinapult&#8230;</string>
+  <string name="coinapult_backup_info">Přístupový klíč k vašemu účtu Coinapult je odvozený z vašeho master seedu. Pokud máte platnou zálohu, je zahrnutý také přístup k vašemu účtu Coinapult.</string>
+  <string name="coinapult_currency_account">Účet %1$s</string>
   <string name="copy">Kopírovat</string>
   <string name="lt_backup_lt_id">Zálohovat identitu obchodníka</string>
   <string name="lt_confirm_backup_trader_message">Chystáte se exportovat citlivá data vašeho účtu Místní obchodník. Kdokoli získá přístup k těmto klíčům, může převzít váš účet Místního obchodníka a jednat vaším jménem. Chcete pokračovat?</string>
@@ -795,4 +813,6 @@
   <string name="pop_success">Důkaz byl úspěšný</string>
   <string name="pop_no_matching_transactions">Nenalezeny žádné platby odpovídající požadavku OP. Můžete zvolit platbu, která neodpovídá.</string>
   <string name="pop_transaction_info_advice">Níže zkontrolujte informace o platbě pro ověření</string>
+  <string name="import_xpub_wrong_depth">Lze importovat pouze xpub adresy účtu úrovně (3).\nToto byla úroveň %1$s.</string>
+  <string name="buy_one">Koupit&#8230;</string>
 </resources>

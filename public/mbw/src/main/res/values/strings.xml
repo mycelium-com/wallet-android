@@ -239,6 +239,7 @@
     <string name="getting_location">obtaining location…</string>
     <string name="about">About</string>
     <string name="mycelium_license">Mycelium License</string>
+    <string name="mycelium">Mycelium</string>
     <string name="special_thanks">Special Thanks</string>
     <string name="zxing_license">ZXing License</string>
     <string name="pdfwriter_license">Android PDF Writer License</string>
@@ -716,7 +717,7 @@
     <!-- Cashila -->
     <string name="cashila_tab_new">New</string>
     <string name="cashila_tab_pending">Payments</string>
-    <string name="cashila_sepa_transfer">SEPA transfer</string>
+    <string name="cashila_sepa_transfer">Euro Payment</string>
     <string name="cashila_status_received">received</string>
     <string name="cashila_status_chained">chained</string>
     <string name="cashila_status_confirmed">confirmed</string>
@@ -746,9 +747,38 @@
     <string name="cashila_pay_now">Pay now</string>
     <string name="cashila_sepa_payment_title">Sepa Payment</string>
     <string name="cashila_uploaded_title">Uploaded</string>
-    <string name="cashila_no_recipients">It seems, you never used cashila before and have no existing recipients.\n\nTap OK to create a new recipient on their website.</string>
+    <string name="cashila_no_recipients">It seems, you never used cashila before and have no existing recipients.\n\nTap OK to create a new recipient</string>
     <string name="cashila_amount_outstanding">(%s outstanding)</string>
-
+    <string name="cashila_add_new_sepa_recipient_title">Add a new SEPA-recipient</string>
+    <string name="cashila_recipient_name">Name</string>
+    <string name="cashila_recipient_address">Address</string>
+    <string name="cashila_recipient_zip_code">ZIP</string>
+    <string name="cashila_recipient_city">City</string>
+    <string name="cashila_recipient_iban">IBAN</string>
+    <string name="cashila_recipient_bic">BIC (optional)</string>
+    <string name="cashila_no_payments_found">No payments found</string>
+    <string name="cashila_new_recipient_saved">Recipient saved</string>
+    <string name="cashila_setting_show_sepa_button_summary">Show button for Euro Payments</string>
+    <string name="cashila_setting_show_sepa_button">Enable Cashila</string>
+    <string name="cashila_create_new_account">Create a new\n account</string>
+    <string name="cashila_already_have_account">I have an\naccount</string>
+    <string name="cashila_your_existing_account">Your existing cashila account</string>
+    <string name="cashila_email_address">e-Mail address</string>
+    <string name="cashila_password">Password</string>
+    <string name="cashila_second_factor_auth_code">Second factor code (optional)</string>
+    <string name="cashila_sign_up_for_new_account">Sign up for a new cashila account</string>
+    <string name="cashila_accept_tos_title">I accept following terms:</string>
+    <string name="cashila_sign_up">Sign Up</string>
+    <string name="cashila_login">Login</string>
+    <string name="cashila_tos">Terms and Services</string>
+    <string name="cashila_limit_liability">Limitation of liability</string>
+    <string name="cashila_error">"Cashila-Error: %s"</string>
+    <string name="cashila_error_wrong_second_factor">Wrong second factor code</string>
+    <string name="cashila_error_wrong_password">Wrong Password</string>
+    <string name="cashila_error_user_already_exists">An User with this mail address already exists</string>
+    <string name="cashila_error_generic">"Error while login in: %s"</string>
+    <string name="cashila_fetching_tos">Fetching TOS from Cashila…</string>
+    <string name="cashila_fill_out_all_fields">Fill out all required fields</string>
 
     <string name="payment_request_unable_to_read_payment_request">Unable to read payment request</string>
     <string name="payment_request_not_sent_expired">Payment not sent - Payment request is already expired!</string>
@@ -851,6 +881,10 @@
     <string name="pop_success">Proof was successful</string>
     <string name="pop_no_matching_transactions">No transactions matching the PoP request were found. You may select a non-matching transaction.</string>
     <string name="pop_transaction_info_advice">Check payment information to prove below</string>
+
     <string name="import_xpub_wrong_depth">Can only import account level (3) xpub addresses.\nThis was level %1$s.</string>
     <string name="buy_one">Buy one…</string>
+    <string name="opening_url_in_browser">Opening URL in Browser...</string>
+
+
 </resources>

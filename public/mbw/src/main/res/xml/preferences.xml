@@ -125,4 +125,17 @@
                 android:title="@string/ledger_unplugged_aid_preference" />
     </PreferenceCategory>
 
+    <!-- External services -->
+
+    <PreferenceCategory
+            android:key="external"
+            android:title="External Services">
+        <CheckBoxPreference
+                android:key="enableCashilaButton"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/cashila_setting_show_sepa_button_summary"
+                android:title="@string/cashila_setting_show_sepa_button" />
+    </PreferenceCategory>
+
+
 </PreferenceScreen>

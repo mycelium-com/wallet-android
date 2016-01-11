@@ -120,12 +120,11 @@ public class CreateOrEditAdActivity extends Activity {
    private String _currency;
    private int _minAmount;
    private int _maxAmount;
-   private boolean isFirstAdTypeSelect; // hack because the select is fired
-                                        // automatically on startup
+   // hack because the select is fired automatically on startup
+   private boolean isFirstAdTypeSelect;
    private BtcSellPrice _btcPrice;
    private boolean _isFetchingPrice;
 
-   /** Called when the activity is first created. */
    @SuppressWarnings("unchecked")
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -458,8 +457,8 @@ public class CreateOrEditAdActivity extends Activity {
    private void fetchNewPrice() {
       _btcPrice = null;
       PriceFormula priceFormula = getSelectedPriceFormula();
-      Double premium = getSelectedPremium();
-      if (priceFormula == null || premium == null) {
+      double premium = getSelectedPremium();
+      if (priceFormula == null) {
          return;
       }
       if (_isFetchingPrice) {

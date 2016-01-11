@@ -43,10 +43,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.*;
-import android.widget.*;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnItemClick;
 import com.megiontechnologies.Bitcoins;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -57,7 +59,6 @@ import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wallet.external.cashila.api.response.BillPayStatus;
 import com.squareup.otto.Bus;
 import rx.Observer;
-import rx.android.app.AppObservable;
 import rx.android.schedulers.AndroidSchedulers;
 
 import java.math.BigDecimal;
@@ -70,6 +71,7 @@ import java.util.List;
  */
 public class CashilaPendingFragment extends Fragment {
    @InjectView(R.id.lvPending) ListView lvPending;
+   @InjectView(R.id.tvEmpty) TextView tvEmpty;
    @InjectView(R.id.pbPendingLoading) ProgressBar pbPendingLoading;
 
    private CashilaService cs;
@@ -103,35 +105,19 @@ public class CashilaPendingFragment extends Fragment {
       mbw = MbwManager.getInstance(this.getActivity());
       cs = ((CashilaPaymentsActivity) getActivity()).getCashilaService();
       eventBus = mbw.getEventBus();
+      lvPending.setEmptyView(tvEmpty);
 
-      getBillPays(true);
-
-      lvPending.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-         @Override
-         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-         }
-
-         @Override
-         public void onNothingSelected(AdapterView<?> adapterView) {
-
-         }
-      });
+      getBillPays(true, true);
 
       return rootView;
    }
 
    public void refresh(boolean showProgress) {
-      getBillPays(showProgress);
-   }
-
-   @OnItemClick(R.id.lvPending)
-   void onItemClick(View view, int position) {
-      //lvPending.setItemChecked(position, true);
+      getBillPays(showProgress, false);
    }
 
    // fetches the list of current payable invoices from the server
-   private void getBillPays(boolean showProgress) {
+   private void getBillPays(boolean showProgress, boolean fromCache) {
       final ProgressDialog progressDialog;
       if (showProgress) {
          progressDialog = ProgressDialog.show(this.getActivity(), getResources().getString(R.string.cashila), getResources().getString(R.string.cashila_fetching), true);
@@ -140,7 +126,7 @@ public class CashilaPendingFragment extends Fragment {
       }
 
       pbPendingLoading.setVisibility(View.VISIBLE);
-      AppObservable.bindFragment(this, cs.getAllBillPays())
+      cs.getAllBillPays(fromCache)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(new Observer<List<BillPay>>() {
                @Override
@@ -152,7 +138,6 @@ public class CashilaPendingFragment extends Fragment {
 
                @Override
                public void onError(Throwable e) {
-                  //throw new RuntimeException(e);
                   if (progressDialog != null) {
                      progressDialog.dismiss();
                   }
@@ -339,7 +324,8 @@ public class CashilaPendingFragment extends Fragment {
    private void payNow(final BillPay billPay) {
       // revive the Bill (no matter if pending or expired, to refresh the exchange rate
       // and restart the timer
-      AppObservable.bindFragment(this, cs.reviveBillPay(billPay.id))
+      cs.reviveBillPay(billPay.id)
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(new Observer<BillPay>() {
                @Override
                public void onCompleted() {
@@ -347,12 +333,11 @@ public class CashilaPendingFragment extends Fragment {
 
                @Override
                public void onError(Throwable e) {
-                  //throw new RuntimeException(e);
                }
 
                @Override
                public void onNext(BillPay billPay) {
-                  if (billPay.details.amountToDeposit.compareTo(BigDecimal.ZERO)==0) {
+                  if (billPay.details.amountToDeposit.compareTo(BigDecimal.ZERO) == 0) {
                      new Toaster(getActivity()).toast(getResources().getString(R.string.cashila_already_paid), false);
                   } else {
                      eventBus.post(billPay);
@@ -368,18 +353,19 @@ public class CashilaPendingFragment extends Fragment {
       deleteDialog.setPositiveButton(getResources().getString(R.string.cashila_button_delete), new DialogInterface.OnClickListener() {
          @Override
          public void onClick(DialogInterface dialog, int which) {
-            AppObservable.bindFragment(CashilaPendingFragment.this, cs.deleteBillPay(billPay.id))
+            cs.deleteBillPay(billPay.id)
+                  .observeOn(AndroidSchedulers.mainThread())
                   .subscribe(new Observer<List<Void>>() {
                      @Override
                      public void onCompleted() {
                         // reload the list
-                        getBillPays(true);
+                        getBillPays(true, false);
                      }
 
                      @Override
                      public void onError(Throwable e) {
                         // something happened - reload the list
-                        getBillPays(true);
+                        getBillPays(true, false);
                      }
 
                      @Override

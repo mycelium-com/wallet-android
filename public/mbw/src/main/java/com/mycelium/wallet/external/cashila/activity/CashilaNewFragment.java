@@ -42,12 +42,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
+import com.google.api.client.util.Strings;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -57,14 +60,13 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.external.cashila.api.CashilaService;
 import com.mycelium.wallet.external.cashila.api.request.CreateBillPay;
 import com.mycelium.wallet.external.cashila.api.request.CreateBillPayBasedOnRecent;
+import com.mycelium.wallet.external.cashila.api.response.AccountLimits;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
-import com.mycelium.wallet.external.cashila.api.response.BillPayRecentRecipient;
+import com.mycelium.wallet.external.cashila.api.response.BillPayExistingRecipient;
 import com.mycelium.wapi.api.response.Feature;
 import com.squareup.otto.Bus;
 import rx.Observer;
-import rx.android.app.AppObservable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -79,11 +81,14 @@ public class CashilaNewFragment extends Fragment {
    @InjectView(R.id.spRecipients) public Spinner spRecipients;
    @InjectView(R.id.etAmount) public EditText etAmount;
    @InjectView(R.id.etReference) public EditText etReference;
+   @InjectView(R.id.tvMinMaxAmount) TextView tvMinMaxAmount;
 
    RecipientArrayAdapter recipientArrayAdapter;
    private CashilaService cs;
    private MbwManager mbw;
    private Bus eventBus;
+   private AccountLimits.Limits currentAccountLimits;
+   private UUID toSelect;
 
 
    /**
@@ -115,9 +120,13 @@ public class CashilaNewFragment extends Fragment {
       int selItem = 0;
       if (savedInstanceState != null) {
          selItem = savedInstanceState.getInt("spRecipient", 0);
+         currentAccountLimits = (AccountLimits.Limits) savedInstanceState.getSerializable("accountLimits");
+         showAccountLimits();
       }
 
-      getRecentRecipientsList(selItem);
+      // use cache if possible
+      getRecentRecipientsList(selItem, true);
+
 
       return rootView;
    }
@@ -126,17 +135,18 @@ public class CashilaNewFragment extends Fragment {
    public void onSaveInstanceState(Bundle outState) {
       super.onSaveInstanceState(outState);
       outState.putInt("spRecipient", spRecipients.getSelectedItemPosition());
+      outState.putSerializable("accountLimits", currentAccountLimits);
    }
 
 
-   private void getRecentRecipientsList(final int selItem) {
+   private void getRecentRecipientsList(final int selItem, boolean fromCache) {
       final ProgressDialog progressDialog = ProgressDialog.show(this.getActivity(), getResources().getString(R.string.cashila), getResources().getString(R.string.cashila_fetching), true);
 
       // ensure login and get the list of all recipients
-      AppObservable.bindFragment(this, cs.getBillPaysRecent(false))
-            .subscribeOn(Schedulers.newThread())
+      cs.getBillPaysRecent(fromCache)
+            .observeOn(AndroidSchedulers.mainThread())
                   // this must be an Observer (not a Action1), otherwise the error-propagation does not work
-            .subscribe(new Observer<List<BillPayRecentRecipient>>() {
+            .subscribe(new Observer<List<BillPayExistingRecipient>>() {
                @Override
                public void onCompleted() {
                   progressDialog.dismiss();
@@ -148,7 +158,7 @@ public class CashilaNewFragment extends Fragment {
                }
 
                @Override
-               public void onNext(List<BillPayRecentRecipient> listCashilaResponse) {
+               public void onNext(List<BillPayExistingRecipient> listCashilaResponse) {
                   if (listCashilaResponse.size() == 0) {
                      Utils.showSimpleMessageDialog(getActivity(), getResources().getString(R.string.cashila_no_recipients), new Runnable() {
                         @Override
@@ -161,18 +171,99 @@ public class CashilaNewFragment extends Fragment {
                   } else {
                      recipientArrayAdapter = new RecipientArrayAdapter(getActivity(), listCashilaResponse);
                      spRecipients.setAdapter(recipientArrayAdapter);
-                     spRecipients.setSelection(selItem);
+
+                     // if we got a uuid to select the current recipient, sarch through the list, if we have it
+                     // and select it
+                     if (toSelect != null) {
+                        int count = 0;
+                        for (BillPayExistingRecipient recipient : listCashilaResponse) {
+                           if (recipient.id.equals(toSelect.toString())) {
+                              spRecipients.setSelection(count);
+                              break;
+                           }
+                           count++;
+                        }
+                     } else {
+                        spRecipients.setSelection(selItem);
+                     }
                   }
+
+                  // fetch account limits, if none are available
+                  updateAccountLimits();
                }
             });
    }
 
+   public void selectRecipient(UUID recipientId, boolean fromCache) {
+      toSelect = recipientId;
+      // fetch the list from the server again and try to select by uuid, if it fails, select the first one
+      getRecentRecipientsList(0, fromCache);
+   }
+
+
+   private void updateAccountLimits() {
+      // ensure login and get the list of all recipients
+      cs.getAccountLimit()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new Observer<AccountLimits>() {
+               @Override
+               public void onCompleted() {
+               }
+
+               @Override
+               public void onError(Throwable e) {
+               }
+
+               @Override
+               public void onNext(AccountLimits accountLimits) {
+                  if (accountLimits.containsKey("EUR")) {
+                     currentAccountLimits = accountLimits.get("EUR");
+                     showAccountLimits();
+                  }
+               }
+            });
+
+   }
+
+   private void showAccountLimits() {
+      if (currentAccountLimits != null) {
+         final DecimalFormat decimal = new DecimalFormat("#0.00");
+         tvMinMaxAmount.setText(
+               String.format("(min: €%s / max: €%s)",
+                     decimal.format(currentAccountLimits.min),
+                     decimal.format(currentAccountLimits.max))
+         );
+      }
+      onTextAmount();
+   }
+
+   boolean amountIsWithinLimits() {
+      final BigDecimal amount = getAmount();
+      return (amount != null && currentAccountLimits != null) &&
+            !(amount.compareTo(currentAccountLimits.max) > 0 || amount.compareTo(currentAccountLimits.min) < 0);
+   }
+
+   @OnTextChanged(R.id.etAmount)
+   void onTextAmount() {
+      final BigDecimal amount = getAmount();
+      // mark the min/max text field red, if amount is outside the bounds
+      if (amount != null && currentAccountLimits != null) {
+         if (amountIsWithinLimits()) {
+            tvMinMaxAmount.setTextColor(getResources().getColor(R.color.lightgrey));
+         } else {
+            tvMinMaxAmount.setTextColor(getResources().getColor(R.color.status_red));
+         }
+      } else {
+         tvMinMaxAmount.setTextColor(getResources().getColor(R.color.lightgrey));
+      }
+   }
+
    public void refresh() {
-      getRecentRecipientsList(spRecipients.getSelectedItemPosition());
+      getRecentRecipientsList(spRecipients.getSelectedItemPosition(), false);
    }
 
    private CreateBillPay getBillPayFromUserEntry() {
-      BillPayRecentRecipient selectedItem = (BillPayRecentRecipient) spRecipients.getSelectedItem();
+      BillPayExistingRecipient selectedItem = (BillPayExistingRecipient) spRecipients.getSelectedItem();
       if (selectedItem == null) {
          return null;
       }
@@ -205,6 +296,9 @@ public class CashilaNewFragment extends Fragment {
 
       try {
          String amountText = etAmount.getText().toString();
+         if (Strings.isNullOrEmpty(amountText)) {
+            return null;
+         }
 
          char decimalSeparator = numberFormat.getDecimalFormatSymbols().getDecimalSeparator();
 
@@ -238,14 +332,15 @@ public class CashilaNewFragment extends Fragment {
             @Override
             public void run() {
                UUID newUuid = UUID.randomUUID();
-               AppObservable.bindFragment(CashilaNewFragment.this, cs.createBillPay(newUuid, newBillPay))
-                     .subscribeOn(Schedulers.newThread())
+               cs.createBillPay(newUuid, newBillPay)
                      .observeOn(AndroidSchedulers.mainThread())
                      .subscribe(new Observer<BillPay>() {
                         @Override
                         public void onCompleted() {
                            etAmount.setText("");
                            etReference.setText("");
+                           // clear current Account limit cache, as it might change later on
+                           currentAccountLimits = null;
                         }
 
                         @Override
@@ -270,8 +365,7 @@ public class CashilaNewFragment extends Fragment {
             @Override
             public void run() {
                UUID newUuid = UUID.randomUUID();
-               AppObservable.bindFragment(CashilaNewFragment.this, cs.createBillPay(newUuid, newBillPay))
-                     .subscribeOn(Schedulers.newThread())
+               cs.createBillPay(newUuid, newBillPay)
                      .observeOn(AndroidSchedulers.mainThread())
                      .subscribe(new Observer<BillPay>() {
                         @Override
@@ -311,11 +405,17 @@ public class CashilaNewFragment extends Fragment {
       super.onPause();
    }
 
+   @Override
+   public void onDestroyView() {
+      super.onDestroyView();
+      ButterKnife.reset(this);
+   }
+
    // Adapter for Recipient Spinner
-   public static class RecipientArrayAdapter extends android.widget.ArrayAdapter<BillPayRecentRecipient> {
+   public static class RecipientArrayAdapter extends ArrayAdapter<BillPayExistingRecipient> {
       private final LayoutInflater inflater;
 
-      public RecipientArrayAdapter(Context context, List<BillPayRecentRecipient> elems) {
+      public RecipientArrayAdapter(Context context, List<BillPayExistingRecipient> elems) {
          super(context, 0, elems);
          inflater = LayoutInflater.from(context);
       }
@@ -329,7 +429,7 @@ public class CashilaNewFragment extends Fragment {
          TextView tvName = ButterKnife.findById(convertView, R.id.tvName);
          TextView tvInfo = ButterKnife.findById(convertView, R.id.tvInfo);
 
-         BillPayRecentRecipient recipient = getItem(position);
+         BillPayExistingRecipient recipient = getItem(position);
 
          tvName.setText(recipient.name);
          if (recipient.label != null && !recipient.label.isEmpty()) {

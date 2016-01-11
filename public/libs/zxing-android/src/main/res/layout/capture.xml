@@ -70,6 +70,25 @@
                     android:padding="@dimen/standard_padding"/>
         </FrameLayout>
 
+        <View
+                android:layout_height="5dp"
+                android:layout_width="wrap_content"/>
+
+        <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white">
+
+            <ImageView
+                    android:id="@+id/button_toggle_camera"
+                    android:layout_width="@dimen/caputure_control_size"
+                    android:layout_height="@dimen/caputure_control_size"
+                    android:src="@drawable/camera_switcher"
+                    android:onClick="toggleCamera"
+                    android:background="@android:color/white"
+                    android:padding="@dimen/standard_padding"/>
+        </FrameLayout>
+
     </LinearLayout>
 
 

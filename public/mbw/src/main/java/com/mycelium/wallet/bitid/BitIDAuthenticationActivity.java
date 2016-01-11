@@ -79,7 +79,7 @@ public class BitIDAuthenticationActivity extends ActionBarActivity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_bit_idauthentication);
       request = (BitIDSignRequest) getIntent().getSerializableExtra(REQUEST);
-      signInButton = (Button) findViewById(R.id.btSignIn);
+      signInButton = (Button) findViewById(R.id.btSignUp);
       errorView = (TextView) findViewById(R.id.tvBitidError);
       question = (TextView) findViewById(R.id.tvBitIdWebsite);
       question.setText(getString(R.string.bitid_question, request.getHost()));

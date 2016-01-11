@@ -1,0 +1,233 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="5dp"
+                tools:context="com.mycelium.wallet.external.cashila.activity.CashilaSignUpActivity">
+
+    <ScrollView
+            android:layout_above="@+id/llButtons"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/cashila"/>
+
+
+            <RadioGroup
+                    android:id="@+id/rgLoginOrSignUp"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="15dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+
+                <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:button="@null"
+                        android:text="@string/cashila_create_new_account"
+                        android:background="@drawable/btn_blue_radiobutton_left"
+                        android:checked="true"
+                        android:id="@+id/rbCreateNewAccount"/>
+
+                <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:button="@null"
+                        android:layout_marginLeft="-2dp"
+                        android:text="@string/cashila_already_have_account"
+                        android:background="@drawable/btn_blue_radiobutton_right"
+                        android:gravity="center"
+                        android:id="@+id/rbUseExistingAccount"/>
+            </RadioGroup>
+
+            <LinearLayout
+                    android:id="@+id/llLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:orientation="vertical"
+                    >
+
+                <TextView
+                        android:text="@string/cashila_your_existing_account"
+                        android:layout_marginTop="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                <EditText
+                        android:id="@+id/etLoginEmailAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:hint="@string/cashila_email_address"
+                        android:inputType="textEmailAddress"/>
+
+                <EditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:hint="@string/cashila_password"
+                        android:inputType="textPassword"/>
+
+                <EditText
+                        android:id="@+id/et2Fa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:hint="@string/cashila_second_factor_auth_code"
+                        />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                    android:id="@+id/llSignUp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
+
+                <TextView
+                        android:text="@string/cashila_sign_up_for_new_account"
+                        android:layout_marginTop="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                <EditText
+                        android:id="@+id/etSignUpEmailAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:hint="@string/cashila_email_address"
+                        android:inputType="textEmailAddress"/>
+
+                <TextView
+                        android:text="@string/cashila_accept_tos_title"
+                        android:layout_marginTop="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                    <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                        <CheckBox
+                                android:id="@+id/cbAgreeCashilaTos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/cashila"
+                                />
+                        <TextView
+                                android:id="@+id/tvCashilaTosLink"
+                                android:paddingStart="5sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/cashila_tos"
+                                />
+                    </LinearLayout>
+
+                    <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                        <CheckBox
+                                android:id="@+id/cbAgreeMyceliumTos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/mycelium"
+                                />
+                        <TextView
+                                android:id="@+id/tvMyceliumTosLink"
+                                android:paddingStart="5sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/cashila_limit_liability"
+                                />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+    <LinearLayout
+            android:id="@+id/llButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp">
+
+        <Button
+                android:id="@+id/btCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="17sp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="@string/cancel"/>
+
+        <View
+                android:layout_width="10dp"
+                android:layout_height="0dp"
+                android:layout_weight="0"/>
+
+        <Button
+                android:id="@+id/btSignUp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textSize="17sp"
+                android:text="@string/cashila_sign_up"/>
+
+        <Button
+                android:id="@+id/btLogin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textSize="17sp"
+                android:text="@string/cashila_login"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

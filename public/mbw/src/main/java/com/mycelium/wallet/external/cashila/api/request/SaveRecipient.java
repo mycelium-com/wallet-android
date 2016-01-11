@@ -32,13 +32,29 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.external.cashila.api.response;
+package com.mycelium.wallet.external.cashila.api.request;
 
-public class BillPayRecentRecipient extends BillPayRecipient {
-   public String id;
+import java.io.Serializable;
 
-   @Override
-   public String toString() {
-      return String.format("BillPayRecentRecipient{id='%s', name='%s'}", id, name);
+public class SaveRecipient implements Serializable {
+   public String name;
+   public String address;
+   public String postalCode;
+   public String city;
+   public String countryCode;
+   public String iban;
+   public String bic;
+
+   public SaveRecipient() {
+   }
+
+   public SaveRecipient(String name, String address, String postalCode, String city, String countryCode, String iban, String bic) {
+      this.name = name;
+      this.address = address;
+      this.postalCode = postalCode;
+      this.city = city;
+      this.countryCode = countryCode;
+      this.iban = iban;
+      this.bic = bic;
    }
 }

@@ -53,8 +53,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
 
    public interface Observer {
-      public void refreshingExchangeRatesSucceeded();
-      public void refreshingExchangeRatesFailed();
+      void refreshingExchangeRatesSucceeded();
+      void refreshingExchangeRatesFailed();
    }
 
    private final Context _applicationContext;

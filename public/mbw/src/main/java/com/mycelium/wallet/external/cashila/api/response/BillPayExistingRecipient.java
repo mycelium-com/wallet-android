@@ -34,6 +34,11 @@
 
 package com.mycelium.wallet.external.cashila.api.response;
 
-public class RequestToken {
-   public String uri;
+public class BillPayExistingRecipient extends BillPayRecipient {
+   public String id;
+
+   @Override
+   public String toString() {
+      return String.format("BillPayRecentRecipient{id='%s', name='%s'}", id, name);
+   }
 }

@@ -105,13 +105,11 @@
                             android:layout_height="12dp"/>
 
                     <!-- SEPA Transfer -->
-
                     <Button
                             android:id="@+id/btSepaTransfer"
                             android:layout_width="220dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:visibility="gone"
                             android:text="@string/cashila_sepa_transfer"
                             android:textSize="20sp"/>
                 </LinearLayout>

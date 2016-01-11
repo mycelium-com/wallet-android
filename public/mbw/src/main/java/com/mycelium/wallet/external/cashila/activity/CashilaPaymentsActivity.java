@@ -67,14 +67,15 @@ import com.mycelium.wapi.api.response.Feature;
 import com.squareup.otto.Subscribe;
 import rx.Observer;
 
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 
 public class CashilaPaymentsActivity extends ActionBarActivity implements ActionBar.TabListener {
-   private static final String CASHILA_SERVICE = "cashilaService";
+   public static final String CASHILA_SERVICE = "cashilaService";
    private static final int REQUEST_SEND_AMOUNT = 1;
-   private static final int REQUEST_WEBSITE = 2;
+   private static final int REQUEST_ADD_RECIPIENT = 2;
    public static final String WARNINGS_SHOWN = "warningsShown";
 
    private ViewPager viewPager;
@@ -83,7 +84,13 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    private boolean warningsShown;
 
    public static Intent getIntent(Context context) {
-      return new Intent(context, CashilaPaymentsActivity.class);
+      if (MbwManager.getInstance(context).isWalletPaired(ExternalService.CASHILA)) {
+         return new Intent(context, CashilaPaymentsActivity.class);
+      } else {
+         // wallet isn't paired, show the sign-up activity
+         return CashilaSignUpActivity.getIntent(context);
+      }
+
    }
 
    @Override
@@ -93,7 +100,6 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
       ButterKnife.inject(this);
 
       mbw = MbwManager.getInstance(this);
-      mbw.getEventBus().register(this);
 
       // Set up the action bar.
       final ActionBar actionBar = getSupportActionBar();
@@ -126,7 +132,7 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
             @Override
             public Object call() throws Exception {
                String api = ExternalService.CASHILA.getApi(mbw.getNetwork());
-               return new CashilaService(api, "v1", mbw.getEventBus());
+               return new CashilaService(api, mbw.getEventBus());
             }
          });
       } catch (ExecutionException e) {
@@ -150,7 +156,18 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    @Override
    protected void onDestroy() {
       super.onDestroy();
+   }
+
+   @Override
+   protected void onPause() {
+      super.onPause();
       mbw.getEventBus().unregister(this);
+   }
+
+   @Override
+   protected void onResume() {
+      super.onResume();
+      mbw.getEventBus().register(this);
    }
 
    @Override
@@ -201,7 +218,8 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
    }
 
    public void openAddRecipient() {
-      openDeepLink(CashilaService.DEEP_LINK_ADD_RECIPIENT);
+      final Intent intent = CashilaAddRecipientActivity.getIntent(this);
+      startActivityForResult(intent, REQUEST_ADD_RECIPIENT);
    }
 
    private void openDeepLink(String resource) {
@@ -282,10 +300,16 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
                }
             }, 5000);
          }
+      } else if (requestCode == REQUEST_ADD_RECIPIENT) {
+         if (resultCode == RESULT_OK) {
+            UUID recipientId = (UUID) data.getSerializableExtra(CashilaAddRecipientActivity.RECIPIENT_ID);
+            getNewFragment().selectRecipient(recipientId, false);
+         }
       } else {
          super.onActivityResult(requestCode, resultCode, data);
       }
    }
+
 
    public boolean ignoreWarnings;
 

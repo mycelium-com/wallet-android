@@ -32,40 +32,46 @@ public final class OpenCameraInterface {
     * Opens a rear-facing camera with {@link Camera#open(int)}, if one exists,
     * or opens camera 0.
     */
-   @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-   public static Camera open() {
+   public static CameraWrapper open(int cameraId) {
 
       int numCameras;
-      try {
-         numCameras = Camera.getNumberOfCameras();
-      } catch (java.lang.NoSuchMethodError e) {
-         return Camera.open();
-      }
+      numCameras = Camera.getNumberOfCameras();
       if (numCameras == 0) {
          Log.w(TAG, "No cameras!");
          return null;
       }
 
       int index = 0;
-      while (index < numCameras) {
-         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-         Camera.getCameraInfo(index, cameraInfo);
-         if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            break;
+      if(cameraId >= 0) {
+         index = cameraId;
+      } else {
+         while (index < numCameras) {
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(index, cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+               break;
+            }
+            index++;
          }
-         index++;
       }
 
-      Camera camera;
       if (index < numCameras) {
          Log.i(TAG, "Opening camera #" + index);
-         camera = Camera.open(index);
       } else {
          Log.i(TAG, "No camera facing back; returning camera #0");
-         camera = Camera.open(0);
+         index = 0;
       }
 
-      return camera;
+      return new CameraWrapper(Camera.open(index), index);
    }
 
+   public static class CameraWrapper {
+      public final Camera camera;
+      public final int cameraIndex;
+
+      public CameraWrapper(Camera camera, int cameraIndex) {
+         this.camera = camera;
+         this.cameraIndex = cameraIndex;
+      }
+   }
 }

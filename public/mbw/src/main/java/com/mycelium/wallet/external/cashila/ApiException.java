@@ -38,22 +38,66 @@ package com.mycelium.wallet.external.cashila;
 import com.mycelium.wallet.external.cashila.api.response.CashilaResponse;
 
 public class ApiException extends RuntimeException {
-   public ApiException() {
+   public final int code;
+
+   public static ApiException fromResponse(CashilaResponse<?> response){
+      if (!response.isError()) {
+         throw new RuntimeException("Not an API exception");
+      }
+      switch (response.error.code){
+         case 1012: return new BadSignUpParams(response);
+         case 1013: return new UserAlreadyExists(response);
+         case 1017: return new AnotherUserPaired(response);
+         case 1021: return new AccountLocked(response);
+         case 1022: return new WrongPassword(response);
+         case 1023: return new WrongSecondFactor(response);
+         default: return new ApiException(response);
+      }
    }
 
-   public ApiException(CashilaResponse<?> response) {
+   public ApiException(String message) {
+      super(message);
+      code=-1;
+   }
+
+   protected ApiException(CashilaResponse<?> response) {
       super(response.error.toString());
+      code = response.error.code;
    }
 
-   public ApiException(String detailMessage) {
-      super(detailMessage);
+   public static class BadSignUpParams extends ApiException{
+      public BadSignUpParams(CashilaResponse<?> response) {
+         super(response);
+      }
    }
 
-   public ApiException(String detailMessage, Throwable throwable) {
-      super(detailMessage, throwable);
+   public static class UserAlreadyExists extends ApiException{
+      public UserAlreadyExists(CashilaResponse<?> response) {
+         super(response);
+      }
    }
 
-   public ApiException(Throwable throwable) {
-      super(throwable);
+   public static class AnotherUserPaired extends ApiException{
+      public AnotherUserPaired(CashilaResponse<?> response) {
+         super(response);
+      }
+   }
+
+   public static class AccountLocked extends ApiException{
+      public AccountLocked(CashilaResponse<?> response) {
+         super(response);
+      }
+   }
+
+   public static class WrongPassword extends ApiException{
+      public WrongPassword(CashilaResponse<?> response) {
+         super(response);
+      }
+   }
+
+   public static class WrongSecondFactor extends ApiException{
+      public WrongSecondFactor(CashilaResponse<?> response) {
+         super(response);
+      }
    }
 }

@@ -672,7 +672,6 @@
   <string name="remove_queued_transaction_error">E pamundur të fshihet transaksioni</string>
   <string name="cashila_tab_new">E re</string>
   <string name="cashila_tab_pending">Pagesat</string>
-  <string name="cashila_sepa_transfer">Transfer SEPA</string>
   <string name="cashila_status_received">pranuar</string>
   <string name="cashila_status_chained">lidhur</string>
   <string name="cashila_status_confirmed">konfirmuar</string>
@@ -702,7 +701,6 @@
   <string name="cashila_pay_now">Paguaj tani</string>
   <string name="cashila_sepa_payment_title">Sepa pagesë</string>
   <string name="cashila_uploaded_title">Ngarkuar</string>
-  <string name="cashila_no_recipients">Duke që nuk keni përdorur më herët Cashila dhe nuk keni asnje marrës.\n\nPrek OK për të krijuar një marrës të ri në uebfaqen e tyre.</string>
   <string name="payment_request_not_sent_expired">Pagesa nuk u dërgua - Kërkesa e pagesës tashmë ka skaduar!</string>
   <string name="payment_request_no_amount_specified">shuma nuk është specifikuar</string>
   <string name="payment_request_unsigned_request">Kërkes e pafirmosur</string>

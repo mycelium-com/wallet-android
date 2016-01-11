@@ -39,6 +39,19 @@ public class ApiSecretToken {
    public String token;
    public String secret;
 
+   // the uri used for signing up via bitId, in the CreateAccount case,
+   // this is the uri provided by "request-signup" and wasn't actually used to authenticate via bitId
+   public String bitIdUri;
+
+   public ApiSecretToken() {
+   }
+
+   public ApiSecretToken(String token, String secret, String bitIdUri) {
+      this.token = token;
+      this.secret = secret;
+      this.bitIdUri = bitIdUri;
+   }
+
    @Override
    public String toString() {
       return String.format("ApiSecretToken{token='%s', secret='%s'}", token, secret);

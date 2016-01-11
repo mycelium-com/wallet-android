@@ -35,6 +35,7 @@
 package com.mycelium.wallet.persistence;
 
 import android.content.Context;
+import android.preference.CheckBoxPreference;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
@@ -57,6 +58,8 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
+   public static final MetadataKeyCategory CASHILA_COUNTRY_CODE = new MetadataKeyCategory("cashila", "country");
+   public static final MetadataKeyCategory CASHILA_IS_ENABLED = new MetadataKeyCategory("cashila", "enable");
    public static final String EMAIL = "email";
    public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
 
@@ -274,6 +277,22 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void setCoinapultMail(String mail) {
       storeKeyCategoryValueEntry(COINAPULT.of(EMAIL), mail);
+   }
+
+   public String getCashilaLastUsedCountryCode() {
+      return getKeyCategoryValueEntry(CASHILA_COUNTRY_CODE, "");
+   }
+
+   public void setCashilaLastUsedCountryCode(String countryCode) {
+      storeKeyCategoryValueEntry(CASHILA_COUNTRY_CODE, countryCode);
+   }
+
+   public boolean getCashilaIsEnabled() {
+      return getKeyCategoryValueEntry(CASHILA_IS_ENABLED, "1").equals("1");
+   }
+
+   public void setCashilaIsEnabled(boolean enable) {
+      storeKeyCategoryValueEntry(CASHILA_IS_ENABLED, enable ? "1" : "0");
    }
 
    public enum BackupState {

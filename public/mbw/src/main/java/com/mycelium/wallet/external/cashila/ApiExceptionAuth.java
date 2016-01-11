@@ -37,8 +37,6 @@ package com.mycelium.wallet.external.cashila;
 import com.mycelium.wallet.external.cashila.api.response.CashilaResponse;
 
 public class ApiExceptionAuth extends ApiException {
-   public ApiExceptionAuth() {
-   }
 
    public ApiExceptionAuth(CashilaResponse<?> response) {
       super(response);
@@ -48,11 +46,4 @@ public class ApiExceptionAuth extends ApiException {
       super(detailMessage);
    }
 
-   public ApiExceptionAuth(String detailMessage, Throwable throwable) {
-      super(detailMessage, throwable);
-   }
-
-   public ApiExceptionAuth(Throwable throwable) {
-      super(throwable);
-   }
 }

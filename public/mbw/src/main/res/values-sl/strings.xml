@@ -647,7 +647,6 @@
   <string name="remove_queued_transaction_error">Odstranjevanje nakazila iz čakalne vrste je spodletelo</string>
   <string name="cashila_tab_new">Novo</string>
   <string name="cashila_tab_pending">Plačila</string>
-  <string name="cashila_sepa_transfer">SEPA-prenos</string>
   <string name="cashila_status_received">prejeto</string>
   <string name="cashila_status_chained">veriženo</string>
   <string name="cashila_status_confirmed">potrjeno</string>
@@ -677,7 +676,6 @@
   <string name="cashila_pay_now">Plačaj zdaj</string>
   <string name="cashila_sepa_payment_title">SEPA-plačilo</string>
   <string name="cashila_uploaded_title">Naloženo</string>
-  <string name="cashila_no_recipients">Kaže, da Cashile še niste uporabljali in nimate obstoječih prejemnikov plačil.\n\nIzberite OK, če želite ustvariti novega prejemnika na spletni strani Cashile.</string>
   <string name="label_cold_storage_external_signing">Podpiši z:</string>
   <string name="spending_unconfirmed_warning">Opozorilo: trošite nepotrjena sredstva</string>
   <string name="spending_unconfirmed_title">Trošenje nepotrjenih sredstev</string>

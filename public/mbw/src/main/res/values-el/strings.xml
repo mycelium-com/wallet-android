@@ -675,7 +675,6 @@
   <string name="remove_queued_transaction_error">Αδυναμία διαγραφής συναλλαγής</string>
   <string name="cashila_tab_new">Δημιουργία</string>
   <string name="cashila_tab_pending">Πληρωμές</string>
-  <string name="cashila_sepa_transfer">\'Εμβασμα SEPA</string>
   <string name="cashila_status_received">ελήφθη</string>
   <string name="cashila_status_chained">δεσμεύτηκε</string>
   <string name="cashila_status_confirmed">επιβεβαιώθηκε</string>
@@ -705,7 +704,6 @@
   <string name="cashila_pay_now">Πλήρωσε τώρα</string>
   <string name="cashila_sepa_payment_title">Πληρωμή SEPA</string>
   <string name="cashila_uploaded_title">Ανεβασμένες</string>
-  <string name="cashila_no_recipients">Προς το παρόν υποστηρίζουμε μόνο αποστολές προς προϋπάρχοντες παραλήπτες. \n\nΦαίνεται πως είναι η πρώτη φορά που χρησιμοποιείτε την υπηρεσία Cashila και δεν έχετε παραλήπτες. Παρακαλώ δημιουργήστε πρώτα μια νεα συνδιαλλαγή στην ιστοσελίδα της υπηρεσίας.\n\n</string>
   <string name="cashila_amount_outstanding">(εκκρεμούν %s)</string>
   <string name="payment_request_unable_to_read_payment_request">Αδυναμία ανάγνωσης αιτήματος πληρωμής</string>
   <string name="payment_request_not_sent_expired">Η πληρωμή δεν εστάλη - Το αίτημα πληρωμής έχει λήξει!</string>

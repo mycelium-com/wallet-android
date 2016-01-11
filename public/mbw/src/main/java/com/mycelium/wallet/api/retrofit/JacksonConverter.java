@@ -18,8 +18,8 @@ import java.lang.reflect.Type;
 
 /**
  * A {@link Converter} which uses Jackson for reading and writing entities.
- *
- *
+ * <p/>
+ * <p/>
  * based on: https://github.com/square/retrofit/blob/master/retrofit-converters/jackson/src/main/java/retrofit/converter/JacksonConverter.java
  */
 public class JacksonConverter implements Converter {
@@ -30,12 +30,15 @@ public class JacksonConverter implements Converter {
    }
 
    public JacksonConverter(ObjectMapper objectMapper) {
-      if (objectMapper == null) throw new NullPointerException("objectMapper == null");
+      if (objectMapper == null) {
+         throw new NullPointerException("objectMapper == null");
+      }
       this.objectMapper = objectMapper;
    }
 
 
-   @Override public Object fromBody(TypedInput body, Type type) throws ConversionException {
+   @Override
+   public Object fromBody(TypedInput body, Type type) throws ConversionException {
       InputStream in = null;
       try {
          JavaType javaType = objectMapper.getTypeFactory().constructType(type);
@@ -79,19 +82,23 @@ public class JacksonConverter implements Converter {
          this.mimeType = "application/json; charset=" + encode;
       }
 
-      @Override public String fileName() {
+      @Override
+      public String fileName() {
          return null;
       }
 
-      @Override public String mimeType() {
+      @Override
+      public String mimeType() {
          return mimeType;
       }
 
-      @Override public long length() {
+      @Override
+      public long length() {
          return jsonBytes.length;
       }
 
-      @Override public void writeTo(OutputStream out) throws IOException {
+      @Override
+      public void writeTo(OutputStream out) throws IOException {
          out.write(jsonBytes);
       }
    }

@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mycelium.wallet" >
+          package="com.mycelium.wallet">
 
     <!-- basics -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <!-- Permissions required for Google Cloud Messaging -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <!-- sending a NFC payment request -->
-    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.NFC"/>
     <!-- scanning qr codes -->
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA"/>
     <!-- location for local trader -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <uses-feature
-        android:name="android.hardware.location.network"
-        android:required="false" />
+            android:name="android.hardware.location.network"
+            android:required="false"/>
     <uses-feature
-        android:name="android.hardware.location"
-        android:required="false" />
+            android:name="android.hardware.location"
+            android:required="false"/>
     <uses-feature
-        android:name="android.hardware.camera.autofocus"
-        android:required="false" />
+            android:name="android.hardware.camera.autofocus"
+            android:required="false"/>
     <!-- nexus 7 has no backside camera but frontside camera should be able to scan -->
     <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
+            android:name="android.hardware.camera"
+            android:required="false"/>
 
     <application
-        android:name=".WalletApplication"
-        android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/MyceliumModern" >
+            android:name=".WalletApplication"
+            android:allowBackup="false"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/MyceliumModern">
 
         <!-- Service for Google Cloud Messaging -->
-        <service android:name=".lt.notification.GcmIntentService" />
+        <service android:name=".lt.notification.GcmIntentService"/>
         <service
-            android:name=".service.TaskExecutionService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":Task" />
+                android:name=".service.TaskExecutionService"
+                android:enabled="true"
+                android:exported="false"
+                android:process=":Task"/>
 
         <!-- hack - hardcode to be able to support froyo -->
         <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+                android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version"/>
 
         <activity
-            android:name=".activity.modern.ModernMain"
-            android:theme="@style/MyceliumActionBar" />
-        <activity android:name=".activity.AboutActivity" />
-        <activity android:name=".activity.modern.GetFromAddressBookActivity" />
-        <activity android:name=".activity.AddAccountActivity" />
-        <activity android:name=".activity.AddAdvancedAccountActivity" />
-        <activity android:name=".activity.AddCoinapultAccountActivity" />
-        <activity android:name=".activity.ScanActivity" />
-        <activity android:name=".activity.TransactionDetailsActivity" />
-        <activity android:name=".activity.settings.SettingsActivity" />
-        <activity android:name=".activity.settings.SetLocalCurrencyActivity" />
-        <activity android:name=".activity.export.ExportAsQrCodeActivity" />
-        <activity android:name=".activity.export.BackupToPdfActivity" />
-        <activity android:name=".activity.export.MrdDecryptDataActivity" />
-        <activity android:name=".activity.export.VerifyBackupActivity" />
-        <activity android:name=".activity.export.DecryptBip38PrivateKeyActivity" />
-        <activity android:name=".activity.send.GetSpendingRecordActivity" />
-        <activity android:name=".activity.modern.UnspentOutputsActivity" />
-        <activity android:name=".activity.send.InstantWalletActivity" >
+                android:name=".activity.modern.ModernMain"
+                android:theme="@style/MyceliumActionBar"/>
+        <activity android:name=".activity.AboutActivity"/>
+        <activity android:name=".activity.modern.GetFromAddressBookActivity"/>
+        <activity android:name=".activity.AddAccountActivity"/>
+        <activity android:name=".activity.AddAdvancedAccountActivity"/>
+        <activity android:name=".activity.AddCoinapultAccountActivity"/>
+        <activity android:name=".activity.ScanActivity"/>
+        <activity android:name=".activity.TransactionDetailsActivity"/>
+        <activity android:name=".activity.settings.SettingsActivity"/>
+        <activity android:name=".activity.settings.SetLocalCurrencyActivity"/>
+        <activity android:name=".activity.export.ExportAsQrCodeActivity"/>
+        <activity android:name=".activity.export.BackupToPdfActivity"/>
+        <activity android:name=".activity.export.MrdDecryptDataActivity"/>
+        <activity android:name=".activity.export.VerifyBackupActivity"/>
+        <activity android:name=".activity.export.DecryptBip38PrivateKeyActivity"/>
+        <activity android:name=".activity.send.GetSpendingRecordActivity"/>
+        <activity android:name=".activity.modern.UnspentOutputsActivity"/>
+        <activity android:name=".activity.send.InstantWalletActivity">
 
             <!--
              <intent-filter>
@@ -81,70 +81,78 @@
              </intent-filter>
             -->
         </activity>
-        <activity android:name=".activity.send.SendInitializationActivity" />
-        <activity android:name=".activity.send.ColdStorageSummaryActivity" />
-        <activity android:name=".activity.send.SendMainActivity" />
-        <activity android:name=".activity.send.ManualAddressEntry" />
-        <activity android:name=".activity.send.SignTransactionActivity" />
-        <activity android:name=".activity.send.BroadcastTransactionActivity" />
-        <activity android:name=".activity.receive.ReceiveCoinsActivity" />
+        <activity android:name=".activity.send.SendInitializationActivity"/>
+        <activity android:name=".activity.send.ColdStorageSummaryActivity"/>
+        <activity android:name=".activity.send.SendMainActivity"/>
+        <activity android:name=".activity.send.ManualAddressEntry"/>
+        <activity android:name=".activity.send.SignTransactionActivity"/>
+        <activity android:name=".activity.send.BroadcastTransactionActivity"/>
+        <activity android:name=".activity.receive.ReceiveCoinsActivity"/>
         <activity
-            android:name="com.google.zxing.client.android.CaptureActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:windowSoftInputMode="stateAlwaysHidden" >
+                android:name="com.google.zxing.client.android.CaptureActivity"
+                android:configChanges="orientation|keyboardHidden"
+                android:screenOrientation="landscape"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
-        <activity android:name=".lt.activity.LtMainActivity" />
-        <activity android:name=".lt.activity.CreateTrader1Activity" />
-        <activity android:name=".lt.activity.CreateTrader2Activity" />
-        <activity android:name=".lt.activity.CreateTrader3Activity" />
-        <activity android:name=".lt.activity.SolveCaptchaActivity" />
+        <activity android:name=".lt.activity.LtMainActivity"/>
+        <activity android:name=".lt.activity.CreateTrader1Activity"/>
+        <activity android:name=".lt.activity.CreateTrader2Activity"/>
+        <activity android:name=".lt.activity.CreateTrader3Activity"/>
+        <activity android:name=".lt.activity.SolveCaptchaActivity"/>
         <activity
-            android:name=".lt.activity.TradeActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <activity android:name=".lt.activity.ChangeLocationActivity" />
+                android:name=".lt.activity.TradeActivity"
+                android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity android:name=".lt.activity.ChangeLocationActivity"/>
         <activity
-            android:name=".lt.activity.EnterLocationActivity"
-            android:windowSoftInputMode="stateVisible" />
-        <activity android:name=".lt.activity.ChangePriceActivity" />
-        <activity android:name=".lt.activity.RefreshPriceActivity" />
-        <activity android:name=".lt.activity.EnterFiatAmountActivity" />
-        <activity android:name=".lt.activity.ViewTraderInfoActivity" />
-        <activity android:name=".lt.activity.buy.CreateTradeActivity" />
-        <activity android:name=".lt.activity.buy.SetTradeAddress" />
-        <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
-        <activity android:name=".lt.activity.SendRequestActivity" />
-        <activity android:name=".activity.UpdateNotificationActivity" />
-        <activity android:name=".activity.PinProtectedActivity" />
-        <activity android:name=".activity.MessageSigningActivity" />
-        <activity android:name=".activity.ImportSeedActivity" />
-        <activity android:name=".activity.EnterWordListActivity" />
-        <activity android:name=".activity.BackupWordListActivity" />
-        <activity android:name=".activity.VerifyWordListActivity" />
-        <activity android:name=".activity.AdditionalBackupWarningActivity" />
-        <activity android:name=".activity.modern.HDSigningActivity" />
-        <activity android:name=".activity.BipSsImportActivity" />
-        <activity android:name=".activity.CreateKeyActivity" />
-        <activity android:name=".activity.HandleUrlActivity" />
-        <activity android:name=".trezor.activity.InstantTrezorActivity" />
-        <activity android:name=".trezor.activity.TrezorAccountImportActivity" />
-        <activity android:name=".trezor.activity.TrezorSignTransactionActivity" />
+                android:name=".lt.activity.EnterLocationActivity"
+                android:windowSoftInputMode="stateVisible"/>
+        <activity android:name=".lt.activity.ChangePriceActivity"/>
+        <activity android:name=".lt.activity.RefreshPriceActivity"/>
+        <activity android:name=".lt.activity.EnterFiatAmountActivity"/>
+        <activity android:name=".lt.activity.ViewTraderInfoActivity"/>
+        <activity android:name=".lt.activity.buy.CreateTradeActivity"/>
+        <activity android:name=".lt.activity.buy.SetTradeAddress"/>
+        <activity android:name=".lt.activity.sell.CreateOrEditAdActivity"/>
+        <activity android:name=".lt.activity.SendRequestActivity"/>
+        <activity android:name=".activity.UpdateNotificationActivity"/>
+        <activity android:name=".activity.PinProtectedActivity"/>
+        <activity android:name=".activity.MessageSigningActivity"/>
+        <activity android:name=".activity.ImportSeedActivity"/>
+        <activity android:name=".activity.EnterWordListActivity"/>
+        <activity android:name=".activity.BackupWordListActivity"/>
+        <activity android:name=".activity.VerifyWordListActivity"/>
+        <activity android:name=".activity.AdditionalBackupWarningActivity"/>
+        <activity android:name=".activity.modern.HDSigningActivity"/>
+        <activity android:name=".activity.BipSsImportActivity"/>
+        <activity android:name=".activity.CreateKeyActivity"/>
+        <activity android:name=".activity.HandleUrlActivity"/>
+        <activity android:name=".trezor.activity.InstantTrezorActivity"/>
+        <activity android:name=".trezor.activity.TrezorAccountImportActivity"/>
+        <activity android:name=".trezor.activity.TrezorSignTransactionActivity"/>
         <activity android:name="com.mycelium.wallet.ledger.activity.LedgerAccountImportActivity"/>
         <activity android:name="com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity"/>
-        <activity android:name=".activity.InstantMasterseedActivity" />
-        <activity android:name=".activity.ConnectionLogsActivity" />
-        <activity android:name=".activity.GetAmountActivity" />
-        <activity android:name=".activity.StringHandlerActivity" />
+        <activity android:name=".activity.InstantMasterseedActivity"/>
+        <activity android:name=".activity.ConnectionLogsActivity"/>
+        <activity android:name=".activity.GetAmountActivity"/>
+        <activity android:name=".activity.StringHandlerActivity"/>
         <activity android:name=".activity.send.VerifyPaymentRequestActivity"/>
-        <activity android:name=".external.cashila.activity.CashilaPaymentsActivity"
-                  android:parentActivityName=".activity.modern.ModernMain"/>
         <activity
-            android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
-            android:label="@string/title_activity_bit_idauthentication"/>
+                android:name=".external.cashila.activity.CashilaSignUpActivity"
+                android:parentActivityName=".activity.modern.ModernMain"/>
+        <activity
+                android:name=".external.cashila.activity.CashilaAddRecipientActivity"
+                android:parentActivityName=".activity.modern.ModernMain"/>
+        <activity
+                android:name=".external.cashila.activity.CashilaPaymentsActivity"
+                android:parentActivityName=".activity.modern.ModernMain"/>
 
-        <activity android:name=".activity.pop.PopActivity" />
-        <activity android:name=".activity.pop.PopSelectTransactionActivity" />
+        <activity
+                android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
+                android:label="@string/title_activity_bit_idauthentication"/>
+
+        <activity android:name=".activity.pop.PopActivity"/>
+        <activity android:name=".activity.pop.PopSelectTransactionActivity"/>
 
     </application>
 

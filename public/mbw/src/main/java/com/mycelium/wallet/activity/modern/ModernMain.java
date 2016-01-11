@@ -258,7 +258,7 @@ public class ModernMain extends ActionBarActivity {
       //export tx history
       Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistory);
 
-      final boolean showSepaEntry = isBalance && _mbwManager.isWalletPaired(ExternalService.CASHILA);
+      final boolean showSepaEntry = isBalance && _mbwManager.getMetadataStorage().getCashilaIsEnabled();
       Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
 
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistory);

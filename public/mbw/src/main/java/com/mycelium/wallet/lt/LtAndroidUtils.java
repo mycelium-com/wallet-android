@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -48,7 +49,10 @@ import android.widget.Spinner;
 import com.mycelium.lt.api.model.PriceFormula;
 import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.settings.SettingsActivity;
 
 public class LtAndroidUtils {
 
@@ -142,8 +146,17 @@ public class LtAndroidUtils {
 
    }
 
-   public static void populatePriceFormulaSpinner(Context context, Spinner spinner, List<PriceFormula> priceFormulas,
-         PriceFormula toSelect) {
+   /**
+    * populates the price formula spinner (currently list of exchanges and indices)
+    *
+    * @param activity      the Activity
+    * @param spinner       the Spinner
+    * @param priceFormulas the price formulas (data to back the spinner)
+    * @param toSelect      the price formula that is to be added if missing and selected. If null, the accounts current
+    *                      price formula is used.
+    */
+   public static void populatePriceFormulaSpinner(Activity activity, Spinner spinner, List<PriceFormula> priceFormulas,
+                                                  PriceFormula toSelect) {
       // Build list of choices and find index to select
       List<PriceFormulaChoice> choices = new LinkedList<PriceFormulaChoice>();
       int indexToSelect = -1;
@@ -154,19 +167,30 @@ public class LtAndroidUtils {
          }
          choices.add(new PriceFormulaChoice(formula));
       }
-
-      // If not found add at the end
       if (indexToSelect == -1) {
+         // not found
          if (toSelect == null) {
+            // and no preference: default to account default or first
             indexToSelect = 0;
+            MbwManager mbwManager = MbwManager.getInstance(activity.getApplication());
+            String currentRateName = mbwManager.getExchangeRateManager().getCurrentExchangeSourceName();
+            if(currentRateName != null) {
+               for (int i = 0; i < priceFormulas.size(); i++) {
+                  PriceFormula formula = priceFormulas.get(i);
+                  if (currentRateName.equals(formula.name)) {
+                     indexToSelect = i;
+                     break;
+                  }
+               }
+            }
          } else {
+            // add at default at the end if not null
             indexToSelect = choices.size();
             choices.add(new PriceFormulaChoice(toSelect));
          }
       }
-
       // Populate and select
-      ArrayAdapter<PriceFormulaChoice> dataAdapter = new ArrayAdapter<PriceFormulaChoice>(context,
+      ArrayAdapter<PriceFormulaChoice> dataAdapter = new ArrayAdapter<PriceFormulaChoice>(activity,
             android.R.layout.simple_spinner_item, choices);
       dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       spinner.setAdapter(dataAdapter);

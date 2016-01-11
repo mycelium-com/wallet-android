@@ -34,7 +34,7 @@
         <TextView
                 android:id="@+id/tvName"
                 android:paddingTop="10dp"
-                android:paddingLeft="5dp"
+                android:paddingLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tvSectionHeader"
@@ -80,7 +80,7 @@
 
         <TextView
                 android:id="@+id/tvReference"
-                android:paddingLeft="5dp"
+                android:paddingLeft="10dp"
                 android:paddingRight="5dp"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
@@ -110,7 +110,7 @@
 
         <TextView
                 android:id="@+id/tvStatus"
-                android:paddingLeft="5dp"
+                android:paddingLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/lightgrey"

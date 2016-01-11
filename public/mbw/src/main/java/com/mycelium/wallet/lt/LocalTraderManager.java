@@ -221,15 +221,15 @@ public class LocalTraderManager {
    }
 
    public interface LocalManagerApiContext {
-      public void handleErrors(Request request, int errorCode);
+      void handleErrors(Request request, int errorCode);
 
-      public void updateLocalTradeSessions(Collection<TradeSession> collection);
+      void updateLocalTradeSessions(Collection<TradeSession> collection);
 
-      public void updateSingleTradeSession(TradeSession tradeSession);
+      void updateSingleTradeSession(TradeSession tradeSession);
 
-      public void cacheTraderInfo(TraderInfo traderInfo);
+      void cacheTraderInfo(TraderInfo traderInfo);
 
-      public void unsetLocalTraderAccount();
+      void unsetLocalTraderAccount();
    }
 
    private class Executor implements Runnable, LocalManagerApiContext {
@@ -311,11 +311,7 @@ public class LocalTraderManager {
             return true;
          } catch (LtApiException e) {
             if (e.errorCode == LtApi.ERROR_CODE_INVALID_SESSION) {
-               if (renewSession()) {
-                  return login();
-               } else {
-                  return false;
-               }
+               return renewSession() && login();
             } else {
                handleErrors(null, e.errorCode);
                return false;
@@ -703,9 +699,9 @@ public class LocalTraderManager {
 
    public boolean isCaptchaRequired(Request request) {
       if (request instanceof CreateAd) {
-         return _session == null ? true : _session.captcha.contains(LtSession.CaptchaCommands.CREATE_SELL_ORDER);
+         return _session == null || _session.captcha.contains(LtSession.CaptchaCommands.CREATE_SELL_ORDER);
       } else if (request instanceof CreateTrade) {
-         return _session == null ? true : _session.captcha.contains(LtSession.CaptchaCommands.CREATE_INSTANT_BUY_ORDER);
+         return _session == null || _session.captcha.contains(LtSession.CaptchaCommands.CREATE_INSTANT_BUY_ORDER);
       }
       return false;
    }

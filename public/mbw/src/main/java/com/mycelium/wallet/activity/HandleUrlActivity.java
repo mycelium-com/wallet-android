@@ -40,6 +40,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
@@ -104,7 +105,10 @@ public class HandleUrlActivity extends Activity {
                // if its not a payment request, open the url in the browser...
                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                if (browserIntent.resolveActivity(HandleUrlActivity.this.getPackageManager()) != null) {
+                  Toast.makeText(HandleUrlActivity.this, R.string.opening_url_in_browser, Toast.LENGTH_LONG).show();
                   HandleUrlActivity.this.startActivity(browserIntent);
+               } else {
+                  Toast.makeText(HandleUrlActivity.this, R.string.error_no_browser, Toast.LENGTH_LONG).show();
                }
             }
             HandleUrlActivity.this.finish();

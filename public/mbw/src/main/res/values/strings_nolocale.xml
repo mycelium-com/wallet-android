@@ -89,5 +89,7 @@
 
     <string name="coinapult">Coinapult</string>
     <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
+    <string name="cashila_mycelium_limited_liability">Warning\n\nYou are about to begin using money transfer services provided by a third party ‘Cashila OOD s.r.o’, a registered European small payment institution.\n\nMycelium Holdings accepts no duty, responsibility or liability for the services offered by Cashila. Furthermore, this integration does not represent an endorsement of Cashila services.\nBy signing up the user accepts all responsibility for risks associated with using the third party provider. \n\nPlease go to Cashila.com for further details on Cashila services.
+</string>
 
 </resources>

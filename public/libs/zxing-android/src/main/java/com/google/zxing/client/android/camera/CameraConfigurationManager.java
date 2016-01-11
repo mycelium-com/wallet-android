@@ -61,7 +61,7 @@ final class CameraConfigurationManager {
    * Reads, one time, values from the camera that are needed by the app.
    */
   @SuppressWarnings("deprecation")
-void initFromCameraParameters(Camera camera) {
+  void initFromCameraParameters(Camera camera) {
     Camera.Parameters parameters = camera.getParameters();
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = manager.getDefaultDisplay();

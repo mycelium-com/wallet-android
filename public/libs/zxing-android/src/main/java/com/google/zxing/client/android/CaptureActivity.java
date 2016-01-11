@@ -24,8 +24,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.*;
+import android.graphics.Camera;
+import android.hardware.*;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +51,8 @@ import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
 
+import static android.hardware.Camera.getNumberOfCameras;
+
 /**
  * This activity opens the camera and does the actual scanning on a background
  * thread. It draws a viewfinder to help the user place the barcode correctly,
@@ -60,6 +65,7 @@ import com.google.zxing.client.android.camera.CameraManager;
 public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
 
    private static final String TAG = CaptureActivity.class.getSimpleName();
+   private static final String PREFERRED_CAMERA_ID = "preferredCameraId";
 
    private CameraManager cameraManager;
    private CaptureActivityHandler handler;
@@ -74,6 +80,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    private AmbientLightManager ambientLightManager;
    private boolean enableContinuousFocus;
    private ImageView buttonFlash;
+   private int cameraId;
 
    ViewfinderView getViewfinderView() {
       return viewfinderView;
@@ -100,8 +107,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       setContentView(R.layout.capture);
 
       buttonFlash = (ImageView) findViewById(R.id.button_toggle_flash);
-      //dont show flash button if device has no flash
-      if (!hasFlash()) buttonFlash.setVisibility(View.GONE);
 
       hasSurface = false;
       inactivityTimer = new InactivityTimer(this);
@@ -115,15 +120,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          enableContinuousFocus = true;
       }
 
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+      setCameraId(preferences.getInt(PREFERRED_CAMERA_ID, -1));
+      if(getNumberOfCameras() <= 1) {
+         findViewById(R.id.button_toggle_camera).setVisibility(View.GONE);
+      }
+
       showTorchState(false);
       showFocusState(enableContinuousFocus);
 
       PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-   }
-
-   private boolean hasFlash() {
-      //check whether the device has a flash LED for its camera
-      return this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
    }
 
    @SuppressWarnings("deprecation")
@@ -138,10 +144,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       // first launch. That led to bugs where the scanning rectangle was the
       // wrong size and partially
       // off screen.
-      cameraManager = new CameraManager(getApplication());
+      cameraManager = new CameraManager(getApplication(), getCameraId());
       viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
       viewfinderView.setCameraManager(cameraManager);
       handler = null;
+
+      //dont show flash button if device has no flash
+      int visibility = cameraManager.hasFlash() ? View.VISIBLE : View.GONE;
+      buttonFlash.setVisibility(visibility);
 
       resetStatusView();
 
@@ -271,6 +281,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       onResume();
    }
 
+   public void toggleCamera(View view) {
+      int actualCameraId = cameraManager.getCameraId();
+      onPause();
+      setCameraId(actualCameraId + 1);
+      onResume();
+   }
+
    private void decodeOrStoreSavedBitmap(Result result) {
       // Bitmap isn't used yet -- will be used soon
       if (handler == null) {
@@ -326,6 +343,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          beepManager.playBeepSoundAndVibrate();
          drawResultPoints(barcode, scaleFactor, rawResult);
       }
+      //Only if the camera actually scanned something, store it as the default for next scan
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+      preferences.edit().putInt(PREFERRED_CAMERA_ID, getCameraId()).apply();
 
       handleDecodeExternally(rawResult, barcode);
    }
@@ -467,5 +487,19 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
    public void drawViewfinder() {
       viewfinderView.drawViewfinder();
+   }
+
+   public int getCameraId() {
+      return cameraId;
+   }
+
+   public void setCameraId(int cameraId) {
+      int cameraCount = getNumberOfCameras();
+      if(cameraId >= cameraCount) {
+         this.cameraId = cameraId % cameraCount;
+      } else {
+         // it might be -1
+         this.cameraId = cameraId;
+      }
    }
 }

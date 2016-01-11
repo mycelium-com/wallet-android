@@ -34,8 +34,7 @@
 
 package com.mycelium.wallet.external.cashila.api;
 
-import com.mycelium.wallet.external.cashila.api.request.CreateBillPay;
-import com.mycelium.wallet.external.cashila.api.request.GetDeepLink;
+import com.mycelium.wallet.external.cashila.api.request.*;
 import com.mycelium.wallet.external.cashila.api.response.*;
 import retrofit.http.*;
 import rx.Observable;
@@ -45,11 +44,34 @@ import java.util.UUID;
 
 public interface Cashila {
 
+   @PUT("/account")
+   Observable<CashilaResponse<CashilaAccountResponse>> createAccount(@Body CashilaAccountRequest newAccount);
+
+   @PUT("/account")
+   Observable<CashilaResponse<CashilaAccountResponse>> loginExistingAccount(@Body CashilaAccountLoginRequest newAccount);
+
    @POST("/bitid/request-token")
-   Observable<CashilaResponse<RequestToken>> getRequestToken();
+   Observable<CashilaResponse<BitIdRequestToken>> getRequestToken();
+
+   @POST("/request-signup?bitid=1")
+   Observable<CashilaResponse<SignUpRequestToken>> getSignUpRequestToken();
+
+   @GET("/supported-countries")
+   Observable<CashilaResponse<SupportedCountries>> getSupportedCountries();
+
+   @GET("/terms-of-use")
+   @Headers({"Accept:text/plain"})
+   Observable<String> getTermsOfUse();
+
+   @GET("/account/limits")
+   Observable<CashilaResponse<AccountLimits>> getAccountLimits();
 
    @GET("/billpays/recent")
-   Observable<CashilaResponse<List<BillPayRecentRecipient>>> getBillPaysRecent();
+   Observable<CashilaResponse<List<BillPayExistingRecipient>>> getBillPaysRecent();
+
+   @PUT("/recipients/{id}")
+   Observable<CashilaResponse<BillPayExistingRecipient>> saveRecipient(
+         @Path("id") UUID recipientId, @Body SaveRecipient saveRecipient);
 
    @PUT("/billpays/create/{newPaymentId}")
    Observable<CashilaResponse<BillPay>> createBillPay(
