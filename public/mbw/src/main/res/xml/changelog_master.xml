@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.6.0" versioncode="26000">
-        <change>Create new Cashila account &amp; add new recipients from within the app</change>
-        <change>Allow switching cameras</change>
+    <release version="2.6.0" versioncode="26003">
+        <change>Create new Cashila account &amp; option to add new recipients from within the app</change>
+        <change>Allow switching between front and back camera for scanning QR codes</change>
+        <change>[bugfix] fix crash in local-trader if exchange rate is not available</change>
     </release>
     <release version="2.5.9" versioncode="25900">
         <change>Update translations</change>

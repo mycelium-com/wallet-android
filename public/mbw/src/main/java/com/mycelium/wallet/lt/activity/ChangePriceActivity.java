@@ -189,7 +189,12 @@ public class ChangePriceActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          enableUi(false);
-         String priceFormulaId = Preconditions.checkNotNull(getSelectedPriceFormula()).id;
+         final PriceFormula selectedPriceFormula = getSelectedPriceFormula();
+         if (selectedPriceFormula == null){
+            // cancel if we dont have a price formula available - user can go back and retry it, but dont crash
+            return;
+         }
+         String priceFormulaId = Preconditions.checkNotNull(selectedPriceFormula).id;
          double premium = Preconditions.checkNotNull(getSelectedPremium());
          TradeChangeParameters params = new TradeChangeParameters(_tradeSession.id, priceFormulaId, premium);
          Intent result = new Intent();

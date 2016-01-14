@@ -124,8 +124,8 @@ public class CashilaService {
 
       RestAdapter adapter = new RestAdapter.Builder()
             .setEndpoint(baseUrl + API_VERSION + "/")
-                  //.setLogLevel(RestAdapter.LogLevel.BASIC)
-            .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setLogLevel(RestAdapter.LogLevel.BASIC)
+            //.setLogLevel(RestAdapter.LogLevel.FULL)
             .setConverter(new JacksonConverter(objectMapper))
             .setClient(new OkClient(client))
             .setRequestInterceptor(apiIdInterceptor)
@@ -134,7 +134,6 @@ public class CashilaService {
       RestAdapter plainTextAdapter = new RestAdapter.Builder()
             .setEndpoint(baseUrl + API_VERSION + "/")
             .setLogLevel(RestAdapter.LogLevel.BASIC)
-            //.setLogLevel(RestAdapter.LogLevel.FULL)
             .setConverter(new PlainTextConverter())
             .setClient(new OkClient(client))
             .setRequestInterceptor(apiIdInterceptor)

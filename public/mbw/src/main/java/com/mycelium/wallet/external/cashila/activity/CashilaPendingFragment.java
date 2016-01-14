@@ -218,7 +218,7 @@ public class CashilaPendingFragment extends Fragment {
             tvName.setText("");
          }
 
-         if (billPay.payment != null) {
+         if (billPay.payment != null && billPay.payment.amount != null) {
             tvAmount.setText(Utils.formatFiatValueAsString(billPay.payment.amount) + " " + billPay.payment.currency);
             tvReference.setText(billPay.payment.reference);
          }
