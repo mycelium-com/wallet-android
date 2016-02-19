@@ -145,7 +145,7 @@
                                 />
                         <TextView
                                 android:id="@+id/tvCashilaTosLink"
-                                android:paddingStart="5sp"
+                                android:paddingLeft="5sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/cashila_tos"
@@ -164,7 +164,7 @@
                                 />
                         <TextView
                                 android:id="@+id/tvMyceliumTosLink"
-                                android:paddingStart="5sp"
+                                android:paddingLeft="5sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/cashila_limit_liability"

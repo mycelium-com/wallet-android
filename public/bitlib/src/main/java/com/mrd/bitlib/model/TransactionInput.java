@@ -27,6 +27,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 
 public class TransactionInput implements Serializable {
    private static final long serialVersionUID = 1L;
+   private static final int SEQUENCE_NO_RBF = -1; // -1 => MAX_INT as unsigned int, anything else is RBF-able
 
    public static class TransactionInputParsingException extends Exception {
       private static final long serialVersionUID = 1L;
@@ -92,6 +93,10 @@ public class TransactionInput implements Serializable {
 
    public ScriptInput getScript() {
       return script;
+   }
+
+   public boolean isMarkedForRbf(){
+      return this.sequence != SEQUENCE_NO_RBF;
    }
 
    public void toByteWriter(ByteWriter writer) {

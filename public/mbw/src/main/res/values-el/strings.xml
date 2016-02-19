@@ -464,7 +464,6 @@
   <string name="selected_archived_warning">Δεν μπορείτε να εργαστείτε με αρχειοθετημένους λογαριασμούς.</string>
   <string name="selected_hd_info">Τώρα εργάζεστε σε αυτόν τον HD λογαριασμό.</string>
   <string name="selected_single_info">Τώρα εργάζεστε σε αυτό το λογαριασμό μονής διεύθυνσης.</string>
-  <string name="transaction_not_broadcasted_info">Δεν εστάλη</string>
   <string name="hd_account_creation_started">Δημιουργία ενός νέου HD λογαριασμού&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">To πορτοφόλι προετοιμάζεται&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Υπολογισμός Κεντρικού Κωδικού (σπόρου)&#8230;</string>
@@ -721,7 +720,6 @@
   <string name="payment_request_created">Δημιουργήθηκε</string>
   <string name="payment_request_expires">Λήγει</string>
   <string name="payment_request_message_to_merchant">Το μήνυμά σας στον πωλητή (προαιρετικά)</string>
-  <string name="payment_request_error_while_getting_ack">Αδυναμία αποστολής πληρωμής στον πωλητή-διακομιστή.\n%s\n\nΗ πληρωμή δεν θα αποσταλεί.</string>
   <string name="payment_request_warning_no_sig">Η πηγή του αιτήματος πληρωμής δεν μπορεί να επιβεβαιωθεί διότι δεν φέρει υπογραφή.\n\nΠαρακαλώ να είστε πολύ προσεκτικοί, διότι ενδέχεται κάποιος να παρεμβάλλεται, αλλάζοντας τη διεύθυνση πληρωμής που σας εμφανίζεται.</string>
   <string name="label_cold_storage_external_signing">Υπογραφή με:</string>
   <string name="spending_unconfirmed_warning">Προσοχή: χρήση μη επιβεβαιωμένων κεφαλαίων</string>
@@ -745,7 +743,6 @@
   <string name="warning_delete_unconfirmed_transaction">Προειδοποίηση: Αυτό απλά θα διαγράψει τη συναλλαγή τοπικά. Η επιλογή αυτή δεν μπορεί να αναιρέσει μια συναλλαγή, και δεν μπορεί να την αποτρέψει από το να επιβεβαιωθεί. Είναι μόνο χρήσιμο εαν το δίκτυο έχει ήδη ξεχάσει τη συναλλαγή επειδή δεν ενσωματώθηκε στο blockchain εδώ και καιρό. Στην περίπτωση αυτή, μπορείτε να τη διαγράψετε για να αποκτήσετε πρόσβαση ξανά σε αυτά τα κεφάλαια. Μετά, θα πρέπει να επανασυγχρονίσετε. Εάν το δίκτυο εξακολουθεί να γνωρίζει για τη συναλλαγή, αυτή θα εμφανιστεί ξανά μετά το συγχρονισμό.\\n\\nΘέλετε να διαγράψετε τη συναλλαγή από την τοπική μνήμη;</string>
   <string name="rebroadcast_transaction_title">Επαναποστολή συναλλαγής</string>
   <string name="description_rebroadcast_transaction">Υποβολή εκ νέου της συναλλαγής στο διακομιστή για αποστολή. Αυτό μπορεί να χρησιμοποιηθεί εαν υποψιάζετσε ότι το δίκτυο δεν έχει μεταδώσει τη συναλλαγή ή την ξέχασε επειδή δεν ενσωματώθηκε στο blockchian για πολύ καιρό. Θέλετε να στείλετε ξανά τη συναλλαγή αυτή;</string>
-  <string name="message_rebroadcast_successfull">Η συναλλαγή εστάλη επιτυχώς.</string>
   <string name="message_rebroadcast_failed">Η αποστολή απέτυχε, παρακαλώ ελέγξτε τη σύνδεσή σας και συγχρονιστε το πορτοφόλι σας.</string>
   <string name="block_explorer_title">Εξερευνητής Block (%1$s)</string>
   <string name="block_explorer_summary">Οι λεπτομέρειες της συναλλαγής ερευνώνται με χρήση του %1$s Εξερευνητή Block</string>

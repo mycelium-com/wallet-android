@@ -16,8 +16,6 @@
 
 package com.google.zxing.client.android.camera;
 
-import java.io.IOException;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -26,10 +24,12 @@ import android.hardware.Camera;
 import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
-
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.client.android.RotationUtil;
+import com.google.zxing.client.android.camera.open.OpenCamera;
 import com.google.zxing.client.android.camera.open.OpenCameraInterface;
+
+import java.io.IOException;
 
 /**
  * This object wraps the Camera service object and expects to be the only one
@@ -49,7 +49,7 @@ public final class CameraManager {
 
    private final Context context;
    private final CameraConfigurationManager configManager;
-   private Camera camera;
+   private OpenCamera camera;
    private AutoFocusManager autoFocusManager;
    private Rect framingRect;
    private Rect framingRectInPreview;
@@ -84,27 +84,16 @@ public final class CameraManager {
     * @throws IOException
     *            Indicates the camera driver failed to open.
     */
-   public synchronized void openDriver(SurfaceHolder holder, boolean enableContinuousFocus, int rotation)
+   public synchronized void openDriver(SurfaceHolder holder, boolean enableContinuousFocus)
          throws IOException {
-      Camera theCamera = camera;
+      OpenCamera theCamera = camera;
       if (theCamera == null) {
-         try {
-            final OpenCameraInterface.CameraWrapper openCamera = OpenCameraInterface.open(cameraId);
-            if (openCamera == null) {
-               throw new IOException();
-            }
-            theCamera = openCamera.camera;
-            // remember the index of the opened camera
-            cameraId = openCamera.cameraIndex;
-         } catch (NoSuchMethodError e) {
-            theCamera = Camera.open();
-         }
+         theCamera = OpenCameraInterface.open(cameraId);
          if (theCamera == null) {
-            throw new IOException();
+            throw new IOException("Camera.open() failed to return object from driver");
          }
          camera = theCamera;
       }
-      theCamera.setPreviewDisplay(holder);
 
       if (!initialized) {
          initialized = true;
@@ -116,30 +105,31 @@ public final class CameraManager {
          }
       }
 
-      Camera.Parameters parameters = theCamera.getParameters();
+      Camera cameraObject = theCamera.getCamera();
+      Camera.Parameters parameters = cameraObject.getParameters();
       String parametersFlattened = parameters == null ? null : parameters.flatten(); // Save
                                                                                      // these,
                                                                                      // temporarily
       try {
-         configManager.setDesiredCameraParameters(theCamera, false, enableContinuousFocus, rotation);
+         configManager.setDesiredCameraParameters(theCamera, false, enableContinuousFocus);
       } catch (RuntimeException re) {
          // Driver failed
          Log.w(TAG, "Camera rejected parameters. Setting only minimal safe-mode parameters");
          Log.i(TAG, "Resetting to saved camera params: " + parametersFlattened);
          // Reset:
          if (parametersFlattened != null) {
-            parameters = theCamera.getParameters();
+            parameters = cameraObject.getParameters();
             parameters.unflatten(parametersFlattened);
             try {
-               theCamera.setParameters(parameters);
-               configManager.setDesiredCameraParameters(theCamera, true, enableContinuousFocus, rotation);
+               cameraObject.setParameters(parameters);
+               configManager.setDesiredCameraParameters(theCamera, true, enableContinuousFocus);
             } catch (RuntimeException re2) {
                // Well, darn. Give up
                Log.w(TAG, "Camera rejected even safe-mode parameters! No configuration");
             }
          }
       }
-
+      cameraObject.setPreviewDisplay(holder);
    }
 
    public synchronized boolean isOpen() {
@@ -151,10 +141,9 @@ public final class CameraManager {
     */
    public synchronized void closeDriver() {
       if (camera != null) {
-         camera.release();
+         camera.getCamera().release();
          camera = null;
-         // Make sure to clear these each time we close the camera, so that any
-         // scanning rect
+         // Make sure to clear these each time we close the camera, so that any scanning rect
          // requested by intent is forgotten.
          framingRect = null;
          framingRectInPreview = null;
@@ -165,11 +154,11 @@ public final class CameraManager {
     * Asks the camera hardware to begin drawing preview frames to the screen.
     */
    public synchronized void startPreview() {
-      Camera theCamera = camera;
+      OpenCamera theCamera = camera;
       if (theCamera != null && !previewing) {
-         theCamera.startPreview();
+         theCamera.getCamera().startPreview();
          previewing = true;
-         autoFocusManager = new AutoFocusManager(context, camera);
+         autoFocusManager = new AutoFocusManager(context, theCamera.getCamera());
       }
    }
 
@@ -182,7 +171,7 @@ public final class CameraManager {
          autoFocusManager = null;
       }
       if (camera != null && previewing) {
-         camera.stopPreview();
+         camera.getCamera().stopPreview();
          previewCallback.setHandler(null, 0);
          previewing = false;
       }
@@ -193,12 +182,12 @@ public final class CameraManager {
     * {@link com.google.zxing.client.android.CaptureActivity}
     */
    public synchronized void setTorch(boolean newSetting) {
-      if (newSetting != configManager.getTorchState(camera)) {
+      if (newSetting != configManager.getTorchState(camera.getCamera())) {
          if (camera != null) {
             if (autoFocusManager != null) {
                autoFocusManager.stop();
             }
-            configManager.setTorch(camera, newSetting);
+            configManager.setTorch(camera.getCamera(), newSetting);
             if (autoFocusManager != null) {
                autoFocusManager.start();
             }
@@ -207,7 +196,7 @@ public final class CameraManager {
    }
 
    public synchronized boolean toggleTorch() {
-      boolean newState =!configManager.getTorchState(camera);
+      boolean newState = !configManager.getTorchState(camera.getCamera());
       setTorch(newState);
       return newState;
    }
@@ -223,7 +212,7 @@ public final class CameraManager {
     *           The what field of the message to be sent.
     */
    public synchronized void requestPreviewFrame(Handler handler, int message) {
-      Camera theCamera = camera;
+      Camera theCamera = camera.getCamera();
       if (theCamera != null && previewing) {
          previewCallback.setHandler(handler, message);
          theCamera.setOneShotPreviewCallback(previewCallback);
@@ -359,7 +348,13 @@ public final class CameraManager {
    }
 
    public int getCameraId() {
-      return cameraId;
+      if (camera != null) {
+         // if everything worked, get the actual index reported by android
+         return camera.getIndex();
+      } else {
+         // ...otherwise report the requested index back (might be -1)
+         return cameraId;
+      }
    }
 
    public boolean hasFlash() {

@@ -466,7 +466,6 @@
   <string name="selected_archived_warning">U kan niet werken op gearchiveerde rekeningen.</string>
   <string name="selected_hd_info">U werkt nu met dit HD-Account.</string>
   <string name="selected_single_info">U werkt nu met dit enkele adres.</string>
-  <string name="transaction_not_broadcasted_info">Niet uitgezonden</string>
   <string name="hd_account_creation_started">Bezig me creëren van nieuw HD-Account&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Portemonnee wordt voorbereid&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Berekening van Master Seed&#8230;</string>

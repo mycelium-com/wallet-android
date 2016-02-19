@@ -34,6 +34,7 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
+import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
@@ -99,7 +100,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
    /**
     * Determine whether a transaction was sent from one of our own addresses.
-    * <p/>
+    * <p>
     * This is a costly operation as we first have to lookup the transaction and
     * then it's funding outputs
     *
@@ -117,7 +118,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
    /**
     * Determine whether a transaction was sent from one of our own addresses.
-    * <p/>
+    * <p>
     * This is a costly operation as we have to lookup funding outputs of the
     * transaction
     *
@@ -280,21 +281,21 @@ public abstract class AbstractAccount implements WalletAccount {
       return map;
    }
 
-   protected void handleNewExternalTransactions(Collection<TransactionEx> transactions) throws WapiException {
+   protected void handleNewExternalTransactions(Collection<TransactionExApi> transactions) throws WapiException {
       if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
          handleNewExternalTransactionsInt(transactions);
       } else {
          // We have quite a list of transactions to handle, do it in batches
-         ArrayList<TransactionEx> all = new ArrayList<TransactionEx>(transactions);
+         ArrayList<TransactionExApi> all = new ArrayList<TransactionExApi>(transactions);
          for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
             int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
-            List<TransactionEx> sub = all.subList(i, endIndex);
+            Collection<TransactionExApi> sub = all.subList(i, endIndex);
             handleNewExternalTransactionsInt(sub);
          }
       }
    }
 
-   private void handleNewExternalTransactionsInt(Collection<TransactionEx> transactions) throws WapiException {
+   private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
       // Transform and put into two arrays with matching indexes
       ArrayList<TransactionEx> texArray = new ArrayList<TransactionEx>(transactions.size());
       ArrayList<Transaction> txArray = new ArrayList<Transaction>(transactions.size());
@@ -314,8 +315,9 @@ public abstract class AbstractAccount implements WalletAccount {
 
       // Store transaction locally
       for (int i = 0; i < txArray.size(); i++) {
-         _backing.putTransaction(texArray.get(i));
-         onNewTransaction(texArray.get(i), txArray.get(i));
+         final TransactionEx transactionEx = texArray.get(i);
+         _backing.putTransaction(transactionEx);
+         onNewTransaction(transactionEx, txArray.get(i));
       }
    }
 
@@ -354,7 +356,7 @@ public abstract class AbstractAccount implements WalletAccount {
       if (toFetch.size() > 0) {
          GetTransactionsResponse result = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch))
                .getResult();
-         for (TransactionEx tx : result.transactions) {
+         for (TransactionExApi tx : result.transactions) {
             // Verify transaction hash. This is important as we don't want to
             // have a transaction output associated with an outpoint that
             // doesn't match.
@@ -499,7 +501,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
    /**
     * Broadcast outgoing transactions.
-    * <p/>
+    * <p>
     * This method should only be called from the wallet manager
     *
     * @return false if synchronization failed due to failed blockchain
@@ -518,15 +520,19 @@ public abstract class AbstractAccount implements WalletAccount {
          if (result == BroadcastResult.SUCCESS) {
             broadcastedIds.add(tex.txid);
             _backing.removeOutgoingTransaction(tex.txid);
-         } else {
+         } /* else {
+            // DW: commented this section out, because we changed how we treat outgoing tx
+            // keep it, even if it got rejected and let the user delete it themself
             if (result == BroadcastResult.REJECTED) {
                // invalid tx
-               _backing.deleteTransaction(tex.txid);
-               _backing.removeOutgoingTransaction(tex.txid);
+               // keep it in the outgoing queue - the user needs to manually delete it
+               // todo: get reason for rejection and display it
+               //_backing.deleteTransaction(tex.txid);
             } else {
                // No connection --> retry next sync
             }
-         }
+
+         }*/
       }
       if (!broadcastedIds.isEmpty()) {
          onTransactionsBroadcasted(broadcastedIds);
@@ -547,7 +553,7 @@ public abstract class AbstractAccount implements WalletAccount {
                new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes()));
          if (response.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
             if (response.getResult().success) {
-               markTransactionAsSpent(transaction);
+               markTransactionAsSpent(TransactionEx.fromUnconfirmedTransaction(transaction));
                postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
                return BroadcastResult.SUCCESS;
             } else {
@@ -637,11 +643,12 @@ public abstract class AbstractAccount implements WalletAccount {
       return transaction;
    }
 
-   public synchronized void queueTransaction(Transaction transaction) {
+   @Override
+   public synchronized void queueTransaction(TransactionEx transaction) {
       // Store transaction in outgoing buffer, so we can broadcast it
       // later
-      byte[] rawTransaction = transaction.toBytes();
-      _backing.putOutgoingTransaction(transaction.getHash(), rawTransaction);
+      byte[] rawTransaction = transaction.binary;
+      _backing.putOutgoingTransaction(transaction.txid, rawTransaction);
       markTransactionAsSpent(transaction);
    }
 
@@ -720,11 +727,18 @@ public abstract class AbstractAccount implements WalletAccount {
       return true;
    }
 
-   private void markTransactionAsSpent(Transaction transaction) {
+   private void markTransactionAsSpent(TransactionEx transaction) {
       _backing.beginTransaction();
+      final Transaction parsedTransaction;
+      try {
+         parsedTransaction = Transaction.fromBytes(transaction.binary);
+      } catch (TransactionParsingException e) {
+         _logger.logInfo(String.format("Unable to parse transaction %s: %s", transaction.txid, e.getMessage()));
+         return;
+      }
       try {
          // Remove inputs from unspent, marking them as spent
-         for (TransactionInput input : transaction.inputs) {
+         for (TransactionInput input : parsedTransaction.inputs) {
             TransactionOutputEx parentOutput = _backing.getUnspentOutput(input.outPoint);
             if (parentOutput != null) {
                _backing.deleteUnspentOutput(input.outPoint);
@@ -734,24 +748,24 @@ public abstract class AbstractAccount implements WalletAccount {
 
          // See if any of the outputs are for ourselves and store them as
          // unspent
-         for (int i = 0; i < transaction.outputs.length; i++) {
-            TransactionOutput output = transaction.outputs[i];
+         for (int i = 0; i < parsedTransaction.outputs.length; i++) {
+            TransactionOutput output = parsedTransaction.outputs[i];
             if (isMine(output.script)) {
-               _backing.putUnspentOutput(new TransactionOutputEx(new OutPoint(transaction.getHash(), i), -1,
+               _backing.putUnspentOutput(new TransactionOutputEx(new OutPoint(parsedTransaction.getHash(), i), -1,
                      output.value, output.script.getScriptBytes(), false));
             }
          }
 
          // Store transaction locally, so we have it in our history and don't
          // need to fetch it in a minute
-         _backing.putTransaction(TransactionEx.fromUnconfirmedTransaction(transaction));
+         _backing.putTransaction(transaction);
          _backing.setTransactionSuccessful();
       } finally {
          _backing.endTransaction();
       }
 
       // Tell account that we have a new transaction
-      onNewTransaction(TransactionEx.fromUnconfirmedTransaction(transaction), transaction);
+      onNewTransaction(TransactionEx.fromUnconfirmedTransaction(parsedTransaction), parsedTransaction);
 
       // Calculate local balance cache. It has changed because we have done
       // some spending
@@ -961,10 +975,7 @@ public abstract class AbstractAccount implements WalletAccount {
          _logger.logError("Unable to parse ");
          return null;
       }
-      return transform(tx, tex.time, tex.height, blockChainHeight);
-   }
 
-   protected TransactionSummary transform(Transaction tx, int time, int height, int blockChainHeight) {
       long satoshis = 0;
       Address destAddress = null;
       for (TransactionOutput output : tx.outputs) {
@@ -992,10 +1003,10 @@ public abstract class AbstractAccount implements WalletAccount {
       }
 
       int confirmations;
-      if (height == -1) {
+      if (tex.height == -1) {
          confirmations = 0;
       } else {
-         confirmations = Math.max(0, blockChainHeight - height + 1);
+         confirmations = Math.max(0, blockChainHeight - tex.height + 1);
       }
 
       // only track a destinationAddress if it is an outgoing transaction (i.e. send money to someone)
@@ -1006,14 +1017,18 @@ public abstract class AbstractAccount implements WalletAccount {
 
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getHash());
 
+      // see if we have a riskAssessment for this tx available in memory (i.e. valid for last sync)
+      final ConfirmationRiskProfileLocal risk = riskAssessmentForUnconfirmedTx.get(tx.getHash());
+
       return new TransactionSummary(
             tx.getHash(),
             ExactBitcoinValue.from(Math.abs(satoshis)),
             satoshis >= 0,
-            time,
-            height,
+            tex.time,
+            tex.height,
             confirmations,
             isQueuedOutgoing,
+            risk,
             com.google.common.base.Optional.fromNullable(destAddress));
    }
 
@@ -1073,38 +1088,75 @@ public abstract class AbstractAccount implements WalletAccount {
          return false;
       }
       for (TransactionStatus t : result.transactions) {
-         TransactionEx tex = _backing.getTransaction(t.txid);
-         if (!t.found) {
-            if (tex != null) {
-               // We have a transaction locally that did not get reported back by the server
-               // put it into the outgoing queue and mark it as "not transmitted" (even as it might be an incomming tx)
-               try {
-                  Transaction transaction = Transaction.fromBytes(tex.binary);
-                  queueTransaction(transaction);
-               } catch (TransactionParsingException ignore) {
-                  // ignore this tx and just delete it
-                  _backing.deleteTransaction(t.txid);
+         TransactionEx localTransactionEx = _backing.getTransaction(t.txid);
+         Transaction parsedTransaction;
+         if (localTransactionEx != null) {
+            try {
+               parsedTransaction = Transaction.fromBytes(localTransactionEx.binary);
+            } catch (TransactionParsingException ignore) {
+               parsedTransaction = null;
+            }
+         } else {
+            parsedTransaction = null;
+         }
+
+         // check if this transaction is unconfirmed and spends any inputs that got already spend
+         // by any other transaction we know
+         boolean isDoubleSpend = false;
+         if (parsedTransaction != null && localTransactionEx.height == -1) {
+            for (TransactionInput input : parsedTransaction.inputs) {
+               Collection<Sha256Hash> otherTx = _backing.getTransactionsReferencingOutPoint(input.outPoint);
+               // remove myself
+               otherTx.remove(parsedTransaction.getHash());
+               if (otherTx.size() > 0) {
+                  isDoubleSpend = true;
                }
+            }
+         }
+
+         // if this transaction summary has a risk assessment set, remember it
+         if (t.rbfRisk || t.unconfirmedChainLength > 0  || isDoubleSpend) {
+            riskAssessmentForUnconfirmedTx.put(t.txid, new ConfirmationRiskProfileLocal(t.unconfirmedChainLength, t.rbfRisk, isDoubleSpend));
+         } else {
+            // otherwise just remove it if we ever got one
+            riskAssessmentForUnconfirmedTx.remove(t.txid);
+         }
+
+         // does the server know anything about this tx?
+         if (!t.found) {
+            if (localTransactionEx != null) {
+               // We have a transaction locally that did not get reported back by the server
+               // put it into the outgoing queue and mark it as "not transmitted" (even as it might be an incoming tx)
+               queueTransaction(localTransactionEx);
             } else {
                // we haven't found it locally (shouldn't happen here) - so delete it to be sure
                _backing.deleteTransaction(t.txid);
             }
             continue;
+         } else {
+            // we got it back from the server and it got confirmations - remove it from out outgoing queue
+            if (t.height > -1 || _backing.isOutgoingTransaction(t.txid)) {
+               _backing.removeOutgoingTransaction(t.txid);
+            }
          }
-         Preconditions.checkNotNull(tex);
-         if (tex.height != t.height || tex.time != t.time) {
+         Preconditions.checkNotNull(localTransactionEx);
+
+         if (localTransactionEx.height != t.height || localTransactionEx.time != t.time) {
             // The transaction got a new height or timestamp. There could be
             // several reasons for that. It got a new timestamp from the server,
             // it confirmed, or might also be a reorg.
-            TransactionEx newTex = new TransactionEx(tex.txid, t.height, t.time, tex.binary);
-            _logger.logInfo(String.format("Replacing: %s With: %s", tex.toString(), newTex.toString()));
+            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, t.height, t.time, localTransactionEx.binary);
+            _logger.logInfo(String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
             postEvent(Event.TRANSACTION_HISTORY_CHANGED);
-            _backing.deleteTransaction(tex.txid);
+            _backing.deleteTransaction(localTransactionEx.txid);
             _backing.putTransaction(newTex);
          }
       }
       return true;
    }
+
+   // local cache for received risk assessments for unconfirmed transactions - does not get persisted in the db
+   private HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<Sha256Hash, ConfirmationRiskProfileLocal>();
 
    protected abstract boolean isSynchronizing();
 
@@ -1274,3 +1326,4 @@ public abstract class AbstractAccount implements WalletAccount {
       return CurrencyValue.BTC;
    }
 }
+

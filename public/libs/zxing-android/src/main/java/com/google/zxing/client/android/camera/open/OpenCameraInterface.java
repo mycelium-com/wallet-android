@@ -16,9 +16,7 @@
 
 package com.google.zxing.client.android.camera.open;
 
-import android.annotation.TargetApi;
 import android.hardware.Camera;
-import android.os.Build;
 import android.util.Log;
 
 public final class OpenCameraInterface {
@@ -29,49 +27,66 @@ public final class OpenCameraInterface {
    }
 
    /**
-    * Opens a rear-facing camera with {@link Camera#open(int)}, if one exists,
-    * or opens camera 0.
+    * For {@link #open(int)}, means no preference for which camera to open.
     */
-   public static CameraWrapper open(int cameraId) {
+   public static final int NO_REQUESTED_CAMERA = -1;
 
-      int numCameras;
-      numCameras = Camera.getNumberOfCameras();
+   /**
+    * Opens the requested camera with {@link Camera#open(int)}, if one exists.
+    *
+    * @param cameraId camera ID of the camera to use. A negative value
+    *  or {@link #NO_REQUESTED_CAMERA} means "no preference"
+    * @return handle to {@link Camera} that was opened
+    */
+   public static OpenCamera open(int cameraId) {
+
+      int numCameras = Camera.getNumberOfCameras();
       if (numCameras == 0) {
          Log.w(TAG, "No cameras!");
          return null;
       }
 
+      boolean explicitRequest = cameraId >= 0;
+
+      Camera.CameraInfo selectedCameraInfo = null;
       int index = 0;
-      if(cameraId >= 0) {
-         index = cameraId;
-      } else {
-         while (index < numCameras) {
+      while (index < numCameras) {
+         if (cameraId == NO_REQUESTED_CAMERA || index == cameraId) {
             Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
             Camera.getCameraInfo(index, cameraInfo);
-            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            CameraFacing reportedFacing = CameraFacing.values()[cameraInfo.facing];
+            // if we dont care which camera, use the first one which is facing==BACK, otherwise use the explicit one
+            if ((cameraId == NO_REQUESTED_CAMERA && reportedFacing == CameraFacing.BACK) || index == cameraId) {
+               selectedCameraInfo = cameraInfo;
                break;
             }
-            index++;
+         }
+         index++;
+      }
+
+      Camera camera;
+      if (index < numCameras) {
+         Log.i(TAG, "Opening camera #" + index);
+         camera = Camera.open(index);
+      } else {
+         if (explicitRequest) {
+            Log.w(TAG, "Requested camera does not exist: " + cameraId);
+            camera = null;
+         } else {
+            Log.i(TAG, "No camera facing " + CameraFacing.BACK + "; returning camera #0");
+            camera = Camera.open(0);
+            selectedCameraInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(0, selectedCameraInfo);
          }
       }
 
-      if (index < numCameras) {
-         Log.i(TAG, "Opening camera #" + index);
-      } else {
-         Log.i(TAG, "No camera facing back; returning camera #0");
-         index = 0;
+      if (camera == null) {
+         return null;
       }
-
-      return new CameraWrapper(Camera.open(index), index);
+      return new OpenCamera(index,
+            camera,
+            CameraFacing.values()[selectedCameraInfo.facing],
+            selectedCameraInfo.orientation);
    }
 
-   public static class CameraWrapper {
-      public final Camera camera;
-      public final int cameraIndex;
-
-      public CameraWrapper(Camera camera, int cameraIndex) {
-         this.camera = camera;
-         this.cameraIndex = cameraIndex;
-      }
-   }
 }

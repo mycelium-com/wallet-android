@@ -292,7 +292,7 @@ public class SendMainActivity extends Activity {
          //we need the user to pick a spending account - the activity will then init sendmain correctly
          BitcoinUri uri;
          if (_bitcoinUri == null) {
-            uri = BitcoinUri.from(_receivingAddress, getBitcoinValueToSend().getLongValue(), _transactionLabel, null);
+            uri = BitcoinUri.from(_receivingAddress, getBitcoinValueToSend() == null ? null : getBitcoinValueToSend().getLongValue(), _transactionLabel, null);
          } else {
             uri = _bitcoinUri;
          }

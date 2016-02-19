@@ -16,40 +16,31 @@
 
 package com.google.zxing.client.android;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.*;
-import android.graphics.Camera;
-import android.hardware.*;
+import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-
+import android.view.*;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.Result;
-import com.google.zxing.ResultMetadataType;
-import com.google.zxing.ResultPoint;
+import com.google.zxing.*;
 import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.camera.open.OpenCameraInterface;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 import static android.hardware.Camera.getNumberOfCameras;
 
@@ -58,7 +49,7 @@ import static android.hardware.Camera.getNumberOfCameras;
  * thread. It draws a viewfinder to help the user place the barcode correctly,
  * shows feedback as the image processing is happening, and then overlays the
  * results when a scan is successful.
- * 
+ *
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
@@ -121,8 +112,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       }
 
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-      setCameraId(preferences.getInt(PREFERRED_CAMERA_ID, -1));
-      if(getNumberOfCameras() <= 1) {
+      setCameraId(preferences.getInt(PREFERRED_CAMERA_ID, OpenCameraInterface.NO_REQUESTED_CAMERA));
+      if (getNumberOfCameras() <= 1) {
          findViewById(R.id.button_toggle_camera).setVisibility(View.GONE);
       }
 
@@ -168,6 +159,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          surfaceHolder.addCallback(this);
          surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
       }
+
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 
       beepManager.updatePrefs();
       ambientLightManager.start(cameraManager);
@@ -223,21 +216,21 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    @Override
    public boolean onKeyDown(int keyCode, KeyEvent event) {
       switch (keyCode) {
-      case KeyEvent.KEYCODE_BACK:
-         setResult(RESULT_CANCELED);
-         finish();
-         return true;
-      case KeyEvent.KEYCODE_FOCUS:
-      case KeyEvent.KEYCODE_CAMERA:
-         // Handle these events so they don't launch the Camera app
-         return true;
+         case KeyEvent.KEYCODE_BACK:
+            setResult(RESULT_CANCELED);
+            finish();
+            return true;
+         case KeyEvent.KEYCODE_FOCUS:
+         case KeyEvent.KEYCODE_CAMERA:
+            // Handle these events so they don't launch the Camera app
+            return true;
          // Use volume up/down to turn on light
-      case KeyEvent.KEYCODE_VOLUME_DOWN:
-         setTorch(false);
-         return true;
-      case KeyEvent.KEYCODE_VOLUME_UP:
-         setTorch(true);
-         return true;
+         case KeyEvent.KEYCODE_VOLUME_DOWN:
+            setTorch(false);
+            return true;
+         case KeyEvent.KEYCODE_VOLUME_UP:
+            setTorch(true);
+            return true;
       }
       return super.onKeyDown(keyCode, event);
    }
@@ -328,13 +321,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    /**
     * A valid barcode has been found, so give an indication of success and show
     * the results.
-    * 
-    * @param rawResult
-    *           The contents of the barcode.
-    * @param scaleFactor
-    *           amount by which thumbnail was scaled
-    * @param barcode
-    *           A greyscale bitmap of the camera data which was decoded.
+    *
+    * @param rawResult   The contents of the barcode.
+    * @param scaleFactor amount by which thumbnail was scaled
+    * @param barcode     A greyscale bitmap of the camera data which was decoded.
     */
    public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
       inactivityTimer.onActivity();
@@ -353,13 +343,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    /**
     * Superimpose a line for 1D or dots for 2D to highlight the key features of
     * the barcode.
-    * 
-    * @param barcode
-    *           A bitmap of the captured image.
-    * @param scaleFactor
-    *           amount by which thumbnail was scaled
-    * @param rawResult
-    *           The decoded results which contains the points to draw.
+    *
+    * @param barcode     A bitmap of the captured image.
+    * @param scaleFactor amount by which thumbnail was scaled
+    * @param rawResult   The decoded results which contains the points to draw.
     */
    private void drawResultPoints(Bitmap barcode, float scaleFactor, Result rawResult) {
       ResultPoint[] points = rawResult.getResultPoints();
@@ -407,7 +394,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
       intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
       intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
-      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus ? 1 : 0 );
+      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, enableContinuousFocus ? 1 : 0);
       byte[] rawBytes = rawResult.getRawBytes();
       if (rawBytes != null && rawBytes.length > 0) {
          intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
@@ -453,8 +440,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
          return;
       }
       try {
-         int rotation = new RotationUtil(this).getDisplayOrientationForCameraParameters();
-         cameraManager.openDriver(surfaceHolder, enableContinuousFocus, rotation);
+         cameraManager.openDriver(surfaceHolder, enableContinuousFocus);
          // Creating the handler starts the preview, which can also throw a
          // RuntimeException.
          if (handler == null) {
@@ -495,7 +481,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
    public void setCameraId(int cameraId) {
       int cameraCount = getNumberOfCameras();
-      if(cameraId >= cameraCount) {
+      if (cameraId >= cameraCount) {
          this.cameraId = cameraId % cameraCount;
       } else {
          // it might be -1

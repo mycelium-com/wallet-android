@@ -464,7 +464,6 @@
   <string name="selected_archived_warning">Nuk mund të punoni me llogaritë e arkivuara.</string>
   <string name="selected_hd_info">Tash jeni duke punuar me këtë HD llogari.</string>
   <string name="selected_single_info">Jeni duke punuar me këtë adresë të vetme.</string>
-  <string name="transaction_not_broadcasted_info">Nuk është transmetuar</string>
   <string name="hd_account_creation_started">Duke krijuar HD llogari të re&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Duke pregaditur kuletën&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Duke kalkuluar Master Seed&#8230;</string>

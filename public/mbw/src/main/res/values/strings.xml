@@ -487,7 +487,7 @@
     <string name="selected_archived_warning">You cannot work on archived accounts.</string>
     <string name="selected_hd_info">You are now working on this HD Account.</string>
     <string name="selected_single_info">You are now working on this single address.</string>
-    <string name="transaction_not_broadcasted_info">Not broadcasted</string>
+    <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="hd_account_creation_started">Creating new HD Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
@@ -796,7 +796,7 @@
     <string name="payment_request_created">Created</string>
     <string name="payment_request_expires">Expires</string>
     <string name="payment_request_message_to_merchant">Your message to the merchant (optional)</string>
-    <string name="payment_request_error_while_getting_ack">Unable to send payment to merchant-server.\n%s\n\nThe payment will not be broadcasted.</string>
+    <string name="payment_request_error_while_getting_ack">Unable to send payment to merchant-server.\n%s\n\nThe payment will not be broadcast.</string>
     <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
 
     <string name="label_cold_storage_external_signing">Sign with:</string>
@@ -821,7 +821,7 @@
     <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
     <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
-    <string name="message_rebroadcast_successfull">The transaction was successfully broadcasted.</string>
+    <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
     <string name="block_explorer_title">Block Explorer (%1$s)</string>
     <string name="block_explorer_summary">Transaction details are looked up using the %1$s Block Explorer</string>
@@ -884,6 +884,10 @@
 
     <string name="import_xpub_wrong_depth">Can only import account level (3) xpub addresses.\nThis was level %1$s.</string>
     <string name="buy_one">Buy one…</string>
+    <string name="warning_risky_unconfirmed">WARNING: wait at least for one confirmation! (%s)</string>
+    <string name="warning_reason_rbf">RBF</string>
+    <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
+    <string name="warning_reason_doublespend">Doublespend detected</string>
     <string name="opening_url_in_browser">Opening URL in Browser...</string>
 
 

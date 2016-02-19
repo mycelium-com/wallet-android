@@ -16,6 +16,7 @@
 
 package com.mrd.bitlib.model;
 
+import com.google.common.primitives.UnsignedInteger;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
@@ -31,15 +32,17 @@ import java.io.Serializable;
  * Transaction represents a raw Bitcoin transaction. In other words, it contains only the information found in the
  * byte string representing a Bitcoin transaction. It contains no contextual information, such as the height
  * of the transaction in the block chain or the outputs that its inputs redeem.
- *
+ * <p>
  * Implements Serializable and is inserted directly in and out of the database. Therefore it cannot be changed
  * without messing with the database.
  */
 public class Transaction implements Serializable {
    private static final long serialVersionUID = 1L;
+
    public static class TransactionParsingException extends Exception {
 
       private static final long serialVersionUID = 1L;
+
       public TransactionParsingException(String message) {
          super(message);
       }
@@ -49,26 +52,29 @@ public class Transaction implements Serializable {
       }
 
    }
+
    public static final int MIN_TRANSACTION_SIZE = 100;
    public static final int MAX_MINER_FEE_PER_KB = 2000000;
 
    public int version;
-   public TransactionInput[] inputs;
-   public TransactionOutput[] outputs;
+   public final TransactionInput[] inputs;
+   public final TransactionOutput[] outputs;
    public int lockTime;
 
    private Sha256Hash _hash;
    private Sha256Hash _unmalleableHash;
-   private int _txSize = -1;
 
-   public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction){
+   // cache for some getters that need to do some work and might get called often
+   private transient Boolean _rbfAble = null;
+   private transient int _txSize = -1;
+
+   public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction) {
       TransactionInput input[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
-      int idx=0;
-      for(UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()){
-         // todo: input vs output script?!
-         input[idx++]=new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
+      int idx = 0;
+      for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
+         input[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
       }
-      return new Transaction(1, input, unsignedTransaction.getOutputs(),0);
+      return new Transaction(1, input, unsignedTransaction.getOutputs(), 0);
    }
 
    public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
@@ -125,8 +131,8 @@ public class Transaction implements Serializable {
       return writer.toBytes();
    }
 
-   public int getTxRawSize(){
-      if (_txSize == -1){
+   public int getTxRawSize() {
+      if (_txSize == -1) {
          _txSize = toBytes().length;
       }
       return _txSize;
@@ -164,6 +170,38 @@ public class Transaction implements Serializable {
          _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
       }
       return _hash;
+   }
+
+   /**
+    * Returns the minimum nSequence number of all inputs
+    * Can be used to detect transactions marked for Full-RBF and thus are very low trust while having 0 conf
+    * Transactions with minSequenceNumber < MAX_INT-1 are eligible for full RBF
+    * https://github.com/bitcoin/bitcoin/pull/6871#event-476297575
+    *
+    * @return the min nSequence of all inputs of that transaction
+    */
+   public UnsignedInteger getMinSequenceNumber() {
+      UnsignedInteger minVal = UnsignedInteger.MAX_VALUE;
+      for (TransactionInput input : inputs) {
+         UnsignedInteger nSequence = UnsignedInteger.fromIntBits(input.sequence);
+         if (nSequence.compareTo(minVal) < 0) {
+            minVal = nSequence;
+         }
+      }
+      return minVal;
+   }
+
+   /**
+    * Returns true if this transaction is marked for RBF and thus can easily get replaced by a
+    * conflicting transaction while it is still unconfirmed.
+    *
+    * @return true if any of its inputs has a nSequence < MAX_INT-1
+    */
+   public boolean isRbfAble() {
+      if (_rbfAble == null){
+         _rbfAble = (getMinSequenceNumber().compareTo(UnsignedInteger.MAX_VALUE.minus(UnsignedInteger.ONE)) < 0);
+      }
+      return _rbfAble;
    }
 
    /**

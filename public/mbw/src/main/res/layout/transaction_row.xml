@@ -64,7 +64,7 @@
                     android:textSize="13sp"
                     android:ellipsize="end"
                     android:layout_gravity="center_vertical"
-                    android:typeface="monospace" >
+                    android:typeface="monospace">
             </TextView>
 
             <TextView
@@ -73,13 +73,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:textSize="13sp" >
+                    android:textSize="13sp">
             </TextView>
 
 
         </LinearLayout>
 
-        <!-- row 3 -->
+        <!-- row 3 (optional) -->
         <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +105,27 @@
                     android:layout_gravity="right"
                     android:textSize="13sp">
             </TextView>
+        </LinearLayout>
 
+        <!-- row 4 (optional) -->
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:id="@+id/tvUnconfirmedWarning"
+                    tools:text="Warning: wait at least for on confirmation"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="@color/red"
+                    android:textSize="13sp"
+                    android:ellipsize="end"
+                    android:visibility="gone"
+                    >
+            </TextView>
 
         </LinearLayout>
 

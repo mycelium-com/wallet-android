@@ -466,7 +466,6 @@
   <string name="selected_archived_warning">Du kan inte arbeta med arkiverade konton.</string>
   <string name="selected_hd_info">Du arbetar nu med detta HD-konto.</string>
   <string name="selected_single_info">Du arbetar nu med denna fasta adress.</string>
-  <string name="transaction_not_broadcasted_info">Inte sänt</string>
   <string name="hd_account_creation_started">Skapar nytt HD-konto&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Förbereder plånbok&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Beräknar huvudfrö&#8230;</string>

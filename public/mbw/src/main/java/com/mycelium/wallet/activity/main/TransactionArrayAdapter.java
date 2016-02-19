@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -19,6 +20,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -172,6 +174,31 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
          tvLabel.setText(label);
       }
 
+      // Show risky unconfirmed warning if necessary
+      TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
+      if (confirmations <= 0) {
+         ArrayList<String> warnings = new ArrayList<String>();
+         if (record.confirmationRiskProfile.isPresent()) {
+            if (record.confirmationRiskProfile.isPresent() && record.confirmationRiskProfile.get().hasRbfRisk) {
+               warnings.add(_context.getResources().getString(R.string.warning_reason_rbf));
+            }
+            if (record.confirmationRiskProfile.get().unconfirmedChainLength > 0) {
+               warnings.add(_context.getResources().getString(R.string.warning_reason_unconfirmed_parent));
+            }
+            if (record.confirmationRiskProfile.get().isDoubleSpend) {
+               warnings.add(_context.getResources().getString(R.string.warning_reason_doublespend));
+            }
+         }
+
+         if (warnings.size() > 0) {
+            tvWarnings.setText(_context.getResources().getString(R.string.warning_risky_unconfirmed, Joiner.on(", ").join(warnings)));
+            tvWarnings.setVisibility(View.VISIBLE);
+         } else {
+            tvWarnings.setVisibility(View.GONE);
+         }
+      } else {
+         tvWarnings.setVisibility(View.GONE);
+      }
 
       rowView.setTag(record);
       return rowView;

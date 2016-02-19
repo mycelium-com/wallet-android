@@ -632,7 +632,7 @@ public class CoinapultAccount implements WalletAccount {
    }
 
    @Override
-   public void queueTransaction(com.mrd.bitlib.model.Transaction transaction) {
+   public void queueTransaction(TransactionEx transaction) {
 
    }
 

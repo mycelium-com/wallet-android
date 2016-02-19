@@ -29,18 +29,28 @@ public class TransactionStatus implements Serializable {
    public final Sha256Hash txid;
    @JsonProperty
    public final boolean found;
+   @JsonProperty("unconf_chain")
+   public final int unconfirmedChainLength;
+   @JsonProperty("rbf")
+   public final boolean rbfRisk;
    @JsonProperty
    public final int height; // -1 means unconfirmed
    @JsonProperty
    public final int time;
 
    @JsonCreator
-   public TransactionStatus(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("found") boolean found,
-                            @JsonProperty("height") int height, @JsonProperty("time") int time) {
+   public TransactionStatus(@JsonProperty("txid") Sha256Hash txid,
+                            @JsonProperty("found") boolean found,
+                            @JsonProperty("time") int time,
+                            @JsonProperty("height") int height,
+                            @JsonProperty("unconf_chain") int unconfirmedChainLength,
+                            @JsonProperty("rbf") boolean rbfRisk) {
       this.txid = txid;
       this.found = found;
       this.height = height;
       this.time = time;
+      this.unconfirmedChainLength = unconfirmedChainLength;
+      this.rbfRisk = rbfRisk;
    }
 
    @Override

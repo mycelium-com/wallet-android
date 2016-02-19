@@ -462,7 +462,6 @@
   <string name="selected_archived_warning">アーカイブされたアカウントで行えません。</string>
   <string name="selected_hd_info">今この階層的決定性アカウントを使っています。</string>
   <string name="selected_single_info">このシングルアカウントで現在行っています。</string>
-  <string name="transaction_not_broadcasted_info">一斉通報されていません</string>
   <string name="hd_account_creation_started">階層的決定性アカウントを作成中です&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">ウォレットを準備中&#8230;</string>
   <string name="importing_master_seed_from_wordlist">マスターシードを計算中&#8230;</string>

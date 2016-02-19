@@ -25,6 +25,7 @@ import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.model.TransactionEx;
@@ -292,7 +293,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       int lastExternalIndex = _context.getLastExternalIndexWithActivity();
       int lastInternalIndex = _context.getLastInternalIndexWithActivity();
 
-      Collection<TransactionEx> transactions = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, ids))
+      Collection<TransactionExApi> transactions = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, ids))
             .getResult().transactions;
       handleNewExternalTransactions(transactions);
       // Return true if the last external or internal index has changed

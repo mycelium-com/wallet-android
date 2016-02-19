@@ -169,13 +169,15 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
    private class InMemoryAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {
 
-      private Map<OutPoint, TransactionOutputEx> _unspentOuputs;
-      private Map<Sha256Hash, TransactionEx> _transactions;
-      private Map<OutPoint, TransactionOutputEx> _parentOutputs;
-      private Map<Sha256Hash, byte[]> _outgoingTransactions;
+      private final Map<OutPoint, TransactionOutputEx> _unspentOuputs;
+      private final Map<Sha256Hash, TransactionEx> _transactions;
+      private final Map<OutPoint, TransactionOutputEx> _parentOutputs;
+      private final Map<Sha256Hash, byte[]> _outgoingTransactions;
+      private final HashMap<Sha256Hash, OutPoint> _txRefersParentTxOpus;
 
       public InMemoryAccountBacking() {
          _unspentOuputs = new HashMap<OutPoint, TransactionOutputEx>();
+         _txRefersParentTxOpus = new HashMap<Sha256Hash, OutPoint>();
          _transactions = new HashMap<Sha256Hash, TransactionEx>();
          _parentOutputs = new HashMap<OutPoint, TransactionOutputEx>();
          _outgoingTransactions = new HashMap<Sha256Hash, byte[]>();
@@ -324,6 +326,29 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       @Override
       public void removeOutgoingTransaction(Sha256Hash txid) {
          _outgoingTransactions.remove(txid);
+      }
+
+      @Override
+      public void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs) {
+         for (OutPoint outpoint : refersOutputs) {
+            _txRefersParentTxOpus.put(txId, outpoint);
+         }
+      }
+
+      @Override
+      public void deleteTxRefersParentTransaction(Sha256Hash txId) {
+         _txRefersParentTxOpus.remove(txId);
+      }
+
+      @Override
+      public Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint) {
+         ArrayList<Sha256Hash> ret = new ArrayList<Sha256Hash>();
+         for (Map.Entry<Sha256Hash, OutPoint> entry : _txRefersParentTxOpus.entrySet()) {
+            if (entry.getValue().equals(outPoint)) {
+               ret.add(entry.getKey());
+            }
+         }
+         return ret;
       }
    }
 }

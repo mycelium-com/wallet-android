@@ -437,7 +437,6 @@
   <string name="selected_archived_warning">您不能對存檔賬戶工作進行操作。</string>
   <string name="selected_hd_info">你現在正在對該HD帳戶進行操作。</string>
   <string name="selected_single_info">你現在正在對這個單一地址進行操作。</string>
-  <string name="transaction_not_broadcasted_info">不廣播</string>
   <string name="hd_account_creation_started">正在創建新的HD帳戶...</string>
   <string name="preparing_wallet_on_first_startup_info">正在準備錢包...</string>
   <string name="importing_master_seed_from_wordlist">正在計算主種子...</string>

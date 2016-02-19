@@ -171,8 +171,8 @@ public abstract class Script implements Serializable {
 
             // Get opcode
             int opcode = reader.get();
-            if (opcode >= 0xF0) {
-               opcode = (opcode << 8) | reader.get();
+            if (opcode >= (int) 0xF0) {
+               opcode = (opcode << 8) | (reader.get() & 0xFF);
             }
 
             if (opcode > 0 && opcode < OP_PUSHDATA1) {
@@ -207,8 +207,8 @@ public abstract class Script implements Serializable {
 
          // Get opcode
          int opcode = reader.get();
-         if (opcode >= 0xF0) {
-            opcode = (opcode << 8) | reader.get();
+         if (opcode >= (int) 0xF0) {
+            opcode = (opcode << 8) | (reader.get() & 0xFF);
          }
 
          if (opcode > 0 && opcode < OP_PUSHDATA1) {

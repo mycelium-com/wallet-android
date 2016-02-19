@@ -41,8 +41,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
@@ -91,10 +90,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
          db.beginTransaction();
          try {
-            if (oldVersion<=1){
+            if (oldVersion <= 1) {
                db.execSQL("ALTER TABLE kv ADD COLUMN checksum BLOB");
             }
-            if (oldVersion<=2){
+            if (oldVersion <= 2) {
                // add column to the secure kv table to indicate sub-stores
                // use a temporary table to migrate the table, as sqlite does not allow to change primary keys constraints
                db.execSQL("CREATE TABLE kv_new (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
@@ -108,7 +107,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
             }
             db.setTransactionSuccessful();
-         }finally {
+         } finally {
             db.endTransaction();
          }
       }
@@ -229,7 +228,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             int firstMonitoredInternalIndex = cursor.getInt(6);
             long lastDiscovery = cursor.getLong(7);
             int accountType = cursor.getInt(8);
-            int accountSubId = (int)cursor.getLong(9);
+            int accountSubId = (int) cursor.getLong(9);
 
             list.add(new Bip44AccountContext(id, accountIndex, isArchived, blockHeight, lastExternalIndexWithActivity,
                   lastInternalIndexWithActivity, firstMonitoredInternalIndex, lastDiscovery, accountType, accountSubId));
@@ -420,7 +419,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             byte[] checkSumDb = cursor.getBlob(1);
 
             // checkSumDb might be null for older data, where we hadn't had a checksum
-            if (checkSumDb!=null && !Arrays.equals(checkSumDb, calcChecksum(id, retVal))){
+            if (checkSumDb != null && !Arrays.equals(checkSumDb, calcChecksum(id, retVal))) {
                // mismatch in checksum - the DB might be corrupted
                Log.e(LOG_TAG, "Checksum failed - SqliteDB might be corrupted");
                throw new DbCorruptedException("Checksum failed while reading from DB. Your file storage might be corrupted");
@@ -443,7 +442,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    @Override
    public int getMaxSubId() {
-      return (int)_getMaxSubId.simpleQueryForLong();
+      return (int) _getMaxSubId.simpleQueryForLong();
    }
 
    @Override
@@ -457,8 +456,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
 
-
-   private byte[] calcChecksum(byte[] key, byte[] value){
+   private byte[] calcChecksum(byte[] key, byte[] value) {
       byte toHash[] = BitUtils.concatenate(key, value);
       byte[] ret = HashUtils.sha256(toHash).firstNBytes(8);
       return ret;
@@ -487,6 +485,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
+      db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxRefersPtxoTableName(tableSuffix)
+            + " (txid BLOB, input BLOB, PRIMARY KEY (txid, input) );");
 
    }
 
@@ -500,6 +500,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    private static String getPtxoTableName(String tableSuffix) {
       return "ptxo_" + tableSuffix;
+   }
+
+   private static String getTxRefersPtxoTableName(String tableSuffix) {
+      return "txtoptxo_" + tableSuffix;
    }
 
    private static String getTxTableName(String tableSuffix) {
@@ -518,6 +522,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       private final String ptxoTableName;
       private final String txTableName;
       private final String outTxTableName;
+      private final String txRefersParentTxTableName;
       private final SQLiteStatement _insertOrReplaceUtxo;
       private final SQLiteStatement _deleteUtxo;
       private final SQLiteStatement _insertOrReplacePtxo;
@@ -525,6 +530,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       private final SQLiteStatement _deleteTx;
       private final SQLiteStatement _insertOrReplaceOutTx;
       private final SQLiteStatement _deleteOutTx;
+      private final SQLiteStatement _insertTxRefersParentTx;
+      private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
 
       private SqliteAccountBacking(UUID id, SQLiteDatabase db) {
@@ -535,6 +542,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          ptxoTableName = getPtxoTableName(tableSuffix);
          txTableName = getTxTableName(tableSuffix);
          outTxTableName = getOutgoingTxTableName(tableSuffix);
+         txRefersParentTxTableName = getTxRefersPtxoTableName(tableSuffix);
          _insertOrReplaceUtxo = db.compileStatement("INSERT OR REPLACE INTO " + utxoTableName + " VALUES (?,?,?,?,?)");
          _deleteUtxo = db.compileStatement("DELETE FROM " + utxoTableName + " WHERE outpoint = ?");
          _insertOrReplacePtxo = db.compileStatement("INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?)");
@@ -542,6 +550,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _deleteTx = db.compileStatement("DELETE FROM " + txTableName + " WHERE id = ?");
          _insertOrReplaceOutTx = db.compileStatement("INSERT OR REPLACE INTO " + outTxTableName + " VALUES (?,?)");
          _deleteOutTx = db.compileStatement("DELETE FROM " + outTxTableName + " WHERE id = ?");
+         _insertTxRefersParentTx = db.compileStatement("INSERT OR REPLACE INTO " + txRefersParentTxTableName + " VALUES (?,?)");
+         _deleteTxRefersParentTx = db.compileStatement("DELETE FROM " + txRefersParentTxTableName + " WHERE txid = ?");
       }
 
       private void dropTables() {
@@ -550,6 +560,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _db.execSQL("DROP TABLE IF EXISTS " + getPtxoTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getOutgoingTxTableName(tableSuffix));
+         _db.execSQL("DROP TABLE IF EXISTS " + getTxRefersPtxoTableName(tableSuffix));
       }
 
       @Override
@@ -573,6 +584,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _db.execSQL("DELETE FROM " + ptxoTableName);
          _db.execSQL("DELETE FROM " + txTableName);
          _db.execSQL("DELETE FROM " + outTxTableName);
+         _db.execSQL("DELETE FROM " + txRefersParentTxTableName);
       }
 
 
@@ -649,6 +661,40 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
+      public void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs) {
+         for (OutPoint output : refersOutputs) {
+            _insertTxRefersParentTx.bindBlob(1, txId.getBytes());
+            _insertTxRefersParentTx.bindBlob(2, SQLiteQueryWithBlobs.outPointToBytes(output));
+            _insertTxRefersParentTx.executeInsert();
+         }
+      }
+
+      @Override
+      public void deleteTxRefersParentTransaction(Sha256Hash txId) {
+         _deleteTxRefersParentTx.bindBlob(1, txId.getBytes());
+         _deleteTxRefersParentTx.execute();
+      }
+
+      @Override
+      public Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint) {
+         Cursor cursor = null;
+         List<Sha256Hash> list = new LinkedList<Sha256Hash>();
+         try {
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
+            blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
+            cursor = blobQuery.query(false, txRefersParentTxTableName, new String[]{"txid"}, "input = ?", null, null, null, null, null);
+            while (cursor.moveToNext()) {
+               list.add(new Sha256Hash(cursor.getBlob(0)));
+            }
+            return list;
+         } finally {
+            if (cursor != null) {
+               cursor.close();
+            }
+         }
+      }
+
+      @Override
       public TransactionOutputEx getParentTransactionOutput(OutPoint outPoint) {
          Cursor cursor = null;
          try {
@@ -691,6 +737,21 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceTx.bindLong(3, tx.time);
          _insertOrReplaceTx.bindBlob(4, tx.binary);
          _insertOrReplaceTx.executeInsert();
+
+         putReferencedOutputs(tx.binary);
+      }
+
+      private void putReferencedOutputs(byte[] rawTx) {
+         try {
+            final Transaction transaction = Transaction.fromBytes(rawTx);
+            final List<OutPoint> refersOutpoint = new ArrayList<OutPoint>();
+            for (TransactionInput input : transaction.inputs) {
+               refersOutpoint.add(input.outPoint);
+            }
+            putTxRefersParentTransaction(transaction.getHash(), refersOutpoint);
+         } catch (Transaction.TransactionParsingException e) {
+            Log.w(LOG_TAG, "Unable to decode transaction: " + e.getMessage());
+         }
       }
 
       @Override
@@ -720,6 +781,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       public void deleteTransaction(Sha256Hash hash) {
          _deleteTx.bindBlob(1, hash.getBytes());
          _deleteTx.execute();
+         // also delete all output references for this tx
+         deleteTxRefersParentTransaction(hash);
       }
 
       @Override
@@ -765,7 +828,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<TransactionEx>();
          try {
-            cursor = _db.rawQuery("SELECT id, height, time, binary FROM " + txTableName + " WHERE height >= ? ",
+            // return all transaction younger than maxConfirmations or have no confirmations at all
+            cursor = _db.rawQuery("SELECT id, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
                   new String[]{Integer.toString(maxHeight)});
             while (cursor.moveToNext()) {
                int height = cursor.getInt(1);
@@ -789,6 +853,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceOutTx.bindBlob(1, txid.getBytes());
          _insertOrReplaceOutTx.bindBlob(2, rawTransaction);
          _insertOrReplaceOutTx.executeInsert();
+
+         putReferencedOutputs(rawTransaction);
       }
 
       @Override

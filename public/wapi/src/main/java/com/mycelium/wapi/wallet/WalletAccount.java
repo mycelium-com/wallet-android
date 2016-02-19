@@ -263,7 +263,7 @@ public interface WalletAccount {
     *
     * @param transaction     an transaction
     */
-   void queueTransaction(Transaction transaction);
+   void queueTransaction(TransactionEx transaction);
 
    /**
     * Remove a pending outgoing tx from the queue

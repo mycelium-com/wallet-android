@@ -19,6 +19,7 @@ package com.mycelium.wapi.model;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 
@@ -30,9 +31,12 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
    public final int height;
    public final int confirmations;
    public final boolean isQueuedOutgoing;
+   public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
    public final Optional<Address> destinationAddress;
 
-   public TransactionSummary(Sha256Hash txid, CurrencyValue value, boolean isIncoming, long time, int height, int confirmations, boolean isQueuedOutgoing, Optional<Address> destinationAddress) {
+   public TransactionSummary(Sha256Hash txid, CurrencyValue value, boolean isIncoming, long time, int height,
+                             int confirmations, boolean isQueuedOutgoing, ConfirmationRiskProfileLocal confirmationRiskProfile,
+                             Optional<Address> destinationAddress) {
       this.txid = txid;
       this.value = value;
       this.isIncoming = isIncoming;
@@ -40,6 +44,7 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
       this.height = height;
       this.confirmations = confirmations;
       this.isQueuedOutgoing = isQueuedOutgoing;
+      this.confirmationRiskProfile = Optional.fromNullable(confirmationRiskProfile);
       this.destinationAddress = destinationAddress;
    }
 

@@ -20,15 +20,15 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.api.lib.TransactionExApi;
 
 public class GetTransactionsResponse implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @JsonProperty
-   public final Collection<TransactionEx> transactions;
+   public final Collection<TransactionExApi> transactions;
 
-   public GetTransactionsResponse(@JsonProperty("transactions") Collection<TransactionEx> transactions) {
+   public GetTransactionsResponse(@JsonProperty("transactions") Collection<TransactionExApi> transactions) {
       this.transactions = transactions;
    }
 

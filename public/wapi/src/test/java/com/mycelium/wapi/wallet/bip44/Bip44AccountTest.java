@@ -8,10 +8,10 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
+import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionStatus;
 import com.mycelium.wapi.wallet.*;
@@ -88,7 +88,7 @@ public class Bip44AccountTest {
 
       @Override
       public WapiResponse<GetTransactionsResponse> getTransactions(GetTransactionsRequest request) {
-         GetTransactionsResponse response = new GetTransactionsResponse(new ArrayList<TransactionEx>());
+         GetTransactionsResponse response = new GetTransactionsResponse(new ArrayList<TransactionExApi>());
          return new WapiResponse<GetTransactionsResponse>(response);
       }
 

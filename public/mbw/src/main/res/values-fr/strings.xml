@@ -470,7 +470,6 @@
   <string name="selected_archived_warning">Vous ne pouvez pas travailler sur les comptes archivés.</string>
   <string name="selected_hd_info">Vous travaillez maintenant sur ce compte HD.</string>
   <string name="selected_single_info">Vous travaillez maintenant sur cette adresse unique.</string>
-  <string name="transaction_not_broadcasted_info">Non diffusé</string>
   <string name="hd_account_creation_started">Création d\'un nouveau compte HD&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Préparation du portefeuille&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Calcul de la Master Seed&#8230;</string>
@@ -741,7 +740,6 @@
   <string name="payment_request_created">Créée</string>
   <string name="payment_request_expires">Expire</string>
   <string name="payment_request_message_to_merchant">Votre message au commerçant (facultatif)</string>
-  <string name="payment_request_error_while_getting_ack">Impossible d\'envoyer le paiement au merchant-server.\n%s\n\nLe paiement ne sera pas diffusé.</string>
   <string name="payment_request_warning_no_sig">L\'origine de cette demande de paiement ne peut pas être vérifiée, car il n\'a aucune signature.\n\nVeuillez être très prudent, car une personne pourrait intercepter et modifier des adresses de paiement.</string>
   <string name="label_cold_storage_external_signing">Signer avec :</string>
   <string name="spending_unconfirmed_warning">AVERTISSEMENT : dépense de fonds non confirmés</string>
@@ -765,7 +763,6 @@
   <string name="warning_delete_unconfirmed_transaction">Attention : Ceci supprime uniquement la transaction de l\'application locale. Cette fonction ne peut pas annuler une transaction et ne peut pas l\'empêcher de se confirmer. Cela n\'est utile que si le réseau a déjà oublié la transaction parce qu\'il ne l\'a pas confirmé depuis longtemps. Dans ce cas, vous pouvez la supprimer pour accéder de nouveau aux fonds. Vous devez synchroniser après avoir fait cela. Si le réseau connaît toujours la transaction, elle s\'affichera de nouveau juste après la synchronisation.\\n\\nVoulez-vous supprimer la transaction à partir du cache local ?</string>
   <string name="rebroadcast_transaction_title">Rediffuser la transaction</string>
   <string name="description_rebroadcast_transaction">Soumettre de nouveau cette transaction au serveur pour la diffuser. Ceci peut-être utilisé si vous suspectez que le réseau n\'a pas propagé votre transaction ou qu\'il l\'a oublié, parce qu\'il ne l\'a pas confirmé depuis longtemps par exemple. Voulez-vous rediffuser cette transaction ?</string>
-  <string name="message_rebroadcast_successfull">La transaction a été diffusée avec succès.</string>
   <string name="message_rebroadcast_failed">La diffusion a échoué, vérifiez votre connexion internet et synchronisez votre portefeuille.</string>
   <string name="block_explorer_title">Explorateur de blocs (%1$s)</string>
   <string name="block_explorer_summary">Les détails de la transaction peuvent être consultés en utilisant l\'explorateur de blocs %1$s</string>

@@ -164,7 +164,7 @@ public class BroadcastTransactionActivity extends Activity {
             queueDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                public void onClick(DialogInterface arg0, int arg1) {
-                  _account.queueTransaction(_transaction);
+                  _account.queueTransaction(TransactionEx.fromUnconfirmedTransaction(_transaction));
                   setResultOkay();
 
                   BroadcastTransactionActivity.this.finish();

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.7.0" versioncode="27000">
+        <change>Fix QR-scanning camera rotation on new devices like Nexus 5x</change>
+        <change>Show a warning if incoming transaction has a higher risk of getting double-spend (RBF, unconfirmed parents)</change>
+        <change>Update okhttp library due to security vulnerability</change>
+    </release>
     <release version="2.6.0" versioncode="26003">
         <change>Create new Cashila account &amp; option to add new recipients from within the app</change>
         <change>Allow switching between front and back camera for scanning QR codes</change>

@@ -468,7 +468,6 @@
   <string name="selected_archived_warning">Nemůžete pracovat s archivovanými účty.</string>
   <string name="selected_hd_info">Nyní pracujete na tomto HD účtu.</string>
   <string name="selected_single_info">Nyní pracujete s touto jedinou adresou.</string>
-  <string name="transaction_not_broadcasted_info">Transakce neodeslána</string>
   <string name="hd_account_creation_started">Vytvářím nový HD účet&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Připravuji peněženku&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Počítám master seed&#8230;</string>
@@ -732,7 +731,6 @@
   <string name="payment_request_created">Vytvořeno</string>
   <string name="payment_request_expires">Zaniká</string>
   <string name="payment_request_message_to_merchant">Vaše zpráva obchodníkovi (volitelné)</string>
-  <string name="payment_request_error_while_getting_ack">Platbu nelze poslat na server obchodníka.\n%s\n\nPlatba nebude odeslána.</string>
   <string name="payment_request_warning_no_sig">Původ této žádosti o platbu nelze ověřit, neboť nemá žádný podpis.\n\nBuďte prosím velmi opatrní, jelikož ji někdo může zachytávat a měnit platební adresy.</string>
   <string name="label_cold_storage_external_signing">Přihlásit se:</string>
   <string name="spending_unconfirmed_warning">Varování: utrácení nepotvrzených peněz</string>
@@ -756,7 +754,6 @@
   <string name="warning_delete_unconfirmed_transaction">UPOZORNĚNÍ: Toto vymaže transakci pouze z aplikace. Tato funkce nemůže vzít transakci zpět a nemůže zabránit v jejím potvrzení. Je to užitečné pouze pokud síť transakci již zapomněla, protože nebyla potvrzena dlouhou dobu. V tom případě ji můžete vymazat, čímž znovu získáte přístup ke svým financím. Budete pak muset provést synchronizaci. Pokud síť transakci stále zná, po synchronizaci se znovu objeví.\n\nChcete transakci vymazat z mezipaměti?</string>
   <string name="rebroadcast_transaction_title">Znovu odeslat transakci</string>
   <string name="description_rebroadcast_transaction">Podat na server tuto transakci znovu, aby se odeslala. Múže to být použito, pokud máte podezření, že síť nerozšířila nebo opustila vaši transakci, např. protože nebyla dlouhou dobu potvrzena. Chcete tuto transakci znovu odeslat?</string>
-  <string name="message_rebroadcast_successfull">Transakce byla úspěšně odeslána.</string>
   <string name="message_rebroadcast_failed">Odeslání selhalo, zkontrolujte vaše připojení a synchronizujte svou peněženku.</string>
   <string name="block_explorer_title">Block Explorer (%1$s)</string>
   <string name="block_explorer_summary">Podrobnosti o transakci jsou vyhledávány pomocí %1$s Block Exploreru</string>

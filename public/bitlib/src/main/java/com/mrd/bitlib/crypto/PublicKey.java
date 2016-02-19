@@ -59,8 +59,12 @@ public class PublicKey implements Serializable {
 
    @Override
    public int hashCode() {
-      byte[] hash = getPublicKeyHash();
-      return ((int) hash[0]) + (((int) hash[1]) << 8) + (((int) hash[1]) << 16) + (((int) hash[1]) << 32);
+      byte[] bytes = getPublicKeyHash();
+      int hash = 0;
+      for (int i = 0; i < bytes.length; i++) {
+         hash = (hash << 8) + (bytes[i] & 0xff);
+      }
+      return hash;
    }
 
    @Override

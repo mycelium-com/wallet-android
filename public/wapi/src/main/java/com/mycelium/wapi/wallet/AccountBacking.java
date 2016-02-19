@@ -71,4 +71,9 @@ public interface AccountBacking {
 
    void removeOutgoingTransaction(Sha256Hash txid);
 
+   void deleteTxRefersParentTransaction(Sha256Hash txId);
+
+   Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint);
+
+   void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs);
 }
