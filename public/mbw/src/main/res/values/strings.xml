@@ -884,7 +884,7 @@
 
     <string name="import_xpub_wrong_depth">Can only import account level (3) xpub addresses.\nThis was level %1$s.</string>
     <string name="buy_one">Buy one…</string>
-    <string name="warning_risky_unconfirmed">WARNING: wait at least for one confirmation! (%s)</string>
+    <string name="warning_risky_unconfirmed">WARNING: wait for at least one confirmation! (%s)</string>
     <string name="warning_reason_rbf">RBF</string>
     <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
     <string name="warning_reason_doublespend">Doublespend detected</string>

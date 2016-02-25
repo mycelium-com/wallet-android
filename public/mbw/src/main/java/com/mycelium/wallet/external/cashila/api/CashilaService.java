@@ -60,11 +60,13 @@ import com.mycelium.wallet.external.cashila.api.request.*;
 import com.mycelium.wallet.external.cashila.api.response.*;
 import com.mycelium.wapi.api.WapiJsonModule;
 import com.squareup.okhttp.*;
+import com.squareup.okhttp.internal.http.HttpMethod;
 import com.squareup.otto.Bus;
 import okio.Buffer;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
+import retrofit.mime.TypedOutput;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -127,7 +129,7 @@ public class CashilaService {
             .setLogLevel(RestAdapter.LogLevel.BASIC)
             //.setLogLevel(RestAdapter.LogLevel.FULL)
             .setConverter(new JacksonConverter(objectMapper))
-            .setClient(new OkClient(client))
+            .setClient(new NullBodyAwareOkClient(client))
             .setRequestInterceptor(apiIdInterceptor)
             .build();
 
@@ -625,3 +627,4 @@ public class CashilaService {
    }
 
 }
+
