@@ -46,6 +46,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
+import com.mycelium.wallet.keepkey.activity.KeepKeySignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -70,6 +71,8 @@ public class SignTransactionActivity extends Activity {
       if (walletAccount instanceof Bip44AccountExternalSignature) {
     	 if (((Bip44AccountExternalSignature)walletAccount).getBIP44AccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
     		 intent = new Intent(currentActivity, LedgerSignTransactionActivity.class);
+		 }else if (((Bip44AccountExternalSignature)walletAccount).getBIP44AccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+    		 intent = new Intent(currentActivity, KeepKeySignTransactionActivity.class);
     	 }else {
     		 intent = new Intent(currentActivity, TrezorSignTransactionActivity.class); 
     	 }         

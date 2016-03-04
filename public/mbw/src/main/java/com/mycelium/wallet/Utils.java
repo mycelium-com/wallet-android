@@ -741,6 +741,8 @@ public class Utils {
          int accountType = ((Bip44AccountExternalSignature) walletAccount).getAccountType();
          if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
+		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+            return resources.getDrawable(R.drawable.keepkey_icon);
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
@@ -768,6 +770,8 @@ public class Utils {
          int accountType = ((Bip44AccountExternalSignature) account).getAccountType();
          if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
+		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+            baseName = MbwManager.getInstance(context).getKeepKeyManager().getLabelOrDefault();
          } else {
             baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
          }

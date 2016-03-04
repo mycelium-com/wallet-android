@@ -84,6 +84,7 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.trezor.TrezorManager;
+import com.mycelium.wallet.keepkey.KeepKeyManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.wallet.*;
@@ -128,6 +129,7 @@ public class MbwManager {
 
    private final Bus _eventBus;
    private final TrezorManager _trezorManager;
+   private final KeepKeyManager _keepkeyManager;
    private final LedgerManager _ledgerManager;
    private final WapiClient _wapi;
 
@@ -246,6 +248,7 @@ public class MbwManager {
             : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
       _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
+      _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
       _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
       _walletManager = createWalletManager(_applicationContext, _environment);
 
@@ -524,6 +527,7 @@ public class MbwManager {
 
       ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
             getTrezorManager(),
+            getKeepKeyManager(),
             getLedgerManager()
       );
 
@@ -1133,6 +1137,10 @@ public class MbwManager {
 
    public TrezorManager getTrezorManager() {
       return _trezorManager;
+   }
+
+   public KeepKeyManager getKeepKeyManager() {
+      return _keepkeyManager;
    }
 
    public LedgerManager getLedgerManager() {

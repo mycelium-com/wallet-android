@@ -46,6 +46,7 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.*;
 import com.mycelium.wallet.trezor.activity.InstantTrezorActivity;
+import com.mycelium.wallet.keepkey.activity.InstantKeepKeyActivity;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -55,6 +56,7 @@ public class InstantWalletActivity extends Activity {
    public static final int REQUEST_SCAN = 0;
    private static final int REQUEST_TREZOR = 1;
    private static final int IMPORT_WORDLIST = 2;
+   private static final int REQUEST_KEEPKEY = 3;
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, InstantWalletActivity.class);
@@ -100,6 +102,13 @@ public class InstantWalletActivity extends Activity {
             InstantTrezorActivity.callMe(InstantWalletActivity.this, REQUEST_TREZOR);
          }
       });
+
+      findViewById(R.id.btKeepKey).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View arg0) {
+            InstantKeepKeyActivity.callMe(InstantWalletActivity.this, REQUEST_KEEPKEY);
+         }
+      });
    }
 
    private void handleString(String str) {
@@ -134,6 +143,10 @@ public class InstantWalletActivity extends Activity {
             // So the user can click back and scan the next cold storage.
          // }
       } else if (requestCode == REQUEST_TREZOR){
+         if (resultCode == RESULT_OK) {
+            finish();
+         }
+      } else if (requestCode == REQUEST_KEEPKEY){
          if (resultCode == RESULT_OK) {
             finish();
          }

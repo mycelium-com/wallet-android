@@ -704,6 +704,18 @@ public class WalletManager {
                      _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
                );
                break;
+            case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY:
+               SecureKeyValueStore subKeyStoreKeepKey = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+               keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStoreKeepKey);
+               account = new Bip44AccountExternalSignature(
+                       context,
+                       keyManager,
+                       _network,
+                       accountBacking,
+                       _wapi,
+                       _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY)
+               );
+               break;
             default:
                throw new IllegalArgumentException("Unknown account type " + context.getAccountType());
          }
