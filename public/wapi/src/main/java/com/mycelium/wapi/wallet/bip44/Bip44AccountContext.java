@@ -29,6 +29,7 @@ public class Bip44AccountContext {
    public static final int ACCOUNT_TYPE_UNRELATED_X_PUB = 2;
    public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR = 3;
    public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER = 4;
+   public static final int ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY = 5;
 
    private UUID id;
    private int accountIndex;

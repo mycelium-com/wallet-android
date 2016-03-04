@@ -47,6 +47,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.trezor.activity.TrezorAccountImportActivity;
+import com.mycelium.wallet.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
@@ -61,6 +62,7 @@ import java.util.UUID;
 public class AddAdvancedAccountActivity extends Activity {
 
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
+   public static final String BUY_KEEPKEY_LINK = "https://www.keepkey.com";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
 
    public static void callMe(Activity activity, int requestCode) {
@@ -75,6 +77,7 @@ public class AddAdvancedAccountActivity extends Activity {
    private static final int TREZOR_RESULT_CODE = 2;
    private static final int CLIPBOARD_RESULT_CODE = 3;
    private static final int LEDGER_RESULT_CODE = 4;
+   private static final int KEEPKEY_RESULT_CODE = 5;
    private MbwManager _mbwManager;
 
    private NetworkParameters _network;
@@ -116,6 +119,20 @@ public class AddAdvancedAccountActivity extends Activity {
          @Override
          public void onClick(View view) {
             Utils.openWebsite(activity, BUY_TREZOR_LINK);
+         }
+      });
+
+      findViewById(R.id.btKeepKey).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            KeepKeyAccountImportActivity.callMe(activity, KEEPKEY_RESULT_CODE);
+         }
+      });
+
+      findViewById(R.id.btBuyKeepKey).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Utils.openWebsite(activity, BUY_KEEPKEY_LINK);
          }
       });
 
@@ -215,6 +232,9 @@ public class AddAdvancedAccountActivity extends Activity {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
       } else if (requestCode == TREZOR_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+         // already added to the WalletManager - just return the new account
+         finishOk((UUID) intent.getSerializableExtra("account"));
+      } else if (requestCode == KEEPKEY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
          finishOk((UUID) intent.getSerializableExtra("account"));
       } else if (requestCode == LEDGER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
