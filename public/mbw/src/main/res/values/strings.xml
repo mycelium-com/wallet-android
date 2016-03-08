@@ -893,5 +893,15 @@
     <string name="incoming_payment">"Incoming payment: "</string>
     <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
 
+    <!-- GlideraService Start -->
+    <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
+    <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
+    <string name="lt_mycelium_marketplace_description">Find Mycelium users in your local area who buy/sell bitcoin.</string>
+    <string name="gd_buy_sell">Glidera</string>
+    <string name="gd_buy_sell_description">Buy/Sell bitcoin from Glidera using a bank account in the US or Canada.</string>
+    <string name="gd_buy_tab">Buy</string>
+    <string name="gd_sell_tab">Sell</string>
+    <string name="gd_transaction_history_tab">History</string>
+    <!-- GlideraService End -->
 
 </resources>

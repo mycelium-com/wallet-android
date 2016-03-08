@@ -33,13 +33,12 @@
                     android:paddingBottom="5dp"
                     tools:layout="@layout/backup_verification_warning_dialog"/>
 
-
             <FrameLayout
-                    android:id="@+id/phFragmentLocalTrader"
+                    android:id="@+id/phFragmentGlidera"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="10dp"
-                    tools:layout="@layout/main_lt_fragment"/>
+                    tools:layout="@layout/main_buy_sell_fragment"/>
 
         </LinearLayout>
     </ScrollView>

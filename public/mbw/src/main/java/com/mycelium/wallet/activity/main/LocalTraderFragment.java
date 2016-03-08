@@ -79,7 +79,7 @@ public class LocalTraderFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _root.findViewById(R.id.btTrade).setOnClickListener(tradeClickListener);
+      _root.findViewById(R.id.llMyceliumBuySell).setOnClickListener(tradeClickListener);
       _mbwManager.getLocalTraderManager().subscribe(ltSubscriber);
       updateUi();
       super.onResume();

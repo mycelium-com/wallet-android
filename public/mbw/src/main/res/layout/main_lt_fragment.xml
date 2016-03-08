@@ -6,7 +6,54 @@
     android:layout_marginTop="10dp"
     android:orientation="vertical" >
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/llMyceliumBuySell"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="right"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/ivDot"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:contentDescription="@string/an_icon"
+                android:src="@drawable/circle_full_green" >
+            </ImageView>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvMyceliumName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:padding="0dp"
+            android:text="Mycelium Marketplace"
+            android:gravity="center"
+            android:textSize="18sp">
+        </TextView>
+
+        <TextView
+            android:id="@+id/tvMyceliumDescription"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:padding="0dp"
+            android:gravity="center"
+            android:text="Find Mycelium users in your local area who buy/sell bitcoin."
+            android:textSize="12sp"
+            android:typeface="monospace">
+        </TextView>
+    </LinearLayout>
+
+    <!--<FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" >
@@ -34,6 +81,6 @@
                 android:src="@drawable/circle_full_green" >
             </ImageView>
         </FrameLayout>
-    </FrameLayout>
+    </FrameLayout>-->
 
 </LinearLayout>
