@@ -5,7 +5,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,8 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.api.GlideraService;
 import com.mycelium.wallet.glidera.api.request.SellPriceRequest;
-import com.mycelium.wallet.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.glidera.api.response.GlideraError;
+import com.mycelium.wallet.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.glidera.api.response.TwoFactorResponse;
 
 import java.math.BigDecimal;
@@ -37,17 +36,13 @@ public class GlideraSellFragment extends Fragment {
     private TextView tvTotalAmount;
     private TextWatcher textWatcherFiat;
     private TextWatcher textWatcherBtc;
-    private Button buttonSellBitcoin;
     private TextView tvPrice;
     private String currencyIso = "Fiat";
-    private Toaster toaster;
     private volatile SellPriceResponse mostRecentSellPriceResponse;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_sell, container, false));
-
-        toaster = new Toaster(getActivity());
 
         etSellFiat = (EditText) root.findViewById(R.id.etSellFiat);
         etSellBtc = (EditText) root.findViewById(R.id.etSellBtc);
@@ -56,7 +51,7 @@ public class GlideraSellFragment extends Fragment {
         tvFeeAmount = (TextView) root.findViewById(R.id.tvFeeAmount);
         tvTotalAmount = (TextView) root.findViewById(R.id.tvTotalAmount);
         tvPrice = (TextView) root.findViewById(R.id.tvPrice);
-        buttonSellBitcoin = (Button) root.findViewById(R.id.buttonSellBitcoin);
+        Button buttonSellBitcoin = (Button) root.findViewById(R.id.buttonSellBitcoin);
 
         /*
         Determine which currency to show
@@ -76,7 +71,7 @@ public class GlideraSellFragment extends Fragment {
                     public void onError(Throwable e) {
                         GlideraError error = GlideraService.convertRetrofitException(e);
                         if (error != null && error.getCode() != null) {
-                            Log.i("Glidera", error.toString());
+                            //TODO handle error
                         }
                     }
 
@@ -177,7 +172,9 @@ public class GlideraSellFragment extends Fragment {
         buttonSellBitcoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment newFragment = GlideraSell2faDialog.newInstance(mostRecentSellPriceResponse.getQty(),mostRecentSellPriceResponse.getTotal(), TwoFactorResponse.Mode.NONE);
+                //TODO validate amounts
+                DialogFragment newFragment = GlideraSell2faDialog.newInstance(mostRecentSellPriceResponse.getQty(),
+                        mostRecentSellPriceResponse.getTotal(), TwoFactorResponse.Mode.NONE);
                 newFragment.show(getFragmentManager(), "gliderasell2fadialog");
             }
         });
@@ -196,7 +193,7 @@ public class GlideraSellFragment extends Fragment {
     private void queryPricing(final BigDecimal btc, final BigDecimal fiat) {
         if (btc != null) {
             if (btc.compareTo(BigDecimal.ZERO) < 0) {
-                toaster.toast("BTC must be greater than 0", true);
+                etSellBtc.setError("BTC must be greater than 0");
                 zeroPricing(SellMode.BTC);
                 return;
             } else if (btc.compareTo(BigDecimal.ZERO) == 0) {
@@ -205,7 +202,7 @@ public class GlideraSellFragment extends Fragment {
             }
         } else if (fiat != null) {
             if (fiat.compareTo(BigDecimal.ZERO) < 0) {
-                toaster.toast("BTC must be greater than 0", true);
+                etSellFiat.setError("BTC must be greater than 0");
                 zeroPricing(SellMode.FIAT);
                 return;
             } else if (fiat.compareTo(BigDecimal.ZERO) == 0) {
@@ -228,12 +225,11 @@ public class GlideraSellFragment extends Fragment {
                         if (error != null && error.getCode() != null) {
                             if (error.getCode() == 1101) {
                                 if (error.getInvalidParameters().contains("fiat")) {
-                                    toaster.toast("Invalid " + currencyIso + " value. " + error.getDetails(), true);
+                                    etSellFiat.setError("Invalid " + currencyIso + " value. " + error.getDetails());
                                 } else if (error.getInvalidParameters().contains("qty")) {
-                                    toaster.toast("Invalid BTC value. " + error.getDetails(), true);
+                                    etSellBtc.setError("Invalid BTC value. " + error.getDetails());
                                 }
                             }
-                            Log.i("Glidera", error.toString());
                         }
                     }
 

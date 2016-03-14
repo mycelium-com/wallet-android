@@ -34,7 +34,6 @@ import rx.functions.Action1;
 public class GlideraTransactionHistoryFragment extends ListFragment {
     private GlideraService glideraService;
     private TransactionHistoryAdapter transactionHistoryAdapter;
-    private View root;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,25 +66,13 @@ public class GlideraTransactionHistoryFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_transaction_history, container, false));
-        return root;
+        return Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_transaction_history, container, false));
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
-
-//    @Override
-//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//        TransactionResponse transactionResponse = (TransactionResponse) parent.getAdapter().getItem(position);
-//
-//        Intent intent = new Intent(getActivity(), GlideraTransaction.class);
-//        Bundle bundle = new Bundle();
-//        bundle.putString("transactionuuid", transactionResponse.getTransactionUuid().toString());
-//        intent.putExtras(bundle);
-//        startActivity(intent);
-//    }
 
     private final class TransactionHistoryAdapter extends ArrayAdapter<TransactionResponse> {
         private Context context;

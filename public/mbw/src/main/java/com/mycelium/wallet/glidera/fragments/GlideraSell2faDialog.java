@@ -48,23 +48,26 @@ public class GlideraSell2faDialog extends DialogFragment {
 
         getDialog().setTitle("Confirm Your Sale");
 
-        tvPurchaseSummary.setText("You are about to sell " + GlideraUtils.formatBtcForDisplay(new BigDecimal(sellPriceResponseQty)) + " for " +
-                " " +
-                GlideraUtils.formatFiatForDisplay(new BigDecimal(sellPriceResponseTotal)) + ".");
+        String purchaseSummary = "You are about to sell " + GlideraUtils.formatBtcForDisplay(new BigDecimal(sellPriceResponseQty)) + " for " +
+                " " + GlideraUtils.formatFiatForDisplay(new BigDecimal(sellPriceResponseTotal)) + ".";
+        tvPurchaseSummary.setText(purchaseSummary);
 
         if (mode2FA.equals(TwoFactorResponse.Mode.NONE.toString())) {
             tv2FASummary.setVisibility(View.GONE);
             buttonResend2FA.setVisibility(View.GONE);
             et2FA.setVisibility(View.GONE);
         } else if (mode2FA.equals(TwoFactorResponse.Mode.AUTHENTICATR.toString())) {
-            tv2FASummary.setText("Please enter your 2-factor authorization (2FA) code from your Authenticator smartphone app to complete this sale.");
+            String twoFASummary = "Please enter your 2-factor authorization (2FA) code from your Authenticator smartphone app to complete this sale.";
+            tv2FASummary.setText(twoFASummary);
             buttonResend2FA.setVisibility(View.GONE);
         } else if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString())) {
-            tv2FASummary.setText("Please enter your PIN to complete this sale.");
+            String twoFASummary = "Please enter your PIN to complete this sale.";
+            tv2FASummary.setText(twoFASummary);
             buttonResend2FA.setVisibility(View.GONE);
         } else if (mode2FA.equals(TwoFactorResponse.Mode.SMS.toString())) {
-            tv2FASummary.setText("A text message has been sent to your phone with a 2-factor authentication (2FA) code. Please enter it " +
-                    "to confirm this sale.");
+            String twoFASummary = "A text message has been sent to your phone with a 2-factor authentication (2FA) code. Please enter it " +
+                    "to confirm this sale.";
+            tv2FASummary.setText(twoFASummary);
         }
 
         Button buttonCancel = (Button) root.findViewById(R.id.buttonCancel);

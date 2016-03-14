@@ -61,7 +61,7 @@ public interface GlideraApi {
     Observable<GlideraResponse> getEmail();
 
     @POST("/user/email")
-    Observable<GlideraResponse> updateEmail(@Body UpdateEmailRequest updateEmailRequest);
+    Observable<GlideraResponse> updateEmail(@Body UpdateEmailRequest updateEmailRequest, @Header("X-2FA-Code") String twoFACode);
 
     @POST("/user/email/resend_verification")
     Observable<GlideraResponse> resendVerificationEmail();
@@ -92,7 +92,7 @@ public interface GlideraApi {
     Observable<GlideraResponse> confirmPhone(@Body ConfirmPhoneRequest confirmPhoneRequest);
 
     @DELETE("/user/phone")
-    Observable<GlideraResponse> deletePhone();
+    Observable<GlideraResponse> deletePhone(@Header("X-2FA-Code") String twoFACode);
 
     @GET("/user/phone")
     Observable<GetPhoneResponse> getPhone();
@@ -104,7 +104,7 @@ public interface GlideraApi {
     Observable<BuyPriceResponse> buyPrice(@Body BuyPriceRequest buyPriceRequest);
 
     @POST("/buy")
-    Observable<BuyResponse> buy(@Body BuyRequest buyRequest);
+    Observable<BuyResponse> buy(@Body BuyRequest buyRequest, @Header("X-2FA-Code") String twoFACode);
 
     @GET("/user/create_sell_address")
     Observable<SellAddressResponse> sellAddress();

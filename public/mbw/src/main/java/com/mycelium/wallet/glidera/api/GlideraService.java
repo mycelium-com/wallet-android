@@ -6,16 +6,12 @@ import android.util.Log;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.api.client.repackaged.com.google.common.base.Preconditions;
 import com.google.common.base.Charsets;
 import com.mrd.bitlib.crypto.Hmac;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.api.retrofit.JacksonConverter;
 import com.mycelium.wallet.glidera.api.request.AddPhoneRequest;
@@ -46,7 +42,6 @@ import com.mycelium.wallet.glidera.api.response.TransactionsResponse;
 import com.mycelium.wallet.glidera.api.response.TwoFactorResponse;
 import com.mycelium.wallet.glidera.api.response.VerifyPictureIdResponse;
 import com.mycelium.wapi.api.WapiJsonModule;
-import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -56,7 +51,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -71,6 +65,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 /***
@@ -104,6 +99,7 @@ public class GlideraService {
     private InMemoryPrivateKey bitidKey;
     private final Object nonceSync = new Object();
     private final NetworkParameters networkParameters;
+    private volatile Long nonce;
 
     private GlideraService(@NonNull final NetworkParameters networkParameters) {
         Preconditions.checkNotNull(networkParameters);
@@ -145,8 +141,6 @@ public class GlideraService {
                             message += body;
                         }
 
-                        Log.i("Glidera", "Message: '" + message + "'");
-
                         final byte[] messageBytes = message.getBytes(Charsets.UTF_8);
                         final byte[] secretBytes = _oAuth1Response.getSecret().getBytes(Charsets.UTF_8);
                         final byte[] signatureBytes = Hmac.hmacSha256(secretBytes, messageBytes);
@@ -154,10 +148,6 @@ public class GlideraService {
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
                         Hex.encode(signatureBytes, stream);
                         final String signature = stream.toString();
-
-                        Log.i("Glidera", HEADER_ACCESS_KEY + ": " + _oAuth1Response.getAccess_key());
-                        Log.i("Glidera", HEADER_ACCESS_NONCE + ": " + nonce);
-                        Log.i("Glidera", HEADER_ACCESS_SIGNATURE + ": " + signature);
 
                         request = requestBuilder
                                 .header(HEADER_ACCESS_KEY, _oAuth1Response.getAccess_key())
@@ -188,7 +178,6 @@ public class GlideraService {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestFacade requestFacade) {
-                Log.i("Glidera", HEADER_CLIENT_ID + ": " + clientId);
                 requestFacade.addHeader(HEADER_CLIENT_ID, clientId);
             }
         };
@@ -214,13 +203,12 @@ public class GlideraService {
     public static GlideraService getInstance() {
         final MbwManager mbwManager = MbwManager.getInstance(null);
         try {
-            GlideraService glideraService = (GlideraService) mbwManager.getBackgroundObjectsCache().get(GLIDERA_SERVICE, new Callable<Object>() {
+            return (GlideraService) mbwManager.getBackgroundObjectsCache().get(GLIDERA_SERVICE, new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
                     return new GlideraService(mbwManager.getNetwork());
                 }
             });
-            return glideraService;
         } catch (ExecutionException executionException) {
             throw new RuntimeException(executionException);
         }
@@ -239,15 +227,14 @@ public class GlideraService {
     }
 
     private synchronized long getNonce() {
-        return System.currentTimeMillis();
-    }
+        if( nonce == null ) {
+            nonce = System.currentTimeMillis();
+        }
+        else {
+            nonce++;
+        }
 
-    public String getClientId() {
-        return clientId;
-    }
-
-    public String getBaseUrl() {
-        return baseUrl;
+        return nonce;
     }
 
     public static String getBaseUrl(NetworkParameters networkParameters) {
@@ -278,9 +265,9 @@ public class GlideraService {
                 .appendQueryParameter("bitid_address", getBitidKey().getPublicKey().toAddress(networkParameters).toString())
                 .appendQueryParameter("bitid_uri", bitidUri)
                 .appendQueryParameter("bitid_signature", signature)
-                //.appendQueryParameter("redirect_uri", baseUrl + "/user/setup")
-                //.appendQueryParameter("redirect_uri", "https://www.google.com")
-                //.appendQueryParameter("redirect_uri", getSetupUrl())
+                        //.appendQueryParameter("redirect_uri", baseUrl + "/user/setup")
+                        //.appendQueryParameter("redirect_uri", "https://www.google.com")
+                        //.appendQueryParameter("redirect_uri", getSetupUrl())
                 .appendQueryParameter("redirect_uri", "mycelium://glideraRegistration")
                 .appendQueryParameter("state", nonce)
                 .build()
@@ -305,15 +292,12 @@ public class GlideraService {
 
         final String signature = getBitidKey().signMessage(uri.toString()).getBase64Signature();
 
-        final String url = uri.buildUpon().appendQueryParameter("bitid_signature", signature).toString();
-
-        return url;
+        return uri.buildUpon().appendQueryParameter("bitid_signature", signature).toString();
     }
 
     /*
     Api calls
      */
-
     public Observable<TestResponse> test() {
         return getApi().test();
     }
@@ -336,10 +320,9 @@ public class GlideraService {
                     .doOnError(new Action1<Throwable>() {
                         @Override
                         public void call(Throwable throwable) {
-                            Log.i("glidera", "oauth1Response throwable: " + throwable.toString());
                             GlideraError error = GlideraService.convertRetrofitException(throwable);
                             if (error != null && error.getCode() != null) {
-                                Log.i("Glidera", "oauth1Response glidera error: " + error.toString());
+                                //TODO handle error
                             }
                             _oAuth1Response = null;
                             oAuth1ResponseObservable = null;
@@ -348,7 +331,6 @@ public class GlideraService {
                     .map(new Func1<OAuth1Response, OAuth1Response>() {
                         @Override
                         public OAuth1Response call(OAuth1Response oAuth1Response) {
-                            Log.i("glidera", "oauth1Response: " + oAuth1Response.toString());
                             _oAuth1Response = oAuth1Response;
                             return oAuth1Response;
                         }
@@ -380,11 +362,11 @@ public class GlideraService {
      * @param updateEmailRequest Request containing updated email information
      * @return Returns error details if present
      */
-    public Observable<GlideraResponse> updateEmail(final UpdateEmailRequest updateEmailRequest) {
+    public Observable<GlideraResponse> updateEmail(final UpdateEmailRequest updateEmailRequest, final String twoFACode) {
         return new ApiCaller<GlideraResponse>() {
             @Override
             Observable<GlideraResponse> apiCall(OAuth1Response oAuth1Response) {
-                return getApi().updateEmail(updateEmailRequest);
+                return getApi().updateEmail(updateEmailRequest, twoFACode);
             }
         }.call();
     }
@@ -525,11 +507,11 @@ public class GlideraService {
      *
      * @return Returns error details if present
      */
-    public Observable<GlideraResponse> deletePhone() {
+    public Observable<GlideraResponse> deletePhone(final String twoFACode) {
         return new ApiCaller<GlideraResponse>() {
             @Override
             Observable<GlideraResponse> apiCall(OAuth1Response oAuth1Response) {
-                return getApi().deletePhone();
+                return getApi().deletePhone(twoFACode);
             }
         }.call();
     }
@@ -574,11 +556,11 @@ public class GlideraService {
      * @param buyRequest Request containing buy information.
      * @return Returns a buy response containing transaction details and estimated delivery date.
      */
-    public Observable<BuyResponse> buy(final BuyRequest buyRequest) {
+    public Observable<BuyResponse> buy(final BuyRequest buyRequest, final String twoFACode) {
         return new ApiCaller<BuyResponse>() {
             @Override
             Observable<BuyResponse> apiCall(OAuth1Response oAuth1Response) {
-                return getApi().buy(buyRequest);
+                return getApi().buy(buyRequest, twoFACode);
             }
         }.call();
     }
@@ -711,17 +693,43 @@ public class GlideraService {
                             public void call(Throwable throwable) {
                                 if (throwable instanceof RetrofitError) {
                                     GlideraError error = convertRetrofitException(throwable);
-                                    Log.i("Glidera", "error: " + error.toString());
-                                    if (error.getCode() == 2016 || error.getCode() == 2017) {
-                                        _oAuth1Response = null;
+                                    if (error != null) {
+                                        Log.e("Glidera", error.toString());
+                                        if (error.getCode() == 2016 || error.getCode() == 2017) {
+                                            _oAuth1Response = null;
+                                        }
                                     }
                                 }
+                            }
+                        })
+                        .retry(new Func2<Integer, Throwable, Boolean>() {
+                            @Override
+                            public Boolean call(Integer integer, Throwable throwable) {
+                                /*
+                                Retry up to three times
+                                 */
+                                if (integer > 2) {
+                                    return false;
+                                }
+
+                                GlideraError error = convertRetrofitException(throwable);
+                                if (error != null) {
+                                    /*
+                                    If nonce is too little, null the nonce and try again
+                                     */
+                                    if (error.getCode() == 2018) {
+                                        nonce = null;
+                                        return true;
+                                    }
+                                }
+
+
+                                return false;
                             }
                         })
                         .map(new Func1<T, T>() {
                             @Override
                             public T call(T t) {
-                                Log.i("glidera", ": " + t.toString());
                                 return t;
                             }
                         })
@@ -732,6 +740,7 @@ public class GlideraService {
                     .map(new Func1<T, T>() {
                         @Override
                         public T call(T t) {
+                            Log.d("Glidera", t.toString());
                             return t;
                         }
                     })

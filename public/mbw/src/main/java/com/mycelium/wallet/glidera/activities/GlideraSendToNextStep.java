@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.glidera.api.GlideraService;
@@ -25,7 +24,6 @@ public class GlideraSendToNextStep extends Activity {
         Uri uri = Uri.parse(uriString);
 
         if (uri.getQueryParameter("status").equals("SUCCESS")) {
-            Log.i("Glidera", "GlideraSendToNextStep, uri = " + uri);
             glideraService = GlideraService.getInstance();
             glideraService.status()
                     .observeOn(AndroidSchedulers.mainThread())
@@ -43,16 +41,12 @@ public class GlideraSendToNextStep extends Activity {
                         public void onNext(StatusResponse statusResponse) {
                             if (statusResponse.isUserCanTransact()) {
                                 //Send to buy
-                                Log.i("Glidera", "Bitid account found, setup complete");
                                 Intent intent = new Intent(GlideraSendToNextStep.this, GlideraMainActivity.class);
                                 startActivity(intent);
                                 finish();
-                                return;
                             } else {
                                 //Send to setup
                                 String uri = glideraService.getSetupUrl();
-                                Log.i("Glidera", "Bitid account found, setup incomplete");
-                                Log.i("Glidera", "redirect to " + uri);
                                 Utils.openWebsite(GlideraSendToNextStep.this, uri);
                             }
                         }

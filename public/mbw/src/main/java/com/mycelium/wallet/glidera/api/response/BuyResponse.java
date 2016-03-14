@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class BuyResponse extends GlideraResponse {
-    private UUID transactionUUID;
+    private UUID transactionUuid;
     private Date transactionDate;
     private BigDecimal price;
     private BigDecimal subtotal;
@@ -16,12 +16,12 @@ public class BuyResponse extends GlideraResponse {
     private Date estimatedDeliveryDate;
     private OrderState status;
 
-    public UUID getTransactionUUID() {
-        return transactionUUID;
+    public UUID getTransactionUuid() {
+        return transactionUuid;
     }
 
-    public void setTransactionUUID(UUID transactionUUID) {
-        this.transactionUUID = transactionUUID;
+    public void setTransactionUuid(UUID transactionUuid) {
+        this.transactionUuid = transactionUuid;
     }
 
     public Date getTransactionDate() {

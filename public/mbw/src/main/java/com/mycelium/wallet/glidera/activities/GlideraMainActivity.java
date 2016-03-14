@@ -1,7 +1,6 @@
 package com.mycelium.wallet.glidera.activities;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -11,56 +10,58 @@ import android.view.MenuItem;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.modern.TabsAdapter;
-import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.glidera.api.GlideraService;
 import com.mycelium.wallet.glidera.fragments.GlideraBuyFragment;
 import com.mycelium.wallet.glidera.fragments.GlideraSellFragment;
 import com.mycelium.wallet.glidera.fragments.GlideraTransactionHistoryFragment;
 
 public class GlideraMainActivity extends ActionBarActivity {
-    private MbwManager mbwManager;
-    private GlideraService glideraService;
-
-    private ViewPager viewPager;
-
-    private TabsAdapter tabsAdapter;
     private Tab buyBitcoinTab;
-    private Tab sellBitcoinTab;
-    private Tab transactionHistoryTab;
-
-    private Toaster toaster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mbwManager = MbwManager.getInstance(this);
-        glideraService = GlideraService.getInstance();
-
-        viewPager = new ViewPager(this);
+        ViewPager viewPager = new ViewPager(this);
         viewPager.setId(R.id.pager);
         setContentView(viewPager);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayOptions(1, ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
-        tabsAdapter = new TabsAdapter(this, viewPager, mbwManager);
+        TabsAdapter tabsAdapter = new TabsAdapter(this, viewPager, MbwManager.getInstance(this));
 
         buyBitcoinTab = actionBar.newTab();
         tabsAdapter.addTab(buyBitcoinTab.setText(getString(R.string.gd_buy_tab)), GlideraBuyFragment.class, null);
 
-        sellBitcoinTab = actionBar.newTab();
+        Tab sellBitcoinTab = actionBar.newTab();
         tabsAdapter.addTab(sellBitcoinTab.setText(getString(R.string.gd_sell_tab)), GlideraSellFragment.class, null);
 
-        transactionHistoryTab = actionBar.newTab();
-        tabsAdapter.addTab(transactionHistoryTab.setText(getString(R.string.gd_transaction_history_tab)), GlideraTransactionHistoryFragment.class, null);
+        Tab transactionHistoryTab = actionBar.newTab();
+        tabsAdapter.addTab(transactionHistoryTab.setText(getString(R.string.gd_transaction_history_tab)),
+                GlideraTransactionHistoryFragment.class, null);
 
-        actionBar.selectTab(buyBitcoinTab);
+        Bundle bundle = getIntent().getExtras();
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if( bundle != null ) {
+            String tab = getIntent().getExtras().getString("tab");
+
+            if (tab.equals("buy")) {
+                actionBar.selectTab(buyBitcoinTab);
+            } else if (tab.equals("sell")) {
+                actionBar.selectTab(sellBitcoinTab);
+            } else if (tab.equals("history")) {
+                actionBar.selectTab(transactionHistoryTab);
+            } else {
+                actionBar.selectTab(buyBitcoinTab);
+            }
+        }
+        else {
+            actionBar.selectTab(buyBitcoinTab);
+        }
+
     }
 
     @Override
