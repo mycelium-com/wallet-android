@@ -15,9 +15,6 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.activities.GlideraTransaction;
 import com.mycelium.wallet.glidera.api.GlideraService;
@@ -65,7 +62,6 @@ public class GlideraBuy2faDialog extends DialogFragment {
         getDialog().setTitle("Confirm Your Purchase");
 
         String purchaseSummary = "You are about to buy " + GlideraUtils.formatBtcForDisplay(new BigDecimal(buyPriceResponseQty)) + " for " +
-                " " +
                 GlideraUtils.formatFiatForDisplay(new BigDecimal(buyPriceResponseTotal)) + ".";
 
         tvPurchaseSummary.setText(purchaseSummary);
@@ -75,7 +71,8 @@ public class GlideraBuy2faDialog extends DialogFragment {
             buttonResend2FA.setVisibility(View.GONE);
             et2FA.setVisibility(View.GONE);
         } else if (mode2FA.equals(TwoFactorResponse.Mode.AUTHENTICATR.toString())) {
-            String twoFASummary = "Please enter your 2-factor authorization (2FA) code from your Authenticator smartphone app to complete this purchase.";
+            String twoFASummary = "Please enter your 2-factor authorization (2FA) code from your Authenticator smartphone app to complete" +
+                    " this purchase.";
             tv2FASummary.setText(twoFASummary);
             buttonResend2FA.setVisibility(View.GONE);
             et2FA.setHint("2FA Code");
@@ -109,19 +106,18 @@ public class GlideraBuy2faDialog extends DialogFragment {
                 /*
                 Validate the 2fa or pin entered if two factor mode is anything other than none
                  */
-                if( !mode2FA.equals(TwoFactorResponse.Mode.NONE.toString() )) {
+                if (!mode2FA.equals(TwoFactorResponse.Mode.NONE.toString())) {
                     twoFACode = et2FA.getText().toString();
 
-                    if(twoFACode == null || twoFACode.isEmpty()) {
-                        if( mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
+                    if (twoFACode == null || twoFACode.isEmpty()) {
+                        if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
                             et2FA.setError("PIN is required");
                         else
                             et2FA.setError("2FA Code is required");
                         buttonContinue.setEnabled(true);
                         return;
                     }
-                }
-                else {
+                } else {
                     twoFACode = null;
                 }
 
@@ -131,7 +127,7 @@ public class GlideraBuy2faDialog extends DialogFragment {
                     BigDecimal qty = new BigDecimal(buyPriceResponseQty);
                     UUID uuid = UUID.fromString(buyPriceResponseUUID);
 
-                    BuyRequest buyRequest = new BuyRequest( address, qty, uuid, false, null);
+                    BuyRequest buyRequest = new BuyRequest(address, qty, uuid, false, null);
 
                     glideraService.buy(buyRequest, twoFACode).subscribe(new Observer<BuyResponse>() {
                         @Override
@@ -143,8 +139,8 @@ public class GlideraBuy2faDialog extends DialogFragment {
                         public void onError(Throwable e) {
                             GlideraError error = GlideraService.convertRetrofitException(e);
                             if (error != null && error.getCode() != null) {
-                                if( error.getCode() == 2006 ) {
-                                    if( mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
+                                if (error.getCode() == 2006) {
+                                    if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
                                         et2FA.setError("Incorrect PIN");
                                     else
                                         et2FA.setError("Incorrect 2FA Code");

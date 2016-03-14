@@ -13,14 +13,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.TransactionUtils;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.api.GlideraService;
 import com.mycelium.wallet.glidera.api.request.SellPriceRequest;
 import com.mycelium.wallet.glidera.api.response.GlideraError;
+import com.mycelium.wallet.glidera.api.response.SellAddressResponse;
 import com.mycelium.wallet.glidera.api.response.SellPriceResponse;
-import com.mycelium.wallet.glidera.api.response.TwoFactorResponse;
+import com.mycelium.wallet.glidera.api.response.TransactionLimitsResponse;
 
 import java.math.BigDecimal;
 
@@ -39,6 +41,8 @@ public class GlideraSellFragment extends Fragment {
     private TextView tvPrice;
     private String currencyIso = "Fiat";
     private volatile SellPriceResponse mostRecentSellPriceResponse;
+    private volatile TransactionLimitsResponse _transactionLimitsResponse;
+    private BigDecimal btcAvailible;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,6 +86,24 @@ public class GlideraSellFragment extends Fragment {
                         tvPrice.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getPrice()));
                         currencyIso = sellPriceResponse.getCurrency();
                         zeroPricing();
+                    }
+                });
+
+
+        glideraService.transactionLimits()
+                //.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<TransactionLimitsResponse>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(TransactionLimitsResponse transactionLimitsResponse) {
+                        _transactionLimitsResponse = transactionLimitsResponse;
                     }
                 });
 
@@ -172,10 +194,48 @@ public class GlideraSellFragment extends Fragment {
         buttonSellBitcoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO validate amounts
-                DialogFragment newFragment = GlideraSell2faDialog.newInstance(mostRecentSellPriceResponse.getQty(),
-                        mostRecentSellPriceResponse.getTotal(), TwoFactorResponse.Mode.NONE);
-                newFragment.show(getFragmentManager(), "gliderasell2fadialog");
+
+                String qty = etSellBtc.getText().toString();
+
+                if (qty.isEmpty()) {
+                    etSellBtc.setError("BTC must be greater than 0");
+                    return;
+                }
+
+                BigDecimal fiat = new BigDecimal(etSellFiat.getText().toString());
+                if (fiat.compareTo(_transactionLimitsResponse.getDailySellRemaining()) > 0) {
+                    String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay
+                            (_transactionLimitsResponse.getDailySellRemaining());
+                    etSellFiat.setError(error);
+                    return;
+                }
+
+                BigDecimal btc = new BigDecimal(etSellBtc.getText().toString());
+                if (btcAvailible.compareTo(btc) < 0) {
+                    String error = "Insufficient funds";
+                    etSellBtc.setError(error);
+                    return;
+                }
+
+                glideraService.sellAddress().subscribe(new Observer<SellAddressResponse>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(SellAddressResponse sellAddressResponse) {
+                        DialogFragment newFragment = GlideraSell2faDialog.newInstance(mostRecentSellPriceResponse.getQty(),
+                                mostRecentSellPriceResponse.getTotal(), mostRecentSellPriceResponse.getPriceUuid(), sellAddressResponse
+                                        .getSellAddress());
+                        newFragment.show(getFragmentManager(), "gliderasell2fadialog");
+                    }
+                });
             }
         });
 
@@ -188,6 +248,9 @@ public class GlideraSellFragment extends Fragment {
         setHasOptionsMenu(false);
 
         glideraService = GlideraService.getInstance();
+        MbwManager mbwManager = MbwManager.getInstance(this.getActivity());
+        btcAvailible = mbwManager.getSelectedAccount().calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE).getExactValue()
+                .getValue();
     }
 
     private void queryPricing(final BigDecimal btc, final BigDecimal fiat) {
@@ -273,6 +336,36 @@ public class GlideraSellFragment extends Fragment {
         tvFeeAmount.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getFees()));
         tvTotalAmount.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getTotal()));
         tvPrice.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getPrice()));
+
+        BigDecimal fiat = new BigDecimal(etSellFiat.getText().toString());
+        if (fiat.compareTo(_transactionLimitsResponse.getDailySellRemaining()) > 0) {
+            String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay(_transactionLimitsResponse
+                    .getDailySellRemaining());
+
+            if (sellMode == SellMode.BTC) {
+                etSellBtc.setError(error);
+            } else if (sellMode == SellMode.FIAT) {
+                etSellFiat.setError(error);
+            } else {
+                etSellBtc.setError(error);
+                etSellFiat.setError(error);
+            }
+        }
+
+        BigDecimal btc = new BigDecimal(etSellBtc.getText().toString());
+        if (btcAvailible.compareTo(btc) < 0) {
+            String error = "Insufficient funds";
+
+            if (sellMode == SellMode.BTC) {
+                etSellBtc.setError(error);
+            } else if (sellMode == SellMode.FIAT) {
+                etSellFiat.setError(error);
+            } else {
+                etSellBtc.setError(error);
+                etSellFiat.setError(error);
+            }
+        }
+
     }
 
     private void zeroPricing() {

@@ -1,5 +1,6 @@
 package com.mycelium.wallet.glidera.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -9,27 +10,50 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.megiontechnologies.Bitcoins;
+import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.TransactionUtils;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.glidera.GlideraUtils;
+import com.mycelium.wallet.glidera.activities.GlideraTransaction;
 import com.mycelium.wallet.glidera.api.GlideraService;
-import com.mycelium.wallet.glidera.api.response.TwoFactorResponse;
+import com.mycelium.wallet.glidera.api.request.SellRequest;
+import com.mycelium.wallet.glidera.api.response.GlideraError;
+import com.mycelium.wallet.glidera.api.response.SellResponse;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import rx.Observer;
 
 public class GlideraSell2faDialog extends DialogFragment {
+    private MbwManager mbwManager;
     private GlideraService glideraService;
     private String sellPriceResponseQty;
     private String sellPriceResponseTotal;
-    private String mode2FA;
+    private String sellPriceResponseUUID;
+    private String sellAddress;
 
-    static GlideraSell2faDialog newInstance(BigDecimal qty, BigDecimal total, TwoFactorResponse.Mode mode) {
+    static GlideraSell2faDialog newInstance(BigDecimal qty, BigDecimal total, UUID sellPriceResponseUUID, String sellAddress) {
         Bundle bundle = new Bundle();
         bundle.putString("sellPriceResponseQty", qty.toPlainString());
         bundle.putString("sellPriceResponseTotal", total.toPlainString());
-        bundle.putString("mode2FA", mode.toString());
+        bundle.putString("sellPriceResponseUUID", sellPriceResponseUUID.toString());
+        bundle.putString("sellAddress", sellAddress);
 
         GlideraSell2faDialog glideraSell2faDialog = new GlideraSell2faDialog();
         glideraSell2faDialog.setArguments(bundle);
@@ -46,29 +70,19 @@ public class GlideraSell2faDialog extends DialogFragment {
         Button buttonResend2FA = (Button) root.findViewById(R.id.buttonResend2FA);
         EditText et2FA = (EditText) root.findViewById(R.id.et2FA);
 
-        getDialog().setTitle("Confirm Your Sale");
+        getDialog().setTitle("Confirm Your Purchase");
 
-        String purchaseSummary = "You are about to sell " + GlideraUtils.formatBtcForDisplay(new BigDecimal(sellPriceResponseQty)) + " for " +
-                " " + GlideraUtils.formatFiatForDisplay(new BigDecimal(sellPriceResponseTotal)) + ".";
+        String purchaseSummary = "You are about to sell " + GlideraUtils.formatBtcForDisplay(new BigDecimal(sellPriceResponseQty)) +
+                " for " + GlideraUtils.formatFiatForDisplay(new BigDecimal(sellPriceResponseTotal)) + ".";
+
         tvPurchaseSummary.setText(purchaseSummary);
 
-        if (mode2FA.equals(TwoFactorResponse.Mode.NONE.toString())) {
-            tv2FASummary.setVisibility(View.GONE);
-            buttonResend2FA.setVisibility(View.GONE);
-            et2FA.setVisibility(View.GONE);
-        } else if (mode2FA.equals(TwoFactorResponse.Mode.AUTHENTICATR.toString())) {
-            String twoFASummary = "Please enter your 2-factor authorization (2FA) code from your Authenticator smartphone app to complete this sale.";
-            tv2FASummary.setText(twoFASummary);
-            buttonResend2FA.setVisibility(View.GONE);
-        } else if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString())) {
-            String twoFASummary = "Please enter your PIN to complete this sale.";
-            tv2FASummary.setText(twoFASummary);
-            buttonResend2FA.setVisibility(View.GONE);
-        } else if (mode2FA.equals(TwoFactorResponse.Mode.SMS.toString())) {
-            String twoFASummary = "A text message has been sent to your phone with a 2-factor authentication (2FA) code. Please enter it " +
-                    "to confirm this sale.";
-            tv2FASummary.setText(twoFASummary);
-        }
+        /*
+        Hide the 2fa stuff on sell
+         */
+        tv2FASummary.setVisibility(View.GONE);
+        buttonResend2FA.setVisibility(View.GONE);
+        et2FA.setVisibility(View.GONE);
 
         Button buttonCancel = (Button) root.findViewById(R.id.buttonCancel);
         buttonCancel.setOnClickListener(new View.OnClickListener() {
@@ -78,33 +92,88 @@ public class GlideraSell2faDialog extends DialogFragment {
             }
         });
 
-        Button buttonContinue = (Button) root.findViewById(R.id.buttonContinue);
+        final Button buttonContinue = (Button) root.findViewById(R.id.buttonContinue);
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //perform action
-                //submit sell
-            }
-        });
+                buttonContinue.setEnabled(false);
 
-        buttonResend2FA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                glideraService.getTwoFactor()
-                        .subscribe(new Observer<TwoFactorResponse>() {
-                            @Override
-                            public void onCompleted() {
-                            }
+                Optional<Address> optionalRefundAddress = mbwManager.getSelectedAccount().getReceivingAddress();
 
-                            @Override
-                            public void onError(Throwable e) {
-                            }
+                if (optionalRefundAddress.isPresent()) {
+                    Address refundAddress = optionalRefundAddress.get();
+                    UUID uuid = UUID.fromString(sellPriceResponseUUID);
 
-                            @Override
-                            public void onNext(TwoFactorResponse twoFactorResponse) {
-                                //New 2fa code was sent
+                    List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
+                    receivers.add(new WalletAccount.Receiver(Address.fromString(sellAddress), Bitcoins.valueOf(sellPriceResponseQty)));
+
+                    WalletAccount selectedAccount = mbwManager.getSelectedAccount();
+                    final StandardTransactionBuilder.UnsignedTransaction unsignedTransaction;
+
+                    try {
+                        unsignedTransaction = selectedAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
+                    } catch (StandardTransactionBuilder.OutputTooSmallException outputTooSmallException) {
+                        outputTooSmallException.printStackTrace();
+                        //TODO show error message
+                        return;
+                    } catch (StandardTransactionBuilder.InsufficientFundsException insufficientFundsException) {
+                        insufficientFundsException.printStackTrace();
+                        //TODO show error message
+                        return;
+                    } catch (StandardTransactionBuilder.UnableToBuildTransactionException unableToBuildTransactionException) {
+                        unableToBuildTransactionException.printStackTrace();
+                        //TODO show error message
+                        return;
+                    }
+
+                    final Transaction signedTransaction;
+                    try {
+                        signedTransaction = selectedAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
+                    } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                        invalidKeyCipher.printStackTrace();
+                        //TODO show error message
+                        return;
+                    }
+
+                    final String rawTransaction;
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    try {
+                        Hex.encode(signedTransaction.toBytes(), stream);
+                        rawTransaction = stream.toString();
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                        //TODO show error message
+                        return;
+                    }
+
+
+                    SellRequest sellRequest = new SellRequest(refundAddress, rawTransaction, uuid, false, null);
+
+                    glideraService.sell(sellRequest).subscribe(new Observer<SellResponse>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            GlideraError error = GlideraService.convertRetrofitException(e);
+                            if (error != null && error.getCode() != null) {
+                                //TODO handle error
                             }
-                        });
+                            buttonContinue.setEnabled(true);
+                        }
+
+                        @Override
+                        public void onNext(SellResponse sellResponse) {
+                            Intent intent = new Intent(getActivity(), GlideraTransaction.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("transactionuuid", sellResponse.getTransactionUuid().toString());
+                            intent.putExtras(bundle);
+                            startActivity(intent);
+                        }
+                    });
+                }
             }
         });
 
@@ -115,9 +184,11 @@ public class GlideraSell2faDialog extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         glideraService = GlideraService.getInstance();
+        mbwManager = MbwManager.getInstance(this.getActivity());
 
         sellPriceResponseQty = getArguments().getString("sellPriceResponseQty");
         sellPriceResponseTotal = getArguments().getString("sellPriceResponseTotal");
-        mode2FA = getArguments().getString("mode2FA");
+        sellPriceResponseUUID = getArguments().getString("sellPriceResponseUUID");
+        sellAddress = getArguments().getString("sellAddress");
     }
 }
