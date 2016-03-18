@@ -57,6 +57,8 @@ public class GlideraSendToNextStep extends Activity {
     }
 
     private void handleError() {
-        //TODO go to activity where they clicked glidera and toast an error
+        Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelect.class);
+        startActivity(intent);
+        finish();
     }
 }

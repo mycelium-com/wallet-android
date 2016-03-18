@@ -73,10 +73,6 @@ public class GlideraSellFragment extends Fragment {
 
                     @Override
                     public void onError(Throwable e) {
-                        GlideraError error = GlideraService.convertRetrofitException(e);
-                        if (error != null && error.getCode() != null) {
-                            //TODO handle error
-                        }
                     }
 
                     @Override

@@ -320,10 +320,6 @@ public class GlideraService {
                     .doOnError(new Action1<Throwable>() {
                         @Override
                         public void call(Throwable throwable) {
-                            GlideraError error = GlideraService.convertRetrofitException(throwable);
-                            if (error != null && error.getCode() != null) {
-                                //TODO handle error
-                            }
                             _oAuth1Response = null;
                             oAuth1ResponseObservable = null;
                         }

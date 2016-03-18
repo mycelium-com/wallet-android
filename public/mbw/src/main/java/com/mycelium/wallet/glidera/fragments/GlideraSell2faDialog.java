@@ -19,6 +19,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.activities.GlideraTransaction;
 import com.mycelium.wallet.glidera.api.GlideraService;
@@ -69,6 +70,7 @@ public class GlideraSell2faDialog extends DialogFragment {
         TextView tv2FASummary = (TextView) root.findViewById(R.id.tv2FASummary);
         Button buttonResend2FA = (Button) root.findViewById(R.id.buttonResend2FA);
         EditText et2FA = (EditText) root.findViewById(R.id.et2FA);
+        final Toaster toaster = new Toaster(getActivity());
 
         getDialog().setTitle("Confirm Your Purchase");
 
@@ -114,15 +116,18 @@ public class GlideraSell2faDialog extends DialogFragment {
                         unsignedTransaction = selectedAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
                     } catch (StandardTransactionBuilder.OutputTooSmallException outputTooSmallException) {
                         outputTooSmallException.printStackTrace();
-                        //TODO show error message
+                        buttonContinue.setEnabled(false);
+                        toaster.toast("Amount too small",true);
                         return;
                     } catch (StandardTransactionBuilder.InsufficientFundsException insufficientFundsException) {
                         insufficientFundsException.printStackTrace();
-                        //TODO show error message
+                        buttonContinue.setEnabled(false);
+                        toaster.toast("Insufficient funds", true);
                         return;
                     } catch (StandardTransactionBuilder.UnableToBuildTransactionException unableToBuildTransactionException) {
                         unableToBuildTransactionException.printStackTrace();
-                        //TODO show error message
+                        buttonContinue.setEnabled(false);
+                        toaster.toast("An error occured", true);
                         return;
                     }
 
@@ -131,7 +136,8 @@ public class GlideraSell2faDialog extends DialogFragment {
                         signedTransaction = selectedAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
                     } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                         invalidKeyCipher.printStackTrace();
-                        //TODO show error message
+                        buttonContinue.setEnabled(false);
+                        toaster.toast("An error occured", true);
                         return;
                     }
 
@@ -142,10 +148,10 @@ public class GlideraSell2faDialog extends DialogFragment {
                         rawTransaction = stream.toString();
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
-                        //TODO show error message
+                        buttonContinue.setEnabled(false);
+                        toaster.toast("An error occured", true);
                         return;
                     }
-
 
                     SellRequest sellRequest = new SellRequest(refundAddress, rawTransaction, uuid, false, null);
 
@@ -159,7 +165,15 @@ public class GlideraSell2faDialog extends DialogFragment {
                         public void onError(Throwable e) {
                             GlideraError error = GlideraService.convertRetrofitException(e);
                             if (error != null && error.getCode() != null) {
-                                //TODO handle error
+                                if( error.getCode() == 5004 ) {
+                                    toaster.toast("An error has occured and your coin returned.",true);
+                                }
+                                else if( error.getCode() == 5005 ) {
+                                    toaster.toast("An error has occured, please contact Glidera support",true);
+                                }
+                                else {
+                                    toaster.toast("Unable to sell at this time",true);
+                                }
                             }
                             buttonContinue.setEnabled(true);
                         }
