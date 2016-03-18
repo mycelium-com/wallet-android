@@ -217,7 +217,7 @@ public class GlideraService {
     private synchronized InMemoryPrivateKey getBitidKey() {
         if (bitidKey == null) {
             MbwManager manager = MbwManager.getInstance(null);
-            bitidKey = manager.getBitIdKeyForWebsite(baseUrl);
+            bitidKey = manager.getBitIdKeyForWebsite(baseUrl + "/api/v1/authentication/bitid");
         }
         return bitidKey;
     }
