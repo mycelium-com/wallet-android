@@ -11,6 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_vertical_margin">
+
         <fragment
             android:id="@+id/ltFragment"
             android:name="com.mycelium.wallet.activity.main.LocalTraderFragment"
@@ -26,31 +27,42 @@
 
     <LinearLayout
         android:id="@+id/glideraBuySell"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="@dimen/activity_vertical_margin">
 
-        <TextView
-            android:id="@+id/tvGlideraName"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/gd_buy_sell"
-            android:textSize="18sp">
-        </TextView>
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/glidera"
+            android:contentDescription="@string/gd_glidera"/>
 
-        <TextView
-            android:id="@+id/tvGlideraDescription"
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/gd_buy_sell_description"
-            android:textSize="12sp"
-            android:typeface="monospace">
-        </TextView>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvGlideraName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/gd_buy_sell"
+                android:textSize="18sp">
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvGlideraDescription"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/gd_buy_sell_description"
+                android:textSize="12sp">
+            </TextView>
+        </LinearLayout>
     </LinearLayout>
 
     <View

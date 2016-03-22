@@ -902,6 +902,7 @@
     <string name="gd_buy_tab">Buy</string>
     <string name="gd_sell_tab">Sell</string>
     <string name="gd_transaction_history_tab">History</string>
+    <string name="gd_glidera">Glidera</string>
     <!-- GlideraService End -->
 
 </resources>
