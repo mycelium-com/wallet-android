@@ -256,6 +256,7 @@
   <string name="addressbook_cannot_add_private_key">アドレス帳に秘密鍵を追加できません。\n\nアカウントタブに秘密鍵をインポートすることができます</string>
   <string name="alert_button">アラート</string>
   <string name="heartbleed_alert">アラート\n\nあなたのデバイスはアンドロイドバージョン4.1.1でハートブリードというバグを持っています。\n\nこのバグはデバイス上でHTTPS接続する全てのアプリのメモリへの攻撃を可能にするものです。\n\n すぐに対応策を取って下さいY!\n\n1. 秘密キーをアンドロイドの4.1.1のでバイスに載せたことのない新しいアドレスに資金を移動する \n\n2. デバイスを4.1.1からアップグレードするか別のデバイスを使用する </string>
+  <!-- LT start -->
   <string name="lt_buy_button">購入</string>
   <string name="lt_sell_button">販売</string>
   <string name="lt_edit_button">編集</string>
@@ -418,6 +419,7 @@
   <string name="lt_refresh_market_rate_description">新しい価格は売却者によって設定された価格計算式と現在の市場レートによって決まります。\n\n価格を更新したい場合は両者がそれに同意しなければなりません。</string>
   <string name="lt_opening_map">地図を開いています</string>
   <string name="lt_set_email_title">Eメールアドレスを設定してください</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">次のビットコインアドレスを秘密キーを使用しています：</string>
   <string name="cs_address_description">ビットコインアドレスが完了しました。残高を閲覧できますが、そこから支出することはできません。</string>
   <string name="contains_keys">%1$sの秘密鍵が入っています。</string>
@@ -442,6 +444,7 @@
   <string name="fetching_info">サーバーから情報を取得中</string>
   <string name="email_notification_setting_explanation">ローカルトレーダーから通知を受信するためEメールアドレスを設定してください</string>
   <string name="amount_changed">QRコードから送信するお金が更新されました</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID 認証</string>
   <string name="bitid_authentication">BitIDを使用して認証を行います</string>
   <string name="sign_bitid">ログイン</string>
@@ -459,6 +462,7 @@
   <string name="bitid_sslproblem">SSLの問題</string>
   <string name="bitid_sslquestion">次のSSLの問題が発生しました。続行しますか？</string>
   <string name="invalid_bitid_uri">無効なBitID　URIです。</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">アーカイブされたアカウントで行えません。</string>
   <string name="selected_hd_info">今この階層的決定性アカウントを使っています。</string>
   <string name="selected_single_info">このシングルアカウントで現在行っています。</string>
@@ -635,10 +639,12 @@
   <string name="warning_add_account_no_backup">警告： あなたのマスターシードには確認されたバックアップがありません。あなたのすべてのアカウントはそれから生成されます。もし有効で安全なバックアップがあれば、それらアカウントの安全が守られ復元可能です。</string>
   <string name="transaction_to_address_prefix">宛先： %s</string>
   <string name="tor_state_init">Tor イニット</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Orbotをインストールしますか？</string>
   <string name="you_must_have_orbot">あなたはOrbotをインストールし、プロキシートラフィックに動作させなければなりません。Google Playからインストールしますか？</string>
   <string name="start_orbot_">Orbotをスタートしますか？</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbotが活動しているように見えません。スタートさせてTorに接続させますか？</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">インポートしました</string>
   <string name="retrieving_pubkey_address">次の未使用アドレスを回収中&#8230;</string>
   <string name="instant_masterseed_initializing">初期化中&#8230;</string>
@@ -654,6 +660,7 @@
   <string name="xpub_title">拡張公開鍵</string>
   <string name="share_xpub">拡張公開鍵を共有</string>
   <string name="share_account_data">アカウントデータを共有</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">新規入金</string>
   <string name="cashila_fee">"手数料： %s"</string>
   <string name="cashila">Cashila</string>

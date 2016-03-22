@@ -258,6 +258,7 @@
   <string name="addressbook_cannot_add_private_key">Zasebnega ključa ne morete dodati v imenik.\n\nZasebni ključ lahko uvozite na zavihku Računi.</string>
   <string name="alert_button">Pozor</string>
   <string name="heartbleed_alert">OPOZORILO\n\nVaša naprava uporablja Android 4.1.1 in vsebuje kritično napako, imenovano Heartbleed.\n\nTa napaka omogoča napadalcu prebrati pomnilnik katerekoli aplikacije, ki se povezuje prek protokola HTTPS, na vaši napravi.\n\nPotrebno je, da ukrepate takoj!\n\n1. Nakažite svoja sredstva na nove naslove, katerih zasebni ključi nikoli niso bili na napravi z Androidom 4.1.1.\n\nPosodobite sistem na svoji napravi, da ne bo več uporabljal različice 4.1.1 Androida, ali pa pričnite uporabljati drugo napravo.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Kupi</string>
   <string name="lt_sell_button">Prodaj</string>
   <string name="lt_edit_button">Uredi</string>
@@ -424,6 +425,7 @@
   <string name="lt_set_email_error">Pridobivanje podatkov s strežnika o trgovcu ni uspelo</string>
   <string name="lt_email_please_verify_message">Poslali smo vam preveritveno e-poštno sporočilo - svoj e-naslov aktiviratje s klikom na povezavo v sporočilu.</string>
   <string name="lt_set_email_title">Vnesite e-naslov</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Uporabljate zasebni ključ tega bitcoin naslova:</string>
   <string name="cs_address_description">Prečitali ste bitcoin naslov. Lahko si ogledate stanje na njem, ne morete pa porabljati teh sredstev.</string>
   <string name="contains_keys">Vsebuje %1$s zasebnih ključev.</string>
@@ -449,6 +451,7 @@
   <string name="fetching_info">Prenašam podatke s strežnika</string>
   <string name="email_notification_setting_explanation">Nastavite svoj e-naslov za prejemanje obvestil Krajevnega trgovanja</string>
   <string name="amount_changed">Znesek za nakazilo je bil spremenjen na vrednost iz QR-kode</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">Overjanje z BitID</string>
   <string name="bitid_authentication">Overi z BitID</string>
   <string name="sign_bitid">Prijava</string>
@@ -466,6 +469,7 @@
   <string name="bitid_sslproblem">Težava na nivoju SSL</string>
   <string name="bitid_sslquestion">Prišlo je do naslednje težave pri SSL. Želite nadaljevati?</string>
   <string name="invalid_bitid_uri">Neveljaven URI za BitID</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Na arhiviranih računih ne morete delati.</string>
   <string name="selected_hd_info">Sedaj delate s tem HD-računom.</string>
   <string name="selected_single_info">Sedaj delate s tem posamičnim naslovom.</string>
@@ -650,10 +654,12 @@
   <string name="warning_add_account_no_backup">Opozorilo: rezervne kopije svojega glavnega semena niste potrdili. Vsi vaši HD-računi so izpeljani iz nje. Ti računi so varni in obnovljivi le, če hranite varno in preverjeno rezervno kopijo.</string>
   <string name="transaction_to_address_prefix">Za: %s</string>
   <string name="tor_state_init">TOR: inicializacija</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Namesti Orbot?</string>
   <string name="you_must_have_orbot">Nameščen mora biti Orbot in promet mora biti usmerjen skozen. Želite namestiti Orbot z Google Play?</string>
   <string name="start_orbot_">Poženem Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Kaže, da Orbot ne teče. Ga želite pognati in se povezati v TOR?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Uvožen</string>
   <string name="retrieving_pubkey_address">Pridobivam naslednji nerabljen naslov&#8230;</string>
   <string name="instant_masterseed_initializing">Inicializacija&#8230;</string>
@@ -675,6 +681,7 @@
   <string name="remove_queued_transaction_title">Nakazilo v čakalni vrsti</string>
   <string name="remove_queued_transaction_hint">Vaše stanje na računu bo osveženo ob naslednji uskladitvi z omrežjem</string>
   <string name="remove_queued_transaction_error">Odstranjevanje nakazila iz čakalne vrste je spodletelo</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Novo</string>
   <string name="cashila_tab_pending">Plačila</string>
   <string name="cashila_sepa_transfer">Plačilo v EUR</string>

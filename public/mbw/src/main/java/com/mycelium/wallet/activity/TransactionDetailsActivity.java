@@ -144,7 +144,13 @@ public class TransactionDetailsActivity extends Activity {
       }
 
       // Set Fee
-      String fee = _mbwManager.getBtcValueString(getFee(_tx));
+      final long txFeeTotal = getFee(_tx);
+      String fee = _mbwManager.getBtcValueString(txFeeTotal);
+
+      if (_tx.rawSize > 0) {
+         final long txFeePerSat = txFeeTotal / _tx.rawSize;
+         fee += String.format("\n%d sat/byte", txFeePerSat);
+      }
       ((TextView) findViewById(R.id.tvFee)).setText(fee);
 
    }

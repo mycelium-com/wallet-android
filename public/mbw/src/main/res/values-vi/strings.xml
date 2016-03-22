@@ -212,6 +212,7 @@
   <string name="pref_change_language">Thay đổi Ngôn ngữ</string>
   <string name="alert_button">Cảnh báo</string>
   <string name="heartbleed_alert">CẢNH BÁO\n\nThiết bị của bạn chạy Android Phiên bản 4.1.1 và có một lỗi nghiêm trọng được biết đến là Trái tim rỉ máu.\n\nLỗi này cho phép kẻ tấn công đọc bộ nhớ của bất kỳ ứng dụng trên điện thoại mà sử dụng kết nối HTTPS.\n\nBạn cần có hành động ngay lập tức! \n\n1. Di chuyển khoản tiền của bạn đến địa chỉ mới nơi khóa riêng chưa bao giờ chạy trên Android 4.1.1.\n\n2. Nâng cấp thiết bị của bạn lên các phiên bản mới hơn 4.1.1 hoặc sử dụng một thiết bị khác.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Mua</string>
   <string name="lt_sell_button">Bán</string>
   <string name="lt_edit_button">Sửa</string>
@@ -367,6 +368,7 @@
   <string name="lt_refresh_market_rate_title">Cập nhật tỷ giá thị trường</string>
   <string name="lt_refresh_market_rate_description">Tỉ giá mới phụ thuộc vào công thức tính tỉ giá của người bán và tỉ giá thị trường hiện tại.\n\nNếu bạn cập nhật tỉ giá thì cả 2 bên đều phải chấp nhận thoả thuận này.</string>
   <string name="lt_opening_map">Đang mở bản đồ</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Bạn đang sử dụng một private key với địa chỉ Bitcoin:</string>
   <string name="cs_address_description">Bạn đã quét một địa chỉ Bitcoin. Bạn có thể xem số dư nhưng không chi tiêu được từ nó.</string>
   <string name="new_version_exists">Đã có phiên bản mới</string>
@@ -384,4 +386,9 @@
   <string name="signed_message_share">Chia sẻ thông điệp Bitcoin đã ký</string>
   <string name="signing_inprogress">Đang ký thông điệp&#8230;</string>
   <string name="geocode_error">Lỗi từ geocoder: %s \n xin vui lòng thử lại sau.</string>
+  <!-- BitID -->
+  <!-- BitID end -->
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>

@@ -35,13 +35,18 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -58,23 +63,25 @@ import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
-import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
+import java.io.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class ModernMain extends ActionBarActivity {
-
    public static final int GENERIC_SCAN_REQUEST = 4;
    private static final int REQUEST_SETTING_CHANGED = 5;
    public static final int MIN_AUTOSYNC_INTERVAL = 1 * 60 * 1000;
@@ -327,12 +334,39 @@ public class ModernMain extends ActionBarActivity {
    }
 
    private void shareTransactionHistory() {
-      String historyData = DataExport.getTxHistoryCsv(_mbwManager.getSelectedAccount(), _mbwManager.getMetadataStorage());
-      Intent s = new Intent(android.content.Intent.ACTION_SEND);
-      s.setType("text/plain");
-      s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.transaction_history_title));
-      s.putExtra(Intent.EXTRA_TEXT, historyData);
-      startActivity(Intent.createChooser(s, getResources().getString(R.string.share_transaction_history)));
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      MetadataStorage metaData = _mbwManager.getMetadataStorage();
+      try {
+         String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
+         File historyData = DataExport.getTxHistoryCsv(account, metaData, getFileStreamPath(fileName));
+         PackageManager packageManager = Preconditions.checkNotNull(getPackageManager());
+         PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_PROVIDERS);
+         for (ProviderInfo info : packageInfo.providers) {
+            if (info.name.equals("android.support.v4.content.FileProvider")) {
+               String authority = info.authority;
+               Uri uri = FileProvider.getUriForFile(this, authority, historyData);
+               Intent intent = ShareCompat.IntentBuilder.from(this)
+                     .setStream(uri)  // uri from FileProvider
+                     .setType("text/plain")
+                     .setSubject(getResources().getString(R.string.transaction_history_title))
+                     .setText(getResources().getString(R.string.transaction_history_title))
+                     .getIntent()
+                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+               for (ResolveInfo resolveInfo : resInfoList) {
+                  String packageName = resolveInfo.activityInfo.packageName;
+                  grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               }
+               startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
+            }
+         }
+      } catch (IOException e) {
+         _toaster.toast("Export failed. Check your logs", false);
+         e.printStackTrace();
+      } catch (PackageManager.NameNotFoundException e) {
+         _toaster.toast("Export failed. Check your logs", false);
+         e.printStackTrace();
+      }
    }
 
    @Override
@@ -423,5 +457,4 @@ public class ModernMain extends ActionBarActivity {
    public void onNewVersion(final NewWalletVersionAvailable event) {
       _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
    }
-
 }

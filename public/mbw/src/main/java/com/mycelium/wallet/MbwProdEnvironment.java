@@ -115,24 +115,22 @@ public class MbwProdEnvironment extends MbwEnvironment {
    }
 
    /**
-    * BlockExplorer
+    * Available BlockExplorers
+    *
+    * The first is the default block explorer if the requested one is not available
     */
    private static final ArrayList <BlockExplorer> prodnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-
       add(new BlockExplorer("BCI","blockchain.info","https://blockchain.info/address/","https://blockchain.info/tx/","https://blockchainbdgpzk.onion/address/","https://blockchainbdgpzk.onion/tx/"));
       add(new BlockExplorer("BKR","blockr", "https://btc.blockr.io/address/info/", "https://btc.blockr.io/tx/info/", null, null));
       add(new BlockExplorer("SBT","smartbit", "https://www.smartbit.com.au/address/", "https://www.smartbit.com.au/tx/", null, null));
       add(new BlockExplorer("BTL","blockTrail", "https://www.blocktrail.com/BTC/address/", "https://www.blocktrail.com/BTC/tx/", null, null));
       add(new BlockExplorer("BPY","BitPay", "https://insight.bitpay.com/address/", "https://insight.bitpay.com/tx/", null, null));
-      add(new BlockExplorer("LCB","localbitcoins", "https://chain.localbitcoins.com/address/", "https://chain.localbitcoins.com/tx/", null, null));
       add(new BlockExplorer("BEX","blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
       add(new BlockExplorer("BCY","blockCyper", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
       add(new BlockExplorer("BAC","bitAccess", "https://search.bitaccess.ca/address/", "https://search.bitaccess.ca/tx/", null, null));
-      add(new BlockExplorer("CHN","chain.com", "http://explorer.chain.com/addresses/", "http://explorer.chain.com/transactions/", null, null));
       add(new BlockExplorer("BES","bitEasy", "https://www.biteasy.com/blockchain/addresses/", "https://www.biteasy.com/blockchain/transactions/", null, null));
       add(new BlockExplorer("CPM","coinprism", "https://www.coinprism.info/address/", "https://www.coinprism.info/tx/", null, null));
       add(new BlockExplorer("TBC","TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));
-      add(new BlockExplorer("BCO","blockchains.io", "http://blockchains.io/btc/address/", "http://blockchains.io/btc/transaction/", null, null));
       add(new BlockExplorer("BLC","blockonomics.co", "https://www.blockonomics.co/#/search?q=", "https://www.blockonomics.co/api/tx?txid=", null, null));
    }};
 

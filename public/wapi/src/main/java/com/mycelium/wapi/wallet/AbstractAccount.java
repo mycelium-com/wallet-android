@@ -1263,7 +1263,11 @@ public abstract class AbstractAccount implements WalletAccount {
          outputs[i] = new TransactionDetails.Item(address, tx.outputs[i].value, false);
       }
 
-      return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
+      return new TransactionDetails(
+            txid, tex.height, tex.time,
+            inputs.toArray(new TransactionDetails.Item[]{}), outputs,
+            tex.binary.length
+      );
    }
 
    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {

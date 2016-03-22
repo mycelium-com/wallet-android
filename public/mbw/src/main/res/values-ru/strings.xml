@@ -258,6 +258,7 @@
   <string name="addressbook_cannot_add_private_key">Вы не можете добавить закрытый ключ в адресную книгу.\n\nВы можете импортировать закрытые ключи во вкладку \"Аккаунты\"</string>
   <string name="alert_button">Предостережение</string>
   <string name="heartbleed_alert">Предостережение\n\nВаше устройство работает на  версии Android 4.1.1 и имеет критический ошибку, известную как Heartbleed.\n\nЭта ошибка позволяет злоумышленнику прочитать память всех  приложений на вашем устройстве, осуществляющих HTTPS соединения.\n\n Вы должны принять незамедлительные меры! \n\n1. Переместить свои средства на новые адреса, где приватный ключ никогда не был на устройствах с Android 4.1.1 .\n\n2. Обновить устройство до иной, нежели  4.1.1  версии или использовать другое устройство.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Купить</string>
   <string name="lt_sell_button">Продать</string>
   <string name="lt_edit_button">Редактировать</string>
@@ -424,6 +425,7 @@
   <string name="lt_set_email_error">Не могу получить информацию о трейдере от сервера</string>
   <string name="lt_email_please_verify_message">Мы отправили вам контрольное письмо - кликните по адресу, указанному в письме, для активации вашего email ареса.</string>
   <string name="lt_set_email_title">Введите ваш email адрес</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Вы используете приватный ключ со следующим  Bitcoin адресом:</string>
   <string name="cs_address_description">Вы отсканировали биткой адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
   <string name="contains_keys">Содержит %1$s закрытых ключей.</string>
@@ -451,6 +453,7 @@
   <string name="fetching_info">Получение информации с сервера</string>
   <string name="email_notification_setting_explanation">Задайте ваш адрес электронной почты для получения уведомлений из Local Trader</string>
   <string name="amount_changed">сумма Отправить была обновлена  QR-кодом</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID аутентификация</string>
   <string name="bitid_authentication">Аутентификация посредством BitID</string>
   <string name="sign_bitid">Войти</string>
@@ -468,6 +471,7 @@
   <string name="bitid_sslproblem">Проблема SSL</string>
   <string name="bitid_sslquestion">Встретилась следующая проблема SSL протокола, вы хотите продолжить?</string>
   <string name="invalid_bitid_uri">Недопустимый URI-адрес BitID</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Вы не можете работать на архивных счетах.</string>
   <string name="selected_hd_info">Теперь вы работаете на этой HD учетной записи.</string>
   <string name="selected_single_info">Теперь вы работаете на учетной записи с  одиночным  адресом (для некоторых случаев это предпочтительнее , чем  учетная запись HD) </string>
@@ -661,10 +665,12 @@
   <string name="warning_add_account_no_backup">Предупреждение: У вас не подтверждена/верифицирована Резервная Копия вашего мастер-ключа Seed. Все HD счета являются производными от него. Они безопасны и восстанавливаемы, если у вас есть верифицированная и безопасно хранящаяся Резервная Копия.</string>
   <string name="transaction_to_address_prefix">Кому: %s</string>
   <string name="tor_state_init">Инициализация Tor</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Установить Orbot?</string>
   <string name="you_must_have_orbot">Вы должны иметь установленный Orbot и настроить проксирование трафика через него. Вы хотите установить его через Google Play?</string>
   <string name="start_orbot_">Запустить Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Похоже, что Orbot не запущен. Вы хотите его запустить и подсоединиться к Tor?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Импортировано</string>
   <string name="retrieving_pubkey_address">Получение следующего неиспользуемого адреса&#8230;</string>
   <string name="instant_masterseed_initializing">Инициализация&#8230;</string>
@@ -686,6 +692,7 @@
   <string name="remove_queued_transaction_title">Транзакция в очереди</string>
   <string name="remove_queued_transaction_hint">Ваш баланс будет скорректирован после следующей синхронизации с сетью</string>
   <string name="remove_queued_transaction_error">Не удаётся удалить транзакцию</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Новое</string>
   <string name="cashila_tab_pending">Платежи</string>
   <string name="cashila_sepa_transfer">Евро платёж</string>

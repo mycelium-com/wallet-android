@@ -257,6 +257,7 @@
   <string name="addressbook_cannot_add_private_key">Do adresáře nemůžete přidat soukromý klíč.\n\nSoukromé klíče můžete importovat na kartě Účty</string>
   <string name="alert_button">Upozornění</string>
   <string name="heartbleed_alert">POZOR\n\nNa vašem zařízení je Android 4.1.1, který obsahuje chybu známou jako Heartbleed.\n\nTato chyba umožňuje útočníkovi číst pamět jakékoli aplikace ve vašem zařízení, která používá připojení HTTPS.\n\nMěli byste okamžitě učinit opatření!\n\n1. přesuňte své prostředky na novou adresu, jejíž soukromý klíč nikdy nebyl na zařízení s Androidem 4.1.1.\n\n2. Aktualizujte vaše zařízení na jinou verzi než 4.1.1 nebo použijte jiné zařízení.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Koupit</string>
   <string name="lt_sell_button">Prodat</string>
   <string name="lt_edit_button">Upravit</string>
@@ -423,6 +424,7 @@
   <string name="lt_set_email_error">Ze serveru nelze načíst info o obchodníkovi</string>
   <string name="lt_email_please_verify_message">Poslali jsme vám ověřovací mail - pro ověření vaší mailové adresy klikněte na poskytnutý odkaz.</string>
   <string name="lt_set_email_title">Zadejte mailovou adresu</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Používáte soukromý klíč s následující BTC adresou:</string>
   <string name="cs_address_description">Naskenovali jste BTC adresu. Můžete vidět její zůstatek, ale nemůžete z ní utrácet.</string>
   <string name="contains_keys">Obsahuje %1$s privátních klíčů.</string>
@@ -448,6 +450,7 @@
   <string name="fetching_info">Načítání informací ze serveru</string>
   <string name="email_notification_setting_explanation">Pro příjem oznámení od Místního obchodníka nastavte svůj mail</string>
   <string name="amount_changed">Částka k odeslání byla aktualizována z QR kódu</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">Ověřování BitID</string>
   <string name="bitid_authentication">Ověření pomocí BitID</string>
   <string name="sign_bitid">Přihlásit se</string>
@@ -465,6 +468,7 @@
   <string name="bitid_sslproblem">SSL problém</string>
   <string name="bitid_sslquestion">Došlo k následujícímu problému SSL, chcete pokračovat?</string>
   <string name="invalid_bitid_uri">Neplatné BitID URI</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Nemůžete pracovat s archivovanými účty.</string>
   <string name="selected_hd_info">Nyní pracujete na tomto HD účtu.</string>
   <string name="selected_single_info">Nyní pracujete s touto jedinou adresou.</string>
@@ -658,10 +662,12 @@
   <string name="warning_add_account_no_backup">Varování: Nemáte potvrzenou zálohu vašeho master seedu. Všechny vaše HD účty jsou z něj odvozeny. Jsou bezpečné a obnovitelné pouze máte-li platnou a bezpečnou zálohu.</string>
   <string name="transaction_to_address_prefix">Komu: %s</string>
   <string name="tor_state_init">Tor init</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Nainstalovat Orbot?</string>
   <string name="you_must_have_orbot">Musíte mít nainstalovaný a aktivovaný Orbot, aby přes něj šel proxy provoz. Chcete ho nainstalovat z Obchodu Play?</string>
   <string name="start_orbot_">Spustit Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Zdá se, že Orbot není spuštěn. Chcete ho spustit a připojit se k Tor?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Importováno</string>
   <string name="retrieving_pubkey_address">Získávám další nepoužitou adresu&#8230;</string>
   <string name="instant_masterseed_initializing">Inicializace&#8230;</string>
@@ -683,6 +689,7 @@
   <string name="remove_queued_transaction_title">Transakce ve frontě</string>
   <string name="remove_queued_transaction_hint">Váš zůstatek bude opraven po příští synchronizaci se sítí</string>
   <string name="remove_queued_transaction_error">Transakci nelze odstranit</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Nová</string>
   <string name="cashila_tab_pending">Platby</string>
   <string name="cashila_status_received">přijato</string>

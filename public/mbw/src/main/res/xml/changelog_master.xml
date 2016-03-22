@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.7.2" versioncode="27200">
+        <change>Show fee/bytes in transaction details</change>
+        <change>remove obsolete block explorers</change>
+        <change>change transaction history csv export, so that it can handle a lot more transactions</change>
+        <change>[bugfix] update okhttp and fix problem with pinned certificates on some android versions</change>
+    </release>
     <release version="2.7.0" versioncode="27000">
         <change>Fix QR-scanning camera rotation on new devices like Nexus 5x</change>
         <change>Show a warning if incoming transaction has a higher risk of getting double-spend (RBF, unconfirmed parents)</change>

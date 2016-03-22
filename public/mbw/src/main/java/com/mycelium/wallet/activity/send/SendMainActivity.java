@@ -90,6 +90,7 @@ import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 public class SendMainActivity extends Activity {
@@ -547,18 +548,12 @@ public class SendMainActivity extends Activity {
       _unsigned = null;
 
       BitcoinValue toSend = getBitcoinValueToSend();
-      if (_paymentRequestHandler == null && (toSend == null || toSend.getAsBitcoin() == null || _receivingAddress == null)) {
-         return TransactionStatus.MissingArguments;
-      }
+      boolean hasAddressData = toSend != null && toSend.getAsBitcoin() != null && _receivingAddress != null;
+      boolean hasRequestData = _paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest();
 
       // Create the unsigned transaction
       try {
-         if (_paymentRequestHandler == null || !_paymentRequestHandler.hasValidPaymentRequest()) {
-            WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getLongValue());
-            _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), getFeePerKb().getLongValue());
-            checkSpendingUnconfirmed();
-            return TransactionStatus.OK;
-         } else {
+         if (hasRequestData) {
             PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
             OutputList outputs = paymentRequestInformation.getOutputs();
 
@@ -577,6 +572,13 @@ public class SendMainActivity extends Activity {
             _receivingAddress = null;
             _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
             return TransactionStatus.OK;
+         } else if(hasAddressData) {
+            WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getLongValue());
+            _unsigned = _account.createUnsignedTransaction(Collections.singletonList(receiver), getFeePerKb().getLongValue());
+            checkSpendingUnconfirmed();
+            return TransactionStatus.OK;
+         } else {
+            return TransactionStatus.MissingArguments;
          }
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
@@ -983,7 +985,7 @@ public class SendMainActivity extends Activity {
                }
                _receivingAddress = uri.address;
                _transactionLabel = uri.label;
-               if (uri.amount != null) {
+               if (uri.amount != null && uri.amount > 0) {
                   //we set the amount to the one contained in the qr code, even if another one was entered previously
                   if (!CurrencyValue.isNullOrZero(_amountToSend)) {
                      Toast.makeText(this, R.string.amount_changed, Toast.LENGTH_LONG).show();

@@ -186,6 +186,13 @@
   <string name="import_decrypt_bip38_invalid_password">입력한 암호가 올바르지 않습니다.</string>
   <string name="decrypt_button">해독</string>
   <string name="pref_change_language">언어 변경</string>
+  <!-- LT start -->
+  <!-- LT end -->
+  <!-- BitID -->
+  <!-- BitID end -->
   <string name="show_private_data">비 공개</string>
   <string name="show_public_data">공개</string>
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>

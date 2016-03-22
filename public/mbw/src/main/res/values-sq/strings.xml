@@ -254,6 +254,7 @@
   <string name="addressbook_cannot_add_private_key">Nuk mund të shtoni një çelës privat në librin e adresave.\n\nMund të importoni çelësa privat në faqen Llogaritë</string>
   <string name="alert_button">Alarm</string>
   <string name="heartbleed_alert">ALARM\n\nPajisja juaj versionin Android 4.1.1 dhe ka një gabim kritik të njohur si \"Heartbleed\".\n\nKy gabim lejon që sulmuesit të lexojn memorjen e çdo aplikacioni në pajisjen tuaj që ka linjë HTTPS.\n\n Duhet të veproni menjëherë!\n\n1. Zhvendos fondet e juaja në një adresë ku çelësat privat kurrë nuk kanë qenë në një Android 4.1.1 pajisje.\n\n2. Fresko pajisjen tuaj në një version më të ri se 4.1.1 ose përdor tjetër pajisje.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Blej</string>
   <string name="lt_sell_button">Shisni</string>
   <string name="lt_edit_button">Ndrysho</string>
@@ -420,6 +421,7 @@
   <string name="lt_set_email_error">E pamundur të mirren informata për Tregtarin nga serveri</string>
   <string name="lt_email_please_verify_message">Ju kemi dërguar një email për verifikim - kliko në lidhjen e dërguar për të aktivizuar email adresën.</string>
   <string name="lt_set_email_title">Shëno email adresën</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Jeni duke përdorur një çelës privat me këtë Bitcoin adresë:</string>
   <string name="cs_address_description">Keni skanuar një Bitcoin adresë. Ju mund të shikoni bilancin por jo të shpenzoni nga kjo adresë.</string>
   <string name="contains_keys">Përmban %1$s çelësa privat.</string>
@@ -444,6 +446,7 @@
   <string name="fetching_info">Duke marrë info nga serveri</string>
   <string name="email_notification_setting_explanation">Cakto email adresen tuaj që të merrni njoftimet nga Tregëti Lokale</string>
   <string name="amount_changed">Shuma e dërguar është rifreskuar nga QR kodi</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID identifikimi</string>
   <string name="bitid_authentication">Identifikimi duke përdorur BitID</string>
   <string name="sign_bitid">Kyçu</string>
@@ -461,6 +464,7 @@
   <string name="bitid_sslproblem">SSL problem</string>
   <string name="bitid_sslquestion">Ky SSL problem është shkaktuar, doni të vazhdoni?</string>
   <string name="invalid_bitid_uri">BitID URI jovalid</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Nuk mund të punoni me llogaritë e arkivuara.</string>
   <string name="selected_hd_info">Tash jeni duke punuar me këtë HD llogari.</string>
   <string name="selected_single_info">Jeni duke punuar me këtë adresë të vetme.</string>
@@ -644,10 +648,12 @@
   <string name="warning_add_account_no_backup">Paralajmërim: Nuk keni konfirmuar kopjen rezervë te Master Seed. Të gjitha HD llogaritë e juaja derivohen nga Master Seed. Jeni të sigurtë dhe vetëm atëherë kur kopja rezervë është e sigurtë dhe e rikthyeshme, nëse keni një kopje rezervë të sigurtë dhe valide.</string>
   <string name="transaction_to_address_prefix">Te: %s</string>
   <string name="tor_state_init">Tor init</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Instalo Orbot?</string>
   <string name="you_must_have_orbot">Duhet të keni Orbot të instaluar dhe aktivizoni që trafiku të kaloj përmes tij. A dëshironi ta instaloni përmes Google Play?</string>
   <string name="start_orbot_">Startoni Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot duket që nuk është startuar. Dëshironi ta startoni dhe të konektoheni në Tor?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Importuar</string>
   <string name="retrieving_pubkey_address">Duke marrë adresën e papërdorur&#8230;</string>
   <string name="instant_masterseed_initializing">Duke inicializuar&#8230;</string>
@@ -669,6 +675,7 @@
   <string name="remove_queued_transaction_title">Transaksion në listë</string>
   <string name="remove_queued_transaction_hint">Bilanci juaj do të korrektohet kur të sinkronizohet me rrjetin</string>
   <string name="remove_queued_transaction_error">E pamundur të fshihet transaksioni</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">E re</string>
   <string name="cashila_tab_pending">Pagesat</string>
   <string name="cashila_status_received">pranuar</string>

@@ -187,6 +187,8 @@
   <string name="import_decrypt_bip38_invalid_password">הסיסמה שהוזנה אינה נכונה.</string>
   <string name="decrypt_button">פענח</string>
   <string name="pref_change_language">שינוי שפה</string>
+  <!-- LT start -->
+  <!-- LT end -->
   <string name="new_version_exists">גירסא חדשה ניתנת להורדה</string>
   <string name="check_update">בדוק עדכונים</string>
   <string name="version_check_failed">אין אפשרות לקבל מידע אודות גירסא</string>
@@ -203,4 +205,9 @@
   <string name="signed_message_subject">הודעת ביטקוין חתומה</string>
   <string name="signed_message_share">שתף הודעת ביטקוין חתומה</string>
   <string name="signing_inprogress">חותם על הודעה&#8230;</string>
+  <!-- BitID -->
+  <!-- BitID end -->
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>

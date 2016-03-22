@@ -41,15 +41,17 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
    public final Sha256Hash hash;
    public final int height;
    public final int time;
+   public final int rawSize;
    public final Item[] inputs;
    public final Item[] outputs;
 
-   public TransactionDetails(Sha256Hash hash, int height, int time, Item[] inputs, Item[] outputs) {
+   public TransactionDetails(Sha256Hash hash, int height, int time, Item[] inputs, Item[] outputs, int rawSize) {
       this.hash = hash;
       this.height = height;
       this.time = time;
       this.inputs = inputs;
       this.outputs = outputs;
+      this.rawSize = rawSize;
    }
 
    /**

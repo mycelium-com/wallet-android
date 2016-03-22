@@ -259,6 +259,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="addressbook_cannot_add_private_key">Sie können keine privaten Schlüssel ins Adressbuch einfügen.\n\nPrivate Schlüssel können Sie in der \"Meine Konten\" Registerkarte importieren</string>
   <string name="alert_button">Warnung</string>
   <string name="heartbleed_alert">Warnung!\n\nIhr Gerät läuft auf Android version 4.1.1 und hat einen kritischen Fehler bekannt als Heartbleed.\n\nDieser Bug erlaubt es einem Angreifer Daten aus dem Hauptspeicher auszulesen.\n\n Sie sollten folgendes unternehmen:\n\n1.Schicken Sie ihre Bitcoins auf eine neue Adresse die nie auf Android 4.1.1 geladen war.\n\n2. Machen sie mit Ihrem Gerät ein Upgrade oder besorgen Sie sich ein neues.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Kaufen</string>
   <string name="lt_sell_button">Verkaufen</string>
   <string name="lt_edit_button">Bearbeiten</string>
@@ -425,6 +426,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_set_email_error">Kann Trader-Information nicht vom Server abrufen</string>
   <string name="lt_email_please_verify_message">Sie haben ein Bestätigungsmail von uns erhalten - bitte klicken Sie auf den Link, um die E-Mail-Adresse zu aktivieren.</string>
   <string name="lt_set_email_title">E-Mail-Adresse eingeben</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
   <string name="contains_keys">Enthält %1$s private Schlüssel.</string>
@@ -452,6 +454,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="fetching_info">Informationen werden vom Server abgerufen</string>
   <string name="email_notification_setting_explanation">Geben Sie Ihre e-Mail-Adresse ein, um Benachrichtigungen von Local Trader zu erhalten</string>
   <string name="amount_changed">Der zu sendende Betrag wurde mittels QR Code aktualisiert</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID Authentifizierung</string>
   <string name="bitid_authentication">Authentifizierung mittels BitID</string>
   <string name="sign_bitid">Anmelden</string>
@@ -469,6 +472,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="bitid_sslproblem">SSL-Problem</string>
   <string name="bitid_sslquestion">Das folgende SSL-Problem ist aufgetreten, möchten Sie trotzdem fortfahren ?</string>
   <string name="invalid_bitid_uri">Ungültiger BitID URI</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Sie können nicht mit archivierten Konten arbeiten.</string>
   <string name="selected_hd_info">Sie arbeiten jetzt mit diesem HD-Konto.</string>
   <string name="selected_single_info">Sie arbeiten jetzt mit dieser einzelnen Bitcoin-Adresse.</string>
@@ -650,10 +654,12 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_add_account_no_backup">Warnung: Sie haben kein bestätigtes Backup Ihres Master Seed. Alle Ihre Konten werden daraus abgeleitet. Ihre Konten sind nur sicher und wiederherstellbar, wenn Sie ein gültiges und sicheres Backup haben.</string>
   <string name="transaction_to_address_prefix">An: %s</string>
   <string name="tor_state_init">Tor init</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Orbot installieren?</string>
   <string name="you_must_have_orbot">Orbot muss installiert und als Proxy aktiv sein. Möchten Sie die App mittels Google Play installieren?</string>
   <string name="start_orbot_">Orbot starten?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot scheint nicht ausgeführt zu werden. Möchten Sie die App starten und mit Tor verbinden?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Importiert</string>
   <string name="retrieving_pubkey_address">Rufe die nächste ungenutzte Adresse ab&#8230;</string>
   <string name="instant_masterseed_initializing">Wird initialisiert&#8230;</string>
@@ -675,6 +681,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="remove_queued_transaction_title">Transaktion gereiht</string>
   <string name="remove_queued_transaction_hint">Ihr Saldo wird nach der nächsten Synchronisation mit dem Netzwerk korrigiert</string>
   <string name="remove_queued_transaction_error">Transaktion kann nicht entfernt werden</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Neu</string>
   <string name="cashila_tab_pending">Zahlungen</string>
   <string name="cashila_status_received">erhalten</string>

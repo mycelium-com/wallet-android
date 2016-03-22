@@ -39,6 +39,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -47,20 +48,20 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class DataExport {
-
-
    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Transaction Label\n";
 
-   public static String getTxHistoryCsv(WalletAccount account, MetadataStorage storage) {
-      StringBuilder result = new StringBuilder();
-      result.append(CSV_HEADER);
+   public static File getTxHistoryCsv(WalletAccount account, MetadataStorage storage, File file) throws IOException {
+      FileOutputStream fos = new FileOutputStream(file);
+      OutputStreamWriter osw = new OutputStreamWriter(fos);
+      osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
       List<TransactionSummary> history = account.getTransactionHistory(0, Integer.MAX_VALUE);
       for (TransactionSummary summary : history) {
          String txLabel = storage.getLabelByTransaction(summary.txid);
-         result.append(getTxLine(accountLabel, txLabel, summary));
+         osw.write(getTxLine(accountLabel, txLabel, summary));
       }
-      return result.toString();
+      osw.close();
+      return file;
    }
 
    private static String getTxLine(String accountLabel, String txLabel, TransactionSummary summary) {

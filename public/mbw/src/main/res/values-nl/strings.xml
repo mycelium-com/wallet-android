@@ -254,6 +254,7 @@
   <string name="addressbook_cannot_add_private_key">U kunt geen private key aan het adresboek toevoegen.\n\nU kunt private keys wel importeren via het tabblad sleutels</string>
   <string name="alert_button">Waarschuwing</string>
   <string name="heartbleed_alert">WAARSCHUWING:\n\nUw toestel werkt op Android versie 4.1.1 en heeft last van een kritieke bug genaamd Heartbleed.\n\nDeze bug kan een aanvaller gebruiken om het geheugen te lezen van alle apps die HTTPS verbindingen gebruiken.\n\nU dient direct actie te ondernemen!\n\n1. Maak uw tegoeden over naar nieuwe adressen waarvan de persoonlijke sleutel nooit op een Android 4.1.1 opgeslagen is geweest.\n\n2. Upgrade uw apparaat naar een andere versie dan 4.1.1 of gebruik een ander apparaat.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Kopen</string>
   <string name="lt_sell_button">Verkopen</string>
   <string name="lt_edit_button">Bewerken</string>
@@ -420,6 +421,7 @@
   <string name="lt_set_email_error">Het lukt niet om Trader Info van de server halen</string>
   <string name="lt_email_please_verify_message">We hebben u een verificatie e-mail verstuurd - klik op de link om uw e-mailadres te activeren.</string>
   <string name="lt_set_email_title">Voer e-mailadres in</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">U gebruikt een persoonlijke sleutel met de volgende Bitcoin adres:</string>
   <string name="cs_address_description">U heeft een Bitcoin adres gescand. U kunt het saldo weergeven maar niet uitgeven.</string>
   <string name="contains_keys">Bevat %1$s persoonlijke sleutels.</string>
@@ -446,6 +448,7 @@
   <string name="fetching_info">Info ophalen van de server</string>
   <string name="email_notification_setting_explanation">Instellen van uw e-mailadres voor het ontvangen van lokale handelaar meldingen</string>
   <string name="amount_changed">Te verzenden bedrag werd bijgewerkt vanuit QR code</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID verificatie</string>
   <string name="bitid_authentication">Verifiëren met behulp van BitID</string>
   <string name="sign_bitid">Aanmelden</string>
@@ -463,6 +466,7 @@
   <string name="bitid_sslproblem">SSL probleem</string>
   <string name="bitid_sslquestion">Het volgende SSL-probleem is opgetreden, wilt u doorgaan?</string>
   <string name="invalid_bitid_uri">Ongeldige BitID URI</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">U kan niet werken op gearchiveerde rekeningen.</string>
   <string name="selected_hd_info">U werkt nu met dit HD-Account.</string>
   <string name="selected_single_info">U werkt nu met dit enkele adres.</string>
@@ -566,4 +570,7 @@
   <string name="trezor_verify_transaction_on_trezor">Verifieer en bevestig de\ntransactie op uw Trezor</string>
   <string name="trezor_amount">Bedrag:</string>
   <string name="trezor_to">Aan:</string>
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>

@@ -85,7 +85,9 @@ public class MbwTestEnvironment extends MbwEnvironment {
    }
 
    /**
-    * BlockExplorer
+    * Available BlockExplorers
+    *
+    * The first is the default block explorer if the requested one is not available
     */
    private static final List<BlockExplorer> testnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
       add(new BlockExplorer("BKR","blockr", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/"));
@@ -94,16 +96,11 @@ public class MbwTestEnvironment extends MbwEnvironment {
       add(new BlockExplorer("BPY","BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
       add(new BlockExplorer("BEX","blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
       add(new BlockExplorer("BCY","blockCyper", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
-      add(new BlockExplorer("CHN","chain.com", "http://explorer.chain.com/addresses/", "http://explorer.chain.com/transactions/", null, null));
       add(new BlockExplorer("BES","bitEasy", "https://www.biteasy.com/testnet/addresses/", "https://www.biteasy.com/testnet/transactions/", null, null));
       add(new BlockExplorer("CPM","coinprism", "https://testnet.coinprism.info/address/", "https://testnet.coinprism.info/tx/", null, null));
-      add(new BlockExplorer("BCO","blockchains.io", "https://blockchains.io/btct/address/", "https://blockchains.io/btct/transaction/", null, null));
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
       return new ArrayList<BlockExplorer>(testnetExplorerClearEndpoints);
    }
-
-
-
 }

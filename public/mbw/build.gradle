@@ -36,7 +36,7 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'com.squareup.okhttp:okhttp:2.7.4'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.android.support:multidex:1.0.1'
 
     compile ('com.google.code.findbugs:annotations:3.0.1') {
@@ -71,8 +71,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 27010
-        versionName '2.7.1'
+        versionCode 27200
+        versionName '2.7.2'
         multiDexEnabled true
     }
 

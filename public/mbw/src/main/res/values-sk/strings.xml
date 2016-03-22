@@ -187,6 +187,7 @@
   <string name="import_decrypt_bip38_invalid_password">Vložené heslo je nesprávne.</string>
   <string name="decrypt_button">Dešifruj</string>
   <string name="pref_change_language">Zmeniť jazyk</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Kúpiť</string>
   <string name="lt_edit_button">Upraviť</string>
   <string name="lt_create_account_title">Vytvorenie účtu obchodníka</string>
@@ -205,6 +206,7 @@
   <string name="lt_accept_button">Prijať</string>
   <string name="lt_decline_button">Odmietnuť</string>
   <string name="lt_reveiving_address_title">Príjimacia Adresa</string>
+  <!-- LT end -->
   <string name="new_version_exists">Nová Verzia je dostupná</string>
   <string name="check_update">Skontrolovať aktualizácie</string>
   <string name="version_check_failed">Nemôžem získat informácie o Verzii</string>
@@ -219,4 +221,9 @@
   <string name="signed_message_subject">Bitcoinová podpísaná správa</string>
   <string name="signed_message_share">Zdieľať podpísanú Bitcoinovú správu</string>
   <string name="signing_inprogress">Podpisujem Správu&#8230;</string>
+  <!-- BitID -->
+  <!-- BitID end -->
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>

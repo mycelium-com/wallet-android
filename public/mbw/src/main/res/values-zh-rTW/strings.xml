@@ -236,6 +236,7 @@
   <string name="addressbook_cannot_add_private_key">您不能把私鑰添加到地址簿.\n\n您可以在帳戶選項中導入私有密鑰。</string>
   <string name="alert_button">警報</string>
   <string name="heartbleed_alert">警報\n\n您設備運行的Andr​​oid 4.1.1版本有一個嚴重安全漏洞。 \n\n這個漏洞允許攻擊者能夠讀取您設備上任何使HTTPS連接的應用程序所使用的內存。 \n\n你應該立即採取以下措施。 \n\n1。將您的資金轉移到新地址並且要求私鑰沒有在Android 4.1.1版本的設備上使用過。 \n\n2。將您的設備升級到另一個版本比4.1.1高的版本或使用另一台設備。</string>
+  <!-- LT start -->
   <string name="lt_buy_button">購買</string>
   <string name="lt_sell_button">出售</string>
   <string name="lt_edit_button">編輯</string>
@@ -394,6 +395,7 @@
   <string name="lt_refresh_market_rate_title">刷新市場匯率</string>
   <string name="lt_refresh_market_rate_description">新價格取決於賣方價格計算公式和當前市場匯率.\n\n如果您想刷新價錢，那麼你和賣方都必須接受這筆交易。</string>
   <string name="lt_opening_map">打開地圖</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">您正在使用下面比特幣地址的私鑰：</string>
   <string name="cs_address_description">你已經掃描一個比特的地址。你可以查看餘額，但是不能用它進行消費。</string>
   <string name="contains_keys">包含 %1$s 私鑰。</string>
@@ -417,6 +419,7 @@
   <string name="fetching_info">正在從服務器讀取信息</string>
   <string name="email_notification_setting_explanation">設置您的電子郵件地址用來接收自當地交易正的通知</string>
   <string name="amount_changed">發送的數量已基於QR 碼進行更新</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID 身份驗證</string>
   <string name="bitid_authentication">使用 BitID 進行身份驗證</string>
   <string name="sign_bitid">登錄</string>
@@ -434,6 +437,7 @@
   <string name="bitid_sslproblem">SSL 問題</string>
   <string name="bitid_sslquestion">以下的SSL出現問題，您要繼續嗎？</string>
   <string name="invalid_bitid_uri">不正確的 BitID URI</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">您不能對存檔賬戶工作進行操作。</string>
   <string name="selected_hd_info">你現在正在對該HD帳戶進行操作。</string>
   <string name="selected_single_info">你現在正在對這個單一地址進行操作。</string>
@@ -520,4 +524,7 @@
   <string name="pin_forgotten_reset_wait_button_text">等待 %s</string>
   <string name="pin_forgotten_abort_pin_reset">PIN 正在重置中。你還要等待%1$s直到PIN重置完畢.\n\n 你想要放棄PIN 重置嗎？</string>
   <string name="pin_reset_in_progress_alert">正在重置 PIN</string>
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>

@@ -258,6 +258,7 @@
   <string name="addressbook_cannot_add_private_key">Non è possibile aggiungere una chiave privata alla rubrica.\n\nPuoi importare chiavi private dalla scheda Account</string>
   <string name="alert_button">Attenzione</string>
   <string name="heartbleed_alert">ATTENZIONE\n\nSul tuo dispositivo gira la versione di Android 4.1.1 e ha un bug critico conosciuto come Heartbleed.\n\nQuesto bug permette ad un utente malintenzionato di leggere la memoria di qualsiasi applicazione che esegua connessioni HTTPS sul dispositivo.\n\n Dovresti intervenire subito! \n\n1. Sposta i tuoi fondi su nuovi indirizzi la cui chiave privata non sia mai stata su un dispositivo con Android 4.1.1.\n\n2. Aggiorna il tuo dispositivo ad una versione superiore della 4.1.1 o utilizzane un altro.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Acquista</string>
   <string name="lt_sell_button">Vendere</string>
   <string name="lt_edit_button">Modifica</string>
@@ -423,6 +424,7 @@
   <string name="lt_set_email_info">Imposta un indirizzo email per ricevere le notifiche da Local Trader.</string>
   <string name="lt_email_please_verify_message">Ti è stata inviata una mail di verifica - clicca sul link fornito per attivare il tuo indirizzo di posta elettronica.</string>
   <string name="lt_set_email_title">Inserisci l\'indirizzo e-mail</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Stai usando una chiave privata con il seguente indirizzo Bitcoin:</string>
   <string name="cs_address_description">Hai scansionato un indirizzo Bitcoin. Puoi vedere il saldo ma non puoi prelevare da li.</string>
   <string name="contains_keys">Contiene %1$s chiavi private.</string>
@@ -450,6 +452,7 @@
   <string name="fetching_info">Recupero informazioni dal server</string>
   <string name="email_notification_setting_explanation">Imposta un indirizzo email per ricevere le notifiche da Local Trader</string>
   <string name="amount_changed">L\'importo da inviare è stato aggiornato dal codice QR</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">Autenticazione BitID</string>
   <string name="bitid_authentication">Autenticarsi utilizzando BitID</string>
   <string name="sign_bitid">Accedi</string>
@@ -467,6 +470,7 @@
   <string name="bitid_sslproblem">Problema SSL</string>
   <string name="bitid_sslquestion">Si è verificato il seguente problema SSL, desideri procedere?</string>
   <string name="invalid_bitid_uri">URI BitID non valido</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Non è possibile lavorare su account archiviati.</string>
   <string name="selected_hd_info">Stai lavorando su questo account HD.</string>
   <string name="selected_single_info">Stai lavorando su questo singolo indirizzo.</string>
@@ -650,10 +654,12 @@
   <string name="warning_add_account_no_backup">Attenzione: Non hai un backup confermato del tuo Master Seed. Tutti i tuoi account HD dipendono da esso. Gi account sono sicuri e recuperabili solo se si dispone di un backup valido e ben conservato.</string>
   <string name="transaction_to_address_prefix">A: %s</string>
   <string name="tor_state_init">Tor init</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Installare Orbot?</string>
   <string name="you_must_have_orbot">Orbot deve essere installato e attivato per far transitare le comunicazioni via proxy. Si desidera installarlo da Google Play?</string>
   <string name="start_orbot_">Avviare Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Sembra che Orbot non sia in esecuzione. Desideri avviarlo e connetterti alla rete Tor?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Importato</string>
   <string name="retrieving_pubkey_address">Recupero del prossimo indirizzo inutilizzato&#8230;</string>
   <string name="instant_masterseed_initializing">Inizializzazione&#8230;</string>
@@ -675,6 +681,7 @@
   <string name="remove_queued_transaction_title">Transazione in attesa</string>
   <string name="remove_queued_transaction_hint">Il tuo saldo verrà corretto alla prossima sincronizzazione con la rete</string>
   <string name="remove_queued_transaction_error">Impossibile rimuovere la transazione</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Nuovo</string>
   <string name="cashila_tab_pending">Pagamenti</string>
   <string name="cashila_sepa_transfer">Pagamento in Euro</string>

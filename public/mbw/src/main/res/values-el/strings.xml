@@ -254,6 +254,7 @@
   <string name="addressbook_cannot_add_private_key">Δεν μπορείτε να εισαγάγετε μυστικό κλειδί στον κατάλογο διευθύνσεων.\n\nΜπορείτε να προσθέσετε μυστικά κλειδιά στην καρτέλα Λογαριασμοί</string>
   <string name="alert_button">Κίνδυνος</string>
   <string name="heartbleed_alert">ΚΙΝΔΥΝΟΣ\n\nΗ συσκευή σας τρέχει έκδοση Android 4.1.1 που έχει μια σημαντική αδυναμία γνωστή ως Heartbleed.\n\nΗ αδυναμία αυτή επιτρέπει σε εισβολείς να διαβάσουν τη μνήμη των εφαρμογών που πραγματοποιούν συνδέσεις HTTPS.\n\nΠρέπει να λάβετε άμεσα μέτρα!\n\n1.Μετακινήστε τα κεφάλαιά σας σε νέες διευθύνσεις, των οποίων το μυστικό κλειδί δεν έχει υπάρξει ποτέ σε συσκευή με Android 4.1.1.\n\n2.Κάντε ανανέωση της συσκευής σας σε έκδοση διαφορετική της 4.4.1 ή χρησιμοποιήστε άλλη συσκευή.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Αγορά</string>
   <string name="lt_sell_button">Πώληση</string>
   <string name="lt_edit_button">Επεξεργασία</string>
@@ -420,6 +421,7 @@
   <string name="lt_set_email_error">Αδυναμία ανάκτησης πληροφοριών λογαρισμού από το διακομιστή</string>
   <string name="lt_email_please_verify_message">Σας έχει αποσταλεί email επιβεβαίωσης - πατήστε τον παρεχόμενο σύνδεσμο για να ενεργοποιήσετε την διεύθυνση email σας.</string>
   <string name="lt_set_email_title">Εισαγάγετε διεύθυνση email</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Χρησιμοποιείτε ένα μυστικό κλειδί με την παρακάτω διεύθυνση Bitcoin:</string>
   <string name="cs_address_description">Σαρώσατε μια διεύθυνση Bitcoin. Μπορείτε να παρακολουθείτε το ισοζύγιο συναλλαγών, αλλά όχι να ξοδέψετε από αυτήν.</string>
   <string name="contains_keys">Περιέχει %1$s μυστικά κλειδιά.</string>
@@ -444,6 +446,7 @@
   <string name="fetching_info">Γίνεται λήψη πληροφοριών από το διακομιστή</string>
   <string name="email_notification_setting_explanation">Ορίστε διεύθυνση email όπου θα λαμβάνετε ειδοποιήσεις από τις Τοπικές Συναλλαγές</string>
   <string name="amount_changed">Το ποσό αποστολής ανανεώθηκε από τον κωδικό QR</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">Πιστοποίηση BitID</string>
   <string name="bitid_authentication">Επαλήθευση ταυτότητας με χρήση BitID</string>
   <string name="sign_bitid">Σύνδεση</string>
@@ -461,6 +464,7 @@
   <string name="bitid_sslproblem">Πρόβλημα SSL</string>
   <string name="bitid_sslquestion">Παρουσιάστηκε το παρακάτω πρόβλημα με το SSL, θέλετε να προχωρήσετε;</string>
   <string name="invalid_bitid_uri">Μη έγκυρο URI για BitID</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Δεν μπορείτε να εργαστείτε με αρχειοθετημένους λογαριασμούς.</string>
   <string name="selected_hd_info">Τώρα εργάζεστε σε αυτόν τον HD λογαριασμό.</string>
   <string name="selected_single_info">Τώρα εργάζεστε σε αυτό το λογαριασμό μονής διεύθυνσης.</string>
@@ -647,10 +651,12 @@
   <string name="warning_add_account_no_backup">Προειδοποίηση: Δεν έχετε επιβεβαιώσει το αντίγραφο ασφαλείας του Κεντρικού σας Κωδικού (σπόρου). Όλοι οι HD λογαριασμοί σας προκύπτουν από αυτόν. Θα είναι ασφαλείς και ανακτήσιμοι μόνο εάν έχετε ένα έγκυρο και ασφαλές αντίγραφο ασφαλείας.</string>
   <string name="transaction_to_address_prefix">Προς: %s</string>
   <string name="tor_state_init">Tor εκκιν.</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Εγκατάσταση του Orbot;</string>
   <string name="you_must_have_orbot">Πρέπει να έχετε το Orbot εγκατεστημένο κι ενεργό για να δρομολογήσετε κίνηση διαμέσου αυτού. Θέλετε να το εγκαταστήσετε από το Google Play;</string>
   <string name="start_orbot_">Εκκίνηση Orbot;</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Το Orbot δε φαίνεται να είναι σε λειτουργία. Θέλετε να ξεκινήσει και να συνδεθείτε με το δίκτυο Tor;</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Εισηγμένα</string>
   <string name="retrieving_pubkey_address">Ανάκτηση επόμενης αχρησιμοποίητης διεύθυνσης&#8230;</string>
   <string name="instant_masterseed_initializing">Αρχική Διαμόρφωση&#8230;</string>
@@ -672,6 +678,7 @@
   <string name="remove_queued_transaction_title">Συναλλαγή σε σειρά προτεραιότητας</string>
   <string name="remove_queued_transaction_hint">Το υπόλοιπό σας θα διορθωθεί μετά τον επόμενο συγχρονισμό με το δίκτυο</string>
   <string name="remove_queued_transaction_error">Αδυναμία διαγραφής συναλλαγής</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Δημιουργία</string>
   <string name="cashila_tab_pending">Πληρωμές</string>
   <string name="cashila_status_received">ελήφθη</string>

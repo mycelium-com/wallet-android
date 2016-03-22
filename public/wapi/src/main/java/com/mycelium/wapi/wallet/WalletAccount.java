@@ -346,7 +346,7 @@ public interface WalletAccount {
    /**
     * Class representing a receiver of funds
     */
-   public static class Receiver implements Serializable {
+   class Receiver implements Serializable {
       private static final long serialVersionUID = 1L;
 
       /**
@@ -367,7 +367,5 @@ public interface WalletAccount {
       public Receiver(Address address, Bitcoins amount) {
          this(address, amount.getLongValue());
       }
-
    }
-
 }

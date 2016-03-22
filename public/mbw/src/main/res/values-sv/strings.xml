@@ -255,6 +255,7 @@
   <string name="addressbook_cannot_add_private_key">Du kan inte lägga till en privat nyckel till adressboken.\n\nDu kan importera privata nycklar i Kontofliken</string>
   <string name="alert_button">Varning</string>
   <string name="heartbleed_alert">Varning\n\nDin enhet kör Android version 4.1.1 och har ett kritiskt fel känt som Heartbleed.\n\nDetta fel gör det möjligt för en angripare att läsa minnet för alla appar på din enhet som använder HTTPS-anslutningar.\n\nDu bör vidta omedelbara åtgärder!\n\n1. Flytta dina tillgångar till nya adresser där de privata nycklarna aldrig har varit på en Android 4.1.1 enhet.\n\n2. Uppgradera din enhet till en annan version än 4.1.1 eller använd en annan enhet.</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Köp</string>
   <string name="lt_sell_button">Sälj</string>
   <string name="lt_edit_button">Redigera</string>
@@ -421,6 +422,7 @@
   <string name="lt_set_email_error">Kunde inte erhålla handlarinformation från servern</string>
   <string name="lt_email_please_verify_message">Vi har skickat dig en bekräftelse via e-post - klicka på den tillhandahållna länken för att aktivera din e-postadress.</string>
   <string name="lt_set_email_title">Ange e-postadress</string>
+  <!-- LT end -->
   <string name="cs_private_key_description">Du använder en privat nyckel med följande bitcoin-adress:</string>
   <string name="cs_address_description">Du har läst in en bitcoin-adress. Du kan se saldot men inte spendera från den.</string>
   <string name="contains_keys">Innehåller %1$s privata nycklar.</string>
@@ -446,6 +448,7 @@
   <string name="fetching_info">Hämtar info från server</string>
   <string name="email_notification_setting_explanation">Ställ in din e-post adress för att ta emot aviseringar för lokal handel</string>
   <string name="amount_changed">Belopp att skicka uppdaterades från QR-kod</string>
+  <!-- BitID -->
   <string name="title_activity_bit_idauthentication">BitID autentisering</string>
   <string name="bitid_authentication">Autentisera via BitID</string>
   <string name="sign_bitid">Logga in</string>
@@ -463,6 +466,7 @@
   <string name="bitid_sslproblem">SSL-problem</string>
   <string name="bitid_sslquestion">Följande SSL-problem uppstod, vill du fortsätta?</string>
   <string name="invalid_bitid_uri">Ogiltig BitID-URI</string>
+  <!-- BitID end -->
   <string name="selected_archived_warning">Du kan inte arbeta med arkiverade konton.</string>
   <string name="selected_hd_info">Du arbetar nu med detta HD-konto.</string>
   <string name="selected_single_info">Du arbetar nu med denna fasta adress.</string>
@@ -647,10 +651,12 @@
   <string name="warning_add_account_no_backup">Varning: Du har inte bekräftat säkerhetskopia av ditt huvudfrö. Alla dina HD-konton är härledda från det. De är bara säkra och möjliga att återskapa, om du har en giltig och säker säkerhetskopia.</string>
   <string name="transaction_to_address_prefix">Till: %s</string>
   <string name="tor_state_init">Tor init</string>
+  <!-- from libNetCipher -->
   <string name="install_orbot_">Installera Orbot?</string>
   <string name="you_must_have_orbot">Du måste har Orbot installerad och aktiverad för att skicka trafik via den. Önskar du installera den från Google Play?</string>
   <string name="start_orbot_">Starta Orbot?</string>
   <string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot verkar inte köras. Vill du starta den och ansluta till Tor?</string>
+  <!--/ from libNetCipher -->
   <string name="account_prefix_imported">Importerad</string>
   <string name="retrieving_pubkey_address">Hämtar nästa oanvända adress&#8230;</string>
   <string name="instant_masterseed_initializing">Initierar&#8230;</string>
@@ -671,6 +677,7 @@
   <string name="remove_queued_transaction_title">Uppköad transaktion</string>
   <string name="remove_queued_transaction_hint">Ditt saldo kommer att vara korrigerat efter nästa synkronisering med nätverket</string>
   <string name="remove_queued_transaction_error">Kunde inte ta bort transaktion</string>
+  <!-- Cashila -->
   <string name="cashila_tab_new">Ny</string>
   <string name="cashila_tab_pending">Betalningar</string>
   <string name="cashila_status_received">mottaget</string>

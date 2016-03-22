@@ -205,10 +205,9 @@ public class Address implements Serializable, Comparable<Address> {
       return sb.toString();
    }
 
-
    @Override
    public int hashCode() {
-      return ((_bytes[16] & 0xFF) << 0) | ((_bytes[17] & 0xFF) << 8) | ((_bytes[18] & 0xFF) << 16)
+      return ((_bytes[16] & 0xFF) /* << 0 */) | ((_bytes[17] & 0xFF) << 8) | ((_bytes[18] & 0xFF) << 16)
             | ((_bytes[19] & 0xFF) << 24);
    }
 
@@ -231,7 +230,6 @@ public class Address implements Serializable, Comparable<Address> {
 
    @Override
    public int compareTo(Address other) {
-
       // We sort on the actual address bytes.
       // We wish to achieve consistent sorting, the exact order is not
       // important.
@@ -242,8 +240,6 @@ public class Address implements Serializable, Comparable<Address> {
             return -1;
          } else if (a > b) {
             return 1;
-         } else {
-            continue;
          }
       }
       return 0;
@@ -277,6 +273,4 @@ public class Address implements Serializable, Comparable<Address> {
    private boolean matchesNetwork(NetworkParameters network, byte version) {
       return ((byte) (network.getStandardAddressHeader() & 0xFF)) == version || ((byte) (network.getMultisigAddressHeader() & 0xFF)) == version;
    }
-
-
 }

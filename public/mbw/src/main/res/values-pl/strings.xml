@@ -205,6 +205,7 @@
   <string name="decrypt_button">Rozszyfruj</string>
   <string name="pref_change_language">Zmień język</string>
   <string name="alert_button">Alarm</string>
+  <!-- LT start -->
   <string name="lt_buy_button">Kup</string>
   <string name="lt_edit_button">Edytuj</string>
   <string name="lt_localization_not_available">Ta opcja wymaga podania twojej lokalizacji. Włącz udostępnianie lokalizacji w ustawieniach urządzenia, gdyż ta opcja jest obecnie wyłączona.</string>
@@ -329,6 +330,7 @@
   <string name="lt_reveiving_address_description">Po udanejtransakcji Twoje środki zostaną wysłane na następujące adresy:</string>
   <string name="lt_info_button">info</string>
   <string name="lt_getting_trader_info_title">Zobacz Informacje</string>
+  <!-- LT end -->
   <string name="new_version_exists">Dostępna jest nowa wersja</string>
   <string name="check_update">Sprawdź dostępność aktualizacji</string>
   <string name="version_check_failed">Nie można otrzymać informacji o wersji</string>
@@ -343,4 +345,9 @@
   <string name="signed_message_subject">wiadomość podpisana przez Bitcoin</string>
   <string name="signed_message_share">Udostępnij wiadomość podpisaną przez Bitcoin</string>
   <string name="signing_inprogress">Podpisywanie wiadomości...</string>
+  <!-- BitID -->
+  <!-- BitID end -->
+  <!-- from libNetCipher -->
+  <!--/ from libNetCipher -->
+  <!-- Cashila -->
 </resources>
