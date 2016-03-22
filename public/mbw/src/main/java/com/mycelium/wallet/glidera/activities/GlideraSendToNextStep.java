@@ -56,6 +56,39 @@ public class GlideraSendToNextStep extends Activity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        glideraService.status()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<StatusResponse>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        handleError();
+                    }
+
+                    @Override
+                    public void onNext(StatusResponse statusResponse) {
+                        if (statusResponse.isUserCanTransact()) {
+                            //Send to buy
+                            Intent intent = new Intent(GlideraSendToNextStep.this, GlideraMainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            //Send to buy/sell select
+                            Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelect.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
+    }
+
     private void handleError() {
         Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelect.class);
         startActivity(intent);
