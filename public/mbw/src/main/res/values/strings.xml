@@ -434,6 +434,8 @@
     <string name="lt_set_email_error">Unable to retrieve Trader Info from the server</string>
     <string name="lt_email_please_verify_message">We sent you a verification mail - click the provided link to activate your mail address.</string>
     <string name="lt_set_email_title">Enter email address</string>
+    <string name="lt_change_payout_address">Change payout address</string>
+    <string name="lt_warn_account_not_spandable">The selected target address (%s) is not spendable.\n\n You need to have the private key in a offline backup available or you will lose the receiving funds.</string>
     <!-- LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>

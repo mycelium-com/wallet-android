@@ -66,7 +66,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TrezorManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
    private static final int MOST_RECENT_VERSION_MAJOR = 1;
    private static final int MOST_RECENT_VERSION_MINOR = 3;
-   private static final int MOST_RECENT_VERSION_PATCH = 4;
+   private static final int MOST_RECENT_VERSION_PATCH = 5;
 
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
    private static final String DEFAULT_LABEL = "Trezor";

@@ -189,7 +189,12 @@ final class BitMatrixParser {
             }
             // If we've made a whole byte, save it off
             if (bitsRead == 8) {
-              result[resultOffset++] = (byte) currentByte;
+              // cancel the decoding, if we are beyond the expected amount of bytes
+              if (resultOffset >= version.getTotalCodewords()) {
+                throw FormatException.getFormatInstance();
+              }
+              result[resultOffset] = (byte) currentByte;
+              resultOffset++;
               bitsRead = 0;
               currentByte = 0;
             }

@@ -167,7 +167,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       if (!toFetch.isEmpty()) {
          try {
             GetTransactionsResponse response;
-            response = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
+            response = getTransactionsBatched(toFetch).getResult();
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);

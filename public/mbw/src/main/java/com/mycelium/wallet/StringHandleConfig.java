@@ -441,7 +441,8 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
-            Optional<BitcoinUri> uri = getUri(handlerActivity, content);
+            MbwManager manager = MbwManager.getInstance(handlerActivity);
+            Optional<BitcoinUri> uri = getUri(manager.getNetwork(), content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
@@ -463,7 +464,8 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
-            Optional<BitcoinUri> uri = getUri(handlerActivity, content);
+            MbwManager manager = MbwManager.getInstance(handlerActivity);
+            Optional<BitcoinUri> uri = getUri(manager.getNetwork(), content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
@@ -479,13 +481,12 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      private static Optional<BitcoinUri> getUri(StringHandlerActivity handlerActivity, String content) {
-         MbwManager manager = MbwManager.getInstance(handlerActivity);
-         return BitcoinUri.parse(content, manager.getNetwork());
+      private static Optional<BitcoinUri> getUri(NetworkParameters networkParameters, String content) {
+         return BitcoinUri.parse(content, networkParameters);
       }
 
       private static boolean isUri(NetworkParameters network, String content) {
-         return content.toLowerCase().startsWith("bitcoin");
+         return content.toLowerCase().startsWith("bitcoin") && getUri(network, content).isPresent();
       }
    }
 

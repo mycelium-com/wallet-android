@@ -57,7 +57,7 @@ import java.util.*;
 public abstract class AbstractAccount implements WalletAccount {
    public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
    protected static final int COINBASE_MIN_CONFIRMATIONS = 100;
-   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 100;
+   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
 
    public interface EventHandler {
       void onEvent(UUID accountId, Event event);
@@ -237,8 +237,7 @@ public abstract class AbstractAccount implements WalletAccount {
       if (transactionsToAddOrUpdate.size() > 0) {
          GetTransactionsResponse response;
          try {
-            response = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, transactionsToAddOrUpdate))
-                  .getResult();
+            response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -269,6 +268,36 @@ public abstract class AbstractAccount implements WalletAccount {
       }
 
       return true;
+   }
+
+
+   protected WapiResponse<GetTransactionsResponse> getTransactionsBatched(Collection<Sha256Hash> txids) throws WapiException {
+      if (txids.size() > MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+         final ArrayDeque<Sha256Hash> queue = new ArrayDeque<Sha256Hash>(txids);
+         Sha256Hash elem;
+         ArrayList<Sha256Hash> toFetch = new ArrayList<Sha256Hash>(MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
+         final LinkedList<TransactionExApi> results = new LinkedList<TransactionExApi>();
+         while ( (elem = queue.poll()) != null) {
+            toFetch.add(elem);
+            if (toFetch.size() == MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+               handleGetTransactionsResponseWapiResponse(toFetch, results);
+               toFetch.clear();
+            }
+         }
+         if (toFetch.size() > 0) {
+            handleGetTransactionsResponseWapiResponse(toFetch, results);
+         }
+         return new WapiResponse<GetTransactionsResponse>(new GetTransactionsResponse(results));
+      } else {
+         final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
+         return _wapi.getTransactions(fullRequest);
+      }
+   }
+
+   private void handleGetTransactionsResponseWapiResponse(ArrayList<Sha256Hash> toFetch, LinkedList<TransactionExApi> results) throws WapiException {
+      final GetTransactionsRequest partialRequest = new GetTransactionsRequest(Wapi.VERSION, toFetch);
+      final WapiResponse<GetTransactionsResponse> partialResponse = _wapi.getTransactions(partialRequest);
+      results.addAll(partialResponse.getResult().transactions);
    }
 
    protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
@@ -354,8 +383,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
       // Fetch missing parent transactions
       if (toFetch.size() > 0) {
-         GetTransactionsResponse result = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch))
-               .getResult();
+         GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
          for (TransactionExApi tx : result.transactions) {
             // Verify transaction hash. This is important as we don't want to
             // have a transaction output associated with an outpoint that

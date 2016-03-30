@@ -68,8 +68,7 @@ public class WapiClient implements Wapi {
          if (response == null) {
             return new WapiResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
-         String content = response.body().string();
-         return _objectMapper.readValue(content, typeReference);
+         return _objectMapper.readValue(response.body().charStream(), typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
          return new WapiResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);

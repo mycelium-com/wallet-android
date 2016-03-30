@@ -34,17 +34,6 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -62,9 +51,8 @@ import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView.OnEditorActionListener;
-
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Transaction;
@@ -85,6 +73,13 @@ import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.*;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.DateFormat;
+import java.util.*;
 
 public class TradeActivity extends Activity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
@@ -246,11 +241,53 @@ public class TradeActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
-         disableButtons();
-         _dingOnUpdates = false;
-         _ltManager.makeRequest(new AcceptTrade(_tradeSession.id, _tradeSession.lastChange));
+         // if we are a buyer, verify that the address is still in our wallet and spendable
+         if (_tradeSession.isBuyer) {
+            final WalletManager walletManager = _mbwManager.getWalletManager(false);
+            final Optional<UUID> accountByAddress = walletManager.getAccountByAddress(_tradeSession.buyerAddress);
+            if (!accountByAddress.isPresent()
+                  || !walletManager.hasAccount(accountByAddress.get())
+                  || !walletManager.getAccount(accountByAddress.get()).canSpend()) {
+
+               new AlertDialog.Builder(TradeActivity.this)
+                     .setMessage(String.format(getString(R.string.lt_warn_account_not_spandable), _tradeSession.buyerAddress))
+                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           doAcceptTrade();
+                        }
+                     })
+                     .setNegativeButton(R.string.lt_change_payout_address, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           // if the current selected account is also not spendable, try to select the first
+                           // spendable one - there should always at least one HD account be available
+                           if (!_mbwManager.getSelectedAccount().canSpend()) {
+                              final List<WalletAccount> spendingAccounts = walletManager.getSpendingAccounts();
+                              if (spendingAccounts.size() > 0) {
+                                 _mbwManager.setSelectedAccount(spendingAccounts.get(0).getId());
+                              }
+                           }
+                           // call the SetTradeAddress activity - it will call us again after finishing
+                           SetTradeAddress.callMe(TradeActivity.this, _tradeSession);
+                           TradeActivity.this.finish();
+                        }
+                     })
+                     .show();
+
+            } else {
+               doAcceptTrade();
+            }
+         }
       }
    };
+
+   private void doAcceptTrade() {
+      disableButtons();
+      _dingOnUpdates = false;
+      _ltManager.makeRequest(new AcceptTrade(_tradeSession.id, _tradeSession.lastChange));
+   }
+
 
    OnClickListener cashReceivedClickListener = new OnClickListener() {
 
@@ -649,7 +686,7 @@ public class TradeActivity extends Activity {
          _ownerMessageBackgroundColor = 0x22FFFFFF; // half transparent white
          // (grey)
          _peerMessageBackgroundColor = 0x11FFFFFF; // slightly transparent white
-                                                   // (dark grey)
+         // (dark grey)
          _eventBackgroundColor = 0x00FFFFFF; // transparent white (black)
          _invalidMessageBackgroundColor = 0xFFFF0000; // red
       }
@@ -672,39 +709,39 @@ public class TradeActivity extends Activity {
          int color;
          // Message Color
          switch (o.type) {
-         case ChatEntry.TYPE_EVENT:
-            text = o.message;
-            color = _eventBackgroundColor;
-            break;
-         case ChatEntry.TYPE_OWNER_CHAT:
-            try {
-               text = new StringBuilder().append(_tradeSession.ownerName).append(": ")
-                     .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
-               color = _ownerMessageBackgroundColor;
-            } catch (InvalidChatMessage e) {
-               text = getString(R.string.lt_invalid_chat_message, _tradeSession.ownerName);
-               color = _invalidMessageBackgroundColor;
-            }
-            break;
-         case ChatEntry.TYPE_PEER_CHAT:
-            try {
-               text = new StringBuilder().append(_tradeSession.peerName).append(": ")
-                     .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
-               color = _peerMessageBackgroundColor;
-            } catch (InvalidChatMessage e) {
-               text = getString(R.string.lt_invalid_chat_message, _tradeSession.peerName);
-               color = _invalidMessageBackgroundColor;
-            }
-            break;
-         default:
-            text = "";
-            color = _eventBackgroundColor;
+            case ChatEntry.TYPE_EVENT:
+               text = o.message;
+               color = _eventBackgroundColor;
+               break;
+            case ChatEntry.TYPE_OWNER_CHAT:
+               try {
+                  text = new StringBuilder().append(_tradeSession.ownerName).append(": ")
+                        .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
+                  color = _ownerMessageBackgroundColor;
+               } catch (InvalidChatMessage e) {
+                  text = getString(R.string.lt_invalid_chat_message, _tradeSession.ownerName);
+                  color = _invalidMessageBackgroundColor;
+               }
+               break;
+            case ChatEntry.TYPE_PEER_CHAT:
+               try {
+                  text = new StringBuilder().append(_tradeSession.peerName).append(": ")
+                        .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
+                  color = _peerMessageBackgroundColor;
+               } catch (InvalidChatMessage e) {
+                  text = getString(R.string.lt_invalid_chat_message, _tradeSession.peerName);
+                  color = _invalidMessageBackgroundColor;
+               }
+               break;
+            default:
+               text = "";
+               color = _eventBackgroundColor;
          }
          tvMessage.setText(text);
          v.setBackgroundColor(color);
 
          ImageView ivExtra = (ImageView) v.findViewById(R.id.ivExtra);
-         if(o.subtype == ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING) {
+         if (o.subtype == ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING) {
             ivExtra.setImageResource(R.drawable.lt_local_only_warning);
             ivExtra.setVisibility(View.VISIBLE);
             ivExtra.setOnClickListener(new OnClickListener() {
@@ -728,13 +765,14 @@ public class TradeActivity extends Activity {
       /**
        * Date, format depending on whether it is the same day or earlier
        * If the date is 0, the date is hidden.
+       *
        * @param chatEntryRow the R.layout.lt_chat_entry_row
-       * @param chatEntry the ChatEntry
+       * @param chatEntry    the ChatEntry
        */
       private void addDateString(View chatEntryRow, ChatEntry chatEntry) {
          TextView tvDate = (TextView) chatEntryRow.findViewById(R.id.tvDate);
          long unixTime = chatEntry.time;
-         if(unixTime > 0) {
+         if (unixTime > 0) {
             // we have a date
             Date date = new Date(chatEntry.time);
             String dateString;
@@ -800,8 +838,8 @@ public class TradeActivity extends Activity {
             _ltManager.makeRequest(new RequestMarketRateRefresh(_tradeSession.id));
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
-         if (resultCode == RESULT_OK){
-            Transaction tx = (Transaction)intent.getSerializableExtra("signedTx");
+         if (resultCode == RESULT_OK) {
+            Transaction tx = (Transaction) intent.getSerializableExtra("signedTx");
             if (tx == null) {
                Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
                return;

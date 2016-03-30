@@ -293,8 +293,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       int lastExternalIndex = _context.getLastExternalIndexWithActivity();
       int lastInternalIndex = _context.getLastInternalIndexWithActivity();
 
-      Collection<TransactionExApi> transactions = _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, ids))
-            .getResult().transactions;
+      Collection<TransactionExApi> transactions = getTransactionsBatched(ids).getResult().transactions;
       handleNewExternalTransactions(transactions);
       // Return true if the last external or internal index has changed
       return lastExternalIndex != _context.getLastExternalIndexWithActivity() || lastInternalIndex != _context.getLastInternalIndexWithActivity();

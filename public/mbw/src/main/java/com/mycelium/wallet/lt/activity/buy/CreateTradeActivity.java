@@ -114,7 +114,6 @@ public class CreateTradeActivity extends Activity implements NumberEntryListener
    }
 
    OnClickListener startTradingClickListener = new OnClickListener() {
-
       @Override
       public void onClick(View v) {
          CreateTrade request = new CreateTrade(_adSearchItem.id, getNumber());

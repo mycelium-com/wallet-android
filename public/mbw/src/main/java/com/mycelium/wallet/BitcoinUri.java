@@ -99,6 +99,11 @@ public class BitcoinUri implements Serializable {
             address = Address.fromString(addressString.trim(), network);
          }
 
+         if (address == null) {
+            // not a valid bitcoin uri
+            return Optional.absent();
+         }
+
          // Amount
          String amountStr = u.getQueryParameter("amount");
          Long amount = null;
