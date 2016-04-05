@@ -254,8 +254,24 @@ public class MetadataStorage extends GenericMetadataStorage {
       return getKeyCategoryValueEntry(COINAPULT.of("currencies"), "");
    }
 
+   public int getCoinapultLastFlush() {
+      try {
+         return Integer.valueOf(getKeyCategoryValueEntry(COINAPULT.of("flush"), "0"));
+      } catch (NumberFormatException ex) {
+         return 0;
+      }
+   }
+
+   public void storeCoinapultLastFlush(int marker) {
+      storeKeyCategoryValueEntry(COINAPULT.of("flush"), Integer.toString(marker));
+   }
+
    public void storeCoinapultAddress(Address address, String forCurrency) {
       storeKeyCategoryValueEntry(COINAPULT.of("last" + forCurrency), address.toString());
+   }
+
+   public void deleteCoinapultAddress(String forCurrency) {
+      deleteByKeyCategory(COINAPULT.of("last" + forCurrency));
    }
 
    public Optional<Address> getCoinapultAddress(String forCurrency) {
@@ -294,6 +310,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    public void setCashilaIsEnabled(boolean enable) {
       storeKeyCategoryValueEntry(CASHILA_IS_ENABLED, enable ? "1" : "0");
    }
+
 
    public enum BackupState {
       UNKNOWN(0), VERIFIED(1), IGNORED(2);

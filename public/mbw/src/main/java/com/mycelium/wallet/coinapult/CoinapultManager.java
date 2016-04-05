@@ -61,7 +61,29 @@ public class CoinapultManager implements AccountProvider {
          }
       });
       coinapultAccounts = new HashMap<UUID, CoinapultAccount>();
+      flushCacheIfNeeded();
       loadAccounts();
+   }
+
+   private void flushCacheIfNeeded() {
+      // coinpault migrates their backend to a new wallet provider - flush cache to prevent payments to old
+      // addresses from previous backend
+      if (metadataStorage.getCoinapultLastFlush() < 1) {
+         metadataStorage.deleteCoinapultAddress("USD");
+         metadataStorage.deleteCoinapultAddress("EUR");
+         metadataStorage.deleteCoinapultAddress("GBP");
+         metadataStorage.deleteCoinapultAddress("BTC");
+         metadataStorage.storeCoinapultLastFlush(1);
+      }
+
+      /*
+      // if further flushes are needed:
+      if (metadataStorage.getCoinapultLastFlush() < 2) {
+         // to stuff
+         metadataStorage.storeCoinapultLastFlush(2);
+      }
+      ...
+      */
    }
 
    private void saveEnabledCurrencies() {

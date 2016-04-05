@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.7.3" versioncode="27300">
+    <release version="2.7.3" versioncode="27301">
         <change>Warn the user if a local-trader payout will go to a watch-only address</change>
         <change>Optimize sync-behaviour for addresses with a high number of transactions</change>
+        <change>Clear coinapult last-address cache once to ensure fresh addresses for migration to new backend</change>
     </release>
     <release version="2.7.2" versioncode="27200">
         <change>Show fee/bytes in transaction details</change>
