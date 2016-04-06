@@ -92,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:text="Ƀ"/>
+            android:text="฿"/>
 
         <EditText
             android:id="@+id/etBuyBtc"
