@@ -29,6 +29,10 @@ import java.math.BigDecimal;
 import rx.Observer;
 
 public class GlideraSellFragment extends Fragment {
+    private enum SellMode {
+        FIAT, BTC
+    }
+
     private GlideraService glideraService;
     private EditText etSellFiat;
     private EditText etSellBtc;
@@ -390,10 +394,5 @@ public class GlideraSellFragment extends Fragment {
         tvBtcAmount.setText(GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO));
         tvFeeAmount.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
         tvTotalAmount.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
-    }
-
-
-    private enum SellMode {
-        FIAT, BTC
     }
 }

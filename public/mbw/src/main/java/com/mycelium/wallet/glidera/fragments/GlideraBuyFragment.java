@@ -13,8 +13,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.api.GlideraService;
 import com.mycelium.wallet.glidera.api.request.BuyPriceRequest;
@@ -28,6 +29,10 @@ import java.math.BigDecimal;
 import rx.Observer;
 
 public class GlideraBuyFragment extends Fragment {
+    private enum BuyMode {
+        FIAT, BTC
+    }
+
     private GlideraService glideraService;
     private EditText etBuyFiat;
     private EditText etBuyBtc;
@@ -63,7 +68,6 @@ public class GlideraBuyFragment extends Fragment {
         final BuyPriceRequest buyPriceRequest = new BuyPriceRequest(BigDecimal.ONE, null);
 
         glideraService.buyPrice(buyPriceRequest)
-                //.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<BuyPriceResponse>() {
                     @Override
                     public void onCompleted() {
@@ -85,7 +89,6 @@ public class GlideraBuyFragment extends Fragment {
 
 
         glideraService.transactionLimits()
-                //.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<TransactionLimitsResponse>() {
                     @Override
                     public void onCompleted() {
@@ -104,7 +107,6 @@ public class GlideraBuyFragment extends Fragment {
         /*
         Update prices when fiat is changed
          */
-
         textWatcherFiat = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -191,15 +193,17 @@ public class GlideraBuyFragment extends Fragment {
 
                 String qty = etBuyBtc.getText().toString();
 
-                if( qty == null || qty.isEmpty() ) {
-                    etBuyBtc.setError("BTC must be greater than 0");
+                if (qty.isEmpty()) {
+                    String error = "BTC must be greater than " + GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO);
+                    setError(BuyMode.BTC, error);
                     return;
                 }
 
                 BigDecimal fiat = new BigDecimal(etBuyFiat.getText().toString());
-                if( fiat.compareTo(_transactionLimitsResponse.getDailyBuyRemaining()) > 0 ) {
-                    String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay(_transactionLimitsResponse.getDailyBuyRemaining());
-                    etBuyFiat.setError(error);
+                if (fiat.compareTo(_transactionLimitsResponse.getDailyBuyRemaining()) > 0) {
+                    String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay
+                            (_transactionLimitsResponse.getDailyBuyRemaining());
+                    setError(BuyMode.FIAT, error);
                     return;
                 }
 
@@ -216,7 +220,8 @@ public class GlideraBuyFragment extends Fragment {
                             @Override
                             public void onNext(TwoFactorResponse twoFactorResponse) {
                                 DialogFragment newFragment = GlideraBuy2faDialog.newInstance(mostRecentBuyPriceResponse.getQty(),
-                                        mostRecentBuyPriceResponse.getTotal(), twoFactorResponse.getMode(), mostRecentBuyPriceResponse.getPriceUuid());
+                                        mostRecentBuyPriceResponse.getTotal(), twoFactorResponse.getMode(), mostRecentBuyPriceResponse
+                                                .getPriceUuid());
                                 newFragment.show(getFragmentManager(), "gliderabuy2fadialog");
                             }
                         });
@@ -237,7 +242,8 @@ public class GlideraBuyFragment extends Fragment {
     private void queryPricing(final BigDecimal btc, final BigDecimal fiat) {
         if (btc != null) {
             if (btc.compareTo(BigDecimal.ZERO) < 0) {
-                etBuyBtc.setError("BTC must be greater than 0");
+                String error = "BTC must be greater than " + GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO);
+                setError(BuyMode.BTC, error);
                 zeroPricing(BuyMode.BTC);
                 return;
             } else if (btc.compareTo(BigDecimal.ZERO) == 0) {
@@ -246,7 +252,8 @@ public class GlideraBuyFragment extends Fragment {
             }
         } else if (fiat != null) {
             if (fiat.compareTo(BigDecimal.ZERO) < 0) {
-                etBuyFiat.setError("BTC must be greater than 0");
+                String error = currencyIso + " must be greater than " + GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO);
+                setError(BuyMode.FIAT, error);
                 zeroPricing(BuyMode.FIAT);
                 return;
             } else if (fiat.compareTo(BigDecimal.ZERO) == 0) {
@@ -269,9 +276,11 @@ public class GlideraBuyFragment extends Fragment {
                         if (error != null && error.getCode() != null) {
                             if (error.getCode() == 1101) {
                                 if (error.getInvalidParameters().contains("fiat")) {
-                                    etBuyFiat.setError("Invalid " + currencyIso + " value. " + error.getDetails());
+                                    String message = "Invalid " + currencyIso + " value. " + error.getDetails();
+                                    setError(BuyMode.FIAT, message);
                                 } else if (error.getInvalidParameters().contains("qty")) {
-                                    etBuyBtc.setError("Invalid BTC value. " + error.getDetails());
+                                    String message = "Invalid BTC value. " + error.getDetails();
+                                    setError(BuyMode.BTC, message);
                                 }
                             }
                         }
@@ -319,10 +328,11 @@ public class GlideraBuyFragment extends Fragment {
         tvPrice.setText(GlideraUtils.formatFiatForDisplay(buyPriceResponse.getPrice()));
 
         BigDecimal fiat = new BigDecimal(etBuyFiat.getText().toString());
-        if( fiat.compareTo(_transactionLimitsResponse.getDailyBuyRemaining()) > 0 ) {
-            String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay(_transactionLimitsResponse.getDailyBuyRemaining());
-            etBuyFiat.setError(error);
-            return;
+        if (fiat.compareTo(_transactionLimitsResponse.getDailyBuyRemaining()) > 0) {
+            String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay(_transactionLimitsResponse
+                    .getDailyBuyRemaining());
+
+            setError(buyMode, error);
         }
     }
 
@@ -354,8 +364,14 @@ public class GlideraBuyFragment extends Fragment {
         tvTotalAmount.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
     }
 
-
-    private enum BuyMode {
-        FIAT, BTC
+    private void setError(BuyMode buyMode, String error) {
+        if (buyMode == BuyMode.FIAT) {
+            etBuyBtc.setError(null);
+            etBuyFiat.setError(error);
+        } else {
+            etBuyFiat.setError(null);
+            etBuyBtc.setError(error);
+        }
     }
+
 }
