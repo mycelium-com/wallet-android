@@ -196,9 +196,9 @@ public class GlideraSellFragment extends Fragment {
             public void onClick(View view) {
 
                 String qty = etSellBtc.getText().toString();
-
                 if (qty.isEmpty()) {
-                    etSellBtc.setError("BTC must be greater than 0");
+                    String error = "BTC must be greater than " + GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO);
+                    setError(SellMode.BTC, error);
                     return;
                 }
 
@@ -206,14 +206,14 @@ public class GlideraSellFragment extends Fragment {
                 if (fiat.compareTo(_transactionLimitsResponse.getDailySellRemaining()) > 0) {
                     String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay
                             (_transactionLimitsResponse.getDailySellRemaining());
-                    etSellFiat.setError(error);
+                    setError(SellMode.FIAT, error);
                     return;
                 }
 
                 BigDecimal btc = new BigDecimal(etSellBtc.getText().toString());
                 if (btcAvailible.compareTo(btc) < 0) {
                     String error = "Insufficient funds";
-                    etSellBtc.setError(error);
+                    setError(SellMode.BTC, error);
                     return;
                 }
 
@@ -256,7 +256,8 @@ public class GlideraSellFragment extends Fragment {
     private void queryPricing(final BigDecimal btc, final BigDecimal fiat) {
         if (btc != null) {
             if (btc.compareTo(BigDecimal.ZERO) < 0) {
-                etSellBtc.setError("BTC must be greater than 0");
+                String error = "BTC must be greater than " + GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO);
+                setError(SellMode.BTC, error);
                 zeroPricing(SellMode.BTC);
                 return;
             } else if (btc.compareTo(BigDecimal.ZERO) == 0) {
@@ -265,7 +266,8 @@ public class GlideraSellFragment extends Fragment {
             }
         } else if (fiat != null) {
             if (fiat.compareTo(BigDecimal.ZERO) < 0) {
-                etSellFiat.setError("BTC must be greater than 0");
+                String error = currencyIso + " must be greater than " + GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO);
+                setError(SellMode.FIAT, error);
                 zeroPricing(SellMode.FIAT);
                 return;
             } else if (fiat.compareTo(BigDecimal.ZERO) == 0) {
@@ -288,9 +290,11 @@ public class GlideraSellFragment extends Fragment {
                         if (error != null && error.getCode() != null) {
                             if (error.getCode() == 1101) {
                                 if (error.getInvalidParameters().contains("fiat")) {
-                                    etSellFiat.setError("Invalid " + currencyIso + " value. " + error.getDetails());
+                                    String message = "Invalid " + currencyIso + " value. " + error.getDetails();
+                                    setError(SellMode.FIAT, message);
                                 } else if (error.getInvalidParameters().contains("qty")) {
-                                    etSellBtc.setError("Invalid BTC value. " + error.getDetails());
+                                    String message = "Invalid BTC value. " + error.getDetails();
+                                    setError(SellMode.BTC, message);
                                 }
                             }
                         }
@@ -341,29 +345,13 @@ public class GlideraSellFragment extends Fragment {
         if (fiat.compareTo(_transactionLimitsResponse.getDailySellRemaining()) > 0) {
             String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay(_transactionLimitsResponse
                     .getDailySellRemaining());
-
-            if (sellMode == SellMode.BTC) {
-                etSellBtc.setError(error);
-            } else if (sellMode == SellMode.FIAT) {
-                etSellFiat.setError(error);
-            } else {
-                etSellBtc.setError(error);
-                etSellFiat.setError(error);
-            }
+            setError(sellMode, error);
         }
 
         BigDecimal btc = new BigDecimal(etSellBtc.getText().toString());
         if (btcAvailible.compareTo(btc) < 0) {
             String error = "Insufficient funds";
-
-            if (sellMode == SellMode.BTC) {
-                etSellBtc.setError(error);
-            } else if (sellMode == SellMode.FIAT) {
-                etSellFiat.setError(error);
-            } else {
-                etSellBtc.setError(error);
-                etSellFiat.setError(error);
-            }
+            setError(sellMode, error);
         }
 
     }
@@ -394,5 +382,15 @@ public class GlideraSellFragment extends Fragment {
         tvBtcAmount.setText(GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO));
         tvFeeAmount.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
         tvTotalAmount.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
+    }
+
+    private void setError(SellMode sellMode, String error) {
+        if (sellMode == SellMode.FIAT) {
+            etSellBtc.setError(null);
+            etSellFiat.setError(error);
+        } else {
+            etSellFiat.setError(null);
+            etSellBtc.setError(error);
+        }
     }
 }
