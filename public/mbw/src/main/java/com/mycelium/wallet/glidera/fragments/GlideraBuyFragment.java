@@ -1,6 +1,7 @@
 package com.mycelium.wallet.glidera.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -13,8 +14,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.api.GlideraService;
@@ -46,6 +45,94 @@ public class GlideraBuyFragment extends Fragment {
     private String currencyIso = "Fiat";
     private volatile BuyPriceResponse mostRecentBuyPriceResponse;
     private volatile TransactionLimitsResponse _transactionLimitsResponse;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(false);
+        setRetainInstance(true);
+
+        glideraService = GlideraService.getInstance();
+
+        /*
+        Update prices when fiat is changed
+         */
+        textWatcherFiat = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String value = editable.toString();
+                int index = editable.toString().indexOf(".");
+                int count = index < 0 ? 0 : editable.toString().length() - index - 1;
+
+                if (count > 2) {
+                    value = value.substring(0, value.length() - count + 2);
+                    removeTextChangedListeners();
+                    editable.clear();
+                    editable.append(value);
+                    addTextChangedListeners();
+                }
+
+
+                BigDecimal fiat;
+                try {
+                    fiat = new BigDecimal(value);
+
+                } catch (NumberFormatException numberFormatException) {
+                    fiat = BigDecimal.ZERO;
+                }
+                queryPricing(null, fiat);
+            }
+        };
+
+        /*
+        Update prices when btc changes
+         */
+        textWatcherBtc = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String value = editable.toString();
+                int index = editable.toString().indexOf(".");
+                int count = index < 0 ? 0 : editable.toString().length() - index - 1;
+
+                if (count > 8) {
+                    value = value.substring(0, value.length() - count + 8);
+                    removeTextChangedListeners();
+                    editable.clear();
+                    editable.append(value);
+                    addTextChangedListeners();
+                }
+
+                BigDecimal btc;
+                try {
+                    btc = new BigDecimal(value);
+                } catch (NumberFormatException numberFormatException) {
+                    btc = BigDecimal.ZERO;
+                }
+
+                queryPricing(btc, null);
+            }
+        };
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,7 +170,6 @@ public class GlideraBuyFragment extends Fragment {
                         tvBuyFiatDescription.setText(buyPriceResponse.getCurrency());
                         tvPrice.setText(GlideraUtils.formatFiatForDisplay(buyPriceResponse.getPrice()));
                         currencyIso = buyPriceResponse.getCurrency();
-                        zeroPricing();
                     }
                 });
 
@@ -104,95 +190,11 @@ public class GlideraBuyFragment extends Fragment {
                     }
                 });
 
-        /*
-        Update prices when fiat is changed
-         */
-        textWatcherFiat = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String value = editable.toString();
-                int index = editable.toString().indexOf(".");
-                int count = index < 0 ? 0 : editable.toString().length() - index - 1;
-
-                if (count > 2) {
-                    value = value.substring(0, value.length() - count + 2);
-                    etBuyFiat.removeTextChangedListener(this);
-                    editable.clear();
-                    editable.append(value);
-                    etBuyFiat.addTextChangedListener(this);
-                }
-
-
-                BigDecimal fiat;
-                try {
-                    fiat = new BigDecimal(value);
-
-                } catch (NumberFormatException numberFormatException) {
-                    fiat = BigDecimal.ZERO;
-                }
-                queryPricing(null, fiat);
-            }
-        };
-
-        etBuyFiat.addTextChangedListener(textWatcherFiat);
-
-        /*
-        Update prices when btc changes
-         */
-        textWatcherBtc = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String value = editable.toString();
-                int index = editable.toString().indexOf(".");
-                int count = index < 0 ? 0 : editable.toString().length() - index - 1;
-
-                if (count > 8) {
-                    value = value.substring(0, value.length() - count + 8);
-                    etBuyBtc.removeTextChangedListener(this);
-                    editable.clear();
-                    editable.append(value);
-                    etBuyBtc.addTextChangedListener(this);
-                }
-
-                BigDecimal btc;
-                try {
-                    btc = new BigDecimal(value);
-                } catch (NumberFormatException numberFormatException) {
-                    btc = BigDecimal.ZERO;
-                }
-
-                queryPricing(btc, null);
-            }
-        };
-
-        etBuyBtc.addTextChangedListener(textWatcherBtc);
-
         buttonBuyBitcoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 String qty = etBuyBtc.getText().toString();
-
                 if (qty.isEmpty()) {
                     String error = "BTC must be greater than " + GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO);
                     setError(BuyMode.BTC, error);
@@ -232,12 +234,17 @@ public class GlideraBuyFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
-
-        glideraService = GlideraService.getInstance();
+    public void onResume() {
+        super.onResume();
+        addTextChangedListeners();
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        removeTextChangedListeners();
+    }
+
 
     private void queryPricing(final BigDecimal btc, final BigDecimal fiat) {
         if (btc != null) {
@@ -264,7 +271,6 @@ public class GlideraBuyFragment extends Fragment {
 
         BuyPriceRequest buyPriceRequest = new BuyPriceRequest(btc, fiat);
         glideraService.buyPrice(buyPriceRequest)
-                //.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<BuyPriceResponse>() {
                     @Override
                     public void onCompleted() {
@@ -304,22 +310,16 @@ public class GlideraBuyFragment extends Fragment {
     }
 
     private void updatePricing(BuyMode buyMode, BuyPriceResponse buyPriceResponse) {
+        removeTextChangedListeners();
         if (buyMode == BuyMode.BTC) {
-            etBuyFiat.removeTextChangedListener(textWatcherFiat);
             etBuyFiat.setText(buyPriceResponse.getSubtotal().toPlainString());
-            etBuyFiat.addTextChangedListener(textWatcherFiat);
         } else if (buyMode == BuyMode.FIAT) {
-            etBuyBtc.removeTextChangedListener(textWatcherBtc);
             etBuyBtc.setText(buyPriceResponse.getQty().toPlainString());
-            etBuyBtc.addTextChangedListener(textWatcherBtc);
         } else {
-            etBuyFiat.removeTextChangedListener(textWatcherFiat);
-            etBuyBtc.removeTextChangedListener(textWatcherBtc);
             etBuyFiat.setText(buyPriceResponse.getSubtotal().toPlainString());
             etBuyBtc.setText(buyPriceResponse.getQty().toPlainString());
-            etBuyFiat.addTextChangedListener(textWatcherFiat);
-            etBuyBtc.addTextChangedListener(textWatcherBtc);
         }
+        addTextChangedListeners();
 
         tvSubtotal.setText(GlideraUtils.formatFiatForDisplay(buyPriceResponse.getSubtotal()));
         tvBtcAmount.setText(GlideraUtils.formatBtcForDisplay(buyPriceResponse.getQty()));
@@ -336,27 +336,17 @@ public class GlideraBuyFragment extends Fragment {
         }
     }
 
-    private void zeroPricing() {
-        zeroPricing(null);
-    }
-
-    private void zeroPricing(BuyMode buyMode) {
+    private void zeroPricing(@NonNull BuyMode buyMode) {
+        removeTextChangedListeners();
         if (buyMode == BuyMode.BTC) {
-            etBuyFiat.removeTextChangedListener(textWatcherFiat);
             etBuyFiat.setText("");
-            etBuyFiat.addTextChangedListener(textWatcherFiat);
         } else if (buyMode == BuyMode.FIAT) {
-            etBuyBtc.removeTextChangedListener(textWatcherBtc);
             etBuyBtc.setText("");
-            etBuyBtc.addTextChangedListener(textWatcherBtc);
         } else {
-            etBuyFiat.removeTextChangedListener(textWatcherFiat);
-            etBuyBtc.removeTextChangedListener(textWatcherBtc);
             etBuyFiat.setText("");
             etBuyBtc.setText("");
-            etBuyFiat.addTextChangedListener(textWatcherFiat);
-            etBuyBtc.addTextChangedListener(textWatcherBtc);
         }
+        addTextChangedListeners();
 
         tvSubtotal.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
         tvBtcAmount.setText(GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO));
@@ -374,4 +364,13 @@ public class GlideraBuyFragment extends Fragment {
         }
     }
 
+    private void addTextChangedListeners() {
+        etBuyFiat.addTextChangedListener(textWatcherFiat);
+        etBuyBtc.addTextChangedListener(textWatcherBtc);
+    }
+
+    private void removeTextChangedListeners() {
+        etBuyFiat.removeTextChangedListener(textWatcherFiat);
+        etBuyBtc.removeTextChangedListener(textWatcherBtc);
+    }
 }

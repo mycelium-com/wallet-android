@@ -1,6 +1,7 @@
 package com.mycelium.wallet.glidera.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -49,68 +50,19 @@ public class GlideraSellFragment extends Fragment {
     private BigDecimal btcAvailible;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_sell, container, false));
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(false);
+        setRetainInstance(true);
 
-        etSellFiat = (EditText) root.findViewById(R.id.etSellFiat);
-        etSellBtc = (EditText) root.findViewById(R.id.etSellBtc);
-        tvSubtotal = (TextView) root.findViewById(R.id.tvFiatAmount);
-        tvBtcAmount = (TextView) root.findViewById(R.id.tvBtcAmount);
-        tvFeeAmount = (TextView) root.findViewById(R.id.tvFeeAmount);
-        tvTotalAmount = (TextView) root.findViewById(R.id.tvTotalAmount);
-        tvPrice = (TextView) root.findViewById(R.id.tvPrice);
-        Button buttonSellBitcoin = (Button) root.findViewById(R.id.buttonSellBitcoin);
-
-        /*
-        Determine which currency to show
-         */
-        final TextView tvSellFiatDescription = (TextView) root.findViewById(R.id.tvSellFiatDescription);
-
-        final SellPriceRequest sellPriceRequest = new SellPriceRequest(BigDecimal.ONE, null);
-
-        glideraService.sellPrice(sellPriceRequest)
-                //.observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SellPriceResponse>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onNext(SellPriceResponse sellPriceResponse) {
-                        mostRecentSellPriceResponse = sellPriceResponse;
-                        tvSellFiatDescription.setText(sellPriceResponse.getCurrency());
-                        tvPrice.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getPrice()));
-                        currencyIso = sellPriceResponse.getCurrency();
-                        zeroPricing();
-                    }
-                });
-
-
-        glideraService.transactionLimits()
-                //.observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<TransactionLimitsResponse>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onNext(TransactionLimitsResponse transactionLimitsResponse) {
-                        _transactionLimitsResponse = transactionLimitsResponse;
-                    }
-                });
+        glideraService = GlideraService.getInstance();
+        MbwManager mbwManager = MbwManager.getInstance(this.getActivity());
+        btcAvailible = mbwManager.getSelectedAccount().calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE).getExactValue()
+                .getValue();
 
         /*
         Update prices when fiat is changed
          */
-
         textWatcherFiat = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -130,10 +82,10 @@ public class GlideraSellFragment extends Fragment {
 
                 if (count > 2) {
                     value = value.substring(0, value.length() - count + 2);
-                    etSellFiat.removeTextChangedListener(this);
+                    removeTextChangedListeners();
                     editable.clear();
                     editable.append(value);
-                    etSellFiat.addTextChangedListener(this);
+                    addTextChangedListeners();
                 }
 
 
@@ -147,8 +99,6 @@ public class GlideraSellFragment extends Fragment {
                 queryPricing(null, fiat);
             }
         };
-
-        etSellFiat.addTextChangedListener(textWatcherFiat);
 
         /*
         Update prices when btc changes
@@ -172,10 +122,10 @@ public class GlideraSellFragment extends Fragment {
 
                 if (count > 8) {
                     value = value.substring(0, value.length() - count + 8);
-                    etSellBtc.removeTextChangedListener(this);
+                    removeTextChangedListeners();
                     editable.clear();
                     editable.append(value);
-                    etSellBtc.addTextChangedListener(this);
+                    addTextChangedListeners();
                 }
 
                 BigDecimal btc;
@@ -188,8 +138,63 @@ public class GlideraSellFragment extends Fragment {
                 queryPricing(btc, null);
             }
         };
+    }
 
-        etSellBtc.addTextChangedListener(textWatcherBtc);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_sell, container, false));
+
+        etSellFiat = (EditText) root.findViewById(R.id.etSellFiat);
+        etSellBtc = (EditText) root.findViewById(R.id.etSellBtc);
+        tvSubtotal = (TextView) root.findViewById(R.id.tvFiatAmount);
+        tvBtcAmount = (TextView) root.findViewById(R.id.tvBtcAmount);
+        tvFeeAmount = (TextView) root.findViewById(R.id.tvFeeAmount);
+        tvTotalAmount = (TextView) root.findViewById(R.id.tvTotalAmount);
+        tvPrice = (TextView) root.findViewById(R.id.tvPrice);
+        Button buttonSellBitcoin = (Button) root.findViewById(R.id.buttonSellBitcoin);
+
+        /*
+        Determine which currency to show
+         */
+        final TextView tvSellFiatDescription = (TextView) root.findViewById(R.id.tvSellFiatDescription);
+
+        final SellPriceRequest sellPriceRequest = new SellPriceRequest(BigDecimal.ONE, null);
+
+        glideraService.sellPrice(sellPriceRequest)
+                .subscribe(new Observer<SellPriceResponse>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(SellPriceResponse sellPriceResponse) {
+                        mostRecentSellPriceResponse = sellPriceResponse;
+                        tvSellFiatDescription.setText(sellPriceResponse.getCurrency());
+                        tvPrice.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getPrice()));
+                        currencyIso = sellPriceResponse.getCurrency();
+                    }
+                });
+
+
+        glideraService.transactionLimits()
+                .subscribe(new Observer<TransactionLimitsResponse>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(TransactionLimitsResponse transactionLimitsResponse) {
+                        _transactionLimitsResponse = transactionLimitsResponse;
+                    }
+                });
 
         buttonSellBitcoin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,14 +248,15 @@ public class GlideraSellFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+    public void onResume() {
+        super.onResume();
+        addTextChangedListeners();
+    }
 
-        glideraService = GlideraService.getInstance();
-        MbwManager mbwManager = MbwManager.getInstance(this.getActivity());
-        btcAvailible = mbwManager.getSelectedAccount().calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE).getExactValue()
-                .getValue();
+    @Override
+    public void onStop() {
+        super.onStop();
+        removeTextChangedListeners();
     }
 
     private void queryPricing(final BigDecimal btc, final BigDecimal fiat) {
@@ -278,7 +284,6 @@ public class GlideraSellFragment extends Fragment {
 
         SellPriceRequest sellPriceRequest = new SellPriceRequest(btc, fiat);
         glideraService.sellPrice(sellPriceRequest)
-                //.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SellPriceResponse>() {
                     @Override
                     public void onCompleted() {
@@ -318,22 +323,16 @@ public class GlideraSellFragment extends Fragment {
     }
 
     private void updatePricing(SellMode sellMode, SellPriceResponse sellPriceResponse) {
+        removeTextChangedListeners();
         if (sellMode == SellMode.BTC) {
-            etSellFiat.removeTextChangedListener(textWatcherFiat);
             etSellFiat.setText(sellPriceResponse.getSubtotal().toPlainString());
-            etSellFiat.addTextChangedListener(textWatcherFiat);
         } else if (sellMode == SellMode.FIAT) {
-            etSellBtc.removeTextChangedListener(textWatcherBtc);
             etSellBtc.setText(sellPriceResponse.getQty().toPlainString());
-            etSellBtc.addTextChangedListener(textWatcherBtc);
         } else {
-            etSellFiat.removeTextChangedListener(textWatcherFiat);
-            etSellBtc.removeTextChangedListener(textWatcherBtc);
             etSellFiat.setText(sellPriceResponse.getSubtotal().toPlainString());
             etSellBtc.setText(sellPriceResponse.getQty().toPlainString());
-            etSellFiat.addTextChangedListener(textWatcherFiat);
-            etSellBtc.addTextChangedListener(textWatcherBtc);
         }
+        addTextChangedListeners();
 
         tvSubtotal.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getSubtotal()));
         tvBtcAmount.setText(GlideraUtils.formatBtcForDisplay(sellPriceResponse.getQty()));
@@ -356,27 +355,14 @@ public class GlideraSellFragment extends Fragment {
 
     }
 
-    private void zeroPricing() {
-        zeroPricing(null);
-    }
-
-    private void zeroPricing(SellMode sellMode) {
+    private void zeroPricing(@NonNull SellMode sellMode) {
+        removeTextChangedListeners();
         if (sellMode == SellMode.BTC) {
-            etSellFiat.removeTextChangedListener(textWatcherFiat);
             etSellFiat.setText("");
-            etSellFiat.addTextChangedListener(textWatcherFiat);
-        } else if (sellMode == SellMode.FIAT) {
-            etSellBtc.removeTextChangedListener(textWatcherBtc);
-            etSellBtc.setText("");
-            etSellBtc.addTextChangedListener(textWatcherBtc);
         } else {
-            etSellFiat.removeTextChangedListener(textWatcherFiat);
-            etSellBtc.removeTextChangedListener(textWatcherBtc);
-            etSellFiat.setText("");
             etSellBtc.setText("");
-            etSellFiat.addTextChangedListener(textWatcherFiat);
-            etSellBtc.addTextChangedListener(textWatcherBtc);
         }
+        addTextChangedListeners();
 
         tvSubtotal.setText(GlideraUtils.formatFiatForDisplay(BigDecimal.ZERO));
         tvBtcAmount.setText(GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO));
@@ -392,5 +378,15 @@ public class GlideraSellFragment extends Fragment {
             etSellFiat.setError(null);
             etSellBtc.setError(error);
         }
+    }
+
+    private void addTextChangedListeners() {
+        etSellFiat.addTextChangedListener(textWatcherFiat);
+        etSellBtc.addTextChangedListener(textWatcherBtc);
+    }
+
+    private void removeTextChangedListeners() {
+        etSellFiat.removeTextChangedListener(textWatcherFiat);
+        etSellBtc.removeTextChangedListener(textWatcherBtc);
     }
 }
