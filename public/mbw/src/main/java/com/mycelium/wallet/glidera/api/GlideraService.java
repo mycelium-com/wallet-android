@@ -690,7 +690,7 @@ public class GlideraService {
                                 if (throwable instanceof RetrofitError) {
                                     GlideraError error = convertRetrofitException(throwable);
                                     if (error != null) {
-                                        Log.e("Glidera", error.toString());
+                                        //Log.e("Glidera", error.toString());
                                         if (error.getCode() == 2016 || error.getCode() == 2017) {
                                             _oAuth1Response = null;
                                         }
@@ -736,7 +736,7 @@ public class GlideraService {
                     .map(new Func1<T, T>() {
                         @Override
                         public T call(T t) {
-                            Log.d("Glidera", t.toString());
+                            //Log.d("Glidera", t.toString());
                             return t;
                         }
                     })
