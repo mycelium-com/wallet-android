@@ -8,10 +8,14 @@ import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.api.GlideraService;
+import com.mycelium.wallet.glidera.api.response.OrderState;
 import com.mycelium.wallet.glidera.api.response.TransactionResponse;
+import com.mycelium.wapi.model.TransactionDetails;
 
 import java.text.DateFormat;
 import java.util.UUID;
@@ -20,12 +24,14 @@ import rx.Observer;
 
 public class GlideraTransaction extends Activity {
     private GlideraService glideraService;
+    private MbwManager mbwManager;
     private UUID transactionUUID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         glideraService = GlideraService.getInstance();
+        mbwManager = MbwManager.getInstance(this);
 
         setContentView(R.layout.glidera_transaction);
 
@@ -62,44 +68,112 @@ public class GlideraTransaction extends Activity {
     }
 
     private void updateTransaction(TransactionResponse transactionResponse) {
+        /*
+        Details
+         */
+        TextView tvDetails = (TextView) findViewById(R.id.tvDetails);
+        if( transactionResponse.getStatus() == OrderState.PROCESSING) {
+            tvDetails.setText(getString(R.string.gd_transaction_initiated));
+        }
+        else if (transactionResponse.getStatus() == OrderState.COMPLETE) {
+            tvDetails.setText(getString(R.string.gd_transaction_complete));
+        }
+        else if (transactionResponse.getStatus() == OrderState.PENDING_REVIEW) {
+            tvDetails.setText(getString(R.string.gd_transaction_reviewed));
+        }
+        else {
+            tvDetails.setText(getString(R.string.gd_transaction_error));
+        }
+
+        /*
+        Transaction Hash
+         */
+        if( transactionResponse.getTransactionHash() != null && !transactionResponse.getTransactionHash().toString().isEmpty() ) {
+            TransactionDetailsLabel tvTransactionHash = ((TransactionDetailsLabel) findViewById(R.id.tvTransactionHash));
+            TransactionDetails txDetails = mbwManager.getSelectedAccount().getTransactionDetails(transactionResponse.getTransactionHash());
+            if(txDetails != null) {
+                tvTransactionHash.setTransaction(txDetails);
+            }
+            else {
+                tvTransactionHash.setVisibility(View.GONE);
+            }
+        }
+        else {
+            TableRow trTransactionHash = (TableRow) findViewById(R.id.trTransactionHash);
+            trTransactionHash.setVisibility(View.GONE);
+        }
+
+        /*
+        Glidera transaction reference UUID
+         */
         TextView tvTransactionUUID = (TextView) findViewById(R.id.tvTransactionUUID);
-        TextView tvTransactionDate = (TextView) findViewById(R.id.tvTransactionDate);
-        TextView tvDeliveryDate = (TextView) findViewById(R.id.tvDeliveryDate);
-        TextView tvStatus = (TextView) findViewById(R.id.tvStatus);
-        TextView tvType = (TextView) findViewById(R.id.tvType);
-        TextView tvAmount = (TextView) findViewById(R.id.tvAmount);
-        TextView tvSubtotal = (TextView) findViewById(R.id.tvSubtotal);
-        TextView tvFees = (TextView) findViewById(R.id.tvFees);
-        TextView tvTotal = (TextView) findViewById(R.id.tvTotal);
-        TextView tvPricePerBtc = (TextView) findViewById(R.id.tvPricePerBtc);
-        TableRow trDeliveryDate = (TableRow) findViewById(R.id.trDeliveryDate);
-
-        String status = transactionResponse.getStatus().toString().substring(0, 1).toUpperCase() + transactionResponse.getStatus()
-                .toString().substring(1).toLowerCase();
-        String type = transactionResponse.getType().toString().substring(0, 1).toUpperCase() + transactionResponse.getType().toString()
-                .substring(1).toLowerCase();
-
-        String transactionDate = DateFormat.getDateInstance().format(transactionResponse.getTransactionDate());
-
-        String amount = GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()) + " for " + GlideraUtils.formatFiatForDisplay(transactionResponse.getTotal());
-
         tvTransactionUUID.setText(transactionResponse.getTransactionUuid().toString());
+
+        /*
+        Transaction date
+         */
+        String transactionDate = DateFormat.getDateInstance().format(transactionResponse.getTransactionDate());
+        TextView tvTransactionDate = (TextView) findViewById(R.id.tvTransactionDate);
         tvTransactionDate.setText(transactionDate);
 
+        /*
+        Estimated delivery date
+         */
         if (transactionResponse.getEstimatedDeliveryDate() != null ) {
+            TextView tvDeliveryDate = (TextView) findViewById(R.id.tvDeliveryDate);
             String estimatedDeliveryDate = DateFormat.getDateInstance().format(transactionResponse.getEstimatedDeliveryDate());
             tvDeliveryDate.setText(estimatedDeliveryDate);
         } else {
+            TableRow trDeliveryDate = (TableRow) findViewById(R.id.trDeliveryDate);
             trDeliveryDate.setVisibility(View.GONE);
         }
 
+        /*
+        Status
+         */
+        TextView tvStatus = (TextView) findViewById(R.id.tvStatus);
+        String status = transactionResponse.getStatus().toString().substring(0, 1).toUpperCase() + transactionResponse.getStatus()
+                .toString().substring(1).toLowerCase();
         tvStatus.setText(status);
+
+        /*
+        Type
+         */
+        TextView tvType = (TextView) findViewById(R.id.tvType);
+        String type = transactionResponse.getType().toString().substring(0, 1).toUpperCase() + transactionResponse.getType().toString()
+                .substring(1).toLowerCase();
         tvType.setText(type);
+
+        /*
+        Amount
+         */
+        TextView tvAmount = (TextView) findViewById(R.id.tvAmount);
+        String amount = GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()) + " for " + GlideraUtils.formatFiatForDisplay(transactionResponse.getTotal());
         tvAmount.setText(amount);
-        tvPricePerBtc.setText(GlideraUtils.formatFiatForDisplay(transactionResponse.getPrice()));
+
+        /*
+        Subtotal
+         */
+        TextView tvSubtotal = (TextView) findViewById(R.id.tvSubtotal);
         tvSubtotal.setText(GlideraUtils.formatFiatForDisplay(transactionResponse.getSubtotal()));
+
+        /*
+        Fees
+         */
+        TextView tvFees = (TextView) findViewById(R.id.tvFees);
         tvFees.setText(GlideraUtils.formatFiatForDisplay(transactionResponse.getFees()));
+
+        /*
+        Total
+         */
+        TextView tvTotal = (TextView) findViewById(R.id.tvTotal);
         tvTotal.setText(GlideraUtils.formatFiatForDisplay(transactionResponse.getTotal()));
+
+        /*
+        Price
+         */
+        TextView tvPricePerBtc = (TextView) findViewById(R.id.tvPricePerBtc);
+        tvPricePerBtc.setText(GlideraUtils.formatFiatForDisplay(transactionResponse.getPrice()));
     }
 
     @Override

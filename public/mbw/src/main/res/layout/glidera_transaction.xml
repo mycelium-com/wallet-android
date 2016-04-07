@@ -12,9 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Transaction Receipt"
+        android:text="@string/gd_transaction_receipt"
         android:textSize="20sp"
         android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tvDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
 
     <TableLayout
         android:layout_width="match_parent"
@@ -30,24 +36,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Transaction #: "
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tvTransactionUUID"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/activity_vertical_margin">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Date: "
+                android:text="@string/gd_date"
                 android:textStyle="bold"/>
 
             <TextView
@@ -65,7 +54,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Delivery Date: "
+                android:text="@string/gd_delivery_date"
                 android:textStyle="bold"/>
 
             <TextView
@@ -82,7 +71,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Status: "
+                android:text="@string/gd_status"
                 android:textStyle="bold"/>
 
             <TextView
@@ -99,7 +88,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Action: "
+                android:text="@string/gd_action"
                 android:textStyle="bold"/>
 
             <TextView
@@ -116,7 +105,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Amount: "
+                android:text="@string/gd_amount"
                 android:textStyle="bold"/>
 
             <TextView
@@ -133,7 +122,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pricing: "
+                android:text="@string/gd_pricing"
                 android:textStyle="bold"/>
 
             <TableLayout>
@@ -145,7 +134,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Price: "/>
+                        android:text="@string/gd_price"/>
 
                     <TextView
                         android:id="@+id/tvPricePerBtc"
@@ -160,7 +149,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Subtotal: "/>
+                        android:text="@string/gd_subtotal"/>
 
                     <TextView
                         android:id="@+id/tvSubtotal"
@@ -175,7 +164,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Fees: "/>
+                        android:text="@string/gd_fees"/>
 
                     <TextView
                         android:id="@+id/tvFees"
@@ -190,7 +179,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Total: "/>
+                        android:text="@string/gd_total"/>
 
                     <TextView
                         android:id="@+id/tvTotal"
@@ -198,6 +187,44 @@
                         android:layout_height="wrap_content"/>
                 </TableRow>
             </TableLayout>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/trTransactionHash"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gd_transaction_hash"
+                android:textStyle="bold"/>
+
+            <com.mycelium.wallet.activity.util.TransactionDetailsLabel
+                android:id="@+id/tvTransactionHash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/trTransactionUUID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gd_glidera_transaction_number"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvTransactionUUID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
         </TableRow>
     </TableLayout>
 </LinearLayout>

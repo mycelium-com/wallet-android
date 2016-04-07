@@ -903,6 +903,23 @@
     <string name="gd_sell_tab">Sell</string>
     <string name="gd_transaction_history_tab">History</string>
     <string name="gd_glidera">Glidera</string>
+    <string name="gd_delivery_date">Delivery Date:</string>
+    <string name="gd_date">Date:</string>
+    <string name="gd_action">Action:</string>
+    <string name="gd_amount">Amount:</string>
+    <string name="gd_pricing">Pricing:</string>
+    <string name="gd_price">Price:</string>
+    <string name="gd_status">Status:</string>
+    <string name="gd_fees">Fees:</string>
+    <string name="gd_total">Total:</string>
+    <string name="gd_transaction_hash">Transaction Hash:</string>
+    <string name="gd_glidera_transaction_number">Glidera #:</string>
+    <string name="gd_subtotal">Subtotal:</string>
+    <string name="gd_transaction_receipt">Transaction Receipt</string>
+    <string name="gd_transaction_initiated">Transaction has been initiated, details are below.</string>
+    <string name="gd_transaction_complete">Transaction is complete, details are below.</string>
+    <string name="gd_transaction_reviewed">Transaction is being reviewed, details are below.</string>
+    <string name="gd_transaction_error">An error occurred while processing this transaction.  Please contact Glidera support at support@glidera.io.</string>
     <!-- GlideraService End -->
 
 </resources>

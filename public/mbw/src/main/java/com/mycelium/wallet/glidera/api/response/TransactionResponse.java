@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class TransactionResponse extends GlideraResponse {
     public enum Type {
-        BUY, SELL;
+        BUY, SELL
     }
 
     private UUID transactionUuid;
