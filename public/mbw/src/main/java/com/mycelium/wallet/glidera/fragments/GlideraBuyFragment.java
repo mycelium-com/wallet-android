@@ -28,7 +28,7 @@ import java.math.BigDecimal;
 import rx.Observer;
 
 public class GlideraBuyFragment extends Fragment {
-    private enum BuyMode {
+    public enum BuyMode {
         FIAT, BTC
     }
 
@@ -43,8 +43,10 @@ public class GlideraBuyFragment extends Fragment {
     private TextWatcher textWatcherBtc;
     private TextView tvPrice;
     private String currencyIso = "Fiat";
-    private volatile BuyPriceResponse mostRecentBuyPriceResponse;
-    private volatile TransactionLimitsResponse _transactionLimitsResponse;
+    private TransactionLimitsResponse _transactionLimitsResponse;
+    private volatile BuyMode _buyMode;
+    private volatile BigDecimal _fiat;
+    private volatile BigDecimal _btc;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -166,7 +168,6 @@ public class GlideraBuyFragment extends Fragment {
 
                     @Override
                     public void onNext(BuyPriceResponse buyPriceResponse) {
-                        mostRecentBuyPriceResponse = buyPriceResponse;
                         tvBuyFiatDescription.setText(buyPriceResponse.getCurrency());
                         tvPrice.setText(GlideraUtils.formatFiatForDisplay(buyPriceResponse.getPrice()));
                         currencyIso = buyPriceResponse.getCurrency();
@@ -221,9 +222,7 @@ public class GlideraBuyFragment extends Fragment {
 
                             @Override
                             public void onNext(TwoFactorResponse twoFactorResponse) {
-                                DialogFragment newFragment = GlideraBuy2faDialog.newInstance(mostRecentBuyPriceResponse.getQty(),
-                                        mostRecentBuyPriceResponse.getTotal(), twoFactorResponse.getMode(), mostRecentBuyPriceResponse
-                                                .getPriceUuid());
+                                DialogFragment newFragment = GlideraBuy2faDialog.newInstance(_buyMode, _btc, _fiat, twoFactorResponse.getMode());
                                 newFragment.show(getFragmentManager(), "gliderabuy2fadialog");
                             }
                         });
@@ -294,13 +293,17 @@ public class GlideraBuyFragment extends Fragment {
 
                     @Override
                     public void onNext(BuyPriceResponse buyPriceResponse) {
-                        mostRecentBuyPriceResponse = buyPriceResponse;
-
                         BuyMode buyMode = null;
                         if (btc != null) {
                             buyMode = BuyMode.BTC;
+                            _buyMode = BuyMode.BTC;
+                            _btc = btc;
+                            _fiat = buyPriceResponse.getSubtotal();
                         } else if (fiat != null) {
                             buyMode = BuyMode.FIAT;
+                            _buyMode = BuyMode.FIAT;
+                            _fiat = fiat;
+                            _btc = buyPriceResponse.getQty();
                         }
 
                         updatePricing(buyMode, buyPriceResponse);

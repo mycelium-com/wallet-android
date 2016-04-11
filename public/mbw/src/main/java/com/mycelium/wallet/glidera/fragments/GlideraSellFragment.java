@@ -30,7 +30,7 @@ import java.math.BigDecimal;
 import rx.Observer;
 
 public class GlideraSellFragment extends Fragment {
-    private enum SellMode {
+    public enum SellMode {
         FIAT, BTC
     }
 
@@ -45,9 +45,11 @@ public class GlideraSellFragment extends Fragment {
     private TextWatcher textWatcherBtc;
     private TextView tvPrice;
     private String currencyIso = "Fiat";
-    private volatile SellPriceResponse mostRecentSellPriceResponse;
-    private volatile TransactionLimitsResponse _transactionLimitsResponse;
+    private TransactionLimitsResponse _transactionLimitsResponse;
     private BigDecimal btcAvailible;
+    private volatile SellMode _sellMode;
+    private volatile BigDecimal _fiat;
+    private volatile BigDecimal _btc;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,7 +174,6 @@ public class GlideraSellFragment extends Fragment {
 
                     @Override
                     public void onNext(SellPriceResponse sellPriceResponse) {
-                        mostRecentSellPriceResponse = sellPriceResponse;
                         tvSellFiatDescription.setText(sellPriceResponse.getCurrency());
                         tvPrice.setText(GlideraUtils.formatFiatForDisplay(sellPriceResponse.getPrice()));
                         currencyIso = sellPriceResponse.getCurrency();
@@ -235,9 +236,8 @@ public class GlideraSellFragment extends Fragment {
 
                     @Override
                     public void onNext(SellAddressResponse sellAddressResponse) {
-                        DialogFragment newFragment = GlideraSell2faDialog.newInstance(mostRecentSellPriceResponse.getQty(),
-                                mostRecentSellPriceResponse.getTotal(), mostRecentSellPriceResponse.getPriceUuid(), sellAddressResponse
-                                        .getSellAddress());
+                        DialogFragment newFragment = GlideraSell2faDialog.newInstance(_sellMode, _btc, _fiat, sellAddressResponse
+                                .getSellAddress());
                         newFragment.show(getFragmentManager(), "gliderasell2fadialog");
                     }
                 });
@@ -307,13 +307,17 @@ public class GlideraSellFragment extends Fragment {
 
                     @Override
                     public void onNext(SellPriceResponse sellPriceResponse) {
-                        mostRecentSellPriceResponse = sellPriceResponse;
-
                         SellMode sellMode = null;
                         if (btc != null) {
                             sellMode = SellMode.BTC;
+                            _sellMode = SellMode.FIAT;
+                            _fiat = sellPriceResponse.getSubtotal();
+                            _btc = btc;
                         } else if (fiat != null) {
                             sellMode = SellMode.FIAT;
+                            _sellMode = SellMode.FIAT;
+                            _fiat = fiat;
+                            _btc = sellPriceResponse.getQty();
                         }
 
                         updatePricing(sellMode, sellPriceResponse);

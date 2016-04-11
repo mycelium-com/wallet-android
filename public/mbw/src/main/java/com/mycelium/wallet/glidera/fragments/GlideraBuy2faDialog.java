@@ -18,12 +18,15 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.activities.GlideraTransaction;
 import com.mycelium.wallet.glidera.api.GlideraService;
+import com.mycelium.wallet.glidera.api.request.BuyPriceRequest;
 import com.mycelium.wallet.glidera.api.request.BuyRequest;
+import com.mycelium.wallet.glidera.api.response.BuyPriceResponse;
 import com.mycelium.wallet.glidera.api.response.BuyResponse;
 import com.mycelium.wallet.glidera.api.response.GlideraError;
 import com.mycelium.wallet.glidera.api.response.TwoFactorResponse;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
 import rx.Observer;
@@ -31,17 +34,22 @@ import rx.Observer;
 public class GlideraBuy2faDialog extends DialogFragment {
     private MbwManager mbwManager;
     private GlideraService glideraService;
-    private String buyPriceResponseQty;
-    private String buyPriceResponseTotal;
-    private String buyPriceResponseUUID;
-    private String mode2FA;
     private EditText et2FA;
+    private TextView tvPurchaseSummary;
 
-    static GlideraBuy2faDialog newInstance(BigDecimal qty, BigDecimal total, TwoFactorResponse.Mode mode, UUID buyPriceResponseUUID) {
+    private String buyMode;
+    private String btc;
+    private String fiat;
+    private String mode2FA;
+
+    private volatile BuyPriceResponse _buyPriceResponse;
+
+    public static GlideraBuy2faDialog newInstance(GlideraBuyFragment.BuyMode buyMode, BigDecimal btc, BigDecimal fiat, TwoFactorResponse
+            .Mode mode) {
         Bundle bundle = new Bundle();
-        bundle.putString("buyPriceResponseQty", qty.toPlainString());
-        bundle.putString("buyPriceResponseTotal", total.toPlainString());
-        bundle.putString("buyPriceResponseUUID", buyPriceResponseUUID.toString());
+        bundle.putString("buyMode", buyMode.toString());
+        bundle.putString("btc", btc.toPlainString());
+        bundle.putString("fiat", fiat.toString());
         bundle.putString("mode2FA", mode.toString());
 
         GlideraBuy2faDialog glideraBuy2faDialog = new GlideraBuy2faDialog();
@@ -50,21 +58,48 @@ public class GlideraBuy2faDialog extends DialogFragment {
         return glideraBuy2faDialog;
     }
 
+    private void updatePrice() {
+        BuyPriceRequest buyPriceRequest;
+        if( buyMode.equals(GlideraBuyFragment.BuyMode.FIAT.toString()) ) {
+            buyPriceRequest= new BuyPriceRequest(null, new BigDecimal(fiat));
+        }
+        else {
+            buyPriceRequest= new BuyPriceRequest(new BigDecimal(btc), null);
+        }
+
+        glideraService.buyPrice(buyPriceRequest)
+                .subscribe(new Observer<BuyPriceResponse>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(BuyPriceResponse buyPriceResponse) {
+                        String purchaseSummary = "You are about to buy " + GlideraUtils.formatBtcForDisplay(buyPriceResponse.getQty()) + " for " +
+                                GlideraUtils.formatFiatForDisplay(buyPriceResponse.getSubtotal()) + ".";
+                        tvPurchaseSummary.setText(purchaseSummary);
+                        _buyPriceResponse = buyPriceResponse;
+                    }
+                });
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_dialog_2fa, container, false));
 
-        TextView tvPurchaseSummary = (TextView) root.findViewById(R.id.tvPurchaseSummary);
-        TextView tv2FASummary = (TextView) root.findViewById(R.id.tv2FASummary);
-        Button buttonResend2FA = (Button) root.findViewById(R.id.buttonResend2FA);
+        tvPurchaseSummary = (TextView) root.findViewById(R.id.tvPurchaseSummary);
         et2FA = (EditText) root.findViewById(R.id.et2FA);
 
+        updatePrice();
+
+        TextView tv2FASummary = (TextView) root.findViewById(R.id.tv2FASummary);
+        Button buttonResend2FA = (Button) root.findViewById(R.id.buttonResend2FA);
+
         getDialog().setTitle("Confirm Your Purchase");
-
-        String purchaseSummary = "You are about to buy " + GlideraUtils.formatBtcForDisplay(new BigDecimal(buyPriceResponseQty)) + " for " +
-                GlideraUtils.formatFiatForDisplay(new BigDecimal(buyPriceResponseTotal)) + ".";
-
-        tvPurchaseSummary.setText(purchaseSummary);
 
         if (mode2FA.equals(TwoFactorResponse.Mode.NONE.toString())) {
             tv2FASummary.setVisibility(View.GONE);
@@ -100,6 +135,14 @@ public class GlideraBuy2faDialog extends DialogFragment {
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if( _buyPriceResponse == null ) {
+                    return;
+                }
+                else if( _buyPriceResponse.getExpires().before(new Date())) {
+                    updatePrice();
+                    return;
+                }
+
                 buttonContinue.setEnabled(false);
                 final String twoFACode;
 
@@ -109,7 +152,7 @@ public class GlideraBuy2faDialog extends DialogFragment {
                 if (!mode2FA.equals(TwoFactorResponse.Mode.NONE.toString())) {
                     twoFACode = et2FA.getText().toString();
 
-                    if (twoFACode == null || twoFACode.isEmpty()) {
+                    if (twoFACode.isEmpty()) {
                         if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
                             et2FA.setError("PIN is required");
                         else
@@ -124,8 +167,8 @@ public class GlideraBuy2faDialog extends DialogFragment {
                 Optional<Address> receivingAddress = mbwManager.getSelectedAccount().getReceivingAddress();
                 if (receivingAddress.isPresent()) {
                     Address address = receivingAddress.get();
-                    BigDecimal qty = new BigDecimal(buyPriceResponseQty);
-                    UUID uuid = UUID.fromString(buyPriceResponseUUID);
+                    BigDecimal qty = _buyPriceResponse.getQty();
+                    UUID uuid = _buyPriceResponse.getPriceUuid();
 
                     BuyRequest buyRequest = new BuyRequest(address, qty, uuid, false, null);
 
@@ -192,9 +235,9 @@ public class GlideraBuy2faDialog extends DialogFragment {
         glideraService = GlideraService.getInstance();
         mbwManager = MbwManager.getInstance(this.getActivity());
 
-        buyPriceResponseQty = getArguments().getString("buyPriceResponseQty");
-        buyPriceResponseTotal = getArguments().getString("buyPriceResponseTotal");
-        buyPriceResponseUUID = getArguments().getString("buyPriceResponseUUID");
+        buyMode = getArguments().getString("buyMode");
+        btc = getArguments().getString("btc");
+        fiat = getArguments().getString("fiat");
         mode2FA = getArguments().getString("mode2FA");
     }
 }

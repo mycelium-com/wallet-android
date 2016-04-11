@@ -23,8 +23,10 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.activities.GlideraTransaction;
 import com.mycelium.wallet.glidera.api.GlideraService;
+import com.mycelium.wallet.glidera.api.request.SellPriceRequest;
 import com.mycelium.wallet.glidera.api.request.SellRequest;
 import com.mycelium.wallet.glidera.api.response.GlideraError;
+import com.mycelium.wallet.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.glidera.api.response.SellResponse;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -36,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,16 +47,20 @@ import rx.Observer;
 public class GlideraSell2faDialog extends DialogFragment {
     private MbwManager mbwManager;
     private GlideraService glideraService;
-    private String sellPriceResponseQty;
-    private String sellPriceResponseTotal;
-    private String sellPriceResponseUUID;
+    private TextView tvPurchaseSummary;
+
+    private String sellMode;
+    private String btc;
+    private String fiat;
     private String sellAddress;
 
-    static GlideraSell2faDialog newInstance(BigDecimal qty, BigDecimal total, UUID sellPriceResponseUUID, String sellAddress) {
+    private volatile SellPriceResponse _sellPriceResponse;
+
+    static GlideraSell2faDialog newInstance(GlideraSellFragment.SellMode sellMode, BigDecimal btc, BigDecimal fiat, String sellAddress) {
         Bundle bundle = new Bundle();
-        bundle.putString("sellPriceResponseQty", qty.toPlainString());
-        bundle.putString("sellPriceResponseTotal", total.toPlainString());
-        bundle.putString("sellPriceResponseUUID", sellPriceResponseUUID.toString());
+        bundle.putString("sellMode", sellMode.toString());
+        bundle.putString("btc", btc.toPlainString());
+        bundle.putString("fiat", fiat.toString());
         bundle.putString("sellAddress", sellAddress);
 
         GlideraSell2faDialog glideraSell2faDialog = new GlideraSell2faDialog();
@@ -62,11 +69,42 @@ public class GlideraSell2faDialog extends DialogFragment {
         return glideraSell2faDialog;
     }
 
+    private void updatePrice() {
+        SellPriceRequest sellPriceRequest;
+        if( sellMode.equals(GlideraBuyFragment.BuyMode.FIAT.toString()) ) {
+            sellPriceRequest= new SellPriceRequest(null, new BigDecimal(fiat));
+        }
+        else {
+            sellPriceRequest= new SellPriceRequest(new BigDecimal(btc), null);
+        }
+
+        glideraService.sellPrice(sellPriceRequest)
+                .subscribe(new Observer<SellPriceResponse>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(SellPriceResponse sellPriceReesponse) {
+                        String purchaseSummary = "You are about to sell " + GlideraUtils.formatBtcForDisplay(sellPriceReesponse.getQty()) +
+                                " for " + GlideraUtils.formatFiatForDisplay(sellPriceReesponse.getSubtotal()) + ".";
+
+                        tvPurchaseSummary.setText(purchaseSummary);
+                        _sellPriceResponse = sellPriceReesponse;
+                    }
+                });
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_dialog_2fa, container, false));
 
-        TextView tvPurchaseSummary = (TextView) root.findViewById(R.id.tvPurchaseSummary);
+        tvPurchaseSummary = (TextView) root.findViewById(R.id.tvPurchaseSummary);
+
         TextView tv2FASummary = (TextView) root.findViewById(R.id.tv2FASummary);
         Button buttonResend2FA = (Button) root.findViewById(R.id.buttonResend2FA);
         EditText et2FA = (EditText) root.findViewById(R.id.et2FA);
@@ -74,10 +112,7 @@ public class GlideraSell2faDialog extends DialogFragment {
 
         getDialog().setTitle("Confirm Your Purchase");
 
-        String purchaseSummary = "You are about to sell " + GlideraUtils.formatBtcForDisplay(new BigDecimal(sellPriceResponseQty)) +
-                " for " + GlideraUtils.formatFiatForDisplay(new BigDecimal(sellPriceResponseTotal)) + ".";
-
-        tvPurchaseSummary.setText(purchaseSummary);
+        updatePrice();
 
         /*
         Hide the 2fa stuff on sell
@@ -98,16 +133,24 @@ public class GlideraSell2faDialog extends DialogFragment {
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if( _sellPriceResponse == null ) {
+                    return;
+                }
+                else if( _sellPriceResponse.getExpires().before(new Date())) {
+                    updatePrice();
+                    return;
+                }
+
                 buttonContinue.setEnabled(false);
 
                 Optional<Address> optionalRefundAddress = mbwManager.getSelectedAccount().getReceivingAddress();
 
                 if (optionalRefundAddress.isPresent()) {
                     Address refundAddress = optionalRefundAddress.get();
-                    UUID uuid = UUID.fromString(sellPriceResponseUUID);
+                    UUID uuid = _sellPriceResponse.getPriceUuid();
 
                     List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
-                    receivers.add(new WalletAccount.Receiver(Address.fromString(sellAddress), Bitcoins.valueOf(sellPriceResponseQty)));
+                    receivers.add(new WalletAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse.getQty())));
 
                     WalletAccount selectedAccount = mbwManager.getSelectedAccount();
                     final StandardTransactionBuilder.UnsignedTransaction unsignedTransaction;
@@ -200,9 +243,9 @@ public class GlideraSell2faDialog extends DialogFragment {
         glideraService = GlideraService.getInstance();
         mbwManager = MbwManager.getInstance(this.getActivity());
 
-        sellPriceResponseQty = getArguments().getString("sellPriceResponseQty");
-        sellPriceResponseTotal = getArguments().getString("sellPriceResponseTotal");
-        sellPriceResponseUUID = getArguments().getString("sellPriceResponseUUID");
+        sellMode = getArguments().getString("sellMode");
+        btc = getArguments().getString("btc");
+        fiat = getArguments().getString("fiat");
         sellAddress = getArguments().getString("sellAddress");
     }
 }
