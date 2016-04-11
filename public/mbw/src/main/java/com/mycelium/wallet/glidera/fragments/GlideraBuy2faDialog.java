@@ -1,13 +1,17 @@
 package com.mycelium.wallet.glidera.fragments;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -36,6 +40,7 @@ public class GlideraBuy2faDialog extends DialogFragment {
     private GlideraService glideraService;
     private EditText et2FA;
     private TextView tvPurchaseSummary;
+    private ProgressBar pbTimer;
 
     private String buyMode;
     private String btc;
@@ -60,11 +65,10 @@ public class GlideraBuy2faDialog extends DialogFragment {
 
     private void updatePrice() {
         BuyPriceRequest buyPriceRequest;
-        if( buyMode.equals(GlideraBuyFragment.BuyMode.FIAT.toString()) ) {
-            buyPriceRequest= new BuyPriceRequest(null, new BigDecimal(fiat));
-        }
-        else {
-            buyPriceRequest= new BuyPriceRequest(new BigDecimal(btc), null);
+        if (buyMode.equals(GlideraBuyFragment.BuyMode.FIAT.toString())) {
+            buyPriceRequest = new BuyPriceRequest(null, new BigDecimal(fiat));
+        } else {
+            buyPriceRequest = new BuyPriceRequest(new BigDecimal(btc), null);
         }
 
         glideraService.buyPrice(buyPriceRequest)
@@ -79,10 +83,26 @@ public class GlideraBuy2faDialog extends DialogFragment {
 
                     @Override
                     public void onNext(BuyPriceResponse buyPriceResponse) {
-                        String purchaseSummary = "You are about to buy " + GlideraUtils.formatBtcForDisplay(buyPriceResponse.getQty()) + " for " +
-                                GlideraUtils.formatFiatForDisplay(buyPriceResponse.getSubtotal()) + ".";
+                        String purchaseSummary = "You are about to buy " + GlideraUtils.formatBtcForDisplay(buyPriceResponse.getQty()) +
+                                " for " + GlideraUtils.formatFiatForDisplay(buyPriceResponse.getSubtotal()) + ".";
                         tvPurchaseSummary.setText(purchaseSummary);
                         _buyPriceResponse = buyPriceResponse;
+
+                        //expire at the expiration time minus 10 seconds to act as a buffer
+                        long expiration = buyPriceResponse.getExpires().getTime() - new Date().getTime() - 10000;
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                updatePrice();
+                            }
+                        }, expiration);
+
+                        pbTimer.clearAnimation();
+                        ObjectAnimator animation = ObjectAnimator.ofInt(pbTimer, "progress", 0, 500); // see this max value coming back
+                        animation.setDuration(expiration); //in milliseconds
+                        animation.setInterpolator(new DecelerateInterpolator(.5f));
+                        animation.start();
                     }
                 });
     }
@@ -93,6 +113,7 @@ public class GlideraBuy2faDialog extends DialogFragment {
 
         tvPurchaseSummary = (TextView) root.findViewById(R.id.tvPurchaseSummary);
         et2FA = (EditText) root.findViewById(R.id.et2FA);
+        pbTimer = (ProgressBar) root.findViewById(R.id.pbTimer);
 
         updatePrice();
 
@@ -135,10 +156,9 @@ public class GlideraBuy2faDialog extends DialogFragment {
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if( _buyPriceResponse == null ) {
+                if (_buyPriceResponse == null) {
                     return;
-                }
-                else if( _buyPriceResponse.getExpires().before(new Date())) {
+                } else if (_buyPriceResponse.getExpires().before(new Date())) {
                     updatePrice();
                     return;
                 }

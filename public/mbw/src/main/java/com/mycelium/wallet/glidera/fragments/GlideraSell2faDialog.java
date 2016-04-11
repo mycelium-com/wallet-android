@@ -1,13 +1,17 @@
 package com.mycelium.wallet.glidera.fragments;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -48,6 +52,7 @@ public class GlideraSell2faDialog extends DialogFragment {
     private MbwManager mbwManager;
     private GlideraService glideraService;
     private TextView tvPurchaseSummary;
+    private ProgressBar pbTimer;
 
     private String sellMode;
     private String btc;
@@ -71,11 +76,10 @@ public class GlideraSell2faDialog extends DialogFragment {
 
     private void updatePrice() {
         SellPriceRequest sellPriceRequest;
-        if( sellMode.equals(GlideraBuyFragment.BuyMode.FIAT.toString()) ) {
-            sellPriceRequest= new SellPriceRequest(null, new BigDecimal(fiat));
-        }
-        else {
-            sellPriceRequest= new SellPriceRequest(new BigDecimal(btc), null);
+        if (sellMode.equals(GlideraBuyFragment.BuyMode.FIAT.toString())) {
+            sellPriceRequest = new SellPriceRequest(null, new BigDecimal(fiat));
+        } else {
+            sellPriceRequest = new SellPriceRequest(new BigDecimal(btc), null);
         }
 
         glideraService.sellPrice(sellPriceRequest)
@@ -95,6 +99,22 @@ public class GlideraSell2faDialog extends DialogFragment {
 
                         tvPurchaseSummary.setText(purchaseSummary);
                         _sellPriceResponse = sellPriceReesponse;
+
+                        //expire at the expiration time minus 10 seconds to act as a buffer
+                        long expiration = sellPriceReesponse.getExpires().getTime() - new Date().getTime() - 10000;
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                updatePrice();
+                            }
+                        }, expiration);
+
+                        pbTimer.clearAnimation();
+                        ObjectAnimator animation = ObjectAnimator.ofInt(pbTimer, "progress", 0, 500); // see this max value coming back
+                        animation.setDuration(expiration); //in milliseconds
+                        animation.setInterpolator(new DecelerateInterpolator(.5f));
+                        animation.start();
                     }
                 });
     }
@@ -104,6 +124,9 @@ public class GlideraSell2faDialog extends DialogFragment {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.glidera_dialog_2fa, container, false));
 
         tvPurchaseSummary = (TextView) root.findViewById(R.id.tvPurchaseSummary);
+        pbTimer = (ProgressBar) root.findViewById(R.id.pbTimer);
+
+        updatePrice();
 
         TextView tv2FASummary = (TextView) root.findViewById(R.id.tv2FASummary);
         Button buttonResend2FA = (Button) root.findViewById(R.id.buttonResend2FA);
@@ -111,8 +134,6 @@ public class GlideraSell2faDialog extends DialogFragment {
         final Toaster toaster = new Toaster(getActivity());
 
         getDialog().setTitle("Confirm Your Purchase");
-
-        updatePrice();
 
         /*
         Hide the 2fa stuff on sell
@@ -133,10 +154,9 @@ public class GlideraSell2faDialog extends DialogFragment {
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if( _sellPriceResponse == null ) {
+                if (_sellPriceResponse == null) {
                     return;
-                }
-                else if( _sellPriceResponse.getExpires().before(new Date())) {
+                } else if (_sellPriceResponse.getExpires().before(new Date())) {
                     updatePrice();
                     return;
                 }
@@ -150,7 +170,8 @@ public class GlideraSell2faDialog extends DialogFragment {
                     UUID uuid = _sellPriceResponse.getPriceUuid();
 
                     List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
-                    receivers.add(new WalletAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse.getQty())));
+                    receivers.add(new WalletAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
+                            .getQty())));
 
                     WalletAccount selectedAccount = mbwManager.getSelectedAccount();
                     final StandardTransactionBuilder.UnsignedTransaction unsignedTransaction;
@@ -160,7 +181,7 @@ public class GlideraSell2faDialog extends DialogFragment {
                     } catch (StandardTransactionBuilder.OutputTooSmallException outputTooSmallException) {
                         outputTooSmallException.printStackTrace();
                         buttonContinue.setEnabled(false);
-                        toaster.toast("Amount too small",true);
+                        toaster.toast("Amount too small", true);
                         return;
                     } catch (StandardTransactionBuilder.InsufficientFundsException insufficientFundsException) {
                         insufficientFundsException.printStackTrace();
@@ -208,14 +229,12 @@ public class GlideraSell2faDialog extends DialogFragment {
                         public void onError(Throwable e) {
                             GlideraError error = GlideraService.convertRetrofitException(e);
                             if (error != null && error.getCode() != null) {
-                                if( error.getCode() == 5004 ) {
-                                    toaster.toast("An error has occured and your coin returned.",true);
-                                }
-                                else if( error.getCode() == 5005 ) {
-                                    toaster.toast("An error has occured, please contact Glidera support",true);
-                                }
-                                else {
-                                    toaster.toast("Unable to sell at this time",true);
+                                if (error.getCode() == 5004) {
+                                    toaster.toast("An error has occured and your coin returned.", true);
+                                } else if (error.getCode() == 5005) {
+                                    toaster.toast("An error has occured, please contact Glidera support", true);
+                                } else {
+                                    toaster.toast("Unable to sell at this time", true);
                                 }
                             }
                             buttonContinue.setEnabled(true);

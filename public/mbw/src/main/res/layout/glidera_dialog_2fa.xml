@@ -10,12 +10,32 @@
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvPurchaseSummary"
+        <RelativeLayout
+            android:id="@+id/rlSummary"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/standard_padding"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tvPurchaseSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/standard_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:textAlignment="center"
+                android:textStyle="bold"/>
+            <ProgressBar
+                android:id="@+id/pbTimer"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="16sp"
+                android:layout_height="16sp"
+                android:max="500"
+                android:progress="0"
+                android:progressDrawable="@drawable/glidera_timer"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"/>
+        </RelativeLayout>
+
+
 
         <TextView
             android:id="@+id/tv2FASummary"
