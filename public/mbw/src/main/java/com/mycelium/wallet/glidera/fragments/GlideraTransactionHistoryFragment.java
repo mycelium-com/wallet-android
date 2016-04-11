@@ -8,14 +8,13 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.glidera.GlideraUtils;
 import com.mycelium.wallet.glidera.activities.GlideraTransaction;
 import com.mycelium.wallet.glidera.api.GlideraService;
@@ -24,12 +23,10 @@ import com.mycelium.wallet.glidera.api.response.TransactionResponse;
 import com.mycelium.wallet.glidera.api.response.TransactionsResponse;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import rx.Observer;
-import rx.functions.Action1;
 
 public class GlideraTransactionHistoryFragment extends ListFragment {
     private GlideraService glideraService;
@@ -76,10 +73,12 @@ public class GlideraTransactionHistoryFragment extends ListFragment {
 
     private final class TransactionHistoryAdapter extends ArrayAdapter<TransactionResponse> {
         private Context context;
+        private AdaptiveDateFormat adaptiveDateFormat;
 
         public TransactionHistoryAdapter(Context context, List<TransactionResponse> objects) {
             super(context, R.layout.glidera_transaction_row, objects);
             this.context = context;
+            adaptiveDateFormat = new AdaptiveDateFormat(context);
         }
 
         @Override
@@ -94,18 +93,11 @@ public class GlideraTransactionHistoryFragment extends ListFragment {
             final TransactionResponse transactionResponse = getItem(position);
 
             /*
-            Date
-             */
-            final String date;
-
-            if(DateUtils.isToday(transactionResponse.getTransactionDate().getTime())) {
-                date = DateFormat.getTimeInstance().format(transactionResponse.getTransactionDate());
-            }
-            else {
-                date = DateFormat.getDateInstance().format(transactionResponse.getTransactionDate());
-            }
-
-            ((TextView) view.findViewById(R.id.tvDate)).setText(date);
+             Date
+              */
+            Date date = transactionResponse.getTransactionDate();
+            TextView tvDate = (TextView) view.findViewById(R.id.tvDate);
+            tvDate.setText(adaptiveDateFormat.format(date));
 
             /*
             Message
