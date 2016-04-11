@@ -35,7 +35,7 @@ public class GlideraTransaction extends Activity {
 
         setContentView(R.layout.glidera_transaction);
 
-        if( getActionBar() != null )
+        if (getActionBar() != null)
             getActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle bundle = getIntent().getExtras();
@@ -72,33 +72,40 @@ public class GlideraTransaction extends Activity {
         Details
          */
         TextView tvDetails = (TextView) findViewById(R.id.tvDetails);
-        if( transactionResponse.getStatus() == OrderState.PROCESSING) {
+        if (transactionResponse.getStatus() == OrderState.PROCESSING) {
             tvDetails.setText(getString(R.string.gd_transaction_initiated));
-        }
-        else if (transactionResponse.getStatus() == OrderState.COMPLETE) {
+        } else if (transactionResponse.getStatus() == OrderState.COMPLETE) {
             tvDetails.setText(getString(R.string.gd_transaction_complete));
-        }
-        else if (transactionResponse.getStatus() == OrderState.PENDING_REVIEW) {
+        } else if (transactionResponse.getStatus() == OrderState.PENDING_REVIEW) {
             tvDetails.setText(getString(R.string.gd_transaction_reviewed));
-        }
-        else {
+        } else {
             tvDetails.setText(getString(R.string.gd_transaction_error));
         }
 
         /*
         Transaction Hash
          */
-        if( transactionResponse.getTransactionHash() != null && !transactionResponse.getTransactionHash().toString().isEmpty() ) {
+        if (transactionResponse.getTransactionHash() != null && !transactionResponse.getTransactionHash().toString().isEmpty()) {
             TransactionDetailsLabel tvTransactionHash = ((TransactionDetailsLabel) findViewById(R.id.tvTransactionHash));
-            TransactionDetails txDetails = mbwManager.getSelectedAccount().getTransactionDetails(transactionResponse.getTransactionHash());
-            if(txDetails != null) {
+            TransactionDetails txDetails;
+            try {
+                txDetails = mbwManager.getSelectedAccount().getTransactionDetails(transactionResponse.getTransactionHash());
+
+            } catch (RuntimeException runtimeException) {
+                /*
+                If this was not a mycelium transaction it will throw a runtime exception, This could happen if they buy on the Glidera
+                website or their Glidera account is connected to multiple wallets
+                 */
+                txDetails = null;
+            }
+
+            if (txDetails != null) {
                 tvTransactionHash.setTransaction(txDetails);
+            } else {
+                TableRow trTransactionHash = (TableRow) findViewById(R.id.trTransactionHash);
+                trTransactionHash.setVisibility(View.GONE);
             }
-            else {
-                tvTransactionHash.setVisibility(View.GONE);
-            }
-        }
-        else {
+        } else {
             TableRow trTransactionHash = (TableRow) findViewById(R.id.trTransactionHash);
             trTransactionHash.setVisibility(View.GONE);
         }
@@ -119,7 +126,7 @@ public class GlideraTransaction extends Activity {
         /*
         Estimated delivery date
          */
-        if (transactionResponse.getEstimatedDeliveryDate() != null ) {
+        if (transactionResponse.getEstimatedDeliveryDate() != null) {
             TextView tvDeliveryDate = (TextView) findViewById(R.id.tvDeliveryDate);
             String estimatedDeliveryDate = DateFormat.getDateInstance().format(transactionResponse.getEstimatedDeliveryDate());
             tvDeliveryDate.setText(estimatedDeliveryDate);
@@ -148,7 +155,8 @@ public class GlideraTransaction extends Activity {
         Amount
          */
         TextView tvAmount = (TextView) findViewById(R.id.tvAmount);
-        String amount = GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()) + " for " + GlideraUtils.formatFiatForDisplay(transactionResponse.getTotal());
+        String amount = GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()) + " for " + GlideraUtils.formatFiatForDisplay
+                (transactionResponse.getTotal());
         tvAmount.setText(amount);
 
         /*
