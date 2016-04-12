@@ -278,6 +278,8 @@ public class TradeActivity extends Activity {
             } else {
                doAcceptTrade();
             }
+         } else {
+            doAcceptTrade();
          }
       }
    };
