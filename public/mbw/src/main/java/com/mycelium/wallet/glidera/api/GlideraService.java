@@ -14,6 +14,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.api.retrofit.JacksonConverter;
+import com.mycelium.wallet.external.cashila.api.NullBodyAwareOkClient;
 import com.mycelium.wallet.glidera.api.request.AddPhoneRequest;
 import com.mycelium.wallet.glidera.api.request.BuyPriceRequest;
 import com.mycelium.wallet.glidera.api.request.BuyRequest;
@@ -189,7 +190,7 @@ public class GlideraService {
                 .setEndpoint(baseUrl + "/api/" + API_VERSION + "/")
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setConverter(new JacksonConverter(objectMapper))
-                .setClient(new OkClient(client))
+                .setClient(new NullBodyAwareOkClient(client))
                 .setRequestInterceptor(requestInterceptor)
                 .build();
 
