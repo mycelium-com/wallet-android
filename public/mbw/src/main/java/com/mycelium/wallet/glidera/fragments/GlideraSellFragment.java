@@ -250,6 +250,18 @@ public class GlideraSellFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        String value = etSellBtc.getText().toString();
+        if( !value.isEmpty() ) {
+            BigDecimal btc;
+            try {
+                btc = new BigDecimal(value);
+                queryPricing(btc, null);
+            } catch (NumberFormatException numberFormatException) {
+                //Intentinally empty
+            }
+        }
+
         addTextChangedListeners();
     }
 

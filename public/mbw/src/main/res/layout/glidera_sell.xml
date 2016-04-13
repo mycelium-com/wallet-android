@@ -20,7 +20,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:gravity="start"
-            android:text="Amount to sell"
+            android:text="@string/gd_amount_to_sell"
             android:textSize="16sp"
             android:textStyle="bold"
             android:typeface="monospace"/>
@@ -31,7 +31,7 @@
             android:layout_toLeftOf="@+id/tvPrice"
             android:layout_toStartOf="@+id/tvPrice"
             android:gravity="end"
-            android:text="Rate: "
+            android:text="@string/gd_rate"
             android:textSize="14sp"/>
 
         <TextView
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:text="$"/>
+            android:text="@string/gd_dollar_symbol"/>
 
         <EditText
             android:id="@+id/etSellFiat"
@@ -66,7 +66,6 @@
             android:layout_toLeftOf="@+id/tvSellFiatDescription"
             android:layout_toRightOf="@+id/tvSellFiatSymbol"
             android:layout_toStartOf="@+id/tvSellFiatDescription"
-            android:hint="0.00"
             android:inputType="numberDecimal"/>
 
         <TextView
@@ -92,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:text="฿"/>
+            android:text="@string/gd_btc_symbol"/>
 
         <EditText
             android:id="@+id/etSellBtc"
@@ -102,7 +101,6 @@
             android:layout_toLeftOf="@+id/tvSellBtcDescription"
             android:layout_toRightOf="@+id/tvSellBtcSymbol"
             android:layout_toStartOf="@+id/tvSellBtcDescription"
-            android:hint="0.00"
             android:inputType="numberDecimal"/>
 
         <TextView
@@ -111,7 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:text="BTC"
+            android:text="@string/gd_btc"
             android:textStyle="bold"/>
     </RelativeLayout>
 
@@ -120,7 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_vertical_margin"
         android:gravity="center"
-        android:text="Summary"
+        android:text="@string/gd_summary"
         android:textSize="16sp"
         android:textStyle="bold"
         android:typeface="monospace">
@@ -142,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="Subtotal:"
+                android:text="@string/gd_subtotal"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
 
@@ -152,7 +150,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="0.00"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
         </LinearLayout>
@@ -167,7 +164,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="Bitcoin:"
+                android:text="@string/gd_bitcoin"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
 
@@ -177,7 +174,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="0.00"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
         </LinearLayout>
@@ -192,7 +188,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="Fee:"
+                android:text="@string/gd_fee"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
 
@@ -202,7 +198,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="0.00"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
         </LinearLayout>
@@ -217,7 +212,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="Total:"
+                android:text="@string/gd_total"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
 
@@ -227,7 +222,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="0.00"
                 android:textSize="14sp"
                 android:typeface="monospace"/>
         </LinearLayout>
@@ -238,7 +232,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_vertical_margin"
-        android:text="Sell Bitcoin"
+        android:text="@string/gd_sell_bitcoin"
         android:textStyle="bold"/>
 
 </LinearLayout>

@@ -47,6 +47,7 @@ public class GlideraBuyFragment extends Fragment {
     private volatile BuyMode _buyMode;
     private volatile BigDecimal _fiat;
     private volatile BigDecimal _btc;
+    private TextView tvBuyFiatDescription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -147,15 +148,15 @@ public class GlideraBuyFragment extends Fragment {
         tvFeeAmount = (TextView) root.findViewById(R.id.tvFeeAmount);
         tvTotalAmount = (TextView) root.findViewById(R.id.tvTotalAmount);
         tvPrice = (TextView) root.findViewById(R.id.tvPrice);
+        tvBuyFiatDescription = (TextView) root.findViewById(R.id.tvBuyFiatDescription);
+
         Button buttonBuyBitcoin = (Button) root.findViewById(R.id.buttonBuyBitcoin);
 
         /*
         Determine which currency to show
          */
-        final TextView tvBuyFiatDescription = (TextView) root.findViewById(R.id.tvBuyFiatDescription);
 
         final BuyPriceRequest buyPriceRequest = new BuyPriceRequest(BigDecimal.ONE, null);
-
         glideraService.buyPrice(buyPriceRequest)
                 .subscribe(new Observer<BuyPriceResponse>() {
                     @Override
@@ -235,6 +236,18 @@ public class GlideraBuyFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        String value = etBuyBtc.getText().toString();
+        if( !value.isEmpty() ) {
+            BigDecimal btc;
+            try {
+                btc = new BigDecimal(value);
+                queryPricing(btc, null);
+            } catch (NumberFormatException numberFormatException) {
+                //Intentinally empty
+            }
+        }
+
         addTextChangedListeners();
     }
 

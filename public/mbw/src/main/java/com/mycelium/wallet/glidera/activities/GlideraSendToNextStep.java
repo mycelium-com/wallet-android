@@ -21,8 +21,7 @@ public class GlideraSendToNextStep extends Activity {
         String uriString = getIntent().getStringExtra("uri");
 
         Uri uri = Uri.parse(uriString);
-
-        final boolean success = uri.getQueryParameter("status").equals("SUCCESS");
+        final String status = uri.getQueryParameter("status");
 
         glideraService = GlideraService.getInstance();
 
@@ -46,11 +45,16 @@ public class GlideraSendToNextStep extends Activity {
                             startActivity(intent);
                             finish();
                         } else {
-                            if (success) {
+                            if ( status != null && status.equals("SUCCESS")) {
                                 //Send to setup
                                 String uri = glideraService.getSetupUrl();
                                 Utils.openWebsite(GlideraSendToNextStep.this, uri);
-                            } else {
+                            } else if( status != null && status.equals("RETURN")) {
+                                Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelect.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                            else {
                                 handleError();
                             }
                         }
