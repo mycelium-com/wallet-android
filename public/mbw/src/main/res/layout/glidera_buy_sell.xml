@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/activity_vertical_margin">
+        >
 
         <fragment
             android:id="@+id/ltFragment"
