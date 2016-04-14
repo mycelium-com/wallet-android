@@ -51,9 +51,20 @@ public class BuySellSelect extends FragmentActivity {
                                 GlideraError error = GlideraService.convertRetrofitException(e);
                                 if (error != null && error.getCode() != null) {
                                     if (error.getCode() == 1103) {
-                                        //Invalid credentials, send to bitid registration
-                                        String uri = glideraService.getBitidRegistrationUrl();
-                                        Utils.openWebsite(BuySellSelect.this, uri);
+                                        // Invalid credentials, send to bitid registration
+                                        // this wallet had never used this service before
+                                        Utils.showSimpleMessageDialog(
+                                                BuySellSelect.this,
+                                                "Mycelium DISCLAIMER \n\n todo...",
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        // redirect the user to glidera website to complete the sign-up process
+                                                        String uri = glideraService.getBitidRegistrationUrl();
+                                                        Utils.openWebsite(BuySellSelect.this, uri);
+                                                    }
+                                                }
+                                        );
                                     }
                                 }
                                 progress.dismiss();
