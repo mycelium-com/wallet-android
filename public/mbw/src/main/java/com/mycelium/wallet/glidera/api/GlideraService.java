@@ -61,8 +61,8 @@ import okio.Buffer;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.client.OkClient;
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -310,32 +310,46 @@ public class GlideraService {
      * @return OAuth1 Credentials
      */
     public synchronized Observable<OAuth1Response> oauth1Create() {
-        if (oAuth1ResponseObservable == null) {
-            final Address address = getBitidKey().getPublicKey().toAddress(networkParameters);
-            final String nonce = String.valueOf(getNonce());
-            final String uri = baseUrl + "/api/" + API_VERSION + "/authentication/oauth1/create?x=" + nonce;
-            final String signature = getBitidKey().signMessage(uri).getBase64Signature();
+       if (oAuth1ResponseObservable == null) {
+          final Observable<Address> addressObservable = Observable.create(new Observable.OnSubscribe<Address>() {
+             @Override
+             public void call(Subscriber<? super Address> subscriber) {
+                subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters));
+                subscriber.onCompleted();
+             }
+          });
 
-            oAuth1ResponseObservable = glideraApi.oAuth1Create(address.toString(), uri, signature)
-                    .observeOn(Schedulers.newThread())
-                    .doOnError(new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable throwable) {
-                            _oAuth1Response = null;
-                            oAuth1ResponseObservable = null;
-                        }
-                    })
-                    .map(new Func1<OAuth1Response, OAuth1Response>() {
-                        @Override
-                        public OAuth1Response call(OAuth1Response oAuth1Response) {
-                            _oAuth1Response = oAuth1Response;
-                            return oAuth1Response;
-                        }
-                    })
-                    .cache();
-        }
+          final String nonce = String.valueOf(getNonce());
+          final String uri = baseUrl + "/api/" + API_VERSION + "/authentication/oauth1/create?x=" + nonce;
+          final String signature = getBitidKey().signMessage(uri).getBase64Signature();
 
-        return oAuth1ResponseObservable;
+
+          oAuth1ResponseObservable =
+                  addressObservable.flatMap(new Func1<Address, Observable<OAuth1Response>>() {
+                     @Override
+                     public Observable<OAuth1Response> call(Address address) {
+                        return glideraApi.oAuth1Create(address.toString(), uri, signature);
+                     }
+                  })
+                          .observeOn(Schedulers.newThread())
+                          .doOnError(new Action1<Throwable>() {
+                             @Override
+                             public void call(Throwable throwable) {
+                                _oAuth1Response = null;
+                                oAuth1ResponseObservable = null;
+                             }
+                          })
+                          .map(new Func1<OAuth1Response, OAuth1Response>() {
+                             @Override
+                             public OAuth1Response call(OAuth1Response oAuth1Response) {
+                                _oAuth1Response = oAuth1Response;
+                                return oAuth1Response;
+                             }
+                          })
+                          .cache();
+       }
+
+       return oAuth1ResponseObservable;
     }
 
     /**

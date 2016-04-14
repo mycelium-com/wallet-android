@@ -38,7 +38,6 @@ public class BuySellSelect extends FragmentActivity {
             public void onClick(View arg0) {
                 final ProgressDialog progress = ProgressDialog
                         .show(BuySellSelect.this, getString(R.string.gd_buy_sell), getString(R.string.gd_loading), true);
-
                 glideraService.status()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<StatusResponse>() {
