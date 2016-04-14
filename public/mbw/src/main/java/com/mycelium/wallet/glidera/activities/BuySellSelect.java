@@ -1,5 +1,6 @@
 package com.mycelium.wallet.glidera.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -35,11 +36,15 @@ public class BuySellSelect extends FragmentActivity {
         glideraRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                final ProgressDialog progress = ProgressDialog
+                        .show(BuySellSelect.this, getString(R.string.gd_buy_sell), getString(R.string.gd_loading), true);
+
                 glideraService.status()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<StatusResponse>() {
                             @Override
                             public void onCompleted() {
+                                progress.dismiss();
                             }
 
                             @Override
@@ -52,6 +57,7 @@ public class BuySellSelect extends FragmentActivity {
                                         Utils.openWebsite(BuySellSelect.this, uri);
                                     }
                                 }
+                                progress.dismiss();
                             }
 
                             @Override
