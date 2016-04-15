@@ -925,6 +925,7 @@
     <string name="gd_continue">Continue</string>
     <string name="gd_amount_to_buy">Amount to Buy</string>
     <string name="gd_sell_bitcoin">Sell Bitcoin</string>
+    <string name="gd_buy_bitcoin">Buy Bitcoin</string>
     <string name="gd_rate">Rate:</string>
     <string name="gd_bitcoin">Bitcoin:</string>
     <string name="gd_summary">Summary</string>
