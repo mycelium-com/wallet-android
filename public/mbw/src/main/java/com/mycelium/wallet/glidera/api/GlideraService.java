@@ -77,7 +77,7 @@ public class GlideraService {
     /*
     Mainnet credentials
      */
-    private final static String MAINNET_CLIENT_ID = "1234";
+    private final static String MAINNET_CLIENT_ID = "265051094d50795bd43fc2696630b4f9";
     private final static String MAINNET_URL = "https://www.glidera.io";
 
     /*
@@ -312,10 +312,10 @@ public class GlideraService {
     public synchronized Observable<OAuth1Response> oauth1Create() {
        if (oAuth1ResponseObservable == null) {
           final Observable<Address> addressObservable = Observable.create(new Observable.OnSubscribe<Address>() {
-             @Override
-             public void call(Subscriber<? super Address> subscriber) {
-                subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters));
-                subscriber.onCompleted();
+              @Override
+              public void call(Subscriber<? super Address> subscriber) {
+                  subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters));
+                  subscriber.onCompleted();
              }
           });
 
@@ -326,25 +326,25 @@ public class GlideraService {
 
           oAuth1ResponseObservable =
                   addressObservable.flatMap(new Func1<Address, Observable<OAuth1Response>>() {
-                     @Override
-                     public Observable<OAuth1Response> call(Address address) {
-                        return glideraApi.oAuth1Create(address.toString(), uri, signature);
-                     }
+                      @Override
+                      public Observable<OAuth1Response> call(Address address) {
+                          return glideraApi.oAuth1Create(address.toString(), uri, signature);
+                      }
                   })
                           .observeOn(Schedulers.newThread())
                           .doOnError(new Action1<Throwable>() {
-                             @Override
-                             public void call(Throwable throwable) {
-                                _oAuth1Response = null;
-                                oAuth1ResponseObservable = null;
-                             }
+                              @Override
+                              public void call(Throwable throwable) {
+                                  _oAuth1Response = null;
+                                  oAuth1ResponseObservable = null;
+                              }
                           })
                           .map(new Func1<OAuth1Response, OAuth1Response>() {
-                             @Override
-                             public OAuth1Response call(OAuth1Response oAuth1Response) {
-                                _oAuth1Response = oAuth1Response;
-                                return oAuth1Response;
-                             }
+                              @Override
+                              public OAuth1Response call(OAuth1Response oAuth1Response) {
+                                  _oAuth1Response = oAuth1Response;
+                                  return oAuth1Response;
+                              }
                           })
                           .cache();
        }
