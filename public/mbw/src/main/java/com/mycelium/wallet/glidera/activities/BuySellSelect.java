@@ -69,7 +69,7 @@ public class BuySellSelect extends FragmentActivity {
                                 } else {
                                    Utils.showSimpleMessageDialog(
                                            BuySellSelect.this,
-                                           String.format("Unable to connect to glidera - %s", e.getLocalizedMessage())
+                                           String.format(getString(R.string.gd_error_unable_to_connect), e.getLocalizedMessage())
                                    );
                                 }
                                 progress.dismiss();

@@ -435,6 +435,8 @@
     <string name="lt_set_email_title">Enter email address</string>
     <string name="lt_change_payout_address">Change payout address</string>
     <string name="lt_warn_account_not_spandable">The selected target address (%s) is not spendable.\n\n You need to have the private key in a offline backup available or you will lose the receiving funds.</string>
+    <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
+    <string name="lt_mycelium_marketplace_description">Find Mycelium users in your local area who buy/sell bitcoin.</string>
     <!-- LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
@@ -895,8 +897,6 @@
 
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
-    <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
-    <string name="lt_mycelium_marketplace_description">Find Mycelium users in your local area who buy/sell bitcoin.</string>
     <string name="gd_buy_sell">Glidera</string>
     <string name="gd_buy_sell_description">Buy/Sell bitcoin from Glidera using a bank account in the US or Canada.</string>
     <string name="gd_buy_tab">Buy</string>
@@ -934,6 +934,7 @@
     <string name="gd_btc_symbol">฿</string>
     <string name="gd_amount_to_sell">Amount to Sell</string>
     <string name="gd_loading">Loading…</string>
+    <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
     <!-- GlideraService End -->
 
 </resources>
