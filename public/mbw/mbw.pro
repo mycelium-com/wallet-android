@@ -166,6 +166,7 @@
 # retrofit + API interfaces
 -keep class retrofit.** { *; }
 -keep class com.mycelium.wallet.external.cashila.api.** { *; }
+-keep class com.mycelium.wallet.glidera.api.** { *; }
 -keepclassmembernames interface * {
     @retrofit.http.* <methods>;
 }
