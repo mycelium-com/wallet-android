@@ -2,7 +2,6 @@ package com.mycelium.wallet.glidera.api;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +60,7 @@ import okio.Buffer;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.android.AndroidLog;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -188,7 +188,8 @@ public class GlideraService {
          */
         RestAdapter adapter = new RestAdapter.Builder()
                 .setEndpoint(baseUrl + "/api/" + API_VERSION + "/")
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLog(new AndroidLog("Glidera"))
                 .setConverter(new JacksonConverter(objectMapper))
                 .setClient(new NullBodyAwareOkClient(client))
                 .setRequestInterceptor(requestInterceptor)
@@ -303,6 +304,10 @@ public class GlideraService {
         return getApi().test();
     }
 
+    public static <T1, T2, R> Observable<R> flatZip(Observable<? extends Address> o1, Observable<? extends String> o2, final Func2<Address, String, Observable<R>> zipFunction) {
+        return Observable.merge(Observable.zip(o1, o2, zipFunction));
+    }
+
     /**
      * Once the user has successfully connected with BitID, the client can request OAuth 1 credentials to use for making futher API calls
      * . The credentials returned have all the permissions.
@@ -317,36 +322,45 @@ public class GlideraService {
                   subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters));
                   subscriber.onCompleted();
              }
-          });
+          }).subscribeOn(Schedulers.computation());
 
-          final String nonce = String.valueOf(getNonce());
           final String uri = baseUrl + "/api/" + API_VERSION + "/authentication/oauth1/create?x=" + nonce;
-          final String signature = getBitidKey().signMessage(uri).getBase64Signature();
+          final Observable<String> signatureObservable = Observable.create(new Observable.OnSubscribe<String>() {
+               @Override
+               public void call(Subscriber<? super String> subscriber) {
+                   final String signature = getBitidKey().signMessage(uri).getBase64Signature();
+                   subscriber.onNext(signature);
+                   subscriber.onCompleted();
+               }
+           }).subscribeOn(Schedulers.computation());
 
 
-          oAuth1ResponseObservable =
-                  addressObservable.flatMap(new Func1<Address, Observable<OAuth1Response>>() {
+
+          oAuth1ResponseObservable = flatZip(
+                  addressObservable,
+                  signatureObservable,
+                  new Func2<Address, String, Observable<OAuth1Response>>() {
                       @Override
-                      public Observable<OAuth1Response> call(Address address) {
+                      public Observable<OAuth1Response> call(Address address, String signature) {
                           return glideraApi.oAuth1Create(address.toString(), uri, signature);
                       }
                   })
-                          .observeOn(Schedulers.newThread())
-                          .doOnError(new Action1<Throwable>() {
-                              @Override
-                              public void call(Throwable throwable) {
-                                  _oAuth1Response = null;
-                                  oAuth1ResponseObservable = null;
-                              }
-                          })
-                          .map(new Func1<OAuth1Response, OAuth1Response>() {
-                              @Override
-                              public OAuth1Response call(OAuth1Response oAuth1Response) {
-                                  _oAuth1Response = oAuth1Response;
-                                  return oAuth1Response;
-                              }
-                          })
-                          .cache();
+                      .observeOn(Schedulers.newThread())
+                      .doOnError(new Action1<Throwable>() {
+                          @Override
+                          public void call(Throwable throwable) {
+                              _oAuth1Response = null;
+                              oAuth1ResponseObservable = null;
+                          }
+                      })
+                      .map(new Func1<OAuth1Response, OAuth1Response>() {
+                          @Override
+                          public OAuth1Response call(OAuth1Response oAuth1Response) {
+                              _oAuth1Response = oAuth1Response;
+                              return oAuth1Response;
+                          }
+                      })
+                      .cache();
        }
 
        return oAuth1ResponseObservable;
