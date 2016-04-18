@@ -55,7 +55,7 @@ public class BuySellSelect extends FragmentActivity {
                                         // this wallet had never used this service before
                                         Utils.showSimpleMessageDialog(
                                                 BuySellSelect.this,
-                                                "Mycelium DISCLAIMER \n\n todo...",
+                                                getString(R.string.glidera_tos),
                                                 new Runnable() {
                                                     @Override
                                                     public void run() {
