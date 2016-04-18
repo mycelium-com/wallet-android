@@ -66,6 +66,11 @@ public class BuySellSelect extends FragmentActivity {
                                                 }
                                         );
                                     }
+                                } else {
+                                   Utils.showSimpleMessageDialog(
+                                           BuySellSelect.this,
+                                           String.format("Unable to connect to glidera - %s", e.getLocalizedMessage())
+                                   );
                                 }
                                 progress.dismiss();
                             }
