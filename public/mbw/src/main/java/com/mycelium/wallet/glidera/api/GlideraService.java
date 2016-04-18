@@ -98,9 +98,8 @@ public class GlideraService {
     private OAuth1Response _oAuth1Response;
     private volatile Observable<OAuth1Response> oAuth1ResponseObservable = null;
     private InMemoryPrivateKey bitidKey;
-    private final Object nonceSync = new Object();
     private final NetworkParameters networkParameters;
-    private volatile Long nonce;
+    private final Nonce _nonce = new Nonce();
 
     private GlideraService(@NonNull final NetworkParameters networkParameters) {
         Preconditions.checkNotNull(networkParameters);
@@ -127,8 +126,8 @@ public class GlideraService {
                 if (_oAuth1Response != null) {
                     Request.Builder requestBuilder = request.newBuilder();
 
-                    synchronized (nonceSync) {
-                        final String nonce = String.valueOf(getNonce());
+                    synchronized (_nonce) {
+                        final String nonce = _nonce.getNonceString();
                         final String uri = request.urlString();
 
                         String message = nonce + uri;
@@ -228,17 +227,6 @@ public class GlideraService {
         return glideraApi;
     }
 
-    private synchronized long getNonce() {
-        if( nonce == null ) {
-            nonce = System.currentTimeMillis();
-        }
-        else {
-            nonce++;
-        }
-
-        return nonce;
-    }
-
     public static String getBaseUrl(NetworkParameters networkParameters) {
         if (networkParameters.isTestnet()) {
             return TESTNET_URL;
@@ -256,7 +244,7 @@ public class GlideraService {
     }
 
     public String getBitidRegistrationUrl() {
-        final String nonce = String.valueOf(getNonce());
+        final String nonce = _nonce.getNonceString();
         final String uri = baseUrl + "/bitid/auth";
         final String bitidUri = Uri.parse(uri + "?x=" + nonce).buildUpon().scheme("bitid").toString();
         final String signature = getBitidKey().signMessage(bitidUri).getBase64Signature();
@@ -283,7 +271,7 @@ public class GlideraService {
     private String getDeepLink(@NonNull String path) {
         Preconditions.checkArgument(path.startsWith("/"));
 
-        final String nonce = String.valueOf(getNonce());
+        final String nonce = _nonce.getNonceString();
 
         Uri uri = Uri.parse(baseUrl + path)
                 .buildUpon()
@@ -324,6 +312,7 @@ public class GlideraService {
              }
           }).subscribeOn(Schedulers.computation());
 
+          final String nonce = _nonce.getNonceString();
           final String uri = baseUrl + "/api/" + API_VERSION + "/authentication/oauth1/create?x=" + nonce;
           final Observable<String> signatureObservable = Observable.create(new Observable.OnSubscribe<String>() {
                @Override
@@ -345,20 +334,20 @@ public class GlideraService {
                           return glideraApi.oAuth1Create(address.toString(), uri, signature);
                       }
                   })
-                      .observeOn(Schedulers.newThread())
-                      .doOnError(new Action1<Throwable>() {
-                          @Override
-                          public void call(Throwable throwable) {
-                              _oAuth1Response = null;
-                              oAuth1ResponseObservable = null;
-                          }
-                      })
-                      .map(new Func1<OAuth1Response, OAuth1Response>() {
-                          @Override
-                          public OAuth1Response call(OAuth1Response oAuth1Response) {
-                              _oAuth1Response = oAuth1Response;
-                              return oAuth1Response;
-                          }
+                  .observeOn(Schedulers.newThread())
+                  .doOnError(new Action1<Throwable>() {
+                      @Override
+                      public void call(Throwable throwable) {
+                          _oAuth1Response = null;
+                          oAuth1ResponseObservable = null;
+                      }
+                  })
+                  .map(new Func1<OAuth1Response, OAuth1Response>() {
+                      @Override
+                      public OAuth1Response call(OAuth1Response oAuth1Response) {
+                          _oAuth1Response = oAuth1Response;
+                          return oAuth1Response;
+                      }
                       })
                       .cache();
        }
@@ -743,7 +732,7 @@ public class GlideraService {
                                     If nonce is too little, null the nonce and try again
                                      */
                                     if (error.getCode() == 2018) {
-                                        nonce = null;
+                                        _nonce.resetNonce();
                                         return true;
                                     }
                                 }
