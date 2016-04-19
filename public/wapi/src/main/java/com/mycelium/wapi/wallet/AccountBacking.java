@@ -57,6 +57,8 @@ public interface AccountBacking {
 
    List<TransactionEx> getTransactionHistory(int offset, int limit);
 
+   List<TransactionEx> getTransactionsSince(long since);
+
    Collection<TransactionEx> getUnconfirmedTransactions();
 
    Collection<TransactionEx> getYoungTransactions(int maxConfirmations, int blockChainHeight);

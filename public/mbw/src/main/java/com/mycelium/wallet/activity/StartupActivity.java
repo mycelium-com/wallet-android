@@ -55,6 +55,7 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.pop.PopActivity;
@@ -399,27 +400,38 @@ public class StartupActivity extends Activity {
    private void handleBitcoinUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-      Optional<BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (!bitcoinUri.isPresent() ||
-            (bitcoinUri.get().address==null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL))
-            ) {
+      Optional<? extends BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
+      if (!bitcoinUri.isPresent()){
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
          return;
       }
 
-      List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
-      if (spendingAccounts.isEmpty()) {
-         //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
-         spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
-      }
-      if (spendingAccounts.size() == 1) {
-         SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bitcoinUri.get(), false, REQUEST_FROM_URI);
+      // the bitcoin uri might actually be encrypted private key, where the user wants to spend funds from
+      if (bitcoinUri.get() instanceof BitcoinUri.PrivateKeyUri) {
+         final BitcoinUri.PrivateKeyUri privateKeyUri = (BitcoinUri.PrivateKeyUri) bitcoinUri.get();
+         DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.keyString, StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
       } else {
-         GetSpendingRecordActivity.callMeWithResult(this, bitcoinUri.get(), REQUEST_FROM_URI);
+         if (bitcoinUri.get().address==null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL)) {
+            // Invalid Bitcoin URI
+            Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+         }
+
+         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         if (spendingAccounts.isEmpty()) {
+            //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
+            spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
+         }
+         if (spendingAccounts.size() == 1) {
+            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bitcoinUri.get(), false, REQUEST_FROM_URI);
+         } else {
+            GetSpendingRecordActivity.callMeWithResult(this, bitcoinUri.get(), REQUEST_FROM_URI);
+         }
+         //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
       }
-      //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
    }
 
    @Override
@@ -439,6 +451,13 @@ public class StartupActivity extends Activity {
          _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
          delayedFinish.run();
+         return;
+      }else if (requestCode== StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE) {
+         String content = data.getStringExtra("base58Key");
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
+         UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
+         SendInitializationActivity.callMe(this, account, true);
+         finish();
          return;
       }
 

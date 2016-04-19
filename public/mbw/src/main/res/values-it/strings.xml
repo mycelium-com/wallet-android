@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Indirizzo bitcoin valido</string>
   <string name="redirecting_to_block_explorer">Reindirizzamento verso un block explorer</string>
   <string name="enter_local_currency">Inserire la valuta locale</string>
-  <string name="tap_to_refresh">Tocca per aggiornare</string>
   <string name="using_address_from_clipboard">Indirizzo copiato dagli appunti in uso</string>
   <string name="my_accounts">Miei Conti</string>
   <string name="foreign_addresses">Rubrica</string>
@@ -794,6 +793,8 @@
   <string name="coinapult_add_locks_account">Aggiungi un account Coinapult Locks</string>
   <string name="coinapult_currency_account">%1$s Account</string>
   <string name="copy">Copia</string>
+  <string name="pop_transaction_id">Hash</string>
+  <string name="pop_transaction_amount">Importo</string>
   <string name="pop_send_pop">Prova di pagamento</string>
   <string name="pop_prove">Prova</string>
   <string name="pop_select_other_tx">Seleziona un\'altra</string>
@@ -803,5 +804,6 @@
   <string name="pop_non_matching_transactions">Altre transazioni</string>
   <string name="import_xpub_wrong_depth">È possibile importare solo indirizzi di account di livello (3) xpub.\nQuesto è di livello %1$s.</string>
   <string name="buy_one">Acquistalo&#8230;</string>
+  <string name="warning_reason_rbf">RBF</string>
   <string name="opening_url_in_browser">Apri nel browser...</string>
 </resources>

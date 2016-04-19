@@ -164,7 +164,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="bitcoin_address_valid">Gültige Bitcoin-Adresse</string>
   <string name="redirecting_to_block_explorer">Sie werden zu einem Block-Explorer umgeleitet</string>
   <string name="enter_local_currency">Geben Sie Ihre lokale Währung ein</string>
-  <string name="tap_to_refresh">Zum Aktualisieren hier tippen</string>
   <string name="using_address_from_clipboard">Bitcoin-Adresse aus der Zwischenablage wird verwendet</string>
   <string name="my_accounts">Meine Konten</string>
   <string name="foreign_addresses">Adressbuch</string>

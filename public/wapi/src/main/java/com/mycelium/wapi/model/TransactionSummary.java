@@ -22,6 +22,8 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
+import java.util.List;
+
 
 public class TransactionSummary implements Comparable<TransactionSummary> {
    public final Sha256Hash txid;
@@ -33,10 +35,11 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
    public final boolean isQueuedOutgoing;
    public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
    public final Optional<Address> destinationAddress;
+   public final List<Address> toAddresses;
 
    public TransactionSummary(Sha256Hash txid, CurrencyValue value, boolean isIncoming, long time, int height,
                              int confirmations, boolean isQueuedOutgoing, ConfirmationRiskProfileLocal confirmationRiskProfile,
-                             Optional<Address> destinationAddress) {
+                             Optional<Address> destinationAddress, List<Address> toAddresses) {
       this.txid = txid;
       this.value = value;
       this.isIncoming = isIncoming;
@@ -46,6 +49,7 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
       this.isQueuedOutgoing = isQueuedOutgoing;
       this.confirmationRiskProfile = Optional.fromNullable(confirmationRiskProfile);
       this.destinationAddress = destinationAddress;
+      this.toAddresses = toAddresses;
    }
 
    @Override

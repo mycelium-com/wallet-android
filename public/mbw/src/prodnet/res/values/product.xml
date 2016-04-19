@@ -3,5 +3,4 @@
     tools:ignore="MissingTranslation">
     <string name="network">prodnet</string>
     <bool name="email_on_errors">true</bool>
-    <bool name="bitid_enabled">true</bool>
 </resources>

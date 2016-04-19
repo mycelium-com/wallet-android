@@ -70,9 +70,9 @@ public class Transaction implements Serializable {
 
    public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction) {
       TransactionInput input[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
-      int idx = 0;
-      for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
-         input[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
+      int idx=0;
+      for(UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()){
+         input[idx++]=new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
       }
       return new Transaction(1, input, unsignedTransaction.getOutputs(), 0);
    }
@@ -82,6 +82,11 @@ public class Transaction implements Serializable {
    }
 
    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {
+      return fromByteReader(reader, null);
+   }
+
+   // use this builder if you already know the resulting transaction hash to speed up computation
+   public static Transaction fromByteReader(ByteReader reader, Sha256Hash knownTransactionHash) throws TransactionParsingException {
       int size = reader.available();
       try {
          int version = reader.getIntLE();
@@ -109,7 +114,7 @@ public class Transaction implements Serializable {
             }
          }
          int lockTime = reader.getIntLE();
-         Transaction t = new Transaction(version, inputs, outputs, lockTime, size);
+         Transaction t = new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
          return t;
       } catch (InsufficientBytesException e) {
          throw new TransactionParsingException(e.getMessage());
@@ -161,6 +166,23 @@ public class Transaction implements Serializable {
       this.outputs = outputs;
       this.lockTime = lockTime;
       this._txSize = txSize;
+   }
+
+   public Transaction(Transaction copyFrom) {
+      this.version = copyFrom.version;
+      this.inputs = copyFrom.inputs;
+      this.outputs = copyFrom.outputs;
+      this.lockTime = copyFrom.lockTime;
+      this._txSize = copyFrom._txSize;
+      this._hash = copyFrom._hash;
+
+   }
+
+   // we already know the hash of this transaction, dont recompute it
+   protected Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
+                       int txSize, Sha256Hash knownTransactionHash) {
+      this(version, inputs, outputs, lockTime, txSize);
+      this._hash = knownTransactionHash;
    }
 
    public Sha256Hash getHash() {

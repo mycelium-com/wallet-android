@@ -150,7 +150,6 @@
   <string name="bitcoin_address_valid">比特币地址有效</string>
   <string name="redirecting_to_block_explorer">将重定向到一个块浏览器</string>
   <string name="enter_local_currency">请输入您的本地货币</string>
-  <string name="tap_to_refresh">点击可刷新</string>
   <string name="using_address_from_clipboard">使用剪贴板中的地址</string>
   <string name="my_accounts">我的账户</string>
   <string name="foreign_addresses">地址列表</string>

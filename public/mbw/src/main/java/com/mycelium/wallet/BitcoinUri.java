@@ -36,6 +36,7 @@ package com.mycelium.wallet;
 
 import android.net.Uri;
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
@@ -77,7 +78,7 @@ public class BitcoinUri implements Serializable {
       this.callbackURL = callbackURL;
    }
 
-   public static Optional<BitcoinUri> parse(String uri, NetworkParameters network) {
+   public static Optional<? extends BitcoinUri> parse(String uri, NetworkParameters network) {
       try {
          Uri u = Uri.parse(uri.trim());
          String scheme = u.getScheme();
@@ -99,11 +100,6 @@ public class BitcoinUri implements Serializable {
             address = Address.fromString(addressString.trim(), network);
          }
 
-         if (address == null) {
-            // not a valid bitcoin uri
-            return Optional.absent();
-         }
-
          // Amount
          String amountStr = u.getQueryParameter("amount");
          Long amount = null;
@@ -119,13 +115,23 @@ public class BitcoinUri implements Serializable {
             label = u.getQueryParameter("message");
          }
 
+         // Check if the supplied "address" is actually an encrypted private key
+         if (Bip38.isBip38PrivateKey(addressString)) {
+            return Optional.of(new PrivateKeyUri(addressString, label));
+         }
+
+         if (address == null) {
+            // not a valid bitcoin uri
+            return Optional.absent();
+         }
+
+
+
          // Payment Uri
          String paymentUri = u.getQueryParameter("r");
 
          return Optional.of(new BitcoinUri(address, amount, label, paymentUri));
-
       } catch (Exception e) {
-         //todo insert uncaught error handler
          return Optional.absent();
       }
    }
@@ -149,6 +155,17 @@ public class BitcoinUri implements Serializable {
       }
       //todo: this can probably be solved nicer with some opaque flags or something
       return builder.toString().replace("/", "");
+   }
+
+   public static class PrivateKeyUri extends BitcoinUri {
+
+      public final String keyString;
+
+      private PrivateKeyUri(String keyString, String label) {
+         super(null, null, label);
+         this.keyString = keyString;
+      }
+
    }
 
 }

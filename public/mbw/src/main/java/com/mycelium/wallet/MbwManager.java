@@ -113,15 +113,11 @@ public class MbwManager {
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
    private Optional<CoinapultManager> _coinapultManager;
 
-   /**
-    * The index proposed for bit id as per https://github.com/bitid/bitid/blob/master/BIP_draft.md
-    * Including hardened marker
-    */
-   private static final int BITID_BIP_INDEX = 0xb11e | HdKeyNode.HARDENED_MARKER;
 
    private final CurrencySwitcher _currencySwitcher;
    private Date lastSuccessfullPin;
    private boolean startUpPinUnlocked = false;
+   private Timer _addressWatchTimer;
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
@@ -136,7 +132,7 @@ public class MbwManager {
    private final WapiClient _wapi;
 
    private final LtApiClient _ltApi;
-   private Handler torHandler;
+   private Handler _torHandler;
    private Context _applicationContext;
    private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
@@ -147,11 +143,10 @@ public class MbwManager {
    private MinerFee _minerFee;
    private boolean _enableContinuousFocus;
    private boolean _keyManagementLocked;
-   private boolean _isBitidEnabled;
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
    private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
    private MbwEnvironment _environment;
-   private final ExploreHelper exploreHelper;
+   private final ExploreHelper _exploreHelper;
    private HttpErrorCollector _httpErrorCollector;
    private String _language;
    private final VersionManager _versionManager;
@@ -197,11 +192,6 @@ public class MbwManager {
 
       _randomSource = new AndroidRandomSource();
 
-      //_connectionWatcher = new NetworkConnectionWatcher(_applicationContext);
-
-
-      _isBitidEnabled = _applicationContext.getResources().getBoolean(R.bool.bitid_enabled);
-
       // Local Trader
       TradeSessionDb tradeSessionDb = new TradeSessionDb(_applicationContext);
       _ltApi = initLt();
@@ -224,7 +214,7 @@ public class MbwManager {
 
       _addressBookManager = new AddressBookManager(_applicationContext);
       _storage = new MetadataStorage(_applicationContext);
-      exploreHelper = new ExploreHelper();
+      _exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
@@ -391,7 +381,7 @@ public class MbwManager {
    }
 
    private void initTor() {
-      torHandler = new Handler(Looper.getMainLooper());
+      _torHandler = new Handler(Looper.getMainLooper());
 
       if (_torMode == ServerEndpointType.Types.ONLY_TOR) {
          this._torManager = new TorManagerOrbot();
@@ -404,7 +394,7 @@ public class MbwManager {
          public void onStateChange(String status, final int percentage) {
             Log.i("Tor init", status + ", " + String.valueOf(percentage));
             retainLog(Level.INFO, "Tor: " + status + ", " + String.valueOf(percentage));
-            torHandler.post(new Runnable() {
+            _torHandler.post(new Runnable() {
                @Override
                public void run() {
                   _eventBus.post(new TorStateChanged(percentage));
@@ -968,12 +958,8 @@ public class MbwManager {
       return _environment.getBrand();
    }
 
-   public boolean isBitidEnabled() {
-      return _isBitidEnabled;
-   }
-
-   public ExploreHelper getExploreHelper() {
-      return exploreHelper;
+   public ExploreHelper get_exploreHelper() {
+      return _exploreHelper;
    }
 
    public void reportIgnoredException(Throwable e) {
@@ -1246,6 +1232,23 @@ public class MbwManager {
 
    public void switchServer() {
       _environment.getWapiEndpoints().switchToNextEndpoint();
+   }
+
+   public void stopWatchingAddress(){
+      if (_addressWatchTimer != null){
+         _addressWatchTimer.cancel();
+      }
+   }
+
+   public void watchAddress(final Address address){
+      stopWatchingAddress();
+      _addressWatchTimer = new Timer();
+      _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
+         @Override
+         public void run() {
+            getWalletManager(false).startSynchronization(new SyncMode(address));
+         }
+      }, 1 * 1000, 5 * 1000);
    }
 
    private Boolean _hasCoinapultAccounts = null;

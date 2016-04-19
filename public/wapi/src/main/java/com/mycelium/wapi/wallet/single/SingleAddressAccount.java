@@ -34,10 +34,7 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class SingleAddressAccount extends AbstractAccount implements ExportableAccount {
 
@@ -109,7 +106,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       }
    }
 
-   public synchronized boolean synchronize(boolean synchronizeTransactionHistory) {
+   @Override
+   public synchronized boolean doSynchronization(SyncMode mode) {
       checkNotArchived();
       _isSynchronizing = true;
       try {
@@ -118,15 +116,15 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
             return false;
          }
 
-         if (synchronizeTransactionHistory) {
-            // Monitor young transactions
-            if (!monitorYoungTransactions()) {
-               return false;
-            }
+         //if (!mode.ignoreTransactionHistory) {
+         // Monitor young transactions
+         if (!monitorYoungTransactions()) {
+            return false;
          }
+         //}
 
          //lets see if there are any transactions we need to discover
-         if (synchronizeTransactionHistory) {
+         if (!mode.ignoreTransactionHistory) {
             if (!discoverTransactions()) {
                return false;
             }

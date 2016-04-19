@@ -442,7 +442,7 @@ public class StringHandleConfig implements Serializable {
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            Optional<BitcoinUri> uri = getUri(manager.getNetwork(), content);
+            Optional<? extends BitcoinUri> uri = getUri(manager.getNetwork(), content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
@@ -465,7 +465,7 @@ public class StringHandleConfig implements Serializable {
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            Optional<BitcoinUri> uri = getUri(manager.getNetwork(), content);
+            Optional<? extends BitcoinUri> uri = getUri(manager.getNetwork(), content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with bitcoin: but could not be parsed, was handled
@@ -481,7 +481,7 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      private static Optional<BitcoinUri> getUri(NetworkParameters networkParameters, String content) {
+      private static Optional<? extends BitcoinUri> getUri(NetworkParameters networkParameters, String content) {
          return BitcoinUri.parse(content, networkParameters);
       }
 
@@ -591,10 +591,6 @@ public class StringHandleConfig implements Serializable {
       LOGIN {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            //if bitid is disabled, dont to anything
-            if (!MbwManager.getInstance(handlerActivity).isBitidEnabled()) {
-               return false;
-            }
             if (!content.toLowerCase(Locale.US).startsWith("bitid:")) {
                return false;
             }

@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Биткойн адрес годен</string>
   <string name="redirecting_to_block_explorer">Перенаправление на просмотрщик блоков</string>
   <string name="enter_local_currency">Введите вашу  валюту</string>
-  <string name="tap_to_refresh">Слегка коснитесь для  обновления</string>
   <string name="using_address_from_clipboard">Использование  адреса из буфера обмена</string>
   <string name="my_accounts">Мои Счета</string>
   <string name="foreign_addresses">Адресная книга</string>

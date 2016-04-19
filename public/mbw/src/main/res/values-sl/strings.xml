@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Naslov je veljaven</string>
   <string name="redirecting_to_block_explorer">Preusmerjam na raziskovalec blokov</string>
   <string name="enter_local_currency">Vnesite lokalno valuto</string>
-  <string name="tap_to_refresh">Osvežitev z dotikom</string>
   <string name="using_address_from_clipboard">Uporabljen naslov z odložišča</string>
   <string name="my_accounts">Moji računi</string>
   <string name="foreign_addresses">Imenik</string>

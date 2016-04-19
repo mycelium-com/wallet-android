@@ -98,7 +98,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
                setTextSize(a.getDimensionPixelSize(attr, 12));
                break;
             case R.styleable.ToggleableCurrencyButton_textColor:
-               setTextColor(a.getColor(attr, R.color.lightgrey));
+               setTextColor(a.getColor(attr, getResources().getColor(R.color.lightgrey)));
                break;
             case R.styleable.ToggleableCurrencyButton_hideOnNoExchangeRate:
                hideOnNoExchangeRate = a.getBoolean(attr, false);

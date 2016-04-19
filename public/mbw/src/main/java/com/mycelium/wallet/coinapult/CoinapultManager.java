@@ -18,6 +18,7 @@ import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountProvider;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 
@@ -160,10 +161,10 @@ public class CoinapultManager implements AccountProvider {
       }
 
       // get its initial balance
-      newAccount.synchronizeIntern(true, false);
+      newAccount.synchronizeIntern(SyncMode.FULL_SYNC_ALL_ACCOUNTS, false);
 
-      // keep it disabled while testing
-      //saveEnabledCurrencies();
+      // save each account if it was used once
+      saveEnabledCurrencies();
 
       // broadcast event, so that the UI shows the newly added account
       handler.post(new Runnable() {

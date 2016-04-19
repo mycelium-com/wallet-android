@@ -43,11 +43,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
+import com.mrd.bitlib.model.HdDerivedAddress;
+import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
@@ -59,7 +62,8 @@ import com.squareup.otto.Subscribe;
 public class AddressFragment extends Fragment {
 
    private View _root;
-    private MbwManager _mbwManager;
+   private MbwManager _mbwManager;
+   private boolean _showBip44Path;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +78,7 @@ public class AddressFragment extends Fragment {
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(true);
       _mbwManager = MbwManager.getInstance(getActivity());
+      _showBip44Path = _mbwManager.getMetadataStorage().getShowBip44Path();
       super.onCreate(savedInstanceState);
    }
 
@@ -116,12 +121,19 @@ public class AddressFragment extends Fragment {
          ((TextView) _root.findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
          ((TextView) _root.findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
          ((TextView) _root.findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
+         if (_showBip44Path && receivingAddress.get() instanceof HdDerivedAddress) {
+            HdDerivedAddress hdAdr = (HdDerivedAddress) receivingAddress.get();
+            ((TextView) _root.findViewById(R.id.tvAddressPath)).setText(hdAdr.getBip32Path().toString());
+         } else {
+            ((TextView) _root.findViewById(R.id.tvAddressPath)).setText("");
+         }
       } else {
          // No address available
          qrButton.setVisibility(View.INVISIBLE);
          ((TextView) _root.findViewById(R.id.tvAddress1)).setText("");
          ((TextView) _root.findViewById(R.id.tvAddress2)).setText("");
          ((TextView) _root.findViewById(R.id.tvAddress3)).setText("");
+         ((TextView) _root.findViewById(R.id.tvAddressPath)).setText("");
       }
 
       // Show name of bitcoin address according to address book
@@ -138,9 +150,9 @@ public class AddressFragment extends Fragment {
 
          // show account type icon next to the name
          Drawable drawableForAccount = Utils.getDrawableForAccount(_mbwManager.getSelectedAccount(), true, getResources());
-         if (drawableForAccount == null){
+         if (drawableForAccount == null) {
             ivAccountType.setVisibility(View.GONE);
-         }else {
+         } else {
             ivAccountType.setImageDrawable(drawableForAccount);
             ivAccountType.setVisibility(View.VISIBLE);
          }
@@ -148,11 +160,11 @@ public class AddressFragment extends Fragment {
 
    }
 
-    public Optional<Address> getAddress() {
-        return _mbwManager.getSelectedAccount().getReceivingAddress();
-    }
+   public Optional<Address> getAddress() {
+      return _mbwManager.getSelectedAccount().getReceivingAddress();
+   }
 
-    private class QrClickListener implements OnClickListener {
+   private class QrClickListener implements OnClickListener {
       @Override
       public void onClick(View v) {
          Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();

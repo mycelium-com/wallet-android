@@ -40,9 +40,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
 
     compile ('com.google.code.findbugs:annotations:3.0.1') {
-        //transitive = false
-        //exclude group: 'javax/annotation/**'
-        // with these excludes stuff works. not sure which can be removed.
+        // with these excludes stuff works
         exclude module: 'jsr305'
         exclude module: 'jcip-annotations'
     }
@@ -71,8 +69,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 27302
-        versionName '2.7.3'
+        versionCode 27404
+        versionName '2.7.4'
         multiDexEnabled true
     }
 

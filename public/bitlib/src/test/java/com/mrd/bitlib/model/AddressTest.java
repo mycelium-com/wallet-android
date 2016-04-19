@@ -36,6 +36,7 @@ package com.mrd.bitlib.model;
 
 import java.security.SecureRandom;
 
+import com.mrd.bitlib.util.HexUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,6 +60,13 @@ public class AddressTest {
       PublicKey pub = priv.getPublicKey();
       Address addr = pub.toAddress(NetworkParameters.productionNetwork);
       System.out.println(addr.toString());
+   }
+
+   @Test
+   public void standardAddressTestFromBytes() {
+      final Address address = Address.fromStandardBytes(
+            HexUtils.toBytes("B169F2B0B866DB05900B93A5D76345F18D3AFB24"), NetworkParameters.productionNetwork);
+      Assert.assertEquals("1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v", address.toString());
    }
 
    @Test

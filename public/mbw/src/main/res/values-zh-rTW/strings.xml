@@ -150,7 +150,6 @@
   <string name="bitcoin_address_valid">比特幣地址有效</string>
   <string name="redirecting_to_block_explorer">將重定向到一個塊瀏覽器</string>
   <string name="enter_local_currency">請輸入您的本地貨幣</string>
-  <string name="tap_to_refresh">點擊可刷新</string>
   <string name="using_address_from_clipboard">使用剪貼板中的地址</string>
   <string name="my_accounts">我的帳戶</string>
   <string name="foreign_addresses">通訊錄</string>

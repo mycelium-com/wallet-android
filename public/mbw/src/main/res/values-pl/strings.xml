@@ -139,7 +139,6 @@
   <string name="bitcoin_address_invalid">Nieprawidłowy adres BTC</string>
   <string name="bitcoin_address_valid">Poprawny adres BTC</string>
   <string name="enter_local_currency">Wprowadź lokalną  walutę</string>
-  <string name="tap_to_refresh">Dotknij, aby odświeżyć</string>
   <string name="using_address_from_clipboard">Używam adres ze schowka</string>
   <string name="confirm_delete_pk_title">Czy na pewno?</string>
   <string name="verify_private_key_backup">Sprawdź  kopie zapasowa</string>
@@ -239,9 +238,9 @@
   <string name="lt_error_incompatible_version">Twój portfel wymaga aktualizacji by używać tej funkcji</string>
   <string name="lt_distance_in_kilometers">%1$s Km
 </string>
-  <string name="lt_distance_in_miles">Mil</string>
+  <string name="lt_distance_in_miles">%1$s Mil</string>
   <string name="lt_distance_not_applicable">wszechobecny</string>
-  <string name="lt_time_in_days">dni</string>
+  <string name="lt_time_in_days">%1$s dni</string>
   <string name="lt_rating_label">wskaźnik</string>
   <string name="lt_expected_trade_time_label">Szacowany czas transakcji</string>
   <string name="lt_time_less_than_one_hour">Mniej niż godzine</string>

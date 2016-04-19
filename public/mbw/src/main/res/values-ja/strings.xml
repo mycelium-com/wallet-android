@@ -161,7 +161,6 @@
   <string name="bitcoin_address_valid">有効なアドレスです。</string>
   <string name="redirecting_to_block_explorer">ブロックエクスプローラーにリダイレクト中</string>
   <string name="enter_local_currency">お使いの通貨をご入力ください。</string>
-  <string name="tap_to_refresh">タップして残高を更新</string>
   <string name="using_address_from_clipboard">クリップボードからのアドレス</string>
   <string name="my_accounts">私のアカウント</string>
   <string name="foreign_addresses">アドレス帳</string>

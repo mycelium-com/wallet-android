@@ -19,6 +19,8 @@ package com.mycelium.wapi.wallet.bip44;
 import com.google.common.base.Optional;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
@@ -30,23 +32,17 @@ import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.Bip44AccountBacking;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
    private static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
-   private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
-   private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
+   private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
+   private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
    private static final int INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
    private static final long FORCED_DISCOVERY_INTERVAL_MS = 1000 * 60 * 60 * 24;
 
@@ -198,7 +194,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          if (full_look_ahead) {
             index += EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH;
          } else {
-            index += +EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH;
+            index += EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH;
          }
          addressMap = _externalAddresses;
       }
@@ -211,27 +207,78 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       }
    }
 
+   private List<Address> getAddressesToSync(SyncMode mode){
+      List<Address> ret;
+      int currentInternalAddressId = _context.getLastInternalIndexWithActivity() + 1;
+      int currentExternalAddressId = _context.getLastExternalIndexWithActivity() + 1;
+      if (mode.mode.equals(SyncMode.Mode.FULL_SYNC)){
+         // check the full change-chain and external-chain
+         ret = Lists.newArrayList(
+            getAddressRange(true, 0, currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
+         );
+         ret.addAll(
+               getAddressRange(false, 0, currentExternalAddressId + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
+         );
+      }else if (mode.mode.equals(SyncMode.Mode.NORMAL_SYNC)){
+         // check the current change address plus small lookahead;
+         // plus the current external address plus a small range before and after it
+         ret = Lists.newArrayList(
+               getAddressRange(true, currentInternalAddressId, currentInternalAddressId + INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH)
+         );
+         ret.addAll(
+               getAddressRange(false, currentExternalAddressId - 3, currentExternalAddressId + EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH)
+         );
+
+      }else if (mode.mode.equals(SyncMode.Mode.FAST_SYNC)){
+         // check only the current change address
+         // plus the current external plus small lookahead
+         ret = Lists.newArrayList((Address)_keyManager.getAddress(true, currentInternalAddressId + 1));
+         ret.addAll(
+               getAddressRange(false, currentExternalAddressId, currentExternalAddressId + 2)
+         );
+      }else if (mode.mode.equals(SyncMode.Mode.ONE_ADDRESS) && mode.addressToSync != null){
+         // only check for the supplied address
+         ret = Lists.newArrayList(mode.addressToSync);
+      } else {
+         throw new IllegalArgumentException("Unexpected SyncMode");
+      }
+      return ImmutableList.copyOf(ret);
+   }
+
+   private List<Address> getAddressRange(boolean isChangeChain, int fromIndex, int toIndex){
+      fromIndex = Math.max(0, fromIndex); // clip at zero
+      ArrayList<Address> ret = new ArrayList<Address>(toIndex - fromIndex + 1);
+      for(int i=fromIndex; i<=toIndex; i++){
+         ret.add(_keyManager.getAddress(isChangeChain, i));
+      }
+      return ret;
+   }
+
    @Override
-   public synchronized boolean synchronize(boolean synchronizeTransactionHistory) {
+   public synchronized boolean doSynchronization(SyncMode mode) {
       checkNotArchived();
       _isSynchronizing = true;
+      _logger.logInfo("Starting sync: " + mode);
+      if (needsDiscovery()) {
+         mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
+      }
       try {
-
-         // Discover new addresses once in a while
-         if (needsDiscovery()) {
+         if (mode.mode == SyncMode.Mode.FULL_SYNC){
+            // Discover new addresses once in a while
             if (!discovery()) {
                return false;
             }
          }
 
          // Update unspent outputs
-         if (!updateUnspentOutputs()) {
+         if (!updateUnspentOutputs(mode)) {
             return false;
          }
          return true;
       } finally {
          _isSynchronizing = false;
       }
+
    }
 
    private boolean needsDiscovery() {
@@ -270,15 +317,18 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
       // Make look ahead address list
       List<Address> lookAhead = new ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
+
+      final BiMap<Integer, Address> extInverse = _externalAddresses.inverse();
+      final BiMap<Integer, Address> intInverse = _internalAddresses.inverse();
+
       for (int i = 0; i < EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
-         Address externalAddress = _externalAddresses.inverse().get(_context.getLastExternalIndexWithActivity() + 1 + i);
+         Address externalAddress = extInverse.get(_context.getLastExternalIndexWithActivity() + 1 + i);
          if (externalAddress != null) lookAhead.add(externalAddress);
       }
       for (int i = 0; i < INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
-         lookAhead.add(_internalAddresses.inverse().get(_context.getLastInternalIndexWithActivity() + 1 + i));
+         lookAhead.add(intInverse.get(_context.getLastInternalIndexWithActivity() + 1 + i));
       }
       return doDiscoveryForAddresses(lookAhead);
-
    }
 
    @Override
@@ -299,25 +349,18 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return lastExternalIndex != _context.getLastExternalIndexWithActivity() || lastInternalIndex != _context.getLastInternalIndexWithActivity();
    }
 
-   private boolean updateUnspentOutputs() {
-      // Get the list of addresses to monitor
-      Collection<Address> combined = new ArrayList<Address>(_externalAddresses.keySet().size()
-            + _context.getLastInternalIndexWithActivity() - _context.getFirstMonitoredInternalIndex() + 1);
-      // Add all external addresses
-      combined.addAll(_externalAddresses.keySet());
-
-      // Add the change addresses we monitor
-      for (int i = _context.getFirstMonitoredInternalIndex(); i < _internalAddresses.keySet().size(); i++) {
-         combined.add(_internalAddresses.inverse().get(i));
-      }
-
-      if (!synchronizeUnspentOutputs(combined)) {
+   private boolean updateUnspentOutputs(SyncMode mode) {
+      final List<Address> checkAddresses = getAddressesToSync(mode);
+      if (!synchronizeUnspentOutputs(checkAddresses)) {
          return false;
       }
 
-      // Monitor young transactions
-      if (!monitorYoungTransactions()) {
-         return false;
+      // update state of recent received transaction to update their confirmation state
+      if (mode.mode != SyncMode.Mode.ONE_ADDRESS) {
+         // Monitor young transactions
+         if (!monitorYoungTransactions()) {
+            return false;
+         }
       }
 
       updateLocalBalance();

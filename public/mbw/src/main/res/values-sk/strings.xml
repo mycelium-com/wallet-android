@@ -122,7 +122,6 @@
   <string name="bitcoin_address_invalid">Neplatná Bitcoinová Adresa</string>
   <string name="bitcoin_address_valid">Bitcoinová Adresa je platná</string>
   <string name="enter_local_currency">Zadajte Vašu lokálnu menu</string>
-  <string name="tap_to_refresh">Stlač pre obnovenie</string>
   <string name="using_address_from_clipboard">Použi Adresu zo Schránky</string>
   <string name="confirm_delete_pk_title">Ste si istý?</string>
   <string name="verify_private_key_backup">Skontrolovať Zálohu</string>

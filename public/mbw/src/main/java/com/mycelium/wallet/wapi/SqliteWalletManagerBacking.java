@@ -918,6 +918,28 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
+      public List<TransactionEx> getTransactionsSince(long since) {
+         Cursor cursor = null;
+         List<TransactionEx> list = new LinkedList<TransactionEx>();
+         try {
+            cursor = _db.rawQuery("SELECT id, height, time, binary FROM " + txTableName
+                        + " WHERE time >= ?"
+                        + " ORDER BY height desc",
+                  new String[]{Long.toString(since / 1000)});
+            while (cursor.moveToNext()) {
+               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), cursor.getInt(1),
+                     cursor.getInt(2), cursor.getBlob(3));
+               list.add(tex);
+            }
+            return list;
+         } finally {
+            if (cursor != null) {
+               cursor.close();
+            }
+         }
+      }
+
+      @Override
       public void updateAccountContext(Bip44AccountContext context) {
          updateBip44AccountContext(context);
       }

@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Endereço Bitcoin Válido</string>
   <string name="redirecting_to_block_explorer">Redirecionando para um navegador de blocos</string>
   <string name="enter_local_currency">Insira sua moeda local</string>
-  <string name="tap_to_refresh">Toque para atualizar</string>
   <string name="using_address_from_clipboard">Usando endereço da área de transferência</string>
   <string name="my_accounts">Minhas Contas</string>
   <string name="foreign_addresses">Livro de Endereços</string>
@@ -799,7 +798,7 @@
   <string name="coinapult_account_notes">Uma conta Coinapult permite que você armazene suas economias em várias moedas fiduciárias e faça transferências imediatamente para qualquer endereço bitcoin.\nApesar de você usar suas chaves privadas para acessar sua conta, suas chaves estarão sob controle da Coinapult, diferente do que acontece com suas contas HD normais.</string>
   <string name="coinapult_mail_hint">Insira o endereço de e-mail</string>
   <string name="coinapult_mail_description">Se você fornecer seu endereço de e-mail, você poderá abrir um pedido de suporte com a Coinapult enviando um e-mail para support@coinapult.com a partir do seu e-mail de cadastro.</string>
-  <string name="coinapult_threshold_warning">Aviso: As contas Coinapult não são capazes de completar transações que possuem valor menor que USD1,00. Se menos de 1 USD for enviado para sua conta Coinapult, a conversão não irá funcionar. Os bitcoins poderão ser reembolsados da Coinapult através do e-mail support@coinapult.com.</string>
+  <string name="coinapult_threshold_warning">Aviso: As contas Coinapult não são capazes de completar transações que possuem valor menor que %1$s.</string>
   <string name="coinapult_amount_too_small">Quantia muito baixa, a retirada mínima é de %1$s %2$s.</string>
   <string name="coinapult_set_mail_menu_item">Definir endereço de e-mail</string>
   <string name="coinapult_set_mail_failed">Erro ao definir endereço de e-mail. Por favor, verifique a digitação e certifique-se de que seu dispositivo está conectado à internet.</string>

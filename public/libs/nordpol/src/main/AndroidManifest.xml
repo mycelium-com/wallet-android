@@ -2,4 +2,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="nordpol.android">
   <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="22"/>
+  <uses-permission android:name="android.permission.NFC"/>
 </manifest>

@@ -1,29 +1,26 @@
 package com.mrd.bitlib.model;
 
 
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
+
+/**
+ * Subclass for address to additional keep the info where this address is generated from
+ *
+ */
 public class HdDerivedAddress extends Address {
-   private byte[] _bip32Path = null;
+   private final HdKeyPath path;
 
-   public HdDerivedAddress(byte[] bytes, String stringAddress, byte[] bip32Path) {
+   public HdDerivedAddress(byte[] bytes, String stringAddress, HdKeyPath path) {
       super(bytes, stringAddress);
-      _bip32Path = bip32Path;
+      this.path = path;
    }
 
-   public HdDerivedAddress(byte[] bytes, byte[] bip32Path) {
-      super(bytes);
-      _bip32Path = bip32Path;
-   }
-
-   public HdDerivedAddress(Address address, byte[] bip32Path) {
+   public HdDerivedAddress(Address address, HdKeyPath path) {
       super(address.getAllAddressBytes());
-      _bip32Path = bip32Path;
+      this.path = path;
    }
 
-   public void setBip32Path(byte[] Path){
-      _bip32Path = Path;
-   }
-
-   public byte[] getBip32Path(){
-      return _bip32Path;
+   public HdKeyPath getBip32Path(){
+      return path;
    }
 }

@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'gradle-one-jar'
 
 project.ext.set("mainClassName", 'com.mycelium.wapi.sample.CmdLineWallet')
 
@@ -29,27 +28,4 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.4'
 
     testCompile 'junit:junit:' + junitVersion
-
-
-}
-
-jar {
-    manifest {
-        attributes(
-                "Main-Class": project.mainClassName,
-                //Include the git-hash in the main.jar file, so it is accessible at runtime
-                "Implementation-Version": getCheckedOutGitCommitHash()
-        )
-    }
-}
-
-task oneJar(type: OneJar) {
-    mainClass = project.mainClassName
-    additionalDir = file(projectRootDir + '/gradle/oneJar')
-
-    manifest {
-        attributes 'Timestamp': String.valueOf(System.currentTimeMillis())
-        attributes 'Implementation-Version': getCheckedOutGitCommitHash()
-        attributes 'Main-Class': project.mainClassName
-    }
 }

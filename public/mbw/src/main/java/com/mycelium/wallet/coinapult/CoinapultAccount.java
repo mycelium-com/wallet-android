@@ -36,6 +36,7 @@ package com.mycelium.wallet.coinapult;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.coinapult.api.httpclient.AccountInfo;
 import com.coinapult.api.httpclient.CoinapultClient;
@@ -62,6 +63,8 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -78,7 +81,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class CoinapultAccount implements WalletAccount {
+public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
    private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
 
@@ -406,23 +409,45 @@ public class CoinapultAccount implements WalletAccount {
    @Override
    public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
       if (accountHistory != null) {
-         List<TransactionSummary> list = Lists.transform(getHistoryWithExtras(), new Function<Transaction.Json, TransactionSummary>() {
-            @Nullable
-            @Override
-            public TransactionSummary apply(@Nullable com.coinapult.api.httpclient.Transaction.Json input) {
-               input = Preconditions.checkNotNull(input);
-               Optional<Address> address = Optional.fromNullable(input.address).transform(Address.FROM_STRING);
-               boolean isIncoming = !isSending(input);
-               // use the relevant amount from the transaction.
-               // if it is an incoming transaction, the "out"-side of the tx is in the native currency
-               // and v.v. for outgoing tx
-               Transaction.Half half = isIncoming ? input.out : input.in;
-
-               return new CoinapultTransactionSummary(address, getCurrencyValue(half), isIncoming, input);
-            }
-         });
+         List<TransactionSummary> list = getTransactionSummaries();
          return limitedList(offset, limit, list);
 
+      } else {
+         return Lists.newArrayList();
+      }
+   }
+
+   @NonNull
+   private List<TransactionSummary> getTransactionSummaries() {
+      return Lists.transform(getHistoryWithExtras(), new Function<Transaction.Json, TransactionSummary>() {
+               @Nullable
+               @Override
+               public TransactionSummary apply(@Nullable Transaction.Json input) {
+                  input = Preconditions.checkNotNull(input);
+                  Optional<Address> address = Optional.fromNullable(input.address).transform(Address.FROM_STRING);
+                  boolean isIncoming = !isSending(input);
+                  // use the relevant amount from the transaction.
+                  // if it is an incoming transaction, the "out"-side of the tx is in the native currency
+                  // and v.v. for outgoing tx
+                  Transaction.Half half = isIncoming ? input.out : input.in;
+
+                  return new CoinapultTransactionSummary(address, getCurrencyValue(half), isIncoming, input);
+               }
+            });
+   }
+
+   @Override
+   public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
+      if (accountHistory != null) {
+         List<TransactionSummary> list = getTransactionSummaries();
+         final ArrayList<TransactionSummary> result = new ArrayList<TransactionSummary>();
+         for (TransactionSummary item : list) {
+            if (item.time < receivingSince){
+               break;
+            }
+            result.add(item);
+         }
+         return result;
       } else {
          return Lists.newArrayList();
       }
@@ -550,14 +575,14 @@ public class CoinapultAccount implements WalletAccount {
    }
 
    @Override
-   public boolean synchronize(boolean synchronizeTransactionHistory) {
-      return synchronizeIntern(synchronizeTransactionHistory, true);
+   protected boolean doSynchronization(SyncMode mode) {
+      return synchronizeIntern(mode, true);
    }
 
-   public boolean synchronizeIntern(boolean synchronizeTransactionHistory, boolean scanForAccounts) {
+   public boolean synchronizeIntern(SyncMode mode, boolean scanForAccounts) {
       try {
          queryActive();
-         if (synchronizeTransactionHistory) {
+         if (!mode.ignoreTransactionHistory) {
             queryHistory();
          }
       } catch (CoinapultClient.CoinapultBackendException e) {
@@ -582,6 +607,7 @@ public class CoinapultAccount implements WalletAccount {
       }
       return true;
    }
+
 
    private List<com.coinapult.api.httpclient.Transaction.Json> getHistoryWithExtras() {
       if (accountHistory == null) {

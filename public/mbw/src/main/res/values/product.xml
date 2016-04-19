@@ -5,5 +5,4 @@
     <string name="network">undefined</string>
     <string name="brand">mycelium</string>
     <bool name="email_on_errors">false</bool>
-    <bool name="bitid_enabled">false</bool>
 </resources>

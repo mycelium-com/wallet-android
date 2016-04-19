@@ -145,7 +145,6 @@
   <string name="bitcoin_address_invalid">Địa chỉ Bitcoin không hợp lệ</string>
   <string name="bitcoin_address_valid">Địa chỉ Bitcoin hợp lệ</string>
   <string name="enter_local_currency">Nhập nội tệ của bạn</string>
-  <string name="tap_to_refresh">Tap vào màn hình để refresh</string>
   <string name="using_address_from_clipboard">Lấy địa chỉ từ clipboard</string>
   <string name="confirm_delete_pk_title">Chắc chứ?</string>
   <string name="verify_private_key_backup">Xác nhận sao lưu</string>

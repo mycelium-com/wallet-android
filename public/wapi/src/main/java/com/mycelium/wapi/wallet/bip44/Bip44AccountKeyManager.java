@@ -23,6 +23,8 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.HdDerivedAddress;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.hdpath.Bip44Address;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
@@ -164,15 +166,22 @@ public class Bip44AccountKeyManager {
       // See if we have it in the store
       byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false);
       byte[] addressNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
+      final Bip44Address path = HdKeyPath
+            .BIP44
+            .getCoinTypeBitcoin(_network.isTestnet())
+            .getAccount(_accountIndex)
+            .getChain(!isChangeChain)
+            .getAddress(index);
+
       if (addressNodeBytes != null) {
          // We have it already, no need to calculate it
-         HdDerivedAddress adr = bytesToAddress(addressNodeBytes, id);
+         HdDerivedAddress adr = bytesToAddress(addressNodeBytes, path);
          return adr;
       }
 
       // We don't have it, need to calculate it from the public key
       PublicKey publicKey = getPublicKey(isChangeChain, index);
-      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network), id);
+      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network), path);
 
       // Store it for next time
       _secureKeyValueStore.storePlaintextValue(id, addressToBytes(address));
@@ -222,7 +231,7 @@ public class Bip44AccountKeyManager {
       return writer.toBytes();
    }
 
-   private static HdDerivedAddress bytesToAddress(byte[] bytes, byte[] pathId) {
+   private static HdDerivedAddress bytesToAddress(byte[] bytes, HdKeyPath path) {
       try {
          ByteReader reader = new ByteReader(bytes);
          // Address bytes
@@ -230,7 +239,7 @@ public class Bip44AccountKeyManager {
          // Read length encoded string
          String addressString = null;
          addressString = new String(reader.getBytes((int) reader.get()));
-         return new HdDerivedAddress(addressBytes, addressString, pathId);
+         return new HdDerivedAddress(addressBytes, addressString, path);
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }

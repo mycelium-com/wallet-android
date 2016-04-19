@@ -4,7 +4,7 @@
 
     <item android:id="@+id/miRefresh"
           android:icon="@drawable/holo_dark_ic_action_refresh"
-          android:title="@string/tap_to_refresh"
+          android:title="@string/refresh"
           android:orderInCategory="1"
           yourapp:showAsAction="ifRoom" />
 

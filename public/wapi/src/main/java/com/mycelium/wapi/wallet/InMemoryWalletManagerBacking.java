@@ -281,6 +281,21 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
+      public List<TransactionEx> getTransactionsSince(long since) {
+         List<TransactionEx> list = new ArrayList<TransactionEx>();
+         list.addAll(_transactions.values());
+         Collections.sort(list);
+         final ArrayList<TransactionEx> result = new ArrayList<TransactionEx>();
+         for (TransactionEx entry : list) {
+            if (entry.time < since) {
+               break;
+            }
+            result.add(entry);
+         }
+         return result;
+      }
+
+      @Override
       public Collection<TransactionEx> getUnconfirmedTransactions() {
          List<TransactionEx> unconfirmed = new LinkedList<TransactionEx>();
          for (TransactionEx tex : _transactions.values()) {

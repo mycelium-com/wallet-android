@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.7.3" versioncode="27302">
+    <release version="2.7.4" versioncode="27404">
+        <change>Add option to cold-spend from bip38-encrypted private keys via NFC</change>
+        <change>Option to show the BIP44 path for the current address on main screen</change>
+        <change>Improve synchronisation with backend to speed up syncs and cut down data usage</change>
+    </release>
+    <release version="2.7.3" versioncode="27301">
         <change>Warn the user if a local-trader payout will go to a watch-only address</change>
         <change>Optimize sync-behaviour for addresses with a high number of transactions</change>
         <change>Clear coinapult last-address cache once to ensure fresh addresses for migration to new backend</change>

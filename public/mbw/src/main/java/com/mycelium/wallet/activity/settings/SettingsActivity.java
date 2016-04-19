@@ -167,6 +167,15 @@ public class SettingsActivity extends PreferenceActivity {
          return true;
       }
    };
+
+   private final OnPreferenceClickListener showBip44PathClickListener = new OnPreferenceClickListener() {
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.getMetadataStorage().setShowBip44Path(p.isChecked());
+         return true;
+      }
+   };
+
    private final OnPreferenceClickListener ltMilesKilometersClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          CheckBoxPreference p = (CheckBoxPreference) preference;
@@ -238,6 +247,7 @@ public class SettingsActivity extends PreferenceActivity {
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
    private CheckBoxPreference _ltNotificationSound;
+   private CheckBoxPreference _showBip44Path;
    private CheckBoxPreference _ltMilesKilometers;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
@@ -437,6 +447,12 @@ public class SettingsActivity extends PreferenceActivity {
       _ltMilesKilometers = (CheckBoxPreference) findPreference("ltMilesKilometers");
       _ltMilesKilometers.setChecked(_ltManager.useMiles());
       _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
+
+      // show bip44 path
+      _showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
+      _showBip44Path.setChecked(_mbwManager.getMetadataStorage().getShowBip44Path());
+      _showBip44Path.setOnPreferenceClickListener(showBip44PathClickListener);
+
 
       // Socks Proxy
       final ListPreference useTor = Preconditions.checkNotNull((ListPreference) findPreference("useTor"));

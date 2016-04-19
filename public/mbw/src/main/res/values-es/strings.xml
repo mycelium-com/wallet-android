@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Dirección Bitcoin válida</string>
   <string name="redirecting_to_block_explorer">Redirigiendo al explorador de bloques</string>
   <string name="enter_local_currency">Introduce tu moneda local</string>
-  <string name="tap_to_refresh">Toca para actualizar</string>
   <string name="using_address_from_clipboard">Utilizando una dirección del portapapeles</string>
   <string name="my_accounts">Mis cuentas</string>
   <string name="foreign_addresses">Libreta de direcciones</string>
@@ -425,6 +424,8 @@
   <string name="lt_set_email_error">No se pudo recuperar la información del trader desde el servidor</string>
   <string name="lt_email_please_verify_message">Le hemos enviado un email de verificación - pulsa el enlace para activar la dirección de correo.</string>
   <string name="lt_set_email_title">Introducir dirección de correo</string>
+  <string name="lt_change_payout_address">Cambiar dirección de pago</string>
+  <string name="lt_warn_account_not_spandable">La dirección de destino seleccionada (%s) no se puede usar.\n\n Necesitas tener la clave privada en una copia de seguridad offline o perderás los fondos que reciba.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Estás usando una clave privada con la siguiente dirección Bitcoin:</string>
   <string name="cs_address_description">Has escaneado una dirección Bitcoin. Puedes ver el saldo pero no gastar desde ella.</string>
@@ -862,4 +863,6 @@
   <string name="warning_reason_unconfirmed_parent">Transacción previa no confirmada</string>
   <string name="warning_reason_doublespend">Doble gasto detectado</string>
   <string name="opening_url_in_browser">Abriendo URL en el navegador...</string>
+  <string name="incoming_payment">"Pago recibido: "</string>
+  <string name="warning_amount_does_not_match">Aviso: La cantidad no coincide.</string>
 </resources>

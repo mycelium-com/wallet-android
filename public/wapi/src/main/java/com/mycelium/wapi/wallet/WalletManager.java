@@ -17,6 +17,9 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.*;
+import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.or;
+import static com.google.common.base.Predicates.not;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import com.mrd.bitlib.crypto.Bip39;
@@ -26,9 +29,9 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
@@ -109,6 +112,12 @@ public class WalletManager {
        * The wallet manager is synchronizing
        */
       SYNCHRONIZING,
+
+      /*
+       * A fast sync (only a limited subset of all addresses) is running
+       */
+      FAST_SYNC,
+
       /**
        * The wallet manager is ready
        */
@@ -153,6 +162,7 @@ public class WalletManager {
    private final Collection<Observer> _observers;
    private State _state;
    private Thread _synchronizationThread;
+   private final Object _synchronizationThreadLock = new Object();
    private AccountEventManager _accountEventManager;
    private NetworkParameters _network;
    private Wapi _wapi;
@@ -268,13 +278,13 @@ public class WalletManager {
       // with other derived or imported keys.
       SecureSubKeyValueStore secureStorage = getSecureStorage().createNewSubKeyStore();
 
-      if (hdKeyNode.isPrivateHdKeyNode()){
+      if (hdKeyNode.isPrivateHdKeyNode()) {
          try {
             keyManager = Bip44AccountKeyManager.createFromAccountRoot(hdKeyNode, _network, accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher());
          } catch (InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-      }else {
+      } else {
          keyManager = Bip44PubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode, _network, accountIndex, secureStorage);
       }
 
@@ -382,7 +392,7 @@ public class WalletManager {
 
    /**
     * Delete an account that uses a single address
-    * <p/>
+    * <p>
     * This method cannot be used for deleting Masterseed-based HD accounts.
     *
     * @param id the ID of the account to delete.
@@ -414,7 +424,7 @@ public class WalletManager {
 
    /**
     * Call this method to disable transaction history synchronization for single address accounts.
-    * <p/>
+    * <p>
     * This is useful if the wallet manager is used for cold storage spending where the transaction history is
     * uninteresting. Disabling transaction history synchronization makes synchronization faster especially if the
     * address has been used a lot.
@@ -442,7 +452,7 @@ public class WalletManager {
     * @return the active accounts managed by the wallet manager
     */
    public List<WalletAccount> getActiveAccounts() {
-      return filterAndConvert(Predicates.not(IS_ARCHIVE));
+      return filterAndConvert(not(IS_ARCHIVE));
    }
 
    /**
@@ -451,7 +461,7 @@ public class WalletManager {
     * @return the list of accounts
     */
    public List<WalletAccount> getActiveMasterseedAccounts() {
-      return filterAndConvert(Predicates.and(MAIN_SEED_HD_ACCOUNT, Predicates.not(IS_ARCHIVE)));
+      return filterAndConvert(and(MAIN_SEED_HD_ACCOUNT, not(IS_ARCHIVE)));
    }
 
    /**
@@ -460,7 +470,7 @@ public class WalletManager {
     * @return the list of accounts
     */
    public List<WalletAccount> getActiveOtherAccounts() {
-      return filterAndConvert(Predicates.not(Predicates.or(MAIN_SEED_HD_ACCOUNT, IS_ARCHIVE)));
+      return filterAndConvert(not(or(MAIN_SEED_HD_ACCOUNT, IS_ARCHIVE)));
    }
 
 
@@ -488,7 +498,7 @@ public class WalletManager {
     * @return the list of accounts
     */
    public List<WalletAccount> getSpendingAccountsWithBalance() {
-      return filterAndConvert(Predicates.and(ACTIVE_CAN_SPEND, HAS_BALANCE));
+      return filterAndConvert(and(ACTIVE_CAN_SPEND, HAS_BALANCE));
    }
 
    private List<WalletAccount> filterAndConvert(Predicate<WalletAccount> filter) {
@@ -521,17 +531,47 @@ public class WalletManager {
 
    /**
     * Make the wallet manager synchronize all its active accounts.
-    * <p/>
+    * <p>
     * Synchronization occurs in the background. To get feedback register an
     * observer.
     */
    public void startSynchronization() {
+      startSynchronization(SyncMode.NORMAL);
+   }
+
+   public void startSynchronization(SyncMode mode) {
+      // Launch synchronizer thread
+      Synchronizer synchronizer;
+      if (hasAccount(_activeAccountId)) {
+         SynchronizeAbleWalletAccount activeAccount = (SynchronizeAbleWalletAccount) getAccount(_activeAccountId);
+         synchronizer = new Synchronizer(mode, activeAccount);
+      } else {
+         // we dont know the active account
+         synchronizer = new Synchronizer(mode);
+      }
+      startSynchronizationThread(synchronizer);
+   }
+
+
+   /**
+    * Make the wallet manager synchronize only a subset of some addresses of a specific account
+    * <p>
+    * Synchronization occurs in the background. To get feedback register an
+    * observer.
+    */
+   /*
+   public void startFastSynchronization(AbstractAccount forAccount, Collection<Address> addressesToWatch) {
+      // Launch fastSynchronizer thread
+      Synchronizer fastSynchronizer = new FastSynchronizer(forAccount, addressesToWatch);
+      startSynchronizationThread(fastSynchronizer);
+   }
+   */
+   private synchronized void startSynchronizationThread(Synchronizer synchronizer) {
       if (_synchronizationThread != null) {
          // Already running
          return;
       }
-      // Launch synchronizer thread
-      Synchronizer synchronizer = new Synchronizer();
+      // Launch fastSynchronizer thread
       _synchronizationThread = new Thread(synchronizer);
       _synchronizationThread.setDaemon(true);
       _synchronizationThread.setName(synchronizer.getClass().getSimpleName());
@@ -650,17 +690,17 @@ public class WalletManager {
                   _wapi,
                   _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR)
             );
-         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER){
-             SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
-             keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
-             account = new Bip44AccountExternalSignature(
-                   context,
-                   keyManager,
-                   _network,
-                   accountBacking,
-                   _wapi,
-                   _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
-             );
+         } else if (context.getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+            SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
+            keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
+            account = new Bip44AccountExternalSignature(
+                  context,
+                  keyManager,
+                  _network,
+                  accountBacking,
+                  _wapi,
+                  _signatureProviders.get(Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
+            );
          } else {
             throw new IllegalArgumentException("Unknown account type " + context.getAccountType());
          }
@@ -693,25 +733,93 @@ public class WalletManager {
       }
    }
 
+   /*
+   private class FastSynchronizer extends Synchronizer {
+      private final Collection<Address> addressesToWatch;
+      private final AbstractAccount account;
 
-   private volatile boolean isFirstSync = true;
+      private FastSynchronizer(AbstractAccount account, Collection<Address> addressesToWatch) {
+         super(
+               new SyncMode(SyncMode.Mode.FAST_SYNC, false, true, true, false),
+               account
+         );
+
+         this.addressesToWatch = addressesToWatch;
+         this.account = account;
+      }
+
+      @Override
+      public void run() {
+         synchronized (_allAccounts) {
+            try {
+               // Synchronize only the current account with the blockchain
+               if (!synchronize()) {
+                  return;
+               }
+               setStateAndNotify(State.FAST_SYNC);
+               // Lock on same semaphore as the other synchronizer, so that we dont run in parallel (for now)
+            } finally {
+               _synchronizationThread = null;
+               setStateAndNotify(State.READY);
+            }
+         }
+      }
+      private boolean synchronize() {
+
+         if (!account.isArchived()) {
+            if (!account.synchronize()) {
+               // We failed to sync due to API error, we will have to try
+               // again later
+               return false;
+            }
+         }
+         return true;
+      }
+   }*/
+
 
    private class Synchronizer implements Runnable {
+
+      private final SyncMode syncMode;
+      private final SynchronizeAbleWalletAccount currentAccount;
+
+      private Synchronizer(SyncMode syncMode, SynchronizeAbleWalletAccount currentAccount) {
+         this.syncMode = syncMode;
+         this.currentAccount = currentAccount;
+      }
+
+      // use this constructor if you dont care about the current active account
+      private Synchronizer(SyncMode syncMode) {
+         this.syncMode = syncMode;
+         // ensure to scan all accounts
+         this.currentAccount = null;
+      }
 
       @Override
       public void run() {
          try {
             setStateAndNotify(State.SYNCHRONIZING);
             synchronized (_walletAccounts) {
-               fetchFeeEstimation();
+               if (!syncMode.ignoreMinerFeeFetch) {
+                  // only fetch the fee estimations if the latest available fee is older than half of its max-age
+                  if (_lastFeeEstimations != null) {
+                     final long feeAge = _lastFeeEstimations.getValidFor().getTime() - new Date().getTime();
+                     if (feeAge > MAX_AGE_FEE_ESTIMATION / 2){
+                        fetchFeeEstimation();
+                     }
+                  } else {
+                     fetchFeeEstimation();
+                  }
+               }
 
-               // If we have any lingering outgoing transactions broadcast them
-               // now
+               // If we have any lingering outgoing transactions broadcast them now
+               // this function goes over all accounts - it is reasonable to
+               // exclude this from SyncMode.onlyActiveAccount behaviour
                if (!broadcastOutgoingTransactions()) {
                   return;
                }
 
-               // Synchronize every account with the blockchain
+               // Synchronize selected accounts with the blockchain
                if (!synchronize()) {
                   return;
                }
@@ -722,7 +830,8 @@ public class WalletManager {
          }
       }
 
-      private boolean fetchFeeEstimation(){
+
+      private boolean fetchFeeEstimation() {
          WapiResponse<MinerFeeEstimationResponse> minerFeeEstimations = _wapi.getMinerFeeEstimations();
          if (minerFeeEstimations != null && minerFeeEstimations.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
             try {
@@ -750,31 +859,22 @@ public class WalletManager {
       }
 
       private boolean synchronize() {
-         try {
+         if (syncMode.onlyActiveAccount) {
+            if (currentAccount != null && !currentAccount.isArchived()) {
+               return currentAccount.synchronize(syncMode);
+            }
+         } else {
             for (WalletAccount account : getAllAccounts()) {
-               if (account.isArchived()) {
-                  continue;
-               }
-
-               // sync all accounts on startup
-               if (!isFirstSync) {
-                  // _activeAccountId might be null - then we sync all accounts
-                  if (account.onlySyncWhenActive() && !account.getId().equals(_activeAccountId)) {
-                     // this account should only be synced if active
-                     continue;
+               if (!account.isArchived()) {
+                  if (!account.synchronize(syncMode)) {
+                     // We failed to sync due to API error, we will have to try
+                     // again later
+                     return false;
                   }
                }
-
-               if (!account.synchronize(_synchronizeTransactionHistory)) {
-                  // We failed to broadcast due to API error, we will have to try
-                  // again later
-                  return false;
-               }
             }
-            return true;
-         }finally {
-            isFirstSync = false;
          }
+         return true;
       }
 
    }
@@ -794,13 +894,13 @@ public class WalletManager {
       }
    }
 
-   public void setActiveAccount(UUID accountId){
+   public void setActiveAccount(UUID accountId) {
       _activeAccountId = accountId;
       if (hasAccount(accountId)) {
          WalletAccount account = getAccount(_activeAccountId);
-         if (account != null && account.onlySyncWhenActive()) {
+         if (account != null) {
             // this account might not be synchronized - start a background sync
-            startSynchronization();
+            startSynchronization(SyncMode.NORMAL);
          }
       }
    }
@@ -900,7 +1000,9 @@ public class WalletManager {
    public boolean removeUnusedBip44Account() {
       Bip44Account last = _bip44Accounts.get(_bip44Accounts.size() - 1);
       //we do not remove used accounts
-      if (last.hasHadActivity()) return false;
+      if (last.hasHadActivity()) {
+         return false;
+      }
       //if its unused, we can remove it from the manager
       synchronized (_walletAccounts) {
          _bip44Accounts.remove(last);
@@ -921,10 +1023,10 @@ public class WalletManager {
       }
 
       // Get the master seed
-      Bip39.MasterSeed mastrSeed = getMasterSeed(cipher);
+      Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
 
       // Generate the root private key
-      HdKeyNode root = HdKeyNode.fromSeed(mastrSeed.getBip32Seed());
+      HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
 
       synchronized (_walletAccounts) {
          // Determine the next BIP44 account index
@@ -959,7 +1061,7 @@ public class WalletManager {
       }
    }
 
-   public SecureKeyValueStore getSecureStorage(){
+   public SecureKeyValueStore getSecureStorage() {
       return _secureKeyValueStore;
    }
 
@@ -967,14 +1069,16 @@ public class WalletManager {
       if (null != _identityAccountKeyManager) {
          return _identityAccountKeyManager;
       }
-      if (!hasBip32MasterSeed()) throw new RuntimeException("accessed identity account with no master seed configured");
+      if (!hasBip32MasterSeed()) {
+         throw new RuntimeException("accessed identity account with no master seed configured");
+      }
       HdKeyNode rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).getBip32Seed());
       _identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, _secureKeyValueStore, cipher);
       return _identityAccountKeyManager;
    }
 
    public FeeEstimation getLastFeeEstimations() {
-      if (_lastFeeEstimations != null && (new Date().getTime() - _lastFeeEstimations.getValidFor().getTime()) < MAX_AGE_FEE_ESTIMATION ) {
+      if (_lastFeeEstimations != null && (new Date().getTime() - _lastFeeEstimations.getValidFor().getTime()) < MAX_AGE_FEE_ESTIMATION) {
          return _lastFeeEstimations;
       } else {
          return FeeEstimation.DEFAULT;

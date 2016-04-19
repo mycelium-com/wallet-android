@@ -121,7 +121,6 @@
   <string name="enter_bitcoin_address">비트코인 주소 입력</string>
   <string name="bitcoin_address_invalid">잘못된 비트코인 주소</string>
   <string name="bitcoin_address_valid">올바른 비트코인  주소 </string>
-  <string name="tap_to_refresh">새로 고침 탭</string>
   <string name="using_address_from_clipboard">클립보드에서  선택된 주소  사용하기</string>
   <string name="confirm_delete_pk_title">실행 하시겠습니까?</string>
   <string name="verify_private_key_backup">백업 확인</string>

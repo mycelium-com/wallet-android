@@ -54,6 +54,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.*;
@@ -68,6 +69,7 @@ import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
@@ -82,9 +84,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class ModernMain extends ActionBarActivity {
-   public static final int GENERIC_SCAN_REQUEST = 4;
+   private static final int TAB_ID_ACCOUNTS = 0;
+   private static final int TAB_ID_BALANCE = 1;
+   private static final int TAB_ID_HISTORY = 2;
+
    private static final int REQUEST_SETTING_CHANGED = 5;
+   public static final int GENERIC_SCAN_REQUEST = 4;
    public static final int MIN_AUTOSYNC_INTERVAL = 1 * 60 * 1000;
+   public static final int MIN_FULLSYNC_INTERVAL = 5 * 60 * 60 * 1000;
    public static final String LAST_SYNC = "LAST_SYNC";
    private MbwManager _mbwManager;
 
@@ -183,8 +190,18 @@ public class ModernMain extends ActionBarActivity {
             @Override
             public void run() {
                _mbwManager.getVersionManager().checkForUpdate();
-               _mbwManager.getWalletManager(false).startSynchronization();
                _mbwManager.getExchangeRateManager().requestRefresh();
+
+               // if the last full sync is too old (or not known), start a full sync for _all_ accounts
+               // otherwise just run a normal sync for the current account
+               final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
+               if (lastFullSync.isPresent()
+                     && (new Date().getTime() - lastFullSync.get()< MIN_FULLSYNC_INTERVAL) ) {
+                  _mbwManager.getWalletManager(false).startSynchronization();
+               } else {
+                  _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+                  _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
+               }
             }
          }, 70);
          _lastSync = new Date().getTime();
@@ -246,29 +263,29 @@ public class ModernMain extends ActionBarActivity {
       Preconditions.checkNotNull(menu.findItem(R.id.miBackup)).setVisible(true);
 
       // Add Record menu
-      final boolean isRecords = tabIdx == 0;
+      final boolean isAccountTab = tabIdx == TAB_ID_ACCOUNTS;
       final boolean locked = _mbwManager.isKeyManagementLocked();
-      Preconditions.checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isRecords && !locked);
-      Preconditions.checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isRecords);
+      Preconditions.checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
+      Preconditions.checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isAccountTab);
 
       // Lock menu
       final boolean hasPin = _mbwManager.isPinProtected();
-      Preconditions.checkNotNull(menu.findItem(R.id.miLockKeys)).setVisible(isRecords && !locked && hasPin);
+      Preconditions.checkNotNull(menu.findItem(R.id.miLockKeys)).setVisible(isAccountTab && !locked && hasPin);
 
       // Refresh menu
-      final boolean isBalance = tabIdx == 1;
-      final boolean isHistory = tabIdx == 2;
+      final boolean isBalanceTab = tabIdx == TAB_ID_BALANCE;
+      final boolean isHistoryTab = tabIdx == TAB_ID_HISTORY;
       refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
-      refreshItem.setVisible(isBalance || isHistory);
+      refreshItem.setVisible(isBalanceTab || isHistoryTab || isAccountTab);
       setRefreshAnimation();
 
       //export tx history
-      Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistory);
+      Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistoryTab);
 
-      final boolean showSepaEntry = isBalance && _mbwManager.getMetadataStorage().getCashilaIsEnabled();
+      final boolean showSepaEntry = isBalanceTab && _mbwManager.getMetadataStorage().getCashilaIsEnabled();
       Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
 
-      Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistory);
+      Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
       final boolean isAddressBook = tabIdx == 3;
       Preconditions.checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
@@ -309,9 +326,21 @@ public class ModernMain extends ActionBarActivity {
          if (new Random().nextInt(3) == 0) {
             _mbwManager.switchServer();
          }
-         _mbwManager.getWalletManager(false).startSynchronization();
+         // every 5th manual refresh make a full scan
+         if (new Random().nextInt(5) == 0) {
+            _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+         } else {
+            if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
+               // if we are in the accounts tab, sync all accounts if the users forces a sync
+               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL_ALL_ACCOUNTS_FORCED);
+            } else {
+               // only sync the current account
+               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL_FORCED);
+            }
+         }
+
       } else if (itemId == R.id.miExplore) {
-         _mbwManager.getExploreHelper().redirectToCoinmap(this);
+         _mbwManager.get_exploreHelper().redirectToCoinmap(this);
       } else if (itemId == R.id.miHelp) {
          openMyceliumHelp();
       } else if (itemId == R.id.miAbout) {
@@ -319,7 +348,7 @@ public class ModernMain extends ActionBarActivity {
          startActivity(intent);
       } else if (itemId == R.id.miRescanTransactions) {
          _mbwManager.getSelectedAccount().dropCachedData();
-         _mbwManager.getWalletManager(false).startSynchronization();
+         _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
       } else if (itemId == R.id.miSepaSend) {
          _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
             @Override

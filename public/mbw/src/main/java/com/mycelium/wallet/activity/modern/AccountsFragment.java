@@ -960,7 +960,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       _focusedAccount.dropCachedData();
-      _mbwManager.getWalletManager(false).startSynchronization();
+      _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
    }
 
    private void ignoreSelectedPrivateKey() {

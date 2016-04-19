@@ -169,7 +169,6 @@
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>
-    <string name="tap_to_refresh">Tap to refresh</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="my_accounts">My Accounts</string>
     <string name="foreign_addresses">Address Book</string>
@@ -891,6 +890,8 @@
     <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
     <string name="warning_reason_doublespend">Doublespend detected</string>
     <string name="opening_url_in_browser">Opening URL in Browser...</string>
+    <string name="incoming_payment">"Incoming payment: "</string>
+    <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
 
 
 </resources>

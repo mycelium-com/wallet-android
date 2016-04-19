@@ -41,10 +41,7 @@ import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class MetadataStorage extends GenericMetadataStorage {
    public static final MetadataCategory COINAPULT = new MetadataCategory("coinapult_adddr");
@@ -60,6 +57,8 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
    public static final MetadataKeyCategory CASHILA_COUNTRY_CODE = new MetadataKeyCategory("cashila", "country");
    public static final MetadataKeyCategory CASHILA_IS_ENABLED = new MetadataKeyCategory("cashila", "enable");
+   public static final MetadataKeyCategory SYNC_LAST_FULLSYNC = new MetadataKeyCategory("lastFull", "sync");
+   public static final MetadataKeyCategory SHOW_BIP44_PATH = new MetadataKeyCategory("ui", "show_bip44_path");
    public static final String EMAIL = "email";
    public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
 
@@ -311,6 +310,30 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(CASHILA_IS_ENABLED, enable ? "1" : "0");
    }
 
+   public Optional<Long> getLastFullSync() {
+      final Optional<String> lastDateStr = getKeyCategoryValueEntry(SYNC_LAST_FULLSYNC);
+      if (lastDateStr.isPresent()) {
+         try {
+            return Optional.fromNullable(Long.parseLong(lastDateStr.get()));
+         } catch (NumberFormatException ex){
+            return Optional.absent();
+         }
+      } else {
+         return Optional.absent();
+      }
+   }
+
+   public void setLastFullSync(long date){
+      storeKeyCategoryValueEntry(SYNC_LAST_FULLSYNC, Long.toString(date));
+   }
+
+   public void setShowBip44Path(boolean show) {
+      storeKeyCategoryValueEntry(SHOW_BIP44_PATH, show ? "1" : "0");
+   }
+
+   public boolean getShowBip44Path() {
+      return getKeyCategoryValueEntry(SHOW_BIP44_PATH, "0").equals("1");
+   }
 
    public enum BackupState {
       UNKNOWN(0), VERIFIED(1), IGNORED(2);

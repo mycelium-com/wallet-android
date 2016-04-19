@@ -161,7 +161,6 @@
   <string name="bitcoin_address_valid">Bitcoin adresa valide</string>
   <string name="redirecting_to_block_explorer">Duke ju ridrejtuar tek nje bllok eksplorues</string>
   <string name="enter_local_currency">Shënoni valutën tuaj lokale</string>
-  <string name="tap_to_refresh">Prek për të rifreksuar</string>
   <string name="using_address_from_clipboard">Duke përdorur adresën nga memorja</string>
   <string name="my_accounts">Llogaritë e mia</string>
   <string name="foreign_addresses">Libri i adresave</string>

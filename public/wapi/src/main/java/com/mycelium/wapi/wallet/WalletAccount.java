@@ -64,11 +64,11 @@ public interface WalletAccount {
     * <p/>
     * This method should only be called from the wallet manager
     *
-    * @param synchronizeTransactionHistory should the transaction be synchronized?
+    * @param mode synchronization parameter
     * @return false if synchronization failed due to failed blockchain
     * connection
     */
-   boolean synchronize(boolean synchronizeTransactionHistory);
+   boolean synchronize(SyncMode mode);
 
    /**
     * Get the unique ID of this account
@@ -122,6 +122,15 @@ public interface WalletAccount {
     * @param limit  the maximum number of records to retrieve
     */
    List<TransactionSummary> getTransactionHistory(int offset, int limit);
+
+
+   /**
+    * Get the transaction history of this account since the stated timestamp
+    * @param receivingSince only include tx older than this
+    * @return
+    */
+   List<TransactionSummary> getTransactionsSince(Long receivingSince);
+
 
    TransactionSummary getTransactionSummary(Sha256Hash txid);
 

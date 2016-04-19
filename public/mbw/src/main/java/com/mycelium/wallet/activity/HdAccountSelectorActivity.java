@@ -53,6 +53,7 @@ import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -111,7 +112,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
                   account.keyPath.getLastIndex());
 
             Bip44Account tempAccount = (Bip44Account) walletManager.getAccount(id);
-            tempAccount.synchronize(false);
+            tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
 
             if (tempAccount.hasHadActivity()) {
                return id;

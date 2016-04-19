@@ -14,7 +14,7 @@ public class CoinapultTransactionSummary extends TransactionSummary {
    public final Transaction.Json input;
 
    public CoinapultTransactionSummary(Optional<Address> address, CurrencyValue value, boolean isIncoming, Transaction.Json input) {
-      super(getTxid(input), value, isIncoming ,showTime(input), -1, confs(input), false, null, address);
+      super(getTxid(input), value, isIncoming ,showTime(input), -1, confs(input), false, null, address, null);
       this.input = input;
    }
 

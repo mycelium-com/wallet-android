@@ -36,13 +36,19 @@ package com.mycelium.wallet.activity.receive;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -62,15 +68,30 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wallet.event.SyncFailed;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.squareup.otto.Subscribe;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 //todo HD for the future: keep receiving slots for 20 addresses. assign a name
 
 public class ReceiveCoinsActivity extends Activity {
 
    private static final int GET_AMOUNT_RESULT_CODE = 1;
+   private static final String LAST_ADDRESS_BALANCE = "lastAddressBalance";
+   private static final String RECEIVING_SINCE = "receivingSince";
+   private static final String AMOUNT = "amount";
+   public static final String SYNC_ERRORS = "syncErrors";
+   private static final int MAX_SYNC_ERRORS = 8;
 
    @InjectView(R.id.tvAmountLabel) TextView tvAmountLabel;
    @InjectView(R.id.tvAmount) TextView tvAmount;
@@ -87,6 +108,9 @@ public class ReceiveCoinsActivity extends Activity {
    private Address _address;
    private boolean _havePrivateKey;
    private CurrencyValue _amount;
+   private Long _receivingSince;
+   private CurrencyValue _lastAddressBalance;
+   private int _syncErrors = 0;
 
    public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey) {
       Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
@@ -114,14 +138,17 @@ public class ReceiveCoinsActivity extends Activity {
 
       // Load saved state
       if (savedInstanceState != null) {
-         _amount = (CurrencyValue) savedInstanceState.getSerializable("amount");
+         _amount = (CurrencyValue) savedInstanceState.getSerializable(AMOUNT);
+         _receivingSince = savedInstanceState.getLong(RECEIVING_SINCE);
+         _lastAddressBalance = (CurrencyValue) savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE);
+         _syncErrors = savedInstanceState.getInt(SYNC_ERRORS);
+      } else {
+         _receivingSince = new Date().getTime();
       }
-
 
       // Amount Hint
       tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
             _mbwManager.getBitcoinDenomination().toString()));
-
       shareByNfc();
    }
 
@@ -159,15 +186,28 @@ public class ReceiveCoinsActivity extends Activity {
    @Override
    protected void onSaveInstanceState(Bundle outState) {
       if (!CurrencyValue.isNullOrZero(_amount)) {
-         outState.putSerializable("amount", _amount);
+         outState.putSerializable(AMOUNT, _amount);
       }
+      outState.putLong(RECEIVING_SINCE, _receivingSince);
+      outState.putInt(SYNC_ERRORS, _syncErrors);
+      outState.putSerializable(LAST_ADDRESS_BALANCE, _lastAddressBalance);
       super.onSaveInstanceState(outState);
    }
 
    @Override
+   protected void onPause() {
+      _mbwManager.stopWatchingAddress();
+      _mbwManager.getEventBus().unregister(this);
+      super.onPause();
+   }
+
+   @Override
    protected void onResume() {
-      updateUi();
       super.onResume();
+      _mbwManager.getEventBus().register(this);
+      if (_syncErrors < MAX_SYNC_ERRORS)
+      _mbwManager.watchAddress(_address);
+      updateUi();
    }
 
    BitcoinValue getBitcoinAmount() {
@@ -286,5 +326,54 @@ public class ReceiveCoinsActivity extends Activity {
          // it in non-BTC
          GetAmountActivity.callMe(ReceiveCoinsActivity.this, _amount.getExactValueIfPossible(), GET_AMOUNT_RESULT_CODE);
       }
+   };
+
+   @Subscribe
+   public void syncError(SyncFailed event){
+      _syncErrors++;
+      // stop syncing after a certain amount of errors (no network available)
+      if (_syncErrors > MAX_SYNC_ERRORS){
+         _mbwManager.stopWatchingAddress();
+      }
    }
+
+   @Subscribe
+   public void syncStopped(SyncStopped event) {
+      TextView tvRecv = (TextView) findViewById(R.id.tvReceived);
+      TextView tvRecvWarning = (TextView) findViewById(R.id.tvReceivedWarningAmount);
+      final WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+      final List<TransactionSummary> transactionsSince = selectedAccount.getTransactionsSince(_receivingSince);
+      final ArrayList<TransactionSummary> interesting = new ArrayList<TransactionSummary>();
+      CurrencyValue sum = ExactBitcoinValue.ZERO;
+      for (TransactionSummary item : transactionsSince) {
+         if (item.toAddresses.contains(_address)) {
+            interesting.add(item);
+            sum = item.value;
+         }
+      }
+
+      if (interesting.size() > 0) {
+         tvRecv.setText(getString(R.string.incoming_payment) + Utils.getFormattedValueWithUnit(sum, _mbwManager.getBitcoinDenomination()));
+         // if the user specified an amount, also check it if it matches up...
+         if (!CurrencyValue.isNullOrZero(_amount)) {
+            tvRecvWarning.setVisibility ( sum.equals(_amount) ? View.GONE : View.VISIBLE);
+         } else {
+            tvRecvWarning.setVisibility ( View.GONE );
+         }
+         tvRecv.setVisibility(View.VISIBLE);
+         if (!sum.equals(_lastAddressBalance)) {
+            NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+            Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
+                  .setSound(soundUri, AudioManager.STREAM_NOTIFICATION); //This sets the sound to play
+            notificationManager.notify(0, mBuilder.build());
+
+            _lastAddressBalance = sum;
+         }
+      } else {
+         tvRecv.setVisibility(View.GONE);
+      }
+   }
+
 }

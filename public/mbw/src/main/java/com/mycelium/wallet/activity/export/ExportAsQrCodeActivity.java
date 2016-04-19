@@ -53,8 +53,6 @@ import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wapi.wallet.ExportableAccount;
 
 public class ExportAsQrCodeActivity extends Activity {
-
-
    public static final String ACCOUNT = "account";
    private MbwManager _mbwManager;
    private ExportableAccount.Data accountData;

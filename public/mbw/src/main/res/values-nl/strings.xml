@@ -161,7 +161,6 @@
   <string name="bitcoin_address_valid">Bitcoin adres geldig</string>
   <string name="redirecting_to_block_explorer">U wordt doorgestuurd naar een block explorer</string>
   <string name="enter_local_currency">Voer uw lokale valuta in</string>
-  <string name="tap_to_refresh">Tik hier om te vernieuwen</string>
   <string name="using_address_from_clipboard">Maak gebruik van adres op klembord</string>
   <string name="my_accounts">Mijn Rekeningen</string>
   <string name="foreign_addresses">Adresboek</string>

@@ -60,7 +60,7 @@ public class BitcoinUriWithAddress extends BitcoinUri implements Serializable  {
    }
 
    public static Optional<BitcoinUriWithAddress> parseWithAddress(String uri, NetworkParameters network) {
-      Optional<BitcoinUri> bitcoinUri = BitcoinUri.parse(uri, network);
+      Optional<? extends BitcoinUri> bitcoinUri = BitcoinUri.parse(uri, network);
       if (!bitcoinUri.isPresent()) return Optional.absent();
       return fromBitcoinUri(bitcoinUri.get());
    }

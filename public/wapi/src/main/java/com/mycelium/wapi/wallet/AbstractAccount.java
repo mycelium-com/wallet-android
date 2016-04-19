@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.PopBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder;
@@ -54,7 +53,7 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public abstract class AbstractAccount implements WalletAccount {
+public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
    protected static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
@@ -63,13 +62,14 @@ public abstract class AbstractAccount implements WalletAccount {
       void onEvent(UUID accountId, Event event);
    }
 
-   protected NetworkParameters _network;
-   protected Wapi _wapi;
-   protected WapiLogger _logger;
-   private AccountBacking _backing;
-   protected Balance _cachedBalance;
-   private EventHandler _eventHandler;
+   protected final NetworkParameters _network;
+   protected final Wapi _wapi;
+   protected final WapiLogger _logger;
    protected boolean _allowZeroConfSpending = true;      //on per default, we warn users if they use it
+   protected Balance _cachedBalance;
+
+   private EventHandler _eventHandler;
+   private AccountBacking _backing;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -97,6 +97,7 @@ public abstract class AbstractAccount implements WalletAccount {
          _eventHandler.onEvent(this.getId(), event);
       }
    }
+
 
    /**
     * Determine whether a transaction was sent from one of our own addresses.
@@ -174,18 +175,18 @@ public abstract class AbstractAccount implements WalletAccount {
 
    protected boolean synchronizeUnspentOutputs(Collection<Address> addresses) {
       // Get the current unspent outputs as dictated by the block chain
-      QueryUnspentOutputsResponse UnspentOutputResponse;
+      QueryUnspentOutputsResponse unspentOutputResponse;
       try {
-         UnspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
+         unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
                .getResult();
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);
          return false;
       }
-      Collection<TransactionOutputEx> remoteUnspent = UnspentOutputResponse.unspent;
+      Collection<TransactionOutputEx> remoteUnspent = unspentOutputResponse.unspent;
       // Store the current block height
-      setBlockChainHeight(UnspentOutputResponse.height);
+      setBlockChainHeight(unspentOutputResponse.height);
       // Make a map for fast lookup
       Map<OutPoint, TransactionOutputEx> remoteMap = toMap(remoteUnspent);
 
@@ -206,15 +207,26 @@ public abstract class AbstractAccount implements WalletAccount {
 
             // we need to fetch associated transactions, to see the outgoing tx in the history
             ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(l.script);
+            boolean removeLocally = true;
             if (scriptOutput != null) {
                Address address = scriptOutput.getAddress(_network);
-               if (!address.equals(Address.getNullAddress(_network))) {
-                  addressesToDiscover.add(address);
+               if (addresses.contains(address)) {
+                  // the output was associated with an address we were scanning for
+                  // we should have got back that output from the servers
+                  // this means it got probably spent via another wallet
+                  // scan this address for all associated transaction to keep the history in sync
+                  if (!address.equals(Address.getNullAddress(_network))) {
+                     addressesToDiscover.add(address);
+                  }
+               } else {
+                  removeLocally = false;
                }
             }
 
-            // Either way, we delete the UTXO locally
-            _backing.deleteUnspentOutput(l.outPoint);
+            if (removeLocally) {
+               // delete the UTXO locally
+               _backing.deleteUnspentOutput(l.outPoint);
+            }
          }
       }
 
@@ -277,7 +289,7 @@ public abstract class AbstractAccount implements WalletAccount {
          Sha256Hash elem;
          ArrayList<Sha256Hash> toFetch = new ArrayList<Sha256Hash>(MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
          final LinkedList<TransactionExApi> results = new LinkedList<TransactionExApi>();
-         while ( (elem = queue.poll()) != null) {
+         while ((elem = queue.poll()) != null) {
             toFetch.add(elem);
             if (toFetch.size() == MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
                handleGetTransactionsResponseWapiResponse(toFetch, results);
@@ -649,6 +661,21 @@ public abstract class AbstractAccount implements WalletAccount {
    }
 
    @Override
+   public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
+      List<TransactionSummary> history = new ArrayList<TransactionSummary>();
+      checkNotArchived();
+      int blockChainHeight = getBlockChainHeight();
+      List<TransactionEx> list = _backing.getTransactionsSince(receivingSince);
+      for (TransactionEx tex : list) {
+         TransactionSummary item = transform(tex, blockChainHeight);
+         if (item != null) {
+            history.add(item);
+         }
+      }
+      return history;
+   }
+
+   @Override
    public abstract int getBlockChainHeight();
 
    protected abstract void setBlockChainHeight(int blockHeight);
@@ -1004,16 +1031,23 @@ public abstract class AbstractAccount implements WalletAccount {
          return null;
       }
 
+      // Outputs
       long satoshis = 0;
+      List<Address> toAddresses = new ArrayList<Address>();
       Address destAddress = null;
       for (TransactionOutput output : tx.outputs) {
+         final Address address = output.script.getAddress(_network);
          if (isMine(output.script)) {
             satoshis += output.value;
          } else {
-            destAddress = output.script.getAddress(_network);
+            destAddress = address;
+         }
+         if (address != null && !address.equals(Address.getNullAddress(_network))) {
+            toAddresses.add(address);
          }
       }
 
+      // Inputs
       if (tx.isCoinbase()) {
          // For coinbase transactions there is nothing to subtract
       } else {
@@ -1057,7 +1091,8 @@ public abstract class AbstractAccount implements WalletAccount {
             confirmations,
             isQueuedOutgoing,
             risk,
-            com.google.common.base.Optional.fromNullable(destAddress));
+            com.google.common.base.Optional.fromNullable(destAddress),
+            toAddresses);
    }
 
    @Override
@@ -1143,7 +1178,7 @@ public abstract class AbstractAccount implements WalletAccount {
          }
 
          // if this transaction summary has a risk assessment set, remember it
-         if (t.rbfRisk || t.unconfirmedChainLength > 0  || isDoubleSpend) {
+         if (t.rbfRisk || t.unconfirmedChainLength > 0 || isDoubleSpend) {
             riskAssessmentForUnconfirmedTx.put(t.txid, new ConfirmationRiskProfileLocal(t.unconfirmedChainLength, t.rbfRisk, isDoubleSpend));
          } else {
             // otherwise just remove it if we ever got one
@@ -1167,9 +1202,9 @@ public abstract class AbstractAccount implements WalletAccount {
                _backing.removeOutgoingTransaction(t.txid);
             }
          }
-         Preconditions.checkNotNull(localTransactionEx);
 
-         if (localTransactionEx.height != t.height || localTransactionEx.time != t.time) {
+         // update the local transaction
+         if (localTransactionEx != null && (localTransactionEx.height != t.height || localTransactionEx.time != t.time)) {
             // The transaction got a new height or timestamp. There could be
             // several reasons for that. It got a new timestamp from the server,
             // it confirmed, or might also be a reorg.

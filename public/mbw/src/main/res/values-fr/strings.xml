@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Adresse Bitcoin valide</string>
   <string name="redirecting_to_block_explorer">Redirection vers un explorateur de blocs</string>
   <string name="enter_local_currency">Entrez votre devise locale</string>
-  <string name="tap_to_refresh">Touchez pour actualiser</string>
   <string name="using_address_from_clipboard">Adresse depuis le presse-papier</string>
   <string name="my_accounts">Mes comptes</string>
   <string name="foreign_addresses">Carnet d\'adresses</string>
@@ -232,6 +231,7 @@
   <string name="getting_location">Obtention de l\'emplacement&#8230;</string>
   <string name="about">À propos</string>
   <string name="mycelium_license">Licence Mycelium</string>
+  <string name="mycelium">Mycelium</string>
   <string name="special_thanks">Remerciements particuliers</string>
   <string name="zxing_license">Licence ZXing</string>
   <string name="pdfwriter_license">Licence Android PDF Writer</string>
@@ -852,4 +852,5 @@
   <string name="pop_transaction_info_advice">Consultez les infos de paiement ci-dessous pour prouver</string>
   <string name="import_xpub_wrong_depth">Vous pouvez seulement importer des comptes de niveau d’adresse (3) xpub. \nCeci est de niveau %1$s.</string>
   <string name="buy_one">Vous en acheter un&#8230;</string>
+  <string name="warning_reason_rbf">RBF</string>
 </resources>

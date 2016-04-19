@@ -122,7 +122,6 @@
   <string name="bitcoin_address_invalid">כתובת ביטקוין בלתי תקינה</string>
   <string name="bitcoin_address_valid">כתובת ביטקוין תקינה</string>
   <string name="enter_local_currency">הזן את המטבע המקומי שלך</string>
-  <string name="tap_to_refresh">לחצו לרענן</string>
   <string name="using_address_from_clipboard">משתמש בכתובת מהעתק-הדבק</string>
   <string name="confirm_delete_pk_title">בטוח?</string>
   <string name="verify_private_key_backup">וודא גיבוי</string>

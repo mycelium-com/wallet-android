@@ -162,7 +162,6 @@
   <string name="bitcoin_address_valid">Platná Bitcoin adresa</string>
   <string name="redirecting_to_block_explorer">Přesměrovávám na block explorer</string>
   <string name="enter_local_currency">Zadej lokální měnu</string>
-  <string name="tap_to_refresh">Stiskem obnovit</string>
   <string name="using_address_from_clipboard">Pomocí adresy ze schránky</string>
   <string name="my_accounts">Mé účty</string>
   <string name="foreign_addresses">Adresář</string>
@@ -232,6 +231,7 @@
   <string name="getting_location">získávám polohu&#8230;</string>
   <string name="about">O programu</string>
   <string name="mycelium_license">Licence Mycelium</string>
+  <string name="mycelium">Mycelium</string>
   <string name="special_thanks">Zvláštní poděkování</string>
   <string name="zxing_license">ZXing licence</string>
   <string name="pdfwriter_license">Android PDF Writer licence</string>
@@ -424,6 +424,8 @@
   <string name="lt_set_email_error">Ze serveru nelze načíst info o obchodníkovi</string>
   <string name="lt_email_please_verify_message">Poslali jsme vám ověřovací mail - pro ověření vaší mailové adresy klikněte na poskytnutý odkaz.</string>
   <string name="lt_set_email_title">Zadejte mailovou adresu</string>
+  <string name="lt_change_payout_address">Změnit adresu pro výplatu</string>
+  <string name="lt_warn_account_not_spandable">Z vybrané cílové adresy (%s) nelze utrácet.\n\n Musíte mít přístupný soukromý klíč v offline záloze, jinak přijdete o přijímané prostředky.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Používáte soukromý klíč s následující BTC adresou:</string>
   <string name="cs_address_description">Naskenovali jste BTC adresu. Můžete vidět její zůstatek, ale nemůžete z ní utrácet.</string>
@@ -472,6 +474,7 @@
   <string name="selected_archived_warning">Nemůžete pracovat s archivovanými účty.</string>
   <string name="selected_hd_info">Nyní pracujete na tomto HD účtu.</string>
   <string name="selected_single_info">Nyní pracujete s touto jedinou adresou.</string>
+  <string name="transaction_not_broadcasted_info">Nelze odeslat</string>
   <string name="hd_account_creation_started">Vytvářím nový HD účet&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Připravuji peněženku&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Počítám master seed&#8230;</string>
@@ -692,6 +695,7 @@
   <!-- Cashila -->
   <string name="cashila_tab_new">Nová</string>
   <string name="cashila_tab_pending">Platby</string>
+  <string name="cashila_sepa_transfer">Eurová platba</string>
   <string name="cashila_status_received">přijato</string>
   <string name="cashila_status_chained">spárováno</string>
   <string name="cashila_status_confirmed">potvrzeno</string>
@@ -721,7 +725,38 @@
   <string name="cashila_pay_now">Zaplatit</string>
   <string name="cashila_sepa_payment_title">SEPA platba</string>
   <string name="cashila_uploaded_title">Nahráno</string>
+  <string name="cashila_no_recipients">Zdá se, že jste službu Cashila nikdy nepoužili a nemáte tak žádné existující příjemce.\n\nPro vytvoření nového příjemce klepněte na OK</string>
   <string name="cashila_amount_outstanding">(nezaplaceno %s)</string>
+  <string name="cashila_add_new_sepa_recipient_title">Přidat nového příjemce SEPA</string>
+  <string name="cashila_recipient_name">Název</string>
+  <string name="cashila_recipient_address">Adresa</string>
+  <string name="cashila_recipient_zip_code">PSČ</string>
+  <string name="cashila_recipient_city">Obec</string>
+  <string name="cashila_recipient_iban">IBAN</string>
+  <string name="cashila_recipient_bic">BIC (volitelné)</string>
+  <string name="cashila_no_payments_found">Žádné platby nenalezeny</string>
+  <string name="cashila_new_recipient_saved">Příjemce uložen</string>
+  <string name="cashila_setting_show_sepa_button_summary">Zobrazit tlačítko pro eurové platby</string>
+  <string name="cashila_setting_show_sepa_button">Povolit službu Cashila</string>
+  <string name="cashila_create_new_account">Vytvořit nový\n účet</string>
+  <string name="cashila_already_have_account">Mám\núčet</string>
+  <string name="cashila_your_existing_account">Váš existující účet Cashila</string>
+  <string name="cashila_email_address">Mailová adresa</string>
+  <string name="cashila_password">Heslo</string>
+  <string name="cashila_second_factor_auth_code">Kód second factor (volitelné)</string>
+  <string name="cashila_sign_up_for_new_account">Přihlásit se k novému účtu Cashila</string>
+  <string name="cashila_accept_tos_title">Přijímám následující podmínky:</string>
+  <string name="cashila_sign_up">Zaregistrovat se</string>
+  <string name="cashila_login">Přihlásit se</string>
+  <string name="cashila_tos">Podmínky a služby</string>
+  <string name="cashila_limit_liability">Omezení odpovědnosti</string>
+  <string name="cashila_error">"Chyba Cashila: %s"</string>
+  <string name="cashila_error_wrong_second_factor">Špatný kód second factor</string>
+  <string name="cashila_error_wrong_password">Nesprávné heslo</string>
+  <string name="cashila_error_user_already_exists">Uživatel s touto mailovou adresou již existuje</string>
+  <string name="cashila_error_generic">"Chyba při přihlášení: %s"</string>
+  <string name="cashila_fetching_tos">Načítání PS Cashila&#8230;</string>
+  <string name="cashila_fill_out_all_fields">Vyplňte všechna povinná pole</string>
   <string name="payment_request_unable_to_read_payment_request">Nelze přečíst žádost o platbu</string>
   <string name="payment_request_not_sent_expired">Platba nebyla odeslána - žádost o platbu již vypršela!</string>
   <string name="payment_request_no_amount_specified">nebyla stanovena částka</string>
@@ -738,6 +773,7 @@
   <string name="payment_request_created">Vytvořeno</string>
   <string name="payment_request_expires">Zaniká</string>
   <string name="payment_request_message_to_merchant">Vaše zpráva obchodníkovi (volitelné)</string>
+  <string name="payment_request_error_while_getting_ack">Platbu nelze poslat na server obchodníka.\n%s\n\nPlatba nebude odeslána.</string>
   <string name="payment_request_warning_no_sig">Původ této žádosti o platbu nelze ověřit, neboť nemá žádný podpis.\n\nBuďte prosím velmi opatrní, jelikož ji někdo může zachytávat a měnit platební adresy.</string>
   <string name="label_cold_storage_external_signing">Přihlásit se:</string>
   <string name="spending_unconfirmed_warning">Varování: utrácení nepotvrzených peněz</string>
@@ -761,6 +797,7 @@
   <string name="warning_delete_unconfirmed_transaction">UPOZORNĚNÍ: Toto vymaže transakci pouze z aplikace. Tato funkce nemůže vzít transakci zpět a nemůže zabránit v jejím potvrzení. Je to užitečné pouze pokud síť transakci již zapomněla, protože nebyla potvrzena dlouhou dobu. V tom případě ji můžete vymazat, čímž znovu získáte přístup ke svým financím. Budete pak muset provést synchronizaci. Pokud síť transakci stále zná, po synchronizaci se znovu objeví.\n\nChcete transakci vymazat z mezipaměti?</string>
   <string name="rebroadcast_transaction_title">Znovu odeslat transakci</string>
   <string name="description_rebroadcast_transaction">Podat na server tuto transakci znovu, aby se odeslala. Múže to být použito, pokud máte podezření, že síť nerozšířila nebo opustila vaši transakci, např. protože nebyla dlouhou dobu potvrzena. Chcete tuto transakci znovu odeslat?</string>
+  <string name="message_rebroadcast_successfull">Transakce byla úspěšně odeslána.</string>
   <string name="message_rebroadcast_failed">Odeslání selhalo, zkontrolujte vaše připojení a synchronizujte svou peněženku.</string>
   <string name="block_explorer_title">Block Explorer (%1$s)</string>
   <string name="block_explorer_summary">Podrobnosti o transakci jsou vyhledávány pomocí %1$s Block Exploreru</string>
@@ -819,4 +856,11 @@
   <string name="pop_transaction_info_advice">Níže zkontrolujte informace o platbě pro ověření</string>
   <string name="import_xpub_wrong_depth">Lze importovat pouze xpub adresy účtu úrovně (3).\nToto byla úroveň %1$s.</string>
   <string name="buy_one">Koupit&#8230;</string>
+  <string name="warning_risky_unconfirmed">UPOZORNĚNÍ: Vyčkejte alespoň na jedno potvrzení! (%s)</string>
+  <string name="warning_reason_rbf">RBF</string>
+  <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
+  <string name="warning_reason_doublespend">Zjištěna dvojí útrata</string>
+  <string name="opening_url_in_browser">Otevírání URL v prohlížeči...</string>
+  <string name="incoming_payment">"Příchozí platba: "</string>
+  <string name="warning_amount_does_not_match">Upozornění: částka neodpovídá!</string>
 </resources>
