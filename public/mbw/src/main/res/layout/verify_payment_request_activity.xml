@@ -76,7 +76,8 @@
                 <TextView
                         android:id="@+id/tvValid"
                         tools:text="Checked"
-                        android:layout_width="wrap_content"
+                        android:gravity="right"
+                        android:layout_width="140sp"
                         android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>

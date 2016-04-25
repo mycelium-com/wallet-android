@@ -348,7 +348,7 @@ public class VersionManager {
                featureWarning.get().warningKind.equals(WarningKind.WARN) ||
                featureWarning.get().warningKind.equals(WarningKind.INFO)) {
 
-            dialog.setPositiveButton("Ignore Warning", new DialogInterface.OnClickListener() {
+            dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                @Override
                public void onClick(DialogInterface dialog, int which) {
                   if (runFeature != null) {

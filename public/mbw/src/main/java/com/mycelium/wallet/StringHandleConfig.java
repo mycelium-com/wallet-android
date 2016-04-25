@@ -298,7 +298,9 @@ public class StringHandleConfig implements Serializable {
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             try {
                HdKeyNode hdKey = HdKeyNode.parse(content, handlerActivity.getNetwork());
-               UUID acc = MbwManager.getInstance(handlerActivity).getWalletManager(true).createUnrelatedBip44Account(hdKey);
+               final WalletManager tempWalletManager = MbwManager.getInstance(handlerActivity).getWalletManager(true);
+               UUID acc = tempWalletManager.createUnrelatedBip44Account(hdKey);
+               tempWalletManager.setActiveAccount(acc);
                BitcoinUri uri = new BitcoinUri(null,null,null);
                SendInitializationActivity.callMe(handlerActivity, acc, uri, true);
                handlerActivity.finishOk();

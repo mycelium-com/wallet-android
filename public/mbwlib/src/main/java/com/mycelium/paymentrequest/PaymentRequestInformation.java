@@ -99,7 +99,6 @@ public class PaymentRequestInformation implements Serializable {
          if (Wire.get(paymentDetails.outputs, PaymentDetails.DEFAULT_OUTPUTS).size() == 0) {
             throw new PaymentRequestException("no outputs specified");
          }
-         ;
 
          // check if we are able to parse all output scripts
          // we might need to improve this later on to provide some flexibility, but until there is are use-cases
@@ -250,7 +249,9 @@ public class PaymentRequestInformation implements Serializable {
    private static OutputList getTransactionOutputs(PaymentDetails paymentDetails) {
       OutputList ret = new OutputList();
       for (Output out : paymentDetails.outputs) {
-         ret.add(out.amount, ScriptOutput.fromScriptBytes(out.script.toByteArray()));
+         ret.add(
+               Wire.get(out.amount, Output.DEFAULT_AMOUNT),
+               ScriptOutput.fromScriptBytes(Wire.get(out.script, Output.DEFAULT_SCRIPT).toByteArray()));
       }
       return ret;
    }

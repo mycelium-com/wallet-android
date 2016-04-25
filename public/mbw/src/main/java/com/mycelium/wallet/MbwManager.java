@@ -591,25 +591,6 @@ public class MbwManager {
       editor.commit();
    }
 
-   public boolean nextCurrencyReady() {
-      List<String> currencies = getCurrencyList();
-      if (currencies.isEmpty()) {
-         return false;
-      }
-      int index = currencies.indexOf(getFiatCurrency());
-      Preconditions.checkState(index >= 0);
-      index++; //hop one forward
-      if (index >= currencies.size()) {
-         index -= currencies.size(); //wrap around
-      }
-      String newCurrency = currencies.get(index);
-      if (_exchangeRateManager.getExchangeRate(newCurrency) == null) {
-         _exchangeRateManager.requestRefresh();
-         return false;
-      }
-      return true;
-   }
-
    public String getNextCurrency(boolean includeBitcoin) {
       return _currencySwitcher.getNextCurrency(includeBitcoin);
    }
@@ -641,11 +622,11 @@ public class MbwManager {
    // returns the age of the PIN in blocks (~10min)
    public Optional<Integer> getRemainingPinLockdownDuration() {
       Optional<Integer> pinSetHeight = getMetadataStorage().getLastPinSetBlockheight();
-      if (!pinSetHeight.isPresent()) {
+      int blockHeight = getSelectedAccount().getBlockChainHeight();
+
+      if (!pinSetHeight.isPresent() || blockHeight < pinSetHeight.get()) {
          return Optional.absent();
       }
-
-      int blockHeight = getSelectedAccount().getBlockChainHeight();
 
       int pinAge = blockHeight - pinSetHeight.get();
       if (pinAge > Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP) {
@@ -1032,7 +1013,7 @@ public class MbwManager {
    public UUID createOnTheFlyAccount(Address address) {
       UUID accountId = _tempWalletManager.createSingleAddressAccount(address);
       _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
-      _tempWalletManager.startSynchronization();
+      _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
       return accountId;
    }
 
@@ -1044,6 +1025,7 @@ public class MbwManager {
          throw new RuntimeException(invalidKeyCipher);
       }
       _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
+      _tempWalletManager.setActiveAccount(accountId); // this also starts a sync
       return accountId;
    }
 

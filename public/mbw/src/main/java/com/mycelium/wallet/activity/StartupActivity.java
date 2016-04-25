@@ -57,12 +57,12 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
-import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.pop.PopActivity;
+import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -100,7 +100,7 @@ public class StartupActivity extends Activity {
    @Override
    public void onPause() {
       _progress.dismiss();
-      if (_pinDialog != null){
+      if (_pinDialog != null) {
          _pinDialog.dismiss();
       }
       super.onPause();
@@ -268,7 +268,7 @@ public class StartupActivity extends Activity {
          }
       }
 
-      private void start(){
+      private void start() {
          // Check whether we should handle this intent in a special way if it
          // has a bitcoin URI in it
          if (handleIntent()) {
@@ -283,7 +283,6 @@ public class StartupActivity extends Activity {
       }
 
    };
-
 
 
    private void warnUserOnClipboardKeys() {
@@ -323,7 +322,7 @@ public class StartupActivity extends Activity {
       Intent intent = getIntent();
       final String action = intent.getAction();
 
-      if ("application/bitcoin-paymentrequest".equals(intent.getType())){
+      if ("application/bitcoin-paymentrequest".equals(intent.getType())) {
          // called via paymentrequest-file
          final Uri paymentRequest = intent.getData();
          handlePaymentRequest(paymentRequest);
@@ -401,7 +400,7 @@ public class StartupActivity extends Activity {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
       Optional<? extends BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (!bitcoinUri.isPresent()){
+      if (!bitcoinUri.isPresent()) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
@@ -413,7 +412,7 @@ public class StartupActivity extends Activity {
          final BitcoinUri.PrivateKeyUri privateKeyUri = (BitcoinUri.PrivateKeyUri) bitcoinUri.get();
          DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.keyString, StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
       } else {
-         if (bitcoinUri.get().address==null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL)) {
+         if (bitcoinUri.get().address == null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL)) {
             // Invalid Bitcoin URI
             Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
             finish();
@@ -452,13 +451,15 @@ public class StartupActivity extends Activity {
          //finish initialization
          delayedFinish.run();
          return;
-      }else if (requestCode== StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE) {
+      } else if (requestCode == StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE) {
          String content = data.getStringExtra("base58Key");
-         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
-         UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
-         SendInitializationActivity.callMe(this, account, true);
-         finish();
-         return;
+         if (content != null) {
+            InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
+            UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
+            SendInitializationActivity.callMe(this, account, true);
+            finish();
+            return;
+         }
       }
 
       // double-check result data, in case some downstream code messes up.

@@ -28,7 +28,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.lib.TransactionExApi;
-import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
@@ -487,30 +486,32 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
    @Override
    public InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
-      boolean isChange = false;
-      Integer index = _externalAddresses.get(address);
-      if (index == null) {
-         index = _internalAddresses.get(address);
-         isChange = true;
+      IndexLookUp indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
+      if (indexLookUp == null) {
+         // we did not find it - to be sure, generate all addresses and search again
+         ensureAddressIndexes(true);
+         indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
       }
-      if (index == null) {
+      if (indexLookUp == null) {
+         // still not found? give up...
          return null;
       }
-      return _keyManager.getPrivateKey(isChange, index, cipher);
+      return _keyManager.getPrivateKey(indexLookUp.isChange(), indexLookUp.getIndex(), cipher);
    }
 
    @Override
    protected PublicKey getPublicKeyForAddress(Address address) {
-      boolean isChange = false;
-      Integer index = _externalAddresses.get(address);
-      if (index == null) {
-         index = _internalAddresses.get(address);
-         isChange = true;
+      IndexLookUp indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
+      if (indexLookUp == null) {
+         // we did not find it - to be sure, generate all addresses and search again
+         ensureAddressIndexes(true);
+         indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
       }
-      if (index == null) {
+      if (indexLookUp == null) {
+         // still not found? give up...
          return null;
       }
-      return _keyManager.getPublicKey(isChange, index);
+      return _keyManager.getPublicKey(indexLookUp.isChange(), indexLookUp.getIndex());
    }
 
    @Override
@@ -621,5 +622,41 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    // this method is only allowed for accounts that use a SubValueKeystore
    public void clearBacking() {
       _keyManager.deleteSubKeyStore();
+   }
+
+   // Helper class to find the mapping for a Address in the internal or external chain
+   private static class IndexLookUp {
+      private final boolean isChange;
+      private final Integer index;
+
+      public static IndexLookUp forAddress(Address address, Map<Address, Integer> external, Map<Address, Integer> internal) {
+         Integer index = external.get(address);
+         if (index == null) {
+            index = internal.get(address);
+            if (index == null) {
+               return null;
+            } else {
+               // found it in the internal(=change)-chain
+               return new IndexLookUp(true, index);
+            }
+         } else {
+            // found it in the external chain
+            return new IndexLookUp(false, index);
+         }
+      }
+
+      private IndexLookUp(boolean isChange, Integer index) {
+         this.isChange = isChange;
+         this.index = index;
+      }
+
+      public boolean isChange() {
+         return isChange;
+      }
+
+      public Integer getIndex() {
+         return index;
+      }
+
    }
 }

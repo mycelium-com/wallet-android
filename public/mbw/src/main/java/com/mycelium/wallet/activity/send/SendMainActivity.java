@@ -629,8 +629,8 @@ public class SendMainActivity extends Activity {
                      _amountToSend, coinapultAccount.getCoinapultCurrency().name,
                      _mbwManager.getExchangeRateManager()).getValue();
 
-               if (nativeValue.compareTo(minimumConversationValue) < 0) {
-                  //trying to send less than coinapults minimum withdrawal
+               if (nativeValue == null || nativeValue.compareTo(minimumConversationValue) < 0) {
+                  // trying to send less than coinapults minimum withdrawal, or no fx rate available
                   return TransactionStatus.OutputTooSmall;
                }
                WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, getBitcoinValueToSend().getLongValue());

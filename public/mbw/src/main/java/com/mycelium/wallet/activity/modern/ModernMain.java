@@ -93,6 +93,7 @@ public class ModernMain extends ActionBarActivity {
    public static final int MIN_AUTOSYNC_INTERVAL = 1 * 60 * 1000;
    public static final int MIN_FULLSYNC_INTERVAL = 5 * 60 * 60 * 1000;
    public static final String LAST_SYNC = "LAST_SYNC";
+   private static final String APP_START = "APP_START";
    private MbwManager _mbwManager;
 
    ViewPager mViewPager;
@@ -102,6 +103,7 @@ public class ModernMain extends ActionBarActivity {
    private MenuItem refreshItem;
    private Toaster _toaster;
    private long _lastSync = 0;
+   private boolean _isAppStart = true;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -154,10 +156,14 @@ public class ModernMain extends ActionBarActivity {
 
       checkTorState();
 
-      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
-
       if (savedInstanceState != null) {
          _lastSync = savedInstanceState.getLong(LAST_SYNC, 0);
+         _isAppStart = savedInstanceState.getBoolean(APP_START, true);
+      }
+
+      if (_isAppStart) {
+         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
+         _isAppStart = false;
       }
 
    }
@@ -166,6 +172,7 @@ public class ModernMain extends ActionBarActivity {
    protected void onSaveInstanceState(Bundle outState) {
       super.onSaveInstanceState(outState);
       outState.putLong(LAST_SYNC, _lastSync);
+      outState.putBoolean(APP_START, _isAppStart);
    }
 
    private void checkTorState() {

@@ -69,7 +69,7 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 27404
+        versionCode 27407
         versionName '2.7.4'
         multiDexEnabled true
     }
@@ -138,6 +138,19 @@ android {
                 appId = appId + "_" + branch
                 versionName = defaultConfig.versionName + "-DEV_" + branch
             }
+
+            applicationId appId
+            signingConfig signingConfigs.debug
+        }
+        devprod {
+            // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
+            compileSdkVersion 21
+            buildToolsVersion androidSdkBuildVersion
+            minSdkVersion 21
+
+            // if we are not on master, include the branchname in appId
+            def appId = 'com.mycelium.devprodwallet';
+            def branch = getGitBranch()
 
             applicationId appId
             signingConfig signingConfigs.debug

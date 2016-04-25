@@ -228,7 +228,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
    public PreparedCoinapult prepareCoinapultTx(Address receivingAddress, ExactCurrencyValue amountEntered) throws StandardTransactionBuilder.InsufficientFundsException {
-      if (balanceFiat.confirmed.getValue().compareTo(amountEntered.getValue()) < 0) {
+      if (balanceFiat == null || balanceFiat.confirmed.getValue().compareTo(amountEntered.getValue()) < 0) {
          throw new StandardTransactionBuilder.InsufficientFundsException(getSatoshis(amountEntered), 0);
       }
       return new PreparedCoinapult(receivingAddress, amountEntered);
@@ -236,7 +236,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
 
 
    public PreparedCoinapult prepareCoinapultTx(WalletAccount.Receiver receiver) throws StandardTransactionBuilder.InsufficientFundsException {
-      if (getSatoshis(balanceFiat.confirmed) < receiver.amount) {
+      if (balanceFiat == null || getSatoshis(balanceFiat.confirmed) < receiver.amount) {
          throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
       } else {
          return new PreparedCoinapult(receiver);
@@ -420,20 +420,20 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    @NonNull
    private List<TransactionSummary> getTransactionSummaries() {
       return Lists.transform(getHistoryWithExtras(), new Function<Transaction.Json, TransactionSummary>() {
-               @Nullable
-               @Override
-               public TransactionSummary apply(@Nullable Transaction.Json input) {
-                  input = Preconditions.checkNotNull(input);
-                  Optional<Address> address = Optional.fromNullable(input.address).transform(Address.FROM_STRING);
-                  boolean isIncoming = !isSending(input);
-                  // use the relevant amount from the transaction.
-                  // if it is an incoming transaction, the "out"-side of the tx is in the native currency
-                  // and v.v. for outgoing tx
-                  Transaction.Half half = isIncoming ? input.out : input.in;
+         @Nullable
+         @Override
+         public TransactionSummary apply(@Nullable Transaction.Json input) {
+            input = Preconditions.checkNotNull(input);
+            Optional<Address> address = Optional.fromNullable(input.address).transform(Address.FROM_STRING);
+            boolean isIncoming = !isSending(input);
+            // use the relevant amount from the transaction.
+            // if it is an incoming transaction, the "out"-side of the tx is in the native currency
+            // and v.v. for outgoing tx
+            Transaction.Half half = isIncoming ? input.out : input.in;
 
-                  return new CoinapultTransactionSummary(address, getCurrencyValue(half), isIncoming, input);
-               }
-            });
+            return new CoinapultTransactionSummary(address, getCurrencyValue(half), isIncoming, input);
+         }
+      });
    }
 
    @Override
@@ -442,7 +442,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
          List<TransactionSummary> list = getTransactionSummaries();
          final ArrayList<TransactionSummary> result = new ArrayList<TransactionSummary>();
          for (TransactionSummary item : list) {
-            if (item.time < receivingSince){
+            if (item.time < receivingSince) {
                break;
             }
             result.add(item);
