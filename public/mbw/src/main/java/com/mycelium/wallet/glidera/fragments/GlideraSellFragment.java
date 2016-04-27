@@ -209,6 +209,11 @@ public class GlideraSellFragment extends Fragment {
                 }
 
                 BigDecimal fiat = new BigDecimal(etSellFiat.getText().toString());
+                if (_transactionLimitsResponse == null) {
+                    String error = "Current transaction limit not available";
+                    setError(SellMode.FIAT, error);
+                    return;
+                }
                 if (fiat.compareTo(_transactionLimitsResponse.getDailySellRemaining()) > 0) {
                     String error = "Amount greater than remaining limit of " + GlideraUtils.formatFiatForDisplay
                             (_transactionLimitsResponse.getDailySellRemaining());
