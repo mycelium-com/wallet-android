@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:padding="0dp">
+
+    <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/logo_dark_square_only_transp_bg"
+            android:layout_alignBottom="@+id/svMainScroll"
+            android:layout_alignRight="@+id/svMainScroll"/>
+
+    <ScrollView
+            android:id="@+id/svMainScroll"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+
+            android:fadeScrollbars="false"
+            android:scrollbars="vertical">
+
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                >
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    android:paddingBottom="5dp"
+                    android:text="Announcement"
+                    />
+
+            <TextView
+                    android:id="@+id/tvMessage"
+                    style="@style/MyceliumText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dear Mycelium Wallet user!\n\nYou have a great opportunity to become a Mycelium Wallet stakeholder by participating in our crowdsale, starting May 1st. You can get a 10% discount by signing up early here:\n\nhttps://wallet.mycelium.com/early-bird-registration.html\n\nThank you for using Mycelium Wallet, we are working hard to make it  better!\n\nMycelium Team"
+                    android:autoLink="web"
+                    android:paddingRight="5dp"
+                    android:textSize="18sp"/>
+
+            <CheckBox
+                    android:id="@+id/checkbox"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textSize="12sp"
+                    android:text="@string/lt_never_show_again_label"/>
+
+            <Button
+                    android:id="@+id/btOk"
+                    style="@style/MyceliumButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:text="@string/ok"
+                    android:textSize="16sp"/>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

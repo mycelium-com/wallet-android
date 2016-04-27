@@ -350,6 +350,45 @@ public class Utils {
       return true;
    }
 
+
+   public static boolean showOptionalTokenMessage(final Context context, boolean always) {
+      SharedPreferences settings = context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE);
+      boolean ignore = settings.getBoolean("mytoken", false);
+      if (ignore && !always) {
+         // The user has opted never to get this message shown again
+         return false;
+      }
+
+      LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      final View layout = inflater.inflate(R.layout.tokens_message_dialog, null);
+      AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
+      final AlertDialog dialog = builder.create();
+      TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
+      CheckBox cb = (CheckBox) layout.findViewById(R.id.checkbox);
+      if (!always) {
+         cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+               // Persist checked state
+               context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE).edit()
+                     .putBoolean("mytoken", isChecked).commit();
+            }
+         });
+      } else {
+         cb.setVisibility(View.GONE);
+      }
+      layout.findViewById(R.id.btOk).setOnClickListener(new OnClickListener() {
+
+         @Override
+         public void onClick(View v) {
+            dialog.dismiss();
+         }
+      });
+      dialog.show();
+      return true;
+   }
+
    /**
     * Chop a string into an array of strings no longer then the specified chop
     * length

@@ -164,8 +164,8 @@ public class ModernMain extends ActionBarActivity {
       if (_isAppStart) {
          _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
          _isAppStart = false;
+         Utils.showOptionalTokenMessage(this, false);
       }
-
    }
 
    @Override
