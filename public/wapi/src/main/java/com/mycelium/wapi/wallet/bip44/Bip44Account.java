@@ -64,7 +64,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       if (isArchived()) {
          return;
       }
-      ensureAddressIndexes(false);
+      ensureAddressIndexes();
       _cachedBalance = calculateLocalBalance();
    }
 
@@ -135,7 +135,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       _currentReceivingAddress = null;
       _cachedBalance = null;
       if (isActive()) {
-         ensureAddressIndexes(false);
+         ensureAddressIndexes();
          _cachedBalance = calculateLocalBalance();
       }
    }
@@ -164,9 +164,9 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return _context.getAccountIndex();
    }
 
-   private void ensureAddressIndexes(boolean full_look_ahead) {
-      ensureAddressIndexes(true, full_look_ahead);
-      ensureAddressIndexes(false, full_look_ahead);
+   private void ensureAddressIndexes() {
+      ensureAddressIndexes(true, true);
+      ensureAddressIndexes(false, true);
       // The current receiving address is the next external address just above
       // the last
       // external address with activity
@@ -312,7 +312,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     */
    private boolean doDiscovery() throws WapiException {
       // Ensure that all addresses in the look ahead window have been created
-      ensureAddressIndexes(true);
+      ensureAddressIndexes();
 
       // Make look ahead address list
       List<Address> lookAhead = new ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
@@ -464,7 +464,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
             updateLastInternalIndex(receivingAddress);
          }
       }
-      ensureAddressIndexes(false);
+      ensureAddressIndexes();
    }
 
    protected void updateLastExternalIndex(Integer externalIndex) {
@@ -489,7 +489,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       IndexLookUp indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
       if (indexLookUp == null) {
          // we did not find it - to be sure, generate all addresses and search again
-         ensureAddressIndexes(true);
+         ensureAddressIndexes();
          indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
       }
       if (indexLookUp == null) {
@@ -504,7 +504,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       IndexLookUp indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
       if (indexLookUp == null) {
          // we did not find it - to be sure, generate all addresses and search again
-         ensureAddressIndexes(true);
+         ensureAddressIndexes();
          indexLookUp = IndexLookUp.forAddress(address, _externalAddresses, _internalAddresses);
       }
       if (indexLookUp == null) {

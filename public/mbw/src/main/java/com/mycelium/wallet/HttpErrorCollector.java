@@ -58,15 +58,7 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
       this.metaData = metaData;
    }
 
-   //todo make sure proxy is set before this. require as dependency?
    public static HttpErrorCollector registerInVM(Context applicationContext, WapiClient wapi) {
-      // just call this function to ensure all settings are correct
-      MbwEnvironment.verifyEnvironment(applicationContext);
-      String version = VersionManager.determineVersion(applicationContext);
-      return registerInVM(applicationContext, version, wapi);
-   }
-
-   public static HttpErrorCollector registerInVM(Context applicationContext, String version, Wapi api) {
       // Initialize error collector
       boolean emailOnErrors = applicationContext.getResources().getBoolean(R.bool.email_on_errors);
       if (!emailOnErrors) {
@@ -76,8 +68,9 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
       if ((orig instanceof HttpErrorCollector)) {
          return (HttpErrorCollector) orig;
       }
+      String version = VersionManager.determineVersion(applicationContext) + " / " + VersionManager.determineVersionCode(applicationContext);
       Log.i(Constants.TAG, "registering exception handler from thread " + Thread.currentThread().getName());
-      HttpErrorCollector ret = new HttpErrorCollector(orig, api, version, buildMetaData(applicationContext));
+      HttpErrorCollector ret = new HttpErrorCollector(orig, wapi, version, buildMetaData(applicationContext));
       Thread.setDefaultUncaughtExceptionHandler(ret);
       return ret;
 

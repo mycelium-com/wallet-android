@@ -235,6 +235,13 @@
         <Button
             android:layout_width="@dimen/about_buttonsize"
             android:layout_height="wrap_content"
+            android:text="@string/mycelium_terms_of_use"
+            android:id="@+id/bt_tou_mycelium"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
             android:text="@string/mycelium_license"
             android:id="@+id/bt_license_mycelium"
             android:layout_marginBottom="@dimen/buttonspacing" />

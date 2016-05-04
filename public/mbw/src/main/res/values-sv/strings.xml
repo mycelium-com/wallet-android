@@ -237,7 +237,6 @@
   <string name="authors_label">Utvecklad av</string>
   <string name="homepage_label">Webbplats</string>
   <string name="homepage_url">https://mycelium.com</string>
-  <string name="company">Megion Research &amp; Development GmbH</string>
   <string name="company_header">Denna app tillhandahålls utan kostnad av</string>
   <string name="contact_email_label">Återkoppling</string>
   <string name="cancelled">Avbruten</string>

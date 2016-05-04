@@ -43,7 +43,7 @@
                     style="@style/MyceliumText"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="Dear Mycelium Wallet user!\n\nYou have a great opportunity to become a Mycelium Wallet stakeholder by participating in our crowdsale, starting May 1st. You can get a 10% discount by signing up early here:\n\nhttps://wallet.mycelium.com/early-bird-registration.html\n\nThank you for using Mycelium Wallet, we are working hard to make it  better!\n\nMycelium Team"
+                    android:text="Dear Mycelium Wallet user!\n\nYou have a great opportunity to become a Mycelium Wallet stakeholder by participating in our crowdsale until May 19th.\nSign up here:\n\nhttps://crowdsale.mycelium.com\n\nThank you for using Mycelium Wallet, we are working hard to make it better!\n\nMycelium Team"
                     android:autoLink="web"
                     android:paddingRight="5dp"
                     android:textSize="18sp"/>

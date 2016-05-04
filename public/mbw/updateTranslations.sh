@@ -1,13 +1,15 @@
 #!/bin/sh
+
+APIKEY=`cat ~/.mycelium_crowdin_api`
+
 cwd=`pwd`
-pushd `pwd`
 dir=/tmp/translation
 rm -r ${dir}
 mkdir -p ${dir} || exit
 cd ${dir} || exit
 rm -f mycelium-bitcoin-wallet.zip
-wget https://crowdin.com/download/project/mycelium-bitcoin-wallet.zip || exit
-unzip -q mycelium-bitcoin-wallet.zip -d ${dir} || exit
+wget -O all.zip https://api.crowdin.com/api/project/mycelium-bitcoin-wallet/download/all.zip?key=$APIKEY || exit
+unzip -q all.zip -d ${dir} || exit
 
 UpdateOne () {
  # arg 1: source folder as in ../${1}/strings.xml

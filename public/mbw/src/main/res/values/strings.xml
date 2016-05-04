@@ -248,7 +248,6 @@
     <string name="authors_label">Developed by</string>
     <string name="homepage_label">Homepage</string>
     <string name="homepage_url">https://mycelium.com</string>
-    <string name="company">Megion Research &amp; Development GmbH</string>
     <string name="company_header">This app is provided to you for free by</string>
     <string name="contact_email_label">Feedback</string>
     <string name="cancelled">Cancelled</string>
@@ -892,6 +891,7 @@
     <string name="opening_url_in_browser">Opening URL in Browser...</string>
     <string name="incoming_payment">"Incoming payment: "</string>
     <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
+    <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
 
 
 </resources>

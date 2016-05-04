@@ -1,0 +1,72 @@
+YOUR ACCEPTANCE OF TERMS
+The following Terms of Use (the "ToU") form a binding agreement between you and Mycelium SIA LLC (together with our affiliates, collectively referred to herein as "Mycelium", "us", "we", "our"), that governs your use of our services provided through the application Mycelium Wallet (“Wallet”) and the website wallet.mycelium.com (“Website”), other mobile apps, and other online areas owned or operated by us ("Services"). The terms “you" and “customer” refer to the person accessing or using the Services, or the entity or organization on whose behalf such person accesses our Services.
+
+
+THESE ToU CREATE A BINDING LEGAL AGREEMENT BETWEEN YOU AND MYCELIUM, AND INCLUDE AN ARBITRATION CLAUSE UNDER WHICH CERTAIN CLAIMS MAY NOT BE BROUGHT IN COURT OR DECIDED BY A JURY. PLEASE READ THESE ToU CAREFULLY BEFORE ACCESSING AND/OR USING ANY OF OUR SERVICES. By accessing and/or using the Services, you are agreeing to these ToU, as well as any additional guidelines, policies or rules applicable to specific services and/or features that are a part of, or may be from time to time made a part of, our Services (collectively, the "Guidelines"), such as subscription-based services, events, contests or sweepstakes. Subject to applicable law, the Guidelines are a part of these ToU and are expressly incorporated herein by this reference; provided that in the event of a conflict between any specific Guideline and these ToU, the terms of any such Guideline shall prevail over these ToU. If you do not agree to any of these ToU, you must cease use of our Services.
+You acknowledge that these ToU are supported by reasonable and valuable consideration, the receipt and adequacy of which are hereby acknowledged. Without limiting the generality of the foregoing, you acknowledge that such consideration includes your use of the Services and receipt of data, materials and information available at or through the Services.
+We may, in our sole discretion, change this ToU from time to time and without prior notice. Any and all changes to the ToU will be reflected on this page and the date new versions are posted will be stated at the top of this ToU. Changes to this ToU will be effective as soon as they are posted, unless a later Effective Date is provided. You should regularly check this page for any changes to the ToU. By continuing to access and/or use the Services after the Effective Date of a revised ToU, you agree to be bound by the revised ToU. If you do not agree to the new ToU, do not continue using the Services. Without limiting the foregoing, if we make a change to these ToU that materially impacts your use of our Services, we may post notice of any such change on our Website and/or email you notice of any such change.
+
+
+OUR SERVICES
+You understand and agree that the Wallet may be used only for legal activities. You are prohibited from using the Wallet for purposes of selling or acquiring any illegal products or services.
+You further understand that we serve merely as a bitcoin and other cryptocurrencies wallet to enable you to make and receive cryptocurrency payments; we do not function as a cryptocurrency or fiat currency exchange. All additional services outside cryptocurrency payments processing are performed by third-party providers that act as independent contractors. Such services are subject to third-party providers’ terms and conditions and Mycelium takes no responsibility for their performance. Please read all applicable terms and conditions before using third-parties’ services.
+Due to the global nature of our Services you hereby agree to comply with all local rules and laws relating to bitcoin ownership, use, and transfer. Mycelium doesn’t guaranty legality of bitcoin operations in your jurisdiction.
+
+
+LEGAL AUTHORITY
+You represent that you are at least 18 years old or have otherwise reached the age of maturing in your applicable jurisdiction and have the required legal capacity to perform transactions using our Services.
+
+PERSONAL INFORMATION AND PRIVACY
+Mycelium doesn’t require you to provide any personal information and does not collect, use and disclose any personal information, the backend for the wallet does not store any privacy sensitive information. Only if you use local-trader, a bitcoin public key for registration and authentication with Mycelium servers, your bitcoin address used for trades, your nickname, orders, the entered location, and your trade history is retained by Mycelium servers is. All chat messages are encrypted end-to-end between our clients. When you use third-party services, Privacy Policies of third-party service providers apply.
+If the wallet crashes due to a bug or hardware error, we send an automated error report directly to our servers without going through a third party. We took care that it does not contain unnecessary privacy relevant information.
+
+
+NO CONVEYANCE
+Nothing in these ToU shall be construed to convey to you any interest, title, or license in an application account, domain name, or similar resource used by you in connection with our Services.
+
+
+LICENSE
+Mycelium Wallet is licensed under Microsoft Reference Source License (MS-RSL). Full text of the License can be found at http://referencesource.microsoft.com/license.html
+Subject to the terms of this license, Mycelium grants you a non-transferable, non-exclusive, worldwide, royalty-free copyright license to reproduce the software for reference use and a non-transferable, non-exclusive, worldwide, royalty-free patent license under licensed patents for reference use. This license does not grant you any rights to use Mycelium's name, logo, or trademarks. The software is licensed "as-is."
+
+
+NO RESALE OF SERVICE
+You agree that you will not reproduce, copy, duplicate, sell, resell, rent or trade the Service (or any part thereof) for any purpose.
+
+
+FEES
+Mycelium doesn’t charge any fees for installation or use of the Wallet application. Commissions and fees payed when using the Services are charged for third-party providers’ services. Bitcoin transaction need to include a miner-fee which gets collected by the bitcoin network - we have no direct influence on it. You agree to pay all charges, including fees and taxes, and any part thereof, when you use, purchase, or participate in a Service from Mycelium or third-party service providers through the application.
+
+
+WARRANTIES AND DISCLAIMERS
+SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF CERTAIN WARRANTIES, AS SUCH, TO THE EXTENT SUCH EXCLUSIONS ARE SPECIFICALLY PROHIBITED BY APPLICABLE LAW, SOME OF THE EXCLUSIONS SET FORTH BELOW MAY NOT APPLY TO YOU.
+YOU EXPRESSLY UNDERSTAND AND AGREE THAT YOUR USE OF THE SERVICE IS AT YOUR SOLE RISK AND THE SERVICES ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, OR THE WARRANTY OF NON-INFRINGEMENT. WITHOUT LIMITING THE FOREGOING, AND EXCEPT AS EXPRESSLY PROVIDED OTHERWISE, WE MAKE NO WARRANTY THAT (I) THE SERVICES AND MATERIALS WILL MEET YOUR REQUIREMENTS; (II) THE SERVICES AND MATERIALS WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE; (III) THE RESULTS THAT MAY BE OBTAINED FROM THE USE OF THE SERVICES OR MATERIALS WILL BE EFFECTIVE, ACCURATE, OR RELIABLE; AND (IV) THE QUALITY OF ANY SERVICES OR MATERIALS OBTAINED OR ACCESSIBLE BY YOU THROUGH THE WALLET WILL MEET YOUR EXPECTATIONS.
+We assume no liability for any computer virus or other similar software code that is downloaded to your computer or phone from the Wallet or in connection with any Services or Materials offered through the Wallet. No information, whether oral or written, obtained by you from us or through or from the Wallet shall create any warranty not expressly stated in these Terms of Use.
+WE DO NOT SCREEN WALLET USERS. ANY DEALINGS OR INTERACTIONS YOU MAY HAVE WITH OTHER WALLET USERS ARE AT YOUR OWN RISK. WE WILL NOT BE RESPONSIBLE FOR ANY HARM CAUSED TO YOU BY VIRTUE OF YOUR INTERACTION OR DEALING WITH ANOTHER USER OR OTHERWISE BY VIRTUE OF YOUR USE OF THE WALLET.
+
+
+LIMITATION OF LIABILITY
+SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY FOR INCIDENTAL OR CONSEQUENTIAL DAMAGES, AS SUCH, TO THE EXTENT SUCH EXCLUSIONS OR LIMITATIONS ARE SPECIFICALLY PROHIBITED BY APPLICABLE LAW, SOME OF THE EXCLUSIONS OR LIMITATIONS SET FORTH BELOW MAY NOT APPLY TO YOU.
+YOU EXPRESSLY UNDERSTAND AND AGREE THAT MYCELIUM AND ITS AFFILIATES, SUBSIDIARIES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, PARTNERS AND LICENSORS SHALL NOT BE LIABLE TO YOU FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR EXEMPLARY DAMAGES, INCLUDING, BUT NOT LIMITED TO, DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, COST OF PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, OR OTHER INTANGIBLE LOSSES (EVEN IF MYCELIUM HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), RESULTING FROM: (I) THE USE OR INABILITY TO USE THE SERVICES; (II) ANY CHANGES MADE TO THE SERVICES OR ANY TEMPORARY OR PERMANENT CESSATION OF THE SERVICES OR ANY PART THEREOF; (III) THE UNAUTHORIZED ACCESS TO OR ALTERATION OF YOUR TRANSMISSIONS OR DATA; (IV) THE DELETION OF, CORRUPTION OF, OR FAILURE TO STORE AND/OR SEND OR RECEIVE YOUR TRANSMISSIONS OR DATA ON OR THROUGH THE SERVICES; (V) STATEMENTS OR CONDUCT OF ANY THIRD PARTY ON THE SERVICES; AND (VI) ANY OTHER MATTER RELATING TO THE SERVICES. IN NO EVENT WILL MYCELIUM'S LIABILITY IN CONNECTION WITH ANY SERVICE, INCLUDING ANY VOUCHER, EXCEED THE AMOUNT PAID FOR ANY SUCH SERVICE BY YOU.
+
+
+INDEMNITY
+You agree to defend, indemnify and hold Mycelium, its affiliates, subsidiaries, directors, officers, employees, agents, partners and licensors harmless from any claim or demand, including reasonable attorneys’ fees, made by a third party, relating to or arising from: (a) your use of the Services; (b) any violation by you of these ToU; or (c) your violation of any rights of another. This obligation shall survive the termination or expiration of these ToU and/or your use of the Services. You acknowledge that you are responsible for all use of the Services using your account, and that these ToU apply to any and all usage of your Wallet accounts. You agree to comply with these ToU and to defend, indemnify and hold harmless Mycelium from and against any and all claims and demands arising from usage of your Wallet account, whether or not such usage is expressly authorized by you.
+
+
+STATUTE OF LIMITATIONS
+You acknowledge, understand and agree that regardless of any statute or law to the contrary, any claim or action arising out of or related to the use of our Services or the ToU must be filed within 1 year(s) after said claim or cause of action arose or shall be forever barred.
+
+
+GOVERNING LAW
+Except to the extent expressly provided in the following paragraph, these ToU and the relationship between you and Mycelium shall be governed by the laws of Cyprus, excluding its conflicts of law provisions.
+
+
+DISPUTE RESOLUTION
+The parties will attempt to resolve any dispute arising out of or relating to this Agreement through friendly negotiations amongst the parties. If the matter is not resolved by negotiation, the parties will resolve the dispute using arbitration. Arbitration of any disputes arising from this Agreement is mandatory and in lieu of any and all civil causes of action and lawsuits either party may have against the other. The arbitrator's award will be final, and judgment may be entered upon it by any court having proper jurisdiction. The prevailing party in any arbitration shall be entitled to reimbursement of reasonable attorney's fees and expenses (including, without limitation, arbitration expenses) relating to such arbitration.
+
+
+OTHER IMPORTANT TERMS
+Mycelium may transfer its rights and obligations under these ToU to another organization, and will always notify you in writing if this happens, but this will not affect your rights or its obligations under these ToU. You may only transfer your rights or your obligations under these ToU to another person if we agree in writing. This contract is between you and us. No other person shall have any rights to enforce any of its terms under the Contracts (Rights of Third Parties) Act 1999.
+Each of the paragraphs of these ToU operates separately. If any court or relevant authority decides that any of them are unlawful, the remaining paragraphs will remain in full force and effect.
+If Mycelium fails to insist that you perform any of your obligations under these ToU, or if we do not enforce our rights against you, or if we delay in doing so, that will not mean that we have waived our rights against you and will not mean that you do not have to comply with those obligations. If Mycelium does waive a default by you, we will only do so in writing, and that will not mean that we will automatically waive any later default by you.

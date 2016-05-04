@@ -238,7 +238,6 @@
   <string name="authors_label">によって開発されました。</string>
   <string name="homepage_label">ホームページ</string>
   <string name="homepage_url">https://mycelium.com</string>
-  <string name="company">Megion Research &amp; Development GmbH</string>
   <string name="company_header">このアプリはこちらから無料で提供されます：</string>
   <string name="contact_email_label">ご意見/ご要望</string>
   <string name="cancelled">キャンセルされました。</string>

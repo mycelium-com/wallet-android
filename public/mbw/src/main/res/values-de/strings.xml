@@ -241,7 +241,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="authors_label">Entwickelt von</string>
   <string name="homepage_label">Homepage</string>
   <string name="homepage_url">https://mycelium.com</string>
-  <string name="company">Megion Research &amp; Development GmbH</string>
   <string name="company_header">Diese App wird Ihnen kostenlos zur Verfügung gestellt von:</string>
   <string name="contact_email_label">Feedback</string>
   <string name="cancelled">Abgebrochen</string>
