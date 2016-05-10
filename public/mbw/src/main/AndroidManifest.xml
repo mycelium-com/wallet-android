@@ -154,6 +154,11 @@
         <activity android:name=".activity.pop.PopActivity"/>
         <activity android:name=".activity.pop.PopSelectTransactionActivity"/>
 
+        <activity android:name=".external.glidera.activities.GlideraSendToNextStep"/>
+        <activity android:name=".external.glidera.activities.BuySellSelect"/>
+        <activity android:name=".external.glidera.activities.GlideraMainActivity"/>
+        <activity android:name=".external.glidera.activities.GlideraTransaction"/>
+
     </application>
 
 </manifest>

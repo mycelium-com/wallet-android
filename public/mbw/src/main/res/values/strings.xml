@@ -434,6 +434,8 @@
     <string name="lt_set_email_title">Enter email address</string>
     <string name="lt_change_payout_address">Change payout address</string>
     <string name="lt_warn_account_not_spandable">The selected target address (%s) is not spendable.\n\n You need to have the private key in a offline backup available or you will lose the receiving funds.</string>
+    <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
+    <string name="lt_mycelium_marketplace_description">Find Mycelium users in your local area who buy/sell bitcoin.</string>
     <!-- LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
@@ -893,5 +895,47 @@
     <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
 
+    <!-- GlideraService Start -->
+    <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
+    <string name="gd_buy_sell">Glidera</string>
+    <string name="gd_buy_sell_description">Buy/Sell bitcoin from Glidera using a bank account in the US or Canada.</string>
+    <string name="gd_buy_tab">Buy</string>
+    <string name="gd_sell_tab">Sell</string>
+    <string name="gd_transaction_history_tab">History</string>
+    <string name="gd_glidera">Glidera</string>
+    <string name="gd_delivery_date">Delivery Date:</string>
+    <string name="gd_date">Date:</string>
+    <string name="gd_action">Action:</string>
+    <string name="gd_amount">Amount:</string>
+    <string name="gd_pricing">Pricing:</string>
+    <string name="gd_price">Price:</string>
+    <string name="gd_status">Status:</string>
+    <string name="gd_fee">Fee:</string>
+    <string name="gd_total">Total:</string>
+    <string name="gd_transaction_hash">Transaction Hash:</string>
+    <string name="gd_glidera_transaction_number">Glidera #:</string>
+    <string name="gd_subtotal">Subtotal:</string>
+    <string name="gd_transaction_receipt">Transaction Receipt</string>
+    <string name="gd_transaction_initiated">Transaction has been initiated, details are below.</string>
+    <string name="gd_transaction_complete">Transaction is complete, details are below.</string>
+    <string name="gd_transaction_reviewed">Transaction is being reviewed, details are below.</string>
+    <string name="gd_transaction_error">An error occurred while processing this transaction.  Please contact Glidera support at support@glidera.io.</string>
+    <string name="gd_resend_code">Resend Code</string>
+    <string name="gd_cancel">Cancel</string>
+    <string name="gd_continue">Continue</string>
+    <string name="gd_amount_to_buy">Amount to Buy</string>
+    <string name="gd_sell_bitcoin">Sell Bitcoin</string>
+    <string name="gd_buy_bitcoin">Buy Bitcoin</string>
+    <string name="gd_rate">Rate:</string>
+    <string name="gd_bitcoin">Bitcoin:</string>
+    <string name="gd_summary">Summary</string>
+    <string name="gd_btc">BTC</string>
+    <string name="gd_dollar_symbol">$</string>
+    <string name="gd_btc_symbol">฿</string>
+    <string name="gd_amount_to_sell">Amount to Sell</string>
+    <string name="gd_loading">Loading…</string>
+    <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
+    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
+    <!-- GlideraService End -->
 
 </resources>

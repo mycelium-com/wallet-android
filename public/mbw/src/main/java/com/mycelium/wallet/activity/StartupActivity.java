@@ -60,9 +60,10 @@ import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
-import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -338,6 +339,8 @@ public class StartupActivity extends Activity {
                handleBitIdUri(intentUri);
             } else if ("btcpop".equals(scheme)) {
                handlePopUri(intentUri);
+            } else if ("mycelium".equals(scheme)) {
+               handleMyceliumUri(intentUri);
             }
             return true;
          }
@@ -370,6 +373,15 @@ public class StartupActivity extends Activity {
          finish();
       }
 
+   }
+
+   private void handleMyceliumUri(Uri intentUri) {
+      //We have been launched by a mycelium request from Glidera
+      Intent glideraIntent = new Intent(this, GlideraSendToNextStep.class);
+      glideraIntent.putExtra("uri", intentUri.toString());
+      startActivity(glideraIntent);
+
+      finish();
    }
 
    private void handleBitIdUri(Uri intentUri) {

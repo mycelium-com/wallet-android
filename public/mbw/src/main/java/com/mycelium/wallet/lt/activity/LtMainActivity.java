@@ -61,7 +61,7 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
-import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.external.glidera.activities.BuySellSelect;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
@@ -264,7 +264,7 @@ public class LtMainActivity extends ActionBarActivity {
 
       if (itemId == android.R.id.home) {
         // Respond to the action bar's home button, navigates to parent activity
-        Intent intent = new Intent(this, ModernMain.class);
+        Intent intent = new Intent(this, BuySellSelect.class);
         //This flag causes the back stack to be cleared until modern main is on top
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

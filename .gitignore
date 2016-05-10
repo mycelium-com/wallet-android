@@ -23,6 +23,9 @@ local.properties
 *.iml
 .idea
 
+# Android Studio project files
+.gradle
+
 #signing Keystores and local gradle overrides
 keystore_*
 /gradle.properties

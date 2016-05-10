@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.0" versioncode="28000">
+        <change>Add Glidera-integration to easily buy and sell bitcoin</change>
+    </release>
     <release version="2.7.4" versioncode="27406">
         <change>Add option to cold-spend from bip38-encrypted private keys via NFC</change>
         <change>Option to show the BIP44 path for the current address on main screen</change>

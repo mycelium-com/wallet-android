@@ -118,6 +118,7 @@ Just to name a few:
  - Sipa, Marek and others from Trezor
  - Jani and Aleš from Cashila
  - Kalle Rosenbaum, Bip120/121
+ - David and Alex from Glidera
  - (if you think you should be mentioned here, just notify us)
 
 Thanks to Jethro for tirelessly testing the app during beta development.
