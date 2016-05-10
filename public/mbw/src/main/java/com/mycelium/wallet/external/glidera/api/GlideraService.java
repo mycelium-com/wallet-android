@@ -186,7 +186,8 @@ public class GlideraService {
          */
       RestAdapter adapter = new RestAdapter.Builder()
               .setEndpoint(baseUrl + "/api/" + API_VERSION + "/")
-              .setLogLevel(RestAdapter.LogLevel.FULL)
+              //.setLogLevel(RestAdapter.LogLevel.FULL)
+              .setLogLevel(RestAdapter.LogLevel.BASIC)
               .setLog(new AndroidLog("Glidera"))
               .setConverter(new JacksonConverter(objectMapper))
               .setClient(new NullBodyAwareOkClient(client))
