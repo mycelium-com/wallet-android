@@ -60,7 +60,7 @@ import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.glidera.activities.GlideraSendToNextStep;
+import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;

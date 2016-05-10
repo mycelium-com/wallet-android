@@ -46,7 +46,7 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.glidera.activities.BuySellSelect;
+import com.mycelium.wallet.external.glidera.activities.BuySellSelect;
 
 public class BuySellFragment extends Fragment {
 
