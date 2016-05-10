@@ -27,8 +27,10 @@ public class BuyRequest {
     * @param ip                 IP Address value. This is required if an end user will be connecting through a third party service
     *                           instead of submitting the call directly from their device.
     */
-   public BuyRequest(@NonNull Address destinationAddress, @NonNull BigDecimal qty, UUID priceUuid, boolean useCurrentPrice, InetAddress
-           ip) {
+   public BuyRequest(
+           @NonNull Address destinationAddress,
+           @NonNull BigDecimal qty, UUID priceUuid, boolean useCurrentPrice, InetAddress
+                   ip) {
       Preconditions.checkArgument(priceUuid != null ^ useCurrentPrice);
       this.destinationAddress = destinationAddress;
       this.qty = qty;

@@ -20,7 +20,6 @@ import com.mycelium.wallet.external.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.external.glidera.api.response.SellResponse;
 import com.mycelium.wallet.external.glidera.api.response.SetPersonalInfoResponse;
 import com.mycelium.wallet.external.glidera.api.response.StatusResponse;
-import com.mycelium.wallet.external.glidera.api.response.TestResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionLimitsResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionsResponse;
@@ -39,11 +38,6 @@ import rx.Observable;
 
 
 public interface GlideraApi {
-   /*
-   Test
-    */
-   @GET("/test/uri")
-   Observable<TestResponse> test();
 
    /*
    BitID
@@ -60,7 +54,8 @@ public interface GlideraApi {
    Observable<GlideraResponse> getEmail();
 
    @POST("/user/email")
-   Observable<GlideraResponse> updateEmail(@Body UpdateEmailRequest updateEmailRequest, @Header("X-2FA-Code") String twoFACode);
+   Observable<GlideraResponse> updateEmail(
+           @Body UpdateEmailRequest updateEmailRequest, @Header("X-2FA-Code") String twoFACode);
 
    @POST("/user/email/resend_verification")
    Observable<GlideraResponse> resendVerificationEmail();

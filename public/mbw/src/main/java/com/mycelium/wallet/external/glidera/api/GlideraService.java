@@ -13,7 +13,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.api.retrofit.JacksonConverter;
-import com.mycelium.wallet.external.cashila.api.NullBodyAwareOkClient;
+import com.mycelium.wallet.external.NullBodyAwareOkClient;
 import com.mycelium.wallet.external.glidera.api.request.AddPhoneRequest;
 import com.mycelium.wallet.external.glidera.api.request.BuyPriceRequest;
 import com.mycelium.wallet.external.glidera.api.request.BuyRequest;
@@ -35,7 +35,6 @@ import com.mycelium.wallet.external.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.external.glidera.api.response.SellResponse;
 import com.mycelium.wallet.external.glidera.api.response.SetPersonalInfoResponse;
 import com.mycelium.wallet.external.glidera.api.response.StatusResponse;
-import com.mycelium.wallet.external.glidera.api.response.TestResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionLimitsResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionsResponse;
@@ -231,7 +230,8 @@ public class GlideraService {
       }
    }
 
-   public static <T1, T2, R> Observable<R> flatZip(Observable<? extends Address> o1, Observable<? extends String> o2, final Func2<Address, String, Observable<R>> zipFunction) {
+   // returns an Observable that emits next, when both observables have emitted their next element
+   private static <T1, T2, R> Observable<R> flatZip(Observable<? extends Address> o1, Observable<? extends String> o2, final Func2<Address, String, Observable<R>> zipFunction) {
       return Observable.merge(Observable.zip(o1, o2, zipFunction));
    }
 
@@ -259,9 +259,6 @@ public class GlideraService {
               .appendQueryParameter("bitid_address", getBitidKey().getPublicKey().toAddress(networkParameters).toString())
               .appendQueryParameter("bitid_uri", bitidUri)
               .appendQueryParameter("bitid_signature", signature)
-              //.appendQueryParameter("redirect_uri", baseUrl + "/user/setup")
-              //.appendQueryParameter("redirect_uri", "https://www.google.com")
-              //.appendQueryParameter("redirect_uri", getSetupUrl())
               .appendQueryParameter("redirect_uri", "mycelium://glideraRegistration")
               .appendQueryParameter("state", nonce)
               .build()
@@ -287,13 +284,6 @@ public class GlideraService {
       final String signature = getBitidKey().signMessage(uri.toString()).getBase64Signature();
 
       return uri.buildUpon().appendQueryParameter("bitid_signature", signature).toString();
-   }
-
-   /*
-   Api calls
-    */
-   public Observable<TestResponse> test() {
-      return getApi().test();
    }
 
    /**
@@ -368,8 +358,8 @@ public class GlideraService {
 
    /**
     * Update user's email address. An email with a verification link is sent to the new email address. Until the new email is verified
-    * the user will continiue to use the previous email address.
-    * <p/>
+    * the user will continue to use the previous email address.
+    * <p>
     * Note: This API call is only available to BitID/OAuth 1 clients.
     *
     * @param updateEmailRequest Request containing updated email information
@@ -416,7 +406,7 @@ public class GlideraService {
 
    /**
     * Sets a user's personal info and initiates KYC identification.
-    * <p/>
+    * <p>
     * Note: The user's phone number must be set before basic info can be updated.
     *
     * @param setPersonalInfoRequest Request object containing updated user personal information.
@@ -433,7 +423,7 @@ public class GlideraService {
 
    /**
     * Pass in the padded base64 of a government issued identity document (driver’s license, state ID, or passport) for verification.
-    * <p/>
+    * <p>
     * Note: The user's personal info must be set before basic info can be updated.
     *
     * @param verifyPictureIdRequest Request containing picture id data
@@ -483,7 +473,7 @@ public class GlideraService {
     * Adds a phone number for the user. A verification code is sent to the phone number which must be confirmed to complete this step.
     * After calling this function, the wallet should call confirm phone number. To change phone numbers, first delete the user's phone
     * number and then add the new number.
-    * <p/>
+    * <p>
     * Note: The user email must be confirmed before adding a phone number. An email with a confirmation link is sent after successfully
     * registering the user.
     *
@@ -657,11 +647,11 @@ public class GlideraService {
     * sell, etc. If the user is configured to recieve SMS for their two factor verification this API call causes Glidera to send an SMS
     * message to the user's phone. The 2FA code must be passed in on the next service call in the X-2FA-CODE header. Use this service
     * right before calling a Two Factor Required API call.
-    * <p/>
+    * <p>
     * Some users may be configured to use an authenticator app (Authy or Google Authenticator), and an SMS message will NOT be sent. In
     * either case, the wallet application will need to prompt the user to enter a proper 2FA code to successfully pass the subsequent
     * service call.
-    * <p/>
+    * <p>
     * Users may also have enabled PIN based two-factor authentication. In this case the application must prompt the user for a PIN, and
     * no SMS meesage will be sent. This API call will return the appropriate mode for the user's two factor authentication.
     *
@@ -708,7 +698,7 @@ public class GlideraService {
                              GlideraError error = convertRetrofitException(throwable);
                              if (error != null) {
                                 //Log.e("Glidera", error.toString());
-                                if (error.getCode() == 2016 || error.getCode() == 2017) {
+                                if (error.getCode() == GlideraError.ERROR_INVALID_AUTH1 || error.getCode() == GlideraError.ERROR_INVALID_AUTH2) {
                                    _oAuth1Response = null;
                                 }
                              }
@@ -730,7 +720,7 @@ public class GlideraService {
                                     /*
                                     If nonce is too little, null the nonce and try again
                                      */
-                             if (error.getCode() == 2018) {
+                             if (error.getCode() == GlideraError.ERROR_INVALID_NONCE) {
                                 _nonce.resetNonce();
                                 return true;
                              }

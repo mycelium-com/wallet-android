@@ -26,8 +26,9 @@ public class BuySellSelect extends FragmentActivity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.glidera_buy_sell);
 
-      if (getActionBar() != null)
+      if (getActionBar() != null) {
          getActionBar().setDisplayHomeAsUpEnabled(true);
+      }
 
       this.glideraService = GlideraService.getInstance();
 
@@ -50,7 +51,7 @@ public class BuySellSelect extends FragmentActivity {
                        public void onError(Throwable e) {
                           GlideraError error = GlideraService.convertRetrofitException(e);
                           if (error != null && error.getCode() != null) {
-                             if (error.getCode() == 1103) {
+                             if (error.getCode() == GlideraError.ERROR_UNKNOWN_USER) {
                                 // Invalid credentials, send to bitid registration
                                 // this wallet had never used this service before
                                 Utils.showSimpleMessageDialog(

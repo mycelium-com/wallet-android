@@ -173,10 +173,11 @@ public class GlideraBuy2faDialog extends DialogFragment {
                twoFACode = et2FA.getText().toString();
 
                if (twoFACode.isEmpty()) {
-                  if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
+                  if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString())) {
                      et2FA.setError("PIN is required");
-                  else
+                  } else {
                      et2FA.setError("2FA Code is required");
+                  }
                   buttonContinue.setEnabled(true);
                   return;
                }
@@ -202,11 +203,12 @@ public class GlideraBuy2faDialog extends DialogFragment {
                   public void onError(Throwable e) {
                      GlideraError error = GlideraService.convertRetrofitException(e);
                      if (error != null && error.getCode() != null) {
-                        if (error.getCode() == 2006) {
-                           if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString()))
+                        if (error.getCode() == GlideraError.ERROR_INCORRECT_PIN) {
+                           if (mode2FA.equals(TwoFactorResponse.Mode.PIN.toString())) {
                               et2FA.setError("Incorrect PIN");
-                           else
+                           } else {
                               et2FA.setError("Incorrect 2FA Code");
+                           }
                         }
                      }
                      buttonContinue.setEnabled(true);

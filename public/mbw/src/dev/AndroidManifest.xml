@@ -87,13 +87,10 @@
             </intent-filter>
 
             <!-- Glidera -->
+            <!-- used as a callback url from within the browser after signup -->
             <intent-filter android:label="Glidera">
                 <action android:name="android.intent.action.VIEW"/>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-
                 <data android:scheme="mycelium"/>
             </intent-filter>
         </activity>

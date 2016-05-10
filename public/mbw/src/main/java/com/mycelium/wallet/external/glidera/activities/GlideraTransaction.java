@@ -35,8 +35,9 @@ public class GlideraTransaction extends Activity {
 
       setContentView(R.layout.glidera_transaction);
 
-      if (getActionBar() != null)
+      if (getActionBar() != null) {
          getActionBar().setDisplayHomeAsUpEnabled(true);
+      }
 
       Bundle bundle = getIntent().getExtras();
       String uuid = bundle.getString("transactionuuid");
@@ -155,8 +156,11 @@ public class GlideraTransaction extends Activity {
         Amount
          */
       TextView tvAmount = (TextView) findViewById(R.id.tvAmount);
-      String amount = GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()) + " for " + GlideraUtils.formatFiatForDisplay
-              (transactionResponse.getTotal());
+      String amount = String.format(
+              getString(R.string.gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat),
+              GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()),
+              GlideraUtils.formatFiatForDisplay(transactionResponse.getTotal())
+      );
       tvAmount.setText(amount);
 
         /*

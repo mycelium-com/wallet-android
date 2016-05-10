@@ -229,9 +229,9 @@ public class GlideraSell2faDialog extends DialogFragment {
                   public void onError(Throwable e) {
                      GlideraError error = GlideraService.convertRetrofitException(e);
                      if (error != null && error.getCode() != null) {
-                        if (error.getCode() == 5004) {
+                        if (error.getCode() == GlideraError.ERROR_TRANSACTION_FAILED_COINS_RETURNED) {
                            toaster.toast("An error has occured and your coin returned.", true);
-                        } else if (error.getCode() == 5005) {
+                        } else if (error.getCode() == GlideraError.ERROR_OCCURRED_CALL_SUPPORT) {
                            toaster.toast("An error has occured, please contact Glidera support", true);
                         } else {
                            toaster.toast("Unable to sell at this time", true);

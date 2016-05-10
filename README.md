@@ -85,7 +85,7 @@ We need your feedback. If you have a suggestion or a bug to report open an issue
 
 More features:
  - Sources available for review:  https://github.com/mycelium-com/wallet
- - Multiple HD accounts, privat keys, external xPub or xPriv accounts
+ - Multiple HD accounts, private keys, external xPub or xPriv accounts
  - Multiple Bitcoin denominations: BTC, mBTC, bits and uBTC
  - View your balance in multiple fiat currencies: USD, AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NZD, PLN, RUB, SEK, SGD, THB, and many more
  - Send and receive by specifying an amount in fiat and switch between fiat and BTC while entering the amount
@@ -118,6 +118,7 @@ Just to name a few:
  - Sipa, Marek and others from Trezor
  - Jani and Aleš from Cashila
  - Kalle Rosenbaum, Bip120/121
+ - David and Alex from Glidera
  - (if you think you should be mentioned here, just notify us)
 
 Thanks to Jethro for tirelessly testing the app during beta development.

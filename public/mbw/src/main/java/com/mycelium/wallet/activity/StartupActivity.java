@@ -377,13 +377,6 @@ public class StartupActivity extends Activity {
 
    private void handleMyceliumUri(Uri intentUri) {
       //We have been launched by a mycelium request from Glidera
-//      Optional<BitIDSignRequest> bitid = BitIDSignRequest.parse(intentUri);
-//      if (!bitid.isPresent()) {
-//         //Invalid bitid URI
-//         Toast.makeText(this, R.string.invalid_bitid_uri, Toast.LENGTH_LONG).show();
-//         finish();
-//         return;
-//      }
       Intent glideraIntent = new Intent(this, GlideraSendToNextStep.class);
       glideraIntent.putExtra("uri", intentUri.toString());
       startActivity(glideraIntent);

@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.external.cashila.api;
+package com.mycelium.wallet.external;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.internal.http.HttpMethod;

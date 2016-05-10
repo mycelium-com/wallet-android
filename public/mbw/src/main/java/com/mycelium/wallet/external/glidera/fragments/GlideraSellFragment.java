@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import rx.Observer;
 
 public class GlideraSellFragment extends Fragment {
+
    private GlideraService glideraService;
    private EditText etSellFiat;
    private EditText etSellBtc;
@@ -306,7 +307,7 @@ public class GlideraSellFragment extends Fragment {
                  public void onError(Throwable e) {
                     GlideraError error = GlideraService.convertRetrofitException(e);
                     if (error != null && error.getCode() != null) {
-                       if (error.getCode() == 1101) {
+                       if (error.getCode() == GlideraError.ERROR_INVALID_VALUE) {
                           if (error.getInvalidParameters().contains("fiat")) {
                              String message = "Invalid " + currencyIso + " value. " + error.getDetails();
                              setError(SellMode.FIAT, message);
