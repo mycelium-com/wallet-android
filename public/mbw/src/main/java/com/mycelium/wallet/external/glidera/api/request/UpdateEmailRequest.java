@@ -3,18 +3,18 @@ package com.mycelium.wallet.external.glidera.api.request;
 import android.support.annotation.NonNull;
 
 public class UpdateEmailRequest {
-    private final String email;
+   private final String email;
 
-    /**
-     * @param email User's new email address
-     */
-    public UpdateEmailRequest(@NonNull String email) {
-        this.email = email;
-    }
+   /**
+    * @param email User's new email address
+    */
+   public UpdateEmailRequest(@NonNull String email) {
+      this.email = email;
+   }
 
 
-    public String getEmail() {
-        return email;
-    }
+   public String getEmail() {
+      return email;
+   }
 
 }

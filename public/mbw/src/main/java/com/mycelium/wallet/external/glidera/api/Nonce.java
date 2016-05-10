@@ -1,23 +1,23 @@
 package com.mycelium.wallet.external.glidera.api;
 
 public class Nonce {
-    private Long nonce;
+   private Long nonce;
 
-    public synchronized long getNonce() {
-        if (nonce == null) {
-            resetNonce();
-        } else {
-            nonce++;
-        }
+   public synchronized long getNonce() {
+      if (nonce == null) {
+         resetNonce();
+      } else {
+         nonce++;
+      }
 
-        return nonce;
-    }
+      return nonce;
+   }
 
-    public synchronized void resetNonce() {
-        nonce = System.currentTimeMillis();
-    }
+   public synchronized void resetNonce() {
+      nonce = System.currentTimeMillis();
+   }
 
-    public synchronized String getNonceString() {
-        return String.valueOf(getNonce());
-    }
+   public synchronized String getNonceString() {
+      return String.valueOf(getNonce());
+   }
 }

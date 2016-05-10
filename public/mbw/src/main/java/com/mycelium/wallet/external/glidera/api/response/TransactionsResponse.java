@@ -3,13 +3,13 @@ package com.mycelium.wallet.external.glidera.api.response;
 import java.util.List;
 
 public class TransactionsResponse extends GlideraResponse {
-    private List<TransactionResponse> transactions;
+   private List<TransactionResponse> transactions;
 
-    public List<TransactionResponse> getTransactions() {
-        return transactions;
-    }
+   public List<TransactionResponse> getTransactions() {
+      return transactions;
+   }
 
-    public void setTransactions(List<TransactionResponse> transactions) {
-        this.transactions = transactions;
-    }
+   public void setTransactions(List<TransactionResponse> transactions) {
+      this.transactions = transactions;
+   }
 }
