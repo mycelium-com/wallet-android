@@ -675,4 +675,6 @@
   <string name="label_cold_storage_external_signing">署名元：</string>
   <string name="spending_unconfirmed_warning">注意： 未承認のビットコインを送ろうとしています。</string>
   <string name="transaction_history_title">取引履歴</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

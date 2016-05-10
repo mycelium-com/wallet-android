@@ -1231,7 +1231,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          if (publicKey != null) {
             return publicKey;
          }
-         throw new RuntimeException(String.format("Unable to find public key for address %s acc:%s", address.toString(), this.getClass().toString()));
+         throw new RuntimeException(String.format("Unable to find public key for address %s acc:%s", address.toString(), AbstractAccount.this.getClass().toString()));
       }
 
    }

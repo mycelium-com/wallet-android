@@ -721,4 +721,6 @@
   <string name="coinapult_tos_question">Për të krijuar një Coinapult Llogari ju duhet t\'i pranoni Termat dhe Kushtet</string>
   <string name="coinapult_mail_question">Doni të jepni email adresën tuaj?</string>
   <string name="copy">Kopjo</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

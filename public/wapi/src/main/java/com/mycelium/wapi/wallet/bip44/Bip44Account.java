@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
@@ -511,7 +512,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          // still not found? give up...
          return null;
       }
-      return _keyManager.getPublicKey(indexLookUp.isChange(), indexLookUp.getIndex());
+      return Preconditions.checkNotNull(_keyManager.getPublicKey(indexLookUp.isChange(), indexLookUp.getIndex()));
    }
 
    @Override

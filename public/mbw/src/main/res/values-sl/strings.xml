@@ -782,4 +782,6 @@
   <string name="pop_transaction_amount">Znesek</string>
   <string name="pop_transaction_label">Oznaka</string>
   <string name="pop_message_from_server">Sporočilo s strežnika:</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

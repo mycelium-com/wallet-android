@@ -772,4 +772,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="pop_transaction_label">Bezeichnung</string>
   <string name="pop_no_transaction_selected">Keine Transaktion ausgewählt</string>
   <string name="pop_message_from_server">Meldung vom Server:</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

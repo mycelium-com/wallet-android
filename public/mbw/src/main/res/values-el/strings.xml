@@ -764,4 +764,6 @@
   <string name="coinapult_tos_question">Για να δημιουργήσετε λογαριαμό Coinapult θα πρέπει να συμφωνήσετε με τους Όρους και τις Προϋποθέσεις τους</string>
   <string name="coinapult_mail_question">Θέλετε να δώσετε διεύθυνση email;</string>
   <string name="copy">Αντιγραφή</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

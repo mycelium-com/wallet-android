@@ -853,4 +853,6 @@
   <string name="import_xpub_wrong_depth">Вы можете импортировать счёт уровня (3) xpub адресов.\nЭто уровень %1$s.</string>
   <string name="buy_one">Покупка&#8230;</string>
   <string name="opening_url_in_browser">Открытие адреса в броузере...</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

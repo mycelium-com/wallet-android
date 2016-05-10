@@ -217,6 +217,7 @@
   <string name="scan_qr_code">QR Code scannen</string>
   <string name="going_to_mycelium_com_help">Ga naar www.mycelium.com</string>
   <string name="add_dialog_title">Adres toevoegen</string>
+  <string name="add_key">Account toevoegen</string>
   <string name="page_locked">Deze pagina is vergrendeld</string>
   <string name="unlock_label">Ontgrendelen</string>
   <string name="lock_label">Vergrendelen</string>
@@ -228,6 +229,7 @@
   <string name="getting_location">verkrijgen van locatie&#8230;</string>
   <string name="about">Over Mycelium</string>
   <string name="mycelium_license">Mycelium licentie</string>
+  <string name="mycelium">Mycelium</string>
   <string name="special_thanks">Met dank aan</string>
   <string name="zxing_license">ZXing licentie</string>
   <string name="pdfwriter_license">Android PDF Writer licentie</string>
@@ -419,6 +421,7 @@
   <string name="lt_set_email_error">Het lukt niet om Trader Info van de server halen</string>
   <string name="lt_email_please_verify_message">We hebben u een verificatie e-mail verstuurd - klik op de link om uw e-mailadres te activeren.</string>
   <string name="lt_set_email_title">Voer e-mailadres in</string>
+  <string name="lt_change_payout_address">Uitbetaling adres wijzigen</string>
   <!-- LT end -->
   <string name="cs_private_key_description">U gebruikt een persoonlijke sleutel met de volgende Bitcoin adres:</string>
   <string name="cs_address_description">U heeft een Bitcoin adres gescand. U kunt het saldo weergeven maar niet uitgeven.</string>
@@ -430,6 +433,7 @@
   <string name="version_check_failed">Ophalen versie-informatie is mislukt</string>
   <string name="version_uptodate">Uw portemonnee met versie %s is up to date</string>
   <string name="update_check">Zoeken naar updates</string>
+  <string name="ignore_update">Ik zal dit later bijwerken</string>
   <string name="get_from">Ophalen van</string>
   <string name="mycelium_com">mycelium.com</string>
   <string name="google_play">Google Play</string>
@@ -485,9 +489,11 @@
   <string name="account_contains_one_address_info">Bevat één adres.</string>
   <string name="verify_backup_ok_message">De back-up is met succes geverifieerd.</string>
   <string name="wordlist_import_invalid_checksum">De checksum van uw woordenlijst is ongeldig, zorg ervoor dat u alle woorden correct hebt ingevoerd.</string>
+  <string name="checkbox_wordlist_passphrase">Ik heb een wachtwoord</string>
   <string name="wordlist_length_12">12 woorden</string>
   <string name="wordlist_length_18">18 woorden</string>
   <string name="wordlist_length_24">24 woorden</string>
+  <string name="recover_seed_passphrase_info">Selecteer deze optie alleen als u begrijpt wat het betekent.\nEen normale Mycelium back-up heeft nooit een wachtwoord - dit is niet uw PIN.</string>
   <string name="import_wordlist_questions">Selecteer de lengte van de woordenlijst die u wenst te herstellen en geef aan of deze beveiligd is met een wachtwoord.</string>
   <string name="type_password_title">Voer uw wachtwoord in</string>
   <string name="clipboard_not_available">Klembord niet beschikbaar</string>
@@ -552,6 +558,8 @@
   <string name="pin_forgotten_reset_pin_dialog_title">Pincode opnieuw instellen</string>
   <string name="pin_forgotten_reset_wait_button_text">%s wachten</string>
   <string name="sss_one_more_share_needed">U heeft 1 extra aandeel nodig</string>
+  <string name="rescan_account_menu_item">Account herladen</string>
+  <string name="new_random_key_desc">Nieuwe random sleutel genereren</string>
   <string name="generate_new_key">Genereer</string>
   <string name="new_bitcoin_address_created">Een nieuwe private key is gegenereerd met het volgende Bitcoin adres:</string>
   <string name="shuffle">Opnieuw</string>
@@ -568,7 +576,24 @@
   <string name="trezor_verify_transaction_on_trezor">Verifieer en bevestig de\ntransactie op uw Trezor</string>
   <string name="trezor_amount">Bedrag:</string>
   <string name="trezor_to">Aan:</string>
+  <string name="trezor_total">Totaal:</string>
+  <string name="trezor_unnamed">(naamloos)</string>
+  <string name="ledger_next_unused_account_button">Volgende ongebruikte account importeren&#8230;</string>
+  <string name="ledger_enter_pin">Ledger Wallet PIN invoeren</string>
+  <string name="ledger_please_wait">Een ogenblik geduld...</string>
+  <string name="pref_ledger_title">Ledger Hardware Wallet</string>
+  <string name="ledger_disable_tee_preference">TEE-ondersteuning uitschakelen</string>
+  <string name="select_local_currencies">Selecteer uw valutas</string>
+  <string name="show_public_or_private_data">Tonen</string>
+  <string name="show_private_data">privé</string>
+  <string name="show_public_data">openbaar</string>
+  <string name="reset_pin_button">Pincode opnieuw instellen</string>
+  <string name="pref_no_fiat_selected">Geen fiat valuta geselecteerd</string>
+  <string name="useTor">Tor-netwerk gebruiken</string>
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <string name="hd_account_selector_no_account_found">Geen actieve accounts gevonden.</string>
   <!-- Cashila -->
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

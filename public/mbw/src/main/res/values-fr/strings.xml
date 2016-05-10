@@ -863,4 +863,7 @@
   <string name="opening_url_in_browser">Ouverture du lien URL dans le navigateur...</string>
   <string name="incoming_payment">"Versement entrant : "</string>
   <string name="warning_amount_does_not_match">ATTENTION : le montant ne correspond pas !</string>
+  <string name="mycelium_terms_of_use">Conditions d\'utilisation de Mycelium</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>

@@ -805,4 +805,6 @@
   <string name="buy_one">Acquistalo&#8230;</string>
   <string name="warning_reason_rbf">RBF</string>
   <string name="opening_url_in_browser">Apri nel browser...</string>
+  <!-- GlideraService Start -->
+  <!-- GlideraService End -->
 </resources>
