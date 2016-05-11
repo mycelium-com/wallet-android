@@ -21,7 +21,13 @@ public class GlideraSendToNextStep extends Activity {
       String uriString = getIntent().getStringExtra("uri");
 
       Uri uri = Uri.parse(uriString);
-      final String status = uri.getQueryParameter("status");
+      final String status;
+      if (uri.isHierarchical()){
+         status = uri.getQueryParameter("status");
+      } else {
+         // prevent UnsupportedOperationException
+         status = null;
+      }
 
       glideraService = GlideraService.getInstance();
 
