@@ -80,12 +80,6 @@ public class AboutActivity extends Activity {
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
       findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));
       findViewById(R.id.bt_special_thanks).setOnClickListener(new ShowLicenseListener(R.raw.special_thanks));
-      findViewById(R.id.bt_token_message).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            Utils.showOptionalTokenMessage(AboutActivity.this, true);
-         }
-      });
 
       findViewById(R.id.bt_show_changelog).setOnClickListener(new OnClickListener() {
          @Override

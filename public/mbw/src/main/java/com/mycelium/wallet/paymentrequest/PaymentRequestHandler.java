@@ -114,8 +114,9 @@ public class PaymentRequestHandler {
       boolean hasBip21Amount = bitcoinUri.amount != null && bitcoinUri.amount > 0;
       boolean hasBip70Amount = paymentRequestInformation.hasAmount();
       if (hasBip21Amount && hasBip70Amount) {
-         if (bitcoinUri.amount != paymentRequestInformation.getOutputs().getTotalAmount()) {
-            throw new PaymentRequestException("Uri amount does not match payment request amount");
+         final long totalAmount = paymentRequestInformation.getOutputs().getTotalAmount();
+         if (bitcoinUri.amount != totalAmount) {
+            throw new PaymentRequestException(String.format("Uri amount does not match payment request amount, %d vs. %d", bitcoinUri.amount, totalAmount));
          }
       }
       return paymentRequestInformation;

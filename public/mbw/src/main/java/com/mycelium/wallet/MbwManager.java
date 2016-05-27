@@ -313,7 +313,7 @@ public class MbwManager {
 
    private void createTempWalletManager() {
       //for managing temp accounts created through scanning
-      _tempWalletManager = createTempWalletManager(_applicationContext, _environment);
+      _tempWalletManager = createTempWalletManager(_environment);
       _tempWalletManager.addObserver(_eventTranslator);
    }
 
@@ -542,11 +542,10 @@ public class MbwManager {
    /**
     * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence
     *
-    * @param context     the application context
     * @param environment the Mycelium environment
     * @return a new in memory backed wallet manager instance
     */
-   private WalletManager createTempWalletManager(final Context context, MbwEnvironment environment) {
+   private WalletManager createTempWalletManager(MbwEnvironment environment) {
 
       // Create in-memory account backing
       WalletManagerBacking backing = new InMemoryWalletManagerBacking();
@@ -609,10 +608,6 @@ public class MbwManager {
 
    public CurrencySwitcher getCurrencySwitcher() {
       return _currencySwitcher;
-   }
-
-   public AddressBookManager getAddressBookManager() {
-      return _addressBookManager;
    }
 
    public boolean isPinProtected() {
@@ -745,12 +740,12 @@ public class MbwManager {
 
    // returns the PinDialog or null, if no pin was needed
    private PinDialog runPinProtectedFunctionInternal(Context context, Runnable fun, boolean cancelable) {
-      // if last Pin entry was 1sec ago, dont ask for it again.
+      // if last Pin entry was 1sec ago, don't ask for it again.
       // to prevent if there are two pin protected functions cascaded
       // like startup-pin request and account-choose-pin request if opened by a bitcoin url
       boolean lastPinAgeOkay = false;
       if (lastSuccessfullPin != null) {
-         lastPinAgeOkay = (new Date().getTime() - lastSuccessfullPin.getTime()) < 1 * 1000;
+         lastPinAgeOkay = (new Date().getTime() - lastSuccessfullPin.getTime()) < 1000;
       }
 
       if (isPinProtected() && !lastPinAgeOkay) {
@@ -780,7 +775,7 @@ public class MbwManager {
                } else {
                   if (_pin.isResettable()) {
                      // Show hint, that this pin is resettable
-                     AlertDialog d = new AlertDialog.Builder(context)
+                     new AlertDialog.Builder(context)
                            .setTitle(R.string.pin_invalid_pin)
                            .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                               @Override
@@ -1190,8 +1185,6 @@ public class MbwManager {
 
    /**
     * this should only be called if a coinapult account was created once.
-    *
-    * @return
     */
    public CoinapultManager getCoinapultManager() {
       if (_coinapultManager.isPresent()) {
@@ -1230,7 +1223,7 @@ public class MbwManager {
          public void run() {
             getWalletManager(false).startSynchronization(new SyncMode(address));
          }
-      }, 1 * 1000, 5 * 1000);
+      }, 1000, 5 * 1000);
    }
 
    private Boolean _hasCoinapultAccounts = null;

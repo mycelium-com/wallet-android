@@ -111,10 +111,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
     */
    protected boolean isFromMe(Sha256Hash txid) {
       Transaction t = TransactionEx.toTransaction(_backing.getTransaction(txid));
-      if (t == null) {
-         return false;
-      }
-      return isFromMe(t);
+      return t != null && isFromMe(t);
    }
 
    /**
@@ -265,7 +262,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          // Finally update out list of unspent outputs with added or updated
          // outputs
          for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
-            _backing.putUnspentOutput(output);
+            // check if the output really belongs to one of our addresses
+            // prevent getting out local cache into a undefined state, if the server screws up
+            if (isMine(output)) {
+               _backing.putUnspentOutput(output);
+            }else {
+               _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+            }
          }
       }
 
@@ -347,7 +350,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          } catch (TransactionParsingException e) {
             // We hit a transaction that we cannot parse. Log but otherwise ignore it
             _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
-            continue;
          }
       }
 
@@ -694,8 +696,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       );
 
       // Apply signatures and finalize transaction
-      Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
-      return transaction;
+      return StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
    }
 
    @Override
@@ -718,7 +719,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       try {
          // See if any of the outputs are stored locally and remove them
          for (int i = 0; i < tx.outputs.length; i++) {
-            TransactionOutput output = tx.outputs[i];
             OutPoint outPoint = new OutPoint(tx.getHash(), i);
             TransactionOutputEx utxo = _backing.getUnspentOutput(outPoint);
             if (utxo != null) {
@@ -755,7 +755,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
          // See if any of the outputs are stored locally and remove them
          for (int i = 0; i < tx.outputs.length; i++) {
-            TransactionOutput output = tx.outputs[i];
             OutPoint outPoint = new OutPoint(tx.getHash(), i);
             TransactionOutputEx utxo = _backing.getUnspentOutput(outPoint);
             if (utxo != null) {
@@ -833,7 +832,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    @Override
    public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
-      createUnsignedTransaction(Arrays.asList(receiver), kbMinerFee);
+      createUnsignedTransaction(Collections.singletonList(receiver), kbMinerFee);
    }
 
    @Override
@@ -841,13 +840,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return _network;
    }
 
+   /**
+    * @return all UTXOs that are spendable now, as they ae neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set.
+    */
    protected Collection<TransactionOutputEx> getSpendableOutputs() {
-      Collection<TransactionOutputEx> list = _backing.getAllUnspentOutputs();
+      Collection<TransactionOutputEx> allUnspentOutputs = _backing.getAllUnspentOutputs();
 
       // Prune confirmed outputs for coinbase outputs that are not old enough
       // for spending. Also prune unconfirmed receiving coins except for change
       int blockChainHeight = getBlockChainHeight();
-      Iterator<TransactionOutputEx> it = list.iterator();
+      Iterator<TransactionOutputEx> it = allUnspentOutputs.iterator();
       while (it.hasNext()) {
          TransactionOutputEx output = it.next();
          if (output.isCoinBase) {
@@ -865,7 +867,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             }
          }
       }
-      return list;
+      return allUnspentOutputs;
    }
 
    protected abstract Address getChangeAddress();
@@ -923,7 +925,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             return ExactBitcoinValue.from(satoshis);
          } catch (InsufficientFundsException e) {
             // We cannot send this amount, try again with a little higher fee
-            continue;
+            // continue;
          } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
             // something unexpected happened while building the max-amount tx
             // be cautious here and don't allow spending
@@ -951,9 +953,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          stb.addOutput(receiver.address, receiver.amount);
       }
       Address changeAddress = getChangeAddress();
-      UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
+      return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);
-      return unsigned;
    }
 
    @Override
@@ -967,9 +968,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
       stb.addOutputs(outputs);
       Address changeAddress = getChangeAddress();
-      UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
+      return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);
-      return unsigned;
    }
 
    @Override
@@ -991,7 +991,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       long receivingBalance = balance.getReceivingBalance();
 
       if (spendableBalance < 0) {
-         throw new IllegalArgumentException(String.format("spendableBalance < 0: %d; account: %s", spendableBalance, this.getClass().toString()));
+         throw new IllegalArgumentException(String.format(Locale.getDefault(), "spendableBalance < 0: %d; account: %s", spendableBalance, this.getClass().toString()));
       }
       if (sendingBalance < 0) {
          sendingBalance = 0;
@@ -1048,9 +1048,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
 
       // Inputs
-      if (tx.isCoinbase()) {
-         // For coinbase transactions there is nothing to subtract
-      } else {
+      if (!tx.isCoinbase()) {
          for (TransactionInput input : tx.inputs) {
             // find parent output
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
@@ -1063,7 +1061,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             }
          }
       }
-
+      // else {
+      //    For coinbase transactions there is nothing to subtract
+      // }
       int confirmations;
       if (tex.height == -1) {
          confirmations = 0;
@@ -1231,26 +1231,22 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          if (publicKey != null) {
             return publicKey;
          }
+         // something unexpected happened - the account might be in a undefined state
+         // drop local cached data (transaction history, addresses - metadata will be kept)
+         dropCachedData();
+
+         // let the app crash anyway, so that we get notified. after restart it should resync the account completely
          throw new RuntimeException(String.format("Unable to find public key for address %s acc:%s", address.toString(), AbstractAccount.this.getClass().toString()));
       }
 
    }
 
-   public class PrivateKeyRing implements IPublicKeyRing, IPrivateKeyRing {
+   public class PrivateKeyRing extends PublicKeyRing implements IPublicKeyRing, IPrivateKeyRing {
 
       KeyCipher _cipher;
 
       public PrivateKeyRing(KeyCipher cipher) {
          _cipher = cipher;
-      }
-
-      @Override
-      public PublicKey findPublicKeyByAddress(Address address) {
-         PublicKey publicKey = getPublicKeyForAddress(address);
-         if (publicKey != null) {
-            return publicKey;
-         }
-         throw new RuntimeException("Unable to find public key for address " + address.toString());
       }
 
       @Override
@@ -1300,7 +1296,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       } else {
          // Populate the inputs
          for (TransactionInput input : tx.inputs) {
-            Sha256Hash parentHash = input.outPoint.hash;
             // Get the parent transaction
             TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(input.outPoint);
             if (parentOutput == null) {
@@ -1328,7 +1323,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       return new TransactionDetails(
             txid, tex.height, tex.time,
-            inputs.toArray(new TransactionDetails.Item[]{}), outputs,
+            inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
             tex.binary.length
       );
    }
@@ -1355,10 +1350,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
          PopBuilder popBuilder = new PopBuilder(_network);
 
-         UnsignedTransaction unsignedTransaction = popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
+         return popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
                new PublicKeyRing(), _network);
-
-         return unsignedTransaction;
       } catch (TransactionParsingException e) {
          throw new RuntimeException("Cannot parse transaction: " + e.getMessage(), e);
       }
@@ -1379,8 +1372,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       byteBuffer.put(nonce); // nonce
 
       ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
-      TransactionOutput output = new TransactionOutput(0L, scriptOutput);
-      return output;
+      return new TransactionOutput(0L, scriptOutput);
    }
 
    @Override

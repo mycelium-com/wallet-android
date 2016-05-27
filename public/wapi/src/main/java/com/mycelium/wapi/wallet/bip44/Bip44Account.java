@@ -130,11 +130,11 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
-      initContext(isArchived);
       _externalAddresses.clear();
       _internalAddresses.clear();
       _currentReceivingAddress = null;
       _cachedBalance = null;
+      initContext(isArchived);
       if (isActive()) {
          ensureAddressIndexes();
          _cachedBalance = calculateLocalBalance();
@@ -202,7 +202,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          if (addressMap.inverse().containsKey(index)) {
             return;
          }
-         addressMap.put(_keyManager.getAddress(isChangeChain, index), index);
+         addressMap.put(Preconditions.checkNotNull(_keyManager.getAddress(isChangeChain, index)), index);
          index--;
       }
    }
@@ -271,10 +271,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          }
 
          // Update unspent outputs
-         if (!updateUnspentOutputs(mode)) {
-            return false;
-         }
-         return true;
+         return updateUnspentOutputs(mode);
       } finally {
          _isSynchronizing = false;
       }
@@ -282,10 +279,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    }
 
    private boolean needsDiscovery() {
-      if (isArchived()) {
-         return false;
-      }
-      return _context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis();
+      return !isArchived() && _context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis();
    }
 
    private synchronized boolean discovery() {
@@ -437,6 +431,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
    @Override
    public boolean isMine(Address address) {
+      Preconditions.checkNotNull(address);
       return _internalAddresses.containsKey(address) || _externalAddresses.containsKey(address);
    }
 

@@ -93,14 +93,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    });
 
    private final CoinapultManager manager;
-   private final InMemoryPrivateKey accountKey;
    private final Bus eventBus;
    private final Handler handler;
    private final UUID uuid;
    private final ExchangeRateManager exchangeRateManager;
    private final MetadataStorage metadataStorage;
-
-   private final WapiLogger logger;
 
    private final Currency coinapultCurrency;
 
@@ -117,11 +114,9 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    public CoinapultAccount(CoinapultManager manager, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                            ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, Currency coinapultCurrency) {
       this.manager = manager;
-      this.accountKey = accountKey;
       this.eventBus = eventBus;
       this.handler = handler;
       this.exchangeRateManager = exchangeRateManager;
-      this.logger = logger;
       this.metadataStorage = metadataStorage;
       this.coinapultCurrency = coinapultCurrency;
 
@@ -139,8 +134,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       ByteBuffer bb = ByteBuffer.wrap(bytes);
       long high = bb.getLong();
       long low = bb.getLong();
-      UUID uuid = new UUID(high, low);
-      return uuid;
+      return new UUID(high, low);
    }
 
    public void queryActive() throws CoinapultClient.CoinapultBackendException {
@@ -313,7 +307,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       if (withoutUnconfirmed.compareTo(BigDecimal.ZERO) < 0) {
          MbwManager.getInstance(null).reportIgnoredException(
                new RuntimeException(String
-                     .format("Calculated withoutUnconfirmed-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingFiatNotIncludedInBalance, totalReceiving))
+                     .format(Locale.getDefault(), "Calculated withoutUnconfirmed-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingFiatNotIncludedInBalance, totalReceiving))
          );
          withoutUnconfirmed = BigDecimal.ZERO;
       }
@@ -321,7 +315,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       if (sendingFiatNotIncludedInBalance.compareTo(BigDecimal.ZERO) < 0) {
          MbwManager.getInstance(null).reportIgnoredException(
                new RuntimeException(String
-                     .format("Calculated sendingUsdNotIncludedInBalance-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingFiatNotIncludedInBalance, totalReceiving))
+                     .format(Locale.getDefault(), "Calculated sendingUsdNotIncludedInBalance-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingFiatNotIncludedInBalance, totalReceiving))
          );
          sendingFiatNotIncludedInBalance = BigDecimal.ZERO;
       }
@@ -329,7 +323,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       if (totalReceiving.compareTo(BigDecimal.ZERO) < 0) {
          MbwManager.getInstance(null).reportIgnoredException(
                new RuntimeException(String
-                     .format("Calculated totalReceiving-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingFiatNotIncludedInBalance, totalReceiving))
+                     .format(Locale.getDefault(), "Calculated totalReceiving-amount for coinapult account is negative withoutUnconfirmed: %f, sending: %f, recv: %f", withoutUnconfirmed, sendingFiatNotIncludedInBalance, totalReceiving))
          );
          sendingFiatNotIncludedInBalance = BigDecimal.ZERO;
       }

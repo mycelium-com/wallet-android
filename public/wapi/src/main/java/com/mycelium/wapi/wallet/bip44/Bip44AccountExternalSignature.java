@@ -25,8 +25,7 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
       }
 
       // Get the signatures from the external signature provider
-      Transaction transaction = _sigProvider.sign(unsigned, this);
-      return transaction;
+      return _sigProvider.getSignedTransaction(unsigned, this);
    }
 
    @Override

@@ -114,8 +114,8 @@ public class StandardTransactionBuilder {
       public UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
                                   IPublicKeyRing keyRing, NetworkParameters network) {
          _network = network;
-         _outputs = outputs.toArray(new TransactionOutput[]{});
-         _funding = funding.toArray(new UnspentTransactionOutput[]{});
+         _outputs = outputs.toArray(new TransactionOutput[outputs.size()]);
+         _funding = funding.toArray(new UnspentTransactionOutput[funding.size()]);
          _signingRequests = new SigningRequest[_funding.length];
 
          // Create empty input scripts pointing at the right out points
@@ -196,10 +196,10 @@ public class StandardTransactionBuilder {
             if (in != null && out != null) {
                line = String.format("%36s %13s -> %36s %13s", getAddress(in.script, _network), getValue(in.value),
                      getAddress(out.script, _network), getValue(out.value));
-            } else if (in != null && out == null) {
+            } else if (in != null) {
                line = String.format("%36s %13s    %36s %13s", getAddress(in.script, _network), getValue(in.value), "",
                      "");
-            } else if (in == null && out != null) {
+            } else if (out != null) {
                line = String.format("%36s %13s    %36s %13s", "", "", getAddress(out.script, _network),
                      getValue(out.value));
             } else {
@@ -258,8 +258,7 @@ public class StandardTransactionBuilder {
       } else {
          script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
       }
-      TransactionOutput output = new TransactionOutput(value, script);
-      return output;
+      return new TransactionOutput(value, script);
    }
 
    public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing) {
@@ -336,7 +335,7 @@ public class StandardTransactionBuilder {
             // It is OK to use the weak java Random class for this purpose.
             int position = new Random().nextInt(outputs.size() + 1);
             outputs.add(position, changeOutput);
-         } else {
+         //} else {
             // The change output would be smaller than what the network would
             // accept. In this case we leave it be as a small increased miner
             // fee.
@@ -354,7 +353,8 @@ public class StandardTransactionBuilder {
       // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
          throw new UnableToBuildTransactionException(
-               String.format("Unreasonable high transaction fee of %s sat/1000Byte on a %d Bytes tx. Fee: %d sat, Suggested fee: %d sat",
+               String.format(Locale.getDefault(),
+                     "Unreasonable high transaction fee of %s sat/1000Byte on a %d Bytes tx. Fee: %d sat, Suggested fee: %d sat",
                      estimatedFeePerKb, estimateTransactionSize, calculatedFee, minerFeeToUse)
          );
       }
@@ -431,8 +431,7 @@ public class StandardTransactionBuilder {
       }
 
       // Create transaction with valid outputs and empty inputs
-      Transaction transaction = new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime());
-      return transaction;
+      return new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime());
    }
 
    private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {
@@ -524,7 +523,7 @@ public class StandardTransactionBuilder {
       return requiredFee;
    }
 
-   // todo: generalize this into a interface and provide different coin-selectors
+   // TODO: generalize this into an interface and provide different coin-selectors
    private class OldestOutputsFirst {
       private List<UnspentTransactionOutput> allFunding;
       private long fee;

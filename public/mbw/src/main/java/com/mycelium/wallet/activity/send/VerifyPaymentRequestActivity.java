@@ -74,6 +74,7 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    @InjectView(R.id.tvAmount) TextView tvAmount;
    @InjectView(R.id.tvFiatAmount) TextView tvFiatAmount;
    @InjectView(R.id.tvMessage) TextView tvMessage;
+   @InjectView(R.id.tvErrorDetails) TextView tvErrorDetails;
    @InjectView(R.id.tvTimeExpires) TextView tvTimeExpires;
    @InjectView(R.id.tvTimeCreated) TextView tvTimeCreated;
    @InjectView(R.id.tvValid) TextView tvValid;
@@ -85,6 +86,7 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    @InjectView(R.id.llTime) LinearLayout llTime;
    @InjectView(R.id.llTimeExpires) LinearLayout llTimeExpires;
    @InjectView(R.id.llMessageToMerchant) LinearLayout llMessageToMerchant;
+   @InjectView(R.id.llErrorDetailsDisplay) LinearLayout llErrorDetailsDisplay;
    @InjectView(R.id.ivSignatureWarning) ImageView ivSignatureWarning;
 
    private BitcoinUri bitcoinUri;
@@ -248,7 +250,18 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
          llTimeExpires.setVisibility(View.GONE);
          llMessageToMerchant.setVisibility(View.GONE);
          llMessage.setVisibility(View.GONE);
+         llErrorDetailsDisplay.setVisibility(View.VISIBLE);
+         final String message;
+         final Throwable cause = requestException.getCause();
+         if (cause != null){
+            message = ", " + cause.getLocalizedMessage();
+         } else {
+            message = requestException.getLocalizedMessage();
+         }
+         tvErrorDetails.setText(message);
       } else {
+         llErrorDetailsDisplay.setVisibility(View.GONE);
+
          if (requestInformation.hasValidSignature()) {
             tvValid.setText(getString(R.string.payment_request_signature_okay));
             PkiVerificationData pkiVerificationData = requestInformation.getPkiVerificationData();

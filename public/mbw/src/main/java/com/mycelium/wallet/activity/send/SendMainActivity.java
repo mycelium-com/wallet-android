@@ -89,7 +89,6 @@ import com.squareup.otto.Subscribe;
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -375,7 +374,7 @@ public class SendMainActivity extends Activity {
 
       ((TextView) view.findViewById(R.id.tvName)).setText(sepaPayment.recipient.name);
       ((TextView) view.findViewById(R.id.tvSepaAmount)).setText(
-            Utils.formatFiatValueAsString(sepaPayment.payment.amount) + " " + sepaPayment.payment.currency);
+            String.format("%s %s", Utils.formatFiatValueAsString(sepaPayment.payment.amount), sepaPayment.payment.currency));
 
       ((TextView) view.findViewById(R.id.tvSepaFee)).setText(getResources().getString(R.string.cashila_fee,
             Utils.formatFiatValueAsString(sepaPayment.details.fee) + " " + sepaPayment.payment.currency));
@@ -766,7 +765,7 @@ public class SendMainActivity extends Activity {
       // Update Amount
       if (_amountToSend == null) {
          // No amount to show
-         ((TextView) tvAmountTitle).setText(R.string.enter_amount_title);
+         tvAmountTitle.setText(R.string.enter_amount_title);
          tvAmount.setText("");
          tvAmountFiat.setVisibility(View.GONE);
          tvError.setVisibility(View.GONE);
@@ -848,7 +847,6 @@ public class SendMainActivity extends Activity {
                tvAmountFiat.setText("");
             }
 
-
             tvError.setVisibility(View.GONE);
             //check if we need to warn the user about unconfirmed funds
             if (_spendingUnconfirmed) {
@@ -863,7 +861,6 @@ public class SendMainActivity extends Activity {
       if (_paymentRequestHandler != null && _paymentRequestHandler.getPaymentRequestInformation().hasAmount()) {
          btEnterAmount.setEnabled(false);
       }
-
 
       // Update Fee-Display
       if (_unsigned == null) {
@@ -957,7 +954,6 @@ public class SendMainActivity extends Activity {
       btEnterAmount.setEnabled(false);
    }
 
-
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode != RESULT_OK) {
@@ -1026,9 +1022,8 @@ public class SendMainActivity extends Activity {
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
       } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
-         Address address = Preconditions.checkNotNull((Address) intent
+         _receivingAddress = Preconditions.checkNotNull((Address) intent
                .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
-         _receivingAddress = address;
 
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
@@ -1088,14 +1083,12 @@ public class SendMainActivity extends Activity {
       }
    }
 
-
    private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
       _receivingAcc = _mbwManager.getWalletManager(true).createUnrelatedBip44Account(hdKeyNode);
       _xpubSyncing = true;
-      _mbwManager.getWalletManager(true).startSynchronization();
+      _mbwManager.getWalletManager(true).startSynchronization(_receivingAcc);
    }
-
 
    private BitcoinUriWithAddress getUriFromClipboard() {
       String content = Utils.getClipboardString(SendMainActivity.this);
@@ -1166,5 +1159,4 @@ public class SendMainActivity extends Activity {
       }
       //todo: warn the user about address reuse for xpub
    }
-
 }

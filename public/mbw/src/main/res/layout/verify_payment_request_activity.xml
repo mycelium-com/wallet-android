@@ -83,12 +83,36 @@
         </LinearLayout>
 
         <LinearLayout
-                android:id="@+id/llAmount"
+                android:id="@+id/llErrorDetailsDisplay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/llMerchant"
+                android:visibility="gone"
+                tools:visibility="visible"
+                >
+
+            <TextView
+                    android:text="@string/error_details"
+                    android:textColor="@color/grey"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            <TextView
+                    android:id="@+id/tvErrorDetails"
+                    tools:text="Certificate expired on ...."
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/llAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="5dp"
+                android:layout_below="@+id/llErrorDetailsDisplay"
                 >
 
             <TextView

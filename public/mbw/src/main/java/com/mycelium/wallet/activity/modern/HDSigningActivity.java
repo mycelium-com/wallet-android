@@ -77,14 +77,14 @@ public class HDSigningActivity extends Activity {
 
    private void updateUi() {
 
-      LinearLayout addressview = (LinearLayout) findViewById(R.id.listPrivateKeyAddresses);
+      LinearLayout addressView = (LinearLayout) findViewById(R.id.listPrivateKeyAddresses);
       Bip44Account account = (Bip44Account) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
       //sort addresses by alphabet for easier selection
-      List<Address> addresses = Utils.sortAAddresses(account.getAllAddresses());
+      List<Address> addresses = Utils.sortAddresses(account.getAllAddresses());
 
       for (Address address : addresses) {
-         addressview.addView(getItemView(address));
+         addressView.addView(getItemView(address));
       }
    }
 

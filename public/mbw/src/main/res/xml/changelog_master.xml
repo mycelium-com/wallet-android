@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.1" versioncode="28100">
+        <change>Show more error details if a BIP77 payment request fails to parse/validate</change>
+        <change>[bugfix] Fix crash after local cache got inconsistent due to a failed sync</change>
+    </release>
+
     <release version="2.8.0" versioncode="28000">
         <change>Add Glidera-integration to easily buy and sell bitcoin</change>
     </release>

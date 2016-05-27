@@ -211,14 +211,6 @@
         </LinearLayout>
 
         <Button
-            android:layout_marginTop="@dimen/buttonspacing"
-            android:layout_width="@dimen/about_buttonsize"
-            android:layout_height="wrap_content"
-            android:text="Mycelium Token Crowdsale"
-            android:id="@+id/bt_token_message"
-            android:layout_marginBottom="@dimen/buttonspacing" />
-
-        <Button
             android:layout_width="@dimen/about_buttonsize"
             android:layout_height="wrap_content"
             android:text="@string/special_thanks"

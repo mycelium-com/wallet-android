@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.mycelium.wallet">
 
     <!-- basics -->
@@ -17,6 +18,9 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <!-- location for local trader -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- we really don't want to spy on our users -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" tools:node="remove" />
 
     <uses-feature
         android:name="android.hardware.location.network"

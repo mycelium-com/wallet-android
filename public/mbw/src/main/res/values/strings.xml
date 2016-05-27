@@ -936,6 +936,7 @@
     <string name="gd_loading">Loading…</string>
     <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
     <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
+    <string name="error_details">Error details</string>
     <!-- GlideraService End -->
 
 </resources>

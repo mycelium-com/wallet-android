@@ -186,8 +186,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    @Override
-   public Transaction sign(UnsignedTransaction unsigned,
-                           Bip44AccountExternalSignature forAccount) {
+   public Transaction getSignedTransaction(UnsignedTransaction unsigned,
+                                           Bip44AccountExternalSignature forAccount) {
       try {
          return signInternal(unsigned, forAccount);
       } catch (Exception e) {

@@ -169,7 +169,7 @@ public class TrezorManager extends AbstractAccountScanManager implements Externa
 
    // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
-   public Transaction sign(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
+   public Transaction getSignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
 
       if (!initialize()) {
          return null;
