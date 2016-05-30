@@ -739,51 +739,6 @@ public class WalletManager {
       }
    }
 
-   /*
-   private class FastSynchronizer extends Synchronizer {
-      private final Collection<Address> addressesToWatch;
-      private final AbstractAccount account;
-
-      private FastSynchronizer(AbstractAccount account, Collection<Address> addressesToWatch) {
-         super(
-               new SyncMode(SyncMode.Mode.FAST_SYNC, false, true, true, false),
-               account
-         );
-
-         this.addressesToWatch = addressesToWatch;
-         this.account = account;
-      }
-
-      @Override
-      public void run() {
-         synchronized (_allAccounts) {
-            try {
-               // Synchronize only the current account with the blockchain
-               if (!synchronize()) {
-                  return;
-               }
-               setStateAndNotify(State.FAST_SYNC);
-               // Lock on same semaphore as the other synchronizer, so that we dont run in parallel (for now)
-            } finally {
-               _synchronizationThread = null;
-               setStateAndNotify(State.READY);
-            }
-         }
-      }
-      private boolean synchronize() {
-
-         if (!account.isArchived()) {
-            if (!account.synchronize()) {
-               // We failed to sync due to API error, we will have to try
-               // again later
-               return false;
-            }
-         }
-         return true;
-      }
-   }*/
-
-
    private class Synchronizer implements Runnable {
       private final SyncMode syncMode;
       private final SynchronizeAbleWalletAccount currentAccount;

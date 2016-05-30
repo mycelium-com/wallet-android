@@ -238,7 +238,11 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          );
       }else if (mode.mode.equals(SyncMode.Mode.ONE_ADDRESS) && mode.addressToSync != null){
          // only check for the supplied address
-         ret = Lists.newArrayList(mode.addressToSync);
+         if (isMine(mode.addressToSync)) {
+            ret = Lists.newArrayList(mode.addressToSync);
+         } else {
+            throw new IllegalArgumentException("Address " + mode.addressToSync + " is not part of my account addresses");
+         }
       } else {
          throw new IllegalArgumentException("Unexpected SyncMode");
       }

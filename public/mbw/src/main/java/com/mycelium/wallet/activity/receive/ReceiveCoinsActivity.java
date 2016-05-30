@@ -57,9 +57,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
@@ -72,17 +70,19 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.squareup.otto.Subscribe;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-//todo HD for the future: keep receiving slots for 20 addresses. assign a name
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 
 public class ReceiveCoinsActivity extends Activity {
 
@@ -111,11 +111,22 @@ public class ReceiveCoinsActivity extends Activity {
    private Long _receivingSince;
    private CurrencyValue _lastAddressBalance;
    private int _syncErrors = 0;
+   private boolean _showIncomingUtxo;
 
    public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey) {
       Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
       intent.putExtra("address", address);
       intent.putExtra("havePrivateKey", havePrivateKey);
+      intent.putExtra("showIncomingUtxo", false);
+      currentActivity.startActivity(intent);
+   }
+
+   public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey,
+                             boolean showIncomingUtxo) {
+      Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
+      intent.putExtra("address", address);
+      intent.putExtra("havePrivateKey", havePrivateKey);
+      intent.putExtra("showIncomingUtxo", showIncomingUtxo);
       currentActivity.startActivity(intent);
    }
 
@@ -135,6 +146,7 @@ public class ReceiveCoinsActivity extends Activity {
       // Get intent parameters
       _address = Preconditions.checkNotNull((Address) getIntent().getSerializableExtra("address"));
       _havePrivateKey = getIntent().getBooleanExtra("havePrivateKey", false);
+      _showIncomingUtxo = getIntent().getBooleanExtra("showIncomingUtxo", false);
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -148,7 +160,7 @@ public class ReceiveCoinsActivity extends Activity {
 
       // Amount Hint
       tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-            _mbwManager.getBitcoinDenomination().toString()));
+              _mbwManager.getBitcoinDenomination().toString()));
       shareByNfc();
    }
 
@@ -205,8 +217,9 @@ public class ReceiveCoinsActivity extends Activity {
    protected void onResume() {
       super.onResume();
       _mbwManager.getEventBus().register(this);
-      if (_syncErrors < MAX_SYNC_ERRORS)
-      _mbwManager.watchAddress(_address);
+      if (_showIncomingUtxo && _syncErrors < MAX_SYNC_ERRORS) {
+         _mbwManager.watchAddress(_address);
+      }
       updateUi();
    }
 
@@ -236,7 +249,7 @@ public class ReceiveCoinsActivity extends Activity {
          btShare.setText(R.string.share_payment_request);
          tvAmountLabel.setText(R.string.amount_title);
          tvAmount.setText(
-               Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
+                 Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
          );
       }
 
@@ -265,7 +278,7 @@ public class ReceiveCoinsActivity extends Activity {
       } else {
          // Set Amount
          tvAmount.setText(
-               Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
+                 Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
          );
       }
    }
@@ -326,13 +339,15 @@ public class ReceiveCoinsActivity extends Activity {
          // it in non-BTC
          GetAmountActivity.callMe(ReceiveCoinsActivity.this, _amount.getExactValueIfPossible(), GET_AMOUNT_RESULT_CODE);
       }
-   };
+   }
+
+   ;
 
    @Subscribe
-   public void syncError(SyncFailed event){
+   public void syncError(SyncFailed event) {
       _syncErrors++;
       // stop syncing after a certain amount of errors (no network available)
-      if (_syncErrors > MAX_SYNC_ERRORS){
+      if (_syncErrors > MAX_SYNC_ERRORS) {
          _mbwManager.stopWatchingAddress();
       }
    }
@@ -356,9 +371,9 @@ public class ReceiveCoinsActivity extends Activity {
          tvRecv.setText(getString(R.string.incoming_payment) + Utils.getFormattedValueWithUnit(sum, _mbwManager.getBitcoinDenomination()));
          // if the user specified an amount, also check it if it matches up...
          if (!CurrencyValue.isNullOrZero(_amount)) {
-            tvRecvWarning.setVisibility ( sum.equals(_amount) ? View.GONE : View.VISIBLE);
+            tvRecvWarning.setVisibility(sum.equals(_amount) ? View.GONE : View.VISIBLE);
          } else {
-            tvRecvWarning.setVisibility ( View.GONE );
+            tvRecvWarning.setVisibility(View.GONE);
          }
          tvRecv.setVisibility(View.VISIBLE);
          if (!sum.equals(_lastAddressBalance)) {
@@ -366,7 +381,7 @@ public class ReceiveCoinsActivity extends Activity {
             Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
-                  .setSound(soundUri, AudioManager.STREAM_NOTIFICATION); //This sets the sound to play
+                    .setSound(soundUri, AudioManager.STREAM_NOTIFICATION); //This sets the sound to play
             notificationManager.notify(0, mBuilder.build());
 
             _lastAddressBalance = sum;

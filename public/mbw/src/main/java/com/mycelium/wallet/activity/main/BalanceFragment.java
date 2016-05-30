@@ -133,7 +133,7 @@ public class BalanceFragment extends Fragment {
          Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
          if (receivingAddress.isPresent()) {
             ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
-                  _mbwManager.getSelectedAccount().canSpend());
+                  _mbwManager.getSelectedAccount().canSpend(), true);
          }
       }
    };
