@@ -24,10 +24,7 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
@@ -964,7 +961,93 @@ public class WalletManager {
    }
 
    private int getNextBip44Index() {
-      return _bip44Accounts.size();
+      return filterAndConvert(MAIN_SEED_HD_ACCOUNT).size();
+   }
+
+   public List<Integer> getGapsBug(){
+      // not nice the unchecked cast, but we can be that MAIN_SEED_HD_ACCOUNT only returns Bip44Accounts
+      final List<? extends Bip44Account> mainAccounts =
+            (List<? extends Bip44Account>)(List<?>) filterAndConvert(MAIN_SEED_HD_ACCOUNT);
+
+      // sort it according to their index
+      Collections.sort(mainAccounts, new Comparator<Bip44Account>() {
+         @Override
+         public int compare(Bip44Account o1, Bip44Account o2) {
+            return Integer.compare(o1.getAccountIndex(), o2.getAccountIndex());
+         }
+      });
+      List<Integer> gaps = new LinkedList<Integer>();
+      int lastIndex = 0;
+      for (Bip44Account acc : mainAccounts) {
+         while (acc.getAccountIndex() > lastIndex++) {
+            gaps.add(lastIndex - 1);
+         }
+      }
+
+      return gaps;
+   }
+
+   public List<Address> getGapAddresses(KeyCipher cipher) throws InvalidKeyCipher {
+      final List<Integer> gaps = getGapsBug();
+      // Get the master seed
+      Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
+      // Generate the root private key
+      HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
+      InMemoryWalletManagerBacking tempSecureBacking = new InMemoryWalletManagerBacking();
+
+      final SecureKeyValueStore tempSecureKeyValueStore = new SecureKeyValueStore(tempSecureBacking, new RandomSource() {
+         @Override
+         public void nextBytes(byte[] bytes) {
+            for (int i = 0; i < bytes.length; i++) {
+               bytes[0] = 0; // randomness not needed for the temporary keystore
+            }
+         }
+      });
+
+      final LinkedList<Address> addresses = new LinkedList<Address>();
+      for (Integer gapIndex : gaps) {
+         final Bip44AccountKeyManager keyManager = Bip44AccountKeyManager.createNew(root, _network, gapIndex, tempSecureKeyValueStore, cipher);
+         addresses.add(keyManager.getAddress(false, 0)); // get first external address for the account in the gap
+      }
+
+      return addresses;
+   }
+   public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex) throws InvalidKeyCipher {
+      // Get the master seed
+      Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
+
+      // Generate the root private key
+      HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
+
+      synchronized (_walletAccounts) {
+         _backing.beginTransaction();
+         try {
+            // Create the base keys for the account
+            Bip44AccountKeyManager keyManager = Bip44AccountKeyManager.createNew(root, _network, accountIndex, _secureKeyValueStore, cipher);
+
+            // Generate the context for the account
+            Bip44AccountContext context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false);
+            _backing.createBip44AccountContext(context);
+
+            // Get the backing for the new account
+            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
+            Preconditions.checkNotNull(accountBacking);
+
+            // Create actual account
+            Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
+
+            // Finally persist context and add account
+            context.persist(accountBacking);
+            _backing.setTransactionSuccessful();
+            account.archiveAccount();
+
+            addAccount(account);
+            _bip44Accounts.add(account);
+            return account.getId();
+         } finally {
+            _backing.endTransaction();
+         }
+      }
    }
 
    public UUID createAdditionalBip44Account(KeyCipher cipher) throws InvalidKeyCipher {

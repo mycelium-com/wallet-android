@@ -49,12 +49,10 @@ public enum BillPayStatus implements Serializable {
    uploaded(false, R.string.cashila_status_uploaded),
    transcribed(true, R.string.cashila_status_transcribed);
 
-
    private final boolean isPayable;
    private final int localizedStringId;
 
-
-   private BillPayStatus(boolean isPayable, int localizedStringId) {
+   BillPayStatus(boolean isPayable, int localizedStringId) {
       this.isPayable = isPayable;
       this.localizedStringId = localizedStringId;
    }

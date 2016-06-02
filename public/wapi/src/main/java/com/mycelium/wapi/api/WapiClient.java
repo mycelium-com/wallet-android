@@ -32,16 +32,21 @@ import com.squareup.okhttp.*;
 
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
 public class WapiClient implements Wapi {
+   private static final int VERY_LONG_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+   private static final int LONG_TIMEOUT_MS = 60 * 1000; // one minute
+   private static final int MEDIUM_TIMEOUT_MS = 20 * 1000; // 20s
+   private static final int SHORT_TIMEOUT_MS = 4 * 1000; // 4s
+   private static final int[] SHORT_TO_LONG_TIMEOUTS_MS = new int[]{
+      SHORT_TIMEOUT_MS, MEDIUM_TIMEOUT_MS, LONG_TIMEOUT_MS, VERY_LONG_TIMEOUT_MS
+   };
 
-   private static final int VERY_LONG_TIMEOUT_MS = 60000 * 10;
-   private static final int LONG_TIMEOUT_MS = 60000;
-   private static final int MEDIUM_TIMEOUT_MS = 20000;
-   private static final int SHORT_TIMEOUT_MS = 4000;
-
+   // the minimum timeout for the lifetime of this process(?). Restarting the app resets it to the minimum.
+   private static int _minTimeout = 0;
 
    private ObjectMapper _objectMapper;
    private com.mycelium.WapiLogger _logger;
@@ -100,20 +105,20 @@ public class WapiClient implements Wapi {
     * long timeout.
     */
    private Response getConnectionAndSendRequest(String function, Object request) {
-      Response response;
-      response = getConnectionAndSendRequestWithTimeout(request, function, SHORT_TIMEOUT_MS);
-      if (response != null) {
-         return response;
+      for(int timeout: SHORT_TO_LONG_TIMEOUTS_MS) {
+         if(timeout < _minTimeout) {
+            // if some timeout was too short for all servers, maybe we hit all of them but were slow ourselves
+            continue;
+         }
+         Response response = getConnectionAndSendRequestWithTimeout(request, function, timeout);
+         if (response != null) {
+            if(timeout > _minTimeout) {
+               _minTimeout = timeout;
+            }
+            return response;
+         }
       }
-      response = getConnectionAndSendRequestWithTimeout(request, function, MEDIUM_TIMEOUT_MS);
-      if (response != null) {
-         return response;
-      }
-      response = getConnectionAndSendRequestWithTimeout(request, function, LONG_TIMEOUT_MS);
-      if (response != null) {
-         return response;
-      }
-      return getConnectionAndSendRequestWithTimeout(request, function, VERY_LONG_TIMEOUT_MS);
+      return null;
    }
 
    /**
@@ -129,7 +134,6 @@ public class WapiClient implements Wapi {
             OkHttpClient client = serverEndpoint.getClient();
             _logger.logInfo("Connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
 
-            // configure TimeOuts
             client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
             client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
             client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
@@ -146,7 +150,7 @@ public class WapiClient implements Wapi {
             // execute request
             Response response = client.newCall(rq).execute();
             callDuration.stop();
-            _logger.logInfo(String.format("Wapi %s finished (%dms)", function, callDuration.elapsed(TimeUnit.MILLISECONDS)));
+            _logger.logInfo(String.format(Locale.ENGLISH, "Wapi %s finished (%dms)", function, callDuration.elapsed(TimeUnit.MILLISECONDS)));
 
             // Check for status code 2XX
             if (response.isSuccessful()) {
@@ -154,9 +158,9 @@ public class WapiClient implements Wapi {
                   ((FeedbackEndpoint) serverEndpoint).onSuccess();
                }
                return response;
-            }else{
+            } else {
                // If the status code is not 200 we cycle to the next server
-               logError(String.format("Http call to %s failed with %d %s", function, response.code(), response.message()));
+               logError(String.format(Locale.ENGLISH, "Http call to %s failed with %d %s", function, response.code(), response.message()));
                // throw...
             }
          } catch (IOException e) {
@@ -181,8 +185,7 @@ public class WapiClient implements Wapi {
          return "";
       }
       try {
-         String postString = _objectMapper.writeValueAsString(request);
-         return postString;
+         return _objectMapper.writeValueAsString(request);
       } catch (JsonProcessingException e) {
          logError("Error during JSON serialization", e);
          throw new RuntimeException(e);

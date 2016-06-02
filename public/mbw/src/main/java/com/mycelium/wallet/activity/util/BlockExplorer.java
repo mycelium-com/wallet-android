@@ -55,8 +55,8 @@ public class BlockExplorer {
        this.baseTransactionUrlTor = baseTransactionUrlTor;
     }
 
-    public String getUrl(Address address, boolean tor){
-       if(tor==true){
+    public String getUrl(Address address, boolean isTor){
+       if(isTor){
           return baseAddressUrlTor + address.toString();
        }
        else {
@@ -64,8 +64,8 @@ public class BlockExplorer {
        }
     }
 
-   public String getUrl(TransactionDetails transactionDetails, boolean tor){
-      if(tor==true){
+   public String getUrl(TransactionDetails transactionDetails, boolean isTor){
+      if(isTor){
          return baseTransactionUrlTor + transactionDetails.toString();
       }
       else {
@@ -78,10 +78,7 @@ public class BlockExplorer {
       return title;
    }
    public boolean hasTor(){
-      if(this.baseAddressUrlTor==null || this.baseTransactionUrlTor==null){
-         return false;
-      }
-      return true;
+      return !(this.baseAddressUrlTor == null || this.baseTransactionUrlTor == null);
    }
    public String getIdentifier() {
       return identifier;

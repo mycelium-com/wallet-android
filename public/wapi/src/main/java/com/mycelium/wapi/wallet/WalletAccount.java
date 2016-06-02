@@ -41,7 +41,7 @@ public interface WalletAccount {
 
    void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
-   public enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION};
+   enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
 
 
    /**
@@ -83,7 +83,7 @@ public interface WalletAccount {
     *
     * @param allowZeroConfSpending if true the account will allow zero confirmation spending
     */
-   public void setAllowZeroConfSpending(boolean allowZeroConfSpending);
+   void setAllowZeroConfSpending(boolean allowZeroConfSpending);
 
       /**
        * Get the block chain height as it were last time this account was
@@ -127,7 +127,6 @@ public interface WalletAccount {
    /**
     * Get the transaction history of this account since the stated timestamp
     * @param receivingSince only include tx older than this
-    * @return
     */
    List<TransactionSummary> getTransactionsSince(Long receivingSince);
 
@@ -347,7 +346,6 @@ public interface WalletAccount {
 
    /**
     * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
-    * @return
     */
    String getAccountDefaultCurrency();
 

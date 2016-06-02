@@ -34,6 +34,9 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -51,11 +54,18 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
+import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.AboutActivity;
@@ -69,9 +79,7 @@ import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Subscribe;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -80,6 +88,7 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -150,7 +159,7 @@ public class ModernMain extends ActionBarActivity {
       _toaster = new Toaster(this);
 
       ChangeLog cl = new DarkThemeChangeLog(this);
-      if (cl.isFirstRun() && cl.getChangeLog(false).size() > 0) {
+      if (cl.isFirstRun() && cl.getChangeLog(false).size() > 0 && !cl.isFirstRunEver()) {
          cl.getLogDialog().show();
       }
 
@@ -163,7 +172,62 @@ public class ModernMain extends ActionBarActivity {
 
       if (_isAppStart) {
          _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
+         checkGapBug();
          _isAppStart = false;
+      }
+   }
+
+   private void checkGapBug() {
+      final WalletManager walletManager = _mbwManager.getWalletManager(false);
+      final List<Integer> gaps = walletManager.getGapsBug();
+      if (!gaps.isEmpty()){
+         try {
+            final List<Address> gapAddresses = walletManager.getGapAddresses(AesKeyCipher.defaultKeyCipher());
+            final String gapsString = Joiner.on(", ").join(gapAddresses);
+            Log.d("Gaps", gapsString);
+
+            final SpannableString s = new SpannableString(
+                  "Sorry to interrupt you... \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us."
+            );
+            Linkify.addLinks(s, Linkify.ALL);
+
+            final AlertDialog d = new AlertDialog.Builder(this)
+                  .setTitle("Account Gap")
+                  .setMessage(s)
+
+                  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                        createPlaceHolderAccounts(gaps);
+                        _mbwManager.reportIgnoredException(new RuntimeException("Address gaps: " + gapsString));
+                     }
+                  })
+                  .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+
+                     }
+                  })
+                  .show();
+
+            // Make the textview clickable. Must be called after show()
+            ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+         }
+      }
+   }
+
+   private void createPlaceHolderAccounts(List<Integer> gapIndex){
+      final WalletManager walletManager = _mbwManager.getWalletManager(false);
+      for (Integer index: gapIndex) {
+         try {
+            final UUID newAccount = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index);
+            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index+1));
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+         }
       }
    }
 

@@ -246,7 +246,9 @@ public class CoinapultManager implements AccountProvider {
    private Boolean userAccountExistsCache = null;
 
    public boolean userAccountExists() throws CoinapultClient.CoinapultBackendException {
-      if (userAccountExistsCache == null) {
+      // if we already know it exists, dont try to query the coinapult server again,
+      // otherwise make a call to accountInfo and see if we get any result
+      if (userAccountExistsCache == null || userAccountExistsCache == false) {
          userAccountExistsCache = getClient().accountExists();
       }
       return userAccountExistsCache;
