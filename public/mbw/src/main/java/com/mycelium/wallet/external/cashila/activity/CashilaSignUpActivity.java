@@ -77,20 +77,20 @@ import java.util.concurrent.ExecutionException;
 public class CashilaSignUpActivity extends Activity {
 
    private static final String CASHILA_SIGN_UP_SERVICE = "cashila_signup";
-   @InjectView(R.id.cbAgreeCashilaTos) CheckBox cbAgreeCashilaTos;
-   @InjectView(R.id.cbAgreeMyceliumTos) CheckBox cbAgreeMyceliumTos;
-   @InjectView(R.id.rbUseExistingAccount) RadioButton rbUseExistingAccount;
-   @InjectView(R.id.rbCreateNewAccount) RadioButton rbCreateNewAccount;
-   @InjectView(R.id.etLoginEmailAddress) EditText etLoginEmailAddress;
-   @InjectView(R.id.etPassword) EditText etPassword;
-   @InjectView(R.id.et2Fa) EditText et2Fa;
-   @InjectView(R.id.etSignUpEmailAddress) EditText etSignUpEmailAddress;
-   @InjectView(R.id.llLogin) LinearLayout llLogin;
-   @InjectView(R.id.llSignUp) LinearLayout llSignUp;
-   @InjectView(R.id.btSignUp) Button btSignUp;
-   @InjectView(R.id.btLogin) Button btLogin;
-   @InjectView(R.id.tvCashilaTosLink) TextView tvCashilaTosLink;
-   @InjectView(R.id.tvMyceliumTosLink) TextView tvMyceliumTosLink;
+   @BindView(R.id.cbAgreeCashilaTos) CheckBox cbAgreeCashilaTos;
+   @BindView(R.id.cbAgreeMyceliumTos) CheckBox cbAgreeMyceliumTos;
+   @BindView(R.id.rbUseExistingAccount) RadioButton rbUseExistingAccount;
+   @BindView(R.id.rbCreateNewAccount) RadioButton rbCreateNewAccount;
+   @BindView(R.id.etLoginEmailAddress) EditText etLoginEmailAddress;
+   @BindView(R.id.etPassword) EditText etPassword;
+   @BindView(R.id.et2Fa) EditText et2Fa;
+   @BindView(R.id.etSignUpEmailAddress) EditText etSignUpEmailAddress;
+   @BindView(R.id.llLogin) LinearLayout llLogin;
+   @BindView(R.id.llSignUp) LinearLayout llSignUp;
+   @BindView(R.id.btSignUp) Button btSignUp;
+   @BindView(R.id.btLogin) Button btLogin;
+   @BindView(R.id.tvCashilaTosLink) TextView tvCashilaTosLink;
+   @BindView(R.id.tvMyceliumTosLink) TextView tvMyceliumTosLink;
 
    private CashilaService cs;
    private MbwManager mbw;
@@ -104,7 +104,7 @@ public class CashilaSignUpActivity extends Activity {
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.ext_cashila_signup_account);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
 
       mbw = MbwManager.getInstance(this);
       mbw.getEventBus().register(this);

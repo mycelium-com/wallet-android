@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -83,15 +82,7 @@ import java.util.Locale;
  * Type>("<Preference Key>",<default value>);
  */
 public class SettingsActivity extends PreferenceActivity {
-
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
-   public static final Function<String, String> AUTOPAY_EXTRACT = new Function<String, String>() {
-      @Override
-      public String apply(String input) {
-         return extractAmount(input);
-      }
-   };
-   private static final int GET_CURRENCY_RESULT_CODE = 0;
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          SetLocalCurrencyActivity.callMe(SettingsActivity.this);
@@ -193,7 +184,6 @@ public class SettingsActivity extends PreferenceActivity {
    };
 
    private final OnPreferenceClickListener onClickLedgerSetUnpluggedAID = new OnPreferenceClickListener() {
-      private Button okButton;
       private EditText aidEdit;
 
       public boolean onPreferenceClick(Preference preference) {
@@ -202,11 +192,12 @@ public class SettingsActivity extends PreferenceActivity {
          b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-               byte[] aidBinary = null;
+               byte[] aidBinary;
                String aid = aidEdit.getText().toString();
                try {
                   aidBinary = HexUtils.toBytes(aid);
                } catch (Exception e) {
+                  aidBinary = null;
                }
                if (aidBinary == null) {
                   Utils.showSimpleMessageDialog(SettingsActivity.this, getString(R.string.ledger_check_unplugged_aid));
@@ -243,21 +234,26 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
+   private final OnPreferenceClickListener onClickGlideraEnable = new OnPreferenceClickListener() {
+      @Override
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.getMetadataStorage().setGlideraIsEnabled(p.isChecked());
+         return true;
+      }
+   };
+
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;
    private CheckBoxPreference _ltNotificationSound;
-   private CheckBoxPreference _showBip44Path;
    private CheckBoxPreference _ltMilesKilometers;
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   private Dialog _dialog;
    private ListPreference _minerFee;
    private ListPreference _blockExplorer;
-   private CheckBoxPreference _ledgerDisableTee;
-   private Preference _ledgerSetUnpluggedAID;
-   private CheckBoxPreference _enableCashila;
 
+   @SuppressWarnings("ResultOfMethodCallIgnored")
    @VisibleForTesting
    static boolean isNumber(String text) {
       try {
@@ -364,7 +360,8 @@ public class SettingsActivity extends PreferenceActivity {
       // Exchange Source
       _exchangeSource = (ListPreference) findPreference("exchange_source");
       ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
-      CharSequence[] exchangeNames = exchangeManager.getExchangeSourceNames().toArray(new String[]{});
+      List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames();
+      CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[exchangeSourceNamesList.size()]);
       _exchangeSource.setEntries(exchangeNames);
       if (exchangeNames.length == 0) {
          _exchangeSource.setEnabled(false);
@@ -449,9 +446,9 @@ public class SettingsActivity extends PreferenceActivity {
       _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
 
       // show bip44 path
-      _showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
-      _showBip44Path.setChecked(_mbwManager.getMetadataStorage().getShowBip44Path());
-      _showBip44Path.setOnPreferenceClickListener(showBip44PathClickListener);
+      CheckBoxPreference showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
+      showBip44Path.setChecked(_mbwManager.getMetadataStorage().getShowBip44Path());
+      showBip44Path.setOnPreferenceClickListener(showBip44PathClickListener);
 
 
       // Socks Proxy
@@ -487,26 +484,30 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
 
-      _ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
-      _ledgerSetUnpluggedAID = (Preference) findPreference("ledgerUnpluggedAID");
+      CheckBoxPreference ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
+      Preference ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
 
       boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(this);
       if (isTeeAvailable) {
-         _ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
-         _ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
+         ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
+         ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
       } else {
          PreferenceCategory ledger = (PreferenceCategory) findPreference("ledger");
-         ledger.removePreference(_ledgerDisableTee);
+         ledger.removePreference(ledgerDisableTee);
       }
 
-      _ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
+      ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
 
       applyLocalTraderEnablement();
 
       // external Services
-      _enableCashila = (CheckBoxPreference) findPreference("enableCashilaButton");
-      _enableCashila.setChecked(_mbwManager.getMetadataStorage().getCashilaIsEnabled());
-      _enableCashila.setOnPreferenceClickListener(onClickCashilaEnable);
+      CheckBoxPreference enableCashilaButton = (CheckBoxPreference) findPreference("enableCashilaButton");
+      enableCashilaButton.setChecked(_mbwManager.getMetadataStorage().getCashilaIsEnabled());
+      enableCashilaButton.setOnPreferenceClickListener(onClickCashilaEnable);
+
+      CheckBoxPreference enableGlideraButton = (CheckBoxPreference) findPreference("enableGlideraButton");
+      enableGlideraButton.setChecked(_mbwManager.getMetadataStorage().getGlideraIsEnabled());
+      enableGlideraButton.setOnPreferenceClickListener(onClickGlideraEnable);
    }
 
    @Override
@@ -671,9 +672,6 @@ public class SettingsActivity extends PreferenceActivity {
 
    @Override
    protected void onDestroy() {
-      if (_dialog != null && _dialog.isShowing()) {
-         _dialog.dismiss();
-      }
       super.onDestroy();
    }
 

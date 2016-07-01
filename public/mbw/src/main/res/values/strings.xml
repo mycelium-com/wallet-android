@@ -937,6 +937,9 @@
     <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
     <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
     <string name="error_details">Error details</string>
+    <string name="warning_sync_failed_reusing_first">Synchronization failed! Reusing Address #1 of this xpub!</string>
+    <string name="glidera_setting_show_button">Enable Glidera</string>
+    <string name="glidera_setting_show_button_summary">Show Glidera\'s Buy/Sell option</string>
     <!-- GlideraService End -->
 
 </resources>

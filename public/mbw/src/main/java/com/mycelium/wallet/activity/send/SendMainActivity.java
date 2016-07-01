@@ -46,8 +46,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.*;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -93,7 +93,6 @@ import java.util.Collections;
 import java.util.UUID;
 
 public class SendMainActivity extends Activity {
-
    private static final int GET_AMOUNT_RESULT_CODE = 1;
    private static final int SCAN_RESULT_CODE = 2;
    private static final int ADDRESS_BOOK_RESULT_CODE = 3;
@@ -122,31 +121,31 @@ public class SendMainActivity extends Activity {
       MissingArguments, OutputTooSmall, InsufficientFunds, OK
    }
 
-   @InjectView(R.id.tvAmount) TextView tvAmount;
-   @InjectView(R.id.tvError) TextView tvError;
-   @InjectView(R.id.tvAmountFiat) TextView tvAmountFiat;
-   @InjectView(R.id.tvAmountTitle) TextView tvAmountTitle;
-   @InjectView(R.id.tvUnconfirmedWarning) TextView tvUnconfirmedWarning;
-   @InjectView(R.id.tvReceiver) TextView tvReceiver;
-   @InjectView(R.id.tvRecipientTitle) TextView tvRecipientTitle;
-   @InjectView(R.id.tvWarning) TextView tvWarning;
-   @InjectView(R.id.tvReceiverLabel) TextView tvReceiverLabel;
-   @InjectView(R.id.tvReceiverAddress) TextView tvReceiverAddress;
-   @InjectView(R.id.tvTransactionLabelTitle) TextView tvTransactionLabelTitle;
-   @InjectView(R.id.tvTransactionLabel) TextView tvTransactionLabel;
-   @InjectView(R.id.tvFeeValue) TextView tvFeeValue;
-   @InjectView(R.id.btEnterAmount) ImageButton btEnterAmount;
-   @InjectView(R.id.btFeeLvl) Button btFeeLvl;
-   @InjectView(R.id.btClipboard) Button btClipboard;
-   @InjectView(R.id.btSend) Button btSend;
-   @InjectView(R.id.btAddressBook) Button btAddressBook;
-   @InjectView(R.id.btManualEntry) Button btManualEntry;
-   @InjectView(R.id.btSepaTransfer) Button btSepaTransfer;
-   @InjectView(R.id.btScan) Button btScan;
-   @InjectView(R.id.pbSend) ProgressBar pbSend;
-   @InjectView(R.id.llFee) LinearLayout llFee;
-   @InjectView(R.id.llEnterRecipient) LinearLayout llEnterRecipient;
-   @InjectView(R.id.llRecipientAddress) LinearLayout llRecipientAddress;
+   @BindView(R.id.tvAmount) TextView tvAmount;
+   @BindView(R.id.tvError) TextView tvError;
+   @BindView(R.id.tvAmountFiat) TextView tvAmountFiat;
+   @BindView(R.id.tvAmountTitle) TextView tvAmountTitle;
+   @BindView(R.id.tvUnconfirmedWarning) TextView tvUnconfirmedWarning;
+   @BindView(R.id.tvReceiver) TextView tvReceiver;
+   @BindView(R.id.tvRecipientTitle) TextView tvRecipientTitle;
+   @BindView(R.id.tvWarning) TextView tvWarning;
+   @BindView(R.id.tvReceiverLabel) TextView tvReceiverLabel;
+   @BindView(R.id.tvReceiverAddress) TextView tvReceiverAddress;
+   @BindView(R.id.tvTransactionLabelTitle) TextView tvTransactionLabelTitle;
+   @BindView(R.id.tvTransactionLabel) TextView tvTransactionLabel;
+   @BindView(R.id.tvFeeValue) TextView tvFeeValue;
+   @BindView(R.id.btEnterAmount) ImageButton btEnterAmount;
+   @BindView(R.id.btFeeLvl) Button btFeeLvl;
+   @BindView(R.id.btClipboard) Button btClipboard;
+   @BindView(R.id.btSend) Button btSend;
+   @BindView(R.id.btAddressBook) Button btAddressBook;
+   @BindView(R.id.btManualEntry) Button btManualEntry;
+   @BindView(R.id.btSepaTransfer) Button btSepaTransfer;
+   @BindView(R.id.btScan) Button btScan;
+   @BindView(R.id.pbSend) ProgressBar pbSend;
+   @BindView(R.id.llFee) LinearLayout llFee;
+   @BindView(R.id.llEnterRecipient) LinearLayout llEnterRecipient;
+   @BindView(R.id.llRecipientAddress) LinearLayout llRecipientAddress;
 
    private MbwManager _mbwManager;
    private PaymentRequestHandler _paymentRequestHandler;
@@ -231,7 +230,7 @@ public class SendMainActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.send_main_activity);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
       _mbwManager = MbwManager.getInstance(getApplication());
 
       // Get intent parameters
@@ -894,9 +893,7 @@ public class SendMainActivity extends Activity {
 
          tvFeeValue.setVisibility(View.VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
-
       }
-
    }
 
    @Override
@@ -1157,6 +1154,6 @@ public class SendMainActivity extends Activity {
       if (_progress != null) {
          _progress.dismiss();
       }
-      //todo: warn the user about address reuse for xpub
+      Toast.makeText(this, R.string.warning_sync_failed_reusing_first , Toast.LENGTH_LONG).show();
    }
 }

@@ -53,7 +53,6 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 
 public class LocalTraderFragment extends Fragment {
-
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
    private View _root;
@@ -79,8 +78,14 @@ public class LocalTraderFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _root.findViewById(R.id.ivMyceliumLogo).setOnClickListener(tradeClickListener);
-      _root.findViewById(R.id.llMyceliumBuySell).setOnClickListener(tradeClickListener);
+      for (int id: new int[]{R.id.ivMyceliumLogo, R.id.llMyceliumBuySell}) {
+         _root.findViewById(id).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+               localTraderSelected();
+            }
+         });
+      }
       _mbwManager.getLocalTraderManager().subscribe(ltSubscriber);
       updateUi();
       super.onResume();
@@ -92,35 +97,36 @@ public class LocalTraderFragment extends Fragment {
       super.onPause();
    }
 
-   OnClickListener tradeClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         if (!_mbwManager.getSelectedAccount().canSpend()) {
-            Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
-            return;
-         }
-         if (!Utils.isAllowedForLocalTrader(_mbwManager.getSelectedAccount())) {
-            Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_wrong_account_type, Toast.LENGTH_LONG).show();
-            return;
-         }
-
-         LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
-         boolean newActivity = ltManager.hasLocalTraderAccount() && ltManager.needsTraderSynchronization();
-         LtMainActivity.callMe(getActivity(), newActivity ? LtMainActivity.TAB_TYPE.ACTIVE_TRADES
-               : LtMainActivity.TAB_TYPE.DEFAULT);
+   private void localTraderSelected() {
+      if (!_mbwManager.getSelectedAccount().canSpend()) {
+         Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
+         return;
       }
-   };
+      if (!Utils.isAllowedForLocalTrader(_mbwManager.getSelectedAccount())) {
+         Toast.makeText(LocalTraderFragment.this.getActivity(), R.string.lt_warning_wrong_account_type, Toast.LENGTH_LONG).show();
+         return;
+      }
+
+      LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
+      boolean newActivity = ltManager.hasLocalTraderAccount() && ltManager.needsTraderSynchronization();
+      LtMainActivity.callMe(getActivity(), newActivity ? LtMainActivity.TAB_TYPE.ACTIVE_TRADES
+            : LtMainActivity.TAB_TYPE.DEFAULT);
+   }
 
    private void updateUi() {
       if (!isAdded()) {
          return;
       }
-
       // Hide/Show Local Trader trade button
       if (_ltManager.isLocalTraderDisabled()) {
          _root.setVisibility(View.GONE);
       } else {
+         // HACK: This should be handled in the outer element, where it's known which options exist but in the old wallet, there will be no more options
+         if(!_mbwManager.getMetadataStorage().getGlideraIsEnabled()) {
+            // if there is no glidera available but LT, yes, skip asking the user.
+            localTraderSelected();
+            getActivity().finish();
+         }
          _root.setVisibility(View.VISIBLE);
          // Local Trader update dot
          boolean showDot = _ltManager.hasLocalTraderAccount() && _ltManager.needsTraderSynchronization();
@@ -129,7 +135,6 @@ public class LocalTraderFragment extends Fragment {
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
       @Override
       public void onLtError(int errorCode) {
          // Ignore
@@ -139,7 +144,5 @@ public class LocalTraderFragment extends Fragment {
       public void onLtTraderActicityNotification(long timestamp) {
          updateUi();
       }
-
    };
-
 }

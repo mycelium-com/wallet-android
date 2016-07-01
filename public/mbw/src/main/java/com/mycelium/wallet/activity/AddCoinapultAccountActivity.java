@@ -49,8 +49,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import com.coinapult.api.httpclient.CoinapultClient;
 import com.google.common.base.Optional;
@@ -68,10 +68,10 @@ import java.util.UUID;
 public class AddCoinapultAccountActivity extends Activity {
    public static final int RESULT_COINAPULT = 2;
 
-   @InjectView(R.id.btCoinapultAddGBP) Button btCoinapultAddGBP;
-   @InjectView(R.id.btCoinapultAddUSD) Button btCoinapultAddUSD;
-   @InjectView(R.id.btCoinapultAddEUR) Button btCoinapultAddEUR;
-   @InjectView(R.id.tvTosLink) TextView tvTosLink;
+   @BindView(R.id.btCoinapultAddGBP) Button btCoinapultAddGBP;
+   @BindView(R.id.btCoinapultAddUSD) Button btCoinapultAddUSD;
+   @BindView(R.id.btCoinapultAddEUR) Button btCoinapultAddEUR;
+   @BindView(R.id.tvTosLink) TextView tvTosLink;
 
    public static Intent getIntent(Context context) {
       Intent intent = new Intent(context, AddCoinapultAccountActivity.class);
@@ -88,7 +88,7 @@ public class AddCoinapultAccountActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_coinapult_account_activity);
       _mbwManager = MbwManager.getInstance(this);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
 
       btCoinapultAddUSD.setText(getString(R.string.coinapult_currency_account, CoinapultAccount.Currency.USD.name));
       btCoinapultAddEUR.setText(getString(R.string.coinapult_currency_account, CoinapultAccount.Currency.EUR.name));
@@ -145,7 +145,6 @@ public class AddCoinapultAccountActivity extends Activity {
    }
 
    private void createCoinapultAccount(final CoinapultAccount.Currency currency) {
-
       AlertDialog.Builder b = new AlertDialog.Builder(this);
       b.setTitle(getString(R.string.coinapult));
       View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_tos, null);

@@ -48,7 +48,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import com.megiontechnologies.Bitcoins;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -70,9 +70,9 @@ import java.util.List;
  * The "pending payments" fragment
  */
 public class CashilaPendingFragment extends Fragment {
-   @InjectView(R.id.lvPending) ListView lvPending;
-   @InjectView(R.id.tvEmpty) TextView tvEmpty;
-   @InjectView(R.id.pbPendingLoading) ProgressBar pbPendingLoading;
+   @BindView(R.id.lvPending) ListView lvPending;
+   @BindView(R.id.tvEmpty) TextView tvEmpty;
+   @BindView(R.id.pbPendingLoading) ProgressBar pbPendingLoading;
 
    private CashilaService cs;
    private MbwManager mbw;
@@ -100,7 +100,7 @@ public class CashilaPendingFragment extends Fragment {
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
       View rootView = inflater.inflate(R.layout.ext_cashila_payments_fragment_pending, container, false);
-      ButterKnife.inject(this, rootView);
+      ButterKnife.bind(this, rootView);
 
       mbw = MbwManager.getInstance(this.getActivity());
       cs = ((CashilaPaymentsActivity) getActivity()).getCashilaService();

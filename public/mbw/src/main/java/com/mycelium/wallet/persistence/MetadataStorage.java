@@ -35,7 +35,6 @@
 package com.mycelium.wallet.persistence;
 
 import android.content.Context;
-import android.preference.CheckBoxPreference;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
@@ -44,22 +43,23 @@ import com.mrd.bitlib.util.Sha256Hash;
 import java.util.*;
 
 public class MetadataStorage extends GenericMetadataStorage {
-   public static final MetadataCategory COINAPULT = new MetadataCategory("coinapult_adddr");
-   public static final MetadataCategory ADDRESSLABEL_CATEGORY = new MetadataCategory("addresslabel");
-   public static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
-   public static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
-   public static final MetadataCategory ARCHIVED = new MetadataCategory("archived");
-   public static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
-   public static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
-   public static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
+   private static final MetadataCategory COINAPULT = new MetadataCategory("coinapult_adddr");
+   private static final MetadataCategory ADDRESSLABEL_CATEGORY = new MetadataCategory("addresslabel");
+   private static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
+   private static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
+   private static final MetadataCategory ARCHIVED = new MetadataCategory("archived");
+   private static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
+   private static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
+   private static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
-   public static final MetadataKeyCategory CASHILA_COUNTRY_CODE = new MetadataKeyCategory("cashila", "country");
-   public static final MetadataKeyCategory CASHILA_IS_ENABLED = new MetadataKeyCategory("cashila", "enable");
-   public static final MetadataKeyCategory SYNC_LAST_FULLSYNC = new MetadataKeyCategory("lastFull", "sync");
-   public static final MetadataKeyCategory SHOW_BIP44_PATH = new MetadataKeyCategory("ui", "show_bip44_path");
-   public static final String EMAIL = "email";
+   private static final MetadataKeyCategory CASHILA_COUNTRY_CODE = new MetadataKeyCategory("cashila", "country");
+   private static final MetadataKeyCategory CASHILA_IS_ENABLED = new MetadataKeyCategory("cashila", "enable");
+   private static final MetadataKeyCategory SYNC_LAST_FULLSYNC = new MetadataKeyCategory("lastFull", "sync");
+   private static final MetadataKeyCategory SHOW_BIP44_PATH = new MetadataKeyCategory("ui", "show_bip44_path");
+   private static final MetadataKeyCategory GLIDERA_IS_ENABLED = new MetadataKeyCategory("glidera", "enable");
+   private static final String EMAIL = "email";
    public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
 
    public MetadataStorage(Context context) {
@@ -167,7 +167,6 @@ public class MetadataStorage extends GenericMetadataStorage {
    public void setOtherAccountBackupState(UUID accountId, BackupState state) {
       storeKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), state.toString());
    }
-
 
    public void deleteOtherAccountBackupState(UUID accountId) {
       deleteByKeyCategory(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()));
@@ -310,6 +309,14 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(CASHILA_IS_ENABLED, enable ? "1" : "0");
    }
 
+   public boolean getGlideraIsEnabled() {
+      return getKeyCategoryValueEntry(GLIDERA_IS_ENABLED, "1").equals("1");
+   }
+
+   public void setGlideraIsEnabled(boolean enable) {
+      storeKeyCategoryValueEntry(GLIDERA_IS_ENABLED, enable ? "1" : "0");
+   }
+
    public Optional<Long> getLastFullSync() {
       final Optional<String> lastDateStr = getKeyCategoryValueEntry(SYNC_LAST_FULLSYNC);
       if (lastDateStr.isPresent()) {
@@ -340,7 +347,7 @@ public class MetadataStorage extends GenericMetadataStorage {
 
       private final int _index;
 
-      private BackupState(int index) {
+      BackupState(int index) {
          _index = index;
       }
 
@@ -359,13 +366,13 @@ public class MetadataStorage extends GenericMetadataStorage {
       public static BackupState fromInt(int integer) {
          switch (integer) {
             case 0:
-               return BackupState.UNKNOWN;
+               return UNKNOWN;
             case 1:
-               return BackupState.VERIFIED;
+               return VERIFIED;
             case 2:
-               return BackupState.IGNORED;
+               return IGNORED;
             default:
-               return BackupState.UNKNOWN;
+               return UNKNOWN;
          }
       }
    }

@@ -39,6 +39,10 @@ public class StandardTransactionBuilder {
 
    // 1000sat per 1000Bytes, from https://github.com/bitcoin/bitcoin/blob/849a7e645323062878604589df97a1cd75517eb1/src/main.cpp#L78
    private static final long MIN_RELAY_FEE = 1000;
+   // hash size 32 + output index size 4 + max. script size 140 + ? 1 + ? 4
+   private static final int MAX_INPUT_SIZE = 32 + 4 + 140 + 1 + 4;
+   // output value 8B + script length 1B + script 25B (always)
+   private static final int OUTPUT_SIZE = 8 + 1 + 25;
 
    public static class InsufficientFundsException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
@@ -492,10 +496,10 @@ public class StandardTransactionBuilder {
    private static int estimateTransactionSize(int inputs, int outputs) {
       int estimate = 0;
       estimate += 4; // Version info
-      estimate += CompactInt.toBytes(inputs).length; // num input encoding
-      estimate += (32 + 4 + 140 + 1 + 4) * inputs; // 140 is upper limit on input length
-      estimate += CompactInt.toBytes(outputs).length; // num output encoding
-      estimate += (8 + 25 + 1) * outputs; // 25 exact output length
+      estimate += CompactInt.toBytes(inputs).length; // num input encoding. Usually 1. >253 inputs -> 3
+      estimate += MAX_INPUT_SIZE * inputs;
+      estimate += CompactInt.toBytes(outputs).length; // num output encoding. Usually 1. >253 outputs -> 3
+      estimate += OUTPUT_SIZE * outputs;
       estimate += 4; // nLockTime
       return estimate;
    }

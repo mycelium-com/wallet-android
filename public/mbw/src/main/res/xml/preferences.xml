@@ -144,7 +144,11 @@
                 android:layout="@layout/preference_layout"
                 android:summary="@string/cashila_setting_show_sepa_button_summary"
                 android:title="@string/cashila_setting_show_sepa_button"/>
+        <CheckBoxPreference
+                android:key="enableGlideraButton"
+                android:layout="@layout/preference_layout"
+                android:summary="@string/glidera_setting_show_button_summary"
+                android:title="@string/glidera_setting_show_button"/>
     </PreferenceCategory>
-
 
 </PreferenceScreen>

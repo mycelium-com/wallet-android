@@ -54,9 +54,6 @@ import com.mrd.bitlib.model.Address;
 public class AddressBookManager {
    private static final String ADDRESS_BOOK_FILE_NAME = "address-book.txt";
 
-   public static abstract class AddressBookKey {
-   }
-
    public static class Entry implements Comparable<Entry> {
       private Address _address;
       private String _name;
@@ -108,13 +105,12 @@ public class AddressBookManager {
       }
    }
 
-   private Context _applicationContext;
    private List<Entry> _entries;
    private Map<Address, Entry> _addressMap;
 
    public AddressBookManager(Context context) {
-      _applicationContext = context.getApplicationContext();
-      List<Entry> entries = loadEntries(_applicationContext);
+      Context applicationContext = context.getApplicationContext();
+      List<Entry> entries = loadEntries(applicationContext);
       _entries = Lists.newArrayList();
       _addressMap = Maps.newHashMap();
       for (Entry entry : entries) {

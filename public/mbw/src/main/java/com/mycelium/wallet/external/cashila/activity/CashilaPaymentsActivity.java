@@ -90,14 +90,13 @@ public class CashilaPaymentsActivity extends ActionBarActivity implements Action
          // wallet isn't paired, show the sign-up activity
          return CashilaSignUpActivity.getIntent(context);
       }
-
    }
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.ext_cashila_payments);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
 
       mbw = MbwManager.getInstance(this);
 

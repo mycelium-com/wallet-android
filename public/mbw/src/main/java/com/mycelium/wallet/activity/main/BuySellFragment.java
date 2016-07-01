@@ -49,7 +49,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.external.glidera.activities.BuySellSelect;
 
 public class BuySellFragment extends Fragment {
-
     private MbwManager _mbwManager;
     private View _root;
 
@@ -73,22 +72,21 @@ public class BuySellFragment extends Fragment {
 
     @Override
     public void onResume() {
-        _root.findViewById(R.id.btGlidera).setOnClickListener(buySellOnClickListener);
+        View btGlidera = _root.findViewById(R.id.btGlidera);
+        if(_mbwManager.getLocalTraderManager().isLocalTraderDisabled() && !_mbwManager.getMetadataStorage().getGlideraIsEnabled()) {
+            btGlidera.setVisibility(View.GONE);
+        } else {
+            btGlidera.setVisibility(View.VISIBLE);
+            btGlidera.setOnClickListener(buySellOnClickListener);
+        }
         super.onResume();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
     OnClickListener buySellOnClickListener = new OnClickListener() {
-
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(getActivity(), BuySellSelect.class);
             startActivity(intent);
         }
     };
-
 }

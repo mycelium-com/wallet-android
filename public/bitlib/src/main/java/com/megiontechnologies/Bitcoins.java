@@ -175,11 +175,11 @@ public final class Bitcoins implements Serializable {
    }
 
    public String toCurrencyString() {
-      return new StringBuilder().append(BITCOIN_SYMBOL).append(' ').append(toString()).toString();
+      return BITCOIN_SYMBOL + ' ' + toString();
    }
 
    public String toCurrencyString(int decimals) {
-      return new StringBuilder().append(BITCOIN_SYMBOL).append(' ').append(toString(decimals)).toString();
+      return BITCOIN_SYMBOL + ' ' + toString(decimals);
    }
 
    public Bitcoins roundToSignificantFigures(int n) {
@@ -197,8 +197,7 @@ public final class Bitcoins implements Serializable {
 
       final double magnitude = Math.pow(10, power);
       final long shifted = Math.round(num * magnitude);
-      long ret = (long) (shifted / magnitude);
-      return ret;
+      return (long) (shifted / magnitude);
    }
 
 }

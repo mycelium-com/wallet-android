@@ -58,6 +58,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
@@ -81,7 +82,6 @@ import java.util.Date;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class ReceiveCoinsActivity extends Activity {
@@ -93,16 +93,16 @@ public class ReceiveCoinsActivity extends Activity {
    public static final String SYNC_ERRORS = "syncErrors";
    private static final int MAX_SYNC_ERRORS = 8;
 
-   @InjectView(R.id.tvAmountLabel) TextView tvAmountLabel;
-   @InjectView(R.id.tvAmount) TextView tvAmount;
-   @InjectView(R.id.tvWarning) TextView tvWarning;
-   @InjectView(R.id.tvTitle) TextView tvTitle;
-   @InjectView(R.id.tvAddress1) TextView tvAddress1;
-   @InjectView(R.id.tvAddress2) TextView tvAddress2;
-   @InjectView(R.id.tvAddress3) TextView tvAddress3;
-   @InjectView(R.id.ivNfc) ImageView ivNfc;
-   @InjectView(R.id.ivQrCode) QrImageView ivQrCode;
-   @InjectView(R.id.btShare) Button btShare;
+   @BindView(R.id.tvAmountLabel) TextView tvAmountLabel;
+   @BindView(R.id.tvAmount) TextView tvAmount;
+   @BindView(R.id.tvWarning) TextView tvWarning;
+   @BindView(R.id.tvTitle) TextView tvTitle;
+   @BindView(R.id.tvAddress1) TextView tvAddress1;
+   @BindView(R.id.tvAddress2) TextView tvAddress2;
+   @BindView(R.id.tvAddress3) TextView tvAddress3;
+   @BindView(R.id.ivNfc) ImageView ivNfc;
+   @BindView(R.id.ivQrCode) QrImageView ivQrCode;
+   @BindView(R.id.btShare) Button btShare;
 
    private MbwManager _mbwManager;
    private Address _address;
@@ -139,7 +139,7 @@ public class ReceiveCoinsActivity extends Activity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.receive_coins_activity);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
 
       _mbwManager = MbwManager.getInstance(getApplication());
 
@@ -341,8 +341,6 @@ public class ReceiveCoinsActivity extends Activity {
       }
    }
 
-   ;
-
    @Subscribe
    public void syncError(SyncFailed event) {
       _syncErrors++;
@@ -390,5 +388,4 @@ public class ReceiveCoinsActivity extends Activity {
          tvRecv.setVisibility(View.GONE);
       }
    }
-
 }

@@ -747,9 +747,7 @@ public class WalletManager {
 
       // use this constructor if you dont care about the current active account
       private Synchronizer(SyncMode syncMode) {
-         this.syncMode = syncMode;
-         // ensure to scan all accounts
-         this.currentAccount = null;
+         this(syncMode, null);
       }
 
       @Override
@@ -757,16 +755,10 @@ public class WalletManager {
          try {
             setStateAndNotify(State.SYNCHRONIZING);
             synchronized (_walletAccounts) {
-               if (!syncMode.ignoreMinerFeeFetch) {
+               if (!syncMode.ignoreMinerFeeFetch &&
+                     (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MAX_AGE_FEE_ESTIMATION / 2))) {
                   // only fetch the fee estimations if the latest available fee is older than half of its max-age
-                  if (_lastFeeEstimations != null) {
-                     final long feeAge = _lastFeeEstimations.getValidFor().getTime() - new Date().getTime();
-                     if (feeAge > MAX_AGE_FEE_ESTIMATION / 2){
-                        fetchFeeEstimation();
-                     }
-                  } else {
-                     fetchFeeEstimation();
-                  }
+                  fetchFeeEstimation();
                }
 
                // If we have any lingering outgoing transactions broadcast them now
@@ -786,7 +778,6 @@ public class WalletManager {
             setStateAndNotify(State.READY);
          }
       }
-
 
       private boolean fetchFeeEstimation() {
          WapiResponse<MinerFeeEstimationResponse> minerFeeEstimations = _wapi.getMinerFeeEstimations();
@@ -973,7 +964,8 @@ public class WalletManager {
       Collections.sort(mainAccounts, new Comparator<Bip44Account>() {
          @Override
          public int compare(Bip44Account o1, Bip44Account o2) {
-            return Integer.compare(o1.getAccountIndex(), o2.getAccountIndex());
+            int x = o1.getAccountIndex(), y =  o2.getAccountIndex();
+            return x < y?-1:(x == y?0:1);
          }
       });
       List<Integer> gaps = new LinkedList<Integer>();

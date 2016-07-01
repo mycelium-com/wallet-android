@@ -77,7 +77,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
@@ -96,7 +95,6 @@ import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -238,8 +236,7 @@ public class Utils {
    public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
       MbwManager mbwManager = MbwManager.getInstance(context);
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
-      String ret = p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max((long)blocks, 1L) * 10 * 60 * 1000));
-      return ret;
+      return p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max((long)blocks, 1L) * 10 * 60 * 1000));
    }
 
    /**
@@ -918,6 +915,4 @@ public class Utils {
          return false;
       }
    }
-
-
 }

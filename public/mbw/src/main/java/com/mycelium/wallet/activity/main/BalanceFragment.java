@@ -41,11 +41,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -58,19 +59,16 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
 
 public class BalanceFragment extends Fragment {
-
    private MbwManager _mbwManager;
    private View _root;
    private Double _exchangeRatePrice;
    private Toaster _toaster;
-   private ToggleableCurrencyButton _tcdFiatDisplay;
-
+   @BindView(R.id.tcdFiatDisplay) ToggleableCurrencyButton _tcdFiatDisplay;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,6 +80,7 @@ public class BalanceFragment extends Fragment {
             _mbwManager.getWalletManager(false).startSynchronization();
          }
       });
+      ButterKnife.bind(this, _root);
       return _root;
    }
 
@@ -106,11 +105,7 @@ public class BalanceFragment extends Fragment {
       if (_exchangeRatePrice == null) {
          _mbwManager.getExchangeRateManager().requestRefresh();
       }
-      _root.findViewById(R.id.btSend).setOnClickListener(sendClickListener);
-      _root.findViewById(R.id.btReceive).setOnClickListener(receiveClickListener);
-      _root.findViewById(R.id.btScan).setOnClickListener(scanClickListener);
 
-      _tcdFiatDisplay = (ToggleableCurrencyButton) _root.findViewById(R.id.tcdFiatDisplay);
       _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
       _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
 
@@ -118,35 +113,22 @@ public class BalanceFragment extends Fragment {
       super.onResume();
    }
 
-   OnClickListener sendClickListener = new OnClickListener() {
+   @OnClick(R.id.btSend) void onClickSend() {
+      SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+   }
 
-      @Override
-      public void onClick(View arg0) {
-         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+   @OnClick(R.id.btReceive) void onClickReceive() {
+      Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
+      if (receivingAddress.isPresent()) {
+         ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
+               _mbwManager.getSelectedAccount().canSpend(), true);
       }
-   };
+   }
 
-   OnClickListener receiveClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
-         if (receivingAddress.isPresent()) {
-            ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
-                  _mbwManager.getSelectedAccount().canSpend(), true);
-         }
-      }
-   };
-
-   OnClickListener scanClickListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-         //perform a generic scan, act based upon what we find in the QR code
-         ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, StringHandleConfig.genericScanRequest());
-      }
-   };
-
+   @OnClick(R.id.btScan) void onClickScan() {
+      //perform a generic scan, act based upon what we find in the QR code
+      ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, StringHandleConfig.genericScanRequest());
+   }
 
    @Override
    public void onPause() {
@@ -170,13 +152,9 @@ public class BalanceFragment extends Fragment {
          balance = CurrencyBasedBalance.ZERO_BITCOIN_BALANCE;
       }
 
-      if (account.canSpend()) {
-         // Show spend button
-         _root.findViewById(R.id.btSend).setVisibility(View.VISIBLE);
-      } else {
-         // Hide spend button
-         _root.findViewById(R.id.btSend).setVisibility(View.GONE);
-      }
+      // Hide spend button if not canSpend()
+      int visibility = account.canSpend() ? View.VISIBLE : View.GONE;
+      _root.findViewById(R.id.btSend).setVisibility(visibility);
 
       updateUiKnownBalance(balance);
 
@@ -203,7 +181,7 @@ public class BalanceFragment extends Fragment {
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
-      ((ProgressBar) _root.findViewById(R.id.pbProgress)).setVisibility( (balance.isSynchronizing ? View.VISIBLE : View.GONE));
+      _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
 
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc());
@@ -251,12 +229,11 @@ public class BalanceFragment extends Fragment {
             String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
             String currency = _mbwManager.getFiatCurrency();
             tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
-         }catch (IllegalArgumentException ex){
+         } catch (IllegalArgumentException ex) {
             // something failed while calculating the bitcoin amount
             tv.setVisibility(View.GONE);
          }
       }
-
    }
 
    @Subscribe

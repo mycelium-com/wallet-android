@@ -45,7 +45,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
@@ -74,13 +74,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public static final String IS_COLD_STORAGE = "isColdStorage";
    public static final String SEND_MODE = "sendmode";
 
-   @InjectView(R.id.btCurrency) Button btCurrency;
-   @InjectView(R.id.btPaste) Button btPaste;
-   @InjectView(R.id.btMax) Button btMax;
-   @InjectView(R.id.btOk) Button btOk;
-   @InjectView(R.id.tvMaxAmount) TextView tvMaxAmount;
-   @InjectView(R.id.tvAmount) TextView tvAmount;
-   @InjectView(R.id.tvAlternateAmount) TextView tvAlternateAmount;
+   @BindView(R.id.btCurrency) Button btCurrency;
+   @BindView(R.id.btPaste) Button btPaste;
+   @BindView(R.id.btMax) Button btMax;
+   @BindView(R.id.btOk) Button btOk;
+   @BindView(R.id.tvMaxAmount) TextView tvMaxAmount;
+   @BindView(R.id.tvAmount) TextView tvAmount;
+   @BindView(R.id.tvAlternateAmount) TextView tvAlternateAmount;
 
    private boolean isSendMode;
 
@@ -114,7 +114,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_amount_activity);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
 
       _mbwManager = MbwManager.getInstance(getApplication());
 

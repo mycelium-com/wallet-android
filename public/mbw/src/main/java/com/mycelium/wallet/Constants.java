@@ -36,99 +36,81 @@ package com.mycelium.wallet;
 
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 
-import java.math.BigDecimal;
+public interface Constants {
+   long ONE_uBTC_IN_SATOSHIS = 100;
+   long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
+   long ONE_BTC_IN_SATOSHIS  = 1000 * ONE_mBTC_IN_SATOSHIS;
 
-public class Constants {
+   long MS_PR_SECOND = 1000L;
+   long MS_PR_MINUTE = MS_PR_SECOND * 60;
+   long MS_PR_HOUR = MS_PR_MINUTE * 60;
+   long MS_PR_DAY = MS_PR_HOUR * 24;
 
-   public static final long ONE_BTC_IN_SATOSHIS = 100000000L;
-
-   public static final long MS_PR_SECOND = 1000L;
-   public static final long MS_PR_MINUTE = MS_PR_SECOND * 60;
-   public static final long MS_PR_HOUR = MS_PR_MINUTE * 60;
-   public static final long MS_PR_DAY = MS_PR_HOUR * 24;
-
-
-   public static final int SHORT_HTTP_TIMEOUT_MS = 4000;
-
-   /**
-    * The number of transactions to display in our transaction history. The
-    * higher the number the more bandwidth we require from the smartphone.
-    */
-   public static final int TRANSACTION_HISTORY_LENGTH = 20;
+   int SHORT_HTTP_TIMEOUT_MS = 4000;
 
    /**
     * Settings and their default values
     */
-   public static final String SETTINGS_NAME = "settings";
-   public static final String PIN_SETTING = "PIN";
-   public static final String PIN_SETTING_RESETTABLE = "PinResettable";
-   public static final String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
-   public static final String PROXY_SETTING = "proxy";
-   public static final String FIAT_CURRENCY_SETTING = "FiatCurrency";
-   public static final String SELECTED_CURRENCIES = "selectedFiatCurrencies";
-   public static final String DEFAULT_CURRENCY = "USD";
-   public static final String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
-   public static final String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
-   public static final String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
-   public static final String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
-   public static final String LAST_OBSERVED_BLOCK_HEIGHT_SETTING = "LastObservedBlockHeight";
-   public static final String MAIN_VIEW_FRAGMENT_INDEX_SETTING = "MainViewFragmentIndex";
-   public static final String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
-   public static final String MYCELIUM_2_RELEASE_NOTES_URL = "http://mycelium.com/wallet/whats_new_in_20.html";
-   public static final String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
-   public static final String DIRECT_APK_URL = "https://mycelium.com/download";
-   public static final String LANGUAGE_SETTING = "user_language";
-   public static final String IGNORED_VERSIONS = "ignored_versions";
-   public static final String TOR_MODE = "tor_mode";
-   public static final String BLOCK_EXPLORER = "BlockExplorer";
+   String SETTINGS_NAME = "settings";
+   String PIN_SETTING = "PIN";
+   String PIN_SETTING_RESETTABLE = "PinResettable";
+   String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
+   String PROXY_SETTING = "proxy";
+   String FIAT_CURRENCY_SETTING = "FiatCurrency";
+   String SELECTED_CURRENCIES = "selectedFiatCurrencies";
+   String DEFAULT_CURRENCY = "USD";
+   String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
+   String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
+   String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
+   String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
+   String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
+   String MYCELIUM_2_RELEASE_NOTES_URL = "http://mycelium.com/wallet/whats_new_in_20.html";
+   String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
+   String DIRECT_APK_URL = "https://mycelium.com/download";
+   String LANGUAGE_SETTING = "user_language";
+   String IGNORED_VERSIONS = "ignored_versions";
+   String TOR_MODE = "tor_mode";
+   String BLOCK_EXPLORER = "BlockExplorer";
    // Ledger preferences
-   public static final String LEDGER_SETTINGS_NAME = "ledger_settings";
-   public static final String LEDGER_DISABLE_TEE_SETTING = "ledger_disable_tee";
-   public static final String LEDGER_UNPLUGGED_AID_SETTING = "ledger_unplugged_aid";
+   String LEDGER_SETTINGS_NAME = "ledger_settings";
+   String LEDGER_DISABLE_TEE_SETTING = "ledger_disable_tee";
+   String LEDGER_UNPLUGGED_AID_SETTING = "ledger_unplugged_aid";
 
-   public static final String LAST_UPDATE_CHECK = "last_update_check";
+   String TAG = "MyceliumWallet";
 
-   public static final String TAG = "MyceliumWallet";
-   // Brands
-   public static final String BRAND_MYCELIUM = "mycelium";
-
-   public static final String BRAND_BITS_OF_GOLD = "bog";
+   String BRAND_BITS_OF_GOLD = "bog";
    // Local Trader constants
-   public static final String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
-   public static final String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";
-   public static final String LOCAL_TRADER_KEY_SETTING = "traderPrivateKey";
-   public static final String LOCAL_TRADER_ACCOUNT_ID_SETTING = "traderAccountId";
-   public static final String LOCAL_TRADER_NICKNAME_SETTING = "nickname";
-   public static final String LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING = "lastTraderSync";
-   public static final String LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING = "lastTraderNotification";
-   public static final String LOCAL_TRADER_LOCATION_NAME_SETTING = "locationName";
-   public static final String LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING = "locationCountryCode";
-   public static final String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
-   public static final String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
-   public static final GpsLocationEx LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocationEx(48.2162845, 16.2484715,
-         "Penzing, Vienna", "AT");
-   public static final String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
-   public static final String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
-   public static final String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
-   public static final String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
-   public static final String LOCAL_TRADER_HELP_URL = "http://www.mycelium.com/lt/help.html";
+   String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
+   String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";
+   String LOCAL_TRADER_KEY_SETTING = "traderPrivateKey";
+   String LOCAL_TRADER_ACCOUNT_ID_SETTING = "traderAccountId";
+   String LOCAL_TRADER_NICKNAME_SETTING = "nickname";
+   String LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING = "lastTraderSync";
+   String LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING = "lastTraderNotification";
+   String LOCAL_TRADER_LOCATION_NAME_SETTING = "locationName";
+   String LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING = "locationCountryCode";
+   String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
+   String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
+   GpsLocationEx LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocationEx(48.2162845, 16.2484715, "Penzing, Vienna", "AT");
+   String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
+   String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
+   String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
+   String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";
+   String LOCAL_TRADER_HELP_URL = "http://www.mycelium.com/lt/help.html";
 
-   public static final String LOCAL_TRADER_MAP_URL = "http://www.mycelium.com/lt/m";
+   String LOCAL_TRADER_MAP_URL = "http://www.mycelium.com/lt/m";
 
-   public static final String IGNORE_NEW_API = "NewApi";
+   String IGNORE_NEW_API = "NewApi";
 
-   public static final String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
-   public static final String PRODNET_DONATION_ADDRESS = "13YxhmcAyr9W1frumWr3trXLAj2hSHWBmo";
+   String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
 
-   public static final String TESTNET_DONATION_ADDRESS = "mtjVQkh6kZbixqwLPMinWievE5jWSHdovP";
-
-   public static final int BITCOIN_BLOCKS_PER_DAY = (24 * 60) / 10;
+   int BITCOIN_BLOCKS_PER_DAY = (24 * 60) / 10;
 
    // Minimum age of the PIN in blocks, so that we allow a second wordlist backup
-   public static final int MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP = 2 * BITCOIN_BLOCKS_PER_DAY;
+   int MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP = 2 * BITCOIN_BLOCKS_PER_DAY;
 
    // Minimum age of the PIN in blocks, until you can reset the PIN
-   public static final int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
+   int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
    // Force user to read the warnings about additional backups
-   public static final int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
+   int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
 }

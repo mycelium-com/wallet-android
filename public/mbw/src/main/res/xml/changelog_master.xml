@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.3" versioncode="28203">
+        <change>[bugfix] Fixed bug in miner fee estimation synchronisation</change>
+    </release>
     <release version="2.8.2" versioncode="28200">
         <change>Improve the connection timeout handling to work better with tor</change>
         <change>Dont show the changelog on the very first app startup</change>

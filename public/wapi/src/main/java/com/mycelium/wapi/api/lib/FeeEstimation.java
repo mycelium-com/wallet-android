@@ -26,7 +26,7 @@ public class FeeEstimation implements Serializable {
    final FeeEstimationMap feeForNBlocks;
 
    @JsonProperty
-   final Date validFor;
+   final Date validFor; // timestamp of this fee estimation
 
    public FeeEstimation(@JsonProperty("feeForNBlocks") FeeEstimationMap feeForNBlocks,
                         @JsonProperty("validFor") Date validFor) {
@@ -68,6 +68,15 @@ public class FeeEstimation implements Serializable {
       return "FeeEstimation: " +
             "feeForNBlocks=" + feeForNBlocks +
             '}';
+   }
+
+   /**
+    * @param maxAge maximum age in millis until it is considered expired
+    * @return true if the timestamp `validFor` of this FeeEstimation is older than maxAge. Else false.
+    */
+   public boolean isExpired(long maxAge) {
+      final long feeAgeMillis = System.currentTimeMillis() - validFor.getTime();
+      return feeAgeMillis > maxAge;
    }
 }
 

@@ -24,20 +24,20 @@ public interface Wapi {
    /**
     * The current version of the API
     */
-   public static final int VERSION = 1;
+   int VERSION = 1;
 
-   public final static int ERROR_CODE_SUCCESS = 0;
-   public final static int ERROR_CODE_NO_SERVER_CONNECTION = 1;
-   public final static int ERROR_CODE_INCOMPATIBLE_API_VERSION = 2;
-   public final static int ERROR_CODE_INTERNAL_CLIENT_ERROR = 3;
-   public final static int ERROR_CODE_INVALID_SESSION = 4;
-   public final static int ERROR_CODE_INVALID_ARGUMENT = 5;
-   public final static int ERROR_CODE_INTERNAL_SERVER_ERROR = 99;
+   int ERROR_CODE_SUCCESS = 0;
+   int ERROR_CODE_NO_SERVER_CONNECTION = 1;
+   int ERROR_CODE_INCOMPATIBLE_API_VERSION = 2;
+   int ERROR_CODE_INTERNAL_CLIENT_ERROR = 3;
+   int ERROR_CODE_INVALID_SESSION = 4;
+   int ERROR_CODE_INVALID_ARGUMENT = 5;
+   int ERROR_CODE_INTERNAL_SERVER_ERROR = 99;
 
-   public final static String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
+   String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
 
 
-   public final static int MAX_TRANSACTION_INVENTORY_LIMIT = 1000;
+   int MAX_TRANSACTION_INVENTORY_LIMIT = 1000;
    /**
     * Get the logger configured for this {@link Wapi}
     *

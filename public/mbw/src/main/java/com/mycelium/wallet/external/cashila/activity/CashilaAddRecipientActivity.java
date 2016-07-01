@@ -48,7 +48,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import com.google.common.base.Strings;
@@ -75,13 +75,13 @@ public class CashilaAddRecipientActivity extends Activity {
    public static final String RECIPIENT_ID = "RECIPIENT_ID";
    public static final String SELECTED_COUNTRY = "SELECTED_COUNTRY";
 
-   @InjectView(R.id.etName) EditText etName;
-   @InjectView(R.id.etAddress) EditText etAddress;
-   @InjectView(R.id.etPostalCode) EditText etPostalCode;
-   @InjectView(R.id.etCity) EditText etCity;
-   @InjectView(R.id.etIban) EditText etIban;
-   @InjectView(R.id.etBic) EditText etBic;
-   @InjectView(R.id.spCountries) Spinner spCountries;
+   @BindView(R.id.etName) EditText etName;
+   @BindView(R.id.etAddress) EditText etAddress;
+   @BindView(R.id.etPostalCode) EditText etPostalCode;
+   @BindView(R.id.etCity) EditText etCity;
+   @BindView(R.id.etIban) EditText etIban;
+   @BindView(R.id.etBic) EditText etBic;
+   @BindView(R.id.spCountries) Spinner spCountries;
    private CashilaService cs;
    private MbwManager mbw;
    private UUID recipientId;
@@ -94,7 +94,7 @@ public class CashilaAddRecipientActivity extends Activity {
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.ext_cashila_add_recipient);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
 
       mbw = MbwManager.getInstance(this);
       mbw.getEventBus().register(this);

@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class DataExport {
-   private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Transaction Label\n";
+   private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
    public static File getTxHistoryCsv(WalletAccount account, MetadataStorage storage, File file) throws IOException {
       FileOutputStream fos = new FileOutputStream(file);

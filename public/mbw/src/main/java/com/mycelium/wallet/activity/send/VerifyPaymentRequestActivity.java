@@ -43,8 +43,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 import com.google.common.base.Preconditions;
@@ -70,26 +70,25 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    private static final String CALLBACK_URI = "payment_uri";
    private static final String RAW_PR = "raw_pr";
    private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
-   @InjectView(R.id.tvMerchant) TextView tvMerchant;
-   @InjectView(R.id.tvAmount) TextView tvAmount;
-   @InjectView(R.id.tvFiatAmount) TextView tvFiatAmount;
-   @InjectView(R.id.tvMessage) TextView tvMessage;
-   @InjectView(R.id.tvErrorDetails) TextView tvErrorDetails;
-   @InjectView(R.id.tvTimeExpires) TextView tvTimeExpires;
-   @InjectView(R.id.tvTimeCreated) TextView tvTimeCreated;
-   @InjectView(R.id.tvValid) TextView tvValid;
-   @InjectView(R.id.btAccept) Button btAccept;
-   @InjectView(R.id.btDismiss) Button btDismiss;
-   @InjectView(R.id.etMerchantMemo) EditText etMerchantMemo;
-   @InjectView(R.id.llAmount) LinearLayout llAmount;
-   @InjectView(R.id.llMessage) LinearLayout llMessage;
-   @InjectView(R.id.llTime) LinearLayout llTime;
-   @InjectView(R.id.llTimeExpires) LinearLayout llTimeExpires;
-   @InjectView(R.id.llMessageToMerchant) LinearLayout llMessageToMerchant;
-   @InjectView(R.id.llErrorDetailsDisplay) LinearLayout llErrorDetailsDisplay;
-   @InjectView(R.id.ivSignatureWarning) ImageView ivSignatureWarning;
+   @BindView(R.id.tvMerchant) TextView tvMerchant;
+   @BindView(R.id.tvAmount) TextView tvAmount;
+   @BindView(R.id.tvFiatAmount) TextView tvFiatAmount;
+   @BindView(R.id.tvMessage) TextView tvMessage;
+   @BindView(R.id.tvErrorDetails) TextView tvErrorDetails;
+   @BindView(R.id.tvTimeExpires) TextView tvTimeExpires;
+   @BindView(R.id.tvTimeCreated) TextView tvTimeCreated;
+   @BindView(R.id.tvValid) TextView tvValid;
+   @BindView(R.id.btAccept) Button btAccept;
+   @BindView(R.id.btDismiss) Button btDismiss;
+   @BindView(R.id.etMerchantMemo) EditText etMerchantMemo;
+   @BindView(R.id.llAmount) LinearLayout llAmount;
+   @BindView(R.id.llMessage) LinearLayout llMessage;
+   @BindView(R.id.llTime) LinearLayout llTime;
+   @BindView(R.id.llTimeExpires) LinearLayout llTimeExpires;
+   @BindView(R.id.llMessageToMerchant) LinearLayout llMessageToMerchant;
+   @BindView(R.id.llErrorDetailsDisplay) LinearLayout llErrorDetailsDisplay;
+   @BindView(R.id.ivSignatureWarning) ImageView ivSignatureWarning;
 
-   private BitcoinUri bitcoinUri;
    private ProgressDialog progress;
    private PaymentRequestHandler requestHandler;
    private Throwable requestException;
@@ -98,7 +97,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    private String paymentRequestHandlerUuid;
    private Handler checkExpired;
    private Runnable expiredUpdater;
-   private byte[] rawPaymentRequest;
 
 
    public static Intent getIntent(Activity currentActivity, BitcoinUri uri) {
@@ -117,20 +115,20 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.verify_payment_request_activity);
-      ButterKnife.inject(this);
+      ButterKnife.bind(this);
       mbw = MbwManager.getInstance(this);
       mbw.getEventBus().register(this);
 
       // only popup the keyboard if the user taps the textbox
       this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-      bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(CALLBACK_URI);
-      rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
+      BitcoinUri bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(CALLBACK_URI);
+      byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
 
       // either one of them must be set...
       Preconditions.checkArgument(
-            (bitcoinUri!=null && !Strings.isNullOrEmpty(bitcoinUri.callbackURL))
-            || rawPaymentRequest!=null
+            (bitcoinUri !=null && !Strings.isNullOrEmpty(bitcoinUri.callbackURL))
+            || rawPaymentRequest !=null
       );
 
 
@@ -212,7 +210,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       checkExpired.removeCallbacks(expiredUpdater);
       super.onPause();
    }
-
 
    @OnClick(R.id.btAccept)
    void onAcceptClick() {
@@ -335,7 +332,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       }
    }
 
-
    @Subscribe
    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
       updateUi();
@@ -356,5 +352,4 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       requestException = paymentRequestException;
       updateUi();
    }
-
 }

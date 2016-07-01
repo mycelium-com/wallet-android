@@ -39,6 +39,9 @@ import java.io.Serializable;
 public class Transaction implements Serializable {
    private static final long serialVersionUID = 1L;
 
+   private static final long ONE_uBTC_IN_SATOSHIS = 100;
+   private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
+
    public static class TransactionParsingException extends Exception {
 
       private static final long serialVersionUID = 1L;
@@ -54,7 +57,7 @@ public class Transaction implements Serializable {
    }
 
    public static final int MIN_TRANSACTION_SIZE = 100;
-   public static final int MAX_MINER_FEE_PER_KB = 2000000;
+   public static final long MAX_MINER_FEE_PER_KB = 20L * ONE_mBTC_IN_SATOSHIS; // 2000sat/B
 
    public int version;
    public final TransactionInput[] inputs;
@@ -114,8 +117,7 @@ public class Transaction implements Serializable {
             }
          }
          int lockTime = reader.getIntLE();
-         Transaction t = new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
-         return t;
+         return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
       } catch (InsufficientBytesException e) {
          throw new TransactionParsingException(e.getMessage());
       }
@@ -247,9 +249,7 @@ public class Transaction implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append(getHash()).append(" in: ").append(inputs.length).append(" out: ").append(outputs.length);
-      return sb.toString();
+      return String.valueOf(getHash()) + " in: " + inputs.length + " out: " + outputs.length;
    }
 
    @Override

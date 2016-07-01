@@ -49,7 +49,7 @@ public enum MinerFee {
    private final int idTag;
    private final int idLongDesc;
 
-   private MinerFee(String tag, int nBlocks, int idTag, int idLongDesc) {
+   MinerFee(String tag, int nBlocks, int idTag, int idLongDesc) {
       this.tag = tag;
       this.nBlocks = nBlocks;
       this.idTag = idTag;
@@ -62,17 +62,12 @@ public enum MinerFee {
    }
 
    public static MinerFee fromString(String string) {
-      if (ECONOMIC.tag.equals(string)) {
-         return ECONOMIC;
-      } else if (NORMAL.tag.equals(string)) {
-         return NORMAL;
-      } else if (PRIORITY.tag.equals(string)) {
-         return PRIORITY;
-      } else if (LOWPRIO.tag.equals(string)) {
-         return LOWPRIO;
-      } else {
-         return NORMAL;
+      for(MinerFee fee : MinerFee.values()) {
+         if(fee.tag.equals(string)) {
+            return fee;
+         }
       }
+      return NORMAL;
    }
 
    //simply returns the next fee in order of declaration, starts with the first after reaching the last
@@ -98,6 +93,4 @@ public enum MinerFee {
    public int getNBlocks() {
       return nBlocks;
    }
-
 }
-

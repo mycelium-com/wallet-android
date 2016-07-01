@@ -46,10 +46,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
-import butterknife.OnTextChanged;
+import butterknife.*;
 import com.google.api.client.util.Strings;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
@@ -78,10 +75,10 @@ import java.util.UUID;
  * The "new payment" fragment
  */
 public class CashilaNewFragment extends Fragment {
-   @InjectView(R.id.spRecipients) public Spinner spRecipients;
-   @InjectView(R.id.etAmount) public EditText etAmount;
-   @InjectView(R.id.etReference) public EditText etReference;
-   @InjectView(R.id.tvMinMaxAmount) TextView tvMinMaxAmount;
+   @BindView(R.id.spRecipients) public Spinner spRecipients;
+   @BindView(R.id.etAmount) public EditText etAmount;
+   @BindView(R.id.etReference) public EditText etReference;
+   @BindView(R.id.tvMinMaxAmount) TextView tvMinMaxAmount;
 
    RecipientArrayAdapter recipientArrayAdapter;
    private CashilaService cs;
@@ -89,7 +86,7 @@ public class CashilaNewFragment extends Fragment {
    private Bus eventBus;
    private AccountLimits.Limits currentAccountLimits;
    private UUID toSelect;
-
+   private Unbinder unbinder;
 
    /**
     * Returns a new instance of this fragment for the given section
@@ -110,7 +107,7 @@ public class CashilaNewFragment extends Fragment {
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
       View rootView = inflater.inflate(R.layout.ext_cashila_payments_fragment_new, container, false);
-      ButterKnife.inject(this, rootView);
+      unbinder = ButterKnife.bind(this, rootView);
 
 
       mbw = MbwManager.getInstance(this.getActivity());
@@ -278,12 +275,11 @@ public class CashilaNewFragment extends Fragment {
          return null;
       }
 
-      CreateBillPayBasedOnRecent newBillPay = new CreateBillPayBasedOnRecent(
+      return new CreateBillPayBasedOnRecent(
             UUID.fromString(selectedItem.id),
             amount, "EUR",
             etReference.getText().toString(),
             receivingAddress.get());
-      return newBillPay;
    }
 
    private CreateBillPay getBillPay() {
@@ -392,23 +388,16 @@ public class CashilaNewFragment extends Fragment {
       }
    }
 
-
    @Override
    public void onDestroy() {
+      unbinder.unbind();
       super.onDestroy();
-      ButterKnife.reset(this);
    }
 
    @Override
    public void onPause() {
       mbw.getVersionManager().closeDialog();
       super.onPause();
-   }
-
-   @Override
-   public void onDestroyView() {
-      super.onDestroyView();
-      ButterKnife.reset(this);
    }
 
    // Adapter for Recipient Spinner

@@ -142,7 +142,7 @@ public class SQLiteQueryWithBlobs {
    public static OutPoint outPointFromBytes(byte[] bytes) {
       Preconditions.checkArgument(bytes != null && bytes.length == 34);
       Sha256Hash hash = Sha256Hash.copyOf(bytes, 0);
-      int index = ((bytes[32] & 0xFF) << 0) | ((bytes[33] & 0xFF) << 8);
+      int index = (bytes[32] & 0xFF) | ((bytes[33] & 0xFF) << 8);
       return new OutPoint(hash, index);
    }
    

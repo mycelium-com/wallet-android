@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -99,8 +98,8 @@ public class ModernMain extends ActionBarActivity {
 
    private static final int REQUEST_SETTING_CHANGED = 5;
    public static final int GENERIC_SCAN_REQUEST = 4;
-   public static final int MIN_AUTOSYNC_INTERVAL = 1 * 60 * 1000;
-   public static final int MIN_FULLSYNC_INTERVAL = 5 * 60 * 60 * 1000;
+   public static final int MIN_AUTOSYNC_INTERVAL = (int) Constants.MS_PR_MINUTE;
+   public static final int MIN_FULLSYNC_INTERVAL = (int) (5 * Constants.MS_PR_HOUR);
    public static final String LAST_SYNC = "LAST_SYNC";
    private static final String APP_START = "APP_START";
    private MbwManager _mbwManager;

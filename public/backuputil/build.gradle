@@ -1,27 +1,27 @@
-apply plugin: 'java'
-apply plugin: 'gradle-one-jar'
-apply plugin: "application"
-
-project.ext.set("mainClassName", 'com.mrd.bitlib.BackupUtil')
-
-repositories {
-    mavenCentral()
-}
-
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
         classpath 'org.batcha.gradle.plugins:git-dependencies:0.2'
     }
 }
 
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id 'application'
+}
+
+mainClassName='com.mrd.bitlib.BackupUtil'
+project.ext.set("mainClassName", mainClassName)
+
+repositories {
+    mavenCentral()
+}
+
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
-
-
 
 dependencies {
     compile project(':public:bitlib')
@@ -38,10 +38,8 @@ jar {
     }
 }
 
-task oneJar(type: OneJar) {
-    mainClass = mainClassName
-    additionalDir = file(projectRootDir + '/gradle/oneJar')
-
+shadowJar {
+    mergeServiceFiles()
     manifest {
         attributes 'Timestamp': String.valueOf(System.currentTimeMillis())
         attributes 'Implementation-Version': getCheckedOutGitCommitHash()
