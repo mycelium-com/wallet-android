@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Megion Research and Development GmbH
+ * Copyright 2013, 2014 Megion Research and Development GmbH
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.keepkey;
+package com.mycelium.wallet.extsig.common;
 
 import android.content.Context;
 import android.util.Log;
@@ -51,28 +51,23 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.keepkey.KeepKey;
-import com.keepkey.KeepKeyConnectionException;
-import com.keepkey.protobuf.KeepKeyMessage;
-import com.keepkey.protobuf.KeepKeyType;
+import com.satoshilabs.trezor.ExternalSignatureDevice;
+import com.satoshilabs.trezor.ExtSigDeviceConnectionException;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import com.satoshilabs.trezor.protobuf.TrezorType;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class KeepKeyManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
-   private static final int MOST_RECENT_VERSION_MAJOR = 1;
-   private static final int MOST_RECENT_VERSION_MINOR = 3;
-   private static final int MOST_RECENT_VERSION_PATCH = 4;
-
+public abstract class ExternalSignatureDeviceManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
-   private static final String DEFAULT_LABEL = "KeepKey";
 
-   private KeepKey _keepkey = null;
-   private KeepKeyMessage.Features features;
+
+   private ExternalSignatureDevice _trezor = null;
+   private TrezorMessage.Features features;
 
    protected final LinkedBlockingQueue<String> pinMatrixEntry = new LinkedBlockingQueue<String>(1);
 
@@ -86,37 +81,34 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
       }
    }
 
-   public KeepKeyManager(Context context, NetworkParameters network, Bus eventBus) {
+   public ExternalSignatureDeviceManager(Context context, NetworkParameters network, Bus eventBus) {
       super(context, network, eventBus);
    }
 
-   private KeepKey getKeepKey() {
-      if (_keepkey == null) {
-         _keepkey = new KeepKey(context);
+   abstract protected ExternalSignatureDevice createDevice();
+
+   private ExternalSignatureDevice getTrezor() {
+      if (_trezor == null) {
+         _trezor = createDevice();
       }
-      return _keepkey;
+      return _trezor;
    }
 
    public String getLabelOrDefault() {
       if (features != null && !features.getLabel().isEmpty()) {
          return features.getLabel();
       }
-      return DEFAULT_LABEL;
+      return _trezor.getDefaultAccountName();
    }
 
 
    public boolean isMostRecentVersion() {
       if (features != null) {
-         if (features.getMajorVersion() < MOST_RECENT_VERSION_MAJOR) {
-            return false;
-         }
-         if (features.getMinorVersion() < MOST_RECENT_VERSION_MINOR) {
-            return false;
-         }
-         if (features.getPatchVersion() < MOST_RECENT_VERSION_PATCH) {
-            return false;
-         }
-         return true;
+         return !_trezor.getMostRecentFirmwareVersion().isNewerThan(
+               features.getMajorVersion(),
+               features.getMinorVersion(),
+               features.getPatchVersion()
+         );
       } else {
          // we dont know...
          return true;
@@ -129,10 +121,10 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
    }
 
    public boolean initialize() {
-      // check if a keepkey is attached and connect to it, otherwise loop and check periodically
+      // check if a trezor is attached and connect to it, otherwise loop and check periodically
 
       // wait until a device is connected
-      while (!getKeepKey().isKeepKeyPluggedIn(context)) {
+      while (!getTrezor().isDevicePluggedIn(context)) {
          try {
             setState(Status.unableToScan, currentAccountState);
             Thread.sleep(4000);
@@ -142,11 +134,11 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
       }
 
       // set up the connection and afterwards send a Features-Request
-      if (getKeepKey().connect(context)) {
-         KeepKeyMessage.Initialize req = KeepKeyMessage.Initialize.newBuilder().build();
-         Message resp = getKeepKey().send(req);
-         if (resp != null && resp instanceof KeepKeyMessage.Features) {
-            final KeepKeyMessage.Features f = (KeepKeyMessage.Features) resp;
+      if (getTrezor().connect(context)) {
+         TrezorMessage.Initialize req = TrezorMessage.Initialize.newBuilder().build();
+         Message resp = getTrezor().send(req);
+         if (resp != null && resp instanceof TrezorMessage.Features) {
+            final TrezorMessage.Features f = (TrezorMessage.Features) resp;
 
             // remember the features
             mainThreadHandler.post(new Runnable() {
@@ -158,18 +150,18 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
 
             return true;
          } else if (resp == null) {
-            Log.e("keepkey", "Got null-response from keepkey");
+            Log.e("trezor", "Got null-response from trezor");
          } else {
-            Log.e("keepkey", "Got wrong response from keepkey " + resp.getClass().toString());
+            Log.e("trezor", "Got wrong response from trezor " + resp.getClass().toString());
          }
       }
       return false;
    }
 
 
-   // based on https://github.com/keepkey/python-keepkey/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/keepkeylib/client.py
+   // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
-   public Transaction sign(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
+   public Transaction getSignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
 
       if (!initialize()) {
          return null;
@@ -178,7 +170,7 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
       setState(Status.readyToScan, currentAccountState);
 
       // send initial signing-request
-      KeepKeyMessage.SignTx signTx = KeepKeyMessage.SignTx.newBuilder()
+      TrezorMessage.SignTx signTx = TrezorMessage.SignTx.newBuilder()
             .setCoinName(getNetwork().getCoinName())
             .setInputsCount(unsigned.getFundingOutputs().length)
             .setOutputsCount(unsigned.getOutputs().length)
@@ -187,8 +179,8 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
 
       Message response;
       try {
-         response = getKeepKey().send(signTx);
-      } catch (KeepKeyConnectionException ex) {
+         response = getTrezor().send(signTx);
+      } catch (ExtSigDeviceConnectionException ex) {
          postErrorMessage(ex.getMessage());
          return null;
       }
@@ -202,78 +194,78 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
          // check for common response and handle them
          try {
             response = filterMessages(response);
-         } catch (KeepKeyConnectionException ex) {
+         } catch (ExtSigDeviceConnectionException ex) {
             postErrorMessage(ex.getMessage());
             return null;
          }
 
          if (response == null) {
-            // Something went wrong while talking with keepkey - get out of here
+            // Something went wrong while talking with trezor - get out of here
             return null;
          }
 
-         if (!(response instanceof KeepKeyMessage.TxRequest)) {
-            Log.e("keepkey", "KeepKey: Unexpected Response " + response.getClass().toString());
+         if (!(response instanceof TrezorMessage.TxRequest)) {
+            Log.e("trezor", "Trezor: Unexpected Response " + response.getClass().toString());
             return null;
          }
 
-         KeepKeyMessage.TxRequest txRequest = (KeepKeyMessage.TxRequest) response;
+         TrezorMessage.TxRequest txRequest = (TrezorMessage.TxRequest) response;
 
          // response had a part of the signed tx - write it to our buffer
          if (txRequest.hasSerialized() && txRequest.getSerialized().hasSerializedTx()) {
             signedTx.putBytes(txRequest.getSerialized().getSerializedTx().toByteArray());
          }
 
-         if (txRequest.getRequestType() == KeepKeyType.RequestType.TXFINISHED) {
+         if (txRequest.getRequestType() == TrezorType.RequestType.TXFINISHED) {
             // We are done here...
             break;
          }
 
          // Device asked for more information, let's process it.
-         KeepKeyType.TxRequestDetailsType txRequestDetailsType = txRequest.getDetails();
-         Log.d("keepkey", "RequestTyp: " + txRequest.getRequestType().toString());
+         TrezorType.TxRequestDetailsType txRequestDetailsType = txRequest.getDetails();
+         Log.d("trezor", "RequestTyp: " + txRequest.getRequestType().toString());
 
 
          Transaction currentTx;
          if (txRequestDetailsType.hasTxHash()) {
-            // keepkey requested information about a related tx - get it from the account backing
+            // trezor requested information about a related tx - get it from the account backing
             Sha256Hash requestHash = Sha256Hash.of(txRequestDetailsType.getTxHash().toByteArray());
             currentTx = TransactionEx.toTransaction(forAccount.getTransaction(requestHash));
          } else {
-            // keepkey requested information about the to-be-signed tx
+            // trezor requested information about the to-be-signed tx
             currentTx = Transaction.fromUnsignedTransaction(unsigned);
          }
 
-         // Lets see, what keepkey wants to know
-         if (txRequest.getRequestType() == KeepKeyType.RequestType.TXMETA) {
+         // Lets see, what trezor wants to know
+         if (txRequest.getRequestType() == TrezorType.RequestType.TXMETA) {
             // Send transaction metadata
 
-            KeepKeyType.TransactionType txType = KeepKeyType.TransactionType.newBuilder()
+            TrezorType.TransactionType txType = TrezorType.TransactionType.newBuilder()
                   .setInputsCnt(currentTx.inputs.length)
                   .setOutputsCnt(currentTx.outputs.length)
                   .setVersion(currentTx.version)
                   .setLockTime(currentTx.lockTime)
                   .build();
 
-            KeepKeyMessage.TxAck txAck = KeepKeyMessage.TxAck.newBuilder()
+            TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
                   .setTx(txType)
                   .build();
 
-            response = getKeepKey().send(txAck);
+            response = getTrezor().send(txAck);
 
-         } else if (txRequest.getRequestType() == KeepKeyType.RequestType.TXINPUT) {
+         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXINPUT) {
             TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
 
 
             ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.hash.getBytes());
             ByteString scriptSig = ByteString.copyFrom(ak_input.script.getScriptBytes());
-            KeepKeyType.TxInputType.Builder txInputBuilder = KeepKeyType.TxInputType.newBuilder()
+            TrezorType.TxInputType.Builder txInputBuilder = TrezorType.TxInputType.newBuilder()
                   .setPrevHash(prevHash)
                   .setPrevIndex(ak_input.outPoint.index)
                   .setSequence(ak_input.sequence)
                   .setScriptSig(scriptSig);
 
-            // get the bip32 path for the address, so that keepkey knows with what key to sign it
+            // get the bip32 path for the address, so that trezor knows with what key to sign it
             // only for the unsigned txin
             if (!txRequestDetailsType.hasTxHash()) {
                StandardTransactionBuilder.SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
@@ -285,44 +277,44 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
                      new InputAddressSetter(txInputBuilder).setAddressN(forAccount.getAccountIndex(), addId.get());
                   }
                } else {
-                  Log.w("keepkey", "no address found for signing InputIDX " + txRequestDetailsType.getRequestIndex());
+                  Log.w("trezor", "no address found for signing InputIDX " + txRequestDetailsType.getRequestIndex());
                }
             }
 
-            KeepKeyType.TxInputType txInput = txInputBuilder.build();
+            TrezorType.TxInputType txInput = txInputBuilder.build();
 
-            KeepKeyType.TransactionType txType = KeepKeyType.TransactionType.newBuilder()
+            TrezorType.TransactionType txType = TrezorType.TransactionType.newBuilder()
                   .addInputs(txInput)
                   .build();
 
-            KeepKeyMessage.TxAck txAck = KeepKeyMessage.TxAck.newBuilder()
+            TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
                   .setTx(txType)
                   .build();
 
-            response = getKeepKey().send(txAck);
+            response = getTrezor().send(txAck);
 
-         } else if (txRequest.getRequestType() == KeepKeyType.RequestType.TXOUTPUT) {
+         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXOUTPUT) {
             TransactionOutput ak_output = currentTx.outputs[txRequestDetailsType.getRequestIndex()];
 
-            KeepKeyType.TransactionType txType;
+            TrezorType.TransactionType txType;
 
             if (txRequestDetailsType.hasTxHash()) {
                // request has an hash -> requests data for an existing output
                ByteString scriptPubKey = ByteString.copyFrom(ak_output.script.getScriptBytes());
-               KeepKeyType.TxOutputBinType txOutput = KeepKeyType.TxOutputBinType.newBuilder()
+               TrezorType.TxOutputBinType txOutput = TrezorType.TxOutputBinType.newBuilder()
                      .setScriptPubkey(scriptPubKey)
                      .setAmount(ak_output.value)
                      .build();
 
-               txType = KeepKeyType.TransactionType.newBuilder()
+               txType = TrezorType.TransactionType.newBuilder()
                      .addBinOutputs(txOutput)
                      .build();
 
             } else {
-               // request has no hash -> keepkey wants informations about the
+               // request has no hash -> trezor wants informations about the
                // outputs of the new tx
                Address address = ak_output.script.getAddress(getNetwork());
-               KeepKeyType.TxOutputType.Builder txOutput = KeepKeyType.TxOutputType.newBuilder()
+               TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
                      .setAddress(address.toString())
                      .setAmount(ak_output.value)
                      .setScriptType(mapScriptType(ak_output.script));
@@ -330,20 +322,20 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
                Optional<Integer[]> addId = forAccount.getAddressId(address);
                if (addId.isPresent() && addId.get()[0] == 1) {
                   // If it is one of our internal change addresses, add the HD-PathID
-                  // so that keepkey knows, this is the change txout and can calculate the value of the tx correctly
+                  // so that trezor knows, this is the change txout and can calculate the value of the tx correctly
                   new OutputAddressSetter(txOutput).setAddressN(forAccount.getAccountIndex(), addId.get());
                }
 
-               txType = KeepKeyType.TransactionType.newBuilder()
+               txType = TrezorType.TransactionType.newBuilder()
                      .addOutputs(txOutput.build())
                      .build();
             }
 
-            KeepKeyMessage.TxAck txAck = KeepKeyMessage.TxAck.newBuilder()
+            TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
                   .setTx(txType)
                   .build();
 
-            response = getKeepKey().send(txAck);
+            response = getTrezor().send(txAck);
          }
       }
 
@@ -352,18 +344,18 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
       try {
          ret = Transaction.fromByteReader(new ByteReader(signedTx.toBytes()));
       } catch (Transaction.TransactionParsingException e) {
-         Log.e("keepkey", "KeepKey TX not valid " + e.getMessage(), e);
+         Log.e("trezor", "Trezor TX not valid " + e.getMessage(), e);
          return null;
       }
       return ret;
 
    }
 
-   private KeepKeyType.OutputScriptType mapScriptType(ScriptOutput script) {
+   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script) {
       if (script instanceof ScriptOutputStandard) {
-         return KeepKeyType.OutputScriptType.PAYTOADDRESS;
+         return TrezorType.OutputScriptType.PAYTOADDRESS;
       } else if (script instanceof ScriptOutputP2SH) {
-         return KeepKeyType.OutputScriptType.PAYTOSCRIPTHASH;
+         return TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
       } else {
          throw new RuntimeException("unknown script type");
       }
@@ -371,14 +363,14 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
 
    @Override
    public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath) {
-      KeepKeyMessage.GetPublicKey msgGetPubKey = KeepKeyMessage.GetPublicKey.newBuilder()
+      TrezorMessage.GetPublicKey msgGetPubKey = TrezorMessage.GetPublicKey.newBuilder()
             .addAllAddressN(keyPath.getAddressN())
             .build();
 
       try {
-         Message resp = filterMessages(getKeepKey().send(msgGetPubKey));
-         if (resp != null && resp instanceof KeepKeyMessage.PublicKey) {
-            KeepKeyMessage.PublicKey pubKeyNode = (KeepKeyMessage.PublicKey) resp;
+         Message resp = filterMessages(getTrezor().send(msgGetPubKey));
+         if (resp != null && resp instanceof TrezorMessage.PublicKey) {
+            TrezorMessage.PublicKey pubKeyNode = (TrezorMessage.PublicKey) resp;
             PublicKey pubKey = new PublicKey(pubKeyNode.getNode().getPublicKey().toByteArray());
             HdKeyNode accountRootNode = new HdKeyNode(
                   pubKey,
@@ -390,7 +382,7 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
          } else {
             return Optional.absent();
          }
-      } catch (final KeepKeyConnectionException ex) {
+      } catch (final ExtSigDeviceConnectionException ex) {
          postErrorMessage(ex.getMessage());
          return Optional.absent();
       }
@@ -414,7 +406,7 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
    }
 
    private Message filterMessages(final Message msg) {
-      if (msg instanceof KeepKeyMessage.ButtonRequest) {
+      if (msg instanceof TrezorMessage.ButtonRequest) {
          mainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -422,11 +414,11 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
             }
          });
 
-         KeepKeyMessage.ButtonAck txButtonAck = KeepKeyMessage.ButtonAck.newBuilder()
+         TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
                .build();
-         return filterMessages(getKeepKey().send(txButtonAck));
+         return filterMessages(getTrezor().send(txButtonAck));
 
-      } else if (msg instanceof KeepKeyMessage.PinMatrixRequest) {
+      } else if (msg instanceof TrezorMessage.PinMatrixRequest) {
          mainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -441,50 +433,45 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
             pin = "";
          }
 
-         KeepKeyMessage.PinMatrixAck txPinAck = KeepKeyMessage.PinMatrixAck.newBuilder()
+         TrezorMessage.PinMatrixAck txPinAck = TrezorMessage.PinMatrixAck.newBuilder()
                .setPin(pin)
                .build();
 
          // send the Pin Response and (if everything is okay) get the response for the
          // previous requested action
-         return filterMessages(getKeepKey().send(txPinAck));
-      } else if (msg instanceof KeepKeyMessage.PassphraseRequest) {
+         return filterMessages(getTrezor().send(txPinAck));
+      } else if (msg instanceof TrezorMessage.PassphraseRequest) {
          // get the user to enter a passphrase
          Optional<String> passphrase = waitForPassphrase();
 
          GeneratedMessage response;
          if (!passphrase.isPresent()) {
-            // user has not provided a password - reset session on keepkey and cancel
-            response = KeepKeyMessage.ClearSession.newBuilder().build();
-            getKeepKey().send(response);
+            // user has not provided a password - reset session on trezor and cancel
+            response = TrezorMessage.ClearSession.newBuilder().build();
+            getTrezor().send(response);
             return null;
          } else {
-            response = KeepKeyMessage.PassphraseAck.newBuilder()
+            response = TrezorMessage.PassphraseAck.newBuilder()
                   .setPassphrase(passphrase.get())
                   .build();
 
             // send the Passphrase Response and get the response for the
             // previous requested action
-            return filterMessages(getKeepKey().send(response));
+            return filterMessages(getTrezor().send(response));
          }
-      } else if (msg instanceof KeepKeyMessage.Failure) {
-         if (postErrorMessage(((KeepKeyMessage.Failure) msg).getMessage())) {
+      } else if (msg instanceof TrezorMessage.Failure) {
+         if (postErrorMessage(((TrezorMessage.Failure) msg).getMessage())) {
             return null;
          } else {
-            throw new RuntimeException("KeepKey error:" + ((KeepKeyMessage.Failure) msg).getCode().toString() + "; " + ((KeepKeyMessage.Failure) msg).getMessage());
+            throw new RuntimeException("Trezor error:" + ((TrezorMessage.Failure) msg).getCode().toString() + "; " + ((TrezorMessage.Failure) msg).getMessage());
          }
       }
 
       return msg;
    }
 
-   public KeepKeyMessage.Features getFeatures() {
+   public TrezorMessage.Features getFeatures() {
       return features;
-   }
-
-   @Override
-   public int getBIP44AccountType() {
-      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
    }
 
    private abstract class AddressSetter {
@@ -500,9 +487,9 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
    }
 
    private class OutputAddressSetter extends AddressSetter {
-      final private KeepKeyType.TxOutputType.Builder txOutput;
+      final private TrezorType.TxOutputType.Builder txOutput;
 
-      private OutputAddressSetter(KeepKeyType.TxOutputType.Builder txOutput) {
+      private OutputAddressSetter(TrezorType.TxOutputType.Builder txOutput) {
          this.txOutput = txOutput;
       }
 
@@ -513,9 +500,9 @@ public class KeepKeyManager extends AbstractAccountScanManager implements Extern
    }
 
    private class InputAddressSetter extends AddressSetter {
-      final private KeepKeyType.TxInputType.Builder txInput;
+      final private TrezorType.TxInputType.Builder txInput;
 
-      private InputAddressSetter(KeepKeyType.TxInputType.Builder txInput) {
+      private InputAddressSetter(TrezorType.TxInputType.Builder txInput) {
          this.txInput = txInput;
       }
 

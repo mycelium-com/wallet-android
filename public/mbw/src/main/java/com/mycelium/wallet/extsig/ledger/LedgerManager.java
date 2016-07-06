@@ -33,7 +33,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.ledger;
+package com.mycelium.wallet.extsig.ledger;
 
 import android.app.Activity;
 import android.content.Context;

@@ -32,68 +32,72 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.keepkey.activity;
+package com.mycelium.wallet.extsig.trezor.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
-import android.widget.AdapterView;
+import android.support.annotation.NonNull;
+import android.widget.ImageView;
+import android.widget.TextView;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.keepkey.KeepKeyManager;
+import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.mycelium.wallet.extsig.common.activity.ExtSigAccountImportActivity;
+import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 
-public class InstantKeepKeyActivity extends KeepKeyAccountSelectorActivity {
 
+public class TrezorAccountImportActivity extends ExtSigAccountImportActivity {
    public static void callMe(Activity currentActivity, int requestCode) {
-      Intent intent = new Intent(currentActivity, InstantKeepKeyActivity.class);
+      Intent intent = new Intent(currentActivity, TrezorAccountImportActivity.class);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
    @Override
-   protected void setView() {
-      setContentView(R.layout.activity_instant_keepkey);
+   protected AbstractAccountScanManager initMasterseedManager() {
+      return MbwManager.getInstance(this).getTrezorManager();
    }
 
    @Override
-   protected AdapterView.OnItemClickListener accountClickListener() {
-      return new AdapterView.OnItemClickListener() {
-         @Override
-         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
-            Intent intent = SendInitializationActivity.getIntent(InstantKeepKeyActivity.this, item.id, true);
-            InstantKeepKeyActivity.this.startActivityForResult(intent, REQUEST_SEND);
-         }
-      };
+   protected void setView() {
+      super.setView();
+      ((ImageView)findViewById(R.id.ivConnectExtSig)).setImageResource(R.drawable.connect_trezor);
+      ((TextView)findViewById(R.id.tvCaption)).setText(R.string.trezor_cold_storage_header);
+      ((TextView)findViewById(R.id.tvDeviceType)).setText(R.string.trezor_name);
+   }
+
+   @NonNull
+   @Override
+   protected String getFirmwareUpdateDescription() {
+      return getString(R.string.trezor_new_firmware_description);
    }
 
 
    // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
-   public void onPinMatrixRequest(KeepKeyManager.OnPinMatrixRequest event){
+   public void onPinMatrixRequest(KeepKeyManager.OnPinMatrixRequest event) {
       super.onPinMatrixRequest(event);
    }
 
    @Subscribe
-   public void onScanError(AccountScanManager.OnScanError event){
+   public void onScanError(AccountScanManager.OnScanError event) {
       super.onScanError(event);
    }
 
    @Subscribe
-   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event) {
       super.onStatusChanged(event);
    }
 
    @Subscribe
-   public void onAccountFound(AccountScanManager.OnAccountFound event){
+   public void onAccountFound(AccountScanManager.OnAccountFound event) {
       super.onAccountFound(event);
    }
 
    @Subscribe
-   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
       super.onPassphraseRequest(event);
    }
-
 
 }

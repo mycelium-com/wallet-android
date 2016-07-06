@@ -44,9 +44,9 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.ledger.activity.LedgerSignTransactionActivity;
-import com.mycelium.wallet.trezor.activity.TrezorSignTransactionActivity;
-import com.mycelium.wallet.keepkey.activity.KeepKeySignTransactionActivity;
+import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivity;
+import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
+import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -54,6 +54,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
+
 
 public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
@@ -69,14 +70,21 @@ public class SignTransactionActivity extends Activity {
 
       Intent intent;
       if (walletAccount instanceof Bip44AccountExternalSignature) {
-    	 if (((Bip44AccountExternalSignature)walletAccount).getBIP44AccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
-    		 intent = new Intent(currentActivity, LedgerSignTransactionActivity.class);
-		 }else if (((Bip44AccountExternalSignature)walletAccount).getBIP44AccountType() == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
-    		 intent = new Intent(currentActivity, KeepKeySignTransactionActivity.class);
-    	 }else {
-    		 intent = new Intent(currentActivity, TrezorSignTransactionActivity.class); 
-    	 }         
-      }else{
+         final int bip44AccountType = ((Bip44AccountExternalSignature) walletAccount).getBIP44AccountType();
+         switch (bip44AccountType) {
+            case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER):
+               intent = new Intent(currentActivity, LedgerSignTransactionActivity.class);
+               break;
+            case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY):
+               intent = new Intent(currentActivity, KeepKeySignTransactionActivity.class);
+               break;
+            case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR):
+               intent = new Intent(currentActivity, TrezorSignTransactionActivity.class);
+               break;
+            default:
+               throw new RuntimeException("Unknown ExtSig Account type " + bip44AccountType);
+         }
+      } else {
          intent = new Intent(currentActivity, SignTransactionActivity.class);
       }
 

@@ -170,7 +170,12 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             address.getAllAddressBytes(), 9));
    }
 
-   protected boolean synchronizeUnspentOutputs(Collection<Address> addresses) {
+   /**
+    * Checks for all UTXO of the requested addresses and deletes or adds them locally if necessary
+    * returns -1 if something went wrong or otherwise the number of new UTXOs added to the local
+    * database
+    */
+   protected int synchronizeUnspentOutputs(Collection<Address> addresses) {
       // Get the current unspent outputs as dictated by the block chain
       QueryUnspentOutputsResponse unspentOutputResponse;
       try {
@@ -179,7 +184,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);
-         return false;
+         return -1;
       }
       Collection<TransactionOutputEx> remoteUnspent = unspentOutputResponse.unspent;
       // Store the current block height
@@ -227,6 +232,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
       }
 
+      int newUtxos = 0;
+
       // Find remotely added unspent outputs
       List<TransactionOutputEx> unspentOutputsToAddOrUpdate = new LinkedList<TransactionOutputEx>();
       for (TransactionOutputEx r : remoteUnspent) {
@@ -239,6 +246,12 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             // Note: We are not adding the unspent output to the DB just yet. We
             // first want to verify the full set of funding transactions of the
             // transaction that this unspent output belongs to
+            if (l == null) {
+               // this is a new UTXO. it might be necessary to sync older addresses too
+               // as this might be a change utxo from spending smth from a address we own
+               // too but did not sync here
+               newUtxos ++;
+            }
          }
       }
 
@@ -250,14 +263,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
-            return false;
+            return -1;
          }
          try {
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
-            return false;
+            return -1;
          }
          // Finally update out list of unspent outputs with added or updated
          // outputs
@@ -282,7 +295,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
       }
 
-      return true;
+      return newUtxos;
    }
 
 

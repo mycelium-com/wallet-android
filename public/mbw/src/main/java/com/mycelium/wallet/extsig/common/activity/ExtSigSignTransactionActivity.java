@@ -32,12 +32,10 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.keepkey.activity;
+package com.mycelium.wallet.extsig.common.activity;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.widget.TextView;
 import com.google.common.base.Joiner;
@@ -48,22 +46,22 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.MasterseedPasswordDialog;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
-import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.keepkey.KeepKeyManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
+import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class KeepKeySignTransactionActivity
+public abstract class ExtSigSignTransactionActivity
       extends SignTransactionActivity
       implements MasterseedPasswordSetter {
 
    private static final String PASSPHRASE_FRAGMENT_TAG = "pass";
-   private final KeepKeyManager keepkeyManager = MbwManager.getInstance(this).getKeepKeyManager();
+
+   abstract protected ExternalSignatureDeviceManager getExtSigManager();
 
    private boolean showTx;
 
@@ -72,10 +70,6 @@ public class KeepKeySignTransactionActivity
       super.onCreate(savedInstanceState);
    }
 
-   @Override
-   protected void setView() {
-      setContentView(R.layout.sign_keepkey_transaction_activity);
-   }
 
    @Override
    protected void onResume() {
@@ -93,7 +87,7 @@ public class KeepKeySignTransactionActivity
 
    @Override
    public void setPassphrase(String passphrase){
-      keepkeyManager.setPassphrase(passphrase);
+      getExtSigManager().setPassphrase(passphrase);
 
       if (passphrase == null){
          // user choose cancel -> leave this activity
@@ -108,16 +102,16 @@ public class KeepKeySignTransactionActivity
    }
 
    private void updateUi(){
-      if (keepkeyManager.currentState != KeepKeyManager.Status.unableToScan){
-         findViewById(R.id.ivConnectKeepKey).setVisibility(View.GONE);
-         findViewById(R.id.tvPluginKeepKey).setVisibility(View.GONE);
+      if (getExtSigManager().currentState != ExternalSignatureDeviceManager.Status.unableToScan){
+         findViewById(R.id.ivConnectExtSig).setVisibility(View.GONE);
+         findViewById(R.id.tvPluginDevice).setVisibility(View.GONE);
       } else {
-         findViewById(R.id.ivConnectKeepKey).setVisibility(View.VISIBLE);
-         findViewById(R.id.tvPluginKeepKey).setVisibility(View.VISIBLE);
+         findViewById(R.id.ivConnectExtSig).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvPluginDevice).setVisibility(View.VISIBLE);
       }
 
       if (showTx){
-         findViewById(R.id.ivConnectKeepKey).setVisibility(View.GONE);
+         findViewById(R.id.ivConnectExtSig).setVisibility(View.GONE);
          findViewById(R.id.llShowTx).setVisibility(View.VISIBLE);
 
          ArrayList<String> toAddresses = new ArrayList<String>(1);
@@ -146,10 +140,7 @@ public class KeepKeySignTransactionActivity
          ((TextView)findViewById(R.id.tvFee)).setText(fee);
          ((TextView)findViewById(R.id.tvTotal)).setText(total);
       }
-
    }
-
-
 
    @Subscribe
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
@@ -159,26 +150,26 @@ public class KeepKeySignTransactionActivity
 
    @Subscribe
    public void onScanError(AccountScanManager.OnScanError event){
-      Utils.showSimpleMessageDialog(KeepKeySignTransactionActivity.this, event.errorMessage, new Runnable() {
+      Utils.showSimpleMessageDialog(ExtSigSignTransactionActivity.this, event.errorMessage, new Runnable() {
          @Override
          public void run() {
-            KeepKeySignTransactionActivity.this.setResult(RESULT_CANCELED);
+            ExtSigSignTransactionActivity.this.setResult(RESULT_CANCELED);
             // close this activity and let the user try again
-            KeepKeySignTransactionActivity.this.finish();
+            ExtSigSignTransactionActivity.this.finish();
          }
       });
 
       // kill the signing task
-      KeepKeySignTransactionActivity.this.cancelSigningTask();
+      ExtSigSignTransactionActivity.this.cancelSigningTask();
    }
 
    @Subscribe
-   public void onPinMatrixRequest(KeepKeyManager.OnPinMatrixRequest event){
-      KeepKeyPinDialog pin = new KeepKeyPinDialog(KeepKeySignTransactionActivity.this, true);
+   public void onPinMatrixRequest(ExternalSignatureDeviceManager.OnPinMatrixRequest event){
+      TrezorPinDialog pin = new TrezorPinDialog(ExtSigSignTransactionActivity.this, true);
       pin.setOnPinValid(new PinDialog.OnPinEntered(){
          @Override
          public void pinEntered(PinDialog dialog, Pin pin) {
-            keepkeyManager.enterPin(pin.getPin());
+            getExtSigManager().enterPin(pin.getPin());
             dialog.dismiss();
          }
       });
@@ -189,7 +180,7 @@ public class KeepKeySignTransactionActivity
    }
 
    @Subscribe
-   public void onButtonRequest(KeepKeyManager.OnButtonRequest event){
+   public void onButtonRequest(ExternalSignatureDeviceManager.OnButtonRequest event){
       showTx = true;
       updateUi();
    }

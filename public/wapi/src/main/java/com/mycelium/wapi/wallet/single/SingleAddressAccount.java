@@ -112,7 +112,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _isSynchronizing = true;
       try {
 
-         if (!synchronizeUnspentOutputs(_addressList)) {
+         if (synchronizeUnspentOutputs(_addressList) == -1) {
             return false;
          }
 

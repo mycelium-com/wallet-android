@@ -32,68 +32,28 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.trezor.activity;
+package com.mycelium.wallet.extsig.trezor;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.view.View;
-import android.widget.AdapterView;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.trezor.TrezorManager;
-import com.mycelium.wapi.wallet.AccountScanManager;
-import com.squareup.otto.Subscribe;
+import android.content.Context;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.satoshilabs.trezor.ExternalSignatureDevice;
+import com.satoshilabs.trezor.Trezor;
+import com.squareup.otto.Bus;
 
-public class InstantTrezorActivity extends TrezorAccountSelectorActivity {
-
-   public static void callMe(Activity currentActivity, int requestCode) {
-      Intent intent = new Intent(currentActivity, InstantTrezorActivity.class);
-      currentActivity.startActivityForResult(intent, requestCode);
+public class TrezorManager extends ExternalSignatureDeviceManager {
+   public TrezorManager(Context context, NetworkParameters network, Bus eventBus) {
+      super(context, network, eventBus);
    }
 
    @Override
-   protected void setView() {
-      setContentView(R.layout.activity_instant_trezor);
+   protected ExternalSignatureDevice createDevice() {
+      return new Trezor(context);
    }
 
    @Override
-   protected AdapterView.OnItemClickListener accountClickListener() {
-      return new AdapterView.OnItemClickListener() {
-         @Override
-         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
-            Intent intent = SendInitializationActivity.getIntent(InstantTrezorActivity.this, item.id, true);
-            InstantTrezorActivity.this.startActivityForResult(intent, REQUEST_SEND);
-         }
-      };
+   public int getBIP44AccountType() {
+      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
    }
-
-
-   // Otto.EventBus does not traverse class hierarchy to find subscribers
-   @Subscribe
-   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event){
-      super.onPinMatrixRequest(event);
-   }
-
-   @Subscribe
-   public void onScanError(AccountScanManager.OnScanError event){
-      super.onScanError(event);
-   }
-
-   @Subscribe
-   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
-      super.onStatusChanged(event);
-   }
-
-   @Subscribe
-   public void onAccountFound(AccountScanManager.OnAccountFound event){
-      super.onAccountFound(event);
-   }
-
-   @Subscribe
-   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
-      super.onPassphraseRequest(event);
-   }
-
-
 }

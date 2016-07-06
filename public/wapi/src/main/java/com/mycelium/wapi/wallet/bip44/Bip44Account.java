@@ -348,10 +348,24 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
    }
 
    private boolean updateUnspentOutputs(SyncMode mode) {
-      final List<Address> checkAddresses = getAddressesToSync(mode);
-      if (!synchronizeUnspentOutputs(checkAddresses)) {
+      List<Address> checkAddresses = getAddressesToSync(mode);
+
+      final int newUtxos = synchronizeUnspentOutputs(checkAddresses);
+
+      if (newUtxos == -1) {
          return false;
       }
+
+      if (newUtxos > 0 && !mode.mode.equals(SyncMode.Mode.FULL_SYNC)){
+         // we got new UTXOs but did not made a full sync. The UTXO might be coming
+         // from change outputs spending from addresses we are currently not checking
+         // -> rerun the synchronizeUnspentOutputs for a FULL_SYNC
+         checkAddresses = getAddressesToSync(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+         if (synchronizeUnspentOutputs(checkAddresses) == -1){
+            return false;
+         }
+      }
+
 
       // update state of recent received transaction to update their confirmation state
       if (mode.mode != SyncMode.Mode.ONE_ADDRESS) {

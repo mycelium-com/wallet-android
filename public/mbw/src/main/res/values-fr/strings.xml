@@ -426,6 +426,7 @@
   <string name="lt_change_payout_address">Changer l\'adresse de paiement</string>
   <string name="lt_warn_account_not_spandable">L\'adresse cible sélectionnée (%s) ne peut pas être dépensée.\n\n Vous devez avoir la clé privée dans une sauvegarde hors ligne ou vous perdrez les fonds reçus.</string>
   <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
+  <string name="lt_mycelium_marketplace_description">Trouver des utilisateurs de Mycelium dans votre région qui achète/vends des bitcoins.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
@@ -588,33 +589,15 @@
   <string name="new_bitcoin_address_created">Une nouvelle clé privée a été générée avec l\'adresse Bitcoin suivante :</string>
   <string name="shuffle">Mélanger</string>
   <string name="toast_warning_low_fee">pourrait prendre plus de temps pour confirmer</string>
-  <string name="searching_for_trezor_status">Recherche d\'un Trezor&#8230;</string>
   <string name="account_number">Compte %d</string>
   <string name="account_found">%s trouvé(s)</string>
-  <string name="trezor_initial_status">Veuillez connecter votre Trezor</string>
-  <string name="trezor_scanning_status">Trezor opérationnel - analyse des comptes</string>
   <string name="account_balance_sending_amount">(envoi de %s)</string>
   <string name="trezor_cold_storage_header">Fonds hors ligne Trezor</string>
-  <string name="connect_your_trezor_info">Ceci ne fonctionne que si votre appareil prend en charge l\'USB-OTG (on-the-go).\n\nPour connecter le Trezor, vous avez besoin d\'un câble ou d\'un adaptateur USB-OTG. Connectez le Trezor avec son propre câble USB sur le côté client et connectez le côté hôte avec votre appareil.</string>
-  <string name="select_trezor_account_to_spend_from">Sélectionnez un compte à dépenser</string>
-  <string name="trezor_passphrase_description">Entrez les mots de passe facultatifs</string>
-  <string name="trezor_show_passphrase">Afficher les mots de passe</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importer un compte HD Trezor</string>
   <string name="trezor_import_account_caption">Importer un compte</string>
   <string name="trezor_name">Trezor :</string>
-  <string name="trezor_select_account_to_import">Sélectionnez un compte à importer</string>
-  <string name="trezor_verify_transaction_on_trezor">Vérifiez et confirmez les\ntransactions sur votre Trezor</string>
-  <string name="trezor_amount">Montant :</string>
-  <string name="trezor_to">À :</string>
-  <string name="trezor_fee">Frais :</string>
-  <string name="trezor_total">Total :</string>
-  <string name="trezor_please_plug_in">Veuillez brancher votre Trezor</string>
-  <string name="trezor_next_unused_account_info">Cette option importera le prochain compte inutilisé depuis ce trezor. Il n\'apparaîtra dans MyTrezor que si vous lui envoyez des fonds.</string>
-  <string name="trezor_next_unused_account_button">Importer le prochain compte inutilisé&#8230;</string>
-  <string name="trezor_new_firmware">Un nouveau firmware trezor est disponible&#8230;</string>
   <string name="trezor_new_firmware_description">Un nouveau firmware trezor est disponible.\nVeuillez utiliser MyTrezor.com sur un PC pour mettre à jour votre trezor.</string>
-  <string name="trezor_unnamed">(sans nom)</string>
   <string name="ledger_initial_status">Veuillez connecter ou appuyez et maintenez votre portefeuille Ledger</string>
   <string name="ledger_scanning_status">Portefeuille Ledger opérationnel - analyse des comptes</string>
   <string name="ledger_cold_storage_header">Portefeuille Ledger</string>
@@ -825,6 +808,7 @@
   <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
+  <string name="coinapult_add_locks_account">Ajouter un compte barré Coinapult</string>
   <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
   <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
   <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
@@ -839,6 +823,7 @@
   <string name="pop_invalid_pop_uri">Requête pop non valide</string>
   <string name="pop_amount_title">Montant payé</string>
   <string name="pop_date">Heure/Date</string>
+  <string name="pop_send_pop_to">Authentifier à</string>
   <string name="pop_transaction_info">Approuver le paiement</string>
   <string name="pop_transaction_id">Hash</string>
   <string name="pop_transaction_amount">Montant</string>
@@ -868,6 +853,7 @@
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Acheter / Vendre Bitcoin</string>
   <string name="gd_buy_sell">Glidera</string>
+  <string name="gd_buy_sell_description">Acheter/Vendre des bitcoins de Glidera en utilisant un compte en banque provenant des États Unis ou du Canada.</string>
   <string name="gd_buy_tab">Acheter</string>
   <string name="gd_sell_tab">Vendre</string>
   <string name="gd_transaction_history_tab">Historique</string>
@@ -885,9 +871,16 @@
   <string name="gd_glidera_transaction_number">Glidera #:</string>
   <string name="gd_subtotal">Sous-total :</string>
   <string name="gd_transaction_receipt">Reçu de la transaction</string>
+  <string name="gd_transaction_initiated">La transaction a été lancée, les détails sont ci-dessous.</string>
+  <string name="gd_transaction_complete">La transaction est terminée, les détails sont ci-dessous.</string>
+  <string name="gd_transaction_reviewed">La transaction est en cours de révision, les détails sont ci-dessous.</string>
+  <string name="gd_transaction_error">Une erreur s’est produite lors du traitement de cette transaction.  Veuillez contacter le support de Glidera à support@glidera.io.</string>
+  <string name="gd_resend_code">Renvoyer le Code</string>
   <string name="gd_cancel">Annuler</string>
   <string name="gd_continue">Continuer</string>
   <string name="gd_amount_to_buy">Montant à acheter</string>
+  <string name="gd_sell_bitcoin">Vendre BTC</string>
+  <string name="gd_buy_bitcoin">Acheter BTC</string>
   <string name="gd_rate">Taux :</string>
   <string name="gd_bitcoin">Bitcoin :</string>
   <string name="gd_summary">Résumé</string>
@@ -896,5 +889,8 @@
   <string name="gd_btc_symbol">฿</string>
   <string name="gd_amount_to_sell">Montant à vendre</string>
   <string name="gd_loading">Chargement&#8230;</string>
+  <string name="gd_error_unable_to_connect">Impossible de se connecter à Glidera - %s</string>
+  <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s pour %2$s</string>
+  <string name="error_details">Détails de l’erreur</string>
   <!-- GlideraService End -->
 </resources>

@@ -53,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="left"
-                    android:text="@string/select_trezor_account_to_spend_from"
+                    android:text="@string/select_ext_sig_account_to_spend_from"
                     android:paddingTop="20sp"
                     />
 

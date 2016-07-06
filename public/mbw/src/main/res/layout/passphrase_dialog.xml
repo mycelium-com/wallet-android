@@ -8,7 +8,7 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/trezor_passphrase_description"/>
+            android:text="@string/ext_sig_passphrase_description"/>
 
     <EditText
             android:id="@+id/etPassphrase"
@@ -22,7 +22,7 @@
             android:id="@+id/cbShowPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/trezor_show_passphrase"/>
+            android:text="@string/ext_sig_show_passphrase"/>
 
     <TextView
             android:layout_width="wrap_content"

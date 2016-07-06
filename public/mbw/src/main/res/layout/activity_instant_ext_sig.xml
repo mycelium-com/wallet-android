@@ -6,7 +6,7 @@
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
-                tools:context="com.mycelium.wallet.keepkey.activity.KeepKeyAccountSelectorActivity">
+                tools:context=".extsig.trezor.activity.TrezorAccountSelectorActivity">
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -18,7 +18,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/keepkey_cold_storage_header"
+                tools:text="@string/trezor_cold_storage_header"
                 android:textSize="24sp"
                 android:id="@+id/tvCaption"/>
 
@@ -34,7 +34,7 @@
                     android:layout_height="25sp"/>
 
             <TextView android:id="@+id/txtStatus"
-                      android:text="@string/keepkey_initial_status"
+                      android:text="@string/ext_sig_initial_status"
                       android:layout_gravity="center_vertical"
                       android:paddingLeft="10sp"
                       android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
         </LinearLayout>
 
         <LinearLayout
-                android:id="@+id/llKeepKeyInfo"
+                android:id="@+id/llExtSigInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
@@ -50,9 +50,10 @@
                 android:orientation="horizontal">
 
             <TextView
+                    android:id="@+id/tvDeviceType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/keepkey_name"/>
+                    tools:text="@string/trezor_name"/>
 
             <LinearLayout
                     android:layout_width="match_parent"
@@ -61,12 +62,12 @@
                     android:orientation="vertical">
 
                 <TextView
-                        android:id="@+id/tvKeepKeyName"
+                        android:id="@+id/tvExtSigName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         tools:text="Name"/>
                 <TextView
-                        android:id="@+id/tvKeepKeySerial"
+                        android:id="@+id/tvExtSigSerial"
                         android:layout_width="wrap_content"
                         android:textSize="13sp"
                         android:layout_height="wrap_content"
@@ -76,12 +77,12 @@
         </LinearLayout>
 
         <TextView
-                android:id="@+id/tvWaitForKeepKey"
+                android:id="@+id/tvWaitForExtSig"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="30sp"
                 tools:visibility="gone"
-                android:text="@string/connect_your_keepkey_info"
+                android:text="@string/connect_your_ext_sig_device_info"
                 />
 
         <RelativeLayout
@@ -91,12 +92,12 @@
                 tools:visibility="gone"
                 >
             <ImageView
-                    android:id="@+id/ivConnectKeepKey"
+                    android:id="@+id/ivConnectExtSig"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/connect_keepkey"
+                    tools:src="@drawable/connect_trezor"
                     android:layout_alignParentBottom="true"
-                    android:contentDescription="KeepKey-Logo"/>
+                    android:contentDescription="Device-Logo"/>
 
         </RelativeLayout>
 
@@ -112,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="left"
-                    android:text="@string/select_keepkey_account_to_spend_from"
+                    android:text="@string/select_ext_sig_account_to_spend_from"
                     android:paddingTop="20sp"
                     />
 
@@ -139,7 +140,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_centerHorizontal="true"
-                    android:text="@string/keepkey_next_unused_account_button"
+                    android:text="@string/ext_sig_next_unused_account_button"
                     android:enabled="false"
                     android:layout_marginTop="10dp"
                     android:visibility="gone"

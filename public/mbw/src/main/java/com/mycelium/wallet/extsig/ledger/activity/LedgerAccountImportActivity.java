@@ -1,5 +1,6 @@
 /*
- * Copyright 2013, 2014 Megion Research and Development GmbH
+ * Copyright 2015 Megion Research and Development GmbH
+ * Copyright 2015 Ledger
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
@@ -32,30 +33,58 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.keepkey.activity;
+package com.mycelium.wallet.extsig.ledger.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.model.hdpath.HdKeyPath;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wallet.keepkey.KeepKeyManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
+import nordpol.android.TagDispatcher;
 
 import java.util.UUID;
 
 
-public class KeepKeyAccountImportActivity extends KeepKeyAccountSelectorActivity {
+public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
+
+   private final LedgerManager ledgerManager = MbwManager.getInstance(this).getLedgerManager();
+   private TagDispatcher dispatcher;
+
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      dispatcher = TagDispatcher.get(this, ledgerManager);
+   }
+
+   @Override
+   protected void onResume() {
+      super.onResume();
+      updateUi();
+      dispatcher.enableExclusiveNfc();
+   }
+
+   @Override
+   protected void onPause() {
+      super.onPause();
+      dispatcher.disableExclusiveNfc();
+   }
+
+   @Override
+   protected void onNewIntent(Intent intent) {
+      dispatcher.interceptIntent(intent);
+   }
+
    public static void callMe(Activity currentActivity, int requestCode) {
-      Intent intent = new Intent(currentActivity, KeepKeyAccountImportActivity.class);
+      Intent intent = new Intent(currentActivity, LedgerAccountImportActivity.class);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -67,14 +96,13 @@ public class KeepKeyAccountImportActivity extends KeepKeyAccountSelectorActivity
             HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
 
             // create the new account and get the uuid of it
-            MbwManager mbwManager = MbwManager.getInstance(KeepKeyAccountImportActivity.this);
+            MbwManager mbwManager = MbwManager.getInstance(LedgerAccountImportActivity.this);
 
             UUID acc = mbwManager.getWalletManager(false)
                   .createExternalSignatureAccount(
                         item.xPub,
-                        (KeepKeyManager) masterseedScanManager,
-                        item.accountHdKeyPath.getLastIndex()
-                  );
+                        (LedgerManager) masterseedScanManager,
+                        item.accountHdKeyPath.getLastIndex());
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -99,37 +127,49 @@ public class KeepKeyAccountImportActivity extends KeepKeyAccountSelectorActivity
 
    @Override
    protected void setView() {
-      setContentView(R.layout.activity_instant_keepkey);
-      ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.keepkey_import_account_caption));
-      ((TextView) findViewById(R.id.tvSelectAccount)).setText(getString(R.string.keepkey_select_account_to_import));
+      setContentView(R.layout.activity_instant_ledger);
+      ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.ledger_import_account_caption));
+      ((TextView) findViewById(R.id.tvSelectAccount)).setText(getString(R.string.ledger_select_account_to_import));
       ((TextView) findViewById(R.id.btNextAccount)).setVisibility(View.VISIBLE);
 
       findViewById(R.id.btNextAccount).setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
-            Utils.showSimpleMessageDialog(KeepKeyAccountImportActivity.this, getString(R.string.keepkey_next_unused_account_info), new Runnable() {
+            Utils.showSimpleMessageDialog(LedgerAccountImportActivity.this, getString(R.string.ledger_next_unused_account_info), new Runnable() {
                @Override
                public void run() {
 
-                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccount();
+                  // The TEE calls are asynchronous, and simulate a blocking call
+                  // To avoid locking up the UI thread, a new one is started
 
-                  MbwManager mbwManager = MbwManager.getInstance(KeepKeyAccountImportActivity.this);
+                  new Thread() {
+                     public void run() {
+                        Optional<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccount();
 
-                  if (nextAccount.isPresent()) {
-                     UUID acc = mbwManager.getWalletManager(false)
-                           .createExternalSignatureAccount(
-                                 nextAccount.get(),
-                                 (KeepKeyManager) masterseedScanManager,
-                                 nextAccount.get().getIndex()
-                           );
+                        MbwManager mbwManager = MbwManager.getInstance(LedgerAccountImportActivity.this);
 
-                     mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
+                        if (nextAccount.isPresent()) {
+                           final UUID acc = mbwManager.getWalletManager(false)
+                                 .createExternalSignatureAccount(
+                                       nextAccount.get(),
+                                       (LedgerManager) masterseedScanManager,
+                                       nextAccount.get().getIndex()
+                                 );
 
-                     Intent result = new Intent();
-                     result.putExtra("account", acc);
-                     setResult(RESULT_OK, result);
-                     finish();
-                  }
+                           mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
+
+                           runOnUiThread(new Runnable() {
+                              public void run() {
+                                 Intent result = new Intent();
+                                 result.putExtra("account", acc);
+                                 setResult(RESULT_OK, result);
+                                 finish();
+                              }
+                           });
+                        }
+
+                     }
+                  }.start();
 
                }
             });
@@ -137,30 +177,38 @@ public class KeepKeyAccountImportActivity extends KeepKeyAccountSelectorActivity
       });
    }
 
+   @Subscribe()
+   public void onPinRequest(LedgerManager.OnPinRequest event) {
+      LedgerPinDialog pin = new LedgerPinDialog(this, true);
+      pin.setTitle(R.string.ledger_enter_pin);
+      pin.setOnPinValid(new PinDialog.OnPinEntered() {
+         @Override
+         public void pinEntered(PinDialog dialog, Pin pin) {
+            ((LedgerManager) masterseedScanManager).enterPin(pin.getPin());
+            dialog.dismiss();
+         }
+      });
+      pin.show();
+   }
 
    // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
-   public void onPinMatrixRequest(KeepKeyManager.OnPinMatrixRequest event) {
-      super.onPinMatrixRequest(event);
-   }
-
-   @Subscribe
-   public void onScanError(AccountScanManager.OnScanError event) {
+   public void onScanError(AccountScanManager.OnScanError event){
       super.onScanError(event);
    }
 
    @Subscribe
-   public void onStatusChanged(AccountScanManager.OnStatusChanged event) {
+   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
       super.onStatusChanged(event);
    }
 
    @Subscribe
-   public void onAccountFound(AccountScanManager.OnAccountFound event) {
+   public void onAccountFound(AccountScanManager.OnAccountFound event){
       super.onAccountFound(event);
    }
 
    @Subscribe
-   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
+   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
       super.onPassphraseRequest(event);
    }
 

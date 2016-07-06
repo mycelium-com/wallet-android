@@ -41,15 +41,18 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
-import com.mycelium.wallet.activity.*;
-import com.mycelium.wallet.trezor.activity.InstantTrezorActivity;
-import com.mycelium.wallet.keepkey.activity.InstantKeepKeyActivity;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.EnterWordListActivity;
+import com.mycelium.wallet.activity.InstantMasterseedActivity;
+import com.mycelium.wallet.activity.ScanActivity;
+import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.extsig.keepkey.activity.InstantKeepKeyActivity;
+import com.mycelium.wallet.extsig.trezor.activity.InstantTrezorActivity;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class InstantWalletActivity extends Activity {
 
@@ -63,14 +66,15 @@ public class InstantWalletActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   /** Called when the activity is first created. */
+   /**
+    * Called when the activity is first created.
+    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.instant_wallet_activity);
-
 
 
       findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
@@ -139,18 +143,18 @@ public class InstantWalletActivity extends Activity {
             ScanActivity.toastScanError(resultCode, intent, this);
          }
          // else {
-            // We don't call finish() here, so that this activity stays on the back stack.
-            // So the user can click back and scan the next cold storage.
+         // We don't call finish() here, so that this activity stays on the back stack.
+         // So the user can click back and scan the next cold storage.
          // }
-      } else if (requestCode == REQUEST_TREZOR){
+      } else if (requestCode == REQUEST_TREZOR) {
          if (resultCode == RESULT_OK) {
             finish();
          }
-      } else if (requestCode == REQUEST_KEEPKEY){
+      } else if (requestCode == REQUEST_KEEPKEY) {
          if (resultCode == RESULT_OK) {
             finish();
          }
-      } else if (requestCode == IMPORT_WORDLIST){
+      } else if (requestCode == IMPORT_WORDLIST) {
          if (resultCode == RESULT_OK) {
             ArrayList<String> wordList = intent.getStringArrayListExtra(EnterWordListActivity.MASTERSEED);
             String password = intent.getStringExtra(EnterWordListActivity.PASSWORD);

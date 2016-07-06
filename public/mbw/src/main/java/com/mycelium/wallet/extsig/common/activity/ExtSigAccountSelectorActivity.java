@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Megion Research and Development GmbH
+ * Copyright 2013, 2014 Megion Research and Development GmbH
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
@@ -32,33 +32,22 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.keepkey.activity;
+package com.mycelium.wallet.extsig.common.activity;
 
 import android.app.Fragment;
-import android.os.Handler;
-import android.os.Message;
+import android.support.annotation.NonNull;
 import android.view.*;
 import android.widget.*;
 import com.google.common.base.Strings;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
-import com.mycelium.wallet.activity.MasterseedPasswordDialog;
 import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.ledger.LedgerManager;
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wallet.keepkey.KeepKeyManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
-import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.squareup.otto.Subscribe;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
-public abstract class KeepKeyAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {
-
-   @Override
-   protected AbstractAccountScanManager initMasterseedManager() {
-      return MbwManager.getInstance(this).getKeepKeyManager();
-   }
+public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {
 
    @Override
    protected void onStart() {
@@ -67,8 +56,8 @@ public abstract class KeepKeyAccountSelectorActivity extends HdAccountSelectorAc
    }
 
    abstract protected AdapterView.OnItemClickListener accountClickListener();
-
    abstract protected void setView();
+
 
    @Override
    public void finish() {
@@ -78,20 +67,20 @@ public abstract class KeepKeyAccountSelectorActivity extends HdAccountSelectorAc
 
    @Override
    protected void updateUi() {
-      if (masterseedScanManager.currentState == KeepKeyManager.Status.readyToScan) {
-         findViewById(R.id.tvWaitForKeepKey).setVisibility(View.GONE);
-         findViewById(R.id.ivConnectKeepKey).setVisibility(View.GONE);
-         txtStatus.setText(getString(R.string.keepkey_scanning_status));
+      if (masterseedScanManager.currentState == ExternalSignatureDeviceManager.Status.readyToScan) {
+         findViewById(R.id.tvWaitForExtSig).setVisibility(View.GONE);
+         findViewById(R.id.ivConnectExtSig).setVisibility(View.GONE);
+         txtStatus.setText(getString(R.string.ext_sig_scanning_status));
       }else{
          super.updateUi();
       }
 
-      if (masterseedScanManager.currentAccountState == KeepKeyManager.AccountStatus.scanning) {
+      if (masterseedScanManager.currentAccountState == ExternalSignatureDeviceManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
          if (accounts.size()>0) {
             super.updateUi();
          }else{
-            txtStatus.setText(getString(R.string.keepkey_scanning_status));
+            txtStatus.setText(getString(R.string.ext_sig_scanning_status));
          }
 
       }else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
@@ -107,43 +96,47 @@ public abstract class KeepKeyAccountSelectorActivity extends HdAccountSelectorAc
             findViewById(R.id.lvAccounts).setVisibility(View.VISIBLE);
          }
 
-         // Show the label and version of the connected KeepKey
-         findViewById(R.id.llKeepKeyInfo).setVisibility(View.VISIBLE);
-         KeepKeyManager keepkey = (KeepKeyManager) masterseedScanManager;
+         // Show the label and version of the connected Trezor
+         findViewById(R.id.llExtSigInfo).setVisibility(View.VISIBLE);
+         ExternalSignatureDeviceManager trezor = (ExternalSignatureDeviceManager) masterseedScanManager;
 
-         if (keepkey.getFeatures() != null && !Strings.isNullOrEmpty(keepkey.getFeatures().getLabel())) {
-            ((TextView) findViewById(R.id.tvKeepKeyName)).setText(keepkey.getFeatures().getLabel());
+         if (trezor.getFeatures() != null && !Strings.isNullOrEmpty(trezor.getFeatures().getLabel())) {
+            ((TextView) findViewById(R.id.tvExtSigName)).setText(trezor.getFeatures().getLabel());
          }else {
-            ((TextView) findViewById(R.id.tvKeepKeyName)).setText(getString(R.string.keepkey_unnamed));
+            ((TextView) findViewById(R.id.tvExtSigName)).setText(getString(R.string.ext_sig_unnamed));
          }
 
          String version;
-         TextView tvKeepKeySerial = (TextView) findViewById(R.id.tvKeepKeySerial);
-         if (keepkey.isMostRecentVersion()) {
-            if (keepkey.getFeatures() != null) {
+         TextView tvTrezorSerial = (TextView) findViewById(R.id.tvExtSigSerial);
+         if (trezor.isMostRecentVersion()) {
+            if (trezor.getFeatures() != null) {
                version = String.format("%s, V%d.%d.%d",
-                     keepkey.getFeatures().getDeviceId(),
-                     keepkey.getFeatures().getMajorVersion(),
-                     keepkey.getFeatures().getMinorVersion(),
-                     keepkey.getFeatures().getPatchVersion());
+                     trezor.getFeatures().getDeviceId(),
+                     trezor.getFeatures().getMajorVersion(),
+                     trezor.getFeatures().getMinorVersion(),
+                     trezor.getFeatures().getPatchVersion());
             } else {
                version = "";
             }
          }else{
-            version = getString(R.string.keepkey_new_firmware);
-            tvKeepKeySerial.setTextColor(getResources().getColor(R.color.semidarkgreen));
-            tvKeepKeySerial.setOnClickListener(new View.OnClickListener() {
+            version = getString(R.string.ext_sig_new_firmware);
+            tvTrezorSerial.setTextColor(getResources().getColor(R.color.semidarkgreen));
+            tvTrezorSerial.setOnClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View v) {
-                  Utils.showSimpleMessageDialog(KeepKeyAccountSelectorActivity.this, getString(R.string.keepkey_new_firmware_description));
+                  Utils.showSimpleMessageDialog(ExtSigAccountSelectorActivity.this, getFirmwareUpdateDescription());
                }
             });
          }
-         tvKeepKeySerial.setText(version);
+         tvTrezorSerial.setText(version);
       }
 
       accountsAdapter.notifyDataSetChanged();
    }
+
+   @NonNull
+   abstract protected String getFirmwareUpdateDescription();
+
 
 
    @Override
@@ -164,12 +157,12 @@ public abstract class KeepKeyAccountSelectorActivity extends HdAccountSelectorAc
 
 
    @Subscribe
-   public void onPinMatrixRequest(KeepKeyManager.OnPinMatrixRequest event){
-      KeepKeyPinDialog pin = new KeepKeyPinDialog(KeepKeyAccountSelectorActivity.this, true);
+   public void onPinMatrixRequest(ExternalSignatureDeviceManager.OnPinMatrixRequest event){
+      TrezorPinDialog pin = new TrezorPinDialog(ExtSigAccountSelectorActivity.this, true);
       pin.setOnPinValid(new PinDialog.OnPinEntered() {
          @Override
          public void pinEntered(PinDialog dialog, Pin pin) {
-            ((KeepKeyManager) masterseedScanManager).enterPin(pin.getPin());
+            ((ExternalSignatureDeviceManager) masterseedScanManager).enterPin(pin.getPin());
             dialog.dismiss();
          }
       });

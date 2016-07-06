@@ -79,12 +79,13 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.*;
-import com.mycelium.wallet.ledger.LedgerManager;
+import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.trezor.TrezorManager;
-import com.mycelium.wallet.keepkey.KeepKeyManager;
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
+import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
+import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.wallet.*;
@@ -128,7 +129,7 @@ public class MbwManager {
    }
 
    private final Bus _eventBus;
-   private final TrezorManager _trezorManager;
+   private final ExternalSignatureDeviceManager _trezorManager;
    private final KeepKeyManager _keepkeyManager;
    private final LedgerManager _ledgerManager;
    private final WapiClient _wapi;
@@ -1135,7 +1136,7 @@ public class MbwManager {
       return _randomSource;
    }
 
-   public TrezorManager getTrezorManager() {
+   public ExternalSignatureDeviceManager getTrezorManager() {
       return _trezorManager;
    }
 

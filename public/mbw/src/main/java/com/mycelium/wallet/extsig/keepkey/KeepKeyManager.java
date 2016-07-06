@@ -1,6 +1,5 @@
 /*
- * Copyright 2015 Megion Research and Development GmbH
- * Copyright 2015 Ledger
+ * Copyright 2013, 2014 Megion Research and Development GmbH
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
@@ -33,31 +32,28 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.ledger;
+package com.mycelium.wallet.extsig.keepkey;
 
-import com.btchip.BTChipKeyRecovery;
-import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.crypto.Signature;
-import com.mrd.bitlib.crypto.Signatures;
-import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.Sha256Hash;
+import android.content.Context;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.satoshilabs.trezor.ExternalSignatureDevice;
+import com.satoshilabs.trezor.KeepKey;
+import com.squareup.otto.Bus;
 
-// The ledger unplugged does not allow open source code applications (on the card) to use the
-// hardware accelerated ECC primitives to calculate the public key from its private key,
-// so the indirection via a signature and KeyRecovery is done
-public class MyceliumKeyRecovery implements BTChipKeyRecovery {
-
-   @Override
-   public byte[] recoverKey(int recId, byte[] signatureParam, byte[] hashValue) {
-      Signature signature = Signatures.decodeSignatureParameters(new ByteReader(signatureParam));
-      Sha256Hash hash = new Sha256Hash(hashValue);
-      PublicKey key = SignedMessage.recoverFromSignature(recId, signature, hash, false);
-      if (key != null) {
-         return key.getPublicKeyBytes();
-      } else {
-         return null;
-      }
+public class KeepKeyManager extends ExternalSignatureDeviceManager {
+   public KeepKeyManager(Context context, NetworkParameters network, Bus eventBus) {
+      super(context, network, eventBus);
    }
 
+   @Override
+   protected ExternalSignatureDevice createDevice() {
+      return new KeepKey(context);
+   }
+
+   @Override
+   public int getBIP44AccountType() {
+      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
+   }
 }

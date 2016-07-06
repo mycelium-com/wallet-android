@@ -1,5 +1,6 @@
 /*
- * Copyright 2013 Megion Research and Development GmbH
+ * Copyright 2015 Megion Research and Development GmbH
+ * Copyright 2015 Ledger
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
  *
@@ -32,32 +33,27 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.trezor.activity;
+package com.mycelium.wallet.extsig.ledger.activity;
 
-import android.app.Fragment;
-import android.os.Handler;
-import android.os.Message;
-import android.view.*;
-import android.widget.*;
-import com.google.common.base.Strings;
-import com.mycelium.wallet.*;
+import android.view.View;
+import android.widget.AdapterView;
+import com.mycelium.wallet.LedgerPinDialog;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
-import com.mycelium.wallet.activity.MasterseedPasswordDialog;
-import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.ledger.LedgerManager;
-import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wallet.trezor.TrezorManager;
-import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.extsig.ledger.LedgerManager;
+import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 
-import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {
+public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorActivity {
 
    @Override
    protected AbstractAccountScanManager initMasterseedManager() {
-      return MbwManager.getInstance(this).getTrezorManager();
+      return MbwManager.getInstance(this).getLedgerManager();
    }
 
    @Override
@@ -78,27 +74,28 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
 
    @Override
    protected void updateUi() {
-      if (masterseedScanManager.currentState == TrezorManager.Status.readyToScan) {
-         findViewById(R.id.tvWaitForTrezor).setVisibility(View.GONE);
-         findViewById(R.id.ivConnectTrezor).setVisibility(View.GONE);
-         txtStatus.setText(getString(R.string.trezor_scanning_status));
-      }else{
+      if ((masterseedScanManager.currentState != AccountScanManager.Status.initializing) &&
+            (masterseedScanManager.currentState != AccountScanManager.Status.unableToScan)) {
+         findViewById(R.id.tvWaitForLedger).setVisibility(View.GONE);
+         findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);
+         txtStatus.setText(getString(R.string.ledger_scanning_status));
+      } else {
          super.updateUi();
       }
 
-      if (masterseedScanManager.currentAccountState == TrezorManager.AccountStatus.scanning) {
+      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
-         if (accounts.size()>0) {
+         if (accounts.size() > 0) {
             super.updateUi();
-         }else{
-            txtStatus.setText(getString(R.string.trezor_scanning_status));
+         } else {
+            txtStatus.setText(getString(R.string.ledger_scanning_status));
          }
 
-      }else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      } else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
-         if (accounts.size()==0) {
+         if (accounts.size() == 0) {
             // no accounts found
             findViewById(R.id.tvNoAccounts).setVisibility(View.VISIBLE);
             findViewById(R.id.lvAccounts).setVisibility(View.GONE);
@@ -106,79 +103,24 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
             findViewById(R.id.tvNoAccounts).setVisibility(View.GONE);
             findViewById(R.id.lvAccounts).setVisibility(View.VISIBLE);
          }
-
-         // Show the label and version of the connected Trezor
-         findViewById(R.id.llTrezorInfo).setVisibility(View.VISIBLE);
-         TrezorManager trezor = (TrezorManager) masterseedScanManager;
-
-         if (trezor.getFeatures() != null && !Strings.isNullOrEmpty(trezor.getFeatures().getLabel())) {
-            ((TextView) findViewById(R.id.tvTrezorName)).setText(trezor.getFeatures().getLabel());
-         }else {
-            ((TextView) findViewById(R.id.tvTrezorName)).setText(getString(R.string.trezor_unnamed));
-         }
-
-         String version;
-         TextView tvTrezorSerial = (TextView) findViewById(R.id.tvTrezorSerial);
-         if (trezor.isMostRecentVersion()) {
-            if (trezor.getFeatures() != null) {
-               version = String.format("%s, V%d.%d.%d",
-                     trezor.getFeatures().getDeviceId(),
-                     trezor.getFeatures().getMajorVersion(),
-                     trezor.getFeatures().getMinorVersion(),
-                     trezor.getFeatures().getPatchVersion());
-            } else {
-               version = "";
-            }
-         }else{
-            version = getString(R.string.trezor_new_firmware);
-            tvTrezorSerial.setTextColor(getResources().getColor(R.color.semidarkgreen));
-            tvTrezorSerial.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                  Utils.showSimpleMessageDialog(TrezorAccountSelectorActivity.this, getString(R.string.trezor_new_firmware_description));
-               }
-            });
-         }
-         tvTrezorSerial.setText(version);
       }
 
       accountsAdapter.notifyDataSetChanged();
    }
 
-
-   @Override
-   public void setPassphrase(String passphrase){
-      masterseedScanManager.setPassphrase(passphrase);
-
-      if (passphrase == null){
-         // user choose cancel -> leave this activity
-         finish();
-      } else {
-         // close the dialog fragment
-         Fragment fragPassphrase = getFragmentManager().findFragmentByTag(PASSPHRASE_FRAGMENT_TAG);
-         if (fragPassphrase != null) {
-            getFragmentManager().beginTransaction().remove(fragPassphrase).commit();
-         }
-      }
-   }
-
-
-   @Subscribe
-   public void onPinMatrixRequest(TrezorManager.OnPinMatrixRequest event){
-      TrezorPinDialog pin = new TrezorPinDialog(TrezorAccountSelectorActivity.this, true);
+   @Subscribe()
+   public void onPinRequest(LedgerManager.OnPinRequest event) {
+      LedgerPinDialog pin = new LedgerPinDialog(this, true);
+      pin.setTitle(R.string.ledger_enter_pin);
       pin.setOnPinValid(new PinDialog.OnPinEntered() {
          @Override
          public void pinEntered(PinDialog dialog, Pin pin) {
-            ((TrezorManager) masterseedScanManager).enterPin(pin.getPin());
+            ((LedgerManager) masterseedScanManager).enterPin(pin.getPin());
             dialog.dismiss();
          }
       });
       pin.show();
-
-      // update the UI, as the state might have changed
-      updateUi();
    }
-
 
    // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
@@ -202,5 +144,3 @@ public abstract class TrezorAccountSelectorActivity extends HdAccountSelectorAct
    }
 
 }
-
-

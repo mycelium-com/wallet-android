@@ -20,15 +20,15 @@
             >
 
         <TextView
-                android:id="@+id/tvPluginKeepKey"
+                android:id="@+id/tvPluginDevice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
                 android:layout_centerHorizontal="true"
-                android:text="@string/keepkey_please_plug_in"/>
+                android:text="@string/ext_sig_please_plug_in"/>
         <ProgressBar
                 android:id="@+id/pbProgress"
-                android:layout_below="@+id/tvPluginKeepKey"
+                android:layout_below="@+id/tvPluginDevice"
                 android:layout_width="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:paddingTop="10dp"
@@ -48,7 +48,7 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/keepkey_verify_transaction_on_keepkey"
+                    android:text="@string/ext_sig_verify_transaction_on_device"
                     android:textColor="@color/lightgrey"
                     android:paddingBottom="5dp"/>
 
@@ -66,7 +66,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="10dp"
-                        android:text="@string/keepkey_amount"/>
+                        android:text="@string/ext_sig_amount"/>
                 <TextView
                         android:id="@+id/tvAmount"
                         android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="10dp"
-                        android:text="@string/keepkey_to"/>
+                        android:text="@string/ext_sig_to"/>
                 <TextView
                         android:id="@+id/tvToAddress"
                         android:layout_width="wrap_content"
@@ -91,7 +91,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="10dp"
-                        android:text="@string/keepkey_fee"/>
+                        android:text="@string/ext_sig_fee"/>
                 <TextView
                         android:id="@+id/tvFee"
                         android:layout_width="wrap_content"
@@ -103,7 +103,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="10dp"
-                        android:text="@string/keepkey_total"/>
+                        android:text="@string/ext_sig_total"/>
                 <TextView
                         android:id="@+id/tvTotal"
                         android:layout_width="wrap_content"
@@ -114,10 +114,10 @@
         </LinearLayout>
 
         <ImageView
-                android:id="@+id/ivConnectKeepKey"
+                android:id="@+id/ivConnectExtSig"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/connect_keepkey"
+                android:src="@drawable/connect_trezor"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
 

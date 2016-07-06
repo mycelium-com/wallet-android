@@ -586,33 +586,15 @@
   <string name="new_bitcoin_address_created">Byl vytvořen nový náhodný soukromý klíč pro následující bitcoinovou adresu:</string>
   <string name="shuffle">Náhodně</string>
   <string name="toast_warning_low_fee">potvrzení může chvíli trvat</string>
-  <string name="searching_for_trezor_status">Hledám Trezor&#8230;</string>
   <string name="account_number">Účet %d</string>
   <string name="account_found">%s nalezen</string>
-  <string name="trezor_initial_status">Připojte prosím váš Trezor</string>
-  <string name="trezor_scanning_status">Trezor OK - skenuji účty</string>
   <string name="account_balance_sending_amount">(odesílám %s)</string>
   <string name="trezor_cold_storage_header">Trezor cold storage</string>
-  <string name="connect_your_trezor_info">Funkční pouze pokud váš telefon podporuje USB OTG (on-the-go).\n\nPro připojení Trezoru potřebujete OTG adaptér nebo kabel. Napojte váš Trezor na stranu klienta a spojte ho s telefonem na straně hosta.</string>
-  <string name="select_trezor_account_to_spend_from">Zvolte účet pro útratu</string>
-  <string name="trezor_passphrase_description">Zadejte volitelné heslo</string>
-  <string name="trezor_show_passphrase">Zobrazit heslo</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importovat HD účet z Trezoru</string>
   <string name="trezor_import_account_caption">Importovat účet</string>
   <string name="trezor_name">Trezor:</string>
-  <string name="trezor_select_account_to_import">Zvolte účet k importu</string>
-  <string name="trezor_verify_transaction_on_trezor">Zkontrolujte a potvrďte\ntransakci na vašem Trezoru</string>
-  <string name="trezor_amount">Částka:</string>
-  <string name="trezor_to">Komu:</string>
-  <string name="trezor_fee">Poplatek:</string>
-  <string name="trezor_total">Celkem:</string>
-  <string name="trezor_please_plug_in">Připojte svůj Trezor</string>
-  <string name="trezor_next_unused_account_info">Tato možnost importuje z vašeho Trezoru další nepoužitý účet. MyTrezor ho zobrazí, pokud na něj pošlete nějaké peníze.</string>
-  <string name="trezor_next_unused_account_button">Importovat další nepoužitý účet&#8230;</string>
-  <string name="trezor_new_firmware">Je k dispozici nový firmware pro Trezor&#8230;</string>
   <string name="trezor_new_firmware_description">Je k dispozici nový firmware pro Trezor.\nPro aktualizaci navštivte MyTrezor.com na vašem počítači.</string>
-  <string name="trezor_unnamed">(bez názvu)</string>
   <string name="ledger_initial_status">Připojte nebo klepněte a držte vaši Ledger Wallet</string>
   <string name="ledger_scanning_status">Ledger Wallet v pořádku - hledám účty</string>
   <string name="ledger_cold_storage_header">Ledger Wallet</string>
@@ -906,5 +888,6 @@
   <string name="gd_loading">Načítaní&#8230;</string>
   <string name="gd_error_unable_to_connect">Nelze se připojit ke Glidera - %s</string>
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s za %2$s</string>
+  <string name="error_details">Podrobnosti chyby</string>
   <!-- GlideraService End -->
 </resources>

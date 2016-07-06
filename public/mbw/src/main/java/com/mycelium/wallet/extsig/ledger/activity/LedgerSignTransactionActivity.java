@@ -33,7 +33,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.ledger.activity;
+package com.mycelium.wallet.extsig.ledger.activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -54,7 +54,7 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.ledger.LedgerManager;
+import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.AccountScanManager.Status;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
