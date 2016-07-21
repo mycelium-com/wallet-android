@@ -355,7 +355,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
          return Collections.emptyList();
       }
       int endIndex = Math.min(offset + limit, list.size());
-      return Collections.unmodifiableList(list.subList(offset, endIndex));
+      return new ArrayList<T>(list.subList(offset, endIndex));
    }
 
 

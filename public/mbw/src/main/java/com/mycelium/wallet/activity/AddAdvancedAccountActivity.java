@@ -62,7 +62,7 @@ import java.util.UUID;
 public class AddAdvancedAccountActivity extends Activity {
 
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
-   public static final String BUY_KEEPKEY_LINK = "https://www.keepkey.com";
+   public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
 
    public static void callMe(Activity activity, int requestCode) {

@@ -22,7 +22,6 @@ dependencies {
     compile project(':public:coinapult')
     compile project(':public:wapi')
     compile project(':public:trezor')
-    compile project(':public:keepkey')
     compile project(':public:lt-api')
     compile project(':public:mbwlib')
     compile project(':public:btchip')
@@ -71,8 +70,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 28203
-        versionName '2.8.3'
+        versionCode 28402
+        versionName '2.8.4'
         multiDexEnabled true
     }
 
