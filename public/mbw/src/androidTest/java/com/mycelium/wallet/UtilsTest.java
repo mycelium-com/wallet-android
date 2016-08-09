@@ -1,4 +1,4 @@
-/*
+package com.mycelium.wallet;/*
  * Copyright 2013, 2014 Megion Research and Development GmbH
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
@@ -31,8 +31,6 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
-
-package com.mycelium.wallet;
 
 import junit.framework.TestCase;
 

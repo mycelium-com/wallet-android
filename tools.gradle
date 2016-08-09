@@ -34,6 +34,11 @@ def getCheckedOutGitCommitHash() {
 }
 
 def getGitBranch() {
+    if (project.hasProperty("branch")) {
+        // run gradle with -Pbranch=branchName
+        return project.getProperty("branch")
+    }
+
     def gitFolder = project.rootDir.getPath() + "/.git/"
 
     /*

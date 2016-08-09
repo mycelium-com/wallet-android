@@ -562,8 +562,16 @@ public class CreateOrEditAdActivity extends Activity {
 
       @Override
       public void onLtError(int errorCode) {
-         Toast.makeText(CreateOrEditAdActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
-         finish();
+         // if the price source is not available, dont close the current activity - just signal it to the user
+         if (errorCode == LtApi.ERROR_CODE_PRICE_FORMULA_NOT_AVAILABLE){
+            Toast.makeText(CreateOrEditAdActivity.this, R.string.lt_missing_fx_rate, Toast.LENGTH_LONG).show();
+            _isFetchingPrice = false;
+            _btcPrice = null;
+            updateUi();
+         } else {
+            Toast.makeText(CreateOrEditAdActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+            finish();
+         }
       }
 
       @Override

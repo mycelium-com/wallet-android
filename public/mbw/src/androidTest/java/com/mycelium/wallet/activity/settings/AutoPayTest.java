@@ -1,4 +1,4 @@
-/*
+package com.mycelium.wallet.activity.settings;/*
  * Copyright 2013, 2014 Megion Research and Development GmbH
  *
  * Licensed under the Microsoft Reference Source License (MS-RSL)
@@ -32,17 +32,11 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.settings;
-
-
-import org.junit.Test;
-
-import com.mycelium.wallet.activity.settings.SettingsActivity;
 
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class AutoPayTest {
-
    @Test
    public void testExtractAmount() {
       //    assertEquals("", SettingsActivity.extractAmount(null));
@@ -54,7 +48,6 @@ public class AutoPayTest {
       assertEquals("0.10", SettingsActivity.extractAmount("0,100"));
       assertEquals("0.00", SettingsActivity.extractAmount("0.0001"));
       assertEquals("1234.00", SettingsActivity.extractAmount("1234.0001"));
-
    }
 
    @Test

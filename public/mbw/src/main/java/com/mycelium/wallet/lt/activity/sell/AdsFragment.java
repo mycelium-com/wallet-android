@@ -335,7 +335,12 @@ public class AdsFragment extends Fragment {
          String premium = d == (int) d ? String.format(_locale, "%d", (int) d) : String.format(_locale, "%s", d);
          String description1 = getString(o.type == AdType.SELL_BTC ? R.string.lt_selling_near : R.string.lt_buying_near);
          String description2 = o.location.name;
-         String description3 = String.format(_locale, "%s %c%s%%", o.priceFormula.name, sign, premium);
+         String description3 = String.format(_locale, "%s%s %c%s%%",
+                 o.priceFormula.name,
+                 o.priceFormula.available ? "" : " (" + getString(R.string.lt_price_source_not_available) + ")",
+                 sign,
+                 premium);
+
          String description4 = String.format(_locale, "%d %s - %s %s", o.minimumFiat, o.currency, o.maximumFiat,
                o.currency);
          ((TextView) v.findViewById(R.id.tvDescription1)).setText(description1);

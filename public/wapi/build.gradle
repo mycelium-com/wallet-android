@@ -19,8 +19,8 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 dependencies {
-    compile project(':public:bitlib')
-    compile project(':public:mbwlib')
+    compile project(includePrefix + ':bitlib')
+    compile project(includePrefix + ':mbwlib')
 
     compile guavaArtifact
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'

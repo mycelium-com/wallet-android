@@ -18,14 +18,16 @@ buildscript {
 
 dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
-    compile project(':public:libs:zxing-android')
-    compile project(':public:coinapult')
-    compile project(':public:wapi')
-    compile project(':public:trezor')
-    compile project(':public:lt-api')
-    compile project(':public:mbwlib')
-    compile project(':public:btchip')
 
+    testCompile 'junit:junit:' + junitVersion
+
+    compile project(includePrefix +':libs:zxing-android')
+    compile project(includePrefix +':coinapult')
+    compile project(includePrefix +':wapi')
+    compile project(includePrefix +':trezor')
+    compile project(includePrefix +':lt-api')
+    compile project(includePrefix +':mbwlib')
+    compile project(includePrefix +':btchip')
     compile guavaArtifact
     compile 'com.squareup:otto:1.3.4'
     compile 'com.android.support:appcompat-v7:19.1.0'
@@ -47,7 +49,7 @@ dependencies {
     }
 }
 
-def commonDebugKeystore = file("../../keystore_debug")
+def commonDebugKeystore = rootProject.file('keystore_debug')
 
 android {
 
@@ -70,7 +72,7 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 28402
+        versionCode 28406
         versionName '2.8.4'
         multiDexEnabled true
     }

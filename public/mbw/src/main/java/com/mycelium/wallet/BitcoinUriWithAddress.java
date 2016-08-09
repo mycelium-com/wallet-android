@@ -45,13 +45,10 @@ import com.mrd.bitlib.model.NetworkParameters;
  * This subclass of BitcoinUri guarantees to always have an address
  */
 public class BitcoinUriWithAddress extends BitcoinUri implements Serializable  {
-
    private static final long serialVersionUID = 1L;
 
-
    public BitcoinUriWithAddress(Address address, Long amount, String label) {
-      super(address, amount, label);
-      Preconditions.checkNotNull(address);
+      this(address, amount, label, null);
    }
 
    public BitcoinUriWithAddress(Address address, Long amount, String label, String callbackURL) {
@@ -61,12 +58,16 @@ public class BitcoinUriWithAddress extends BitcoinUri implements Serializable  {
 
    public static Optional<BitcoinUriWithAddress> parseWithAddress(String uri, NetworkParameters network) {
       Optional<? extends BitcoinUri> bitcoinUri = BitcoinUri.parse(uri, network);
-      if (!bitcoinUri.isPresent()) return Optional.absent();
+      if (!bitcoinUri.isPresent()) {
+         return Optional.absent();
+      }
       return fromBitcoinUri(bitcoinUri.get());
    }
 
    public static Optional<BitcoinUriWithAddress> fromBitcoinUri(BitcoinUri bitcoinUri) {
-      if (null == bitcoinUri.address) return Optional.absent();
+      if (null == bitcoinUri.address) {
+         return Optional.absent();
+      }
       return Optional.of(new BitcoinUriWithAddress(bitcoinUri.address, bitcoinUri.amount, bitcoinUri.label, bitcoinUri.callbackURL));
    }
 

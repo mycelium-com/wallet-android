@@ -119,6 +119,7 @@ Just to name a few:
  - Jani and Aleš from Cashila
  - Kalle Rosenbaum, Bip120/121
  - David and Alex from Glidera
+ - [Wiz](https://twitter.com/wiz) for helping us with KeepKey
  - (if you think you should be mentioned here, just notify us)
 
 Thanks to Jethro for tirelessly testing the app during beta development.

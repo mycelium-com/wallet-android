@@ -39,6 +39,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.CoinUtil;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -64,16 +65,13 @@ public class BitcoinUri implements Serializable {
       }
    }
 
-   public BitcoinUri(Address address, Long amount, String label) {
-      this.address = address;
-      this.amount = amount;
-      this.label = label == null ? null : label.trim();
-      this.callbackURL = null;
+   public BitcoinUri(Address address, Long satoshis, String label) {
+      this(address, satoshis, label, null);
    }
 
-   public BitcoinUri(Address address, Long amount, String label, String callbackURL) {
+   public BitcoinUri(Address address, Long satoshis, String label, String callbackURL) {
       this.address = address;
-      this.amount = amount;
+      this.amount = satoshis;
       this.label = label == null ? null : label.trim();
       this.callbackURL = callbackURL;
    }
@@ -88,7 +86,7 @@ public class BitcoinUri implements Serializable {
          }
          String schemeSpecific = u.getSchemeSpecificPart();
          if (schemeSpecific.startsWith("//")) {
-            // Fix for invalid bitcoin URI on the form "bitcoin://"
+            // Fix for invalid bitcoin URI in the form "bitcoin://"
             schemeSpecific = schemeSpecific.substring(2);
          }
          u = Uri.parse("bitcoin://" + schemeSpecific);
@@ -120,15 +118,13 @@ public class BitcoinUri implements Serializable {
             return Optional.of(new PrivateKeyUri(addressString, label));
          }
 
-         if (address == null) {
+         // Payment Uri
+         String paymentUri = u.getQueryParameter("r");
+
+         if (address == null && paymentUri == null) {
             // not a valid bitcoin uri
             return Optional.absent();
          }
-
-
-
-         // Payment Uri
-         String paymentUri = u.getQueryParameter("r");
 
          return Optional.of(new BitcoinUri(address, amount, label, paymentUri));
       } catch (Exception e) {
@@ -145,12 +141,13 @@ public class BitcoinUri implements Serializable {
             .scheme("bitcoin")
             .authority(address == null ? "" : address.toString());
       if (amount != null) {
-         builder.appendQueryParameter("amount", amount.toString());
+         builder.appendQueryParameter("amount", CoinUtil.valueString(amount, false));
       }
       if (label != null) {
          builder.appendQueryParameter("label", label);
       }
       if (callbackURL != null) {
+         // TODO: 8/8/16 according to BIP72, this url should not be escaped. As so far Mycelium doesn't create r-parameter qr-codes, there is no problem.
          builder.appendQueryParameter("r", callbackURL);
       }
       //todo: this can probably be solved nicer with some opaque flags or something
@@ -158,14 +155,11 @@ public class BitcoinUri implements Serializable {
    }
 
    public static class PrivateKeyUri extends BitcoinUri {
-
       public final String keyString;
 
       private PrivateKeyUri(String keyString, String label) {
          super(null, null, label);
          this.keyString = keyString;
       }
-
    }
-
 }

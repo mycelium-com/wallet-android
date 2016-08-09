@@ -240,7 +240,7 @@ public class ModernMain extends ActionBarActivity {
    private void checkTorState() {
       if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR) {
          OrbotHelper obh = new OrbotHelper(this);
-         if (!obh.isOrbotRunning()) {
+         if (!obh.isOrbotRunning(this)) {
             obh.requestOrbotStart(this);
          }
       }
@@ -292,6 +292,14 @@ public class ModernMain extends ActionBarActivity {
    public void onBackPressed() {
       ActionBar bar = getSupportActionBar();
       if (bar.getSelectedTab() == mBalanceTab) {
+//         if(Build.VERSION.SDK_INT >= 21) {
+//            finishAndRemoveTask();
+//         } else {
+//            finish();
+//         }
+         // this is not finishing on Android 6 LG G4, so the pin on startup is not requested.
+         // commented out code above doesn't do the trick, neither.
+         _mbwManager.setStartUpPinUnlocked(false);
          super.onBackPressed();
       } else {
          bar.selectTab(mBalanceTab);

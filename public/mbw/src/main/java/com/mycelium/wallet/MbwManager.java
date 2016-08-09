@@ -98,10 +98,15 @@ import com.squareup.otto.Subscribe;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-public class MbwManager {
+import static java.util.concurrent.TimeUnit.SECONDS;
 
+public class MbwManager {
    public static final String PROXY_HOST = "socksProxyHost";
    public static final String PROXY_PORT = "socksProxyPort";
    public static final String SELECTED_ACCOUNT = "selectedAccount";
@@ -115,9 +120,13 @@ public class MbwManager {
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
    private Optional<CoinapultManager> _coinapultManager;
 
+   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+   private AtomicBoolean lastPinAgeOkay = new AtomicBoolean(false);
+   private ScheduledFuture<?> pinOkTimeoutHandle;
+   private int failedPinCount = 0;
 
    private final CurrencySwitcher _currencySwitcher;
-   private Date lastSuccessfullPin;
    private boolean startUpPinUnlocked = false;
    private Timer _addressWatchTimer;
 
@@ -239,7 +248,6 @@ public class MbwManager {
             Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
       );
 
-
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
       ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
       int memoryClass = am.getMemoryClass();
@@ -274,7 +282,6 @@ public class MbwManager {
             _environment.getBlockExplorerList(),
             getPreferences().getString(Constants.BLOCK_EXPLORER,
                   _environment.getBlockExplorerList().get(0).getIdentifier()));
-
    }
 
    public void addExtraAccounts(AccountProvider accounts) {
@@ -379,7 +386,6 @@ public class MbwManager {
       } catch (PackageManager.NameNotFoundException e) {
          version = "na";
       }
-
 
       return new WapiClient(_environment.getWapiEndpoints(), retainingWapiLogger, version);
    }
@@ -518,7 +524,6 @@ public class MbwManager {
       WalletManagerBacking backing;
       SecureKeyValueStore secureKeyValueStore;
 
-
       // Create persisted account backing
       backing = new SqliteWalletManagerBackingWrapper(context);
 
@@ -551,7 +556,6 @@ public class MbwManager {
     * @return a new in memory backed wallet manager instance
     */
    private WalletManager createTempWalletManager(MbwEnvironment environment) {
-
       // Create in-memory account backing
       WalletManagerBacking backing = new InMemoryWalletManagerBacking();
 
@@ -654,8 +658,8 @@ public class MbwManager {
       return _pin;
    }
 
-   public void showClearPinDialog(final Context context, final Optional<Runnable> afterDialogClosed) {
-      this.runPinProtectedFunction(context, new ClearPinDialog(context, true), new Runnable() {
+   public void showClearPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
+      this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
          @Override
          public void run() {
             MbwManager.this.savePin(Pin.CLEAR_PIN);
@@ -667,16 +671,14 @@ public class MbwManager {
       });
    }
 
-   public void showSetPinDialog(final Context context, final Optional<Runnable> afterDialogClosed) {
-
+   public void showSetPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
       // Must make a backup before setting PIN
       if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-         Utils.showSimpleMessageDialog(context, R.string.pin_backup_first);
+         Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first);
          return;
       }
 
-
-      final NewPinDialog _dialog = new NewPinDialog(context, false);
+      final NewPinDialog _dialog = new NewPinDialog(activity, false);
       _dialog.setOnPinValid(new PinDialog.OnPinEntered() {
          private String newPin = null;
 
@@ -687,13 +689,13 @@ public class MbwManager {
                dialog.setTitle(R.string.pin_confirm_pin);
             } else if (newPin.equals(pin.getPin())) {
                MbwManager.this.savePin(pin);
-               Toast.makeText(context, R.string.pin_set, Toast.LENGTH_LONG).show();
+               Toast.makeText(activity, R.string.pin_set, Toast.LENGTH_LONG).show();
                dialog.dismiss();
                if (afterDialogClosed.isPresent()) {
                   afterDialogClosed.get().run();
                }
             } else {
-               Toast.makeText(context, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
+               Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
                MbwManager.this.vibrate(500);
                dialog.dismiss();
                if (afterDialogClosed.isPresent()) {
@@ -703,8 +705,7 @@ public class MbwManager {
          }
       });
 
-
-      this.runPinProtectedFunction(context, new Runnable() {
+      this.runPinProtectedFunction(activity, new Runnable() {
          @Override
          public void run() {
             _dialog.show();
@@ -734,28 +735,20 @@ public class MbwManager {
    }
 
    // returns the PinDialog or null, if no pin was needed
-   public PinDialog runPinProtectedFunction(final Context context, final Runnable fun, boolean cancelable) {
-      return runPinProtectedFunctionInternal(context, fun, cancelable);
+   public PinDialog runPinProtectedFunction(final Activity activity, final Runnable fun, boolean cancelable) {
+      return runPinProtectedFunctionInternal(activity, fun, cancelable);
    }
 
    // returns the PinDialog or null, if no pin was needed
-   public PinDialog runPinProtectedFunction(final Context context, final Runnable fun) {
-      return runPinProtectedFunctionInternal(context, fun, true);
+   public PinDialog runPinProtectedFunction(final Activity activity, final Runnable fun) {
+      return runPinProtectedFunctionInternal(activity, fun, true);
    }
 
    // returns the PinDialog or null, if no pin was needed
-   private PinDialog runPinProtectedFunctionInternal(Context context, Runnable fun, boolean cancelable) {
-      // if last Pin entry was 1sec ago, don't ask for it again.
-      // to prevent if there are two pin protected functions cascaded
-      // like startup-pin request and account-choose-pin request if opened by a bitcoin url
-      boolean lastPinAgeOkay = false;
-      if (lastSuccessfullPin != null) {
-         lastPinAgeOkay = (new Date().getTime() - lastSuccessfullPin.getTime()) < 1000;
-      }
-
-      if (isPinProtected() && !lastPinAgeOkay) {
-         PinDialog d = new PinDialog(context, true, cancelable);
-         runPinProtectedFunction(context, d, fun);
+   private PinDialog runPinProtectedFunctionInternal(Activity activity, Runnable fun, boolean cancelable) {
+      if (isPinProtected() && !lastPinAgeOkay.get()) {
+         PinDialog d = new PinDialog(activity, true, cancelable);
+         runPinProtectedFunction(activity, d, fun);
          return d;
       } else {
          fun.run();
@@ -763,51 +756,70 @@ public class MbwManager {
       }
    }
 
-
-   protected void runPinProtectedFunction(final Context context, PinDialog pinDialog, final Runnable fun) {
+   protected void runPinProtectedFunction(final Activity activity, PinDialog pinDialog, final Runnable fun) {
       if (isPinProtected()) {
+         failedPinCount = getPreferences().getInt(Constants.FAILED_PIN_COUNT, 0);
          pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
             @Override
             public void pinEntered(final PinDialog pinDialog, Pin pin) {
+               if(failedPinCount > 0) {
+                  long millis = (long) (Math.pow(1.2, failedPinCount) * 10);
+                  try {
+                     Thread.sleep(millis);
+                  } catch (InterruptedException ignored) {
+                     Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
+                     vibrate(500);
+                     pinDialog.dismiss();
+                     return;
+                  }
+               }
                if (pin.equals(getPin())) {
+                  failedPinCount = 0;
+                  getPreferences().edit().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
                   pinDialog.dismiss();
 
                   // as soon as you enter the correct pin once, abort the reset-pin-procedure
                   MbwManager.this.getMetadataStorage().clearResetPinStartBlockheight();
-                  MbwManager.this.lastSuccessfullPin = new Date();
+                  // if last Pin entry was 1sec ago, don't ask for it again.
+                  // to prevent if there are two pin protected functions cascaded
+                  // like startup-pin request and account-choose-pin request if opened by a bitcoin url
+                  pinOkForOneS();
 
                   fun.run();
                } else {
+                  getPreferences().edit().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
                   if (_pin.isResettable()) {
                      // Show hint, that this pin is resettable
-                     new AlertDialog.Builder(context)
+                     new AlertDialog.Builder(activity)
                            .setTitle(R.string.pin_invalid_pin)
-                           .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                           .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
                               @Override
                               public void onClick(DialogInterface dialogInterface, int i) {
                                  pinDialog.dismiss();
                               }
                            })
-                           .setNeutralButton(context.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
+                           .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
                               @Override
                               public void onClick(DialogInterface dialogInterface, int i) {
                                  pinDialog.dismiss();
-                                 MbwManager.this.showClearPinDialog(context, Optional.<Runnable>absent());
+                                 MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
                               }
                            })
 
-                           .setMessage(context.getString(R.string.wrong_pin_message))
+                           .setMessage(activity.getString(R.string.wrong_pin_message))
                            .show();
                   } else {
                      // This pin is not resettable, you are out of luck
-                     Toast.makeText(context, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
+                     Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
                      vibrate(500);
                      pinDialog.dismiss();
                   }
                }
             }
          });
-         pinDialog.show();
+         if(!activity.isFinishing()) {
+            pinDialog.show();
+         }
       } else {
          fun.run();
       }
@@ -1169,7 +1181,6 @@ public class MbwManager {
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency());
       editor.commit();
-
    }
 
    public boolean getPinRequiredOnStartup() {
@@ -1242,5 +1253,18 @@ public class MbwManager {
          _hasCoinapultAccounts = getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT);
       }
       return _hasCoinapultAccounts;
+   }
+
+   private void pinOkForOneS() {
+      if(pinOkTimeoutHandle != null) {
+         pinOkTimeoutHandle.cancel(true);
+      }
+      lastPinAgeOkay.set(true);
+      pinOkTimeoutHandle = scheduler.schedule(new Runnable() {
+         public void run() {
+            lastPinAgeOkay.set(false);
+         }
+      }, 1, SECONDS);
+
    }
 }

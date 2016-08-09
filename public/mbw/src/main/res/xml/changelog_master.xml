@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.8.4" versioncode="28400">
+    <release version="2.8.4" versioncode="28406">
         <change>Support for KeepKey hardware wallets</change>
         <change>[bugfix] Fix bug which under certain circumstances showed a wrong sending-amount</change>
+        <change>[bugfix] Unable to edit LT ad if the used price source is unavailable (looking at you, bitfinex)</change>
+        <change>[bugfix] Regression - handle Bip72-URIs without bitcoin address correct</change>
+        <change>[bugfix] Check for the tor-binary in different data-directory</change>
+        <change>[bugfix] Fix wrong receiving warning "amount does not match"</change>
     </release>
     <release version="2.8.3" versioncode="28203">
         <change>[bugfix] Fixed bug in miner fee estimation synchronisation</change>

@@ -113,4 +113,6 @@ public interface Constants {
    int MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN = 7 * BITCOIN_BLOCKS_PER_DAY;
    // Force user to read the warnings about additional backups
    int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
+
+   String FAILED_PIN_COUNT = "failedPinCount";
 }

@@ -436,6 +436,8 @@
     <string name="lt_warn_account_not_spandable">The selected target address (%s) is not spendable.\n\n You need to have the private key in a offline backup available or you will lose the receiving funds.</string>
     <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
     <string name="lt_mycelium_marketplace_description">Find Mycelium users in your local area who buy/sell bitcoin.</string>
+    <string name="lt_missing_fx_rate">Current price source is not available</string>
+    <string name="lt_price_source_not_available">not available!</string>
     <!-- LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>

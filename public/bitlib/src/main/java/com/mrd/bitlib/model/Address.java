@@ -81,6 +81,11 @@ public class Address implements Serializable, Comparable<Address> {
       return addr;
    }
 
+   /**
+    * @param address string representation of an address
+    * @return an Address if address could be decoded with valid checksum and length of 21 bytes
+    *         null else
+    */
    public static Address fromString(String address) {
       if (address == null) {
          return null;

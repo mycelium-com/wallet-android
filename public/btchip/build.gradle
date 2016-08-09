@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     compile 'com.android.support:support-v4:19.1.0'
-    compile project(':public:libs:nordpol')
+    compile project(includePrefix + ':libs:nordpol')
 }
 
 android {

@@ -55,7 +55,6 @@ import com.mycelium.wapi.wallet.WalletManager;
 import java.util.UUID;
 
 public class StringHandlerActivity extends Activity {
-
    public static final String CONFIG = "config";
    public static final String CONTENT = "content";
    public static final String RESULT_PAYLOAD = "payload";

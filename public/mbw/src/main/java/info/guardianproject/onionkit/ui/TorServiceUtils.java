@@ -9,6 +9,9 @@
 
 package info.guardianproject.onionkit.ui;
 
+import android.content.Context;
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +19,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
-
-import android.util.Log;
 
 public class TorServiceUtils {
 
@@ -28,6 +29,7 @@ public class TorServiceUtils {
     public final static String SHELL_CMD_RM = "rm";
     public final static String SHELL_CMD_PS = "ps";
     public final static String SHELL_CMD_PIDOF = "pidof";
+    public final static String DEFAULT_DATA_DIR = "/data/data";
 
     public final static String CHMOD_EXE_VALUE = "700";
 
@@ -51,7 +53,7 @@ public class TorServiceUtils {
             if (fileSU.exists())
             {
                 String[] cmd = {
-                    "su"
+                        "su"
                 };
                 int exitCode = TorServiceUtils.doShellCommand(cmd, log, false, true);
                 if (exitCode != 0)
@@ -62,7 +64,7 @@ public class TorServiceUtils {
 
             // Check for 'su' binary
             String[] cmd = {
-                "which su"
+                    "which su"
             };
             int exitCode = TorServiceUtils.doShellCommand(cmd, log, false, true);
 
@@ -87,23 +89,37 @@ public class TorServiceUtils {
         return false;
     }
 
-    public static int findProcessId(String command)
-    {
+
+
+    public static int findProcessId(Context context) {
+        String dataPath = context.getFilesDir().getParentFile().getParentFile().getAbsolutePath();
+        final String execPath = "/" + OrbotHelper.ORBOT_PACKAGE_NAME + "/app_bin/tor";
+        String command = dataPath + execPath;
+
+        int procId = -1;
+        // orbot might be installed in the same Data dir as the current app ...
+        procId = findProcessIdCmd(command);
+        if (procId == -1) {
+            // ... or in the default one.
+            String defaultCommand = DEFAULT_DATA_DIR + execPath;
+            procId = findProcessIdCmd(defaultCommand);
+        }
+
+        return procId;
+    }
+
+    private static int findProcessIdCmd(String command) {
         int procId = -1;
 
-        try
-        {
+        try {
             procId = findProcessIdWithPidOf(command);
 
             if (procId == -1)
                 procId = findProcessIdWithPS(command);
-        } catch (Exception e)
-        {
-            try
-            {
+        } catch (Exception e) {
+            try {
                 procId = findProcessIdWithPS(command);
-            } catch (Exception e2)
-            {
+            } catch (Exception e2) {
                 Log.e(TAG, "Unable to get proc id for command: " + URLEncoder.encode(command), e2);
             }
         }
@@ -183,7 +199,7 @@ public class TorServiceUtils {
     }
 
     public static int doShellCommand(String[] cmds, StringBuilder log, boolean runAsRoot,
-            boolean waitFor) throws Exception
+                                     boolean waitFor) throws Exception
     {
 
         Process proc = null;

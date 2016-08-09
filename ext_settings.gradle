@@ -1,3 +1,4 @@
+// keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaArtifact = 'com.google.guava:guava:18.0'
     androidBuildArtifact = 'com.android.tools.build:gradle:2.0.0'
@@ -5,4 +6,8 @@ ext {
     androidSdkBuildVersion = "22.0.1"
     junitVersion = '4.8.1'
     projectRootDir = project.rootDir.getPath()
+
+    // this is needed for the /public folder. It needs different paths depending if it gets compiled
+    // on its own or is included as a submodule in the whole repository
+    includePrefix = ':public'
 }

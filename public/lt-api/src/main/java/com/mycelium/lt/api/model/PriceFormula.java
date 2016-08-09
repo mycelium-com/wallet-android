@@ -27,10 +27,15 @@ public class PriceFormula implements Serializable {
    public final String id;
    @JsonProperty
    public final String name;
+   @JsonProperty
+   public final Boolean available;
 
-   public PriceFormula(@JsonProperty("id") String id, @JsonProperty("name") String name) {
+   public PriceFormula(@JsonProperty("id") String id,
+                       @JsonProperty("name") String name,
+                       @JsonProperty("available") Boolean available) {
       this.id = id;
       this.name = name;
+      this.available = available;
    }
 
    @Override
