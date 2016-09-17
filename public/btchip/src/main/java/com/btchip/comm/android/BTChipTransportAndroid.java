@@ -196,6 +196,9 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
                      (device.getProductId() == PID_HID_LEDGER) || (device.getProductId() == PID_HID_LEDGER_PROTON))) {
             return device;
          }
+         if (device.getVendorId() == VID_LEDGER) {
+            return device;
+         }
       }
       return null;
    }
@@ -217,7 +220,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       }
       UsbDeviceConnection connection = manager.openDevice(device);
       connection.claimInterface(dongleInterface, true);
-      ledger = ((device.getProductId() == PID_HID_LEDGER) || (device.getProductId() == PID_HID_LEDGER_PROTON));
+      ledger = ((device.getProductId() == PID_HID_LEDGER) || (device.getProductId() == PID_HID_LEDGER_PROTON) || (device.getVendorId() == VID_LEDGER));
       if (device.getProductId() == PID_WINUSB) {
          return new BTChipTransportAndroidWinUSB(connection, dongleInterface, in, out, TIMEOUT);
       } else {
@@ -241,6 +244,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
    public static final String LOG_STRING = "BTChip";
 
    private static final int VID = 0x2581;
+   private static final int VID_LEDGER = 0x2c97;
    private static final int PID_WINUSB = 0x1b7c;
    private static final int PID_HID = 0x2b7c;
    private static final int PID_HID_LEDGER = 0x3b7c;
