@@ -45,16 +45,16 @@ import com.mrd.bitlib.model.hdpath.Bip44CoinType;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.satoshilabs.trezor.protobuf.TrezorType;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class AbstractAccountScanManager implements AccountScanManager {
    protected final Context context;
-   final private NetworkParameters network;
+   private final NetworkParameters network;
    private AsyncTask<Void, ScanStatus, Void> scanAsyncTask = null;
    private final ArrayList<HdKeyNodeWrapper> foundAccounts = new ArrayList<HdKeyNodeWrapper>();
    protected final Bus eventBus;
@@ -251,6 +251,21 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
          @Override
          public void run() {
             eventBus.post(new OnScanError(msg));
+         }
+      });
+      return true;
+   }
+
+   protected boolean postErrorMessage(final String msg, final TrezorType.FailureType failureType) {
+      mainThreadHandler.post(new Runnable() {
+         @Override
+         public void run() {
+            // need to map to the known error types, because wapi does not import the trezor lib
+            if (failureType == TrezorType.FailureType.Failure_NotInitialized){
+               eventBus.post(new OnScanError(msg, OnScanError.ErrorType.NOT_INITIALIZED));
+            } else {
+               eventBus.post(new OnScanError(msg));
+            }
          }
       });
       return true;

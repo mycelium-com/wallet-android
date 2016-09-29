@@ -313,6 +313,12 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    }
 
    @Subscribe
+   public void onShowTransactionVerification(LedgerManager.OnShowTransactionVerification event) {
+      showTx = true;
+      updateUi();
+   }
+
+   @Subscribe
    public void on2FaRequest(LedgerManager.On2FaRequest event) {
       if (event.output.getUserConfirmation().equals(UserConfirmation.KEYBOARD) ||
             event.output.getUserConfirmation().equals(UserConfirmation.KEYCARD_NFC)) {

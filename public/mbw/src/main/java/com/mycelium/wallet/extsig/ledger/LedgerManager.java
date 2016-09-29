@@ -112,6 +112,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
    public static class OnPinRequest {
    }
 
+   public static class OnShowTransactionVerification {
+   }
+
    public static class On2FaRequest {
       public final BTChipDongle.BTChipOutput output;
 
@@ -350,6 +353,15 @@ public class LedgerManager extends AbstractAccountScanManager implements
                }
             }
          }
+
+         // notify the activity to show the transaction details on screen
+         mainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+               eventBus.post(new OnShowTransactionVerification());
+            }
+         });
+
          outputData = dongle.finalizeInput(rawOutputs, outputAddress, amount, fees, changePath);
          final BTChipDongle.BTChipOutput output = outputData;
          // Check OTP confirmation
@@ -372,6 +384,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             dongle.startUntrustedTransction(false, i, inputs, currentInput.script.getScriptBytes());
             dongle.finalizeInput(rawOutputs, outputAddress, amount, fees, changePath);
          }
+
          // Sign
          StandardTransactionBuilder.SigningRequest signingRequest = signatureInfo[i];
          Address toSignWith = signingRequest.publicKey.toAddress(getNetwork());
@@ -403,6 +416,15 @@ public class LedgerManager extends AbstractAccountScanManager implements
       boolean initialized = initialize();
       if (!initialized) {
          postErrorMessage("Failed to connect to Ledger device");
+         return false;
+      }
+      // we have found a device with ledger USB ID, but some devices (eg NanoS) have more than one
+      // application, the call to getFirmwareVersion will fail, if it isn't in the bitcoin app
+      try {
+         dongle.getFirmwareVersion();
+      } catch (BTChipException e) {
+         postErrorMessage("Unable to get firmware version - if your ledger supports multiple applications please open the bitcoin app");
+         return false;
       }
       return initialized;
    }

@@ -1,21 +1,21 @@
 /*
-*******************************************************************************    
+ *******************************************************************************
 *   Ledger Bitcoin Hardware Wallet Java API
 *   (c) 2014-2015 Ledger - 1BTChip7VfTnrPra5jqci7ejnMguuHogTn
-*   
+ *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
 *  You may obtain a copy of the License at
-*
+ *
 *      http://www.apache.org/licenses/LICENSE-2.0
-*
+ *
 *   Unless required by applicable law or agreed to in writing, software
 *   distributed under the License is distributed on an "AS IS" BASIS,
 *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *   limitations under the License.
-********************************************************************************
-*/
+ ********************************************************************************
+ */
 
 package com.btchip.comm.android;
 
@@ -93,27 +93,6 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
             detectedTag = null;
          }
       }
-      /*
-		if (detectedTag != null) {
-			Log.d(LOG_TAG, "Has an NFC tag");
-			try {
-				IsoDep card = IsoDep.get(detectedTag);
-				card.connect();
-				if (!card.isConnected()) {
-					Log.d(LOG_TAG, "Tag disconnected, clearing");
-					detectedTag = null;
-				}
-				else {
-					card.close();
-				}
-			}
-			catch(Throwable t) {
-				Log.d(LOG_TAG, "Failed to retrieve NFC tag", t);
-				detectedTag = null;
-			}
-			Log.d(LOG_TAG, "Tag still connected : " + detectedTag);
-		}
-		*/
       return ((getDevice(usbManager) != null) || (detectedTag != null));
    }
 
@@ -220,7 +199,9 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       }
       UsbDeviceConnection connection = manager.openDevice(device);
       connection.claimInterface(dongleInterface, true);
-      ledger = ((device.getProductId() == PID_HID_LEDGER) || (device.getProductId() == PID_HID_LEDGER_PROTON) || (device.getVendorId() == VID_LEDGER));
+      ledger = ((device.getProductId() == PID_HID_LEDGER)
+            || (device.getProductId() == PID_HID_LEDGER_PROTON)
+            || (device.getVendorId() == VID_LEDGER));
       if (device.getProductId() == PID_WINUSB) {
          return new BTChipTransportAndroidWinUSB(connection, dongleInterface, in, out, TIMEOUT);
       } else {
