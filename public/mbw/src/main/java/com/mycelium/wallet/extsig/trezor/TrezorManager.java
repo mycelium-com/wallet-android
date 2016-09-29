@@ -56,4 +56,7 @@ public class TrezorManager extends ExternalSignatureDeviceManager {
    public int getBIP44AccountType() {
       return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
    }
+
+
+
 }

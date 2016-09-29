@@ -113,7 +113,7 @@ public class BackupWordListActivity extends ActionBarActivity {
       }else {
          btnNextWord.setText(R.string.next_word_button);
       }
-      tvShowWordNumber.setText(getString(R.string.showing_word_number, currentWordIndex + 1));
+      tvShowWordNumber.setText(getString(R.string.showing_word_number, Integer.toString(currentWordIndex + 1)));
       tvShowWord.setText(wordlist.get(currentWordIndex));
       currentWordIndex++;
    }

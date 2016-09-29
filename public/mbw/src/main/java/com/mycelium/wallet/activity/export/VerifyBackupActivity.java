@@ -123,7 +123,7 @@ public class VerifyBackupActivity extends Activity {
       if (num == 1) {
          infotext = infotext + getString(R.string.verify_backup_one_key);
       } else if (num > 0) {
-         infotext = infotext + getString(R.string.verify_backup_num_keys, num);
+         infotext = infotext + getString(R.string.verify_backup_num_keys, Integer.toString(num));
       }
 
       if (infotext.length() == 0) {

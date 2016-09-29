@@ -21,7 +21,6 @@
   <string name="close">Zapri</string>
   <string name="sending">Pošiljam %1$s</string>
   <string name="receiving">Prejemam %1$s</string>
-  <string name="an_icon">ikona</string>
   <string name="confirmations">%d potrditev</string>
   <string name="send">Pošlji</string>
   <string name="receive">Prejmi</string>
@@ -587,7 +586,6 @@
   <string name="trezor_cold_storage_header">Trezor - hladna hramba</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Uvozi Trezorjev HD-račun</string>
-  <string name="trezor_import_account_caption">Uvozi račun</string>
   <string name="trezor_name">Trezor:</string>
   <string name="trezor_new_firmware_description">Na voljo je nova strojna programska oprema za Trezor\nProsimo, uporabite MyTrezor.com na svojem računalniku za posodobitev.</string>
   <string name="ledger_initial_status">Prosimo, povežite ali prislonite svoj Ledger</string>

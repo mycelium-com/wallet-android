@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.extsig.common.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.view.*;
@@ -65,8 +66,10 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
       masterseedScanManager.stopBackgroundAccountScan();
    }
 
+   @SuppressLint("DefaultLocale") // It's only for display.
    @Override
    protected void updateUi() {
+
       if (masterseedScanManager.currentState == ExternalSignatureDeviceManager.Status.readyToScan) {
          findViewById(R.id.tvWaitForExtSig).setVisibility(View.GONE);
          findViewById(R.id.ivConnectExtSig).setVisibility(View.GONE);
@@ -98,23 +101,23 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
 
          // Show the label and version of the connected Trezor
          findViewById(R.id.llExtSigInfo).setVisibility(View.VISIBLE);
-         ExternalSignatureDeviceManager trezor = (ExternalSignatureDeviceManager) masterseedScanManager;
+         final ExternalSignatureDeviceManager extSigDevice = (ExternalSignatureDeviceManager) masterseedScanManager;
 
-         if (trezor.getFeatures() != null && !Strings.isNullOrEmpty(trezor.getFeatures().getLabel())) {
-            ((TextView) findViewById(R.id.tvExtSigName)).setText(trezor.getFeatures().getLabel());
+         if (extSigDevice.getFeatures() != null && !Strings.isNullOrEmpty(extSigDevice.getFeatures().getLabel())) {
+            ((TextView) findViewById(R.id.tvExtSigName)).setText(extSigDevice.getFeatures().getLabel());
          }else {
             ((TextView) findViewById(R.id.tvExtSigName)).setText(getString(R.string.ext_sig_unnamed));
          }
 
          String version;
          TextView tvTrezorSerial = (TextView) findViewById(R.id.tvExtSigSerial);
-         if (trezor.isMostRecentVersion()) {
-            if (trezor.getFeatures() != null) {
+         if (extSigDevice.isMostRecentVersion()) {
+            if (extSigDevice.getFeatures() != null) {
                version = String.format("%s, V%d.%d.%d",
-                     trezor.getFeatures().getDeviceId(),
-                     trezor.getFeatures().getMajorVersion(),
-                     trezor.getFeatures().getMinorVersion(),
-                     trezor.getFeatures().getPatchVersion());
+                     extSigDevice.getFeatures().getDeviceId(),
+                     extSigDevice.getFeatures().getMajorVersion(),
+                     extSigDevice.getFeatures().getMinorVersion(),
+                     extSigDevice.getFeatures().getPatchVersion());
             } else {
                version = "";
             }
@@ -124,7 +127,11 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
             tvTrezorSerial.setOnClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View v) {
-                  Utils.showSimpleMessageDialog(ExtSigAccountSelectorActivity.this, getFirmwareUpdateDescription());
+                  if (extSigDevice.hasExternalConfigurationTool()) {
+                     extSigDevice.openExternalConfigurationTool(ExtSigAccountSelectorActivity.this, getString(R.string.external_app_needed),  null);
+                  } else {
+                     Utils.showSimpleMessageDialog(ExtSigAccountSelectorActivity.this, getFirmwareUpdateDescription());
+                  }
                }
             });
          }
@@ -173,10 +180,22 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
    }
 
 
-   // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
-   public void onScanError(AccountScanManager.OnScanError event){
-      super.onScanError(event);
+   public void onScanError(final AccountScanManager.OnScanError event){
+      ExternalSignatureDeviceManager extSigDevice = (ExternalSignatureDeviceManager) masterseedScanManager;
+      // see if we know how to init that device
+      if (event.errorType == AccountScanManager.OnScanError.ErrorType.NOT_INITIALIZED &&
+              extSigDevice.hasExternalConfigurationTool()){
+         extSigDevice.openExternalConfigurationTool(this, getString(R.string.ext_sig_device_not_initialized), new Runnable() {
+            @Override
+            public void run() {
+               // close this activity and let the user restart it after the tool ran
+               ExtSigAccountSelectorActivity.this.finish();
+            }
+         });
+      } else {
+         super.onScanError(event);
+      }
    }
 
    @Subscribe

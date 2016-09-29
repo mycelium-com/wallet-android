@@ -259,7 +259,7 @@
                     android:layout_height="45dp"
                     android:layout_gravity="center"
                     android:background="@color/transparent"
-                    android:contentDescription="@string/an_icon"
+                    android:contentDescription="@string/send"
                     android:src="@drawable/send" />
             </LinearLayout>
         </LinearLayout>

@@ -141,4 +141,7 @@
     <string name="wifi_ssid_label">Network Name</string>
     <string name="wifi_type_label">Type</string>
     <string name="legacy_app_name">Barcode Scanner</string>
+    <string name="toggle_camera_light">Toggle camera light</string>
+    <string name="toggle_continuous_autofocus">Toggle continuous autofocus</string>
+    <string name="toggle_front_back_camera">Toggle front/back camera</string>
 </resources>

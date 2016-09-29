@@ -47,7 +47,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.view.ActionMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +67,6 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.lt.BannerFactory;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidUtils;
@@ -79,7 +77,6 @@ import com.mycelium.wallet.lt.api.GetAd;
 import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
 
 public class AdSearchFragment extends Fragment {
-
    public static Bundle createArgs(boolean buy) {
       Bundle args = new Bundle();
       args.putBoolean("buy", buy);
@@ -138,7 +135,7 @@ public class AdSearchFragment extends Fragment {
       GpsLocation location = _ltManager.getUserLocation();
       _ltManager.makeRequest(new AdSearch(location, AdSearchFragment.MAX_SEARCH_RESULTS, isBuy() ? AdType.SELL_BTC
             : AdType.BUY_BTC));
-      updateUi(true);
+      updateUi();
       super.onResume();
    }
 
@@ -153,7 +150,7 @@ public class AdSearchFragment extends Fragment {
       outState.putSerializable(ADS, (Serializable) _ads);
    }
 
-   private void updateUi(boolean updating) {
+   private void updateUi() {
       if (!isAdded()) {
          return;
       }
@@ -168,15 +165,13 @@ public class AdSearchFragment extends Fragment {
          findViewById(R.id.pbWait).setVisibility(View.GONE);
          findViewById(R.id.tvSearching).setVisibility(View.GONE);
          findViewById(R.id.lvRecords).setVisibility(View.VISIBLE);
-         View banner = BannerFactory.createBanner(getActivity(), _ltManager.getUserLocation().countryCode);
-         _recordsAdapter = new AdAdapter(getActivity(), banner, _ads, _ltManager.useMiles());
+         _recordsAdapter = new AdAdapter(getActivity(), _ads, _ltManager.useMiles());
          ListView listView = (ListView) findViewById(R.id.lvRecords);
          listView.setAdapter(_recordsAdapter);
       }
    }
 
    private class AdAdapter extends ArrayAdapter<AdSearchItem> {
-
       private class Tag {
          private AdSearchItem item;
          private int position;
@@ -191,35 +186,20 @@ public class AdSearchFragment extends Fragment {
       private Locale _locale;
       private Context _context;
       private boolean _useMiles;
-      private View _banner;
 
-      public AdAdapter(Context context, View banner, List<AdSearchItem> objects, boolean useMiles) {
+      private AdAdapter(Context context, List<AdSearchItem> objects, boolean useMiles) {
          super(context, R.layout.lt_ad_card, objects);
          _locale = new Locale("en", "US");
          _context = context;
          _useMiles = useMiles;
-         _banner = banner;
       }
 
       @Override
       public View getView(final int position, View convertView, ViewGroup parent) {
-         if (_banner == null) {
-            // No banner, proceed as normal
-            return getAdView(position, convertView, parent);
-         }
-         // we have a banner
-         if (position == 0) {
-            // At position 0, return banner
-            _banner.setOnClickListener(bannerClickListener);
-            return _banner;
-
-         }
-         // At position > 0, return ad at position -1
-         return getAdView(position - 1, convertView, parent);
+         return getAdView(position);
       }
 
-      public View getAdView(final int position, View convertView, ViewGroup parent) {
-
+      public View getAdView(final int position) {
          final AdSearchItem item = getItem(position);
          final boolean isSelected = item == _selected;
          LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -229,7 +209,7 @@ public class AdSearchFragment extends Fragment {
          String price = String.format(_locale, "%s %s", Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, item.oneBtcInFiat), item.currency);
          TextView tvPrice = (TextView) card.findViewById(R.id.tvPrice);
          tvPrice.setText(price);
-         setPriceColor(tvPrice, item);
+         setPriceColor(tvPrice);
 
          // Alternate Price
          if (!item.alternateCurrency.equals(item.currency)) {
@@ -333,7 +313,7 @@ public class AdSearchFragment extends Fragment {
          }
 
          card.setOnClickListener(itemClickListener);
-         card.setTag(new Tag(item, position + (_banner == null ? 0 : 1)));
+         card.setTag(new Tag(item, position));
          return card;
       }
 
@@ -476,10 +456,9 @@ public class AdSearchFragment extends Fragment {
       textView.setTextColor(getResources().getColor(col));
    }
 
-   private void setPriceColor(TextView textView, AdSearchItem item) {
+   private void setPriceColor(TextView textView) {
       // For now the price color is always green
       setCol(textView, R.color.status_green);
-      return;
    }
 
    private void setDistanceColor(TextView textView, AdSearchItem item) {
@@ -495,7 +474,6 @@ public class AdSearchFragment extends Fragment {
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
       @Override
       public void onLtError(int errorCode) {
          // handled by parent activity
@@ -516,9 +494,8 @@ public class AdSearchFragment extends Fragment {
          }
          if (isAdded()) {
             _ads = result;
-            updateUi(false);
+            updateUi();
          }
       }
-
    };
 }

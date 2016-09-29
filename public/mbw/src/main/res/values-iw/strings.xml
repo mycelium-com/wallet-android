@@ -8,7 +8,6 @@
   <string name="close">סגור</string>
   <string name="sending">שולח %1$s</string>
   <string name="receiving">מקבל %1$s</string>
-  <string name="an_icon">icon</string>
   <string name="confirmations">%d אישורים</string>
   <string name="send">שלח</string>
   <string name="receive">קבל</string>

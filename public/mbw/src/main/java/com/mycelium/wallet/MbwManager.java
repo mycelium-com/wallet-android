@@ -79,13 +79,13 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
+import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
+import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
-import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.wallet.*;
@@ -1051,6 +1051,12 @@ public class MbwManager {
 
       // If nothing is selected, or selected is archived, pick the first one
       if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
+         if (_walletManager.getActiveAccounts().isEmpty()) {
+            // That case should never happen, because we prevent users from archiving all of their
+            // accounts.
+            // We had a bug that allowed it, and the app will crash always after restart.
+            _walletManager.activateFirstAccount();
+         }
          uuid = _walletManager.getActiveAccounts().get(0).getId();
          setSelectedAccount(uuid);
       }

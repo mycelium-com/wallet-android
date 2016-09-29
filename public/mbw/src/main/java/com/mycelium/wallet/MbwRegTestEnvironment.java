@@ -35,19 +35,22 @@
 package com.mycelium.wallet;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.net.*;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.HttpsEndpoint;
+import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
 
-public class MbwTestEnvironment extends MbwEnvironment {
+public class MbwRegTestEnvironment extends MbwEnvironment {
 
-   public static final String myceliumThumbprint = "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F";
-
-
+   public static final String myceliumThumbprint = "9c:8e:d7:ad:6c:28:db:d4:72:6a:71:93:d6:4d:cb:e7:c7:a0:2e:bc";
 
 
-   public MbwTestEnvironment(String brand){
+
+
+   public MbwRegTestEnvironment(String brand){
       super(brand);
    }
 
@@ -61,8 +64,8 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * Local Trader API for testnet
     */
    private static final ServerEndpoints testnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
-         new HttpsEndpoint("https://node3.mycelium.com/lttestnet", myceliumThumbprint),
-         new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", myceliumThumbprint)
+         new HttpsEndpoint("https://localhost:4433/lttestnet", myceliumThumbprint),
+         //new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", myceliumThumbprint)
    });
 
    @Override
@@ -74,10 +77,13 @@ public class MbwTestEnvironment extends MbwEnvironment {
    /**
     * Wapi
     */
+
+   // run `adb reverse tcp:4433 tcp:4433` on your machine running vagrant
    private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{
-      new HttpsEndpoint("https://node3.mycelium.com/wapitestnet", myceliumThumbprint),
-      new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", myceliumThumbprint)
+         new HttpsEndpoint("https://localhost:4433/wapitestnet", myceliumThumbprint),
+         //new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", myceliumThumbprint)
    });
+
 
    @Override
    public ServerEndpoints getWapiEndpoints() {

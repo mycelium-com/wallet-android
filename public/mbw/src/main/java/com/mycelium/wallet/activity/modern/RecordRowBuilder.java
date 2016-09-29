@@ -111,14 +111,14 @@ public class RecordRowBuilder {
          if (walletAccount instanceof Bip44PubOnlyAccount) {
             int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
             if (numKeys > 1) {
-               displayAddress = resources.getString(R.string.contains_addresses, numKeys);
+               displayAddress = resources.getString(R.string.contains_addresses, Integer.toString(numKeys));
             } else {
                displayAddress = resources.getString(R.string.account_contains_one_address_info);
             }
          } else if (walletAccount instanceof Bip44Account) {
             int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
             if (numKeys > 1) {
-               displayAddress = resources.getString(R.string.contains_keys, numKeys);
+               displayAddress = resources.getString(R.string.contains_keys, Integer.toString(numKeys));
             } else {
                displayAddress = resources.getString(R.string.account_contains_one_key_info);
             }

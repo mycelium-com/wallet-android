@@ -21,7 +21,6 @@
   <string name="close">Sluiten</string>
   <string name="sending">Bezig met verzenden %1$s</string>
   <string name="receiving">Bezig met ontvangen %1$s</string>
-  <string name="an_icon">een pictogram</string>
   <string name="confirmations">%d Bevestigingen</string>
   <string name="send">Verzenden</string>
   <string name="receive">Ontvangen</string>
@@ -567,7 +566,6 @@
   <string name="trezor_cold_storage_header">Trezor Koude Opslag</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importeer een Trezor-HD-account</string>
-  <string name="trezor_import_account_caption">Account importeren</string>
   <string name="trezor_name">Trezor:</string>
   <string name="ledger_next_unused_account_button">Volgende ongebruikte account importeren&#8230;</string>
   <string name="ledger_enter_pin">Ledger Wallet PIN invoeren</string>

@@ -416,6 +416,9 @@ public class ModernMain extends ActionBarActivity {
             }
          }
 
+         // also fetch a new exchange rate, if necessary
+         _mbwManager.getExchangeRateManager().requestOptionalRefresh();
+
       } else if (itemId == R.id.miExplore) {
          _mbwManager.get_exploreHelper().redirectToCoinmap(this);
       } else if (itemId == R.id.miHelp) {

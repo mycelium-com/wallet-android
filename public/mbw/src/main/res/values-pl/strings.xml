@@ -19,7 +19,6 @@
   <string name="close">Zamknij</string>
   <string name="sending">Wysyłanie %1$s</string>
   <string name="receiving">Otrzymywanie %1$s</string>
-  <string name="an_icon">ikona</string>
   <string name="confirmations">%d Potwiedzeń</string>
   <string name="send">Wyślij</string>
   <string name="receive">Otrzymaj</string>
@@ -315,7 +314,7 @@
   <string name="lt_price_of_one_btc_label">(za 1BTC)</string>
   <string name="lt_confirm_title">potwierdź</string>
   <string name="lt_confirm_cash_received">czy otrzymałeś %1$s %2$s i czy chcesz wysłać bitcoiny do %3$s?</string>
-  <string name="lt_confirm_stop">Chciałbyś zakączyć tę transkcję?</string>
+  <string name="lt_confirm_stop">Chciałbyś zakończyć tę transkcję?</string>
   <string name="lt_enter_location_tite">Wpisz lokalizacje</string>
   <string name="lt_location_hint">Wpisz miasto lub adres</string>
   <string name="lt_how_to_trade_menu">Jak handlować</string>

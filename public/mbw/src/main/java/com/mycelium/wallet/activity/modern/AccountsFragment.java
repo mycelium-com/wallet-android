@@ -60,7 +60,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -1077,6 +1076,11 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
+      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
+         //this is the last active account, we dont allow archiving it
+         _toaster.toast(R.string.keep_one_active, false);
+         return;
+      }
       if (_focusedAccount instanceof CoinapultAccount) {
          _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
 
@@ -1090,11 +1094,6 @@ public class AccountsFragment extends Fragment {
             }
 
          });
-         return;
-      }
-      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
-         //this is the last active account, we dont allow archiving it
-         _toaster.toast(R.string.keep_one_active, false);
          return;
       }
       if (_focusedAccount instanceof Bip44Account) {

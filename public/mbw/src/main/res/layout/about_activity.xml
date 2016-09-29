@@ -185,7 +185,7 @@
                     android:id="@+id/ivPlaystoreQR"
                     android:layout_width="@dimen/small_qrcode"
                     android:layout_height="@dimen/small_qrcode"
-                    android:contentDescription="@string/an_icon"
+                    android:contentDescription="@string/qr_code"
                     android:longClickable="false" />
             </LinearLayout>
 
@@ -205,7 +205,7 @@
                     android:id="@+id/ivDirectApkQR"
                     android:layout_width="@dimen/small_qrcode"
                     android:layout_height="@dimen/small_qrcode"
-                    android:contentDescription="@string/an_icon"
+                    android:contentDescription="@string/qr_code"
                     android:longClickable="false" />
             </LinearLayout>
         </LinearLayout>

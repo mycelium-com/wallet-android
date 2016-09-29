@@ -63,7 +63,6 @@ public class TrezorAccountImportActivity extends ExtSigAccountImportActivity {
    protected void setView() {
       super.setView();
       ((ImageView)findViewById(R.id.ivConnectExtSig)).setImageResource(R.drawable.connect_trezor);
-      ((TextView)findViewById(R.id.tvCaption)).setText(R.string.trezor_cold_storage_header);
       ((TextView)findViewById(R.id.tvDeviceType)).setText(R.string.trezor_name);
    }
 

@@ -56,15 +56,15 @@ public interface AccountScanManager {
    void setPassphrase(String passphrase);
 
 
-   public enum Status{
+   enum Status{
       unableToScan, initializing, readyToScan
    }
 
-   public enum AccountStatus{
+   enum AccountStatus{
       unknown, scanning, done
    }
 
-   public class HdKeyNodeWrapper {
+   class HdKeyNodeWrapper {
       final public HdKeyPath keyPath;
       final public HdKeyNode accountRoot;
       final public UUID accountId;
@@ -77,7 +77,7 @@ public interface AccountScanManager {
    }
 
    // Classes for the EventBus
-   public class OnAccountFound {
+   class OnAccountFound {
       public final HdKeyNodeWrapper account;
 
       public OnAccountFound(HdKeyNodeWrapper account) {
@@ -85,7 +85,7 @@ public interface AccountScanManager {
       }
    }
 
-   public class OnStatusChanged {
+   class OnStatusChanged {
       public final Status state;
       public final AccountStatus accountState;
 
@@ -95,22 +95,29 @@ public interface AccountScanManager {
       }
    }
 
-   public class OnScanError {
+   class OnScanError {
       public final String errorMessage;
+      public final ErrorType errorType;
+
+      public enum ErrorType {
+         UNKNOWN, NOT_INITIALIZED;
+      }
 
       public OnScanError(String errorMessage) {
+         this(errorMessage, ErrorType.UNKNOWN);
+      }
+
+      public OnScanError(String errorMessage, ErrorType errorType) {
          this.errorMessage = errorMessage;
+         this.errorType = errorType;
       }
    }
 
-   public class OnPassphraseRequest {
-
+   class OnPassphraseRequest {
    }
 
-   public interface AccountCallback {
+   interface AccountCallback {
       // gets called from a background thread
-      public UUID checkForTransactions(HdKeyNodeWrapper account);
+      UUID checkForTransactions(HdKeyNodeWrapper account);
    }
-
-
 }

@@ -42,14 +42,10 @@ public class GlideraTransactionHistoryFragment extends ListFragment {
       super.onResume();
       glideraService.transaction().subscribe(new Observer<TransactionsResponse>() {
          @Override
-         public void onCompleted() {
-
-         }
+         public void onCompleted() {}
 
          @Override
-         public void onError(Throwable e) {
-
-         }
+         public void onError(Throwable e) {}
 
          @Override
          public void onNext(TransactionsResponse transactionsResponse) {
@@ -90,16 +86,16 @@ public class GlideraTransactionHistoryFragment extends ListFragment {
 
          final TransactionResponse transactionResponse = getItem(position);
 
-            /*
-             Date
-              */
+         /*
+         Date
+         */
          Date date = transactionResponse.getTransactionDate();
          TextView tvDate = (TextView) view.findViewById(R.id.tvDate);
          tvDate.setText(adaptiveDateFormat.format(date));
 
-            /*
-            Message
-             */
+         /*
+         Message
+         */
          String type = (transactionResponse.getType().equals(TransactionResponse.Type.BUY) ? "bought" : "sold");
 
          String message = "You " + type + " " + GlideraUtils.formatBtcForDisplay(transactionResponse.getQty()) + " for " +
@@ -107,14 +103,18 @@ public class GlideraTransactionHistoryFragment extends ListFragment {
 
          ((TextView) view.findViewById(R.id.tvMessage)).setText(message);
 
-            /*
-            Dot
-             */
+         /*
+         Dot
+         */
+         int imageRes = R.drawable.circle_line_white;
+         int labelRes = R.string.gd_transaction_initiated;
          if (transactionResponse.getStatus().equals(OrderState.COMPLETE)) {
-            ((ImageView) view.findViewById(R.id.ivDot)).setImageResource(R.drawable.circle_full_green);
-         } else {
-            ((ImageView) view.findViewById(R.id.ivDot)).setImageResource(R.drawable.circle_line_white);
+            imageRes = R.drawable.circle_full_green;
+            labelRes = R.string.gd_transaction_complete;
          }
+         ImageView dot = (ImageView) view.findViewById(R.id.ivDot);
+         dot.setImageResource(imageRes);
+         dot.setContentDescription(getString(labelRes));
 
          view.setOnClickListener(new View.OnClickListener() {
             @Override

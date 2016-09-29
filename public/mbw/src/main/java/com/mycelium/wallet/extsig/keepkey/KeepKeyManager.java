@@ -43,6 +43,7 @@ import com.satoshilabs.trezor.KeepKey;
 import com.squareup.otto.Bus;
 
 public class KeepKeyManager extends ExternalSignatureDeviceManager {
+
    public KeepKeyManager(Context context, NetworkParameters network, Bus eventBus) {
       super(context, network, eventBus);
    }
@@ -56,4 +57,5 @@ public class KeepKeyManager extends ExternalSignatureDeviceManager {
    public int getBIP44AccountType() {
       return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
    }
+
 }

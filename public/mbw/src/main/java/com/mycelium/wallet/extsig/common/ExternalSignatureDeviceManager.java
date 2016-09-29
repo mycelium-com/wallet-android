@@ -34,7 +34,11 @@
 
 package com.mycelium.wallet.extsig.common;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
@@ -48,6 +52,7 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -66,7 +71,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
 
 
-   private ExternalSignatureDevice _trezor = null;
+   private ExternalSignatureDevice externalSignatureDevice = null;
    private TrezorMessage.Features features;
 
    protected final LinkedBlockingQueue<String> pinMatrixEntry = new LinkedBlockingQueue<String>(1);
@@ -87,24 +92,24 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
    abstract protected ExternalSignatureDevice createDevice();
 
-   private ExternalSignatureDevice getTrezor() {
-      if (_trezor == null) {
-         _trezor = createDevice();
+   private ExternalSignatureDevice getSignatureDevice() {
+      if (externalSignatureDevice == null) {
+         externalSignatureDevice = createDevice();
       }
-      return _trezor;
+      return externalSignatureDevice;
    }
 
    public String getLabelOrDefault() {
       if (features != null && !features.getLabel().isEmpty()) {
          return features.getLabel();
       }
-      return _trezor.getDefaultAccountName();
+      return externalSignatureDevice.getDefaultAccountName();
    }
 
 
    public boolean isMostRecentVersion() {
       if (features != null) {
-         return !_trezor.getMostRecentFirmwareVersion().isNewerThan(
+         return !externalSignatureDevice.getMostRecentFirmwareVersion().isNewerThan(
                features.getMajorVersion(),
                features.getMinorVersion(),
                features.getPatchVersion()
@@ -112,6 +117,40 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       } else {
          // we dont know...
          return true;
+      }
+   }
+
+   public boolean hasExternalConfigurationTool(){
+      return getSignatureDevice().getDeviceConfiguratorAppName() != null;
+   }
+
+   public void openExternalConfigurationTool(final Context context, final String msg, final Runnable onClose) {
+      // see if we know how to init that device
+      final String packageName = getSignatureDevice().getDeviceConfiguratorAppName();
+      if (packageName != null) {
+         AlertDialog.Builder downloadDialog = new AlertDialog.Builder(context);
+         downloadDialog.setTitle(R.string.ext_sig_configuration_dialog_title);
+         downloadDialog.setMessage(msg);
+         downloadDialog.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+               Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+               if (intent == null) {
+                  intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+               }
+               context.startActivity(intent);
+               if (onClose!=null) {
+                  onClose.run();
+               }
+            }
+         });
+         downloadDialog.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+               if (onClose!=null) {
+                  onClose.run();
+               }
+            }
+         });
+         downloadDialog.show();
       }
    }
 
@@ -124,7 +163,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       // check if a trezor is attached and connect to it, otherwise loop and check periodically
 
       // wait until a device is connected
-      while (!getTrezor().isDevicePluggedIn(context)) {
+      while (!getSignatureDevice().isDevicePluggedIn(context)) {
          try {
             setState(Status.unableToScan, currentAccountState);
             Thread.sleep(4000);
@@ -134,9 +173,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
 
       // set up the connection and afterwards send a Features-Request
-      if (getTrezor().connect(context)) {
+      if (getSignatureDevice().connect(context)) {
          TrezorMessage.Initialize req = TrezorMessage.Initialize.newBuilder().build();
-         Message resp = getTrezor().send(req);
+         Message resp = getSignatureDevice().send(req);
          if (resp != null && resp instanceof TrezorMessage.Features) {
             final TrezorMessage.Features f = (TrezorMessage.Features) resp;
 
@@ -179,7 +218,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
       Message response;
       try {
-         response = getTrezor().send(signTx);
+         response = getSignatureDevice().send(signTx);
       } catch (ExtSigDeviceConnectionException ex) {
          postErrorMessage(ex.getMessage());
          return null;
@@ -251,7 +290,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   .setTx(txType)
                   .build();
 
-            response = getTrezor().send(txAck);
+            response = getSignatureDevice().send(txAck);
 
          } else if (txRequest.getRequestType() == TrezorType.RequestType.TXINPUT) {
             TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
@@ -291,7 +330,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   .setTx(txType)
                   .build();
 
-            response = getTrezor().send(txAck);
+            response = getSignatureDevice().send(txAck);
 
          } else if (txRequest.getRequestType() == TrezorType.RequestType.TXOUTPUT) {
             TransactionOutput ak_output = currentTx.outputs[txRequestDetailsType.getRequestIndex()];
@@ -335,7 +374,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   .setTx(txType)
                   .build();
 
-            response = getTrezor().send(txAck);
+            response = getSignatureDevice().send(txAck);
          }
       }
 
@@ -368,7 +407,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             .build();
 
       try {
-         Message resp = filterMessages(getTrezor().send(msgGetPubKey));
+         Message resp = filterMessages(getSignatureDevice().send(msgGetPubKey));
          if (resp != null && resp instanceof TrezorMessage.PublicKey) {
             TrezorMessage.PublicKey pubKeyNode = (TrezorMessage.PublicKey) resp;
             PublicKey pubKey = new PublicKey(pubKeyNode.getNode().getPublicKey().toByteArray());
@@ -416,7 +455,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
          TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
                .build();
-         return filterMessages(getTrezor().send(txButtonAck));
+         return filterMessages(getSignatureDevice().send(txButtonAck));
 
       } else if (msg instanceof TrezorMessage.PinMatrixRequest) {
          mainThreadHandler.post(new Runnable() {
@@ -439,7 +478,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
          // send the Pin Response and (if everything is okay) get the response for the
          // previous requested action
-         return filterMessages(getTrezor().send(txPinAck));
+         return filterMessages(getSignatureDevice().send(txPinAck));
       } else if (msg instanceof TrezorMessage.PassphraseRequest) {
          // get the user to enter a passphrase
          Optional<String> passphrase = waitForPassphrase();
@@ -448,7 +487,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          if (!passphrase.isPresent()) {
             // user has not provided a password - reset session on trezor and cancel
             response = TrezorMessage.ClearSession.newBuilder().build();
-            getTrezor().send(response);
+            getSignatureDevice().send(response);
             return null;
          } else {
             response = TrezorMessage.PassphraseAck.newBuilder()
@@ -457,13 +496,14 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
             // send the Passphrase Response and get the response for the
             // previous requested action
-            return filterMessages(getTrezor().send(response));
+            return filterMessages(getSignatureDevice().send(response));
          }
       } else if (msg instanceof TrezorMessage.Failure) {
-         if (postErrorMessage(((TrezorMessage.Failure) msg).getMessage())) {
+         final TrezorMessage.Failure errMsg = (TrezorMessage.Failure) msg;
+         if (postErrorMessage(errMsg.getMessage(), errMsg.getCode())) {
             return null;
          } else {
-            throw new RuntimeException("Trezor error:" + ((TrezorMessage.Failure) msg).getCode().toString() + "; " + ((TrezorMessage.Failure) msg).getMessage());
+            throw new RuntimeException("Trezor error:" + errMsg.getCode().toString() + "; " + errMsg.getMessage());
          }
       }
 

@@ -171,7 +171,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
 
    void setHint(){
       ((TextView)findViewById(R.id.tvHint)).setText(
-            getString(R.string.importing_wordlist_enter_next_word, currentWordNum, numberOfWords)
+            getString(R.string.importing_wordlist_enter_next_word, Integer.toString(currentWordNum), Integer.toString(numberOfWords))
       );
       findViewById(R.id.tvHint).setVisibility(View.VISIBLE);
    }

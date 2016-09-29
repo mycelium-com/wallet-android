@@ -21,7 +21,6 @@
   <string name="close">Fermer</string>
   <string name="sending">Envoi de %1$s</string>
   <string name="receiving">Réception de %1$s</string>
-  <string name="an_icon">une icône</string>
   <string name="confirmations">%d Confirmations</string>
   <string name="send">Envoyer</string>
   <string name="receive">Recevoir</string>
@@ -591,13 +590,34 @@
   <string name="toast_warning_low_fee">pourrait prendre plus de temps pour confirmer</string>
   <string name="account_number">Compte %d</string>
   <string name="account_found">%s trouvé(s)</string>
+  <string name="ext_sig_initial_status">Veuillez connecter votre appareil</string>
+  <string name="ext_sig_scanning_status">Appareil opérationnel - analyse des comptes</string>
   <string name="account_balance_sending_amount">(envoi de %s)</string>
   <string name="trezor_cold_storage_header">Fonds hors ligne Trezor</string>
+  <string name="connect_your_ext_sig_device_info">Cela ne fonctionne que si votre téléphone prend en charge USB-OTG (on-the-go).\n\nPour connectez le périphérique vous avez besoin d’un câble ou un adaptateur USB-OTG. Connectez le périphérique avec son propre câble USB au côté client et connecter le côté hôte avec votre téléphone.</string>
+  <string name="select_ext_sig_account_to_spend_from">Sélectionnez un compte à dépenser</string>
+  <string name="ext_sig_passphrase_description">Entrez une phrase de passe facultative</string>
+  <string name="ext_sig_show_passphrase">Afficher la phrase de passe</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importer un compte HD Trezor</string>
-  <string name="trezor_import_account_caption">Importer un compte</string>
   <string name="trezor_name">Trezor :</string>
+  <string name="ext_sig_select_account_to_import">Sélectionnez un compte à importer</string>
+  <string name="ext_sig_verify_transaction_on_device">Vérifier et confirmer les\ntransactions sur votre appareil</string>
+  <string name="ext_sig_amount">Montant :</string>
+  <string name="ext_sig_to">À :</string>
+  <string name="ext_sig_fee">Frais :</string>
+  <string name="ext_sig_total">Total :</string>
+  <string name="ext_sig_please_plug_in">Veuillez brancher votre appareil</string>
+  <string name="ext_sig_next_unused_account_info">Cette option va importer le prochain compte inutilisé de cet appareil. Il n’apparaîtra dans autres portefeuilles seulement si vous envoyez des fonds.</string>
+  <string name="ext_sig_next_unused_account_button">Importer le prochain compte inutilisé&#8230;</string>
+  <string name="ext_sig_new_firmware">Un nouveau firmware est disponible&#8230;</string>
   <string name="trezor_new_firmware_description">Un nouveau firmware trezor est disponible.\nVeuillez utiliser MyTrezor.com sur un PC pour mettre à jour votre trezor.</string>
+  <string name="ext_sig_unnamed">(sans nom)</string>
+  <string name="keepkey_cold_storage_header">Fonds hors ligne KeepKey</string>
+  <string name="keepkey">KeepKey</string>
+  <string name="keepkey_name">KeepKey :</string>
+  <string name="keepkey_new_firmware_description">Un nouveau micrologiciel KeepKey est disponible. \nSVP utiliser l\'extension KeepKey de Chrome sur un PC afin de mettre à jour votre KeepKey.</string>
+  <string name="keepkey_import_account">Importer un compte-HD-KeepKey</string>
   <string name="ledger_initial_status">Veuillez connecter ou appuyez et maintenez votre portefeuille Ledger</string>
   <string name="ledger_scanning_status">Portefeuille Ledger opérationnel - analyse des comptes</string>
   <string name="ledger_cold_storage_header">Portefeuille Ledger</string>
@@ -818,7 +838,7 @@
   <string name="copy">Copier</string>
   <string name="lt_backup_lt_id">Identité d\'opérateur de sauvegarde</string>
   <string name="lt_confirm_backup_trader_message">Vous êtes sur le point d\'exporter des données sensibles de votre compte de commerçant local. Toute personne qui accède à ces clés peut utiliser votre compte de commerçant local et agir en votre nom. Voulez-vous continuer ?</string>
-  <string name="masterseed">Masterseed</string>
+  <string name="masterseed">Racine Initiale</string>
   <string name="bip32_root_account">Compte racine</string>
   <string name="pop_invalid_pop_uri">Requête pop non valide</string>
   <string name="pop_amount_title">Montant payé</string>
@@ -892,5 +912,8 @@
   <string name="gd_error_unable_to_connect">Impossible de se connecter à Glidera - %s</string>
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s pour %2$s</string>
   <string name="error_details">Détails de l’erreur</string>
+  <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
+  <string name="glidera_setting_show_button">Activez Glidera</string>
+  <string name="glidera_setting_show_button_summary">Afficher l’option d’achat/vente de Glidera</string>
   <!-- GlideraService End -->
 </resources>

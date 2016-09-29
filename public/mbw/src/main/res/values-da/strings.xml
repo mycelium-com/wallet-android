@@ -8,7 +8,6 @@
   <string name="close">Luk</string>
   <string name="sending">Sender %1$s</string>
   <string name="receiving">Modtager %1$s</string>
-  <string name="an_icon">et ikon</string>
   <string name="confirmations">%d Konfirmationer</string>
   <string name="send">Send</string>
   <string name="receive">Modtag</string>

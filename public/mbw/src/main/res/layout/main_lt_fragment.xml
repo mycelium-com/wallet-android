@@ -44,7 +44,7 @@
                     android:id="@+id/ivDot"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:contentDescription="@string/an_icon"
+                    android:contentDescription="@string/lt_new_trading_activity_message"
                     android:src="@drawable/circle_full_green">
             </ImageView>
         </LinearLayout>
@@ -60,35 +60,4 @@
                 android:textSize="12sp">
         </TextView>
     </LinearLayout>
-
-    <!--<FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" >
-
-        <Button
-            android:id="@+id/btTrade"
-            style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/lt_buy_sell_button"
-            android:textSize="20sp" />
-
-        <FrameLayout
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_gravity="right"
-            android:gravity="center" >
-
-            <ImageView
-                android:id="@+id/ivDot"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:contentDescription="@string/an_icon"
-                android:src="@drawable/circle_full_green" >
-            </ImageView>
-        </FrameLayout>
-    </FrameLayout>-->
-
 </LinearLayout>

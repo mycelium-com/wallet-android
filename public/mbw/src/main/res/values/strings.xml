@@ -22,7 +22,6 @@
     <string name="close">Close</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
-    <string name="an_icon">an icon</string>
     <string name="confirmations">%d Confirmations</string>
     <string name="send">Send</string>
     <string name="receive">Receive</string>
@@ -616,8 +615,8 @@
     <string name="ext_sig_show_passphrase">Show passphrase</string>
     <string name="trezor">Trezor</string>
     <string name="trezor_import_account">Import a Trezor-HD-Account</string>
-    <string name="trezor_import_account_caption">Import Account</string>
     <string name="trezor_name">Trezor:</string>
+    <string name="ext_sig_import_account_caption">Import Account</string>
     <string name="ext_sig_select_account_to_import">Select account to import</string>
     <string name="ext_sig_verify_transaction_on_device">Verify and confirm the\ntransaction on your device</string>
     <string name="ext_sig_amount">Amount:</string>
@@ -628,6 +627,9 @@
     <string name="ext_sig_next_unused_account_info">This option will import the next unused account from this device. It will only show up in other wallets if you send funds to it.</string>
     <string name="ext_sig_next_unused_account_button">Import next unused account…</string>
     <string name="ext_sig_new_firmware">A new firmware is available…</string>
+    <string name="ext_sig_configuration_dialog_title">Device configuration</string>
+    <string name="ext_sig_device_not_initialized">Device is not initialized. You need to use a external app to setup the device before the first usage.</string>
+    <string name="external_app_needed">To update the device you need an external tool, click okay to launch it.</string>
     <string name="trezor_new_firmware_description">A new trezor firmware is available.\nPlease use MyTrezor.com on a PC to update your trezor.</string>
     <string name="ext_sig_unnamed">(unnamed)</string>
 
@@ -635,6 +637,7 @@
     <string name="keepkey">KeepKey</string>
     <string name="keepkey_name">KeepKey:</string>
     <string name="keepkey_new_firmware_description">A new KeepKey firmware is available.\nPlease use KeepKey Chrome Extension on a PC to update your KeepKey.</string>
+    <string name="keepkey_import_account">Import a KeepKey-HD-Account</string>
 
     <string name="ledger_initial_status">Please connect or tap and hold your Ledger Wallet</string>
     <string name="ledger_scanning_status">Ledger Wallet okay - scanning Accounts</string>
@@ -946,7 +949,13 @@
     <string name="warning_sync_failed_reusing_first">Synchronization failed! Reusing Address #1 of this xpub!</string>
     <string name="glidera_setting_show_button">Enable Glidera</string>
     <string name="glidera_setting_show_button_summary">Show Glidera\'s Buy/Sell option</string>
-    <string name="keepkey_import_account">Import a KeepKey-HD-Account</string>
+    <string name="tap_to_toggle_through_other_currencies">Tap to toggle through other currencies</string>
     <!-- GlideraService End -->
+
+    <string name="label_single_key_icon">a single key</string>
+    <string name="label_blue_circle">blue circle</string>
+    <string name="label_type_it_in">type it in</string>
+    <string name="label_use_device_location">use device location</string>
+    <string name="label_list_activity_indicator">had activity</string>
 
 </resources>

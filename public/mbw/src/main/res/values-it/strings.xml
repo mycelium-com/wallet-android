@@ -21,7 +21,6 @@
   <string name="close">Chiudi</string>
   <string name="sending">Invio di %1$s</string>
   <string name="receiving">Ricezione di %1$s</string>
-  <string name="an_icon">an icon</string>
   <string name="confirmations">%d conferme</string>
   <string name="send">Invia</string>
   <string name="receive">Ricevi</string>
@@ -584,7 +583,6 @@
   <string name="trezor_cold_storage_header">Trezor Cold Storage</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importare un conto Trezor-HD</string>
-  <string name="trezor_import_account_caption">Importare Account</string>
   <string name="trezor_name">Trezor:</string>
   <string name="trezor_new_firmware_description">È disponibile un nuovo firmware per il Trezor.\nPer favore collegati a MyTrezor.com su un PC per aggiornare il tuo Trezor.</string>
   <string name="ledger_scanning_status">Ledger Wallet in funzione - scansione degli account</string>

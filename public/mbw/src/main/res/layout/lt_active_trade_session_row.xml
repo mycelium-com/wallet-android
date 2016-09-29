@@ -21,7 +21,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center"
-            android:contentDescription="@string/an_icon"
+            android:contentDescription="@string/label_blue_circle"
             android:src="@drawable/circle_full_blue" >
         </ImageView>
     </FrameLayout>

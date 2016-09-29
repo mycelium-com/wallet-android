@@ -275,7 +275,7 @@ public class LtAndroidUtils {
       if (hours.equals(1L)) {
          return context.getString(R.string.lt_time_about_one_hour);
       } else {
-         return context.getString(R.string.lt_time_about_x_hours, hours);
+         return context.getString(R.string.lt_time_about_x_hours, Long.toString(hours));
       }
    }
 
@@ -290,7 +290,7 @@ public class LtAndroidUtils {
          if (minutes == 1) {
             return context.getString(R.string.lt_time_one_minute);
          } else {
-            return context.getString(R.string.lt_time_in_minutes, minutes);
+            return context.getString(R.string.lt_time_in_minutes, Long.toString(minutes));
          }
       }
       // Less than one day
@@ -299,7 +299,7 @@ public class LtAndroidUtils {
          if (hours == 1) {
             return context.getString(R.string.lt_time_one_hour);
          } else {
-            return context.getString(R.string.lt_time_in_hours, hours);
+            return context.getString(R.string.lt_time_in_hours, Long.toString(hours));
          }
       }
 
@@ -308,7 +308,7 @@ public class LtAndroidUtils {
       if (days == 1) {
          return context.getString(R.string.lt_time_one_day);
       } else {
-         return context.getString(R.string.lt_time_in_days, days);
+         return context.getString(R.string.lt_time_in_days,   Long.toString(days));
       }
 
    }

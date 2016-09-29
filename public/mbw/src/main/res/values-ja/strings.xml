@@ -21,7 +21,6 @@
   <string name="close">閉じる</string>
   <string name="sending">%1$s を送金</string>
   <string name="receiving">受信中 %1$s</string>
-  <string name="an_icon">アイコン</string>
   <string name="confirmations">%d 回 承認済み</string>
   <string name="send">送金</string>
   <string name="receive">受信</string>
@@ -581,7 +580,6 @@
   <string name="trezor_cold_storage_header">Trezorを使用してコールド・ストレージ</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Trezor階層的決定性アカウントをインポート</string>
-  <string name="trezor_import_account_caption">アカウントをインポート</string>
   <string name="trezor_name">Trezor：</string>
   <string name="trezor_new_firmware_description">新しい Trezor のファームウェアが利用可能です。\nMyTrezor.com を使用して PC 上で Trezor のファームウェア更新を行って下さい。</string>
   <string name="ledger_cold_storage_header">Ledger Wallet</string>

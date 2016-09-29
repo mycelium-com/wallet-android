@@ -30,13 +30,14 @@
             android:typeface="monospace" />
 
         <ImageView
-            android:id="@+id/ivSwitchable"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="5dp"
-            android:visibility="gone"
-            android:background="@drawable/triangle_se"/>
+                android:id="@+id/ivSwitchable"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="5dp"
+                android:visibility="gone"
+                android:background="@drawable/triangle_se"
+                android:contentDescription="@string/tap_to_toggle_through_other_currencies"/>
     </LinearLayout>
 
 </LinearLayout>

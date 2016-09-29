@@ -16,14 +16,13 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.google.common.base.*;
-import static com.google.common.base.Predicates.and;
-import static com.google.common.base.Predicates.or;
-import static com.google.common.base.Predicates.not;
-import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
-
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -41,6 +40,9 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.*;
+
+import static com.google.common.base.Predicates.*;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and
@@ -963,6 +965,15 @@ public class WalletManager {
       }
    }
 
+   // for the not expected case, that no account is activated (i.e. all are achieved), just enable the first one
+   // because the app needs at least one active account in several places.
+   public void activateFirstAccount(){
+      if (_bip44Accounts.isEmpty()) {
+         return;
+      }
+      _bip44Accounts.get(0).activateAccount();
+   }
+
    private int getNextBip44Index() {
       return filterAndConvert(MAIN_SEED_HD_ACCOUNT).size();
    }
@@ -1016,6 +1027,7 @@ public class WalletManager {
 
       return addresses;
    }
+
    public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex) throws InvalidKeyCipher {
       // Get the master seed
       Bip39.MasterSeed masterSeed = getMasterSeed(cipher);

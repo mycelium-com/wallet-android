@@ -9,7 +9,6 @@
   <string name="close">닫기</string>
   <string name="sending"> %1$s 전송하기</string>
   <string name="receiving">%1$s 수신하기</string>
-  <string name="an_icon">아이콘</string>
   <string name="confirmations">%d 승인</string>
   <string name="send">전송</string>
   <string name="receive">수신</string>

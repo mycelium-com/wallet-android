@@ -178,7 +178,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
 
    void setHint(){
       ((TextView)findViewById(R.id.tvHint)).setText(
-            getString(R.string.importing_wordlist_enter_next_word,  currentWordIndex + 1, wordlist.size())
+            getString(R.string.importing_wordlist_enter_next_word,  Integer.toString(currentWordIndex + 1), Integer.toString(wordlist.size()))
       );
       findViewById(R.id.tvHint).setVisibility(View.VISIBLE);
    }

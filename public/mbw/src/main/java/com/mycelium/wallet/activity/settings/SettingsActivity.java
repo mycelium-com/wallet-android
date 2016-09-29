@@ -650,7 +650,7 @@ public class SettingsActivity extends PreferenceActivity {
 
    private String getMinerFeeSummary() {
       return getResources().getString(R.string.pref_miner_fee_block_summary,
-            _mbwManager.getMinerFee().getNBlocks());
+            Integer.toString(_mbwManager.getMinerFee().getNBlocks()));
    }
 
    private String getBlockExplorerTitle() {

@@ -48,7 +48,8 @@
                     android:src="@drawable/light"
                     android:onClick="toggleTorch"
                     android:background="@android:color/white"
-                    android:padding="@dimen/standard_padding"/>
+                    android:padding="@dimen/standard_padding"
+                    android:contentDescription="@string/toggle_camera_light"/>
         </FrameLayout>
 
         <View
@@ -67,7 +68,8 @@
                     android:src="@drawable/infinite"
                     android:onClick="toggleFocus"
                     android:background="@android:color/white"
-                    android:padding="@dimen/standard_padding"/>
+                    android:padding="@dimen/standard_padding"
+                    android:contentDescription="@string/toggle_continuous_autofocus"/>
         </FrameLayout>
 
         <View
@@ -86,7 +88,8 @@
                     android:src="@drawable/camera_switcher"
                     android:onClick="toggleCamera"
                     android:background="@android:color/white"
-                    android:padding="@dimen/standard_padding"/>
+                    android:padding="@dimen/standard_padding"
+                    android:contentDescription="@string/toggle_front_back_camera"/>
         </FrameLayout>
 
     </LinearLayout>

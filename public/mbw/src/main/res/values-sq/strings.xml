@@ -21,7 +21,6 @@
   <string name="close">Mbylle</string>
   <string name="sending">Duke dërguar %1$s</string>
   <string name="receiving">Duke pranuar %1$s</string>
-  <string name="an_icon">një ikonë</string>
   <string name="confirmations">%d Konfirmime</string>
   <string name="send">Dërgo</string>
   <string name="receive">Prano</string>
@@ -580,7 +579,6 @@
   <string name="trezor_cold_storage_header">Trezor Cold Storage</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importo një Trezor-HD-llogari</string>
-  <string name="trezor_import_account_caption">Importo llogari</string>
   <string name="trezor_name">Trezor:</string>
   <string name="trezor_new_firmware_description">Një Trezor firmware është në dispozicion.\nJu lutem përdor MyTrezor.com në një PC për të përditësuar Trezor-in tuaj.</string>
   <string name="ledger_initial_status">Ju lutem konektoni Legder Wallet-in tuaj</string>

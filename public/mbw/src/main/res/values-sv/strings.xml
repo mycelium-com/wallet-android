@@ -21,7 +21,6 @@
   <string name="close">Stäng</string>
   <string name="sending">Skickar %1$s</string>
   <string name="receiving">Tar emot %1$s</string>
-  <string name="an_icon">en ikon</string>
   <string name="confirmations">%d bekräftelser</string>
   <string name="send">Skicka</string>
   <string name="receive">Ta emot</string>
@@ -582,7 +581,6 @@
   <string name="trezor_cold_storage_header">Trezor kallförvaring</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importera ett Trezor-HD-konto</string>
-  <string name="trezor_import_account_caption">Importera konto</string>
   <string name="trezor_name">Trezor:</string>
   <string name="trezor_new_firmware_description">Ny fast programvara för Trezor finns tillgänglig.\nAnvänd MyTrezor.com på en PC för att uppdatera din Trezor.</string>
   <string name="ledger_initial_status">Anslut eller \"peka och håll\" på din Ledger Wallet</string>

@@ -564,7 +564,7 @@ public class TradeActivity extends Activity {
          if (percent > 99) {
             percent = 99;
          }
-         _tvConfidence.setText(getResources().getString(R.string.lt_transaction_confidence, percent));
+         _tvConfidence.setText(getResources().getString(R.string.lt_transaction_confidence, Integer.toString(percent)));
       } else {
          _flConfidence.setVisibility(View.GONE);
       }

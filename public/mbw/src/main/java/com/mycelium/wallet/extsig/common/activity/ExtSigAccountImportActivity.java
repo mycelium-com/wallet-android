@@ -93,7 +93,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
    @Override
    protected void setView() {
       setContentView(R.layout.activity_instant_ext_sig);
-      ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.trezor_import_account_caption));
+      ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.ext_sig_import_account_caption));
       ((TextView) findViewById(R.id.tvSelectAccount)).setText(getString(R.string.ext_sig_select_account_to_import));
       ((TextView) findViewById(R.id.btNextAccount)).setVisibility(View.VISIBLE);
 

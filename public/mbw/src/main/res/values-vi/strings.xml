@@ -21,7 +21,6 @@
   <string name="close">Đóng</string>
   <string name="sending">Đang gửi %1$s</string>
   <string name="receiving">Đang nhận %1$s</string>
-  <string name="an_icon">một biểu tượng</string>
   <string name="confirmations">%d Lớp xác nhận</string>
   <string name="send">Gửi</string>
   <string name="receive">Nhận</string>

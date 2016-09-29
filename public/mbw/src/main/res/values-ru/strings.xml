@@ -21,7 +21,6 @@
   <string name="close">Закрыть</string>
   <string name="sending">Отправка %1$s</string>
   <string name="receiving">Получение %1$s</string>
-  <string name="an_icon">значок</string>
   <string name="confirmations">%d подтверждений</string>
   <string name="send">Отправить</string>
   <string name="receive">Получить</string>
@@ -589,7 +588,6 @@
   <string name="trezor_cold_storage_header">Холодное хранилище Trezor</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Импортировать Trezor-HD-счёт</string>
-  <string name="trezor_import_account_caption">Импортировать счёт</string>
   <string name="trezor_name">Trezor:</string>
   <string name="trezor_new_firmware_description">Доступна новая прошивка для Trezor.\nПожалуйста, используйте сайт MyTrezor.com через компьютер для обновления прошивки.</string>
   <string name="ledger_initial_status">Пожалуйста, подсоедините или нажмите и удерживайте кнопку на вашем Ledger Wallet</string>

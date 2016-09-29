@@ -70,8 +70,8 @@ public class MbwProdEnvironment extends MbwEnvironment {
          new HttpsEndpoint("https://lt2.mycelium.com/ltprodnet", myceliumThumbprint),
          new HttpsEndpoint("https://lt1.mycelium.com/ltprodnet", myceliumThumbprint),
 
-         new HttpsEndpoint("https://88.198.9.165/ltprodnet", myceliumThumbprint),
-         new HttpsEndpoint("https://88.198.17.7/ltprodnet", myceliumThumbprint),
+         new HttpsEndpoint("https://188.40.73.130/ltprodnet", myceliumThumbprint), // lt2
+         new HttpsEndpoint("https://46.4.101.162/ltprodnet", myceliumThumbprint), // lt1
 
          new TorHttpsEndpoint("https://7c7yicf4e3brohwi.onion/ltprodnet", myceliumThumbprint),
          new TorHttpsEndpoint("https://wmywc6g3mknihpq2.onion/ltprodnet", myceliumThumbprint),
@@ -96,10 +96,10 @@ public class MbwProdEnvironment extends MbwEnvironment {
          new HttpsEndpoint("https://mws8.mycelium.com/wapi", myceliumThumbprint),
 
          // Also try to connect to the nodes via a hardcoded IP, in case the DNS has some problems
-         new HttpsEndpoint("https://88.198.17.7/wapi", myceliumThumbprint),   // mws2
-         new HttpsEndpoint("https://88.198.9.165/wapi", myceliumThumbprint),  // mws6
+         new HttpsEndpoint("https://138.201.206.35/wapi", myceliumThumbprint),   // mws2
+         new HttpsEndpoint("https://46.4.101.162/wapi", myceliumThumbprint),  // mws6
          new HttpsEndpoint("https://46.4.3.125/wapi", myceliumThumbprint),     // mws7
-         new HttpsEndpoint("https://188.40.74.13/wapi", myceliumThumbprint),     // mws8
+         new HttpsEndpoint("https://188.40.73.130/wapi", myceliumThumbprint),     // mws8
 
          new TorHttpsEndpoint("https://vtuao7psnrsot4tb.onion/wapi", myceliumThumbprint),     // tor hidden services
          new TorHttpsEndpoint("https://n76y5k3le2zi73bw.onion/wapi", myceliumThumbprint),
@@ -126,8 +126,8 @@ public class MbwProdEnvironment extends MbwEnvironment {
       add(new BlockExplorer("BTL","blockTrail", "https://www.blocktrail.com/BTC/address/", "https://www.blocktrail.com/BTC/tx/", null, null));
       add(new BlockExplorer("BPY","BitPay", "https://insight.bitpay.com/address/", "https://insight.bitpay.com/tx/", null, null));
       add(new BlockExplorer("BEX","blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
-      add(new BlockExplorer("BCY","blockCyper", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
       add(new BlockExplorer("BAC","bitAccess", "https://search.bitaccess.ca/address/", "https://search.bitaccess.ca/tx/", null, null));
+      add(new BlockExplorer("BCY","blockCypher", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
       add(new BlockExplorer("BES","bitEasy", "https://www.biteasy.com/blockchain/addresses/", "https://www.biteasy.com/blockchain/transactions/", null, null));
       add(new BlockExplorer("CPM","coinprism", "https://www.coinprism.info/address/", "https://www.coinprism.info/tx/", null, null));
       add(new BlockExplorer("TBC","TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));

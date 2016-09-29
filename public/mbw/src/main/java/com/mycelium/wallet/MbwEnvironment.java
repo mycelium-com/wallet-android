@@ -58,6 +58,8 @@ public abstract class MbwEnvironment {
          return new MbwProdEnvironment(brand);
       } else if (network.equals("testnet")) {
          return new MbwTestEnvironment(brand);
+      } else if (network.equals("regtest")) {
+         return new MbwRegTestEnvironment(brand);
       } else {
          throw new RuntimeException("No network has been specified");
       }

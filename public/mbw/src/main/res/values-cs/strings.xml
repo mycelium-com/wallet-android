@@ -21,7 +21,6 @@
   <string name="close">Zavřít‏</string>
   <string name="sending">Odesílám %1$s</string>
   <string name="receiving">Přijímám %1$s</string>
-  <string name="an_icon">ikona</string>
   <string name="confirmations">%d potvrzení</string>
   <string name="send">Odeslat</string>
   <string name="receive">Přijmout</string>
@@ -588,13 +587,34 @@
   <string name="toast_warning_low_fee">potvrzení může chvíli trvat</string>
   <string name="account_number">Účet %d</string>
   <string name="account_found">%s nalezen</string>
+  <string name="ext_sig_initial_status">Připojte prosím své zařízení</string>
+  <string name="ext_sig_scanning_status">Zařízení OK - skenuji účty</string>
   <string name="account_balance_sending_amount">(odesílám %s)</string>
   <string name="trezor_cold_storage_header">Trezor cold storage</string>
+  <string name="connect_your_ext_sig_device_info">Funkční pouze pokud váš telefon podporuje USB OTG (on-the-go).\n\nPro připojení zařízení potřebujete OTG adaptér nebo kabel. Napojte vaše zařízení na stranu klienta a spojte ho s telefonem na straně hosta.</string>
+  <string name="select_ext_sig_account_to_spend_from">Zvolte účet pro útratu</string>
+  <string name="ext_sig_passphrase_description">Zadejte volitelné heslo</string>
+  <string name="ext_sig_show_passphrase">Zobrazit heslo</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importovat HD účet z Trezoru</string>
-  <string name="trezor_import_account_caption">Importovat účet</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="ext_sig_select_account_to_import">Zvolte účet k importu</string>
+  <string name="ext_sig_verify_transaction_on_device">Zkontrolujte a potvrďte\ntransakci na vašem zařízení</string>
+  <string name="ext_sig_amount">Částka:</string>
+  <string name="ext_sig_to">Komu:</string>
+  <string name="ext_sig_fee">Poplatek:</string>
+  <string name="ext_sig_total">Celkem:</string>
+  <string name="ext_sig_please_plug_in">Vložte své zařízení</string>
+  <string name="ext_sig_next_unused_account_info">Tato možnost importuje z tohoto zařízení další nepoužitý účet. Zařízení ho zobrazí, pokud na něj pošlete nějaké peníze.</string>
+  <string name="ext_sig_next_unused_account_button">Importovat další nepoužitý účet&#8230;</string>
+  <string name="ext_sig_new_firmware">Je k dispozici nový firmware&#8230;</string>
   <string name="trezor_new_firmware_description">Je k dispozici nový firmware pro Trezor.\nPro aktualizaci navštivte MyTrezor.com na vašem počítači.</string>
+  <string name="ext_sig_unnamed">(bez názvu)</string>
+  <string name="keepkey_cold_storage_header">KeepKey cold storage</string>
+  <string name="keepkey">KeepKey</string>
+  <string name="keepkey_name">KeepKey:</string>
+  <string name="keepkey_new_firmware_description">Je k dispozici nový firmware pro KeepKey.\n Použijte prosím KeepKey rozšíření pro Chrome na PC a aktualizuje svůj KeepKey.</string>
+  <string name="keepkey_import_account">Importovat HD účet z KeepKey</string>
   <string name="ledger_initial_status">Připojte nebo klepněte a držte vaši Ledger Wallet</string>
   <string name="ledger_scanning_status">Ledger Wallet v pořádku - hledám účty</string>
   <string name="ledger_cold_storage_header">Ledger Wallet</string>
@@ -889,5 +909,8 @@
   <string name="gd_error_unable_to_connect">Nelze se připojit ke Glidera - %s</string>
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s za %2$s</string>
   <string name="error_details">Podrobnosti chyby</string>
+  <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
+  <string name="glidera_setting_show_button">Povolit službu Glidera</string>
+  <string name="glidera_setting_show_button_summary">Zobrazit volbu Koupit/Prodat služby Glidera</string>
   <!-- GlideraService End -->
 </resources>

@@ -211,7 +211,7 @@ public class AddAdvancedAccountActivity extends Activity {
                if (depth != 3) {
                   // only BIP44 account level is accepted here. Unfortunately this will also reject the xpub key from
                   // our current Mycelium iPhone app which is account level plus one (external chain).
-                  String errorMessage = this.getString(R.string.import_xpub_wrong_depth, depth);
+                  String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
                   new Toaster(this).toast(errorMessage, false);
                } else {
                   returnAccount(hdKeyNode);

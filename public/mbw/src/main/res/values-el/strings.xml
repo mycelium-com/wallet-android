@@ -21,7 +21,6 @@
   <string name="close">Κλείσιμο</string>
   <string name="sending">Γίνεται αποστολή %1$s</string>
   <string name="receiving">Γίνεται Λήψη %1$s</string>
-  <string name="an_icon">ένα εικονίδιο</string>
   <string name="confirmations">%d Επιβεβαιώσεις</string>
   <string name="send">Αποστολή</string>
   <string name="receive">Λήψη</string>
@@ -580,7 +579,6 @@
   <string name="trezor_cold_storage_header">Ψυχρή Αποθήκευση Trezor</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Εισαγωγή HD Λογαριασμού από Trezor</string>
-  <string name="trezor_import_account_caption">Εισαγωγή Λογαριασμού</string>
   <string name="trezor_name">Trezor:</string>
   <string name="trezor_new_firmware_description">Νέα έκδοση λογισμικού συσκευής trezor διαθέσιμη.\nΠαρακαλώ κάντε χρήση του MyTrezor.com σε Η/Υ για να ανανεώσετε το trezor σας.</string>
   <string name="ledger_initial_status">Παρακαλώ συνδεστε, ή πατήστε παρατεταμένα το κουμπί στο πορτοφόλι Ledger</string>

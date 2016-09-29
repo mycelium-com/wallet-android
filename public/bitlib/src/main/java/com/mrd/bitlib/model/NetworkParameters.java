@@ -30,16 +30,22 @@ public class NetworkParameters implements Serializable {
    public static final int PROTOCOL_VERSION = 70002;
    public static final NetworkParameters testNetwork;
    public static final NetworkParameters productionNetwork;
-   private static byte[] TESTNET_GENESIS_BLOCK;
+   public static final NetworkParameters regtestNetwork;
+   private static final byte[] TESTNET_GENESIS_BLOCK;
+   private static final byte[] PRODNET_GENESIS_BLOCK;
+   private static final byte[] REGTEST_GENESIS_BLOCK;
 
    private final String _blockchain_explorer_transaction;
+
    private final String _blockchain_explorer_address;
 
    private final HdKeyPath _bip44_coin_type;
 
-   private static byte[] PRODNET_GENESIS_BLOCK;
-
    static {
+      // get it via RPC:
+      // getblockhash 0
+      // getblock "<hash>" false
+
       TESTNET_GENESIS_BLOCK = HexUtils.toBytes("0100000043497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea3309"
             + "00000000bac8b0fa927c0ac8234287e33c5f74d38d354820e24756ad709d7038"
             + "fc5f31f020e7494dffff001d03e4b67201010000000100000000000000000000"
@@ -55,8 +61,17 @@ public class NetworkParameters implements Serializable {
             + "6f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe554827"
             + "1967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4"
             + "f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
-      testNetwork = new NetworkParameters(false);
-      productionNetwork = new NetworkParameters(true);
+
+      REGTEST_GENESIS_BLOCK = HexUtils.toBytes("010000000000000000000000000000000000000000000000000000000000000000" +
+            "0000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f20020000000101000" +
+            "000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d010445546865" +
+            "2054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e6420626" +
+            "1696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a8" +
+            "28e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+
+      testNetwork = new NetworkParameters(NetworkType.TESTNET);
+      productionNetwork = new NetworkParameters(NetworkType.PRODNET);
+      regtestNetwork = new NetworkParameters(NetworkType.REGTEST);
    }
 
    /**
@@ -74,12 +89,18 @@ public class NetworkParameters implements Serializable {
     */
    private byte[] _genesisBlock;
 
-   private int _port;
-   private int _packetMagic;
-   private byte[] _packetMagicBytes;
+   private final int _port;
+   private final int _packetMagic;
+   private final byte[] _packetMagicBytes;
+   private final NetworkType _networkType;
 
-   private NetworkParameters(boolean isProdnet) {
-      if (isProdnet) {
+   private enum NetworkType {
+      PRODNET, TESTNET, REGTEST
+   }
+
+   private NetworkParameters(NetworkType networkType) {
+      _networkType = networkType;
+      if (networkType == NetworkType.PRODNET) {
          _standardAddressHeader = 0x00;
          _multisigAddressHeader = 0x05;
          _genesisBlock = PRODNET_GENESIS_BLOCK;
@@ -89,19 +110,28 @@ public class NetworkParameters implements Serializable {
          _blockchain_explorer_address = "https://blockchain.info/address/";
          _blockchain_explorer_transaction = "https://blockchain.info/tx/";
          _bip44_coin_type = HdKeyPath.BIP44_PRODNET;
-      } else {
+      } else if (networkType == NetworkType.TESTNET) {
          _standardAddressHeader = 0x6F;
          _multisigAddressHeader = 0xC4;
          _genesisBlock = TESTNET_GENESIS_BLOCK;
          _port = 18333;
-         // _packetMagic = 0xfabfb5da;
          _packetMagic = 0x0b110907;
-         // _packetMagicBytes = new byte[] { (byte) 0xfa, (byte) 0xbf, (byte)
-         // 0xb5, (byte) 0xda };
          _packetMagicBytes = new byte[] { (byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07 };
          _blockchain_explorer_address = "http://tbtc.blockr.io/address/info/";
          _blockchain_explorer_transaction = "http://tbtc.blockr.io/tx/info/";
          _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
+      } else if (networkType == NetworkType.REGTEST) {
+         _standardAddressHeader = 0x6F;
+         _multisigAddressHeader = 0xC4;
+         _genesisBlock = REGTEST_GENESIS_BLOCK;
+         _port = 18444;
+         _packetMagic = 0xfabfb5da;
+         _packetMagicBytes = new byte[] { (byte) 0xfa, (byte) 0xbf, (byte) 0xb5, (byte) 0xda };
+         _blockchain_explorer_address = "(regtest)";
+         _blockchain_explorer_transaction = "(regtest)";
+         _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
+      } else {
+         throw new RuntimeException("unknown network " + networkType.toString());
       }
    }
 
@@ -133,6 +163,10 @@ public class NetworkParameters implements Serializable {
       return _port;
    }
 
+   public NetworkType getNetworkType() {
+      return _networkType;
+   }
+
    public int getPacketMagic() {
       return _packetMagic;
    }
@@ -148,6 +182,10 @@ public class NetworkParameters implements Serializable {
 
    public boolean isProdnet() {
       return this.equals(NetworkParameters.productionNetwork);
+   }
+
+   public boolean isRegTest() {
+      return this.equals(NetworkParameters.regtestNetwork);
    }
 
    public boolean isTestnet() {
@@ -170,7 +208,7 @@ public class NetworkParameters implements Serializable {
 
    @Override
    public String toString() {
-      return isProdnet() ? "prodnet" : "testnet";
+      return isProdnet() ? "prodnet" : (_networkType == NetworkType.REGTEST ? "regtest" : "testnet");
    }
 
 

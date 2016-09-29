@@ -105,10 +105,7 @@
                 android:layout_width="@dimen/small_qrcode"
                 android:layout_height="@dimen/small_qrcode"
                 android:background="@color/white"
-                android:contentDescription="@string/an_icon"
+                android:contentDescription="@string/qr_code"
                 android:longClickable="false" />
-
     </FrameLayout>
-
-
 </RelativeLayout>

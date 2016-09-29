@@ -286,7 +286,7 @@
                         android:layout_width="75dp"
                         android:layout_height="45dp"
                         android:layout_gravity="center"
-                        android:contentDescription="@string/an_icon"
+                        android:contentDescription="@string/label_type_it_in"
                         android:scaleType="fitCenter"
                         android:src="@drawable/keyboard_icon"/>
             </LinearLayout>
@@ -376,5 +376,4 @@
                     android:visibility="invisible"/>
         </FrameLayout>
     </LinearLayout>
-
 </ScrollView>
