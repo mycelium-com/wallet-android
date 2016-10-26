@@ -423,8 +423,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
       try {
          dongle.getFirmwareVersion();
       } catch (BTChipException e) {
-         postErrorMessage("Unable to get firmware version - if your ledger supports multiple applications please open the bitcoin app");
-         return false;
+	 if (e.getSW() != 0x6700) {
+         	postErrorMessage("Unable to get firmware version - if your ledger supports multiple applications please open the bitcoin app");
+         	return false;
+	}
       }
       return initialized;
    }
