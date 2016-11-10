@@ -9,7 +9,7 @@ public class Trezor extends ExternalSignatureDevice {
            new SingleUsbDeviceId(0x1209, 0x53C1) // trezorV2
    );
    private static final String DEFAULT_LABEL = "Trezor";
-   private static final VersionNumber MOST_RECENT_VERSION = new VersionNumber(1, 3, 6);
+   private static final VersionNumber MOST_RECENT_VERSION = new VersionNumber(1, 4, 0);
 
    public Trezor(Context context) {
       super(context);

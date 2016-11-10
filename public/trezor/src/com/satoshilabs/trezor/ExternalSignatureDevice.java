@@ -421,9 +421,9 @@ public abstract class ExternalSignatureDevice {
         public boolean isNewerThan(int major, int minor, int patch) {
             if (this.major > major) {
                 return true;
-            } else if (this.minor > minor) {
+            } else if ((this.major == major) && (this.minor > minor)) {
                 return true;
-            } else if (this.patch > patch) {
+            } else if  ((this.major == major) && (this.minor == minor) && (this.patch > patch))  {
                 return true;
             }
 

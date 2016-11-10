@@ -426,6 +426,8 @@
   <string name="lt_warn_account_not_spandable">选定的目标地址 (%s) 不是消费地址.\n\n 你需要有脱机私钥备份或你将会失去所接受的资金。</string>
   <string name="lt_mycelium_marketplace">Mycelium市场</string>
   <string name="lt_mycelium_marketplace_description">在您的所在地寻找买卖比特币的Mycelium用户们</string>
+  <string name="lt_missing_fx_rate">暂无当前价格信息源</string>
+  <string name="lt_price_source_not_available">暂不可用!</string>
   <!-- LT end -->
   <string name="cs_private_key_description">您正在使用基于下列比特币地址的私钥：</string>
   <string name="cs_address_description">你已经扫描一个比特的地址。你可以查看余额，但是不能用它进行消费。</string>
@@ -601,6 +603,7 @@
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">导入 Trezor HD帐户</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="ext_sig_import_account_caption">导入帐户</string>
   <string name="ext_sig_select_account_to_import">选择导入帐户</string>
   <string name="ext_sig_verify_transaction_on_device">验证并确认\n您的设备上的交易</string>
   <string name="ext_sig_amount">数额</string>
@@ -611,6 +614,9 @@
   <string name="ext_sig_next_unused_account_info">此选项将从这个设备中导入下一个未使用的帐户。只有您向它发送资金, 它才会显示在其他钱包中。</string>
   <string name="ext_sig_next_unused_account_button">导入下一个未使用的帐户...</string>
   <string name="ext_sig_new_firmware">发现一个新的固件。</string>
+  <string name="ext_sig_configuration_dialog_title">设备配置</string>
+  <string name="ext_sig_device_not_initialized">此设备没有被初始化。在首次使用之前, 您需要使用一个外部应用程序来设置设备。</string>
+  <string name="external_app_needed">您需要一个外部工具来更新设备，单击确认启动它。</string>
   <string name="trezor_new_firmware_description">发现新的 Trezor 设备。 \n 请在您的电脑上使用 MyTrezor.com对您的 Trezor进行更新。</string>
   <string name="ext_sig_unnamed">\"(\"未命名\")\"</string>
   <string name="keepkey_cold_storage_header">KeepKey 冷存储</string>
@@ -915,5 +921,11 @@
   <string name="warning_sync_failed_reusing_first">同步失败 ！重用此 xpub #1 地址 ！</string>
   <string name="glidera_setting_show_button">启用 Glidera</string>
   <string name="glidera_setting_show_button_summary">显示 Glidera 的买入/卖出选项</string>
+  <string name="tap_to_toggle_through_other_currencies">通过点击切换其它货币</string>
   <!-- GlideraService End -->
+  <string name="label_single_key_icon">单一密钥</string>
+  <string name="label_blue_circle">蓝色圆圈</string>
+  <string name="label_type_it_in">请将其输入</string>
+  <string name="label_use_device_location">使用设备位置</string>
+  <string name="label_list_activity_indicator">有活动</string>
 </resources>

@@ -1,0 +1,1 @@
+Web API for the [Mycelium Bitcoin Wallet](../mbw) (server code).

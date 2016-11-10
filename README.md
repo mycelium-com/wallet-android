@@ -2,13 +2,14 @@ Beta channel
 ============
 In order to receive updates quicker than others, you need to do two things:
 
-1. Join the G+ group so you are eligible for testing:
-   https://plus.google.com/communities/102264813364583686576
+1. Join [the G+ group](https://plus.google.com/communities/102264813364583686576)
+so you are eligible for testing
+2. Then explicitly enable beta versions of the software in
+[Google play](https://play.google.com/apps/testing/com.mycelium.wallet)
 
-2. Then explicitly enable beta versions of the software at:
-   https://play.google.com/apps/testing/com.mycelium.wallet
-
-As Beta Testers, please make sure you have a recent **backup of the masterseed** and all **private keys** inside Mycelium. Beta testers will experience many bugs. So far, restoring the wallet from masterseed has never been necessary, but we offer no guarantees.
+As Beta Testers, please make sure you have a recent **backup of the masterseed** and
+all **private keys** inside Mycelium. Beta testers will experience many bugs.
+So far, restoring the wallet from masterseed has never been necessary, but we offer no guarantees.
 
 Building
 ========

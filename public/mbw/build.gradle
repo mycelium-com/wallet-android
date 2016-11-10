@@ -72,7 +72,7 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 28500
+        versionCode 28502
         versionName '2.8.5'
         multiDexEnabled true
     }

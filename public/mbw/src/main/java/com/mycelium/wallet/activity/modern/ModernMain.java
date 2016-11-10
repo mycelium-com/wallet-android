@@ -240,7 +240,10 @@ public class ModernMain extends ActionBarActivity {
    private void checkTorState() {
       if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR) {
          OrbotHelper obh = new OrbotHelper(this);
-         if (!obh.isOrbotRunning(this)) {
+         // only check for Orbot if the OS is older than AndroidN (SDK_INT==24),
+         // because the current check does not work any more
+         // see: https://github.com/mycelium-com/wallet/issues/288#issuecomment-257261708
+         if (!obh.isOrbotRunning(this) && android.os.Build.VERSION.SDK_INT < 24) {
             obh.requestOrbotStart(this);
          }
       }

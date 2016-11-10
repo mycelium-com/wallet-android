@@ -26,8 +26,8 @@ public class WalletVersion {
    private static WalletVersion noUpdatePrior = WalletVersion.from("2.0.7");
 
    private static Set<WalletVersion> latestVersions = ImmutableSet.of(
-         WalletVersion.from("2.5.3"),
-         WalletVersion.from("2.5.3-TESTNET"),
+         WalletVersion.from("2.8.5"),
+         WalletVersion.from("2.8.5-TESTNET"),
          WalletVersion.from("1.3.3-BOG"));
 
    private static Map<String, Set<WalletVersion>> latestVersionsEx = ImmutableMap.of(
@@ -85,7 +85,7 @@ public class WalletVersion {
    public static String responseVersion(String clientVersion) {
       WalletVersion client = from(clientVersion);
 
-      // only replay with an update info, if the client is already on the highe minSdk Level
+      // only replay with an update info, if the client is already on the highest minSdk Level
       if (client.isGreaterThan(noUpdatePrior)) {
          for (WalletVersion latestVersion : latestVersions) {
             if (latestVersion.isGreaterThan(client)) {
@@ -116,7 +116,7 @@ public class WalletVersion {
 
          for (WalletVersion latestVersion : walletVersions) {
             if (latestVersion.isGreaterThan(clientVersion)) {
-               return  new VersionInfoExResponse(latestVersion.toString(), "Update available", URI.create("https://mycelium.com/bitcoinwallet"), null);
+               return  new VersionInfoExResponse(latestVersion.toString(), "Update available", URI.create("https://wallet.mycelium.com/contact.html"), null);
             }
          }
       }

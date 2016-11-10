@@ -610,7 +610,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="ext_sig_total">Gesamt:</string>
   <string name="ext_sig_please_plug_in">Bitte schließen Sie ihr Gerät an</string>
   <string name="ext_sig_next_unused_account_info">Diese Option importiert das nächste ungenutzte Konto von diesem Gerät. In anderen Diensten wird es nur sichtbar, sobald Sie bitcoins dorthin senden.</string>
-  <string name="ext_sig_next_unused_account_button">Nächsten ungenutztes Konto importieren&#8230;</string>
+  <string name="ext_sig_next_unused_account_button">Nächstes ungenutztes Konto importieren&#8230;</string>
   <string name="ext_sig_new_firmware">Eine neue Firmware ist verfügbar&#8230;</string>
   <string name="trezor_new_firmware_description">Eine neue Trezor-Firmware ist verfügbar.\nBitte verwenden Sie MyTrezor.com auf einem PC, um Ihren Trezor zu aktualisieren.</string>
   <string name="ext_sig_unnamed">(unbenannt)</string>
