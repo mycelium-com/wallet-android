@@ -45,6 +45,12 @@ public class ScriptInputStandard extends ScriptInput {
             return false;
          }
 
+
+         if (chunks[0].length < 6){
+            // not enough bytes to encode tag, and two lengths
+            return false;
+         }
+
          // Verify that first chunk contains two DER encoded BigIntegers
          ByteReader reader = new ByteReader(chunks[0]);
 

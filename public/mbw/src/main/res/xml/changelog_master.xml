@@ -2,6 +2,7 @@
 <changelog>
     <release version="2.8.5" versioncode="28502">
         <change>Support for "Ledger Nano S"</change>
+        <change>Change to a new backend certificate (increased key length, renewed date)</change>
         <change>[bugfix] dont show wrong Orbot warning on Android 6.0+</change>
         <change>[bugfix] fix "Ledger Unplugged" communication problems</change>
         <change>[bugfix] fix wrong Trezor firmware update message</change>

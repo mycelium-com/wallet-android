@@ -9,24 +9,23 @@ import com.mrd.bitlib.model.Transaction;
 import java.io.Serializable;
 import java.util.Date;
 
-
 public class FeeEstimation implements Serializable {
    public static final FeeEstimation DEFAULT = new FeeEstimation(
-         new FeeEstimationMap(
-         new ImmutableMap.Builder<Integer, Bitcoins>()
-               .put(1,  Bitcoins.valueOf(100000))   // 1mBtc/kB
-               .put(3,  Bitcoins.valueOf( 20000))   // 0.2mBtc/kB
-               .put(10, Bitcoins.valueOf( 15000))   // 0.15mBtc/kB
-               .put(20, Bitcoins.valueOf(  8000))   // 0.08mBtc/kB
-               .build())
-            , new Date(0)
+           new FeeEstimationMap(
+                   new ImmutableMap.Builder<Integer, Bitcoins>()
+                           .put(1,  Bitcoins.valueOf(600000))   // 6mBtc/kB
+                           .put(3,  Bitcoins.valueOf( 65000))   // 0.65mBtc/kB
+                           .put(10, Bitcoins.valueOf( 50000))   // 0.5mBtc/kB
+                           .put(20, Bitcoins.valueOf( 36000))   // 0.36mBtc/kB
+                           .build())
+           , new Date(0)
    );
 
    @JsonProperty
-   final FeeEstimationMap feeForNBlocks;
+   private final FeeEstimationMap feeForNBlocks;
 
    @JsonProperty
-   final Date validFor; // timestamp of this fee estimation
+   private final Date validFor; // timestamp of this fee estimation
 
    public FeeEstimation(@JsonProperty("feeForNBlocks") FeeEstimationMap feeForNBlocks,
                         @JsonProperty("validFor") Date validFor) {

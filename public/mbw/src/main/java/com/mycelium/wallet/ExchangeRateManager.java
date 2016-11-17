@@ -48,7 +48,6 @@ import com.mycelium.wapi.model.ExchangeRate;
 import java.util.*;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
-
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60;
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
 
@@ -68,7 +67,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private final List<Observer> _subscribers;
    private String _currentExchangeSourceName;
 
-   public ExchangeRateManager(Context applicationContext, Wapi api) {
+   ExchangeRateManager(Context applicationContext, Wapi api) {
       _applicationContext = applicationContext;
       _api = api;
       _latestRates = null;
@@ -190,7 +189,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       getEditor().putString("currentRateName", _currentExchangeSourceName).commit();
    }
 
-
    /**
     * Get the exchange rate for the specified currency.
     * <p/>
@@ -212,7 +210,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       for (ExchangeRate r : _latestRates.get(currency).exchangeRates) {
          if (r.name.equals(_currentExchangeSourceName)) {
             //if the price is 0, obviously something went wrong
-            if (r.price.equals(Double.valueOf(0))) {
+            if (r.price.equals(0d)) {
                //we return an exchange rate with null price -> indicating missing rate
                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
@@ -236,8 +234,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    }
 
    // set for which fiat currencies we should get fx rates for
-   public void setCurrencyList(Set<String> currencies) {
-
+   void setCurrencyList(Set<String> currencies) {
       synchronized (_requestLock) {
          // copy list to prevent changes from outside
          ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<String>().addAll(currencies);

@@ -80,7 +80,14 @@ public class SslUtils {
                   return;
                }
             }
-            throw new CertificateException();
+
+            // none of the provided server certs match the expected one - report and error and
+            // reject any communication with that server
+            String providedCerts="";
+            for (X509Certificate certificate : certs) {
+               providedCerts += " " + generateCertificateThumbprint(certificate);
+            }
+            throw new CertificateException("Not expected certificate: " + providedCerts + " but expected: " + certificateThumbprint);
          }
       } };
 

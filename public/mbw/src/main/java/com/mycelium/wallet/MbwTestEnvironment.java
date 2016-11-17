@@ -42,7 +42,7 @@ import java.util.ArrayList;
 
 public class MbwTestEnvironment extends MbwEnvironment {
 
-   public static final String myceliumThumbprint = "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F";
+   public static final String myceliumTestnetThumbprint = "ed:c2:82:16:65:8c:4e:e1:c7:f6:a2:2b:15:ec:30:f9:cd:48:f8:db";
 
 
 
@@ -61,8 +61,8 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * Local Trader API for testnet
     */
    private static final ServerEndpoints testnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
-         new HttpsEndpoint("https://node3.mycelium.com/lttestnet", myceliumThumbprint),
-         new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", myceliumThumbprint)
+         new HttpsEndpoint("https://mws30.mycelium.com/lttestnet", myceliumTestnetThumbprint),
+         new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", myceliumTestnetThumbprint)
    });
 
    @Override
@@ -75,8 +75,8 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * Wapi
     */
    private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{
-      new HttpsEndpoint("https://node3.mycelium.com/wapitestnet", myceliumThumbprint),
-      new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", myceliumThumbprint)
+      new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", myceliumTestnetThumbprint),
+      new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", myceliumTestnetThumbprint)
    });
 
    @Override
