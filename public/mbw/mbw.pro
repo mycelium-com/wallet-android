@@ -50,6 +50,9 @@
 
 #Keep classes that are referenced on the AndroidManifest
 -keep public class * extends android.app.Activity
+-dontwarn android.support.v7.**
+-keep class android.support.v7.** { *; }
+-keep interface android.support.v7.** { *; }
 -keep public class * extends android.app.Application
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
@@ -191,6 +194,8 @@
     rx.internal.util.atomic.LinkedQueueNode consumerNode;
 }
 
+# This is to solve when show error with internalization
+-keep class org.ocpsoft.prettytime.i18n.**
 
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 
