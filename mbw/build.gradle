@@ -16,6 +16,10 @@ buildscript {
     }
 }
 
+configurations {
+    compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+}
+
 dependencies {
     androidTestCompile 'junit:junit:' + junitVersion
 
