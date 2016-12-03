@@ -266,7 +266,7 @@ public class EnterWordListActivity extends ActionBarActivity implements WordAuto
       private List<String> wordList;
       private String password;
 
-      public MasterSeedFromWordsAsyncTask(Bus bus, List<String> wordList, String password) {
+      MasterSeedFromWordsAsyncTask(Bus bus, List<String> wordList, String password) {
          this.bus = bus;
          this.wordList = wordList;
          this.password = password;
