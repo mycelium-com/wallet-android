@@ -50,9 +50,6 @@
 
 #Keep classes that are referenced on the AndroidManifest
 -keep public class * extends android.app.Activity
--dontwarn android.support.v7.**
--keep class android.support.v7.** { *; }
--keep interface android.support.v7.** { *; }
 -keep public class * extends android.app.Application
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
