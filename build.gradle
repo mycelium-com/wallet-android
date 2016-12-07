@@ -11,6 +11,12 @@ buildscript {
     }
 }
 
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation,unchecked"
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.13'
 }
