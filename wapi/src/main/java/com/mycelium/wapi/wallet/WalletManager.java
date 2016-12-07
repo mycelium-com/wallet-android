@@ -978,8 +978,10 @@ public class WalletManager {
       return filterAndConvert(MAIN_SEED_HD_ACCOUNT).size();
    }
 
+   // not nice the unchecked cast, but we can be sure that MAIN_SEED_HD_ACCOUNT only returns Bip44Accounts
+   // TODO: why is a double-cast needed?? Skipping the List<?> cast fails, although suggested by AS
+   @SuppressWarnings({"unchecked", "RedundantCast"})
    public List<Integer> getGapsBug(){
-      // not nice the unchecked cast, but we can be that MAIN_SEED_HD_ACCOUNT only returns Bip44Accounts
       final List<? extends Bip44Account> mainAccounts =
             (List<? extends Bip44Account>)(List<?>) filterAndConvert(MAIN_SEED_HD_ACCOUNT);
 

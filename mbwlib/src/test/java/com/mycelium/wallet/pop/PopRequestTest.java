@@ -12,7 +12,6 @@ import static org.junit.Assert.fail;
 
 
 public class PopRequestTest {
-
     @Test
     public void testCreateNoParams() {
         testIllegalURI("btcpop:?");
@@ -106,7 +105,6 @@ public class PopRequestTest {
         assertNull(uri.getTxid());
     }
 
-
     @Test
     public void testCreateFull() {
         String txid="Emt9MPvt1joznqHy5eEHkNtcuQuYWXzYJBQZN6BJm6NL";
@@ -131,5 +129,4 @@ public class PopRequestTest {
         assertEquals("/", PopURIDecoder.popURIDecode("/"));
         assertEquals("+", PopURIDecoder.popURIDecode("+"));
     }
-
 }

@@ -35,7 +35,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.api.request.VersionInfoRequest;
+import com.mycelium.wapi.api.request.VersionInfoExRequest;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -43,19 +43,19 @@ import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
-public class UpdateCheckTest extends Node3Test{
-
+// TODO: delete class? Document it? Put it into a @Category(IntegrationTests.class)? https://github.com/junit-team/junit4/wiki/Categories
+public class UpdateCheckTest extends Node3Test {
    @Test
    @Ignore
    public void testUpdateCheck() throws WapiException {
       //      WalletVersionResponse response = api.getVersionInfo(new WalletVersionRequest("1.2.0rc1", Locale.GERMAN));
-      String versionResponse = api.getVersionInfo(new VersionInfoRequest("1.0.0", Locale.GERMAN)).getResult().versionNumber;
+      String versionResponse = api.getVersionInfoEx(new VersionInfoExRequest("android", "1.0.0", Locale.GERMAN)).getResult().versionNumber;
       assertEquals("2.0.5",versionResponse);
-      versionResponse = api.getVersionInfo(new VersionInfoRequest("1.0.0-TESTNET", Locale.GERMAN)).getResult().versionNumber;
+      versionResponse = api.getVersionInfoEx(new VersionInfoExRequest("android", "1.0.0-TESTNET", Locale.GERMAN)).getResult().versionNumber;
       assertEquals("2.0.5-TESTNET",versionResponse);
-      versionResponse = api.getVersionInfo(new VersionInfoRequest("1.2.0", Locale.GERMAN)).getResult().versionNumber;
+      versionResponse = api.getVersionInfoEx(new VersionInfoExRequest("android", "1.2.0", Locale.GERMAN)).getResult().versionNumber;
       assertEquals("2.0.5",versionResponse);
-      versionResponse = api.getVersionInfo(new VersionInfoRequest("1.2.0rc1", Locale.GERMAN)).getResult().versionNumber;
+      versionResponse = api.getVersionInfoEx(new VersionInfoExRequest("android", "1.2.0rc1", Locale.GERMAN)).getResult().versionNumber;
       assertEquals("1.2.0rc1",versionResponse);
    }
 }

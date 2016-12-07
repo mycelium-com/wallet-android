@@ -8,7 +8,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class BackupPayloadTest {
-
    @Test
    public void testNewPayload(){
       byte[] cipherText = HexUtils.toBytes("5edbaade9ba4ed528a8de36c95ece996189dedf4756fba2599f94b4f370d7013" +

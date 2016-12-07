@@ -6,7 +6,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class MerkleTreeTest  {
-
    @Test
    public void testFromData() throws Exception {
       // test vectors from https://github.com/oleganza/bitcoin-papers/blob/master/AutomaticEncryptedWalletBackups.md#test-vectors
@@ -24,7 +23,6 @@ public class MerkleTreeTest  {
    @Test
    public void testBigDataEven() throws Exception {
       // test vectors from https://github.com/oleganza/bitcoin-papers/blob/master/AutomaticEncryptedWalletBackups.md#test-vectors
-
       byte[] test = new byte[1024 * 1024];
       for (int a=0; a<test.length; a++){
          test[a]=(byte)(a % 100);
@@ -40,7 +38,6 @@ public class MerkleTreeTest  {
    @Test
    public void testBigDataOdd() throws Exception {
       // test vectors from https://github.com/oleganza/bitcoin-papers/blob/master/AutomaticEncryptedWalletBackups.md#test-vectors
-
       byte[] test = new byte[1024 * 1024 + 1];
       for (int a=0; a<test.length; a++){
          test[a]=(byte)(a % 100);
@@ -56,7 +53,6 @@ public class MerkleTreeTest  {
    @Test
    public void testBigDataSmallChunks() throws Exception {
       // test vectors from https://github.com/oleganza/bitcoin-papers/blob/master/AutomaticEncryptedWalletBackups.md#test-vectors
-
       byte[] test = new byte[1024 * 1024 + 1];
       for (int a=0; a<test.length; a++){
          test[a]=(byte)(a % 100);

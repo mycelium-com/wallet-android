@@ -75,32 +75,6 @@ public abstract class AsynchronousApi {
 
    abstract protected CallbackRunnerInvoker createCallbackRunnerInvoker();
 
-
-   public void getWalletVersion(final VersionInfoRequest versionRequest) {
-      AbstractCallbackHandler<VersionInfoResponse> callback = new AbstractCallbackHandler<VersionInfoResponse>() {
-         @Override
-         public void handleCallback(VersionInfoResponse response, WapiException exception) {
-            final WalletVersionEvent latestVersion;
-            if (response == null) {
-               latestVersion = new WalletVersionEvent();
-            } else {
-               latestVersion = new WalletVersionEvent(response);
-            }
-            eventBus.post(latestVersion);
-         }
-      };
-      getWalletVersion(versionRequest, callback);
-   }
-
-   public void getWalletVersion(final VersionInfoRequest req, AbstractCallbackHandler<VersionInfoResponse> callback) {
-      executeRequest(new AbstractCaller<VersionInfoResponse>(callback) {
-         @Override
-         protected void callFunction() throws WapiException {
-            _response = _wapi.getVersionInfo(req).getResult();
-         }
-      });
-   }
-
    // call this function to test various warnings
    public void getWalletVersionExTestHelper(final VersionInfoExRequest versionRequest) {
 

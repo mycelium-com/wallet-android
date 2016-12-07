@@ -117,13 +117,6 @@ public interface Wapi {
    WapiResponse<ErrorCollectorResponse> collectError(ErrorCollectorRequest request);
 
    /**
-    * Get the current version-number, to check if there is an update available
-    * deprecated, replaced by getVersionInfoEx
-    */
-   @Deprecated()
-   WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request);
-
-   /**
     * Get the current version-number for a certain branch (Android, iOS, ..)
     * and also get a collection of eventually blocked features if there is a bug discovered
     *

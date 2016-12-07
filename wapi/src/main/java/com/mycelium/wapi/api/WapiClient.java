@@ -248,12 +248,6 @@ public class WapiClient implements Wapi {
    }
 
    @Override
-   public WapiResponse<VersionInfoResponse> getVersionInfo(VersionInfoRequest request) {
-      TypeReference<WapiResponse<VersionInfoResponse>> typeref = new TypeReference<WapiResponse<VersionInfoResponse>>() { };
-      return sendRequest(Function.GET_VERSION_INFO, request, typeref);
-   }
-
-   @Override
    public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
       TypeReference<WapiResponse<VersionInfoExResponse>> typeref = new TypeReference<WapiResponse<VersionInfoExResponse>>() { };
       return sendRequest(Function.GET_VERSION_INFO_EX, request, typeref);
