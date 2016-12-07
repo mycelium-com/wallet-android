@@ -27,16 +27,13 @@ import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.CreateTradeParameters;
 import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
-import com.mycelium.lt.api.params.InstantBuyOrderParameters;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.lt.api.params.ReleaseBtcParameters;
 import com.mycelium.lt.api.params.SearchParameters;
 import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
-import com.mycelium.lt.api.params.TradeParameters;
 import com.mycelium.lt.api.params.TraderParameters;
 
-@SuppressWarnings("deprecation")
 public interface LtApi {
 //   int MAXIMUM_TRADER_ADS = 10;
 //   double MINIMUM_SELL_PREMIUM = -90.0;
@@ -144,9 +141,6 @@ public interface LtApi {
    LtResponse<Void> deactivateAd(UUID sessionId, UUID adId);
 
    LtResponse<Void> editAd(UUID sessionId, UUID adId, AdParameters params);
-
-   @Deprecated
-   LtResponse<List<SellOrderSearchItem>> sellOrderSearch(UUID sessionId, SearchParameters params);
 
    /**
     *

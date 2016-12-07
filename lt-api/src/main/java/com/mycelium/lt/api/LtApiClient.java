@@ -16,12 +16,11 @@
 
 package com.mycelium.lt.api;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -58,18 +57,6 @@ public class LtApiClient implements LtApi {
       public void logError(String message, Exception e);
       public void logError(String message);
       public void logInfo(String message);
-   }
-
-   protected static byte[] uuidToBytes(UUID uuid) {
-      ByteArrayOutputStream ba = new ByteArrayOutputStream(16);
-      DataOutputStream da = new DataOutputStream(ba);
-      try {
-         da.writeLong(uuid.getMostSignificantBits());
-         da.writeLong(uuid.getLeastSignificantBits());
-      } catch (IOException e) {
-         // Never happens
-      }
-      return ba.toByteArray();
    }
 
    private ServerEndpoints _serverEndpoints;
@@ -151,7 +138,7 @@ public class LtApiClient implements LtApi {
             // execute request
             Response response = client.newCall(rq).execute();
             callDuration.stop();
-            _logger.logInfo(String.format("LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
+            _logger.logInfo(String.format(Locale.US, "LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
 
 
             // Check for status code 2XX
@@ -162,7 +149,7 @@ public class LtApiClient implements LtApi {
                return response;
             }else{
                // If the status code is not 200 we cycle to the next server
-               logError(String.format("Local Trader server request for class %s returned HTTP status code %d", request.getClass().toString(), response.code()));
+               logError(String.format(Locale.US, "Local Trader server request for class %s returned HTTP status code %d", request.getClass().toString(), response.code()));
             }
 
          } catch (IOException e) {
@@ -288,15 +275,6 @@ public class LtApiClient implements LtApi {
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.AD_ID, adId.toString());
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
-      });
-   }
-
-   @Override
-   public LtResponse<List<SellOrderSearchItem>> sellOrderSearch(UUID sessionId, SearchParameters params) {
-      LtRequest r = new LtRequest(Function.SELL_ORDER_SEARCH);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      r.setPostObject(_objectMapper, params);
-      return sendRequest(r, new TypeReference<LtResponse<List<SellOrderSearchItem>>>() {
       });
    }
 

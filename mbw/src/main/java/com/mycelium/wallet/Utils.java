@@ -106,9 +106,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-@SuppressWarnings("deprecation")
 public class Utils {
-
    private static final DecimalFormat FIAT_FORMAT;
 
    static {
@@ -431,6 +429,7 @@ public class Utils {
 
    public static void setClipboardString(String string, Context context) {
       try {
+         @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
          clipboard.setText(string);
       } catch (NullPointerException ex) {
@@ -441,6 +440,7 @@ public class Utils {
 
    public static String getClipboardString(Activity activity) {
       try {
+         @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
          CharSequence content = clipboard.getText();
          if (content == null) {
@@ -462,6 +462,7 @@ public class Utils {
 
    public static void clearClipboardString(Activity activity) {
       try {
+         @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
          clipboard.setText("");
       } catch (NullPointerException ex) {
