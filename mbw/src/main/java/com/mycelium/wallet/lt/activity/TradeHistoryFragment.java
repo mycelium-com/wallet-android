@@ -68,6 +68,8 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class TradeHistoryFragment extends Fragment {
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
@@ -78,7 +80,7 @@ public class TradeHistoryFragment extends Fragment {
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_recent_trades_fragment, container, false));
+      View ret = checkNotNull(inflater.inflate(R.layout.lt_recent_trades_fragment, container, false));
       setHasOptionsMenu(true);
       ListView ordersList = (ListView) ret.findViewById(R.id.lvRecentTrades);
       ordersList.setOnItemClickListener(itemListClickListener);
@@ -152,9 +154,9 @@ public class TradeHistoryFragment extends Fragment {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_historic_trade_session_row, null));
+            v = checkNotNull(vi.inflate(R.layout.lt_historic_trade_session_row, null));
          }
-         TradeSession o = getItem(position);
+         TradeSession o = checkNotNull(getItem(position));
 
          // Dot
          boolean viewed = _mbwManager.getLocalTraderManager().isViewed(o);
