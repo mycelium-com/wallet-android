@@ -15,67 +15,11 @@ import javax.crypto.spec.SecretKeySpec;
  * href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt</a> key derivation
  * function.
  * 
- * @author Will Glozer Note: Removed native JNI calls for native implementation
+ * @author Will Glozer
+ * Note: Removed native JNI calls for native implementation
  *         for use with BCCAPI
  */
 public class SCrypt {
-   private static boolean native_library_loaded = false;
-
-   /**
-    * Implementation of the <a
-    * href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a>. Calls the
-    * native implementation {@link #scryptN} when the native library was
-    * successfully loaded, otherwise calls {@link #scryptJ}.
-    * 
-    * @param passwd
-    *           Password.
-    * @param salt
-    *           Salt.
-    * @param N
-    *           CPU cost parameter.
-    * @param r
-    *           Memory cost parameter.
-    * @param p
-    *           Parallelization parameter.
-    * @param dkLen
-    *           Intended length of the derived key.
-    * 
-    * @return The derived key.
-    * 
-    * @throws GeneralSecurityException
-    *            when HMAC_SHA256 is not available.
-    * @throws InterruptedException
-    */
-   public static byte[] scrypt(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen,
-         SCryptProgress progressTracker) throws GeneralSecurityException, InterruptedException {
-      return native_library_loaded ? scryptN(passwd, salt, N, r, p, dkLen) : scryptJ(passwd, salt, N, r, p, dkLen,
-            progressTracker);
-   }
-
-   /**
-    * Native C implementation of the <a
-    * href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a> using the
-    * code from <a
-    * href="http://www.tarsnap.com/scrypt.html">http://www.tarsnap.com
-    * /scrypt.html<a>.
-    * 
-    * @param passwd
-    *           Password.
-    * @param salt
-    *           Salt.
-    * @param N
-    *           CPU cost parameter.
-    * @param r
-    *           Memory cost parameter.
-    * @param p
-    *           Parallelization parameter.
-    * @param dkLen
-    *           Intended length of the derived key.
-    * 
-    * @return The derived key.
-    */
-   public static native byte[] scryptN(byte[] passwd, byte[] salt, long N, int r, int p, int dkLen);
-
    /**
     * Pure Java implementation of the <a
     * href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a>.
@@ -99,8 +43,8 @@ public class SCrypt {
     *            when HMAC_SHA256 is not available.
     * @throws InterruptedException
     */
-   public static byte[] scryptJ(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen,
-         SCryptProgress progressTracker) throws GeneralSecurityException, InterruptedException {
+   public static byte[] scrypt(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen,
+                                 SCryptProgress progressTracker) throws GeneralSecurityException, InterruptedException {
       if (N == 0 || (N & (N - 1)) != 0)
          throw new IllegalArgumentException("N must be > 0 and a power of 2");
 
@@ -140,7 +84,7 @@ public class SCrypt {
       return DK;
    }
 
-   public static void smix(byte[] B, int Bi, int r, int N, byte[][] V, byte[] XY, SCryptProgress progressTracker)
+   private static void smix(byte[] B, int Bi, int r, int N, byte[][] V, byte[] XY, SCryptProgress progressTracker)
          throws InterruptedException {
       int Xi = 0;
       int Yi = 128 * r;
@@ -168,7 +112,7 @@ public class SCrypt {
       arraycopy(XY, Xi, B, Bi, 128 * r);
    }
 
-   public static void blockmix_salsa8(byte[] BY, int Bi, int Yi, int r) {
+   private static void blockmix_salsa8(byte[] BY, int Bi, int Yi, int r) {
       byte[] X = new byte[64];
       int i;
 
@@ -193,7 +137,7 @@ public class SCrypt {
       return (a << b) | (a >>> (32 - b));
    }
 
-   public static void salsa20_8(byte[] B) {
+   private static void salsa20_8(byte[] B) {
       int[] B32 = new int[16];
       int[] x = new int[16];
       int i;
@@ -253,13 +197,13 @@ public class SCrypt {
       }
    }
 
-   public static void blockxor(byte[] S, int Si, byte[] D, int Di, int len) {
+   private static void blockxor(byte[] S, int Si, byte[] D, int Di, int len) {
       for (int i = 0; i < len; i++) {
          D[Di + i] ^= S[Si + i];
       }
    }
 
-   public static int integerify(byte[] B, int Bi, int r) {
+   private static int integerify(byte[] B, int Bi, int r) {
       int n;
 
       Bi += (2 * r - 1) * 64;
