@@ -39,9 +39,7 @@ import com.mrd.bitlib.util.HexUtils;
 
 import org.junit.Test;
 
-import java.io.UnsupportedEncodingException;
 import java.text.Normalizer;
-import java.util.Arrays;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -160,6 +158,7 @@ public class Bip39Test {
     }
 
     @Test
+    @SuppressWarnings("NewApi")
     public void testEnglishVectorsWordsToSeeds() {
         for (TestVector tv : TEST_VECTORS) {
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(tv.wordList, tv.passphrase);

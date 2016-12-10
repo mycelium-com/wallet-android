@@ -50,6 +50,7 @@ public class Bip39 {
       private final byte[] _bip32MasterSeed;
       private final byte _wordListType;
 
+      @SuppressWarnings("NewApi")
       private MasterSeed(byte[] bip39RawEntropy, String bip39Passphrase, byte[] bip32MasterSeed) {
          _bip39RawEntropy = bip39RawEntropy;
          _bip39Passphrase = Normalizer.normalize(bip39Passphrase, Normalizer.Form.NFKD);
@@ -393,6 +394,7 @@ public class Bip39 {
     * @param passphrase the optional passphrase
     * @return the BIP32 master seed
     */
+   @SuppressWarnings("NewApi")
    public static MasterSeed generateSeedFromWordList(List<String> wordList, String passphrase) {
       // Null passphrase defaults to the empty string
       if (passphrase == null) {
