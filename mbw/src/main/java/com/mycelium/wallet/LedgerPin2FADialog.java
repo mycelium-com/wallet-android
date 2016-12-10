@@ -14,7 +14,6 @@ import com.mycelium.wallet.activity.util.Pin;
 import java.util.ArrayList;
 
 public class LedgerPin2FADialog extends Dialog {
-
    protected Button btnBack;
    protected Button btnClear;
 
@@ -166,7 +165,6 @@ public class LedgerPin2FADialog extends Dialog {
       delayHandler.sendMessage(delayHandler.obtainMessage());
    }
 
-
    /**
     * Trick to make the last digit update before the dialog is disabled
     */
@@ -183,5 +181,4 @@ public class LedgerPin2FADialog extends Dialog {
    protected Pin getPin() {
       return new Pin(enteredPin);
    }
-
 }

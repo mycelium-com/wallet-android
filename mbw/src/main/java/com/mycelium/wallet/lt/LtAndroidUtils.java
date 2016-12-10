@@ -236,8 +236,7 @@ public class LtAndroidUtils {
       if (days == 1) {
          return context.getString(R.string.lt_time_one_day);
       } else {
-         return context.getString(R.string.lt_time_in_days,   Long.toString(days));
+         return context.getString(R.string.lt_time_in_days, Long.toString(days));
       }
-
    }
 }

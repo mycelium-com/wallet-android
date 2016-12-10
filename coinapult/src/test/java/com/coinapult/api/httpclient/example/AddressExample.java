@@ -4,10 +4,9 @@ import com.coinapult.api.httpclient.*;
 
 public class AddressExample {
 	public static void main(String[] args) {
-		CoinapultClient cli =/* new CoinapultClient(
+		CoinapultClient cli = null; /* new CoinapultClient(
 				"b24269410061e0594263f311118ed5",
 				"33cb6adea3e5920af43034c8936e48c2196b3a2e76832247e3deae804ad7",new CoinapultProdConfig());*/
-      null;
 		try {
 			AccountInfo.Json resA = cli.accountInfo();
 			System.out.println(resA.toPrettyString());
