@@ -55,7 +55,6 @@ import com.mycelium.wallet.lt.LtAndroidUtils;
 import com.mycelium.wallet.lt.activity.TraderInfoAdapter.InfoItem;
 
 public class TraderInfoFragment extends Fragment {
-
    private PublicTraderInfo _traderInfo;
    private MbwManager _mbwManager;
    private TraderInfoAdapter _adapter;
@@ -71,9 +70,8 @@ public class TraderInfoFragment extends Fragment {
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View view = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_trader_info_fragment, container, false));
-      _traderInfo = (PublicTraderInfo) getArguments().getSerializable("traderInfo"); // may
-                                                                                     // be
-                                                                                     // null
+      // may be null
+      _traderInfo = (PublicTraderInfo) getArguments().getSerializable("traderInfo");
       return view;
    }
 
@@ -159,10 +157,6 @@ public class TraderInfoFragment extends Fragment {
                .getBtcValueString(ti.totalBtcBought)));
       }
 
-      // Rating
-      float rating = LtAndroidUtils.calculate5StarRating(pti);
-      _adapter.add(new InfoItem(getString(R.string.lt_rating_label), rating));
-
       // Median trade time
       if (pti.tradeMedianMs != null) {
          String hourString = LtAndroidUtils.getApproximateTimeInHours(getActivity(), pti.tradeMedianMs);
@@ -180,5 +174,4 @@ public class TraderInfoFragment extends Fragment {
    private static Double roundDoubleHalfUp(double value, int decimals) {
       return BigDecimal.valueOf(value).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
    }
-
 }

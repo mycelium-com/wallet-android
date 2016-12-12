@@ -218,8 +218,7 @@ public class PopSelectTransactionActivity extends ActionBarActivity implements A
    }
 
    public static class TransactionHistoryAdapter extends TransactionArrayAdapter {
-
-      public TransactionHistoryAdapter(Context context, List<TransactionSummary> objects, Map<Address, String> addressBook) {
+      TransactionHistoryAdapter(Context context, List<TransactionSummary> objects, Map<Address, String> addressBook) {
          super(context, objects, addressBook);
       }
 

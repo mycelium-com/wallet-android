@@ -35,8 +35,6 @@
 package com.mycelium.wallet.lt.activity.buy;
 
 import java.io.Serializable;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,8 +44,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,11 +53,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.AdSearchItem;
 import com.mycelium.lt.api.model.AdType;
 import com.mycelium.lt.api.model.GpsLocation;
@@ -75,6 +71,8 @@ import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.AdSearch;
 import com.mycelium.wallet.lt.api.GetAd;
 import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class AdSearchFragment extends Fragment {
    public static Bundle createArgs(boolean buy) {
@@ -95,7 +93,7 @@ public class AdSearchFragment extends Fragment {
    @SuppressWarnings("unchecked")
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View view = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_ad_search_fragment, container, false));
+      View view = checkNotNull(inflater.inflate(R.layout.lt_ad_search_fragment, container, false));
       setHasOptionsMenu(true);
       if (savedInstanceState != null) {
          // May be null
@@ -176,7 +174,7 @@ public class AdSearchFragment extends Fragment {
          private AdSearchItem item;
          private int position;
 
-         public Tag(AdSearchItem item, int position) {
+         Tag(AdSearchItem item, int position) {
             this.item = item;
             this.position = position;
          }
@@ -195,15 +193,15 @@ public class AdSearchFragment extends Fragment {
       }
 
       @Override
-      public View getView(final int position, View convertView, ViewGroup parent) {
-         return getAdView(position);
-      }
-
-      public View getAdView(final int position) {
-         final AdSearchItem item = getItem(position);
+      @NonNull
+      public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
+         final AdSearchItem item = checkNotNull(getItem(position));
          final boolean isSelected = item == _selected;
-         LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         final View card = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_card, null));
+         View card = convertView;
+         if (card == null) {
+            LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            card = checkNotNull(vi.inflate(R.layout.lt_ad_card, parent, false));
+         }
 
          // Price
          String price = String.format(_locale, "%s %s", Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, item.oneBtcInFiat), item.currency);
@@ -243,11 +241,6 @@ public class AdSearchFragment extends Fragment {
          TextView tvLastActivity = (TextView) card.findViewById(R.id.tvLastActivity);
          tvLastActivity.setText(lastActivity);
          setTraderActivityColor(tvLastActivity, item.traderInfo.idleTime);
-
-         // Rating
-         RatingBar ratingBar = (RatingBar) card.findViewById(R.id.seller_rating);
-         float rating = LtAndroidUtils.calculate5StarRating(item.traderInfo);
-         ratingBar.setRating(rating);
 
          // Selected item displays more stuff
          if (isSelected) {
@@ -330,27 +323,6 @@ public class AdSearchFragment extends Fragment {
                _selected = null;
             }
             _recordsAdapter.notifyDataSetChanged();
-         }
-      };
-
-      private OnClickListener bannerClickListener = new OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            URL url = (URL) v.getTag();
-            _selected = null;
-
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            try {
-               intent.setData(Uri.parse(url.toURI().toString()));
-            } catch (URISyntaxException e) {
-               // Never happens
-               Log.e(this.getClass().getSimpleName(), "URISyntaxException: " + url.toString());
-               return;
-            }
-            startActivity(intent);
-            Toast.makeText(getActivity(), url.getHost(), Toast.LENGTH_LONG).show();
-
          }
       };
 

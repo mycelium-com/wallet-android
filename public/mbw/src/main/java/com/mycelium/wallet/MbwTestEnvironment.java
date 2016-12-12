@@ -35,19 +35,21 @@
 package com.mycelium.wallet;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.net.*;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.HttpsEndpoint;
+import com.mycelium.net.ServerEndpoints;
+import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import java.util.List;
+import com.mycelium.wallet.external.BuySellServiceDescriptor;
+import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
+import com.mycelium.wallet.external.GlideraServiceDescription;
+import com.mycelium.wallet.external.LocalTraderServiceDescription;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class MbwTestEnvironment extends MbwEnvironment {
-
-   public static final String myceliumTestnetThumbprint = "ed:c2:82:16:65:8c:4e:e1:c7:f6:a2:2b:15:ec:30:f9:cd:48:f8:db";
-
-
-
-
-   public MbwTestEnvironment(String brand){
+   public MbwTestEnvironment(String brand) {
       super(brand);
    }
 
@@ -61,13 +63,14 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * Local Trader API for testnet
     */
    private static final ServerEndpoints testnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
-         new HttpsEndpoint("https://mws30.mycelium.com/lttestnet", myceliumTestnetThumbprint),
-         new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", myceliumTestnetThumbprint)
+           new HttpsEndpoint("https://mws30.mycelium.com/lttestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
+           new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", "D0:09:70:40:98:71:E0:0E:62:08:1A:36:4C:BC:C7:2E:51:40:50:4C"),
+
    });
 
    @Override
    public ServerEndpoints getLtEndpoints() {
-      return  testnetLtEndpoints;
+      return testnetLtEndpoints;
    }
 
 
@@ -75,32 +78,40 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * Wapi
     */
    private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{
-      new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", myceliumTestnetThumbprint),
-      new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", myceliumTestnetThumbprint)
+           new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
+           new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", "75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B"),
    });
 
    @Override
    public ServerEndpoints getWapiEndpoints() {
-      return  testnetWapiEndpoints;
+      return testnetWapiEndpoints;
    }
 
    /**
     * Available BlockExplorers
-    *
+    * <p>
     * The first is the default block explorer if the requested one is not available
     */
    private static final List<BlockExplorer> testnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("BKR","blockr", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/"));
-      add(new BlockExplorer("SBT","smartbit", "https://www.sandbox.smartbit.com.au/address/", "https://sandbox.smartbit.com.au/tx/", null, null));
-      add(new BlockExplorer("BTL","blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
-      add(new BlockExplorer("BPY","BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
-      add(new BlockExplorer("BEX","blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
-      add(new BlockExplorer("BCY","blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
-      add(new BlockExplorer("BES","bitEasy", "https://www.biteasy.com/testnet/addresses/", "https://www.biteasy.com/testnet/transactions/", null, null));
-      add(new BlockExplorer("CPM","coinprism", "https://testnet.coinprism.info/address/", "https://testnet.coinprism.info/tx/", null, null));
+      add(new BlockExplorer("BKR", "blockr", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/"));
+      add(new BlockExplorer("SBT", "smartbit", "https://www.sandbox.smartbit.com.au/address/", "https://sandbox.smartbit.com.au/tx/", null, null));
+      add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
+      add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
+      add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
+      add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
+      add(new BlockExplorer("BES", "bitEasy", "https://www.biteasy.com/testnet/addresses/", "https://www.biteasy.com/testnet/transactions/", null, null));
+      add(new BlockExplorer("CPM", "coinprism", "https://testnet.coinprism.info/address/", "https://testnet.coinprism.info/tx/", null, null));
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
       return new ArrayList<BlockExplorer>(testnetExplorerClearEndpoints);
+   }
+
+   public List<BuySellServiceDescriptor> getBuySellServices(){
+      return new ArrayList<BuySellServiceDescriptor>() {{
+         add(new CreditCardBuyServiceDescription());
+         add(new LocalTraderServiceDescription());
+         add(new GlideraServiceDescription());
+      }};
    }
 }

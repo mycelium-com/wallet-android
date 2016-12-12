@@ -71,7 +71,6 @@ import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
-import com.mycelium.wallet.activity.modern.ExploreHelper;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
@@ -107,9 +106,9 @@ import java.util.logging.Level;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
-   public static final String PROXY_HOST = "socksProxyHost";
-   public static final String PROXY_PORT = "socksProxyPort";
-   public static final String SELECTED_ACCOUNT = "selectedAccount";
+   private static final String PROXY_HOST = "socksProxyHost";
+   private static final String PROXY_PORT = "socksProxyPort";
+   private static final String SELECTED_ACCOUNT = "selectedAccount";
    private static volatile MbwManager _instance = null;
 
    /**
@@ -158,7 +157,6 @@ public class MbwManager {
    private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
    private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
    private MbwEnvironment _environment;
-   private final ExploreHelper _exploreHelper;
    private HttpErrorCollector _httpErrorCollector;
    private String _language;
    private final VersionManager _versionManager;
@@ -226,7 +224,6 @@ public class MbwManager {
 
       _addressBookManager = new AddressBookManager(_applicationContext);
       _storage = new MetadataStorage(_applicationContext);
-      _exploreHelper = new ExploreHelper();
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
@@ -943,16 +940,16 @@ public class MbwManager {
       return _environment.getNetwork();
    }
 
+   public MbwEnvironment getEnvironmentSettings() {
+      return _environment;
+   }
+
    /**
     * Get the brand of the wallet. This allows us to behave differently
     * depending on the brand of the wallet.
     */
    public String getBrand() {
       return _environment.getBrand();
-   }
-
-   public ExploreHelper get_exploreHelper() {
-      return _exploreHelper;
    }
 
    public void reportIgnoredException(Throwable e) {

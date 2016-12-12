@@ -57,15 +57,13 @@ import java.util.List;
 public class VerifyWordListActivity extends ActionBarActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
    private MbwManager _mbwManager;
    private List<String> wordlist;
-   private String password;
+   private String passphrase;
    private int currentWordIndex;
-   private WordAutoCompleterFragment _wordAutoCompleter;
 
    public static void callMe(Activity activity) {
       Intent intent = new Intent(activity, VerifyWordListActivity.class);
       activity.startActivity(intent);
    }
-
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -83,15 +81,15 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
       }
 
       wordlist = masterSeed.getBip39WordList();
-      password = masterSeed.getBip39Passphrase();
+      passphrase = masterSeed.getBip39Passphrase();
       currentWordIndex = 0;
 
-      _wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
-      _wordAutoCompleter.setListener(this);
-      _wordAutoCompleter.setMinimumCompletionCharacters(2);
-      _wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
+      WordAutoCompleterFragment wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
+      wordAutoCompleter.setListener(this);
+      wordAutoCompleter.setMinimumCompletionCharacters(2);
+      wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
       UsKeyboardFragment keyboard = (UsKeyboardFragment) getSupportFragmentManager().findFragmentById(R.id.usKeyboard);
-      keyboard.setListener(_wordAutoCompleter);
+      keyboard.setListener(wordAutoCompleter);
       setHint();
    }
 
@@ -107,7 +105,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
    }
 
    private void askForPassword(boolean wasWrong) {
-      if (password.length() > 0) {
+      if (passphrase.length() > 0) {
          final EditText pass = new EditText(this);
 
          final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -120,7 +118,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
                .setCancelable(false)
                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface dialog, int id) {
-                     if (pass.getText().toString().equals(password)) {
+                     if (pass.getText().toString().equals(passphrase)) {
                         setVerified();
                      } else {
                         askForPassword(true);
@@ -170,8 +168,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
    }
 
    @Override
-   public void onSaveInstanceState(Bundle savedInstanceState)
-   {
+   public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
       savedInstanceState.putInt("index", currentWordIndex);
    }
@@ -192,8 +189,7 @@ public class VerifyWordListActivity extends ActionBarActivity implements WordAut
    }
 
    @Override
-   public void onRestoreInstanceState(Bundle savedInstanceState)
-   {
+   public void onRestoreInstanceState(Bundle savedInstanceState) {
       super.onRestoreInstanceState(savedInstanceState);
       currentWordIndex = savedInstanceState.getInt("index");
       setHint();

@@ -23,7 +23,7 @@
         <!--file provider to enable secure intent sharing for encrypted backups-->
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.mycelium.wallet.files"
+            android:authorities="${applicationId}.files"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

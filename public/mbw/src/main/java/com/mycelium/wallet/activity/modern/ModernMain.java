@@ -421,9 +421,6 @@ public class ModernMain extends ActionBarActivity {
 
          // also fetch a new exchange rate, if necessary
          _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-
-      } else if (itemId == R.id.miExplore) {
-         _mbwManager.get_exploreHelper().redirectToCoinmap(this);
       } else if (itemId == R.id.miHelp) {
          openMyceliumHelp();
       } else if (itemId == R.id.miAbout) {
@@ -472,10 +469,7 @@ public class ModernMain extends ActionBarActivity {
                startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
             }
          }
-      } catch (IOException e) {
-         _toaster.toast("Export failed. Check your logs", false);
-         e.printStackTrace();
-      } catch (PackageManager.NameNotFoundException e) {
+      } catch (IOException | PackageManager.NameNotFoundException e) {
          _toaster.toast("Export failed. Check your logs", false);
          e.printStackTrace();
       }

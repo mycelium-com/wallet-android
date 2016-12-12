@@ -70,7 +70,14 @@ public class RecordRowBuilder {
    }
 
    public View buildRecordView(ViewGroup parent, WalletAccount walletAccount, boolean isSelected, boolean hasFocus) {
-      View rowView = inflater.inflate(R.layout.record_row, parent, false);
+      return buildRecordView(parent, walletAccount, isSelected, hasFocus, null);
+   }
+
+   public View buildRecordView(ViewGroup parent, WalletAccount walletAccount, boolean isSelected, boolean hasFocus, View convertView) {
+      View rowView = convertView;
+      if(rowView == null) {
+         rowView = inflater.inflate(R.layout.record_row, parent, false);
+      }
 
       // Make grey if not part of the balance
       if (!isSelected) {

@@ -50,6 +50,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
@@ -64,7 +65,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.Ad;
 import com.mycelium.lt.api.model.AdType;
 import com.mycelium.wallet.MbwManager;
@@ -75,6 +75,8 @@ import com.mycelium.wallet.lt.api.ActivateAd;
 import com.mycelium.wallet.lt.api.DeactivateAd;
 import com.mycelium.wallet.lt.api.DeleteAd;
 import com.mycelium.wallet.lt.api.GetAds;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class AdsFragment extends Fragment {
 
@@ -87,7 +89,7 @@ public class AdsFragment extends Fragment {
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.lt_ads_fragment, container, false));
+      View ret = checkNotNull(inflater.inflate(R.layout.lt_ads_fragment, container, false));
       setHasOptionsMenu(true);
       _lvAds = (ListView) ret.findViewById(R.id.lvAds);
       _lvAds.setOnItemClickListener(itemListClickListener);
@@ -112,7 +114,7 @@ public class AdsFragment extends Fragment {
          updateUi();
          _ltManager.makeRequest(new GetAds());
       } else {
-         _ads = new LinkedList<Ad>();
+         _ads = new LinkedList<>();
          updateUi();
       }
       super.onResume();
@@ -133,7 +135,7 @@ public class AdsFragment extends Fragment {
    }
 
    private void setAds(Collection<Ad> ads) {
-      _ads = new LinkedList<Ad>(ads);
+      _ads = new LinkedList<>(ads);
       Collections.sort(_ads, new Comparator<Ad>() {
 
          @Override
@@ -313,7 +315,7 @@ public class AdsFragment extends Fragment {
       private Context _context;
       private DateFormat _dateFormat;
 
-      public AdsAdapter(Context context, List<Ad> objects) {
+      AdsAdapter(Context context, List<Ad> objects) {
          super(context, R.layout.lt_ad_row, objects);
          _locale = new Locale("en", "US");
 
@@ -322,14 +324,15 @@ public class AdsFragment extends Fragment {
       }
 
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
          View v = convertView;
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_ad_row, parent, false));
+            v = checkNotNull(vi.inflate(R.layout.lt_ad_row, parent, false));
          }
-         Ad o = getItem(position);
+         Ad o = checkNotNull(getItem(position));
          char sign = o.premium >= 0 ? '+' : '-';
          double d = Math.abs(o.premium);
          String premium = d == (int) d ? String.format(_locale, "%d", (int) d) : String.format(_locale, "%s", d);
@@ -362,7 +365,6 @@ public class AdsFragment extends Fragment {
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
       @Override
       public void onLtAdsFetched(java.util.Collection<Ad> ads, GetAds request) {
          setAds(ads);
@@ -386,8 +388,6 @@ public class AdsFragment extends Fragment {
       @Override
       public void onLtError(int errorCode) {
          // handled by parent activity
-      };
-
+      }
    };
-
 }

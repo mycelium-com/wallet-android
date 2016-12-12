@@ -215,7 +215,6 @@
             android:layout_height="wrap_content"
             android:text="@string/special_thanks"
             android:id="@+id/bt_special_thanks"
-            android:layout_marginTop="@dimen/buttonspacing"
             android:layout_marginBottom="@dimen/buttonspacing" />
 
         <Button

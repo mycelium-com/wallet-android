@@ -78,7 +78,6 @@ public interface Constants {
 
    String TAG = "MyceliumWallet";
 
-   String BRAND_BITS_OF_GOLD = "bog";
    // Local Trader constants
    String LOCAL_TRADER_SETTINGS_NAME = "localTrader.settings";
    String LOCAL_TRADER_ADDRESS_SETTING = "traderAddress";

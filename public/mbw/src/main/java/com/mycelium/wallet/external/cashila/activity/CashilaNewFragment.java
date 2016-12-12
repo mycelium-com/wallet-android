@@ -37,6 +37,7 @@ package com.mycelium.wallet.external.cashila.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -404,13 +405,14 @@ public class CashilaNewFragment extends Fragment {
    public static class RecipientArrayAdapter extends ArrayAdapter<BillPayExistingRecipient> {
       private final LayoutInflater inflater;
 
-      public RecipientArrayAdapter(Context context, List<BillPayExistingRecipient> elems) {
+      RecipientArrayAdapter(Context context, List<BillPayExistingRecipient> elems) {
          super(context, 0, elems);
          inflater = LayoutInflater.from(context);
       }
 
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
          if (convertView == null) {
             convertView = inflater.inflate(R.layout.ext_cashila_recipient_row, null);
          }
@@ -430,9 +432,8 @@ public class CashilaNewFragment extends Fragment {
       }
 
       @Override
-      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+      public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
          return getView(position, convertView, parent);
       }
    }
-
 }

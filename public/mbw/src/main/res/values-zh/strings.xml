@@ -919,7 +919,6 @@
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%2$s %1$s</string>
   <string name="error_details">详细错误信息</string>
   <string name="warning_sync_failed_reusing_first">同步失败 ！重用此 xpub #1 地址 ！</string>
-  <string name="glidera_setting_show_button">启用 Glidera</string>
   <string name="glidera_setting_show_button_summary">显示 Glidera 的买入/卖出选项</string>
   <string name="tap_to_toggle_through_other_currencies">通过点击切换其它货币</string>
   <!-- GlideraService End -->

@@ -1,32 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout
-    android:id="@+id/llBuySell"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        >
-
-        <fragment
-            android:id="@+id/ltFragment"
-            android:name="com.mycelium.wallet.activity.main.LocalTraderFragment"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            />
-    </LinearLayout>
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="#A9A9A9"/>
 
     <LinearLayout
-        android:id="@+id/glideraBuySell"
+        android:id="@+id/llServiceRow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
@@ -34,11 +16,10 @@
         android:padding="@dimen/activity_vertical_margin">
 
         <ImageView
+            android:id="@+id/ivIcon"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/glidera"
-            android:contentDescription="@string/gd_glidera"
+            android:scaleType="fitCenter"
             android:layout_marginRight="@dimen/activity_vertical_margin"/>
 
         <LinearLayout
@@ -47,20 +28,18 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvGlideraName"
+                android:id="@+id/tvServiceName"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/gd_buy_sell"
                 android:textSize="18sp">
             </TextView>
 
             <TextView
-                android:id="@+id/tvGlideraDescription"
+                android:id="@+id/tvServiceDescription"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/gd_buy_sell_description"
                 android:textSize="12sp">
             </TextView>
         </LinearLayout>
@@ -70,6 +49,7 @@
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="#A9A9A9"/>
+
 
 </LinearLayout>
 

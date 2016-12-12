@@ -6,7 +6,7 @@
     android:layout_marginTop="10dp"
     android:orientation="vertical" >
         <Button
-            android:id="@+id/btGlidera"
+            android:id="@+id/btBuySellBitcoin"
             style="@style/MyceliumButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -106,15 +106,6 @@
                         android:text="2 months"
                         android:textColor="@color/white"
                         tools:ignore="HardcodedText" />
-
-                    <RatingBar
-                        android:id="@+id/seller_rating"
-                        style="?android:attr/ratingBarStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:numStars="5"
-                        android:rating="3.2"
-                        android:stepSize="0.01" />
                 </LinearLayout>
 
                 <TextView

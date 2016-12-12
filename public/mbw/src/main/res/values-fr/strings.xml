@@ -913,7 +913,6 @@
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s pour %2$s</string>
   <string name="error_details">Détails de l’erreur</string>
   <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
-  <string name="glidera_setting_show_button">Activez Glidera</string>
   <string name="glidera_setting_show_button_summary">Afficher l’option d’achat/vente de Glidera</string>
   <!-- GlideraService End -->
 </resources>

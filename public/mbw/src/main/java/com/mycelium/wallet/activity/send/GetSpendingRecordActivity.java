@@ -38,6 +38,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -168,19 +169,19 @@ public class GetSpendingRecordActivity extends Activity {
    class AccountsAdapter extends ArrayAdapter<WalletAccount> {
       private Context _context;
 
-      public AccountsAdapter(Context context, List<WalletAccount> accounts) {
+      AccountsAdapter(Context context, List<WalletAccount> accounts) {
          super(context, R.layout.record_row, accounts);
          _context = context;
       }
 
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
          LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
          WalletAccount account = getItem(position);
          RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources(), inflater);
          return recordRowBuilder.buildRecordView(parent, account,
-               false, false);
+               false, false, convertView);
       }
    }
-
 }

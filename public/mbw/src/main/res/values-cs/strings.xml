@@ -910,7 +910,6 @@
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s za %2$s</string>
   <string name="error_details">Podrobnosti chyby</string>
   <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
-  <string name="glidera_setting_show_button">Povolit službu Glidera</string>
   <string name="glidera_setting_show_button_summary">Zobrazit volbu Koupit/Prodat služby Glidera</string>
   <!-- GlideraService End -->
 </resources>

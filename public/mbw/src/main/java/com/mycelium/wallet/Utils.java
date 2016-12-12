@@ -310,12 +310,29 @@ public class Utils {
     * @param messageResourceId The resource ID of the message to show
     */
    public static boolean showOptionalMessage(final Context context, int messageResourceId) {
+      return showOptionalMessage(context, messageResourceId, null);
+   }
+
+   /**
+    * Show an optional message/
+    * <p>
+    * The user can check a "never shot this again" check box and the message
+    * will never get displayed again.
+    *
+    * @param context           The context
+    * @param messageResourceId The resource ID of the message to show
+    * @param onOkay            This runnable gets executed either if the user clicks Okay or if he choose to never-see-this-message-again
+    */
+   public static boolean showOptionalMessage(final Context context, int messageResourceId, final Runnable onOkay) {
       String message = context.getString(messageResourceId);
       final String optionalMessageId = Integer.toString(message.hashCode());
       SharedPreferences settings = context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE);
       boolean ignore = settings.getBoolean(optionalMessageId, false);
+      // The user has opted never to get this message shown again
       if (ignore) {
-         // The user has opted never to get this message shown again
+         if (onOkay != null){
+            onOkay.run();
+         }
          return false;
       }
 
@@ -340,6 +357,9 @@ public class Utils {
 
          @Override
          public void onClick(View v) {
+            if (onOkay != null){
+               onOkay.run();
+            }
             dialog.dismiss();
          }
       });

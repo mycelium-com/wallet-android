@@ -40,35 +40,51 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.*;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import java.util.List;
 import java.util.Locale;
+
+import info.guardianproject.onionkit.ui.OrbotHelper;
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
@@ -92,11 +108,11 @@ public class SettingsActivity extends PreferenceActivity {
    private final OnPreferenceClickListener setPinClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          _mbwManager.showSetPinDialog(SettingsActivity.this, Optional.<Runnable>of(new Runnable() {
-                  @Override
-                  public void run() {
-                     updateClearPin();
-                  }
-               })
+                    @Override
+                    public void run() {
+                       updateClearPin();
+                    }
+                 })
          );
          return true;
       }
@@ -106,14 +122,14 @@ public class SettingsActivity extends PreferenceActivity {
       @Override
       public boolean onPreferenceChange(final Preference preference, Object o) {
          _mbwManager.runPinProtectedFunction(SettingsActivity.this, new Runnable() {
-                  @Override
-                  public void run() {
-                     // toggle it here
-                     boolean checked = !((CheckBoxPreference) preference).isChecked();
-                     _mbwManager.setPinRequiredOnStartup(checked);
-                     ((CheckBoxPreference) preference).setChecked(_mbwManager.getPinRequiredOnStartup());
-                  }
-               }
+                    @Override
+                    public void run() {
+                       // toggle it here
+                       boolean checked = !((CheckBoxPreference) preference).isChecked();
+                       _mbwManager.setPinRequiredOnStartup(checked);
+                       ((CheckBoxPreference) preference).setChecked(_mbwManager.getPinRequiredOnStartup());
+                    }
+                 }
          );
 
          // dont automatically take the new value, lets to it in our the pin protected runnable
@@ -234,14 +250,6 @@ public class SettingsActivity extends PreferenceActivity {
       }
    };
 
-   private final OnPreferenceClickListener onClickGlideraEnable = new OnPreferenceClickListener() {
-      @Override
-      public boolean onPreferenceClick(Preference preference) {
-         CheckBoxPreference p = (CheckBoxPreference) preference;
-         _mbwManager.getMetadataStorage().setGlideraIsEnabled(p.isChecked());
-         return true;
-      }
-   };
 
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
@@ -289,7 +297,7 @@ public class SettingsActivity extends PreferenceActivity {
       _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
       _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
       CharSequence[] denominations = new CharSequence[]{Denomination.BTC.toString(), Denomination.mBTC.toString(),
-            Denomination.uBTC.toString(), Denomination.BITS.toString()};
+              Denomination.uBTC.toString(), Denomination.BITS.toString()};
       _bitcoinDenomination.setEntries(denominations);
       _bitcoinDenomination.setEntryValues(denominations);
       _bitcoinDenomination.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -308,15 +316,15 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee.setSummary(getMinerFeeSummary());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
       CharSequence[] minerFees = new CharSequence[]{
-            MinerFee.LOWPRIO.toString(),
-            MinerFee.ECONOMIC.toString(),
-            MinerFee.NORMAL.toString(),
-            MinerFee.PRIORITY.toString()};
+              MinerFee.LOWPRIO.toString(),
+              MinerFee.ECONOMIC.toString(),
+              MinerFee.NORMAL.toString(),
+              MinerFee.PRIORITY.toString()};
       CharSequence[] minerFeeNames = new CharSequence[]{
-            getString(R.string.miner_fee_lowprio_name),
-            getString(R.string.miner_fee_economic_name),
-            getString(R.string.miner_fee_normal_name),
-            getString(R.string.miner_fee_priority_name)};
+              getString(R.string.miner_fee_lowprio_name),
+              getString(R.string.miner_fee_economic_name),
+              getString(R.string.miner_fee_normal_name),
+              getString(R.string.miner_fee_priority_name)};
       _minerFee.setEntries(minerFeeNames);
       _minerFee.setEntryValues(minerFees);
       _minerFee.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -456,15 +464,15 @@ public class SettingsActivity extends PreferenceActivity {
       useTor.setTitle(getUseTorTitle());
 
       useTor.setEntries(new String[]{
-            getString(R.string.use_https),
-            getString(R.string.use_external_tor),
+              getString(R.string.use_https),
+              getString(R.string.use_external_tor),
 //            getString(R.string.both),
       });
 
       useTor.setEntryValues(new String[]{
-            ServerEndpointType.Types.ONLY_HTTPS.toString(),
-            ServerEndpointType.Types.ONLY_TOR.toString(),
-            //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
+              ServerEndpointType.Types.ONLY_HTTPS.toString(),
+              ServerEndpointType.Types.ONLY_TOR.toString(),
+              //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
       });
 
       useTor.setValue(_mbwManager.getTorMode().toString());
@@ -500,14 +508,41 @@ public class SettingsActivity extends PreferenceActivity {
 
       applyLocalTraderEnablement();
 
+
+      initExternalSettings();
+
       // external Services
       CheckBoxPreference enableCashilaButton = (CheckBoxPreference) findPreference("enableCashilaButton");
       enableCashilaButton.setChecked(_mbwManager.getMetadataStorage().getCashilaIsEnabled());
       enableCashilaButton.setOnPreferenceClickListener(onClickCashilaEnable);
+   }
 
-      CheckBoxPreference enableGlideraButton = (CheckBoxPreference) findPreference("enableGlideraButton");
-      enableGlideraButton.setChecked(_mbwManager.getMetadataStorage().getGlideraIsEnabled());
-      enableGlideraButton.setOnPreferenceClickListener(onClickGlideraEnable);
+   void initExternalSettings() {
+      final PreferenceCategory external = (PreferenceCategory) findPreference("external");
+      final List<BuySellServiceDescriptor> buySellServices = _mbwManager.getEnvironmentSettings().getBuySellServices();
+
+      for (final BuySellServiceDescriptor buySellService : buySellServices) {
+         if (!buySellService.showEnableInSettings()) {
+            continue;
+         }
+
+         final CheckBoxPreference cbService = new CheckBoxPreference(this);
+         final String enableTitle = getResources().getString(R.string.settings_service_enabled,
+                 getResources().getString(buySellService.title)
+         );
+         cbService.setTitle(enableTitle);
+         cbService.setSummary(buySellService.settingDescription);
+         cbService.setChecked(buySellService.isEnabled(_mbwManager));
+         cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+               CheckBoxPreference p = (CheckBoxPreference) preference;
+               buySellService.setEnabled(_mbwManager, p.isChecked());
+               return true;
+            }
+         });
+         external.addPreference(cbService);
+      }
    }
 
    @Override
@@ -569,7 +604,7 @@ public class SettingsActivity extends PreferenceActivity {
                }
             }.start();
             pleaseWait = ProgressDialog.show(SettingsActivity.this, getString(R.string.fetching_info),
-                  getString(R.string.please_wait), true);
+                    getString(R.string.please_wait), true);
             return true;
          }
       });
@@ -640,27 +675,27 @@ public class SettingsActivity extends PreferenceActivity {
 
    private String bitcoinDenominationTitle() {
       return getResources().getString(R.string.pref_bitcoin_denomination_with_denomination,
-            _mbwManager.getBitcoinDenomination().getAsciiName());
+              _mbwManager.getBitcoinDenomination().getAsciiName());
    }
 
    private String getMinerFeeTitle() {
       return getResources().getString(R.string.pref_miner_fee_title,
-            _mbwManager.getMinerFee().getMinerFeeName(this));
+              _mbwManager.getMinerFee().getMinerFeeName(this));
    }
 
    private String getMinerFeeSummary() {
       return getResources().getString(R.string.pref_miner_fee_block_summary,
-            Integer.toString(_mbwManager.getMinerFee().getNBlocks()));
+              Integer.toString(_mbwManager.getMinerFee().getNBlocks()));
    }
 
    private String getBlockExplorerTitle() {
       return getResources().getString(R.string.block_explorer_title,
-            _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+              _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
    }
 
    private String getBlockExplorerSummary() {
       return getResources().getString(R.string.block_explorer_summary,
-            _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+              _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
    }
 
    @SuppressWarnings("deprecation")
@@ -709,7 +744,7 @@ public class SettingsActivity extends PreferenceActivity {
                super.onTextChanged(text, start, lengthBefore, lengthAfter);
                if (okButton != null) { //setText is also set before the alert is finished constructing
                   boolean validMail = Strings.isNullOrEmpty(text.toString()) || //allow empty email, this removes email notifications
-                        Utils.isValidEmailAddress(text.toString());
+                          Utils.isValidEmailAddress(text.toString());
                   okButton.setEnabled(validMail);
                }
             }

@@ -1,17 +1,15 @@
-package com.mycelium.wallet.external.glidera.activities;
+package com.mycelium.wallet.external;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
 
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.external.glidera.activities.GlideraMainActivity;
 import com.mycelium.wallet.external.glidera.api.GlideraService;
 import com.mycelium.wallet.external.glidera.api.response.GlideraError;
 import com.mycelium.wallet.external.glidera.api.response.StatusResponse;
@@ -19,37 +17,18 @@ import com.mycelium.wallet.external.glidera.api.response.StatusResponse;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 
-public class BuySellSelect extends FragmentActivity {
-   private GlideraService glideraService;
+public class GlideraServiceDescription extends BuySellServiceDescriptor {
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.glidera_buy_sell);
-
-      if (getActionBar() != null) {
-         getActionBar().setDisplayHomeAsUpEnabled(true);
-      }
-
-      this.glideraService = GlideraService.getInstance();
-
-      final LinearLayout glideraRow = (LinearLayout) findViewById(R.id.glideraBuySell);
-
-      glideraRow.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View arg0) {
-            selectGlidera();
-         }
-      });
-      MbwManager mbwManager = MbwManager.getInstance(this);
-      if(mbwManager.getMetadataStorage().getGlideraIsEnabled() && mbwManager.getLocalTraderManager().isLocalTraderDisabled()) {
-         selectGlidera();
-      }
+   public GlideraServiceDescription() {
+      super(R.string.gd_buy_sell, R.string.gd_buy_sell_description, R.string.glidera_setting_show_button_summary, R.drawable.glidera);
    }
 
-   private void selectGlidera() {
+   @Override
+   public void launchService(final Activity context, MbwManager mbwManager, Optional<Address> activeReceivingAddress) {
+      final GlideraService glideraService = GlideraService.getInstance();
+
       final ProgressDialog progress = ProgressDialog
-              .show(BuySellSelect.this, getString(R.string.gd_buy_sell), getString(R.string.gd_loading), true);
+              .show(context, context.getString(R.string.gd_buy_sell), context.getString(R.string.gd_loading), true);
       glideraService.status()
               .observeOn(AndroidSchedulers.mainThread())
               .subscribe(new Observer<StatusResponse>() {
@@ -66,22 +45,22 @@ public class BuySellSelect extends FragmentActivity {
                           // Invalid credentials, send to bitid registration
                           // this wallet had never used this service before
                           Utils.showSimpleMessageDialog(
-                                  BuySellSelect.this,
-                                  getString(R.string.glidera_tos),
+                                  context,
+                                  context.getString(R.string.glidera_tos),
                                   new Runnable() {
                                      @Override
                                      public void run() {
                                         // redirect the user to glidera website to complete the sign-up process
                                         String uri = glideraService.getBitidRegistrationUrl();
-                                        Utils.openWebsite(BuySellSelect.this, uri);
+                                        Utils.openWebsite(context, uri);
                                      }
                                   }
                           );
                        }
                     } else {
                        Utils.showSimpleMessageDialog(
-                               BuySellSelect.this,
-                               String.format(getString(R.string.gd_error_unable_to_connect), e.getLocalizedMessage())
+                               context,
+                               String.format(context.getString(R.string.gd_error_unable_to_connect), e.getLocalizedMessage())
                        );
                     }
                     progress.dismiss();
@@ -90,28 +69,25 @@ public class BuySellSelect extends FragmentActivity {
                  @Override
                  public void onNext(StatusResponse statusResponse) {
                     if (statusResponse.isUserCanTransact()) {
-                       Intent intent = new Intent(BuySellSelect.this, GlideraMainActivity.class);
-                       startActivity(intent);
-                       finish();
+                       Intent intent = new Intent(context, GlideraMainActivity.class);
+                       context.startActivity(intent);
+                       context.finish();
                     } else {
                        //Send to setup
                        String uri = glideraService.getSetupUrl();
-                       Utils.openWebsite(BuySellSelect.this, uri);
+                       Utils.openWebsite(context, uri);
                     }
                  }
               });
    }
 
    @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-      switch (item.getItemId()) {
-         case android.R.id.home:
-            Intent intent = new Intent(this, ModernMain.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-            return true;
-      }
-      return super.onOptionsItemSelected(item);
+   public boolean isEnabled(MbwManager mbwManager) {
+      return mbwManager.getMetadataStorage().getGlideraIsEnabled();
+   }
+
+   @Override
+   public void setEnabled(MbwManager mbwManager, boolean enabledState) {
+      mbwManager.getMetadataStorage().setGlideraIsEnabled(enabledState);
    }
 }

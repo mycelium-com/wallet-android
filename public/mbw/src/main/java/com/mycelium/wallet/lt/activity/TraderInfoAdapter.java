@@ -37,63 +37,51 @@ package com.mycelium.wallet.lt.activity;
 import java.util.List;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
 
-public class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> {
-   
-   public static class InfoItem {
-      final String label;
-      final String value;
-      final Float rating;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-      public InfoItem(String label, String value) {
-         this.label = label;
-         this.value = value;
-         this.rating = null;
-      }
-
-      public InfoItem(String label, Float rating) {
-         this.label = label;
-         this.value = null;
-         this.rating = rating;
-      }
-   }
-   
+class TraderInfoAdapter extends ArrayAdapter<TraderInfoAdapter.InfoItem> {
    private Context _context;
 
-   
-   public TraderInfoAdapter(Context context, List<InfoItem> objects) {
+   TraderInfoAdapter(Context context, List<InfoItem> objects) {
       super(context, R.layout.lt_trader_info_row, objects);
       _context = context;
    }
 
    @Override
-   public View getView(int position, View convertView, ViewGroup parent) {
+   @NonNull
+   public View getView(int position, View convertView, @NonNull ViewGroup parent) {
       View v = convertView;
-      InfoItem o = getItem(position);
-      LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      if (o.value != null) {
-         // Set String value
-         v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_row, null));
-         ((TextView) v.findViewById(R.id.tvDisplayValue)).setText(o.value);
-      } else if (o.rating != null) {
-         // Set Rating
-         v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_trader_info_rating_row, null));
-         RatingBar ratingBar = (RatingBar) v.findViewById(R.id.rating);
-         ratingBar.setRating(o.rating);
-      } else {
-         throw new RuntimeException("Invalid TraderInfoItem: null value or rating");
+      if(v==null) {
+         LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+         v = checkNotNull(vi.inflate(R.layout.lt_trader_info_row, parent, false));
+      }
+      InfoItem item = checkNotNull(getItem(position));
+      if (item.value == null) {
+         throw new RuntimeException("Invalid TraderInfoItem: null value");
       }
       // Set label
-      ((TextView) v.findViewById(R.id.tvLabel)).setText(o.label);
+      ((TextView) v.findViewById(R.id.tvLabel)).setText(item.label);
+      // Set String value
+      ((TextView) v.findViewById(R.id.tvDisplayValue)).setText(item.value);
       return v;
+   }
+
+   static class InfoItem {
+      final String label;
+      final String value;
+
+      InfoItem(String label, String value) {
+         this.label = label;
+         this.value = value;
+      }
    }
 }

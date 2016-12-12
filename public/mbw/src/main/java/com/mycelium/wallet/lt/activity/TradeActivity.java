@@ -44,6 +44,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -80,6 +81,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.*;
+
+import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
 
 public class TradeActivity extends Activity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
@@ -303,7 +306,7 @@ public class TradeActivity extends Activity {
       AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
       confirmDialog.setTitle(R.string.lt_confirm_title);
       String name = _tradeSession.isOwner ? _tradeSession.peerName : _tradeSession.ownerName;
-      String msg = getString(R.string.lt_confirm_cash_received, _tradeSession.fiatTraded, _tradeSession.currency, name);
+      String msg = getString(R.string.lt_confirm_cash_received, "" + _tradeSession.fiatTraded, _tradeSession.currency, name);
       confirmDialog.setMessage(msg);
       confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
@@ -377,7 +380,6 @@ public class TradeActivity extends Activity {
          }
       });
       confirmDialog.show();
-
    }
 
    private void confirmAbort() {
@@ -419,7 +421,6 @@ public class TradeActivity extends Activity {
             sendMessage();
          }
          return false;
-
       }
    };
 
@@ -483,12 +484,9 @@ public class TradeActivity extends Activity {
             String protocol = url.getProtocol();
             if (protocol.equals("http") || protocol.equals("https")) {
                // Converting URL to URI to Uri, a bit stupid though
-               Uri uri = Uri.parse(url.toURI().toString());
-               return uri;
+               return Uri.parse(url.toURI().toString());
             }
-         } catch (MalformedURLException e) {
-            // pass through
-         } catch (URISyntaxException e) {
+         } catch (MalformedURLException | URISyntaxException e) {
             // pass through
          }
          return null;
@@ -599,18 +597,11 @@ public class TradeActivity extends Activity {
    private void enableButtons(TradeSession tradeSession) {
 
       // Figure out whether we can afford to send BTC for this trade
-      boolean canWeAffordThis;
-      if (tradeSession.isBuyer) {
-         // Buyer does not have to pay any BTC
-         canWeAffordThis = true;
-      } else {
-         canWeAffordThis = TradeActivityUtil.canAffordTrade(tradeSession, _mbwManager);
-      }
+      // Buyer does not have to pay any BTC
+      boolean canWeAffordThis = tradeSession.isBuyer || canAffordTrade(tradeSession, _mbwManager);
 
-      if (!canWeAffordThis) {
-         if (tradeSession.acceptAction.isEnabled() || tradeSession.releaseBtcAction.isEnabled()) {
-            displayInsufficientFunds();
-         }
+      if (!canWeAffordThis && (tradeSession.acceptAction.isEnabled() || tradeSession.releaseBtcAction.isEnabled())) {
+         displayInsufficientFunds();
       }
 
       applyActionStateToButton(tradeSession.acceptAction, canWeAffordThis, _btAccept);
@@ -669,7 +660,7 @@ public class TradeActivity extends Activity {
       private int _eventBackgroundColor;
       private int _invalidMessageBackgroundColor;
 
-      public ChatAdapter(Context context, List<ChatEntry> objects) {
+      ChatAdapter(Context context, List<ChatEntry> objects) {
          super(context, R.layout.lt_chat_entry_row, objects);
          _context = context;
          // Get the time at last midnight
@@ -694,7 +685,8 @@ public class TradeActivity extends Activity {
       }
 
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
          View v = convertView;
 
          if (v == null) {
@@ -717,8 +709,8 @@ public class TradeActivity extends Activity {
                break;
             case ChatEntry.TYPE_OWNER_CHAT:
                try {
-                  text = new StringBuilder().append(_tradeSession.ownerName).append(": ")
-                        .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
+                  text =_tradeSession.ownerName + ": "
+                        + getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message);
                   color = _ownerMessageBackgroundColor;
                } catch (InvalidChatMessage e) {
                   text = getString(R.string.lt_invalid_chat_message, _tradeSession.ownerName);
@@ -727,8 +719,8 @@ public class TradeActivity extends Activity {
                break;
             case ChatEntry.TYPE_PEER_CHAT:
                try {
-                  text = new StringBuilder().append(_tradeSession.peerName).append(": ")
-                        .append(getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message)).toString();
+                  text = _tradeSession.peerName + ": " +
+                          getChatMessageEncryptionKey().decryptAndCheckChatMessage(o.message);
                   color = _peerMessageBackgroundColor;
                } catch (InvalidChatMessage e) {
                   text = getString(R.string.lt_invalid_chat_message, _tradeSession.peerName);
@@ -742,10 +734,11 @@ public class TradeActivity extends Activity {
          tvMessage.setText(text);
          v.setBackgroundColor(color);
 
+         LinearLayout llExtra = (LinearLayout) v.findViewById(R.id.llExtra);
          ImageView ivExtra = (ImageView) v.findViewById(R.id.ivExtra);
          if (o.subtype == ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING) {
+            llExtra.setVisibility(View.VISIBLE);
             ivExtra.setImageResource(R.drawable.lt_local_only_warning);
-            ivExtra.setVisibility(View.VISIBLE);
             ivExtra.setOnClickListener(new OnClickListener() {
                @Override
                public void onClick(View v) {
@@ -756,7 +749,7 @@ public class TradeActivity extends Activity {
                }
             });
          } else {
-            ivExtra.setVisibility(View.GONE);
+            llExtra.setVisibility(View.GONE);
             ivExtra.setOnClickListener(null);
          }
 
@@ -801,7 +794,7 @@ public class TradeActivity extends Activity {
    }
 
    class MyListener extends TradeSessionChangeMonitor.Listener {
-      protected MyListener(UUID tradeSessionId, long lastChange) {
+      MyListener(UUID tradeSessionId, long lastChange) {
          super(tradeSessionId, lastChange);
       }
 

@@ -873,6 +873,5 @@
   <string name="gd_dollar_symbol">$</string>
   <string name="gd_btc_symbol">฿</string>
   <string name="error_details">Detalles del error</string>
-  <string name="glidera_setting_show_button">Activar Glidera</string>
   <!-- GlideraService End -->
 </resources>

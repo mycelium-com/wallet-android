@@ -106,7 +106,6 @@ public class ChangeLocationActivity extends Activity {
       findViewById(R.id.btCrosshair).setOnClickListener(crossHairClickListener);
 
       _gpsLocationCallback = new GpsLocationFetcher.Callback(this) {
-
          @Override
          protected void onGpsLocationObtained(GpsLocationEx location) {
             TextView tvError = (TextView) findViewById(R.id.tvError);

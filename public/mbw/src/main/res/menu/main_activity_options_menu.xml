@@ -5,11 +5,6 @@
     <item
             android:id="@+id/miBackup"
             android:title="@string/backup_private_key"/>
-    <!--
-    <item
-        android:id="@+id/miVerifyBackup"
-        android:title="@string/verify_private_key_backup"/>
-        -->
     <item
             android:id="@+id/miColdStorage"
             yourapp:showAsAction="never"
@@ -18,10 +13,6 @@
             android:id="@+id/miSepaSend"
             yourapp:showAsAction="never"
             android:title="@string/cashila_sepa_transfer"/>
-    <item
-            android:id="@+id/miExplore"
-            android:title="@string/explore"
-            android:visible="false"/>
     <item
             android:id="@+id/miAbout"
             android:title="@string/about"/>

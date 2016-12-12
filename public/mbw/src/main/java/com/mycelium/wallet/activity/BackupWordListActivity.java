@@ -57,14 +57,13 @@ public class BackupWordListActivity extends ActionBarActivity {
    private TextView tvShowWord;
    private TextView tvShowWordNumber;
    private List<String> wordlist;
-   private String password;
+   private String passphrase;
    private int currentWordIndex;
 
    public static void callMe(Activity activity) {
       Intent intent = new Intent(activity, BackupWordListActivity.class);
       activity.startActivity(intent);
    }
-
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +81,7 @@ public class BackupWordListActivity extends ActionBarActivity {
       }
 
       wordlist = masterSeed.getBip39WordList();
-      password = masterSeed.getBip39Passphrase();
+      passphrase = masterSeed.getBip39Passphrase();
       currentWordIndex = 0;
 
       btnNextWord = (Button)findViewById(R.id.btOkay);
@@ -120,11 +119,11 @@ public class BackupWordListActivity extends ActionBarActivity {
 
    private void switchToVerify() {
       //check whether we need to show a password
-      if (password.length() == 0) {
+      if (passphrase.length() == 0) {
          startVerification();
       } else {
          final TextView pass = new TextView(this);
-         pass.setText(password);
+         pass.setText(passphrase);
          AlertDialog.Builder builder = new AlertDialog.Builder(this);
          builder.setTitle(R.string.note_down_password_title);
          builder.setView(pass)
@@ -143,10 +142,8 @@ public class BackupWordListActivity extends ActionBarActivity {
       finish();
    }
 
-
    @Override
-   public void onSaveInstanceState(Bundle savedInstanceState)
-   {
+   public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
       savedInstanceState.putInt("index", currentWordIndex);
    }

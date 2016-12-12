@@ -437,6 +437,8 @@
     <string name="lt_mycelium_marketplace_description">Find Mycelium users in your local area who buy/sell bitcoin.</string>
     <string name="lt_missing_fx_rate">Current price source is not available</string>
     <string name="lt_price_source_not_available">not available!</string>
+    <string name="lt_cash_only_hint_be_your_own_bank">Be your own bank:</string>
+    <string name="lt_cash_only_hint_cash_only">Trade face-to-face, cash only.</string>
     <!-- LT end -->
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
@@ -904,6 +906,13 @@
     <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
 
+    <!-- Credit Card -->
+    <string name="credit_card_buy">Credit Card</string>
+    <string name="credit_card_buy_description">Buy Bitcoin using credit card</string>
+    <string name="credit_card_buy_setting_description">Buy Bitcoin using credit card</string>
+    <!-- Credit Card End-->
+
+
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
     <string name="gd_buy_sell">Glidera</string>
@@ -947,15 +956,19 @@
     <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
     <string name="error_details">Error details</string>
     <string name="warning_sync_failed_reusing_first">Synchronization failed! Reusing Address #1 of this xpub!</string>
-    <string name="glidera_setting_show_button">Enable Glidera</string>
     <string name="glidera_setting_show_button_summary">Show Glidera\'s Buy/Sell option</string>
     <string name="tap_to_toggle_through_other_currencies">Tap to toggle through other currencies</string>
     <!-- GlideraService End -->
+
+    <string name="settings_service_enabled">Enable %1$s</string>
 
     <string name="label_single_key_icon">a single key</string>
     <string name="label_blue_circle">blue circle</string>
     <string name="label_type_it_in">type it in</string>
     <string name="label_use_device_location">use device location</string>
     <string name="label_list_activity_indicator">had activity</string>
+    <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
+    <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
+
 
 </resources>

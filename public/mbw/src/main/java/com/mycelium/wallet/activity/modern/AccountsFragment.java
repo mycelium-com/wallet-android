@@ -95,7 +95,6 @@ public class AccountsFragment extends Fragment {
    private LayoutInflater _layoutInflater;
    private int _separatorColor;
    private LayoutParams _separatorLayoutParameters;
-   private LayoutParams _titleLayoutParameters;
    private LayoutParams _outerLayoutParameters;
    private LayoutParams _innerLayoutParameters;
    private WalletAccount _focusedAccount;
@@ -113,7 +112,6 @@ public class AccountsFragment extends Fragment {
 
       _separatorColor = getResources().getColor(R.color.darkgrey);
       _separatorLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, getDipValue(1), 1);
-      _titleLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
       _outerLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
       _outerLayoutParameters.bottomMargin = getDipValue(8);
       _innerLayoutParameters = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);

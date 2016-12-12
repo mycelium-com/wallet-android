@@ -26,6 +26,7 @@ import com.mrd.bitlib.util.HashUtils;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,13 +35,12 @@ import java.util.List;
  * Implementation of Bip39
  */
 public class Bip39 {
-
    private static final String ALGORITHM = "HmacSHA512";
    private static final int REPETITIONS = 2048;
    private static final int BIP32_SEED_LENGTH = 64;
    private static final String BASE_SALT = "mnemonic";
    private static final String UTF8 = "UTF-8";
-   public static final byte ENGLISH_WORD_LIST_TYPE = 0;
+   private static final byte ENGLISH_WORD_LIST_TYPE = 0;
 
    public static class MasterSeed implements Serializable {
       private static final long serialVersionUID = 1L;
@@ -50,16 +50,11 @@ public class Bip39 {
       private final byte[] _bip32MasterSeed;
       private final byte _wordListType;
 
-
       private MasterSeed(byte[] bip39RawEntropy, String bip39Passphrase, byte[] bip32MasterSeed) {
          _bip39RawEntropy = bip39RawEntropy;
-         _bip39Passphrase = bip39Passphrase;
+         _bip39Passphrase = Normalizer.normalize(bip39Passphrase, Normalizer.Form.NFKD);
          _bip32MasterSeed = bip32MasterSeed;
          _wordListType = ENGLISH_WORD_LIST_TYPE;
-      }
-
-      public byte[] getBip39RawEntropy() {
-         return _bip39RawEntropy;
       }
 
       public List<String> getBip39WordList() {
@@ -72,10 +67,6 @@ public class Bip39 {
 
       public byte[] getBip32Seed() {
          return BitUtils.copyByteArray(_bip32MasterSeed);
-      }
-
-      public byte getWordListType() {
-         return _wordListType;
       }
 
       /**
@@ -184,16 +175,12 @@ public class Bip39 {
       }
    }
 
-
    /**
     * Check whether a list of words is valid
     * </p>
     * Checks that the number of words is valid for Bip39.
     * Checks that the words are in the list of accepted words.
     * Checks that the word have a valid checksum.
-    *
-    * @param wordList
-    * @return
     */
    public static boolean isValidWordList(String[] wordList) {
       // Check word list length
@@ -206,11 +193,8 @@ public class Bip39 {
       }
 
       // Check words
-      int bitLength = wordList.length * 11;
-      for (int i = 0; i < wordList.length; i++) {
-         String word = wordList[i];
-         int wordIndex = getWordIndex(word);
-         if (wordIndex == -1) {
+      for (String word : wordList) {
+         if (getWordIndex(word) == -1) {
             return false;
          }
       }
@@ -252,16 +236,6 @@ public class Bip39 {
       return checksumByte == c;
    }
 
-   /**
-    * Checks that a word is a valid word in the english word list for BIP39
-    *
-    * @param word the word to check
-    * @return true if the word is a valid word in the english word list for BIP39
-    */
-   public static boolean isValidWord(String word) {
-      return getWordIndex(word) != -1;
-   }
-
    private static byte[] wordListToBytes(String[] wordList) {
       if (wordList.length != 12 &&
             wordList.length != 15 &&
@@ -269,7 +243,6 @@ public class Bip39 {
             wordList.length != 21 &&
             wordList.length != 24) {
          throw new RuntimeException("Word list must be 12, 15, 18, 21, or 24 words and not " + wordList.length);
-
       }
       int bitLength = wordList.length * 11;
       byte[] buf = new byte[bitLength / 8 + ((bitLength % 8) > 0 ? 1 : 0)];
@@ -439,7 +412,8 @@ public class Bip39 {
       // Calculate and return the seed
       byte[] seed;
       try {
-         seed = PBKDF.pbkdf2(ALGORITHM, mnemonic.getBytes(UTF8), salt.getBytes(UTF8), REPETITIONS, BIP32_SEED_LENGTH);
+         byte[] saltBytes = Normalizer.normalize(salt, Normalizer.Form.NFKD).getBytes(UTF8);
+         seed = PBKDF.pbkdf2(ALGORITHM, mnemonic.getBytes(UTF8), saltBytes, REPETITIONS, BIP32_SEED_LENGTH);
       } catch (UnsupportedEncodingException e) {
          // UTF-8 should be supported by every system we run on
          throw new RuntimeException(e);
@@ -447,12 +421,10 @@ public class Bip39 {
          // HMAC-SHA512 should be supported by every system we run on
          throw new RuntimeException(e);
       }
-      MasterSeed masterSeed = new MasterSeed(wordListToRawEntropy(wordList.toArray(new String[0])), passphrase, seed);
-      return masterSeed;
+      return new MasterSeed(wordListToRawEntropy(wordList.toArray(new String[0])), passphrase, seed);
    }
 
-
-   public static final String[] ENGLISH_WORD_LIST = new String[]{"abandon", "ability", "able", "about", "above",
+   public static final String[] ENGLISH_WORD_LIST = {"abandon", "ability", "able", "about", "above",
          "absent", "absorb", "abstract", "absurd", "abuse", "access", "accident", "account", "accuse", "achieve",
          "acid", "acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual", "adapt", "add",
          "addict", "address", "adjust", "admit", "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid",

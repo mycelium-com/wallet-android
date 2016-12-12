@@ -1,12 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="8dp" >
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="8dp">
+
+    <!-- Image -->
+
+    <LinearLayout
+        android:id="@+id/llExtra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        >
+
+        <ImageView
+            android:id="@+id/ivExtra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/lt_local_only_warning"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/lt_cash_only_warning"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/button_padding"
+            android:text="@string/lt_cash_only_hint_be_your_own_bank"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/lt_cash_only_hint_cash_only"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
 
     <!-- Date -->
 
@@ -18,20 +55,8 @@
         android:layout_marginRight="5dp"
         android:minWidth="50dp"
         android:textSize="14sp"
-            />
+        />
 
-    <!-- Image -->
-
-    <ImageView
-            android:id="@+id/ivExtra"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/lt_local_only_warning"
-            android:layout_weight="1"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:contentDescription="@string/lt_cash_only_warning"/>
 
     <!-- Message -->
 
