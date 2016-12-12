@@ -55,7 +55,6 @@ import java.io.OutputStream;
  * </p>
  * 
  * @author Luc Maisonobe
- * @see ASCII85Decoder
  */
 public class ASCII85Encoder extends FilterOutputStream
 {

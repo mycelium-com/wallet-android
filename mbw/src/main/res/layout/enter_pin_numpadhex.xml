@@ -8,7 +8,7 @@
         android:layout_marginTop="0dp"
         android:orientation="vertical"
         android:layout_gravity="center_horizontal"
-        tools:showIn="@layout/enter_pin_keypadhex">
+        tools:showIn="@layout/enter_ledger_pin_keypadhex">
 
     <LinearLayout
             android:layout_width="fill_parent"

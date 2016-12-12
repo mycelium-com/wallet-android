@@ -104,10 +104,6 @@ public class ChatMessageEncryptionKey implements Serializable {
     * 
     * @param message
     *           The message to encrypt
-    * @param encryptionKey
-    *           The AES key to encrypt with
-    * @param hmacKey
-    *           The HMAC key to base the integrity on
     * @return An encrypted message
     */
    public String encryptChatMessage(String message) {
