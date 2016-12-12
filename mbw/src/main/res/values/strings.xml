@@ -406,7 +406,7 @@
     <string name="lt_deactivate_menu">Deactivate</string>
     <string name="lt_price_of_one_btc_label">(Per 1 BTC)</string>
     <string name="lt_confirm_title">Confirm</string>
-    <string name="lt_confirm_cash_received">Did you receive %1$s %2$s and are you ready to send the bitcoins to %3$s?</string>
+    <string name="lt_confirm_cash_received">Did you receive %1$d %2$s and are you ready to send the bitcoins to %3$s?</string>
     <string name="lt_confirm_stop">Do you wish to stop this trade?</string>
     <string name="lt_confirm_abort">Because both of you accepted the deal your ratings may get a penalty.\nDo you wish to abort this trade?</string>
     <string name="lt_enter_location_tite">Enter Location</string>
@@ -592,8 +592,8 @@
     <string name="sss_incompatible_shares_warning">The shares you have imported are not compatible.</string>
     <string name="sss_one_more_share_needed">You need 1 more share</string>
     <string name="sss_unrecognized_share_warning">Unrecognized share content</string>
-    <string name="sss_more_shares_needed">You need %1$s more shares.</string>
-    <string name="sss_share_number_scanned">You scanned share number %1$s.</string>
+    <string name="sss_more_shares_needed">You need %1$d more shares.</string>
+    <string name="sss_share_number_scanned">You scanned share number %1$d.</string>
     <string name="lt_delete_account">Delete Trader Identity</string>
     <string name="lt_delete_trade_history">Delete This Trade</string>
     <string name="lt_confirm_delete_history">Do you want to delete the information for this trade from your phone?</string>

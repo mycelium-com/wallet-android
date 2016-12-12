@@ -399,7 +399,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_deactivate_menu">Deaktivieren</string>
   <string name="lt_price_of_one_btc_label">(Pro 1 BTC)</string>
   <string name="lt_confirm_title">Bestätigen</string>
-  <string name="lt_confirm_cash_received">Haben Sie %1$s %2$s erhalten und sind Sie bereit die Bitcoins zu %3$s senden?</string>
+  <string name="lt_confirm_cash_received">Haben Sie %1$d %2$s erhalten und sind Sie bereit die Bitcoins zu %3$s senden?</string>
   <string name="lt_confirm_stop">Möchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_confirm_abort">Sie haben beide dieses Geschäft akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_enter_location_tite">Standort eingeben</string>
@@ -576,8 +576,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="sss_incompatible_shares_warning">Die Teile, die Sie importiert haben, sind nicht kompatibel.</string>
   <string name="sss_one_more_share_needed">Sie benötigen einen weiteren Teil</string>
   <string name="sss_unrecognized_share_warning">Der Inhalt dieses Teils wurde nicht erkannt</string>
-  <string name="sss_more_shares_needed">Sie benötigen %1$s mehr Teile.</string>
-  <string name="sss_share_number_scanned">Sie haben Teil Nummer %1$s gescannt.</string>
+  <string name="sss_more_shares_needed">Sie benötigen %1$d mehr Teile.</string>
+  <string name="sss_share_number_scanned">Sie haben Teil Nummer %1$d gescannt.</string>
   <string name="lt_delete_account">Händler Identität löschen</string>
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>

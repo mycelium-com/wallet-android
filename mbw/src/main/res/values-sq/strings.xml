@@ -393,7 +393,7 @@
   <string name="lt_deactivate_menu">Ç\'aktivizo</string>
   <string name="lt_price_of_one_btc_label">(Për 1 BTC)</string>
   <string name="lt_confirm_title">Konfirmo</string>
-  <string name="lt_confirm_cash_received">A pranuat %1$s %2$s dhe a jeni gati t\'i dërgoni bitcoin-at tek %3$s?</string>
+  <string name="lt_confirm_cash_received">A pranuat %1$d %2$s dhe a jeni gati t\'i dërgoni bitcoin-at tek %3$s?</string>
   <string name="lt_confirm_stop">A doni të ndaloni këtë tregëti?</string>
   <string name="lt_confirm_abort">Pasi që të dy palët keni pranuar mrrëveshjen vlerësimi juaj do të merr një penalti.\nA doni të anuloni këtë tregëti?</string>
   <string name="lt_enter_location_tite">Shëno lokacionin</string>
@@ -560,8 +560,8 @@
   <string name="sss_incompatible_shares_warning">Pjesët që ke importuar nuk janë kompatibile.</string>
   <string name="sss_one_more_share_needed">Ju duhet edhe 1 pjesë</string>
   <string name="sss_unrecognized_share_warning">Pjesë e panjohur</string>
-  <string name="sss_more_shares_needed">Ju duhen edhe %1$s pjesë.</string>
-  <string name="sss_share_number_scanned">Numri i pjesës së skanuar %1$s.</string>
+  <string name="sss_more_shares_needed">Ju duhen edhe %1$d pjesë.</string>
+  <string name="sss_share_number_scanned">Numri i pjesës së skanuar %1$d.</string>
   <string name="lt_delete_account">Fshij identitetin e Tregtarit</string>
   <string name="lt_delete_trade_history">Fshij këtë tregti</string>
   <string name="lt_confirm_delete_history">Doni të fshini këtë informacion për këtë tregti nga telefoni juaj?</string>

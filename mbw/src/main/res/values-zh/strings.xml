@@ -397,7 +397,7 @@
   <string name="lt_deactivate_menu">停用</string>
   <string name="lt_price_of_one_btc_label">(每 1 BTC)</string>
   <string name="lt_confirm_title">确认</string>
-  <string name="lt_confirm_cash_received">你有没有收到 %1$s %2$s 并且你是否准备向 %3$s 发送比特币？</string>
+  <string name="lt_confirm_cash_received">你有没有收到 %1$d %2$s 并且你是否准备向 %3$s 发送比特币？</string>
   <string name="lt_confirm_stop">您希望停止这個交易吗?</string>
   <string name="lt_confirm_abort">因为您和卖方都接受了交易，您的汇率可能低点。 \n您要中止这个交易吗?\"</string>
   <string name="lt_enter_location_tite">输入位置</string>
@@ -577,8 +577,8 @@
   <string name="sss_incompatible_shares_warning">无法兼容您导入的SHARE。</string>
   <string name="sss_one_more_share_needed">你需要再多一份SHARE</string>
   <string name="sss_unrecognized_share_warning">无法识别的共享内容</string>
-  <string name="sss_more_shares_needed">你需要再多%1$s 的SHARE。</string>
-  <string name="sss_share_number_scanned">扫描共享代码 %1$s。</string>
+  <string name="sss_more_shares_needed">你需要再多%1$d 的SHARE。</string>
+  <string name="sss_share_number_scanned">扫描共享代码 %1$d。</string>
   <string name="lt_delete_account">删除交易者身份</string>
   <string name="lt_delete_trade_history">删除这个贸易</string>
   <string name="lt_confirm_delete_history">您想要从您的电话中删除这条贸易信息吗？</string>

@@ -397,7 +397,7 @@
   <string name="lt_deactivate_menu">Desativar</string>
   <string name="lt_price_of_one_btc_label">(a cada 1 BTC)</string>
   <string name="lt_confirm_title">Confirmar</string>
-  <string name="lt_confirm_cash_received">Você recebeu %1$s %2$s e está pronto para enviar os bitcoins para %3$s?</string>
+  <string name="lt_confirm_cash_received">Você recebeu %1$d %2$s e está pronto para enviar os bitcoins para %3$s?</string>
   <string name="lt_confirm_stop">Você gostaria de interromper esse trade?</string>
   <string name="lt_confirm_abort">Como vocês dois aceitaram o negócio, as suas avaliações podem receber uma penalização.\nVocê gostaria de abortar esse trade?</string>
   <string name="lt_enter_location_tite">Insira a Localização</string>
@@ -570,8 +570,8 @@
   <string name="sss_incompatible_shares_warning">As partes que você importou não são compatíveis.</string>
   <string name="sss_one_more_share_needed">Você precisa de mais uma parte</string>
   <string name="sss_unrecognized_share_warning">Conteúdo da parte não-reconhecido</string>
-  <string name="sss_more_shares_needed">Você precisa de mais %1$s partes.</string>
-  <string name="sss_share_number_scanned">Você escaneou a parte número %1$s.</string>
+  <string name="sss_more_shares_needed">Você precisa de mais %1$d partes.</string>
+  <string name="sss_share_number_scanned">Você escaneou a parte número %1$d.</string>
   <string name="lt_delete_account">Apagar Identidade de Trader</string>
   <string name="lt_delete_trade_history">Apagar esse Trade</string>
   <string name="lt_confirm_delete_history">Você quer apagar do seu telefone a informação desse trade?</string>

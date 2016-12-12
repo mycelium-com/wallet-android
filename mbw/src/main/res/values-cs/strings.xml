@@ -397,7 +397,7 @@
   <string name="lt_deactivate_menu">Deaktivovat</string>
   <string name="lt_price_of_one_btc_label">(za 1 BTC)</string>
   <string name="lt_confirm_title">Potvrdit</string>
-  <string name="lt_confirm_cash_received">Obdrželi jste %1$s %2$s a jste připraveni k zaslání bitcoinů %3$s?</string>
+  <string name="lt_confirm_cash_received">Obdrželi jste %1$d %2$s a jste připraveni k zaslání bitcoinů %3$s?</string>
   <string name="lt_confirm_stop">Chcete zastavit tento obchod?</string>
   <string name="lt_confirm_abort">Neboť jste oba nabídku přijali, vaše hodnocení může být penalizováno.\nChcete tento obchod zrušit?</string>
   <string name="lt_enter_location_tite">Zadejte umístění</string>
@@ -572,8 +572,8 @@
   <string name="sss_incompatible_shares_warning">Díly, které jste importovali, nejsou kompatibilní.</string>
   <string name="sss_one_more_share_needed">Potřebujete ještě jeden díl</string>
   <string name="sss_unrecognized_share_warning">Nerozpoznaný obsah dílu</string>
-  <string name="sss_more_shares_needed">Potřebujete ještě %1$s díly.</string>
-  <string name="sss_share_number_scanned">Naskenovali jste díl č. %1$s.</string>
+  <string name="sss_more_shares_needed">Potřebujete ještě %1$d díly.</string>
+  <string name="sss_share_number_scanned">Naskenovali jste díl č. %1$d.</string>
   <string name="lt_delete_account">Vymazat identitu obchodníka</string>
   <string name="lt_delete_trade_history">Vymazat tento obchod</string>
   <string name="lt_confirm_delete_history">Chcete z vašeho telefonu vymazat informace o tomto obchodu?</string>

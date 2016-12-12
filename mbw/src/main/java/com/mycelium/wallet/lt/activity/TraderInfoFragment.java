@@ -131,7 +131,7 @@ public class TraderInfoFragment extends Fragment {
       
       // Show trader age
       _adapter.add(new InfoItem(getString(R.string.lt_trader_age_label), getResources().getString(
-            R.string.lt_time_in_days, pti.traderAgeMs / Constants.MS_PR_DAY)));
+            R.string.lt_time_in_days, Long.toString(pti.traderAgeMs / Constants.MS_PR_DAY))));
 
       // Successful Sells
       _adapter.add(new InfoItem(getString(R.string.lt_successful_sells_label), Integer.toString(pti.successfulSales)));

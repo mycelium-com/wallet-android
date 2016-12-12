@@ -346,7 +346,7 @@
   <string name="lt_deactivate_menu">Hủy kích hoạt</string>
   <string name="lt_price_of_one_btc_label">(Mỗi 1 BTC)</string>
   <string name="lt_confirm_title">Xác nhận</string>
-  <string name="lt_confirm_cash_received">Bạn đã nhận được %1$s %2$s và sẵn sàng để gửi các bitcoin tới %3$s?</string>
+  <string name="lt_confirm_cash_received">Bạn đã nhận được %1$d %2$s và sẵn sàng để gửi các bitcoin tới %3$s?</string>
   <string name="lt_confirm_stop">Bạn có muốn dừng lại giao dịch này?\"</string>
   <string name="lt_confirm_abort">Vì cả 2 bên đều chấp nhận thoả thuận này mà đánh giá về bạn có thể bị ảnh hưởng.\nBạn có muốn huỷ giao dịch này không?\"</string>
   <string name="lt_enter_location_tite">Nhập vị trí</string>

@@ -394,7 +394,7 @@
   <string name="lt_deactivate_menu">Avaktivera</string>
   <string name="lt_price_of_one_btc_label">(Per 1 BTC)</string>
   <string name="lt_confirm_title">Bekräfta</string>
-  <string name="lt_confirm_cash_received">Mottog du %1$s %2$s och är du redo att skicka bitcoins till %3$s?</string>
+  <string name="lt_confirm_cash_received">Mottog du %1$d %2$s och är du redo att skicka bitcoins till %3$s?</string>
   <string name="lt_confirm_stop">Önskar du stoppa denna affär?</string>
   <string name="lt_confirm_abort">På grund av att ni båda godkänt denna affär kan du få sänkt betyg.\nÖnskar du avbryta denna affär?</string>
   <string name="lt_enter_location_tite">Ange plats</string>
@@ -562,8 +562,8 @@
   <string name="sss_incompatible_shares_warning">Delarna du har importerat är inte kompatibla.</string>
   <string name="sss_one_more_share_needed">Du behöver ytterligare 1 del</string>
   <string name="sss_unrecognized_share_warning">Oigenkännligt innehåll för del</string>
-  <string name="sss_more_shares_needed">Du behöver ytterligare %1$s delar.</string>
-  <string name="sss_share_number_scanned">Du läste in del nummer %1$s.</string>
+  <string name="sss_more_shares_needed">Du behöver ytterligare %1$d delar.</string>
+  <string name="sss_share_number_scanned">Du läste in del nummer %1$d.</string>
   <string name="lt_delete_account">Ta bort handlaridentitet</string>
   <string name="lt_delete_trade_history">Ta bort denna affär</string>
   <string name="lt_confirm_delete_history">Vill du ta bort informationen om denna affär från din telefon?</string>
