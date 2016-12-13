@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Ignore the InvalidPackage lint error for okHttp-->
+    <issue id="InvalidPackage">
+        <ignore regexp=".*com\.squareup\.okio.*"/>
+        <ignore regexp=".*org\.apache\.xmlrpc\.jaxb\.JaxbParser.*"/>
+        <ignore regexp=".*org\.spongycastle\.jce\.provider.*"/>
+    </issue>
+</lint>
