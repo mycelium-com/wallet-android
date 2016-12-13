@@ -37,6 +37,8 @@ public abstract class ScriptOutput extends Script {
          return new ScriptOutputP2SH(chunks, scriptBytes);
       } else if (ScriptOutputMsg.isScriptOutputMsg(chunks)) {
          return new ScriptOutputMsg(chunks, scriptBytes);
+      } else if (ScriptOutputOpReturn.isScriptOutputOpReturn(chunks)) {
+         return new ScriptOutputOpReturn(chunks, scriptBytes);
       } else {
          return new ScriptOutputStrange(chunks, scriptBytes);
       }
