@@ -33,10 +33,10 @@ public class ScriptOutputOpReturn extends ScriptOutput implements Serializable {
       if (chunks.length != 2) {
          return false;
       }
-      if (!Script.isOP(chunks[1], OP_RETURN)) {
+      if (!Script.isOP(chunks[0], OP_RETURN)) {
          return false;
       }
-      if (chunks[2].length == 0) {
+      if (chunks[1].length == 0) {
          return false;
       }
       return true;
