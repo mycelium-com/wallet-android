@@ -314,7 +314,7 @@ public class Utils {
    /**
     * Show an optional message/
     * <p>
-    * The user can check a "never shot this again" check box and the message
+    * The user can check a "never show this again" check box and the message
     * will never get displayed again.
     *
     * @param context           The context
@@ -347,7 +347,7 @@ public class Utils {
          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             // Persist checked state
             context.getSharedPreferences("optionalMessagePreferences", Activity.MODE_PRIVATE).edit()
-                  .putBoolean(optionalMessageId, isChecked).commit();
+                  .putBoolean(optionalMessageId, isChecked).apply();
          }
       });
 

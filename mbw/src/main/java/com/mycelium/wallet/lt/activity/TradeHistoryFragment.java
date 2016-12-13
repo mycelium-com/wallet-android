@@ -186,7 +186,7 @@ public class TradeHistoryFragment extends Fragment {
    private class Wrapper extends EndlessAdapter {
       private static final int FETCH_LIMIT = 10;
       private RotateAnimation rotate = null;
-      private List<TradeSession> _fetched;
+      private final List<TradeSession> _fetched;
       private List<TradeSession> _toAdd;
       private GetFinalTradeSessions _request;
 

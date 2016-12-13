@@ -44,8 +44,6 @@ public class BTChipDongle implements BTChipConstants {
       }
    }
 
-   ;
-
    public enum Feature {
       UNCOMPRESSED_KEYS(0x01),
       RFC6979(0x02),
@@ -62,8 +60,6 @@ public class BTChipDongle implements BTChipConstants {
          return value;
       }
    }
-
-   ;
 
    public enum UserConfirmation {
       NONE(0x00),

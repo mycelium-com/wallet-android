@@ -759,7 +759,7 @@ public class LocalTraderManager {
       SharedPreferences.Editor editor = prefs.edit();
       editor.putString("gcmid", regId);
       editor.putInt("appVersion", appVersion);
-      editor.commit();
+      editor.apply();
    }
 
    /**

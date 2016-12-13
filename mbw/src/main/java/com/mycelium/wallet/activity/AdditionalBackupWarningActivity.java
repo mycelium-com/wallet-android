@@ -95,7 +95,7 @@ public class AdditionalBackupWarningActivity extends ActionBarActivity {
          btnImFine.setOnClickListener(backListener);
          btnImFine.setEnabled(true);
       }else {
-         ((TextView)findViewById(R.id.tvDescriptionAdditionalWordlistBackup)).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvDescriptionAdditionalWordlistBackup).setVisibility(View.VISIBLE);
          countdown = Constants.WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP;
          btnImFine.setOnClickListener(okayListener);
          startCountdown();

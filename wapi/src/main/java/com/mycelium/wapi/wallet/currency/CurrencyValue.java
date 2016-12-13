@@ -102,7 +102,7 @@ public abstract class CurrencyValue implements Serializable {
          return ((BitcoinValue) this);
       } else {
          if (this instanceof ExactCurrencyValue) {
-            return (BitcoinValue) ExchangeBasedBitcoinValue.fromValue((ExactCurrencyValue) this, exchangeRateManager);
+            return (BitcoinValue) ExchangeBasedBitcoinValue.fromValue(this, exchangeRateManager);
          } else if (this instanceof ExchangeBasedCurrencyValue) {
             return (BitcoinValue) ExchangeBasedBitcoinValue.fromValue(this.getExactValue(), exchangeRateManager);
          } else {

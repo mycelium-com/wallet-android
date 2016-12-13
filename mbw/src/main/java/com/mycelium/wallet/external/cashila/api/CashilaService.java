@@ -96,7 +96,7 @@ public class CashilaService {
    private final Bus eventBus;
    private final ObjectMapper objectMapper;
    private long lastNonce;
-   private Object nonceSync = new Object();
+   private final Object nonceSync = new Object();
    private ApiSecretToken securityToken;
    private Cashila cashila;
    private Cashila cashilaPlainText;

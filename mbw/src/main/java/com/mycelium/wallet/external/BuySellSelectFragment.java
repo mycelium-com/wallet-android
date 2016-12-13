@@ -118,7 +118,7 @@ public class BuySellSelectFragment extends FragmentActivity {
          ((TextView) v.findViewById(R.id.tvServiceDescription)).setText(service.description);
          ((ImageView) v.findViewById(R.id.ivIcon)).setImageDrawable(service.getIcon(context.getResources()));
 
-         ((LinearLayout) v.findViewById(R.id.llServiceRow)).setOnClickListener(new View.OnClickListener() {
+         v.findViewById(R.id.llServiceRow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                service.launchService(BuySellSelectFragment.this, mbwManager, mbwManager.getSelectedAccount().getReceivingAddress());

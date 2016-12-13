@@ -79,7 +79,6 @@ public class ClearPinDialog extends PinDialog {
          // The current PIN is not marked as resettable - sorry, you are on your own
          btnForgotPin.setVisibility(View.GONE);
       }
-
    }
 
    private View.OnClickListener startResetListener(final Context context, final MbwManager mbwManager) {

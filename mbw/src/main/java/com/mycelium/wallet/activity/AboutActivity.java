@@ -213,19 +213,4 @@ public class AboutActivity extends Activity {
                }).show();
       }
    }
-
-   @SuppressWarnings("unused")
-   private class LinkListener implements View.OnClickListener {
-      private final int resource;
-
-      public LinkListener(int resource) {
-         this.resource = resource;
-      }
-
-      @Override
-      public void onClick(View v) {
-         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(resource)));
-         AboutActivity.this.startActivity(browserIntent);
-      }
-   }
 }

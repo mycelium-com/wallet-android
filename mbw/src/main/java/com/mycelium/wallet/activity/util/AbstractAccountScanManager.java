@@ -148,7 +148,7 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
                   // leave accountID empty for now - set it later if it is a already used account
                   HdKeyNodeWrapper acc = new HdKeyNodeWrapper(accountPathToScan.get(), rootNode, null);
                   UUID newAccount = scanningCallback.checkForTransactions(acc);
-                  lastScannedPath = Optional.<HdKeyPath>of(accountPathToScan.get());
+                  lastScannedPath = Optional.of(accountPathToScan.get());
 
                   if (newAccount != null) {
                      HdKeyNodeWrapper foundAccount =
