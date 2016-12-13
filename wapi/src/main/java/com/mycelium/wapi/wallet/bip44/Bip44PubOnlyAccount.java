@@ -1,9 +1,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
 
 

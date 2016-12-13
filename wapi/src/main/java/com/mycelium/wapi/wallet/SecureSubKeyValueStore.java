@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.util.ByteWriter;
 
 // SubKeystore - stores data in its backing but prefixes all Ids with its own subId
 // Use it to store unrelated HD-Accounts in one backing

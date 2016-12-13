@@ -71,7 +71,6 @@ import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.settings.SetLocalCurrencyActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidConstants;

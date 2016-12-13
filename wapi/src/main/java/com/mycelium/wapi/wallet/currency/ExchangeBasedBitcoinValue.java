@@ -35,7 +35,6 @@
 package com.mycelium.wapi.wallet.currency;
 
 import com.megiontechnologies.Bitcoins;
-import com.mycelium.wapi.model.ExchangeRate;
 
 import java.math.BigDecimal;
 

@@ -34,13 +34,10 @@
 
 package com.mrd.bitlib.model;
 
-import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HexUtils;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.security.SecureRandom;
 
 public class ScriptTest {
 

@@ -46,7 +46,6 @@ import com.google.common.collect.Lists;
 import com.mycelium.wallet.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class ConnectionLogsActivity extends Activity {
 

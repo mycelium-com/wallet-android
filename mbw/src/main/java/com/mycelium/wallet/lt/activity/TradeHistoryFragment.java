@@ -59,7 +59,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
-import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;

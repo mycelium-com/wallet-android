@@ -5,14 +5,9 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.api.response.FeatureWarning;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
-import com.mycelium.wapi.api.response.WarningKind;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

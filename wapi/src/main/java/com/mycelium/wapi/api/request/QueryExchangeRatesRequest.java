@@ -17,9 +17,6 @@
 package com.mycelium.wapi.api.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
 
 import java.io.Serializable;
 

@@ -1,9 +1,8 @@
 package com.coinapult.api.httpclient;
 
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.ec.Point;
-import org.spongycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+
 import org.spongycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.jce.ECNamedCurveTable;

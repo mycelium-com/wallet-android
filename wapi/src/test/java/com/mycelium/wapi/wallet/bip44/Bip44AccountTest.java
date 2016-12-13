@@ -4,23 +4,11 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
-import com.mycelium.wapi.api.WapiResponse;
-import com.mycelium.wapi.api.lib.TransactionExApi;
-import com.mycelium.wapi.api.request.*;
-import com.mycelium.wapi.api.response.*;
-import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.model.TransactionStatus;
 import com.mycelium.wapi.wallet.*;
 import org.junit.Test;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;

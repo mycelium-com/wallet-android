@@ -18,8 +18,6 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteWriter;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 
 /**

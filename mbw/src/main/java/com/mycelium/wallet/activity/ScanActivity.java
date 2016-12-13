@@ -44,14 +44,8 @@ import android.view.Surface;
 import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
-import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wapi.wallet.WalletManager;
-
-import java.util.UUID;
 
 /**
  * This activity immediately launches the scanner, and shows no content of its

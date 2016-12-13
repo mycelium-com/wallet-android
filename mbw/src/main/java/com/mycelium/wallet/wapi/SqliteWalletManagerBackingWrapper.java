@@ -35,11 +35,8 @@
 package com.mycelium.wallet.wapi;
 
 import android.content.Context;
-import android.os.Handler;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.Utils;
+
 import com.mycelium.wapi.api.exception.DbCorruptedException;
-import com.mycelium.wapi.wallet.WalletManagerBacking;
 
 // Wrapper for SqliteWalletManagerBacking, to catch the DbCorrupted RuntimeException and inform the user about it
 public class SqliteWalletManagerBackingWrapper extends SqliteWalletManagerBacking {

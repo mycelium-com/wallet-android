@@ -1,7 +1,6 @@
 package com.coinapult.api.httpclient;
 
 import org.spongycastle.asn1.*;
-import org.spongycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.openssl.PEMException;
 import org.spongycastle.openssl.PEMKeyPair;

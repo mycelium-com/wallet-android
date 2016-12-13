@@ -35,8 +35,6 @@
 package com.mycelium.wallet.lt.api;
 
 import com.mycelium.lt.api.LtApi;
-import com.mycelium.lt.api.LtApiException;
-import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 

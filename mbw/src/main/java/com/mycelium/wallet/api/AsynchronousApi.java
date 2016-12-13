@@ -34,12 +34,10 @@
 
 package com.mycelium.wallet.api;
 
-import com.mycelium.wallet.event.WalletVersionEvent;
 import com.mycelium.wallet.event.WalletVersionExEvent;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.VersionInfoExRequest;
-import com.mycelium.wapi.api.request.VersionInfoRequest;
 import com.mycelium.wapi.api.response.*;
 import com.squareup.otto.Bus;
 

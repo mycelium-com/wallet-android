@@ -35,19 +35,13 @@
 package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 

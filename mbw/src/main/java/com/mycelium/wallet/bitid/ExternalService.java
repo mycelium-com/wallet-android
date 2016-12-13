@@ -37,7 +37,7 @@ package com.mycelium.wallet.bitid;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 

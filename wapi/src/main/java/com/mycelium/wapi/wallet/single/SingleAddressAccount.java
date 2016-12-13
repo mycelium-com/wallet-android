@@ -25,7 +25,6 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.model.Balance;

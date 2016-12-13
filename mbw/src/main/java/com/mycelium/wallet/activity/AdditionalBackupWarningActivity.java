@@ -46,9 +46,7 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import org.ocpsoft.prettytime.PrettyTime;
 
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 

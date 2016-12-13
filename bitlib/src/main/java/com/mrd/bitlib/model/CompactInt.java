@@ -16,7 +16,6 @@
 
 package com.mrd.bitlib.model;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 

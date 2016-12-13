@@ -34,8 +34,6 @@
 
 package com.mycelium.wapi.wallet.currency;
 
-import com.mycelium.wapi.model.ExchangeRate;
-
 import java.math.BigDecimal;
 
 public class ExchangeBasedFiatValue extends ExchangeBasedCurrencyValue {

@@ -42,21 +42,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.google.common.collect.ImmutableList;
 import com.mycelium.lt.location.Geocode;
 import com.mycelium.lt.location.Geocoder;
-import com.mycelium.lt.location.GoogleMapsGeocoder;
 import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.DelayAutoCompleteTextView;
 import com.mycelium.wallet.lt.AddressDescription;
-import com.mycelium.wallet.lt.BackendGeocoder;
 import com.mycelium.wallet.lt.LocalTraderManager;
 
 public class EnterLocationActivity extends Activity {

@@ -18,7 +18,6 @@ package com.mycelium.wapi.api.response;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mycelium.wapi.model.TransactionOutputEx;

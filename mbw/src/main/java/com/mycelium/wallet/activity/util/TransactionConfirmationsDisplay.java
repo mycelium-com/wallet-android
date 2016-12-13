@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import com.mycelium.wallet.R;
