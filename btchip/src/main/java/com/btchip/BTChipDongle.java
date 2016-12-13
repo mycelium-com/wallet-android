@@ -580,7 +580,6 @@ public class BTChipDongle implements BTChipConstants {
 
    public BTChipOutput finalizeInput(String outputAddress, String amount, String fees, String changePath) throws BTChipException {
       resolvePath(changePath);
-      BTChipOutput result = null;
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       byte path[] = BIP32Utils.splitPath(changePath);
       data.write(outputAddress.length());
@@ -589,15 +588,14 @@ public class BTChipDongle implements BTChipConstants {
       BufferUtils.writeUint64BE(data, CoinFormatUtils.toSatoshi(fees));
       BufferUtils.writeBuffer(data, path);
       byte[] response = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_HASH_INPUT_FINALIZE, (byte) 0x02, (byte) 0x00, data.toByteArray(), OK);
-      result = convertResponseToOutput(response);
-      return result;
+      return convertResponseToOutput(response);
    }
 
    public BTChipOutput finalizeInputFull(byte[] data, String changePath, boolean skipChangeCheck) throws BTChipException {
       BTChipOutput result = null;
       int offset = 0;
       byte[] response = null;
-      byte[] path = null;
+      byte[] path;
       boolean oldAPI = false;
       if (!skipChangeCheck) {
          if (changePath != null) {
@@ -648,7 +646,7 @@ public class BTChipDongle implements BTChipConstants {
    public BTChipOutput finalizeInput(byte[] outputScript, String outputAddress, String amount, String fees, String changePath) throws BTChipException {
       // Try the new API first
       boolean oldAPI;
-      byte[] path = null;
+      byte[] path;
       if (changePath != null) {
          path = BIP32Utils.splitPath(changePath);
          resolvePath(changePath);

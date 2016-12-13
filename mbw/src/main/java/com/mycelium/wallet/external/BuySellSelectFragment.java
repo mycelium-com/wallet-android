@@ -74,8 +74,7 @@ public class BuySellSelectFragment extends FragmentActivity {
       }));
 
       if (enabledServices.size() == 0) {
-         // show info where to enable
-         // todo
+         // todo: show info where to enable
       } else {
          lvServices.setAdapter(new ServicesListAdapter(this, enabledServices));
       }

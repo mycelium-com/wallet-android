@@ -26,8 +26,6 @@ import java.io.InputStream;
 import static org.junit.Assert.assertEquals;
 
 public class GoogleMapsGeocoderTest {
-
-
    @Test
    @Ignore
    public void testRemoteCoding() throws IOException, RemoteGeocodeException {
@@ -55,7 +53,6 @@ public class GoogleMapsGeocoderTest {
 //      String path = "public/lt-api/src/test/resources/exampleWithPostcode.json";
 //      final InputStream stream = Preconditions.checkNotNull(new FileInputStream(path));
       final InputStream stream = Preconditions.checkNotNull(getClass().getResourceAsStream("/exampleWithPostcode.json"));
-      @SuppressWarnings("unused")
-      GeocodeResponse response = new GoogleMapsGeocoder("en").response2Graph(stream);
+      new GoogleMapsGeocoder("en").response2Graph(stream);
    }
 }

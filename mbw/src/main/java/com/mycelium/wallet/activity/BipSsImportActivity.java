@@ -101,7 +101,7 @@ public class BipSsImportActivity extends Activity {
          }
       } catch (BipSss.InvalidContentTypeException e) {
          status += "\n";
-         status = getString(R.string.sss_unrecognized_share_warning);
+         status += getString(R.string.sss_unrecognized_share_warning);
       }
 
       ((TextView) findViewById(R.id.tvStatus)).setText(status);
