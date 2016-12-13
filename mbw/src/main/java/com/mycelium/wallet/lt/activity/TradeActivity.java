@@ -306,7 +306,7 @@ public class TradeActivity extends Activity {
       AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
       confirmDialog.setTitle(R.string.lt_confirm_title);
       String name = _tradeSession.isOwner ? _tradeSession.peerName : _tradeSession.ownerName;
-      String msg = getString(R.string.lt_confirm_cash_received, "" + _tradeSession.fiatTraded, _tradeSession.currency, name);
+      String msg = getString(R.string.lt_confirm_cash_received, _tradeSession.fiatTraded, _tradeSession.currency, name);
       confirmDialog.setMessage(msg);
       confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
