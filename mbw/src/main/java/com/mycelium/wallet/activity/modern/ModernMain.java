@@ -418,7 +418,7 @@ public class ModernMain extends ActionBarActivity {
                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL_FORCED);
             }
          }
-
+         _mbwManager.getWalletManager(false).startSynchronization(syncMode);
          // also fetch a new exchange rate, if necessary
          _mbwManager.getExchangeRateManager().requestOptionalRefresh();
       } else if (itemId == R.id.miHelp) {
