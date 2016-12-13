@@ -73,11 +73,7 @@ public class BuySellSelectFragment extends FragmentActivity {
          }
       }));
 
-      if (enabledServices.size() == 0) {
-         // todo: show info where to enable
-      } else {
-         lvServices.setAdapter(new ServicesListAdapter(this, enabledServices));
-      }
+      lvServices.setAdapter(new ServicesListAdapter(this, enabledServices));
 
    }
 
