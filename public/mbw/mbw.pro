@@ -191,6 +191,8 @@
     rx.internal.util.atomic.LinkedQueueNode consumerNode;
 }
 
+# This is to prevent proguard from removing translations for prettytime
+-keep class org.ocpsoft.prettytime.i18n.**
 
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 
