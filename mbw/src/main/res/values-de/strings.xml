@@ -399,7 +399,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_deactivate_menu">Deaktivieren</string>
   <string name="lt_price_of_one_btc_label">(Pro 1 BTC)</string>
   <string name="lt_confirm_title">Bestätigen</string>
-  <string name="lt_confirm_cash_received">Haben Sie %1$d %2$s erhalten und sind Sie bereit die Bitcoins zu %3$s senden?</string>
   <string name="lt_confirm_stop">Möchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_confirm_abort">Sie haben beide dieses Geschäft akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_enter_location_tite">Standort eingeben</string>
@@ -428,6 +427,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_warn_account_not_spandable">Sie können nicht über die ausgewählte Ziel-Adresse (%s) verfügen.\n\n Sie müssen den privaten Schlüssel in einer offline-Kopie vorliegen haben oder Sie werden nicht über das empfangende Geld verfügen können.</string>
   <string name="lt_mycelium_marketplace">Mycelium Marktplatz</string>
   <string name="lt_mycelium_marketplace_description">Finde Mycelium-Nutzer in deiner Umgebung die bitcoin (ver)kaufen.</string>
+  <string name="lt_missing_fx_rate">Aktuelle Preisquelle nicht verfügbar</string>
+  <string name="lt_price_source_not_available">nicht verfügbar!</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
@@ -576,8 +577,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="sss_incompatible_shares_warning">Die Teile, die Sie importiert haben, sind nicht kompatibel.</string>
   <string name="sss_one_more_share_needed">Sie benötigen einen weiteren Teil</string>
   <string name="sss_unrecognized_share_warning">Der Inhalt dieses Teils wurde nicht erkannt</string>
-  <string name="sss_more_shares_needed">Sie benötigen %1$d mehr Teile.</string>
-  <string name="sss_share_number_scanned">Sie haben Teil Nummer %1$d gescannt.</string>
   <string name="lt_delete_account">Händler Identität löschen</string>
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
@@ -602,6 +601,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Ein Trezor-HD-Konto importieren</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="ext_sig_import_account_caption">Konto importieren</string>
   <string name="ext_sig_select_account_to_import">Zu importierendes Konto auswählen</string>
   <string name="ext_sig_verify_transaction_on_device">Überprüfen und bestätigen Sie die \nTransaktion auf Ihrem Gerät</string>
   <string name="ext_sig_amount">Betrag:</string>
@@ -612,6 +612,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="ext_sig_next_unused_account_info">Diese Option importiert das nächste ungenutzte Konto von diesem Gerät. In anderen Diensten wird es nur sichtbar, sobald Sie bitcoins dorthin senden.</string>
   <string name="ext_sig_next_unused_account_button">Nächstes ungenutztes Konto importieren&#8230;</string>
   <string name="ext_sig_new_firmware">Eine neue Firmware ist verfügbar&#8230;</string>
+  <string name="ext_sig_configuration_dialog_title">Geräte-Konfiguration</string>
+  <string name="ext_sig_device_not_initialized">Gerät wurde nicht initialisiert. Sie müssen eine externe App verwenden, um das Gerät vor der ersten Verwendung einzurichten.</string>
+  <string name="external_app_needed">Um das Gerät zu aktualisieren benötigen Sie ein externes Tool, klicken Sie auf OK, um es zu starten.</string>
   <string name="trezor_new_firmware_description">Eine neue Trezor-Firmware ist verfügbar.\nBitte verwenden Sie MyTrezor.com auf einem PC, um Ihren Trezor zu aktualisieren.</string>
   <string name="ext_sig_unnamed">(unbenannt)</string>
   <string name="keepkey_cold_storage_header">KeepKey Cold Storage</string>
@@ -645,6 +648,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="ledger_check_unplugged_aid">Ungültige AID, bitte überprüfen</string>
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="ledger_disable_tee_preference">TEE-Unterstützung deaktivieren</string>
+  <string name="ledger_disable_tee_preference_summary">Trusted Execution Environment Unterstützung deaktivieren, falls vorhanden, um eine andere Ledger-Hardware-Wallet zu verwenden</string>
+  <string name="ledger_unplugged_aid_preference">Setze Ledger Unplugged AID</string>
+  <string name="ledger_unplugged_aid_preference_summary">Untersütze eine andere AID für Ledger Unplugged custom builds</string>
   <string name="select_local_currencies">Wählen Sie Ihre Währungen</string>
   <string name="show_public_or_private_data">Anzeigen</string>
   <string name="show_private_data">privat</string>
@@ -699,6 +705,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <!-- Cashila -->
   <string name="cashila_tab_new">Neu</string>
   <string name="cashila_tab_pending">Zahlungen</string>
+  <string name="cashila_sepa_transfer">Euro-Zahlung</string>
   <string name="cashila_status_received">erhalten</string>
   <string name="cashila_status_chained">eingereiht</string>
   <string name="cashila_status_confirmed">bestätigt</string>
@@ -728,7 +735,10 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cashila_pay_now">Jetzt bezahlen</string>
   <string name="cashila_sepa_payment_title">SEPA-Zahlung</string>
   <string name="cashila_uploaded_title">hochgeladen</string>
+  <string name="cashila_no_recipients">Es scheint, als haben Sie Cashila zuvor noch nie verwendet und haben keine erfassten Empfänger.\n\nWählen Sie OK um einen neuen Empfänger auf der Cashila Webseite anzulegen</string>
   <string name="cashila_amount_outstanding">(%s ausstehend)</string>
+  <string name="cashila_add_new_sepa_recipient_title">neuen SEPA-Empfänger hinzufügen</string>
+  <string name="cashila_recipient_name">Name</string>
   <string name="cashila_recipient_address">Adresse</string>
   <string name="cashila_recipient_zip_code">PLZ</string>
   <string name="cashila_recipient_city">Stadt</string>
@@ -748,7 +758,17 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cashila_accept_tos_title">Ich akzeptiere folgende Bedingungen:</string>
   <string name="cashila_sign_up">Registrieren</string>
   <string name="cashila_login">Einloggen</string>
+  <string name="cashila_tos">Allgemeine Geschäftsbedingungen</string>
+  <string name="cashila_limit_liability">Haftungsbeschränkung</string>
+  <string name="cashila_error">"Cashila-Fehler: %s"</string>
+  <string name="cashila_error_wrong_second_factor">Falscher Zwei-Faktor-Code</string>
+  <string name="cashila_error_wrong_password">Falsches Passwort</string>
+  <string name="cashila_error_user_already_exists">Ein Benutzer mit dieser E-Mail-Adresse existiert bereits</string>
+  <string name="cashila_error_generic">"Fehler beim einloggen: %s"</string>
+  <string name="cashila_fetching_tos">Lade Geschäftsbedingungen von Cashila&#8230;</string>
+  <string name="cashila_fill_out_all_fields">Füllen Sie alle Pflichtfelder aus</string>
   <string name="payment_request_unable_to_read_payment_request">Kann die Zahlungsaufforderung nicht lesen</string>
+  <string name="payment_request_not_sent_expired">Zahlung nicht gesendet - Zahlungsaufforderung bereits abgelaufen!</string>
   <string name="payment_request_no_amount_specified">kein Betrag angegeben</string>
   <string name="payment_request_unable_to_verify">Unmöglich zu verifizieren</string>
   <string name="payment_request_unsigned_request">Nicht signierte Zahlungsaufforderung</string>
@@ -763,6 +783,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="payment_request_created">Erstellt</string>
   <string name="payment_request_expires">Gültig bis</string>
   <string name="payment_request_message_to_merchant">Ihre Nachricht an den Händler (optional)</string>
+  <string name="payment_request_error_while_getting_ack">Nicht in der Lage die Zahlung an Händler-Server zu senden.\n%s\n\nDie Zahlung wird nicht übertragen.</string>
+  <string name="payment_request_warning_no_sig">Der Ursprung dieser Zahlungsaufforderung kann nicht überprüft werden, da es keine Signatur hat.\n\nBitte seien Sie sehr vorsichtig, denn es jemand könnte es abfangen und die Auszahlungs-Addresse ändern.</string>
   <string name="label_cold_storage_external_signing">Signieren mit:</string>
   <string name="spending_unconfirmed_warning">Achtung:  Sie geben unbestätigte Bitcoins aus.</string>
   <string name="spending_unconfirmed_title">Unbestätigte Bitcoins ausgeben</string>
@@ -771,19 +793,38 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="file_not_found">Datei nicht gefunden</string>
   <string name="data_not_available_short">nicht verfügbar</string>
   <string name="accept">Akzeptieren</string>
+  <string name="nfc_payment_request_hint">Halten Sie ihr Telefon Rücken-an-Rücken an ein anderes NFC-kompatibles Gerät um die Zahlungsaufforderung zu teilen</string>
   <string name="payment_request_over_tor">" (über Tor)"</string>
   <string name="cancel_transaction">Transaktion abbrechen</string>
+  <string name="bitid_refused">Verbindung konnte nicht hergestellt werden, der Server verweigert vielleicht die Verbindung.</string>
   <string name="export_history">Transaktionsverlauf exportieren</string>
   <string name="share_transaction_history">Transaktionsverlauf teilen</string>
   <string name="transaction_history_title">Transaktionsverlauf</string>
   <string name="menu_item_cancel_transaction">Transaktion abbrechen</string>
   <string name="menu_item_rebroadcast_transaction">Transaktion erneut senden</string>
+  <string name="menu_item_delete_unconfirmed_transaction">Unbestätigte Transaktion löschen</string>
+  <string name="delete_unconfirmed_transaction_title">Unbestätigte Transaktion löschen</string>
+  <string name="warning_delete_unconfirmed_transaction">WARNUNG: Dies löscht die Transaktion nur aus der lokalen App. Diese Funktion kann keine Transaktion rückgängig machen und kann nicht verhindern, dass sie bestätigt wird. Sie ist nur sinnvoll, wenn das Netzwerk die Transaktion bereits vergessen hat, weil sie seit einer langer Zeit unbestätigt ist. In diesem Fall können Sie sie löschen, um über die Gelder erneut zu verfügen. Sie müssen danach erneut synchronisieren. Wenn das Netzwerk die Transaktion noch kennt, zeigt sich diese wieder nach der Synchronisierung.\\n\\nWollen Sie die Transaktion aus dem lokalen Cache löschen?</string>
   <string name="rebroadcast_transaction_title">Transaktion erneut senden</string>
+  <string name="description_rebroadcast_transaction">Übertragen Sie diese Transaktion erneut an den Server. Dies kann verwendet werden, wenn sie vermuten, dass das Netzwerk ihre Transaktion nicht angenommen oder fallen gelassen hat, da sie eine lange Zeit nicht bestätigt wurde zum Beispiel. Möchten Sie diese Transaktion erneut übersenden?</string>
+  <string name="message_rebroadcast_successfull">Die Transaktion wurde erfolgreich übermittelt.</string>
   <string name="message_rebroadcast_failed">Die Übertragung ist fehlgeschlagen, bitte überprüfen Sie Ihre Internetverbindung und synchronisieren Sie Ihre Wallet.</string>
   <string name="block_explorer_title">Block Explorer (%1$s)</string>
+  <string name="block_explorer_summary">Transaktionsdetails werden mittels des %1$s Block-Explorers nachgeschlagen</string>
   <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
+  <string name="lt_account_not_allowed">Der ausgewählte Konto-Typ funktioniert nicht mit Local-Trader. Sie müssen ein anderes Konto auswählen um diesen Handel auszuführen.</string>
+  <string name="coinapult_sending_via_coinapult">Bitcoins senden über Coinapult</string>
+  <string name="coinapult_account_notes">Ein Coinapult-Konto lässt Sie ihr Vermögen in verschiedenen Fiat-Währungen halten und es sofort an eine beliebige Bitcoin-Addresse senden.\nObwohl Sie ihre privaten Schlüssel nutzen, um über es zu verfügen, ist es dennoch unter der Kontrolle von Coinapult, im Gegensatz zu jenen in ihrem normalen HD-Konto.</string>
   <string name="coinapult_mail_hint">Geben Sie eine E-Mail-Adresse ein</string>
+  <string name="coinapult_mail_description">Wenn Sie Ihre e-Mail-Adresse angeben, können Sie ein Support-Ticket mit Coinapult einreichen, indem Sie eine e-Mail an support@coinapult.com senden von der e-Mail, die Sie angeben.</string>
+  <string name="coinapult_threshold_warning">Warnung: Coinapult-Konten können keine Transaktionen abschließen unter einem Wert von %1$s.</string>
+  <string name="coinapult_amount_too_small">Betrag zu niedrig, minimale Auszahlung ist %1$s %2$s.</string>
   <string name="coinapult_set_mail_menu_item">Geben Sie eine E-Mail-Adresse ein</string>
+  <string name="coinapult_set_mail_failed">Setzen der e-Mail-Adresse ist fehlgeschlagen, bitte auf korrekte Schreibweise überprüfen und sicherstellen, dass Ihr Gerät eine funktionierende Internet-Verbindung hat.</string>
+  <string name="coinapult_setting_email">Sende E-Mail-Adresse an Coinapult&#8230;</string>
+  <string name="coinapult_set_mail_please_verify">Ihre e-Mail-Adresse wurde gesetzt, Sie werden eine e-Mail mit einem Bestätigungslink erhalten. Bitte kopieren Sie diesen Link und wählen Sie \"e-Mail-Adresse bestätigen\" über die Kontoeinstellungen, fügen Sie den Link ein und stellen Sie sicher, dass die e-Mail-Adresse korrekt ist.</string>
+  <string name="coinapult_verify_mail_menu_title">E-Mail-Adresse bestätigen</string>
+  <string name="coinapult_mail_verification">Ihre Coinapult E-Mail-Adresse bestätigen</string>
   <string name="coinapult_mail_verification_description">Bitte fügen Sie den Bestätigungs-Link aus Ihrer Coinapult-Email in das untenstehende Textfeld ein.</string>
   <string name="coinapult_mail_verification_hint">kompletten Bestätigungs-Link einfügen</string>
   <string name="coinapult_verifying_email">Sende Bestätigungs-Link an Coinapult&#8230;</string>
@@ -803,14 +844,53 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_confirm_backup_trader_message">Sie sind dabei sensible Daten ihres Local-Trader-Kontos zu exportieren. Wer auf diese Schlüssel Zugriff erhält kann Ihr Local-Trader-Konto übernehmen und in Ihrem Namen handeln. Möchten Sie fortfahren?</string>
   <string name="masterseed">Masterseed</string>
   <string name="bip32_root_account">Root-Account</string>
+  <string name="pop_invalid_pop_uri">Ungültige POP-Request-URI</string>
   <string name="pop_amount_title">Gezahlter Betrag</string>
   <string name="pop_date">Zeit/Datum</string>
+  <string name="pop_send_pop_to">Nachweisen gegenüber</string>
+  <string name="pop_transaction_info">Zahlung nachweisen</string>
   <string name="pop_transaction_id">Hash</string>
   <string name="pop_transaction_amount">Betrag</string>
   <string name="pop_transaction_label">Bezeichnung</string>
   <string name="pop_no_transaction_selected">Keine Transaktion ausgewählt</string>
+  <string name="pop_send_pop">Zahlungs-Nachweis</string>
+  <string name="pop_prove">Bestätige</string>
+  <string name="pop_select_other_tx">Andere Transaktion wählen</string>
+  <string name="pop_invalid_pop">Zahlungs-Nachweis war ungültig</string>
   <string name="pop_message_from_server">Meldung vom Server:</string>
+  <string name="pop_no_matching_transaction">Keine passende Zahlung gefunden. Bitte wählen Sie manuell eine Transaktion für den Nachweis.</string>
+  <string name="pop_matching_transactions">Passende Transaktionen</string>
+  <string name="pop_non_matching_transactions">Andere Transaktionen</string>
+  <string name="pop_success">Nachweis war erfolgreich</string>
+  <string name="pop_no_matching_transactions">Keine passenden Transaktionen für die PoP-Anfrage wurden gefunden. Sie können eine Transaktion nicht-passende auswählen.</string>
+  <string name="pop_transaction_info_advice">Prüfen Sie nachstehende nachzuweisende Zahlungsinformationen</string>
+  <string name="import_xpub_wrong_depth">Kann nur Konto-Stufe (3) xPub-Adressen importieren. \nDies war Stufe %1$s.</string>
+  <string name="buy_one">Zum Shop&#8230;</string>
+  <string name="warning_risky_unconfirmed">ACHTUNG: warten Sie mindestens eine Bestätigung ab! (%s)</string>
+  <string name="warning_reason_rbf">RBF</string>
+  <string name="warning_reason_unconfirmed_parent">Unbestätigte Vorgänger-Transaktion</string>
+  <string name="warning_reason_doublespend">Konfliktzahlung erkannt</string>
+  <string name="opening_url_in_browser">URL in Browser öffnen...</string>
+  <string name="incoming_payment">"Zahlungseingang: "</string>
+  <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
+  <string name="mycelium_terms_of_use">Mycelium Nutzungsbedingungen</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
+  <string name="gd_buy_sell_button">Bitcoin kaufen/verkaufen</string>
+  <string name="gd_buy_sell">Glidera</string>
+  <string name="gd_buy_sell_description">Kaufen/Verkaufen Sie Bitcoin von Glidera über ein Bankkonto in den USA oder Kanada.</string>
+  <string name="gd_buy_tab">Kaufen</string>
+  <string name="gd_sell_tab">Verkaufen</string>
+  <string name="gd_transaction_history_tab">Verlauf</string>
+  <string name="gd_glidera">Glidera</string>
+  <string name="gd_delivery_date">Lieferdatum:</string>
+  <string name="gd_date">Datum:</string>
+  <string name="gd_action">Aktion:</string>
+  <string name="gd_amount">Betrag:</string>
+  <string name="gd_pricing">Preisgestaltung:</string>
+  <string name="gd_price">Preis:</string>
+  <string name="gd_status">Status:</string>
   <string name="gd_fee">Gebühr:</string>
   <string name="gd_total">Gesamt:</string>
   <string name="gd_transaction_hash">Transaktions-Hash:</string>
@@ -829,6 +909,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="gd_buy_bitcoin">Bitcoins kaufen</string>
   <string name="gd_rate">Kurs:</string>
   <string name="gd_bitcoin">Bitcoin:</string>
+  <string name="gd_summary">Übersicht</string>
   <string name="gd_btc">BTC</string>
   <string name="gd_dollar_symbol">$</string>
   <string name="gd_btc_symbol">฿</string>
@@ -839,5 +920,11 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="error_details">Fehlerdetails</string>
   <string name="warning_sync_failed_reusing_first">Synchronisierung fehlgeschlagen! Verwende Adresse Nr. 1 von diesem xPub wieder!</string>
   <string name="glidera_setting_show_button_summary">Glidera Kauf/Verkauf-Option anzeigen</string>
+  <string name="tap_to_toggle_through_other_currencies">Tippen, um durch andere Währungen zu wechseln</string>
   <!-- GlideraService End -->
+  <string name="label_single_key_icon">Einzelschlüssel</string>
+  <string name="label_blue_circle">blauer Kreis</string>
+  <string name="label_type_it_in">geben Sie etwas ein</string>
+  <string name="label_use_device_location">Geräteposition verwenden</string>
+  <string name="label_list_activity_indicator">hatte Aktivität</string>
 </resources>

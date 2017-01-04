@@ -397,7 +397,6 @@
   <string name="lt_deactivate_menu">Désactiver</string>
   <string name="lt_price_of_one_btc_label">(Par 1 BTC)</string>
   <string name="lt_confirm_title">Confirmer</string>
-  <string name="lt_confirm_cash_received">Avez-vous reçu %1$d %2$s et êtes-vous prêt à envoyer les bitcoins à %3$s ?</string>
   <string name="lt_confirm_stop">Souhaitez-vous mettre fin à cet échange ?</string>
   <string name="lt_confirm_abort">Parce que vous avez accepté conjointement l\'accord, vos cotes peuvent souffrir d\'une pénalité.\nDésirez-vous abandonner cet échange ?</string>
   <string name="lt_enter_location_tite">Entrez l\'emplacement</string>
@@ -575,8 +574,6 @@
   <string name="sss_incompatible_shares_warning">Les parts que vous avez importé ne sont pas compatibles.</string>
   <string name="sss_one_more_share_needed">Il faut une part supplémentaire</string>
   <string name="sss_unrecognized_share_warning">La part n\'est pas reconnue</string>
-  <string name="sss_more_shares_needed">Il faut %1$d parts supplémentaires.</string>
-  <string name="sss_share_number_scanned">Vous avez numérisé la part # %1$d.</string>
   <string name="lt_delete_account">Supprimer l\'identité marchande</string>
   <string name="lt_delete_trade_history">Supprimer cet échange</string>
   <string name="lt_confirm_delete_history">Voulez-vous supprimer l\'information pour cette échange de votre téléphone ?</string>
@@ -870,6 +867,8 @@
   <string name="incoming_payment">"Versement entrant : "</string>
   <string name="warning_amount_does_not_match">ATTENTION : le montant ne correspond pas !</string>
   <string name="mycelium_terms_of_use">Conditions d\'utilisation de Mycelium</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Acheter / Vendre Bitcoin</string>
   <string name="gd_buy_sell">Glidera</string>

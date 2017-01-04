@@ -397,7 +397,6 @@
   <string name="lt_deactivate_menu">Disattiva</string>
   <string name="lt_price_of_one_btc_label">(Per 1 BTC)</string>
   <string name="lt_confirm_title">Conferma</string>
-  <string name="lt_confirm_cash_received">Hai ricevuto %1$d %2$s e sei pronto ad inviare i bitcoin a %3$s?</string>
   <string name="lt_confirm_stop">Desideri fermare questo scambio?\"</string>
   <string name="lt_confirm_abort">Visto che entrambi avete accettato l\'affare il tuo punteggio potrebbe subire una penalità.\nVuoi interrompere questo scambio?\"</string>
   <string name="lt_enter_location_tite">Immettere la posizione</string>
@@ -786,6 +785,8 @@
   <string name="buy_one">Acquistalo&#8230;</string>
   <string name="warning_reason_rbf">RBF</string>
   <string name="opening_url_in_browser">Apri nel browser...</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
 </resources>

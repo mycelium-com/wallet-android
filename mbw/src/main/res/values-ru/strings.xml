@@ -397,7 +397,6 @@
   <string name="lt_deactivate_menu">Деактивировать</string>
   <string name="lt_price_of_one_btc_label">(За 1 BTC)</string>
   <string name="lt_confirm_title">Подтвердить</string>
-  <string name="lt_confirm_cash_received">Вы получили %1$d %2$s и готовы отправить биткойны %3$s?</string>
   <string name="lt_confirm_stop">Вы хотите остановить эту сделку?»</string>
   <string name="lt_confirm_abort">Так как  вы оба  приняли сделку, ваши рейтинги могут получить понизиться. \nDo вы хотите отказаться от этой сделки?</string>
   <string name="lt_enter_location_tite">Введите местоположение</string>
@@ -569,8 +568,6 @@
   <string name="sss_incompatible_shares_warning">Части, которые вы импортировали - не совместимы.</string>
   <string name="sss_one_more_share_needed">Вам нужна еще  одна часть</string>
   <string name="sss_unrecognized_share_warning">Нераспознанное содержимое части</string>
-  <string name="sss_more_shares_needed">Вам необходимо %1$d более частей.</string>
-  <string name="sss_share_number_scanned">Вы просканировали часть номер %1$d.</string>
   <string name="lt_delete_account">Удалить информацию о пользователе</string>
   <string name="lt_delete_trade_history">Удалить эту  сессию</string>
   <string name="lt_confirm_delete_history">Вы хотите удалить эту  торговую сессию с телефона?</string>
@@ -833,6 +830,8 @@
   <string name="import_xpub_wrong_depth">Вы можете импортировать счёт уровня (3) xpub адресов.\nЭто уровень %1$s.</string>
   <string name="buy_one">Покупка&#8230;</string>
   <string name="opening_url_in_browser">Открытие адреса в броузере...</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
 </resources>

@@ -397,7 +397,6 @@
   <string name="lt_deactivate_menu">Desativar</string>
   <string name="lt_price_of_one_btc_label">(a cada 1 BTC)</string>
   <string name="lt_confirm_title">Confirmar</string>
-  <string name="lt_confirm_cash_received">Você recebeu %1$d %2$s e está pronto para enviar os bitcoins para %3$s?</string>
   <string name="lt_confirm_stop">Você gostaria de interromper esse trade?</string>
   <string name="lt_confirm_abort">Como vocês dois aceitaram o negócio, as suas avaliações podem receber uma penalização.\nVocê gostaria de abortar esse trade?</string>
   <string name="lt_enter_location_tite">Insira a Localização</string>
@@ -423,8 +422,10 @@
   <string name="lt_email_please_verify_message">Nós enviamos um e-mail de verificação - clique no link fornecido para ativar o seu endereço de e-mail.</string>
   <string name="lt_set_email_title">Insira o endereço de e-mail</string>
   <string name="lt_change_payout_address">Mudar endereço de pagamento</string>
+  <string name="lt_warn_account_not_spandable">O endereço alvo selecionado (%s) não é gastável.\n\n Você precisa ter a chave priavada em um backup offline disponível ou você irá perder os bitcoins que você receber.</string>
   <string name="lt_mycelium_marketplace">Mercado Mycelium</string>
   <string name="lt_mycelium_marketplace_description">Encontre usuários Mycelium em sua região que comprem/vendam bitcoin.</string>
+  <string name="lt_price_source_not_available">não disponível!</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Você está usando uma chave privada com o seguinte endereço Bitcoin:</string>
   <string name="cs_address_description">Você escaneou um endereço Bitcoin. Você pode ver o seu saldo, mas não pode gastar dele.</string>
@@ -570,8 +571,6 @@
   <string name="sss_incompatible_shares_warning">As partes que você importou não são compatíveis.</string>
   <string name="sss_one_more_share_needed">Você precisa de mais uma parte</string>
   <string name="sss_unrecognized_share_warning">Conteúdo da parte não-reconhecido</string>
-  <string name="sss_more_shares_needed">Você precisa de mais %1$d partes.</string>
-  <string name="sss_share_number_scanned">Você escaneou a parte número %1$d.</string>
   <string name="lt_delete_account">Apagar Identidade de Trader</string>
   <string name="lt_delete_trade_history">Apagar esse Trade</string>
   <string name="lt_confirm_delete_history">Você quer apagar do seu telefone a informação desse trade?</string>
@@ -585,12 +584,35 @@
   <string name="toast_warning_low_fee">pode demorar mais para confirmar</string>
   <string name="account_number">Conta %d</string>
   <string name="account_found">%s encontrado</string>
+  <string name="ext_sig_initial_status">Por favor conecte o seu dispositivo</string>
+  <string name="ext_sig_scanning_status">Dispositivo ok - escaneando Contas</string>
   <string name="account_balance_sending_amount">(enviando %s)</string>
   <string name="trezor_cold_storage_header">Armazenamento Frio em Trezor</string>
+  <string name="select_ext_sig_account_to_spend_from">Selecionar uma conta para gastar</string>
+  <string name="ext_sig_show_passphrase">Mostrar frase secreta</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importar uma Conta-Trezor-HD</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="ext_sig_import_account_caption">Importar Conta</string>
+  <string name="ext_sig_select_account_to_import">Selecione uma conta para ser importada</string>
+  <string name="ext_sig_verify_transaction_on_device">Verifique e confirme a\ntransação no seu dispositivo</string>
+  <string name="ext_sig_amount">Quantia:</string>
+  <string name="ext_sig_to">Para:</string>
+  <string name="ext_sig_fee">Taxa:</string>
+  <string name="ext_sig_total">Total:</string>
+  <string name="ext_sig_please_plug_in">Por favor, conecte o seu dispostivo</string>
+  <string name="ext_sig_next_unused_account_info">Esta opção irá importar a próxima conta não utilizada deste dispositivo. Ela só irá aparecer em outras carteiras se você enviar bitcoins para ela.</string>
+  <string name="ext_sig_next_unused_account_button">Importar próxima conta não-utilizada&#8230;</string>
+  <string name="ext_sig_new_firmware">Um novo firmware está disponível&#8230;</string>
+  <string name="ext_sig_configuration_dialog_title">Configuração do dispositivo</string>
+  <string name="ext_sig_device_not_initialized">Dispositivo não inicializado. Você precisa usar um aplicativo externo para configurar o dispositivo antes do primeiro uso.</string>
   <string name="trezor_new_firmware_description">Um novo firmware está disponível para a Trezor.\nPor favor visite o site MyTrezor.com em um desktop para atualizar o seu trezor.</string>
+  <string name="ext_sig_unnamed">(sem nome)</string>
+  <string name="keepkey_cold_storage_header">Armazenamento Frio da KeepKey</string>
+  <string name="keepkey">KeepKey</string>
+  <string name="keepkey_name">KeepKey:</string>
+  <string name="keepkey_new_firmware_description">Um novo firmware da KeepKey está disponível. \nPor favor use a extensão do Chrome da KeepKey em um PC para atualizá-lo.</string>
+  <string name="keepkey_import_account">Importar uma conta-HD da KeepKey</string>
   <string name="ledger_initial_status">Por favor conecte ou encoste e segure a sua carteira Ledger</string>
   <string name="ledger_scanning_status">Carteira Ledger ok - escaneando Contas</string>
   <string name="ledger_cold_storage_header">Carteira Ledger</string>
@@ -790,6 +812,7 @@
   <string name="coinapult_set_mail_menu_item">Definir endereço de e-mail</string>
   <string name="coinapult_set_mail_failed">Erro ao definir endereço de e-mail. Por favor, verifique a digitação e certifique-se de que seu dispositivo está conectado à internet.</string>
   <string name="coinapult_setting_email">Enviando endereço de e-mail para a Coinapult&#8230;</string>
+  <string name="coinapult_set_mail_please_verify">O seu endereço de e-mail foi definido e você receberá um e-mail com um link de confirmação. Copie esse link e escolha \'verificar e-mail\' nas configurações de conta para colar o link e confirmar que o endereço está correto.</string>
   <string name="coinapult_verify_mail_menu_title">Verificar endereço de e-mail</string>
   <string name="coinapult_mail_verification">Verificar seu endereço de e-mail da Coinapult</string>
   <string name="coinapult_mail_verification_description">Por favor, cole o link de verificação do seu e-mail Coinapult na caixa de texto abaixo.</string>
@@ -840,6 +863,8 @@
   <string name="incoming_payment">"Pagamento recebido: "</string>
   <string name="warning_amount_does_not_match">Aviso: a quantia não corresponde!</string>
   <string name="mycelium_terms_of_use">Termos de Uso da Mycelium</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Comprar / Vender Bitcoin</string>
   <string name="gd_buy_sell">Glidera</string>
@@ -847,6 +872,7 @@
   <string name="gd_sell_tab">Vender</string>
   <string name="gd_transaction_history_tab">Histórico</string>
   <string name="gd_glidera">Glidera</string>
+  <string name="gd_delivery_date">Data de Entrega:</string>
   <string name="gd_date">Data:</string>
   <string name="gd_action">Ação:</string>
   <string name="gd_amount">Quantia:</string>
@@ -859,11 +885,15 @@
   <string name="gd_glidera_transaction_number">Glidera #:</string>
   <string name="gd_subtotal">Subtotal:</string>
   <string name="gd_transaction_receipt">Recibo da Transação</string>
+  <string name="gd_transaction_complete">Transação concluída, os detalhes estão abaixo.</string>
+  <string name="gd_transaction_reviewed">A transição está sendo examinada, os detalhes estão abaixo.</string>
+  <string name="gd_resend_code">Reenviar Código</string>
   <string name="gd_cancel">Cancelar</string>
   <string name="gd_continue">Continuar</string>
   <string name="gd_amount_to_buy">Quantidade para Comprar</string>
   <string name="gd_sell_bitcoin">Vender Bitcoin</string>
   <string name="gd_buy_bitcoin">Comprar Bitcoin</string>
+  <string name="gd_rate">Cotação:</string>
   <string name="gd_bitcoin">Bitcoin:</string>
   <string name="gd_summary">Resumo</string>
   <string name="gd_btc">BTC</string>
@@ -874,5 +904,7 @@
   <string name="gd_error_unable_to_connect">Não é possível conectar-se a glidera - %s</string>
   <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s por %2$s</string>
   <string name="error_details">Detalhes do erro</string>
+  <string name="glidera_setting_show_button_summary">Mostrar a opção de compra/venda do Glidera</string>
   <!-- GlideraService End -->
+  <string name="label_use_device_location">usar localização do dispositivo</string>
 </resources>

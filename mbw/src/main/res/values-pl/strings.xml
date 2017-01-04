@@ -313,7 +313,6 @@
   <string name="lt_deactivate_menu">zdezaktywowany </string>
   <string name="lt_price_of_one_btc_label">(za 1BTC)</string>
   <string name="lt_confirm_title">potwierdź</string>
-  <string name="lt_confirm_cash_received">czy otrzymałeś %1$d %2$s i czy chcesz wysłać bitcoiny do %3$s?</string>
   <string name="lt_confirm_stop">Chciałbyś zakończyć tę transkcję?</string>
   <string name="lt_enter_location_tite">Wpisz lokalizacje</string>
   <string name="lt_location_hint">Wpisz miasto lub adres</string>
@@ -348,6 +347,8 @@
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
   <!-- Cashila -->
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
 </resources>

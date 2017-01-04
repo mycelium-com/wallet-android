@@ -395,7 +395,6 @@
   <string name="lt_deactivate_menu">Deactiveren</string>
   <string name="lt_price_of_one_btc_label">(Per 1 BTC)</string>
   <string name="lt_confirm_title">Bevestig</string>
-  <string name="lt_confirm_cash_received">Ontving u %1$d %2$s en bent u klaar om de bitcoins verzenden naar %3$s?</string>
   <string name="lt_confirm_stop">Wenst u deze transactie te stoppen?\"</string>
   <string name="lt_confirm_abort">Omdat beide partijen deze transactie reeds hebben goedgekeurd is dit slecht voor uw beoordeling.\nWenst u deze transactie af te breken?\"</string>
   <string name="lt_enter_location_tite">Voer locatie in</string>
@@ -583,6 +582,8 @@
   <!--/ from libNetCipher -->
   <string name="hd_account_selector_no_account_found">Geen actieve accounts gevonden.</string>
   <!-- Cashila -->
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
 </resources>

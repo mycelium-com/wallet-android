@@ -397,7 +397,6 @@
   <string name="lt_deactivate_menu">Deaktivovat</string>
   <string name="lt_price_of_one_btc_label">(za 1 BTC)</string>
   <string name="lt_confirm_title">Potvrdit</string>
-  <string name="lt_confirm_cash_received">Obdrželi jste %1$d %2$s a jste připraveni k zaslání bitcoinů %3$s?</string>
   <string name="lt_confirm_stop">Chcete zastavit tento obchod?</string>
   <string name="lt_confirm_abort">Neboť jste oba nabídku přijali, vaše hodnocení může být penalizováno.\nChcete tento obchod zrušit?</string>
   <string name="lt_enter_location_tite">Zadejte umístění</string>
@@ -426,6 +425,8 @@
   <string name="lt_warn_account_not_spandable">Z vybrané cílové adresy (%s) nelze utrácet.\n\n Musíte mít přístupný soukromý klíč v offline záloze, jinak přijdete o přijímané prostředky.</string>
   <string name="lt_mycelium_marketplace">Tržiště Mycelium</string>
   <string name="lt_mycelium_marketplace_description">Najděte v okolí uživatele Mycelia, který kupuje/prodává Bitcoin.</string>
+  <string name="lt_missing_fx_rate">Zdroj aktuální ceny není k dispozici</string>
+  <string name="lt_price_source_not_available">není k dispozici!</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Používáte soukromý klíč s následující BTC adresou:</string>
   <string name="cs_address_description">Naskenovali jste BTC adresu. Můžete vidět její zůstatek, ale nemůžete z ní utrácet.</string>
@@ -572,8 +573,6 @@
   <string name="sss_incompatible_shares_warning">Díly, které jste importovali, nejsou kompatibilní.</string>
   <string name="sss_one_more_share_needed">Potřebujete ještě jeden díl</string>
   <string name="sss_unrecognized_share_warning">Nerozpoznaný obsah dílu</string>
-  <string name="sss_more_shares_needed">Potřebujete ještě %1$d díly.</string>
-  <string name="sss_share_number_scanned">Naskenovali jste díl č. %1$d.</string>
   <string name="lt_delete_account">Vymazat identitu obchodníka</string>
   <string name="lt_delete_trade_history">Vymazat tento obchod</string>
   <string name="lt_confirm_delete_history">Chcete z vašeho telefonu vymazat informace o tomto obchodu?</string>
@@ -598,6 +597,7 @@
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importovat HD účet z Trezoru</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="ext_sig_import_account_caption">Importovat účet</string>
   <string name="ext_sig_select_account_to_import">Zvolte účet k importu</string>
   <string name="ext_sig_verify_transaction_on_device">Zkontrolujte a potvrďte\ntransakci na vašem zařízení</string>
   <string name="ext_sig_amount">Částka:</string>
@@ -608,6 +608,9 @@
   <string name="ext_sig_next_unused_account_info">Tato možnost importuje z tohoto zařízení další nepoužitý účet. Zařízení ho zobrazí, pokud na něj pošlete nějaké peníze.</string>
   <string name="ext_sig_next_unused_account_button">Importovat další nepoužitý účet&#8230;</string>
   <string name="ext_sig_new_firmware">Je k dispozici nový firmware&#8230;</string>
+  <string name="ext_sig_configuration_dialog_title">Nastavení zařízení</string>
+  <string name="ext_sig_device_not_initialized">Zařízení není inicializované. Před prvním použitím musíte použít externí aplikaci k nastavení zařízení.</string>
+  <string name="external_app_needed">K aktualizaci zařízení potřebujete externí nástroj, klikněte na OK pro jeho spuštění.</string>
   <string name="trezor_new_firmware_description">Je k dispozici nový firmware pro Trezor.\nPro aktualizaci navštivte MyTrezor.com na vašem počítači.</string>
   <string name="ext_sig_unnamed">(bez názvu)</string>
   <string name="keepkey_cold_storage_header">KeepKey cold storage</string>
@@ -867,6 +870,8 @@
   <string name="incoming_payment">"Příchozí platba: "</string>
   <string name="warning_amount_does_not_match">Upozornění: částka neodpovídá!</string>
   <string name="mycelium_terms_of_use">Podmínky použití Mycelium</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Koupit/prodat BTC</string>
   <string name="gd_buy_sell">Glidera</string>
@@ -911,5 +916,11 @@
   <string name="error_details">Podrobnosti chyby</string>
   <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
   <string name="glidera_setting_show_button_summary">Zobrazit volbu Koupit/Prodat služby Glidera</string>
+  <string name="tap_to_toggle_through_other_currencies">Ťuknutím přepínejte dalšími měnami</string>
   <!-- GlideraService End -->
+  <string name="label_single_key_icon">jeden klíč</string>
+  <string name="label_blue_circle">modrý kruh</string>
+  <string name="label_type_it_in">napište to dovnitř</string>
+  <string name="label_use_device_location">použít polohu zařízení</string>
+  <string name="label_list_activity_indicator">mělo aktivitu</string>
 </resources>

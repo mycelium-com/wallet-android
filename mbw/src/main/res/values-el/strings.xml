@@ -393,7 +393,6 @@
   <string name="lt_deactivate_menu">Απενεργοποίηση</string>
   <string name="lt_price_of_one_btc_label">(Ανά 1 BTC)</string>
   <string name="lt_confirm_title">Επιβεβαίωση</string>
-  <string name="lt_confirm_cash_received">Έχετε λάβει %1$d %2$s και είστε έτοιμος να στείλετε τα bitcoins στο χρήστη %3$s;</string>
   <string name="lt_confirm_stop">Θέλετε να σταματήσετε αυτή τη συναλλαγή;</string>
   <string name="lt_confirm_abort">Καθώς και οι δύο πλευρές έχουν δεχθεί τη συναλλαγή, οι βαθμολογίες σας ενδέχεται να μειωθούν.\nΘέλετε να ακυρώσετε τη συναλλαγή;</string>
   <string name="lt_enter_location_tite">Εισαγάγετε Τοποθεσία</string>
@@ -560,8 +559,6 @@
   <string name="sss_incompatible_shares_warning">Τα μερίδια που έχετε εισαγάγει δεν είναι συμβατά μεταξύ τους.</string>
   <string name="sss_one_more_share_needed">Χρειάζεστε 1 ακόμη μερίδιο</string>
   <string name="sss_unrecognized_share_warning">Μη αναγνωρίσιμο περιεχόμενο μεριδίου</string>
-  <string name="sss_more_shares_needed">Χρειάζεστε %1$d ακόμη μερίδια.</string>
-  <string name="sss_share_number_scanned">Σαρώσατε το μερίδιο υπ\' αριθμ. %1$d.</string>
   <string name="lt_delete_account">Διαγραφή Χρήστη Τοπικών Συναλλαγών</string>
   <string name="lt_delete_trade_history">Διαγραφή Της Συναλλαγής</string>
   <string name="lt_confirm_delete_history">Θέλετε να διαγράψετε τις πληροφορίες αυτής της συναλλαγής από τη συσκευή σας;</string>
@@ -744,6 +741,8 @@
   <string name="coinapult_tos_question">Για να δημιουργήσετε λογαριαμό Coinapult θα πρέπει να συμφωνήσετε με τους Όρους και τις Προϋποθέσεις τους</string>
   <string name="coinapult_mail_question">Θέλετε να δώσετε διεύθυνση email;</string>
   <string name="copy">Αντιγραφή</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
 </resources>

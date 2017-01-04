@@ -395,7 +395,6 @@
   <string name="lt_deactivate_menu">無効にする</string>
   <string name="lt_price_of_one_btc_label">(1 BTCあたり)</string>
   <string name="lt_confirm_title">確認</string>
-  <string name="lt_confirm_cash_received">%1$d %2$sを受け取り、そして %3$sにビットコインを送れますか?</string>
   <string name="lt_confirm_stop">この取引を停止しますか？</string>
   <string name="lt_confirm_abort">両者が条件を受け入れたため、指定されたレーティングにペナルティがかかる可能性があります。\nこの取引を中止しますか？</string>
   <string name="lt_enter_location_tite">場所を入力</string>
@@ -561,8 +560,6 @@
   <string name="sss_incompatible_shares_warning">インポートしたシェアはマッチしません。</string>
   <string name="sss_one_more_share_needed">残り1シェアが必要です。</string>
   <string name="sss_unrecognized_share_warning">シェア内容が確認できませんでした</string>
-  <string name="sss_more_shares_needed">残り %1$d シェアが必要です。</string>
-  <string name="sss_share_number_scanned">シェアの %1$d 番をスキャンしました。</string>
   <string name="lt_delete_account">トレーダーのアカウントを削除します。</string>
   <string name="lt_delete_trade_history">この取引を削除します。</string>
   <string name="lt_confirm_delete_history">この取引の情報を端末から削除しますか。</string>
@@ -655,6 +652,8 @@
   <string name="label_cold_storage_external_signing">署名元：</string>
   <string name="spending_unconfirmed_warning">注意： 未承認のビットコインを送ろうとしています。</string>
   <string name="transaction_history_title">取引履歴</string>
+  <!-- Credit Card -->
+  <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
 </resources>
