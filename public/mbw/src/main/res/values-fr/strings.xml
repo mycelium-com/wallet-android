@@ -828,7 +828,7 @@
   <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
-  <string name="coinapult_add_locks_account">Ajouter un compte barré Coinapult</string>
+  <string name="coinapult_add_locks_account">Ajouter un compte verrouillé Coinapult</string>
   <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
   <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
   <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
