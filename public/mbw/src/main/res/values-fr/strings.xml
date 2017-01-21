@@ -75,7 +75,7 @@
   <string name="date">Date</string>
   <string name="inputs">Entrées</string>
   <string name="outputs">Sorties</string>
-  <string name="confirmed_in_block">En bloc #%1$d</string>
+  <string name="confirmed_in_block">Au bloc #%1$d</string>
   <string name="no">Non</string>
   <string name="yes">Oui</string>
   <string name="pref_category_pin">Paramètres de code d\'accès</string>
