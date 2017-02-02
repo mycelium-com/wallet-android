@@ -66,6 +66,8 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/DEPENDENCIES'
+        // bitcoinj brings in a native library for x86_64, which seems to confuse the playstore upload - just strip the file
+        exclude 'lib/x86_64/darwin/libscrypt.dylib'
     }
 
     compileOptions {
