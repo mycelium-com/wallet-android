@@ -333,6 +333,14 @@
                         android:layout_gravity="center"
                         android:textSize="13sp"
                         tools:text = "(x.xx mBTC, x.xx USD)"/>
+                <!-- satByte Fee -->
+                <TextView
+                    android:id="@+id/tvSatFeeValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="13sp"
+                    tools:text = "(xxx sat/byte)"/>
             </LinearLayout>
         </LinearLayout>
 

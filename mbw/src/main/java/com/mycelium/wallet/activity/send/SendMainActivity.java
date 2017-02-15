@@ -134,6 +134,7 @@ public class SendMainActivity extends Activity {
    @BindView(R.id.tvTransactionLabelTitle) TextView tvTransactionLabelTitle;
    @BindView(R.id.tvTransactionLabel) TextView tvTransactionLabel;
    @BindView(R.id.tvFeeValue) TextView tvFeeValue;
+   @BindView(R.id.tvSatFeeValue) TextView tvSatFeeValue;
    @BindView(R.id.btEnterAmount) ImageButton btEnterAmount;
    @BindView(R.id.btFeeLvl) Button btFeeLvl;
    @BindView(R.id.btClipboard) Button btClipboard;
@@ -866,6 +867,7 @@ public class SendMainActivity extends Activity {
          // Only show button for fee lvl, cannot calculate fee yet
          btFeeLvl.setText(_fee.getMinerFeeName(this));
          tvFeeValue.setVisibility(View.INVISIBLE);
+         tvSatFeeValue.setVisibility(View.INVISIBLE);
       } else {
          // Show fee fully calculated
          btFeeLvl.setVisibility(View.VISIBLE);
@@ -893,6 +895,10 @@ public class SendMainActivity extends Activity {
 
          tvFeeValue.setVisibility(View.VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
+         String satFeeString = (getFeePerKb().getLongValue()/1000L)+" sat/byte Fee to get into next "+_fee.getNBlocks() +" blocks";
+         tvSatFeeValue.setVisibility(View.VISIBLE);
+         tvSatFeeValue.setText("("+satFeeString+")");
+
       }
    }
 
