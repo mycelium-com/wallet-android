@@ -81,6 +81,8 @@ import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
@@ -895,7 +897,15 @@ public class SendMainActivity extends Activity {
 
          tvFeeValue.setVisibility(View.VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
-         String satFeeString = (getFeePerKb().getLongValue()/1000L)+" sat/byte Fee to get into next "+_fee.getNBlocks() +" blocks";
+         
+         int txSize = 0;
+         try {
+            txSize = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            invalidKeyCipher.printStackTrace();
+         }
+         String satFeeString = fee/txSize+" sat/Kbyte Fee to get into next "+_fee.getNBlocks() +" blocks";
+
          tvSatFeeValue.setVisibility(View.VISIBLE);
          tvSatFeeValue.setText("("+satFeeString+")");
 
