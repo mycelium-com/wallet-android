@@ -86,13 +86,22 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.currency.*;
+import com.mycelium.wapi.wallet.currency.BitcoinValue;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 import com.squareup.otto.Subscribe;
+
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SendMainActivity extends Activity {
    private static final int GET_AMOUNT_RESULT_CODE = 1;
@@ -897,17 +906,20 @@ public class SendMainActivity extends Activity {
 
          tvFeeValue.setVisibility(View.VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
-         
          int txSize = 0;
          try {
             txSize = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
          }
-         String satFeeString = fee/txSize+" sat/Kbyte Fee to get into next "+_fee.getNBlocks() +" blocks";
-
+         StringBuilder stringBuilder = new StringBuilder(fee / txSize + " sat/byte Fee to confirm within next ");
+         if (_fee.getNBlocks() == 1) {
+            stringBuilder.append("block");
+         } else {
+            stringBuilder.append(_fee.getNBlocks() + " blocks");
+         }
          tvSatFeeValue.setVisibility(View.VISIBLE);
-         tvSatFeeValue.setText("("+satFeeString+")");
+         tvSatFeeValue.setText("(" + stringBuilder.toString() + ")");
 
       }
    }
