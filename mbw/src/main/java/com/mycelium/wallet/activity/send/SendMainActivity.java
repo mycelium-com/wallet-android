@@ -878,7 +878,8 @@ public class SendMainActivity extends Activity {
          // Only show button for fee lvl, cannot calculate fee yet
          btFeeLvl.setText(_fee.getMinerFeeName(this));
          tvFeeValue.setVisibility(View.INVISIBLE);
-         tvSatFeeValue.setVisibility(View.INVISIBLE);
+         tvSatFeeValue.setText("approx. "+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/870L)+" sat/byte Fee to get confirmation within "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
+         tvSatFeeValue.setVisibility(View.VISIBLE);
       } else {
          // Show fee fully calculated
          btFeeLvl.setVisibility(View.VISIBLE);
@@ -912,15 +913,8 @@ public class SendMainActivity extends Activity {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
          }
-         StringBuilder stringBuilder = new StringBuilder(fee / txSize + " sat/byte Fee to confirm within next ");
-         if (_fee.getNBlocks() == 1) {
-            stringBuilder.append("block");
-         } else {
-            stringBuilder.append(_fee.getNBlocks() + " blocks");
-         }
+         tvSatFeeValue.setText("("+fee/ txSize+ " sat/byte Fee to confirm within next "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks())+")");
          tvSatFeeValue.setVisibility(View.VISIBLE);
-         tvSatFeeValue.setText("(" + stringBuilder.toString() + ")");
-
       }
    }
 
