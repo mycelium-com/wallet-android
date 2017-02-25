@@ -70,6 +70,8 @@ import com.squareup.otto.Subscribe;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class TransactionHistoryFragment extends Fragment {
 
    private MbwManager _mbwManager;
@@ -202,8 +204,7 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
-
-      public TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
+      TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
          super(context, transactions, TransactionHistoryFragment.this, _addressBook, false);
       }
 
@@ -218,7 +219,7 @@ public class TransactionHistoryFragment extends Fragment {
             return rowView;
          }
 
-         final TransactionSummary record = getItem(position);
+         final TransactionSummary record = checkNotNull(getItem(position));
          final ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 
          rowView.setOnClickListener(new View.OnClickListener() {
@@ -240,14 +241,15 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
-                     Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
-                     Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
-                     Preconditions.checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
-                     Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
+                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
+                     checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
+                     checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
+                     checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
+                     checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
+                     checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible((record.confirmations == 0) && !record.canCoinapult());
 
                      //deletion is disabled for now, to enable, replace false with record.confirmations == 0
-                     Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+                     checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
@@ -284,79 +286,87 @@ public class TransactionHistoryFragment extends Fragment {
                         }
                         return true;
                      }
-                     if (itemId == R.id.miShowDetails) {
-                        doShowDetails(record);
-                        finishActionMode();
-                        return true;
-                     } else if (itemId == R.id.miSetLabel) {
-                        setTransactionLabel(record);
-                        finishActionMode();
-                     } else if (itemId == R.id.miAddToAddressBook) {
-                        EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), record.destinationAddress.get(), "", addressLabelChanged);
-                     } else if (itemId == R.id.miCancelTransaction) {
-                        new AlertDialog.Builder(getActivity())
-                              .setTitle(_context.getString(R.string.remove_queued_transaction_title))
-                              .setMessage(_context.getString(R.string.remove_queued_transaction))
-                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog, int which) {
-                                    boolean okay = _mbwManager.getSelectedAccount().cancelQueuedTransaction(record.txid);
-                                    dialog.dismiss();
-                                    updateTransactionHistory();
-                                    if (okay) {
-                                       Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
-                                    } else {
-                                       new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
-                                    }
-                                 }
-                              })
-                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                 }
-                              })
-                              .create().show();
-                     } else if (itemId == R.id.miDeleteUnconfirmedTransaction) {
-                        new AlertDialog.Builder(getActivity())
-                              .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
-                              .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
-                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog, int which) {
-                                    _mbwManager.getSelectedAccount().deleteTransaction(record.txid);
-                                    dialog.dismiss();
-                                    updateTransactionHistory();
-                                 }
-                              })
-                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                 }
-                              })
-                              .create().show();
-                     } else if (itemId == R.id.miRebroadcastTransaction) {
-                        new AlertDialog.Builder(getActivity())
-                              .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
-                              .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
-                              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog, int which) {
-                                    boolean success = BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(), record.txid);
-                                    if (!success) {
-                                       Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_successfull));
-                                    }
-                                    dialog.dismiss();
-                                 }
-                              })
-                              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                 }
-                              })
-                              .create().show();
+                     switch (itemId) {
+                        case R.id.miShowDetails:
+                           doShowDetails(record);
+                           finishActionMode();
+                           return true;
+                        case R.id.miSetLabel:
+                           setTransactionLabel(record);
+                           finishActionMode();
+                           break;
+                        case R.id.miAddToAddressBook:
+                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), record.destinationAddress.get(), "", addressLabelChanged);
+                           break;
+                        case R.id.miCancelTransaction:
+                           new AlertDialog.Builder(getActivity())
+                                   .setTitle(_context.getString(R.string.remove_queued_transaction_title))
+                                   .setMessage(_context.getString(R.string.remove_queued_transaction))
+                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         boolean okay = _mbwManager.getSelectedAccount().cancelQueuedTransaction(record.txid);
+                                         dialog.dismiss();
+                                         updateTransactionHistory();
+                                         if (okay) {
+                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
+                                         } else {
+                                            new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
+                                         }
+                                      }
+                                   })
+                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .create().show();
+                           break;
+                        case R.id.miDeleteUnconfirmedTransaction:
+                           new AlertDialog.Builder(getActivity())
+                                   .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
+                                   .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
+                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         _mbwManager.getSelectedAccount().deleteTransaction(record.txid);
+                                         dialog.dismiss();
+                                         updateTransactionHistory();
+                                      }
+                                   })
+                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .create().show();
+                           break;
+                        case R.id.miRebroadcastTransaction:
+                           new AlertDialog.Builder(getActivity())
+                                   .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
+                                   .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
+                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         boolean success = BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(), record.txid);
+                                         if (!success) {
+                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_successfull));
+                                         }
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .create().show();
+                           break;
+                        case R.id.miBumpFee:
+                           break;
                      }
                      return false;
                   }
@@ -402,7 +412,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       private Wrapper(Context context, List<TransactionSummary> transactions) {
          super(new TransactionHistoryAdapter(context, transactions));
-         _toAdd = new ArrayList<TransactionSummary>();
+         _toAdd = new ArrayList<>();
          lastOffset = 0;
          chunkSize = 20;
       }

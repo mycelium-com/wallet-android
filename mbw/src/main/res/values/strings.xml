@@ -830,6 +830,7 @@
     <string name="menu_item_cancel_transaction">Cancel transaction</string>
     <string name="menu_item_rebroadcast_transaction">Rebroadcast transaction</string>
     <string name="menu_item_delete_unconfirmed_transaction">Delete unconfirmed transaction</string>
+    <string name="menu_item_bump_mining_fee">Bump Fee (CPFP)</string>
     <string name="delete_unconfirmed_transaction_title">Delete unconfirmed transaction</string>
     <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
     <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
