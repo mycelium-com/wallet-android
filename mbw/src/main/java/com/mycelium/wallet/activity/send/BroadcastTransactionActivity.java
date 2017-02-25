@@ -76,7 +76,9 @@ public class BroadcastTransactionActivity extends Activity {
 
    public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
       TransactionEx tx = account.getTransaction(txid);
-      if (tx == null) return false;
+      if (tx == null) {
+         return false;
+      }
       callMe(currentActivity, account.getId(), false, TransactionEx.toTransaction(tx), null, 0);
       return  true;
    }
@@ -97,11 +99,6 @@ public class BroadcastTransactionActivity extends Activity {
       //May be null
       _transactionLabel = getIntent().getStringExtra("transactionLabel");
 
-   }
-
-   @Override
-   protected void onStart() {
-      super.onStart();
    }
 
    @Override

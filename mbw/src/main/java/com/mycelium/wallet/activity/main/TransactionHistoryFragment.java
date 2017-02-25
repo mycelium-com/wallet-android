@@ -50,6 +50,7 @@ import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -366,6 +367,24 @@ public class TransactionHistoryFragment extends Fragment {
                                    .create().show();
                            break;
                         case R.id.miBumpFee:
+                           new AlertDialog.Builder(getActivity())
+                                   .setTitle(_context.getString(R.string.bump_fee_title))
+                                   .setMessage(_context.getString(R.string.description_bump_fee))
+                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), record.txid, false);
+                                         startActivity(intent);
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .create().show();
                            break;
                      }
                      return false;

@@ -64,6 +64,7 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.*;
@@ -86,22 +87,13 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
+import com.mycelium.wapi.wallet.currency.*;
 import com.squareup.otto.Subscribe;
-
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.UUID;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class SendMainActivity extends Activity {
    private static final int GET_AMOUNT_RESULT_CODE = 1;
@@ -117,6 +109,7 @@ public class SendMainActivity extends Activity {
 
    public static final String ACCOUNT = "account";
    private static final String AMOUNT = "amount";
+   private static final String TX_TO_SPEND_FROM = "txToSpendFrom";
    public static final String IS_COLD_STORAGE = "isColdStorage";
    public static final String RECEIVING_ADDRESS = "receivingAddress";
    public static final String HD_KEY = "hdKey";
@@ -224,12 +217,17 @@ public class SendMainActivity extends Activity {
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra(ACCOUNT, account);
-      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
-      intent.putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
+      return new Intent(currentActivity, SendMainActivity.class)
+              .putExtra(ACCOUNT, account)
+              .putExtra(IS_COLD_STORAGE, isColdStorage)
+              .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
+   }
 
-      return intent;
+   public static Intent getIntent(Activity currentActivity, UUID account, Sha256Hash mustIncludeTX, boolean isColdStorage) {
+      return new Intent(currentActivity, SendMainActivity.class)
+              .putExtra(ACCOUNT, account)
+              .putExtra(IS_COLD_STORAGE, isColdStorage)
+              .putExtra(TX_TO_SPEND_FROM, mustIncludeTX);
    }
 
    private boolean isCoinapult() {
