@@ -59,10 +59,7 @@ import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.paymentrequest.PaymentRequestException;
@@ -82,6 +79,9 @@ import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -92,8 +92,11 @@ import com.squareup.otto.Subscribe;
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
+
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
+import static android.widget.Toast.makeText;
 
 public class SendMainActivity extends Activity {
    private static final int GET_AMOUNT_RESULT_CODE = 1;
@@ -176,57 +179,45 @@ public class SendMainActivity extends Activity {
 
 
    public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
-      return getIntent(currentActivity, account, null, null, isColdStorage);
+      return new Intent(currentActivity, SendMainActivity.class)
+              .putExtra(ACCOUNT, account)
+              .putExtra(IS_COLD_STORAGE, isColdStorage);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account,
                                   Long amountToSend, Address receivingAddress, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra(ACCOUNT, account);
-      intent.putExtra(AMOUNT, ExactBitcoinValue.from(amountToSend));
-      intent.putExtra(RECEIVING_ADDRESS, receivingAddress);
-      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
-      return intent;
+      return getIntent(currentActivity, account, isColdStorage)
+              .putExtra(AMOUNT, ExactBitcoinValue.from(amountToSend))
+              .putExtra(RECEIVING_ADDRESS, receivingAddress);
    }
 
    public static Intent getSepaIntent(Activity currentActivity, UUID account,
                                       BillPay sepaPayment, String txLabel, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra(ACCOUNT, account);
-      intent.putExtra(AMOUNT, ExactBitcoinValue.from(sepaPayment.details.amountToDeposit));
-      intent.putExtra(RECEIVING_ADDRESS, sepaPayment.details.address);
-      intent.putExtra(TRANSACTION_LABEL, txLabel);
-      intent.putExtra(SEPA_PAYMENT, sepaPayment);
-      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
-      return intent;
+      return getIntent(currentActivity, account, isColdStorage)
+              .putExtra(AMOUNT, ExactBitcoinValue.from(sepaPayment.details.amountToDeposit))
+              .putExtra(RECEIVING_ADDRESS, sepaPayment.details.address)
+              .putExtra(TRANSACTION_LABEL, txLabel)
+              .putExtra(SEPA_PAYMENT, sepaPayment);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, HdKeyNode hdKey) {
-      Intent intent = new Intent(currentActivity, SendMainActivity.class);
-      intent.putExtra(ACCOUNT, account);
-      intent.putExtra(HD_KEY, hdKey);
-      intent.putExtra(IS_COLD_STORAGE, false);
-      return intent;
+      return getIntent(currentActivity, account, false)
+              .putExtra(HD_KEY, hdKey);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-      Intent intent = getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage);
-      intent.putExtra(TRANSACTION_LABEL, uri.label);
-      intent.putExtra(BITCOIN_URI, uri);
-      return intent;
+      return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
+              .putExtra(TRANSACTION_LABEL, uri.label)
+              .putExtra(BITCOIN_URI, uri);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
-      return new Intent(currentActivity, SendMainActivity.class)
-              .putExtra(ACCOUNT, account)
-              .putExtra(IS_COLD_STORAGE, isColdStorage)
+      return getIntent(currentActivity, account, isColdStorage)
               .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, Sha256Hash mustIncludeTX, boolean isColdStorage) {
-      return new Intent(currentActivity, SendMainActivity.class)
-              .putExtra(ACCOUNT, account)
-              .putExtra(IS_COLD_STORAGE, isColdStorage)
+      return getIntent(currentActivity, account, isColdStorage)
               .putExtra(TX_TO_SPEND_FROM, mustIncludeTX);
    }
 
@@ -411,12 +402,12 @@ public class SendMainActivity extends Activity {
 
    @OnClick(R.id.btScan)
    void onClickScan() {
-      ScanActivity.callMe(SendMainActivity.this, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrUriOrKeynode());
+      ScanActivity.callMe(this, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrUriOrKeynode());
    }
 
    @OnClick(R.id.btSepaTransfer)
    void onClickSepaPayment() {
-      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this, Feature.CASHILA, true, new Runnable() {
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
          @Override
          public void run() {
             startActivity(CashilaPaymentsActivity.getIntent(SendMainActivity.this));
@@ -427,13 +418,13 @@ public class SendMainActivity extends Activity {
 
    @OnClick(R.id.btAddressBook)
    void onClickAddressBook() {
-      Intent intent = new Intent(SendMainActivity.this, GetFromAddressBookActivity.class);
+      Intent intent = new Intent(this, GetFromAddressBookActivity.class);
       startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
    }
 
    @OnClick(R.id.btManualEntry)
    void onClickManualEntry() {
-      Intent intent = new Intent(SendMainActivity.this, ManualAddressEntry.class);
+      Intent intent = new Intent(this, ManualAddressEntry.class);
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 
@@ -441,8 +432,7 @@ public class SendMainActivity extends Activity {
    void onClickClipboard() {
       BitcoinUriWithAddress uri = getUriFromClipboard();
       if (uri != null) {
-         Toast.makeText(SendMainActivity.this, getResources().getString(R.string.using_address_from_clipboard),
-               Toast.LENGTH_SHORT).show();
+         makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
          _receivingAddress = uri.address;
          if (uri.amount != null) {
             _amountToSend = ExactBitcoinValue.from(uri.amount);
@@ -459,7 +449,7 @@ public class SendMainActivity extends Activity {
          // if no amount is set so far, use an unknown amount but in the current accounts currency
          presetAmount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
       }
-      GetAmountActivity.callMe(SendMainActivity.this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getFeePerKb().getLongValue(), _isColdStorage);
+      GetAmountActivity.callMe(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getFeePerKb().getLongValue(), _isColdStorage);
    }
 
    @OnClick(R.id.btSend)
@@ -470,12 +460,12 @@ public class SendMainActivity extends Activity {
          // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
          signTransaction();
       } else {
-         _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
+         _mbwManager.runPinProtectedFunction(this, pinProtectedSignAndSend);
       }
    }
 
    private void sendCoinapultTransaction() {
-      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this,
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this,
             Feature.COINAPULT_MAKE_OUTGOING_TX, true, new Runnable() {
                @Override
                public void run() {
@@ -503,7 +493,7 @@ public class SendMainActivity extends Activity {
                                  if (aBoolean) {
                                     SendMainActivity.this.finish();
                                  } else {
-                                    Toast.makeText(SendMainActivity.this, R.string.coinapult_failed_to_broadcast, Toast.LENGTH_SHORT).show();
+                                    makeText(SendMainActivity.this, R.string.coinapult_failed_to_broadcast, LENGTH_SHORT).show();
                                     updateUi();
                                  }
                               }
@@ -517,7 +507,7 @@ public class SendMainActivity extends Activity {
 
    @OnClick(R.id.tvUnconfirmedWarning)
    void onClickUnconfirmedWarning() {
-      new AlertDialog.Builder(SendMainActivity.this)
+      new AlertDialog.Builder(this)
             .setTitle(getString(R.string.spending_unconfirmed_title))
             .setMessage(getString(R.string.spending_unconfirmed_description))
             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -536,7 +526,7 @@ public class SendMainActivity extends Activity {
       updateUi();
       //warn user if minimum fee is selected
       if (_fee == MinerFee.ECONOMIC || _fee == MinerFee.LOWPRIO) {
-         Toast.makeText(SendMainActivity.this, getString(R.string.toast_warning_low_fee), Toast.LENGTH_SHORT).show();
+         makeText(this, getString(R.string.toast_warning_low_fee), LENGTH_SHORT).show();
       }
    }
 
@@ -589,13 +579,13 @@ public class SendMainActivity extends Activity {
             return TransactionStatus.MissingArguments;
          }
       } catch (InsufficientFundsException e) {
-         Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
+         makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
          return TransactionStatus.InsufficientFunds;
       } catch (OutputTooSmallException e1) {
-         Toast.makeText(this, getResources().getString(R.string.amount_too_small), Toast.LENGTH_LONG).show();
+         makeText(this, getResources().getString(R.string.amount_too_small), LENGTH_LONG).show();
          return TransactionStatus.OutputTooSmall;
       } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         Toast.makeText(this, getResources().getString(R.string.unable_to_build_tx), Toast.LENGTH_LONG).show();
+         makeText(this, getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
          // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
          // debug it
          _mbwManager.reportIgnoredException("MinerFeeException", e);
@@ -646,7 +636,7 @@ public class SendMainActivity extends Activity {
                return TransactionStatus.OK;
             }
          } catch (InsufficientFundsException e) {
-            Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
+            makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
             return TransactionStatus.InsufficientFunds;
          }
       } else {
@@ -949,8 +939,7 @@ public class SendMainActivity extends Activity {
       // if we have a payment request, check if it is expired
       if (_paymentRequestHandler != null) {
          if (_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
-            Toast.makeText(SendMainActivity.this, getString(R.string.payment_request_not_sent_expired),
-                  Toast.LENGTH_LONG).show();
+            makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
             return;
          }
       }
@@ -975,7 +964,7 @@ public class SendMainActivity extends Activity {
             if (intent != null) {
                String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
                if (error != null) {
-                  Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                  makeText(this, error, LENGTH_LONG).show();
                }
             }
          } else {
@@ -999,7 +988,7 @@ public class SendMainActivity extends Activity {
                if (uri.amount != null && uri.amount > 0) {
                   //we set the amount to the one contained in the qr code, even if another one was entered previously
                   if (!CurrencyValue.isNullOrZero(_amountToSend)) {
-                     Toast.makeText(this, R.string.amount_changed, Toast.LENGTH_LONG).show();
+                     makeText(this, R.string.amount_changed, LENGTH_LONG).show();
                   }
                   setAmountToSend(ExactBitcoinValue.from(uri.amount));
                }
@@ -1065,8 +1054,7 @@ public class SendMainActivity extends Activity {
                   // it only if we get a ACK from him (in paymentRequestAck)
                   _paymentRequestHandler.sendResponse(_signedTransaction, _account.getReceivingAddress().get());
                } else {
-                  Toast.makeText(SendMainActivity.this, getString(R.string.payment_request_not_sent_expired),
-                        Toast.LENGTH_LONG).show();
+                  makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
 
                }
             } else {
@@ -1136,7 +1124,6 @@ public class SendMainActivity extends Activity {
             String.format(getString(R.string.payment_request_error_while_getting_ack), ex.getMessage()));
    }
 
-
    @Subscribe
    public void paymentRequestAck(PaymentACK paymentACK) {
       if (paymentACK != null) {
@@ -1172,6 +1159,6 @@ public class SendMainActivity extends Activity {
       if (_progress != null) {
          _progress.dismiss();
       }
-      Toast.makeText(this, R.string.warning_sync_failed_reusing_first , Toast.LENGTH_LONG).show();
+      makeText(this, R.string.warning_sync_failed_reusing_first , LENGTH_LONG).show();
    }
 }

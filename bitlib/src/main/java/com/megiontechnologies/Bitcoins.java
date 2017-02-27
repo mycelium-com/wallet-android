@@ -86,8 +86,7 @@ public final class Bitcoins implements Serializable {
    private static long toLongExact(double origValue) {
       double satoshis = origValue * SATOSHIS_PER_BITCOIN; // possible loss of
                                                           // precision here
-      long longSatoshis = Math.round(satoshis);
-      return longSatoshis;
+      return Math.round(satoshis);
    }
 
    /**
@@ -160,10 +159,7 @@ public final class Bitcoins implements Serializable {
 
       Bitcoins bitcoins = (Bitcoins) o;
 
-      if (satoshis != bitcoins.satoshis)
-         return false;
-
-      return true;
+      return satoshis == bitcoins.satoshis;
    }
 
    public BigInteger toBigInteger() {
@@ -199,5 +195,4 @@ public final class Bitcoins implements Serializable {
       final long shifted = Math.round(num * magnitude);
       return (long) (shifted / magnitude);
    }
-
 }

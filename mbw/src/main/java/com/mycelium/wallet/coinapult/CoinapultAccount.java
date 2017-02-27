@@ -48,6 +48,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -541,17 +542,17 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
 
 
    @Override
-   public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
+   public UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
       throw new IllegalStateException("not supported, use prepareCoinaputTX instead");
    }
 
    @Override
-   public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
+   public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       return null;
    }
 
    @Override
-   public com.mrd.bitlib.model.Transaction signTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, KeyCipher
+   public com.mrd.bitlib.model.Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher
          cipher) throws KeyCipher.InvalidKeyCipher {
       return null;
    }
@@ -687,7 +688,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
    @Override
-   public StandardTransactionBuilder.UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
+   public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
       return null;
    }
 

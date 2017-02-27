@@ -22,6 +22,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
@@ -52,6 +53,11 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+
+import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
+import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
+import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
@@ -845,7 +851,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    @Override
    public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
-      createUnsignedTransaction(Collections.singletonList(receiver), kbMinerFee);
+      createUnsignedTransaction(singletonList(receiver), kbMinerFee);
    }
 
    @Override
@@ -1363,7 +1369,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
          PopBuilder popBuilder = new PopBuilder(_network);
 
-         return popBuilder.createUnsignedPop(Collections.singletonList(popOutput), funding,
+         return popBuilder.createUnsignedPop(singletonList(popOutput), funding,
                new PublicKeyRing(), _network);
       } catch (TransactionParsingException e) {
          throw new RuntimeException("Cannot parse transaction: " + e.getMessage(), e);

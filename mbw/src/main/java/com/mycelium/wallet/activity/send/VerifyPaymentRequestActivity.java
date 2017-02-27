@@ -66,7 +66,6 @@ import org.ocpsoft.prettytime.units.Millisecond;
 import java.util.*;
 
 public class VerifyPaymentRequestActivity extends ActionBarActivity {
-
    private static final String CALLBACK_URI = "payment_uri";
    private static final String RAW_PR = "raw_pr";
    private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
@@ -100,15 +99,13 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
 
 
    public static Intent getIntent(Activity currentActivity, BitcoinUri uri) {
-      Intent intent = new Intent(currentActivity, VerifyPaymentRequestActivity.class);
-      intent.putExtra(CALLBACK_URI, uri);
-      return intent;
+      return new Intent(currentActivity, VerifyPaymentRequestActivity.class)
+              .putExtra(CALLBACK_URI, uri);
    }
 
    public static Intent getIntent(Activity currentActivity, byte[] rawPaymentRequest) {
-      Intent intent = new Intent(currentActivity, VerifyPaymentRequestActivity.class);
-      intent.putExtra(RAW_PR, rawPaymentRequest);
-      return intent;
+      return new Intent(currentActivity, VerifyPaymentRequestActivity.class)
+              .putExtra(RAW_PR, rawPaymentRequest);
    }
 
    @Override
@@ -120,7 +117,7 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       mbw.getEventBus().register(this);
 
       // only popup the keyboard if the user taps the textbox
-      this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
       BitcoinUri bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(CALLBACK_URI);
       byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
@@ -130,7 +127,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
             (bitcoinUri !=null && !Strings.isNullOrEmpty(bitcoinUri.callbackURL))
             || rawPaymentRequest !=null
       );
-
 
       btAccept.setEnabled(false);
 
@@ -165,7 +161,6 @@ public class VerifyPaymentRequestActivity extends ActionBarActivity {
       }
 
       progress = ProgressDialog.show(this, "", progressMsg, true);
-
 
       if (rawPaymentRequest != null) {
          requestHandler.parseRawPaymentRequest(rawPaymentRequest);

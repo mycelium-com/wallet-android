@@ -36,13 +36,15 @@ import java.io.Serializable;
 import java.util.*;
 
 public class StandardTransactionBuilder {
-
    // 1000sat per 1000Bytes, from https://github.com/bitcoin/bitcoin/blob/849a7e645323062878604589df97a1cd75517eb1/src/main.cpp#L78
    private static final long MIN_RELAY_FEE = 1000;
    // hash size 32 + output index size 4 + max. script size 140 + ? 1 + ? 4
    private static final int MAX_INPUT_SIZE = 32 + 4 + 140 + 1 + 4;
    // output value 8B + script length 1B + script 25B (always)
    private static final int OUTPUT_SIZE = 8 + 1 + 25;
+
+   private NetworkParameters _network;
+   private List<TransactionOutput> _outputs;
 
    public static class InsufficientFundsException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
@@ -56,7 +58,6 @@ public class StandardTransactionBuilder {
          this.sending = sending;
          this.fee = fee;
       }
-
    }
 
    public static class OutputTooSmallException extends Exception {
@@ -160,7 +161,6 @@ public class StandardTransactionBuilder {
             inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
 
             _signingRequests[i] = new SigningRequest(publicKey, hash);
-
          }
       }
 
@@ -228,9 +228,6 @@ public class StandardTransactionBuilder {
 
    }
 
-   private NetworkParameters _network;
-   private List<TransactionOutput> _outputs;
-
    public StandardTransactionBuilder(NetworkParameters network) {
       _network = network;
       _outputs = new LinkedList<TransactionOutput>();
@@ -250,7 +247,7 @@ public class StandardTransactionBuilder {
    public void addOutputs(OutputList outputs) throws OutputTooSmallException {
       for (TransactionOutput output : outputs) {
          if (output.value > 0) {
-            this.addOutput(output);
+            addOutput(output);
          }
       }
    }
@@ -284,7 +281,7 @@ public class StandardTransactionBuilder {
     * Create an unsigned transaction and automatically calculate the miner fee.
     * <p>
     * If null is specified as the change address the 'richest' address that is part of the funding is selected as the
-    * change address. This way the change always goes to the address contributing most, and the change wil lbe less
+    * change address. This way the change always goes to the address contributing most, and the change will be less
     * than the contribution.
     *
     * @param inventory     The list of unspent transaction outputs that can be used as
@@ -327,7 +324,7 @@ public class StandardTransactionBuilder {
       long change = found - toSend;
 
       // Get a copy of all outputs
-      List<TransactionOutput> outputs = new LinkedList<TransactionOutput>(_outputs);
+      List<TransactionOutput> outputs = new LinkedList<>(_outputs);
 
       if (change > 0) {
          // We have more funds than needed, add an output to our change address
@@ -564,6 +561,5 @@ public class StandardTransactionBuilder {
       public long getOutputSum() {
          return outputSum;
       }
-
    }
 }
