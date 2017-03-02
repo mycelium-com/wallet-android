@@ -891,16 +891,19 @@ public class SendMainActivity extends Activity {
             // Show approximate fee in fiat
             feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
          }
-
          tvFeeValue.setVisibility(View.VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
-         int txSize = 0;
-         try {
-            txSize = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            invalidKeyCipher.printStackTrace();
+         if (_account.isDerivedFromInternalMasterseed()) {
+            int txSize = 0;
+            try {
+               txSize = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+               invalidKeyCipher.printStackTrace();
+            }
+            tvSatFeeValue.setText("(" + fee / txSize + " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()) + ")");
+         }else {
+            tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/Byte, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
          }
-         tvSatFeeValue.setText("("+fee/ txSize+ " sat/byte Fee, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks())+")");
       }
    }
 
