@@ -171,7 +171,7 @@ public class BalanceFragment extends Fragment {
          TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
          tvBtcRate.setVisibility(View.VISIBLE);
          String currency = _mbwManager.getFiatCurrency();
-         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice);
+         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice).replace(" ",",");
          tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
       }
    }
