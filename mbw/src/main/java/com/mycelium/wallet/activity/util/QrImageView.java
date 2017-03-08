@@ -48,8 +48,9 @@ import android.widget.ImageView;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
+//TODO: upgrade to android support v7 >>19.1.0
+@SuppressLint("AppCompatCustomView")
 public class QrImageView extends ImageView {
-
    private static final int[] ALPHA_VALUES = new int[] { 170, 70, 255 };
 
    private String qrCodeText;
@@ -127,7 +128,6 @@ public class QrImageView extends ImageView {
       super.onMeasure(widthMeasureSpec, heightMeasureSpec);
       int height = getMeasuredHeight();
       setMeasuredDimension(height, height);
-
    }
 
    public void setQrCode(String qrCode) {

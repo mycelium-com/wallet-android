@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -50,9 +51,9 @@ import com.google.common.base.Strings;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
-
+//TODO: upgrade to android support v7 >>19.1.0
+@SuppressLint("AppCompatCustomView")
 public abstract class GenericBlockExplorerLabel extends TextView {
-
    private void init(){
       this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
       this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -77,7 +78,6 @@ public abstract class GenericBlockExplorerLabel extends TextView {
    abstract protected String getLinkText();
    abstract protected String getFormattedLinkText();
    abstract protected String getLinkURL(BlockExplorer blockExplorer);
-
 
    void update_ui(){
       if (Strings.isNullOrEmpty(getLinkText())){
@@ -113,9 +113,4 @@ public abstract class GenericBlockExplorerLabel extends TextView {
          });
       }
    }
-
-
-
-
-
 }

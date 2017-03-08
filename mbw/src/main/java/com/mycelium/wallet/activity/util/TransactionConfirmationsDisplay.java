@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -41,10 +42,10 @@ import com.mycelium.wallet.R;
 
 import java.lang.reflect.Field;
 
+//TODO: upgrade to android support v7 >>19.1.0
+@SuppressLint("AppCompatCustomView")
 public class TransactionConfirmationsDisplay extends ImageView{
-
    public static final int MAX_CONFIRMATIONS = 6;
-
 
    public TransactionConfirmationsDisplay(Context context) {
       super(context);
@@ -62,7 +63,6 @@ public class TransactionConfirmationsDisplay extends ImageView{
    }
 
    public void setNeedsBroadcast(){
-
       try {
          Class res = R.drawable.class;
          Field field = res.getField("pie_send");

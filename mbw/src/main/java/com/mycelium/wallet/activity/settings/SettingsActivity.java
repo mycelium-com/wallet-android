@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.settings;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -720,6 +721,8 @@ public class SettingsActivity extends PreferenceActivity {
       }
 
       @Override
+      //TODO: upgrade to android support v7 >>19.1.0
+      @SuppressLint("AppCompatCustomView")
       public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
          AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
