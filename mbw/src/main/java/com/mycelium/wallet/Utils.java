@@ -65,6 +65,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -93,18 +94,25 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+
 import org.ocpsoft.prettytime.PrettyTime;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
+
+import javax.annotation.Nullable;
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -117,7 +125,7 @@ public class Utils {
       FIAT_FORMAT.setMinimumFractionDigits(2);
       DecimalFormatSymbols symbols = FIAT_FORMAT.getDecimalFormatSymbols();
       symbols.setDecimalSeparator('.');
-      symbols.setGroupingSeparator(' ');
+      symbols.setGroupingSeparator(',');
       FIAT_FORMAT.setDecimalFormatSymbols(symbols);
    }
 
