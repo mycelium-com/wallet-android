@@ -894,13 +894,13 @@ public class SendMainActivity extends Activity {
          tvFeeValue.setVisibility(View.VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
          if (_account.isDerivedFromInternalMasterseed()) {
-            int txSize = 0;
+            Transaction transaction = null;
             try {
-               txSize = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
+               transaction = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                invalidKeyCipher.printStackTrace();
             }
-            tvSatFeeValue.setText("(" + fee / txSize + " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()) + ")");
+            tvSatFeeValue.setText("("+ transaction.inputs.length +" Outputs," + fee / transaction.getTxRawSize()+ " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()) + ")");
          }else {
             tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/Byte, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
          }
