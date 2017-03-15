@@ -39,7 +39,7 @@ public class StandardTransactionBuilder {
    // 1000sat per 1000Bytes, from https://github.com/bitcoin/bitcoin/blob/849a7e645323062878604589df97a1cd75517eb1/src/main.cpp#L78
    private static final long MIN_RELAY_FEE = 1000;
    // hash size 32 + output index size 4 + max. script size 140 + ? 1 + ? 4
-   private static final int MAX_INPUT_SIZE = 32 + 4 + 140 + 1 + 4;
+   private static final int MAX_INPUT_SIZE = 32 + 4 + 140 + 1 + 4 - 32; // We remove 32 bytes as addresses come from compressed keys.
    // output value 8B + script length 1B + script 25B (always)
    private static final int OUTPUT_SIZE = 8 + 1 + 25;
 
@@ -303,45 +303,61 @@ public class StandardTransactionBuilder {
       long fee = oldestOutputsFirst.getFee();
       long outputSum = oldestOutputsFirst.getOutputSum();
       List<UnspentTransactionOutput> funding = pruneRedundantOutputs(oldestOutputsFirst.getAllNeededFundings(), fee + outputSum);
-      // the number of inputs might have changed - recalculate the fee
-      fee = estimateFee(funding.size(), _outputs.size() + 1, minerFeeToUse);
 
-      long found = 0;
-      for (UnspentTransactionOutput output : funding) {
+
+     List<TransactionOutput> outputs = null;
+     boolean outputSizeAndEstimateMatch = false;
+     boolean needChangeOutputInEstimation = false;
+     while (!outputSizeAndEstimateMatch) {
+       // the number of inputs might have changed - recalculate the fee
+       int outputsSizeInFeeEstimation = _outputs.size();
+       if(needChangeOutputInEstimation) {
+         outputsSizeInFeeEstimation += 1;
+       }
+       fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, minerFeeToUse);
+
+       long found = 0;
+       for (UnspentTransactionOutput output : funding) {
          found += output.value;
-      }
-      // We have fund all the funds we need
-      long toSend = fee + outputSum;
+       }
+       // We have fund all the funds we need
+       long toSend = fee + outputSum;
 
-
-      if (changeAddress == null) {
+       if (changeAddress == null) {
          // If no change address s specified, get the richest address from the
          // funding set
          changeAddress = extractRichest(funding, network);
-      }
+       }
 
-      // We have our funding, calculate change
-      long change = found - toSend;
+       // We have our funding, calculate change
+       long change = found - toSend;
 
-      // Get a copy of all outputs
-      List<TransactionOutput> outputs = new LinkedList<>(_outputs);
+       // Get a copy of all outputs
+       outputs = new LinkedList<>(_outputs);
 
-      if (change > 0) {
+       if (change > 0 && change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
          // We have more funds than needed, add an output to our change address
-         if (change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
-            // But only if the change is larger than the minimum output accepted
-            // by the network
-            TransactionOutput changeOutput = createOutput(changeAddress, change, _network);
-            // Select a random position for our change so it is harder to analyze our addresses in the block chain.
-            // It is OK to use the weak java Random class for this purpose.
-            int position = new Random().nextInt(outputs.size() + 1);
-            outputs.add(position, changeOutput);
-         //} else {
-            // The change output would be smaller than what the network would
-            // accept. In this case we leave it be as a small increased miner
-            // fee.
-         }
-      }
+
+         // But only if the change is larger than the minimum output accepted
+         // by the network
+         TransactionOutput changeOutput = createOutput(changeAddress, change, _network);
+         // Select a random position for our change so it is harder to analyze our addresses in the block chain.
+         // It is OK to use the weak java Random class for this purpose.
+         int position = new Random().nextInt(outputs.size() + 1);
+         outputs.add(position, changeOutput);
+       } else if(_outputs.size() == outputsSizeInFeeEstimation || needChangeOutputInEstimation) {
+         // The number of outputs in the transaction and in our estimation match.
+         // Or we already added a change output in the estimation but The change output would be smaller (or zero)
+         // than what the network would accept.
+         // In this case we leave it be as a small increased miner fee.
+         outputSizeAndEstimateMatch = true;
+       } else {
+         /*
+         We need to add a change output in the estimation so we recalculate everything.
+         */
+         needChangeOutputInEstimation = true;
+       }
+     }
 
       UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network);
 
