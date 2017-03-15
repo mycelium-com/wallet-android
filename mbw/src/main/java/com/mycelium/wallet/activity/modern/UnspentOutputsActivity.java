@@ -84,6 +84,8 @@ public class UnspentOutputsActivity extends Activity {
       for (TransactionOutputSummary item : outputs) {
          outputView.addView(getItemView(item));
       }
+      TextView noOutputs = (TextView) findViewById(R.id.tvOutputsTitle);
+      noOutputs.append(" ("+String.valueOf(outputs.size())+")");
    }
 
    private View getItemView(TransactionOutputSummary item) {

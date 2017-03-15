@@ -10,12 +10,12 @@
             android:orientation="vertical" >
 
         <TextView
+                android:id="@+id/tvOutputsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/unspent_outputs_title"
                 android:textSize="24sp" />
-
         <View
                 android:layout_width="1dp"
                 android:layout_height="10dp" />
