@@ -900,7 +900,7 @@ public class SendMainActivity extends Activity {
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                invalidKeyCipher.printStackTrace();
             }
-            tvSatFeeValue.setText("("+ transaction.inputs.length +" Outputs," + fee / transaction.getTxRawSize()+ " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()) + ")");
+            tvSatFeeValue.setText("("+ transaction.inputs.length +" Outputs, " + transaction.getTxRawSize()+" bytes," + fee / transaction.getTxRawSize()+ " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()) + ")");
          }else {
             tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/Byte, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
          }
