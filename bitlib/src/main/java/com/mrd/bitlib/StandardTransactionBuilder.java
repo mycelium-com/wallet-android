@@ -423,8 +423,8 @@ public class StandardTransactionBuilder {
          long newSum = sum(unspentTransactionOutputs);
          if (newSum > maxSum) {
             ret = address;
+            maxSum = newSum;
          }
-         maxSum = newSum;
       }
       return ret;
    }

@@ -36,53 +36,58 @@ package com.mrd.bitlib;
 
 import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputStandard;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.Sha256Hash;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.mrd.bitlib.model.NetworkParameters.testNetwork;
 import static org.junit.Assert.assertEquals;
 
 /**
  * a programmer
  */
 public class StandardTransactionBuilderTest {
+    private StandardTransactionBuilder testme;
 
-   private NetworkParameters network;
-   private StandardTransactionBuilder testme;
+    private static final Address ADDR_1 = Address.fromString("mfx7u4LpuqG5CA5NFZBG3U1UTmftKXHzzk");
+    private static final Address ADDR_2 = Address.fromString("mnZj5DJuSNbc3wppJnbihnsyq6mfWfnTrT");
+    private static final Address ADDR_3 = Address.fromString("mrJ3QiPrvY99HQLuRtLDxvf9TKXn3hC9C6");
+    private static final Address ADDR_4 = Address.fromString("mrtjrbKe2xRUgMe8Bso59aMcj4UzzEpiPM");
 
-   @Before
-   public void setUp() throws Exception {
-      network = NetworkParameters.testNetwork;
-      testme = new StandardTransactionBuilder(network);
-   }
+    private static final UnspentTransactionOutput UTXO_1a = getUtxo(ADDR_1, 500);
+    private static final UnspentTransactionOutput UTXO_1b = getUtxo(ADDR_1, 530);
+    private static final UnspentTransactionOutput UTXO_2a = getUtxo(ADDR_2, 10);
+    private static final UnspentTransactionOutput UTXO_2b = getUtxo(ADDR_2, 20);
+    private static final UnspentTransactionOutput UTXO_3a = getUtxo(ADDR_3, 4);
+    private static final UnspentTransactionOutput UTXO_4a = getUtxo(ADDR_4, 800);
 
-   @Test   (expected = IllegalArgumentException.class)
-   public void testEmptyList() throws Exception {
-      testme.extractRichest(ImmutableList.<UnspentTransactionOutput>of(), network);
-   }
+    @Before
+    public void setUp() throws Exception {
+        testme = new StandardTransactionBuilder(testNetwork);
+    }
 
-   @Test
-   public void testSingleList() throws Exception {
-      Address addr = Address.fromString("mfx7u4LpuqG5CA5NFZBG3U1UTmftKXHzzk");
-      UnspentTransactionOutput output = new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, 100, new ScriptOutputStandard(addr.getTypeSpecificBytes()));
-      Address address = testme.extractRichest(ImmutableList.of(output), network);
-      assertEquals(addr,address);
-   }
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyList() throws Exception {
+        testme.extractRichest(ImmutableList.<UnspentTransactionOutput>of(), testNetwork);
+    }
 
-   @Test
-   public void testThreeElemList() throws Exception {
-      Address addr1 = Address.fromString("mfx7u4LpuqG5CA5NFZBG3U1UTmftKXHzzk");
-      Address addr2 = Address.fromString("mnZj5DJuSNbc3wppJnbihnsyq6mfWfnTrT");
-      UnspentTransactionOutput output1 = new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, 50, new ScriptOutputStandard(addr1.getTypeSpecificBytes()));
-      UnspentTransactionOutput output2 = new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, 50, new ScriptOutputStandard(addr1.getTypeSpecificBytes()));
-      UnspentTransactionOutput output3 = new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, 101, new ScriptOutputStandard(addr2.getTypeSpecificBytes()));
-      Address address = testme.extractRichest(ImmutableList.of(output1,output2,output3), network);
-      assertEquals(addr2,address);
-   }
+    @Test
+    public void testSingleList() throws Exception {
+        Address address = testme.extractRichest(ImmutableList.of(UTXO_1a), testNetwork);
+        assertEquals(ADDR_1, address);
+    }
 
+    @Test
+    public void testList() throws Exception {
+        Address address = testme.extractRichest(ImmutableList.of(UTXO_1a, UTXO_2a, UTXO_1b, UTXO_4a, UTXO_2b, UTXO_3a), testNetwork);
+        assertEquals(ADDR_1, address);
+    }
 
+    private static UnspentTransactionOutput getUtxo(Address address, long value) {
+        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()));
+    }
 }
