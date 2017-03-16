@@ -38,8 +38,8 @@ import java.util.*;
 public class StandardTransactionBuilder {
    // 1000sat per 1000Bytes, from https://github.com/bitcoin/bitcoin/blob/849a7e645323062878604589df97a1cd75517eb1/src/main.cpp#L78
    private static final long MIN_RELAY_FEE = 1000;
-   // hash size 32 + output index size 4 + max. script size 140 + ? 1 + ? 4
-   private static final int MAX_INPUT_SIZE = 32 + 4 + 140 + 1 + 4 - 32; // We remove 32 bytes as addresses come from compressed keys.
+   // hash size 32 + output index size 4 + script length 1 + max. script size for compressed keys 108 + sequence number 4
+   private static final int MAX_INPUT_SIZE = 32 + 4 + 1 + 108 + 4;
    // output value 8B + script length 1B + script 25B (always)
    private static final int OUTPUT_SIZE = 8 + 1 + 25;
 
@@ -335,7 +335,7 @@ public class StandardTransactionBuilder {
        // Get a copy of all outputs
        outputs = new LinkedList<>(_outputs);
 
-       if (change > 0 && change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
+       if (change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
          // We have more funds than needed, add an output to our change address
 
          // But only if the change is larger than the minimum output accepted
