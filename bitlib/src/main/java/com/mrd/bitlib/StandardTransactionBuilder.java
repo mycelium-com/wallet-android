@@ -367,7 +367,7 @@ public class StandardTransactionBuilder {
       long calculatedFee = unsignedTransaction.calculateFee();
       float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
 
-      // set a limit of 20mBtc/1000Bytes as absolute limit - it is very likely a bug in the fee estimator or transaction composer
+      // set a limit of MAX_MINER_FEE_PER_KB as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
          throw new UnableToBuildTransactionException(
                String.format(Locale.getDefault(),
