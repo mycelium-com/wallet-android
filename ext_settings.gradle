@@ -9,5 +9,5 @@ ext {
 
     // this is needed for the /public folder. It needs different paths depending if it gets compiled
     // on its own or is included as a submodule in the whole repository
-    includePrefix = ':public'
+    includePrefix = ''
 }
