@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-
     <LinearLayout
         android:id="@+id/llServiceRow"
         android:layout_width="fill_parent"
@@ -45,11 +44,11 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- add 1 pixel dark grey line to separate boxes -->
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="#A9A9A9"/>
-
 
 </LinearLayout>
 

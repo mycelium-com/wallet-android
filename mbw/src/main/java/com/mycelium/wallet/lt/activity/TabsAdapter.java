@@ -46,7 +46,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
-public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
+class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
    private final Activity mContext;
    private final ActionBar mActionBar;
    private final ViewPager mViewPager;
@@ -63,7 +63,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
       }
    }
 
-   public TabsAdapter(ActionBarActivity activity, ViewPager pager) {
+   TabsAdapter(ActionBarActivity activity, ViewPager pager) {
       super(activity.getSupportFragmentManager());
       mContext = activity;
       mActionBar = activity.getSupportActionBar();
@@ -72,7 +72,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
       mViewPager.setOnPageChangeListener(this);
    }
 
-   public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
+   void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
       TabInfo info = new TabInfo(clss, args, mTabs.size());
       tab.setTag(info);
       tab.setTabListener(this);

@@ -4,12 +4,6 @@ repositories {
     mavenCentral()
 }
 
-
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-
-
 dependencies {
     compile project(includePrefix +':bitlib')
     compile project(includePrefix +':mbwlib')
@@ -27,6 +21,5 @@ dependencies {
     compile 'com.madgag.spongycastle:prov:1.51.0.0'
     compile 'com.madgag.spongycastle:pkix:1.51.0.0'
     compile 'com.madgag.spongycastle:pg:1.51.0.0'
-    testCompile 'junit:junit:'+junitVersion
-
+    testCompile "junit:junit:$junitVersion"
 }

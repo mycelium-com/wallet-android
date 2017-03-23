@@ -8,25 +8,19 @@ import org.junit.rules.ExpectedException;
 import java.math.BigDecimal;
 
 public class AssertHelper {
-   public static void assertEqualValue(BigDecimal should, BigDecimal is) {
-      if (should.compareTo(is) != 0) {
-         throw new AssertionFailedError("Value should be " + should + " but is " + is);
-      }
-   }
-
    /**
     * Assert that {@code should} and {@code is} are equal when rounded to {@code places} decimals.
     *
-    * @param should The expected value
-    * @param is     The actual value
+    * @param expected The expected value
+    * @param actual     The actual value
     * @param places Decimal places after the .
     * @throws ArithmeticException if {@code places} is negative
     */
-   public static void assertRoundedEqualValue(BigDecimal should, BigDecimal is, int places) {
-      BigDecimal delta = should.subtract(is).abs();
-      BigDecimal epsilon = BigDecimal.valueOf(1, places);
-      if (delta.compareTo(epsilon) > 0) {
-         throw new AssertionFailedError("Value should be " + should + " but is " + is + "; delta = " + delta + " > " + epsilon);
+   public static void assertRoundedEqualValue(BigDecimal expected, BigDecimal actual, int places) {
+      BigDecimal delta = expected.subtract(actual).abs();
+      BigDecimal deltaMax = BigDecimal.valueOf(1, places);
+      if (delta.compareTo(deltaMax) > 0) {
+         throw new AssertionFailedError("Value should be " + expected + " but is " + actual + "; delta = " + delta + " > " + deltaMax);
       }
    }
 
@@ -90,6 +84,4 @@ public class AssertHelper {
       expectedException.expect(AssertionFailedError.class);
       assertRoundedEqualValue(BD_1_000, BD_1_0000000000001, 14);
    }
-
-
 }

@@ -1,12 +1,13 @@
 package com.mrd.bitlib;
 
-import junit.framework.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class BuildEncodingTest {
    @Test
    public void testChars(){
-      Assert.assertEquals(3,"ΟΛΩ".length());
-      Assert.assertEquals("\u039f\u039b\u03a9","ΟΛΩ");
+      assertEquals(3,"ΟΛΩ".length());
+      assertEquals("\u039f\u039b\u03a9","ΟΛΩ");
    }
 }

@@ -45,12 +45,9 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
-import com.mycelium.wapi.wallet.WalletManager;
 
 public class CreateKeyActivity extends Activity {
-
    private MbwManager manager;
-   private WalletManager walletManager;
    private InMemoryPrivateKey key;
 
    /** Called when the activity is first created. */
@@ -58,7 +55,6 @@ public class CreateKeyActivity extends Activity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       manager = MbwManager.getInstance(getApplication());
-      walletManager = manager.getWalletManager(false);
       setContentView(R.layout.create_key_activity);
 
       findViewById(R.id.btShuffle).setOnClickListener(new OnClickListener() {
@@ -105,14 +101,4 @@ public class CreateKeyActivity extends Activity {
          }
       }.execute();
    }
-
-   @Override
-   protected void onResume() {
-      refresh();
-      super.onResume();
-   }
-
-   private void refresh() {
-   }
-
 }

@@ -30,7 +30,6 @@ import java.util.Arrays;
 
 
 public class PublicKey implements Serializable {
-
    private static final long serialVersionUID = 1L;
 
    private final byte[] _pubKeyBytes;

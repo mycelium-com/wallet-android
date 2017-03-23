@@ -39,16 +39,15 @@ import com.mycelium.wapi.wallet.WalletManager.Event;
 import java.util.*;
 
 public class Bip44Account extends AbstractAccount implements ExportableAccount {
-
    private static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
    private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
    private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
    private static final int INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
    private static final long FORCED_DISCOVERY_INTERVAL_MS = 1000 * 60 * 60 * 24;
 
-   protected Bip44AccountBacking _backing;
+   protected final Bip44AccountBacking _backing;
    protected Bip44AccountContext _context;
-   protected Bip44AccountKeyManager _keyManager;
+   protected final Bip44AccountKeyManager _keyManager;
    protected BiMap<Address, Integer> _externalAddresses;
    protected BiMap<Address, Integer> _internalAddresses;
    private Address _currentReceivingAddress;
@@ -145,7 +144,6 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       _context = new Bip44AccountContext(_context.getId(), _context.getAccountIndex(), isArchived, _context.getAccountType(), _context.getAccountSubId());
       _context.persist(_backing);
    }
-
 
    /**
     * Figure out whether this account has ever had any activity.
@@ -279,7 +277,6 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       } finally {
          _isSynchronizing = false;
       }
-
    }
 
    private boolean needsDiscovery() {
@@ -288,9 +285,8 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
    private synchronized boolean discovery() {
       try {
-         while (doDiscovery()) {
-            // Nothing
-         }
+         //noinspection StatementWithEmptyBody
+         while (doDiscovery()); // Nothing
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -321,7 +317,9 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
       for (int i = 0; i < EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
          Address externalAddress = extInverse.get(_context.getLastExternalIndexWithActivity() + 1 + i);
-         if (externalAddress != null) lookAhead.add(externalAddress);
+         if (externalAddress != null) {
+            lookAhead.add(externalAddress);
+         }
       }
       for (int i = 0; i < INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH; i++) {
          lookAhead.add(intInverse.get(_context.getLastInternalIndexWithActivity() + 1 + i));
@@ -338,13 +336,14 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          // nothing found
          return false;
       }
-      int lastExternalIndex = _context.getLastExternalIndexWithActivity();
-      int lastInternalIndex = _context.getLastInternalIndexWithActivity();
+      int lastExternalIndexBefore = _context.getLastExternalIndexWithActivity();
+      int lastInternalIndexBefore = _context.getLastInternalIndexWithActivity();
 
       Collection<TransactionExApi> transactions = getTransactionsBatched(ids).getResult().transactions;
       handleNewExternalTransactions(transactions);
       // Return true if the last external or internal index has changed
-      return lastExternalIndex != _context.getLastExternalIndexWithActivity() || lastInternalIndex != _context.getLastInternalIndexWithActivity();
+      boolean indexHasChanged = lastExternalIndexBefore != _context.getLastExternalIndexWithActivity() || lastInternalIndexBefore != _context.getLastInternalIndexWithActivity();;
+      return indexHasChanged;
    }
 
    private boolean updateUnspentOutputs(SyncMode mode) {
@@ -627,7 +626,6 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       return new Data(privKey, pubKey);
    }
 
-
    public int getAccountType(){
       return _context.getAccountType();
    }
@@ -671,6 +669,5 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
       public Integer getIndex() {
          return index;
       }
-
    }
 }

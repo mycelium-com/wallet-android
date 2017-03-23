@@ -17,7 +17,7 @@
 package com.mrd.bitlib.crypto;
 
 import com.google.common.base.Optional;
-import com.lambdaworks.crypto.PBKDF;
+import com.mrd.bitlib.lambdaworks.crypto.PBKDF;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;

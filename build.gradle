@@ -1,22 +1,23 @@
 apply from: 'tools.gradle'
-apply from: 'ext_settings.gradle'
 
 buildscript {
+    apply from: 'ext_settings.gradle'
     repositories {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath androidBuildArtifact
     }
 }
 
 allprojects {
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
     }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+    gradleVersion = '3.3'
 }

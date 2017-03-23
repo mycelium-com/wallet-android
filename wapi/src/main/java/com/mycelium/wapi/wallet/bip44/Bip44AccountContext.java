@@ -39,7 +39,7 @@ public class Bip44AccountContext {
    private int lastInternalIndexWithActivity;
    private int firstMonitoredInternalIndex;
    private long lastDiscovery;
-   protected boolean isDirty;
+   private boolean isDirty;
 
    final private int accountSubId;
    final private int accountType;
@@ -75,7 +75,6 @@ public class Bip44AccountContext {
 
       isDirty = false;
    }
-
 
    public UUID getId() {
       return id;

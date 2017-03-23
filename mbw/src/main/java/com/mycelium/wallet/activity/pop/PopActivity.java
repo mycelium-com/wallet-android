@@ -140,9 +140,7 @@ public class PopActivity extends Activity {
    }
 
    private long getFee(TransactionDetails tx) {
-      long inputs = sum(tx.inputs);
-      long outputs = sum(tx.outputs);
-      return inputs - outputs;
+      return sum(tx.inputs) - sum(tx.outputs);
    }
 
    private long sum(TransactionDetails.Item[] items) {

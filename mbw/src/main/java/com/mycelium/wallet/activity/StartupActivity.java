@@ -47,6 +47,7 @@ import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -54,16 +55,21 @@ import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
-import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -77,10 +83,12 @@ import java.util.List;
 import java.util.UUID;
 
 public class StartupActivity extends Activity {
-
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
+
+   private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
+
    private boolean _hasClipboardExportedPrivateKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
@@ -116,7 +124,6 @@ public class StartupActivity extends Activity {
    }
 
    private Runnable delayedInitialization = new Runnable() {
-
       @Override
       public void run() {
          long startTime = System.currentTimeMillis();
@@ -162,25 +169,25 @@ public class StartupActivity extends Activity {
    private void showUpgradeInfo() {
       //show upgrade info
       new AlertDialog.Builder(this)
-            .setTitle(R.string.title_upgrade_info)
-            .setMessage(R.string.release_notes_hd)
-            .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int which) {
-                  // continue with master seed init
-                  startMasterSeedTask();
-               }
-            })
-            .setNegativeButton(R.string.butto_show_release_notes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int which) {
-                  // navigate to website
-                  Intent intent = new Intent(Intent.ACTION_VIEW);
-                  intent.setData(Uri.parse(Constants.MYCELIUM_2_RELEASE_NOTES_URL));
-                  startActivity(intent);
-                  //and get everything up while they read it :)
-                  startMasterSeedTask();
-               }
-            })
-            .show();
+              .setTitle(R.string.title_upgrade_info)
+              .setMessage(R.string.release_notes_hd)
+              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int which) {
+                    // continue with master seed init
+                    startMasterSeedTask();
+                 }
+              })
+              .setNegativeButton(R.string.butto_show_release_notes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int which) {
+                    // navigate to website
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(Constants.MYCELIUM_2_RELEASE_NOTES_URL));
+                    startActivity(intent);
+                    //and get everything up while they read it :)
+                    startMasterSeedTask();
+                 }
+              })
+              .show();
    }
 
    private void initMasterSeed() {
@@ -213,15 +220,13 @@ public class StartupActivity extends Activity {
    }
 
    private class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
-
       @Override
       protected UUID doInBackground(Void... params) {
          Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(_mbwManager.getRandomSource());
          try {
             WalletManager walletManager = _mbwManager.getWalletManager(false);
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            UUID acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-            return acc;
+            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }
@@ -372,15 +377,20 @@ public class StartupActivity extends Activity {
          Toast.makeText(this, getString(R.string.payment_request_unable_to_read_payment_request), Toast.LENGTH_LONG).show();
          finish();
       }
-
    }
 
    private void handleMyceliumUri(Uri intentUri) {
-      //We have been launched by a mycelium request from Glidera
-      Intent glideraIntent = new Intent(this, GlideraSendToNextStep.class);
-      glideraIntent.putExtra("uri", intentUri.toString());
-      startActivity(glideraIntent);
-
+      final String host = intentUri.getHost();
+      if (host.equals(URI_HOST_GLIDERA_REGISTRATION)) {
+         Intent glideraIntent = new Intent(this, GlideraSendToNextStep.class);
+         glideraIntent.putExtra("uri", intentUri.toString());
+         startActivity(glideraIntent);
+      } else {
+         // If we dont understand the url, just call the balance screen
+         Intent balanceIntent = new Intent(this, ModernMain.class);
+         startActivity(balanceIntent);
+      }
+      // close the startup activity to not pollute the backstack
       finish();
    }
 
@@ -401,6 +411,7 @@ public class StartupActivity extends Activity {
    }
 
    private void handlePopUri(Uri intentUri) {
+      // a proof of payment request
       Intent popIntent = new Intent(this, PopActivity.class);
       PopRequest popRequest = new PopRequest(intentUri.toString());
       popIntent.putExtra("popRequest", popRequest);
@@ -490,5 +501,4 @@ public class StartupActivity extends Activity {
       }
       finish();
    }
-
 }

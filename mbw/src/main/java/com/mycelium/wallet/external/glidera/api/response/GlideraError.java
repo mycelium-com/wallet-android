@@ -20,7 +20,7 @@ public class GlideraError {
    private List<String> invalidParameters;
 
    public String toString() {
-      return new GsonBuilder().serializeNulls().setPrettyPrinting().create().toJson(this).toString();
+      return new GsonBuilder().serializeNulls().setPrettyPrinting().create().toJson(this);
    }
 
    public Integer getCode() {

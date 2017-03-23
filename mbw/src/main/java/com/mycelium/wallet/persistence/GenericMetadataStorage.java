@@ -44,19 +44,22 @@ import com.google.common.base.Optional;
 
 import java.util.*;
 
-public class GenericMetadataStorage {
-
+/**
+ * Most of Mycelium's meta data is stored this way.
+ */
+class GenericMetadataStorage {
+   // legacy table names, only to be deleted
    private static final String TABLE_ACCOUNT_LABELS = "accountlabels";
    private static final String TABLE_BACKUP_STATUS = "backupstatus";
    private static final String TABLE_TRANSACTION_LABELS = "transactionlabels";
+   // the actual and only table
    private static final String TABLE_KEY_VALUE_STORE = "keyValueStore";
 
    private class OpenHelper extends SQLiteOpenHelper {
-
       private static final String DATABASE_NAME = "mds.db";
       private static final int DATABASE_VERSION = 3;
 
-      public OpenHelper(Context context) {
+      OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
       }
 
@@ -76,21 +79,20 @@ public class GenericMetadataStorage {
       }
    }
 
-   private OpenHelper _openHelper;
    private SQLiteDatabase _db;
    private SQLiteStatement _insertOrReplaceKeyValueEntry;
 
-   public GenericMetadataStorage(Context context) {
-      _openHelper = new OpenHelper(context);
-      _db = _openHelper.getWritableDatabase();
+   GenericMetadataStorage(Context context) {
+      OpenHelper openHelper = new OpenHelper(context);
+      _db = openHelper.getWritableDatabase();
       _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");
    }
 
-   protected void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
+   void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
       storeKeyCategoryValueEntry(keyCategory.key, keyCategory.category, value);
    }
 
-   protected void storeKeyCategoryValueEntry(final String key, final String category, final String value){
+   private void storeKeyCategoryValueEntry(final String key, final String category, final String value){
       _insertOrReplaceKeyValueEntry.bindString(1, key);
       _insertOrReplaceKeyValueEntry.bindString(2, category);
       _insertOrReplaceKeyValueEntry.bindString(3, value);
@@ -101,7 +103,7 @@ public class GenericMetadataStorage {
       return getKeyCategoryValueEntry(key, "", defaultValue);
    }
 
-   protected String getKeyCategoryValueEntry(final String key, final String category, final String defaultValue){
+   private String getKeyCategoryValueEntry(final String key, final String category, final String defaultValue){
       Optional<String> ret = getKeyCategoryValueEntry(key, category);
       if (ret.isPresent()) {
          return ret.get();
@@ -110,11 +112,11 @@ public class GenericMetadataStorage {
       }
    }
 
-   protected String getKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String defaultValue){
+   String getKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String defaultValue){
       return getKeyCategoryValueEntry(keyCategory.key, keyCategory.category, defaultValue);
    }
 
-   protected Optional<String> getKeyCategoryValueEntry(final MetadataKeyCategory keyCategory){
+   Optional<String> getKeyCategoryValueEntry(final MetadataKeyCategory keyCategory){
       return getKeyCategoryValueEntry(keyCategory.key, keyCategory.category);
    }
 
@@ -133,7 +135,7 @@ public class GenericMetadataStorage {
       }
    }
 
-   protected void deleteByKeyCategory(final MetadataKeyCategory keyCategory){
+   void deleteByKeyCategory(final MetadataKeyCategory keyCategory){
       deleteByKeyCategory(keyCategory.key, keyCategory.category);
    }
 
@@ -141,15 +143,15 @@ public class GenericMetadataStorage {
       _db.delete(TABLE_KEY_VALUE_STORE, "key = ? and category = ?", new String[]{key, category});
    }
 
-   protected void deleteAllByKey(final String key){
+   void deleteAllByKey(final String key){
       _db.delete(TABLE_KEY_VALUE_STORE, "key = ?", new String[]{key});
    }
 
-   protected Map<String, String> getKeysAndValuesByCategory(final MetadataCategory category){
+   Map<String, String> getKeysAndValuesByCategory(final MetadataCategory category){
       return getKeysAndValuesByCategory(category.category);
    }
 
-   protected Map<String, String> getKeysAndValuesByCategory(final String category){
+   private Map<String, String> getKeysAndValuesByCategory(final String category){
       Cursor cursor = null;
       try {
          Map<String, String> entries = new HashMap<String, String>();
@@ -165,11 +167,11 @@ public class GenericMetadataStorage {
       }
    }
 
-   protected Optional<String> getFirstKeyForCategoryValue(final MetadataCategory category, final String value){
+   Optional<String> getFirstKeyForCategoryValue(final MetadataCategory category, final String value){
       return getFirstKeyForCategoryValue(category.category, value);
    }
 
-   protected Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
+   private Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
       Cursor cursor = null;
       try {
          cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key"}, " value = ? and category = ?", new String[]{value, category}, null, null, null, "1");
@@ -187,7 +189,4 @@ public class GenericMetadataStorage {
    private void storeKeyValueEntry(final String key, final String value) {
       storeKeyCategoryValueEntry(key, "", value);
    }
-
-
 }
-

@@ -40,7 +40,6 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 
 import java.util.UUID;
 
-
 public interface AccountScanManager {
 
    void startBackgroundAccountScan(AccountCallback scanningCallback);

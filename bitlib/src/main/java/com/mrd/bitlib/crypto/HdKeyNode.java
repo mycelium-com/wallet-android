@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;

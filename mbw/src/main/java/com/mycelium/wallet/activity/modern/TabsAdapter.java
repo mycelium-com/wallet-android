@@ -55,7 +55,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
    private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
    private final MbwManager _mbwManager;
 
-   static final class TabInfo {
+   private static final class TabInfo {
       private final Class<?> clss;
       private final Bundle args;
 

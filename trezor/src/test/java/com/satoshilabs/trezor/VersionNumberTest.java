@@ -1,18 +1,27 @@
 package com.satoshilabs.trezor;
 
-import junit.framework.TestCase;
+import com.satoshilabs.trezor.ExternalSignatureDevice.VersionNumber;
 
-public class VersionNumberTest extends TestCase {
-   public void testIsNewerThan() throws Exception {
-      final ExternalSignatureDevice.VersionNumber referenceVersion = new ExternalSignatureDevice.VersionNumber(1, 3, 8);
+import org.junit.Test;
 
-      final ExternalSignatureDevice.VersionNumber newerVersion = new ExternalSignatureDevice.VersionNumber(1, 4, 0);
-      final ExternalSignatureDevice.VersionNumber currentVersion = new ExternalSignatureDevice.VersionNumber(1, 3, 8);
-      final ExternalSignatureDevice.VersionNumber oldVersion = new ExternalSignatureDevice.VersionNumber(1, 3, 6);
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-      assertEquals(false, referenceVersion.isNewerThan(newerVersion.major, newerVersion.minor, newerVersion.patch));
-      assertEquals(false, referenceVersion.isNewerThan(currentVersion.major, currentVersion.minor, currentVersion.patch));
-      assertEquals(true, referenceVersion.isNewerThan(oldVersion.major, oldVersion.minor, oldVersion.patch));
+public class VersionNumberTest {
+   @Test
+   public void testIsNewerThan() {
+      VersionNumber referenceVersion = new VersionNumber(1, 3, 8);
+
+      VersionNumber newerVersion = new VersionNumber(1, 4, 0);
+      VersionNumber currentVersion = new VersionNumber(1, 3, 8);
+      VersionNumber oldVersion = new VersionNumber(1, 3, 6);
+
+      assertFalse(isNewerThan(referenceVersion, newerVersion));
+      assertFalse(isNewerThan(referenceVersion, currentVersion));
+      assertTrue(isNewerThan(referenceVersion, oldVersion));
    }
 
+   private boolean isNewerThan(VersionNumber left, VersionNumber right) {
+      return left.isNewerThan(right.major, right.minor, right.patch);
+   }
 }

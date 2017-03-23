@@ -85,7 +85,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class AccountsFragment extends Fragment {
-
    public static final int ADD_RECORD_RESULT_CODE = 0;
 
    private WalletManager walletManager;
@@ -992,7 +991,6 @@ public class AccountsFragment extends Fragment {
 
       });
    }
-
 
    private void exportSelectedPrivateKey() {
       if (!AccountsFragment.this.isAdded()) {

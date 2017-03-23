@@ -45,26 +45,22 @@ public class ExampleTest {
    @Test
    @Ignore
    public void runSimpleCreate() throws IOException, CoinapultError.CoinapultExceptionECC, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-
       InMemoryPrivateKey randomKey = new InMemoryPrivateKey(new TestRandom());
       CoinapultClient coinapultClient = new CoinapultClient(AndroidKeyConverter.convertKeyFormat(randomKey), new ECC_SC(), new CoinapultPlaygroundConfig(), WapiLogger.NULL_LOGGER);
-      AccountNew.JsonNew created = coinapultClient.createAccount();
-      AccountNew.Json activated = coinapultClient.activateAccount(true);
-
+      coinapultClient.createAccount();
+      coinapultClient.activateAccount(true);
    }
 
    @Test
    @Ignore
    public void runSimpleUSD() throws IOException, CoinapultError.CoinapultExceptionECC, NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, CoinapultClient.CoinapultBackendException {
-
       InMemoryPrivateKey randomKey = new InMemoryPrivateKey(new TestRandom());
       CoinapultClient coinapultClient = new CoinapultClient(AndroidKeyConverter.convertKeyFormat(randomKey), new ECC_SC(), new CoinapultPlaygroundConfig(), WapiLogger.NULL_LOGGER);
       coinapultClient.accountExists();
-      AccountNew.JsonNew created = coinapultClient.createAccount();
-      AccountNew.Json activated = coinapultClient.activateAccount(true);
+      coinapultClient.createAccount();
+      coinapultClient.activateAccount(true);
       Address.Json bitcoinAddress = coinapultClient.getBitcoinAddress();
-      Config.Json config = coinapultClient.config(bitcoinAddress.address, "USD");
-
+      coinapultClient.config(bitcoinAddress.address, "USD");
    }
 
    @Test
@@ -75,23 +71,18 @@ public class ExampleTest {
 		/*
        * Assuming there is no previous key pair, one has to be created now.
 		 */
-      String keyPairasString;
-      final KeyPair myceliumECKEY;
       ECC_SC ecc_bc = new ECC_SC();
       try {
          KeyPair keypair;
-         PrivateKey priv;
          KeyPairGenerator keygen = KeyPairGenerator.getInstance("EC",
                org.spongycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME);
          ECGenParameterSpec eccspec = new ECGenParameterSpec("secp256k1");
          keygen.initialize(eccspec);
 
          keypair = keygen.generateKeyPair();
-         priv = keypair.getPrivate();
+         keypair.getPrivate();
 
-//         key.getEncoded()
-
-         keyPairasString = ecc_bc.exportToPEM(keypair.getPrivate());
+         ecc_bc.exportToPEM(keypair.getPrivate());
 
       } catch (Throwable err) {
          err.printStackTrace();
@@ -123,11 +114,10 @@ public class ExampleTest {
    }
 
 
-   public class TestRandom implements RandomSource {
-
+   private class TestRandom implements RandomSource {
       private SecureRandom _secureRandom;
 
-      public TestRandom(){
+      TestRandom(){
          _secureRandom = new SecureRandom();
       }
 
@@ -135,6 +125,5 @@ public class ExampleTest {
       public void nextBytes(byte[] bytes) {
          _secureRandom.nextBytes(bytes);
       }
-
    }
 }

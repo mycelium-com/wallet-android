@@ -17,26 +17,23 @@
 package com.mycelium;
 
 public interface WapiLogger {
-   public void logError(String message, Exception e);
+   void logError(String message, Exception e);
 
-   public void logError(String message);
+   void logError(String message);
    
-   public void logInfo(String message);
+   void logInfo(String message);
 
-   public static WapiLogger NULL_LOGGER = new WapiLogger(){
+   WapiLogger NULL_LOGGER = new WapiLogger(){
       @Override
       public void logError(String message, Exception e) {
-
       }
 
       @Override
       public void logError(String message) {
-
       }
 
       @Override
       public void logInfo(String message) {
-
       }
    };
 }

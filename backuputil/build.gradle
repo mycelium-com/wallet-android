@@ -24,9 +24,9 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 dependencies {
-    compile project(':bitlib')
+    compile project(':public:bitlib')
     compile guavaArtifact
-    testCompile 'junit:junit:'+junitVersion
+    testCompile "junit:junit:$junitVersion"
 }
 
 jar {

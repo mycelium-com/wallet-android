@@ -116,10 +116,10 @@ public class InstantWalletActivity extends Activity {
    }
 
    private void handleString(String str) {
-      Intent intent = StringHandlerActivity.getIntent(InstantWalletActivity.this,
+      Intent intent = StringHandlerActivity.getIntent(this,
             StringHandleConfig.spendFromColdStorage(),
             str);
-      InstantWalletActivity.this.startActivityForResult(intent, REQUEST_SCAN);
+      startActivityForResult(intent, REQUEST_SCAN);
    }
 
    @Override
@@ -127,7 +127,7 @@ public class InstantWalletActivity extends Activity {
       super.onResume();
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
             StringHandleConfig.spendFromColdStorage(),
-            Utils.getClipboardString(InstantWalletActivity.this),
+            Utils.getClipboardString(this),
             MbwManager.getInstance(this).getNetwork());
 
       if (canHandle == StringHandlerActivity.ParseAbility.NO) {

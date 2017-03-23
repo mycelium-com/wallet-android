@@ -45,26 +45,36 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.*;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.megiontechnologies.Bitcoins;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
+import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.OutputList;
+import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -79,20 +89,27 @@ import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.currency.*;
+import com.mycelium.wapi.wallet.currency.BitcoinValue;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 import com.squareup.otto.Subscribe;
+
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -112,7 +129,6 @@ public class SendMainActivity extends Activity {
 
    public static final String ACCOUNT = "account";
    private static final String AMOUNT = "amount";
-   private static final String TX_TO_SPEND_FROM = "txToSpendFrom";
    public static final String IS_COLD_STORAGE = "isColdStorage";
    public static final String RECEIVING_ADDRESS = "receivingAddress";
    public static final String HD_KEY = "hdKey";
@@ -177,7 +193,6 @@ public class SendMainActivity extends Activity {
    private boolean _spendingUnconfirmed = false;
    private boolean _paymentFetched = false;
 
-
    public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
       return new Intent(currentActivity, SendMainActivity.class)
               .putExtra(ACCOUNT, account)
@@ -216,11 +231,6 @@ public class SendMainActivity extends Activity {
               .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, Sha256Hash mustIncludeTX, boolean isColdStorage) {
-      return getIntent(currentActivity, account, isColdStorage)
-              .putExtra(TX_TO_SPEND_FROM, mustIncludeTX);
-   }
-
    private boolean isCoinapult() {
       return _account != null && _account instanceof CoinapultAccount;
    }
@@ -252,7 +262,6 @@ public class SendMainActivity extends Activity {
       _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
       _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _fee = _mbwManager.getMinerFee();
-
 
       // Load saved state, overwriting amount and address
       if (savedInstanceState != null) {
@@ -535,7 +544,7 @@ public class SendMainActivity extends Activity {
    }
 
    private TransactionStatus tryCreateUnsignedTransaction() {
-      if (isCoinapult()) {
+      if(isCoinapult()) {
          return tryCreateCoinapultTX();
       } else {
          return tryCreateUnsignedTransactionFromWallet();
@@ -584,7 +593,7 @@ public class SendMainActivity extends Activity {
       } catch (OutputTooSmallException e1) {
          makeText(this, getResources().getString(R.string.amount_too_small), LENGTH_LONG).show();
          return TransactionStatus.OutputTooSmall;
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+      } catch (UnableToBuildTransactionException e) {
          makeText(this, getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
          // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
          // debug it
@@ -900,7 +909,7 @@ public class SendMainActivity extends Activity {
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                invalidKeyCipher.printStackTrace();
             }
-            tvSatFeeValue.setText("("+ transaction.inputs.length +" Outputs, " + transaction.getTxRawSize()+" bytes," + fee / transaction.getTxRawSize()+ " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()) + ")");
+            tvSatFeeValue.setText(+ transaction.inputs.length +" In- / "+ transaction.outputs.length+" Outputs, " + transaction.getTxRawSize()+" bytes, \n" + fee / transaction.getTxRawSize()+ " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()));
          }else {
             tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/Byte, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
          }

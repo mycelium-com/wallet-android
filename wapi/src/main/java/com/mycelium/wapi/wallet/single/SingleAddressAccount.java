@@ -36,7 +36,6 @@ import com.mycelium.wapi.wallet.WalletManager.Event;
 import java.util.*;
 
 public class SingleAddressAccount extends AbstractAccount implements ExportableAccount {
-
    private SingleAddressAccountContext _context;
    private List<Address> _addressList;
    private volatile boolean _isSynchronizing;
@@ -267,8 +266,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append("Simple ");
-      sb.append("ID: ").append(getId());
+      sb.append("Simple ID: ").append(getId());
       if (isArchived()) {
          sb.append(" Archived");
       } else {
@@ -308,7 +306,6 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    public Address getAddress() {
       return _context.getAddress();
    }
-
 
    @Override
    public Data getExportData(KeyCipher cipher) {

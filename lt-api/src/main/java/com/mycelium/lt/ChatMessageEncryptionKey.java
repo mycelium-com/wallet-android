@@ -129,8 +129,7 @@ public class ChatMessageEncryptionKey implements Serializable {
       System.arraycopy(enc, 0, concatenated, mac.length, enc.length);
 
       // Base-64 encode without padding
-      String encryptedMessage = BaseEncoding.base64().omitPadding().encode(concatenated);
-      return encryptedMessage;
+      return BaseEncoding.base64().omitPadding().encode(concatenated);
    }
 
    /**
@@ -180,8 +179,7 @@ public class ChatMessageEncryptionKey implements Serializable {
       }
 
       // Get the string
-      String message = bytesToUtf8String(messageBytes);
-      return message;
+      return bytesToUtf8String(messageBytes);
    }
 
    private byte[] aesDecrypt(byte[] IV, byte[] encryptedBytes) {
@@ -261,5 +259,4 @@ public class ChatMessageEncryptionKey implements Serializable {
          throw new RuntimeException();
       }
    }
-
 }

@@ -1,12 +1,17 @@
 package com.mycelium.wapi.wallet.currency;
 
 import com.mycelium.wapi.model.ExchangeRate;
-import junit.framework.TestCase;
+
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
-public class CurrencyValueTest extends TestCase {
-   ExchangeRateProvider fakeExchangeRate = new ExchangeRateProvider() {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class CurrencyValueTest {
+   private ExchangeRateProvider fakeExchangeRate = new ExchangeRateProvider() {
       @Override
       public ExchangeRate getExchangeRate(String currency) {
          if (currency.equals("USD")) {
@@ -18,7 +23,7 @@ public class CurrencyValueTest extends TestCase {
       }
    };
 
-   ExchangeRateProvider fakeExchangeRate2 = new ExchangeRateProvider() {
+   private ExchangeRateProvider fakeExchangeRate2 = new ExchangeRateProvider() {
       @Override
       public ExchangeRate getExchangeRate(String currency) {
          if (currency.equals("USD")) {
@@ -31,6 +36,7 @@ public class CurrencyValueTest extends TestCase {
    };
 
    // Starting with an exact BTC amount
+   @Test
    public void testExchangeRateHandlingExactBtc() {
       ExactCurrencyValue btc = ExactBitcoinValue.from(BigDecimal.ONE);
       CurrencyValue usd = CurrencyValue.fromValue(btc, "USD", fakeExchangeRate);
@@ -60,6 +66,7 @@ public class CurrencyValueTest extends TestCase {
 
 
    // Starting with an exact Fiat amount
+   @Test
    public void testExchangeRateHandlingExactFiat() {
       ExactCurrencyValue usd = ExactFiatValue.from(BigDecimal.valueOf(10L), "USD");
       CurrencyValue eur = CurrencyValue.fromValue(usd, "EUR", fakeExchangeRate);
@@ -87,6 +94,7 @@ public class CurrencyValueTest extends TestCase {
       assertTrue(BigDecimal.valueOf(40L).compareTo(eur1.getValue()) == 0);
    }
 
+   @Test
    public void testIsNullOrZero() throws Exception {
       assertFalse(CurrencyValue.isNullOrZero(ExactBitcoinValue.from(BigDecimal.ONE)));
       assertFalse(CurrencyValue.isNullOrZero(ExactCurrencyValue.from(BigDecimal.ONE, "EUR")));

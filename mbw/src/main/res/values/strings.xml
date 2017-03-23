@@ -836,7 +836,7 @@
     <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
-    <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction. If a transaction with 300 bytes and a fee of 30000 satoshis does not get confirmed for only paying 10sat/B, sending a child transaction that pays for example 540000 satoshis for its 300B can help by increasing the total fee to 600ksat/(300 + 300)B making it interesting for miners again. Do you want to try that?</string>
+    <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
     <string name="block_explorer_title">Block Explorer (%1$s)</string>
@@ -868,9 +868,8 @@
     <string name="coinapult_tos_question">To create a Coinapult Account you must agree to their Terms and Conditions</string>
     <string name="coinapult_mail_question">Do you want to provide your mail address?</string>
     <string name="coinapult_create_account">Creating Coinapult account…</string>
-    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
+    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string> 
     <string name="coinapult_currency_account">%1$s Account</string>
-
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
@@ -914,7 +913,6 @@
     <string name="credit_card_buy_description">Buy Bitcoin using credit card</string>
     <string name="credit_card_buy_setting_description">Buy Bitcoin using credit card</string>
     <!-- Credit Card End-->
-
 
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
@@ -965,6 +963,16 @@
 
     <string name="settings_service_enabled">Enable %1$s</string>
 
+    <!-- Simplex start -->
+    <string name="si_buy_sell">Credit Card</string>
+    <string name="si_simplex">Simplex</string>
+    <string name="si_buy_sell_description">Buy bitcoin safely and easily using your credit card.</string>
+    <string name="si_setting_show_button_summary">Show Simplex\'s Buy option</string>
+    <string name="si_loading">loading…</string>
+    <string name="si_error_message">error message</string>
+    <string name="si_retry">Retry</string>
+    <!-- Simplex end -->
+
     <string name="label_single_key_icon">a single key</string>
     <string name="label_blue_circle">blue circle</string>
     <string name="label_type_it_in">type it in</string>
@@ -972,6 +980,5 @@
     <string name="label_list_activity_indicator">had activity</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
-
 
 </resources>

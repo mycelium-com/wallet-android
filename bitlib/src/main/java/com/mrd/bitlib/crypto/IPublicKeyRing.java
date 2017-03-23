@@ -19,7 +19,5 @@ package com.mrd.bitlib.crypto;
 import com.mrd.bitlib.model.Address;
 
 public interface IPublicKeyRing {
-
    PublicKey findPublicKeyByAddress(Address address);
-
 }

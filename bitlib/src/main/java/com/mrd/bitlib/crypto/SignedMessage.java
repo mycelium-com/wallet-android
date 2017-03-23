@@ -17,7 +17,7 @@
 package com.mrd.bitlib.crypto;
 
 import com.google.common.base.Preconditions;
-import com.lambdaworks.crypto.Base64;
+import com.mrd.bitlib.lambdaworks.crypto.Base64;
 import com.mrd.bitlib.crypto.ec.Curve;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;

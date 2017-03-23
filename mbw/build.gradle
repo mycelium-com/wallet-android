@@ -1,10 +1,8 @@
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
 
 repositories {
     mavenCentral()
 }
-
 
 buildscript {
     repositories {
@@ -21,50 +19,56 @@ configurations {
 }
 
 dependencies {
-    androidTestCompile 'junit:junit:' + junitVersion
-
-    testCompile 'junit:junit:' + junitVersion
+    androidTestCompile "junit:junit:$junitVersion"
+    testCompile "junit:junit:$junitVersion"
 
     compile project(includePrefix +':libs:zxing-android')
     compile project(includePrefix +':coinapult')
     compile project(includePrefix +':wapi')
     compile project(includePrefix +':trezor')
     compile project(includePrefix +':lt-api')
-    compile project(includePrefix +':mbwlib')
+    compile(project(includePrefix +':mbwlib')) {
+        exclude module: 'jcip-annotations'
+    }
     compile project(includePrefix +':btchip')
+    compile project(includePrefix +':LVL')
+
     compile guavaArtifact
     compile 'com.squareup:otto:1.3.4'
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
+    //not upgrading. This will be removed from the core app
     compile 'com.google.android.gms:play-services-base:7.8.0'
     compile 'com.google.android.gms:play-services-gcm:7.8.0'
+    //    compile 'org.bitcoinj:bitcoinj-core:0.14.3'    // depends on jcip-annotations
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.jakewharton:butterknife:8.1.0'
-    apt 'com.jakewharton:butterknife-compiler:8.1.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.android.support:multidex:1.0.1'
     compile('com.google.code.findbugs:annotations:3.0.1') {
-        // with these excludes stuff works
         exclude module: 'jsr305'
-        exclude module: 'jcip-annotations'
     }
+    compile 'commons-codec:commons-codec:1.5'
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    compile 'com.google.protobuf:protobuf-java:3.1.0'
 }
 
-def commonDebugKeystore = rootProject.file('keystore_debug')
 
 android {
-
+    configurations {
+        all*.exclude module: 'jcip-annotations'
+        all*.exclude module: 'jsr305'
+    }
     dexOptions {
         javaMaxHeapSize "4g"
         jumboMode = true
     }
     lintOptions {
         //gradle build complains about com.android.support:support-v4:22.2.0 not being compatible
-        //TODO: remove this!!!!!
-        abortOnError false
     }
 
     packagingOptions {
@@ -83,8 +87,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 28602
-        versionName '2.8.6'
+        versionCode 28803
+        versionName '2.8.8'
         multiDexEnabled true
     }
 
@@ -104,17 +108,10 @@ android {
     }
 
     buildTypes {
-
-/*
-        debug {
-            debuggable true
-            runProguard true
-            proguardFile 'mbw.pro'
-        }
-*/
-
         release {
-            minifyEnabled true
+            debuggable true
+
+            minifyEnabled !project.hasProperty('skipProguard')
             proguardFile 'mbw.pro'
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
@@ -145,7 +142,7 @@ android {
             minSdkVersion 21
 
             // if we are not on master, include the branchname in appId
-            def appId = 'com.mycelium.devwallet.github';
+            def appId = 'com.mycelium.devwallet';
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
@@ -162,9 +159,7 @@ android {
             buildToolsVersion androidSdkBuildVersion
             minSdkVersion 21
 
-            // if we are not on master, include the branchname in appId
             def appId = 'com.mycelium.devprodwallet';
-            def branch = getGitBranch()
 
             applicationId appId
             signingConfig signingConfigs.debug
@@ -179,14 +174,6 @@ android {
             signingConfig signingConfigs.btctestnet
         }
     }
-
-
-    sourceSets {
-        androidTest {
-            java.srcDirs = ['instrumentTest/java']
-        }
-    }
-
 }
 
 if (commonDebugKeystore.exists()) {
@@ -194,8 +181,6 @@ if (commonDebugKeystore.exists()) {
     android.productFlavors.dev.signingConfig = android.signingConfigs.commonDebug
     logger.info("keytore_debug detected")
 }
-
-
 
 if (project.hasProperty('prodKeyStore') &&
         project.hasProperty('prodKeyAlias') &&

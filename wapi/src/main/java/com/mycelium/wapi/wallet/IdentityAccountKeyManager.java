@@ -120,6 +120,7 @@ public class IdentityAccountKeyManager extends Bip44AccountKeyManager {
       return accountNode.createHardenedChildNode(a).createHardenedChildNode(b).createHardenedChildNode(c).createHardenedChildNode(d);
    }
 
+   @SuppressWarnings("NewApi")
    private static byte[] getBitidWebsiteHash(String website) {
       // the index is used for multiple keys for one website under one identity account - so far, we dont support this, so hardcoded account 0
       byte[] index = new byte[4]; //is initialized with zeroes by default

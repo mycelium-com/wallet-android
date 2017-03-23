@@ -34,7 +34,7 @@ public class Bip44Purpose extends HdKeyPath {
       if (hardened) {
          return new Bip44CoinType(this, index, true);
       } else {
-         return new HdKeyPath(this, index, hardened);
+         return new HdKeyPath(this, index, false);
       }
    }
 }

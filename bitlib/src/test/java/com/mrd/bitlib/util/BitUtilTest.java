@@ -34,9 +34,9 @@
 
 package com.mrd.bitlib.util;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class BitUtilTest {
    @Test
@@ -47,22 +47,21 @@ public class BitUtilTest {
       byte[] empty = new byte[] {};
 
       // Copy All
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, original.length), original));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, original.length), original));
 
       // Copy nothing
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, 0), empty));
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOf(empty, 0), empty));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, 0), empty));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOf(empty, 0), empty));
 
       // Copy first
-      Assert.assertTrue(BitUtils.copyOf(original, 1)[0] == 0x00);
+      assertTrue(BitUtils.copyOf(original, 1)[0] == 0x00);
 
       // Partial copy
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, 3), original_first_three));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, 3), original_first_three));
 
       // Copy one beyond last index
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, original.length + 1),
+      assertTrue(BitUtils.areEqual(BitUtils.copyOf(original, original.length + 1),
             original_with_one_zero_appended));
-
    }
 
    @Test
@@ -73,25 +72,23 @@ public class BitUtilTest {
       byte[] empty = new byte[] {};
 
       // Copy all
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 0, original.length), original));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 0, original.length), original));
 
       // Copy nothing
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 0, 0), empty));
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 1, 1), empty));
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, original.length, original.length), empty));
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(empty, 0, 0), empty));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 0, 0), empty));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 1, 1), empty));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, original.length, original.length), empty));
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(empty, 0, 0), empty));
 
       // Copy one more than we have and expect zero truncation
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 0, original.length + 1),
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 0, original.length + 1),
             original_with_one_zero_appended));
 
       // Copy from index 1 to one more than we have and expect truncation
-      Assert.assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 1, original.length + 1),
+      assertTrue(BitUtils.areEqual(BitUtils.copyOfRange(original, 1, original.length + 1),
             original_from_index_1_with_one_zero_appended));
 
       // Copy one byte from index 1
-      Assert.assertTrue(BitUtils.copyOfRange(original, 1, 2)[0] == 0x01);
-
+      assertTrue(BitUtils.copyOfRange(original, 1, 2)[0] == 0x01);
    }
-
 }

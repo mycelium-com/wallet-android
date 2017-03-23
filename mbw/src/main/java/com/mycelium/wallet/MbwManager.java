@@ -103,6 +103,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.GINGERBREAD;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -195,7 +197,7 @@ public class MbwManager {
       _wapi = initWapi();
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
-      if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.GINGERBREAD) {
+      if (SDK_INT < GINGERBREAD) {
          // Disable HTTP keep-alive on systems predating Gingerbread
          System.setProperty("http.keepAlive", "false");
       }
@@ -228,7 +230,7 @@ public class MbwManager {
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
-      Set<String> fiatCurrencies = new HashSet<String>();
+      Set<String> fiatCurrencies = new HashSet<>();
       if (currencyList == null) {
          //if there is no list take the default currency
          fiatCurrencies.add(Constants.DEFAULT_CURRENCY);
@@ -472,7 +474,7 @@ public class MbwManager {
 
    private List<Record> loadClassicRecords() {
       SharedPreferences prefs = _applicationContext.getSharedPreferences("data", Context.MODE_PRIVATE);
-      List<Record> recordList = new LinkedList<Record>();
+      List<Record> recordList = new LinkedList<>();
 
       // Load records
       String records = prefs.getString("records", "");
@@ -518,14 +520,11 @@ public class MbwManager {
     * @return a new wallet manager instance
     */
    private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
-      WalletManagerBacking backing;
-      SecureKeyValueStore secureKeyValueStore;
-
       // Create persisted account backing
-      backing = new SqliteWalletManagerBackingWrapper(context);
+      WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
       // Create persisted secure storage instance
-      secureKeyValueStore = new SecureKeyValueStore(backing,
+      SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
             new AndroidRandomSource());
 
       ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
@@ -592,7 +591,7 @@ public class MbwManager {
       _currencySwitcher.setCurrencyList(currencies);
 
       SharedPreferences.Editor editor = getEditor();
-      editor.putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<String>(currencies));
+      editor.putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<>(currencies));
       editor.commit();
    }
 
@@ -841,7 +840,7 @@ public class MbwManager {
       vibrate(500);
    }
 
-   public void vibrate(int milliseconds) {
+   private void vibrate(int milliseconds) {
       Vibrator v = (Vibrator) _applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
       if (v != null) {
          v.vibrate(milliseconds);
@@ -1228,7 +1227,7 @@ public class MbwManager {
       return _semiPersistingBackgroundObjects;
    }
 
-   public void switchServer() {
+   private void switchServer() {
       _environment.getWapiEndpoints().switchToNextEndpoint();
    }
 
@@ -1269,5 +1268,18 @@ public class MbwManager {
          }
       }, 1, SECONDS);
 
+   }
+
+   /**
+    * Refresh transaction data and exchange rates.
+    */
+   public void manualRefresh(SyncMode syncMode) {
+      //switch server every third time the refresh button gets hit
+      if (new Random().nextInt(3) == 0) {
+         switchServer();
+      }
+      getWalletManager(false).startSynchronization(syncMode);
+      // also fetch a new exchange rate, if necessary
+      getExchangeRateManager().requestOptionalRefresh();
    }
 }

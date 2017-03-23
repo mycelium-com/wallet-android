@@ -144,7 +144,6 @@
                 android:layout="@layout/preference_layout"
                 android:summary="@string/cashila_setting_show_sepa_button_summary"
                 android:title="@string/cashila_setting_show_sepa_button"/>
-
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -83,12 +83,7 @@ public class BitIdAuthenticator {
          } else {
             bitIdResponse.status = BitIdResponse.ResponseStatus.ERROR;
             bitIdResponse.message = formatErrorMessage(callResponse.body().string());
-
          }
-
-      } catch (SocketTimeoutException e) {
-         //connection timed out
-         bitIdResponse.status = BitIdResponse.ResponseStatus.TIMEOUT;
       } catch (InterruptedIOException e) {
          //seems like this can also happen when a timeout occurs
          bitIdResponse.status = BitIdResponse.ResponseStatus.TIMEOUT;

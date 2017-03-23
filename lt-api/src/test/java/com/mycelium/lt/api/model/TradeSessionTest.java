@@ -16,14 +16,13 @@
 
 package com.mycelium.lt.api.model;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import com.mrd.bitlib.TransactionUtils;
 
-public class TradeSessionTest {
+import static org.junit.Assert.fail;
 
+public class TradeSessionTest {
    @Test
    public void testCommissionHardLimit() {
       tryCreateTradeSession(104000000, 100000000, false, "4% commission should not fail");
@@ -56,13 +55,12 @@ public class TradeSessionTest {
                null, null, null, null, null, null, false, true, null, 0D, null, null, null, null, null, null, false,
                false, null);
          if (shouldFail) {
-            Assert.fail(message);
+            fail(message);
          }
       } catch (Exception e) {
          if (!shouldFail) {
-            Assert.fail(message);
+            fail(message);
          }
       }
    }
-
 }

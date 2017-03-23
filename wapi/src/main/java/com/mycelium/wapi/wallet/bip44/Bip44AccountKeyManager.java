@@ -61,7 +61,6 @@ public class Bip44AccountKeyManager {
    protected HdKeyNode _publicChangeChainRoot;
    protected NetworkParameters _network;
 
-
    public static Bip44AccountKeyManager createNew(HdKeyNode bip32Root, NetworkParameters network, int accountIndex, SecureKeyValueStore secureKeyValueStore, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       HdKeyNode bip44Root = bip32Root.createChildNode(BIP44_PURPOSE);
       HdKeyNode coinTypeRoot = bip44Root.createChildNode(network.isProdnet() ? BIP44_PRODNET_COIN_TYPE : BIP44_TESTNET_COIN_TYPE);
@@ -175,8 +174,7 @@ public class Bip44AccountKeyManager {
 
       if (addressNodeBytes != null) {
          // We have it already, no need to calculate it
-         HdDerivedAddress adr = bytesToAddress(addressNodeBytes, path);
-         return adr;
+         return bytesToAddress(addressNodeBytes, path);
       }
 
       // We don't have it, need to calculate it from the public key
@@ -237,8 +235,7 @@ public class Bip44AccountKeyManager {
          // Address bytes
          byte[] addressBytes = reader.getBytes(21);
          // Read length encoded string
-         String addressString = null;
-         addressString = new String(reader.getBytes((int) reader.get()));
+         String addressString = new String(reader.getBytes((int) reader.get()));
          return new HdDerivedAddress(addressBytes, addressString, path);
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
@@ -251,8 +248,7 @@ public class Bip44AccountKeyManager {
 
    public HdKeyNode getPrivateAccountRoot(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       try {
-         HdKeyNode hdKeyNode = HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getEncryptedValue(getAccountNodeId(_network, _accountIndex), cipher));
-         return hdKeyNode;
+         return HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getEncryptedValue(getAccountNodeId(_network, _accountIndex), cipher));
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }

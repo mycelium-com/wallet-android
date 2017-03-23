@@ -62,7 +62,7 @@ public enum MinerFee {
    }
 
    public static MinerFee fromString(String string) {
-      for(MinerFee fee : MinerFee.values()) {
+      for(MinerFee fee : values()) {
          if(fee.tag.equals(string)) {
             return fee;
          }
@@ -73,9 +73,7 @@ public enum MinerFee {
    //simply returns the next fee in order of declaration, starts with the first after reaching the last
    //useful for cycling through them in sending for example
    public MinerFee getNext() {
-      return this.ordinal() < MinerFee.values().length - 1
-            ? MinerFee.values()[this.ordinal() + 1]
-            : MinerFee.values()[0];
+      return values()[(ordinal() + 1) % values().length];
    }
 
    public Bitcoins getFeePerKb(FeeEstimation feeEstimation) {

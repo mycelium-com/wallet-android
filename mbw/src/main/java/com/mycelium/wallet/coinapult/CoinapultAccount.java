@@ -547,7 +547,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
    @Override
-   public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
+   public UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
       return null;
    }
 
@@ -654,7 +654,6 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
 
    @Override
    public void queueTransaction(TransactionEx transaction) {
-
    }
 
    @Override
@@ -774,12 +773,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
          }
 
          Currency currency = (Currency) o;
-
-         if (!name.equals(currency.name)) {
-            return false;
-         }
-         return minimumConversationValue.equals(currency.minimumConversationValue);
-
+         return name.equals(currency.name) && minimumConversationValue.equals(currency.minimumConversationValue);
       }
 
       @Override

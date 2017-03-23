@@ -1,14 +1,17 @@
 package com.mrd.bitlib.crypto;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.crypto.BipSss.Share;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HexUtils;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class BipSssTest {
 
@@ -42,7 +45,7 @@ public class BipSssTest {
       shares = addShareWithId("SSS-FmEQ1wApUkUA", "ff12", new ArrayList<Share>());
       addShareWithId("SSS-FmEQ2TkajyyQ", "ff12", shares);
       String result2 = BipSss.combine(shares);
-      Assert.assertEquals(result2, result1);
+      assertEquals(result2, result1);
    }
 
    /**
@@ -80,7 +83,7 @@ public class BipSssTest {
       addShareWithId("SSS-2cTMvdkULmYJVobgaW", "5851", shares);
       addShareWithId("SSS-2cTMvh5uxQ4SavKAkh", "5851", shares);
       String result2 = BipSss.combine(shares);
-      Assert.assertEquals(result1, result2);
+      assertEquals(result1, result2);
    }
 
    /**
@@ -96,11 +99,11 @@ public class BipSssTest {
       addShareWithId("SSS-5CJkVAkE319sk7FZVnoUgaqge6vmK1bLXwN2mm9d3VgM5hzm6qdh5TrX", "20ba", shares);
       String result1 = BipSss.combine(shares);
       assertResult(result1, HexUtils.toBytes("80be1583452771c1def6789be9ab5086bf3c18dd47aa99d785056ba330bcda7aaf"));
-      Assert.assertEquals(result1, "5KG12Hn1g33JEFwdFsbjW4Hzi2fqdsEKZTtcJ3q9L6QFLvL1UJS");
+      assertEquals(result1, "5KG12Hn1g33JEFwdFsbjW4Hzi2fqdsEKZTtcJ3q9L6QFLvL1UJS");
 
       // Add 2 shares
       String result2 = BipSss.combine(addShareWithId("SSS-5CJkVAkE319sk7FZVnoUgaqge6vmK1bLXwN2mm9d3VgM5hzm6qdh5TrX", "20ba", addShareWithId("SSS-5CJkUyu8LAq7Newbgpc58SKsuNXvQyxAtnYzVjU1bRhF5hFYyvYaKToq", "20ba", new ArrayList<Share>())));
-      Assert.assertEquals(result1, result2);
+      assertEquals(result1, result2);
    }
 
    /**
@@ -116,7 +119,7 @@ public class BipSssTest {
       addShareWithId("SSS-L7d32LG8vunr4bPjNkp1gwjZ4MxdgL7MLPpg87irEh4TQShCR5QFshCx2", "bf09", shares);
       String result1 = BipSss.combine(shares);
       assertResult(result1, HexUtils.toBytes("809389201df51c18a6c81b1a5525189a20cb58ddcffbd8d28b6b30dcc43a082fb101"));
-      Assert.assertEquals(result1, "L2AW1Gz2962jcDY5gY1xjuep3fEbkpr3pLody77hUVm3x2MsTBPw");
+      assertEquals(result1, "L2AW1Gz2962jcDY5gY1xjuep3fEbkpr3pLody77hUVm3x2MsTBPw");
    }
 
    /**

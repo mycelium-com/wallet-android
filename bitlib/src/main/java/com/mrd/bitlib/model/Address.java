@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 
 import com.google.common.base.Function;
 import com.mrd.bitlib.util.BitUtils;
@@ -29,7 +29,6 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 public class Address implements Serializable, Comparable<Address> {
-
    private static final long serialVersionUID = 1L;
    public static final int NUM_ADDRESS_BYTES = 21;
    public static final Function<? super String,Address> FROM_STRING = new Function<String, Address>() {
@@ -202,12 +201,8 @@ public class Address implements Serializable, Comparable<Address> {
    }
 
    public String getShortAddress(int showChars) {
-      StringBuilder sb = new StringBuilder();
-      String addressString = this.toString();
-      sb.append(addressString.substring(0, showChars));
-      sb.append("...");
-      sb.append(addressString.substring(addressString.length() - showChars));
-      return sb.toString();
+      String addressString = toString();
+      return addressString.substring(0, showChars) + "..." + addressString.substring(addressString.length() - showChars);
    }
 
    @Override
@@ -268,10 +263,13 @@ public class Address implements Serializable, Comparable<Address> {
       return sb.toString();
    }
 
-
    public NetworkParameters getNetwork() {
-      if (matchesNetwork(NetworkParameters.productionNetwork, getVersion())) return NetworkParameters.productionNetwork;
-      if (matchesNetwork(NetworkParameters.testNetwork, getVersion())) return NetworkParameters.testNetwork;
+      if (matchesNetwork(NetworkParameters.productionNetwork, getVersion())) {
+         return NetworkParameters.productionNetwork;
+      }
+      if (matchesNetwork(NetworkParameters.testNetwork, getVersion())) {
+         return NetworkParameters.testNetwork;
+      }
       throw new IllegalStateException("unknown network");
    }
 

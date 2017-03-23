@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
@@ -48,33 +49,49 @@ import android.widget.ListView;
 import android.widget.Toast;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
+import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.activity.send.SendMainActivity;
-import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import static android.app.Activity.RESULT_OK;
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.makeText;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TransactionHistoryFragment extends Fragment {
-
+   private static final int SIGN_TRANSACTION_REQUEST_CODE = 0x12f4;
+   private static final int BROADCAST_REQUEST_CODE = SIGN_TRANSACTION_REQUEST_CODE + 1;
    private MbwManager _mbwManager;
    private MetadataStorage _storage;
    private View _root;
@@ -92,7 +109,6 @@ public class TransactionHistoryFragment extends Fragment {
             _mbwManager.getWalletManager(false).startSynchronization();
          }
       });
-
       return _root;
    }
 
@@ -110,8 +126,6 @@ public class TransactionHistoryFragment extends Fragment {
       super.onAttach(activity);
       _mbwManager = MbwManager.getInstance(activity);
       _storage = _mbwManager.getMetadataStorage();
-
-
    }
 
    @Override
@@ -127,6 +141,18 @@ public class TransactionHistoryFragment extends Fragment {
    public void onPause() {
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
+   }
+
+   @Override
+   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
+         if (resultCode == RESULT_OK) {
+            Transaction transaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+            BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getId(), false, transaction, "CPFP", BROADCAST_REQUEST_CODE);
+         }
+      } else {
+         super.onActivityResult(requestCode, resultCode, intent);
+      }
    }
 
    @Subscribe
@@ -209,6 +235,7 @@ public class TransactionHistoryFragment extends Fragment {
          super(context, transactions, TransactionHistoryFragment.this, _addressBook, false);
       }
 
+      @NonNull
       @Override
       public View getView(final int position, View convertView, ViewGroup parent) {
          View rowView = super.getView(position, convertView, parent);
@@ -367,24 +394,35 @@ public class TransactionHistoryFragment extends Fragment {
                                    .create().show();
                            break;
                         case R.id.miBumpFee:
-                           new AlertDialog.Builder(getActivity())
-                                   .setTitle(_context.getString(R.string.bump_fee_title))
-                                   .setMessage(_context.getString(R.string.description_bump_fee))
-                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), record.txid, false);
-                                         startActivity(intent);
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .create().show();
+                           long fee = MinerFee.PRIORITY.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue();
+                           final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.txid, fee);
+                           if(unsigned != null) {
+                              long txFee = unsigned.calculateFee();
+                              ExactBitcoinValue txFeeBitcoinValue = ExactBitcoinValue.from(txFee);
+                              String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
+                              CurrencyValue txFeeCurrencyValue = CurrencyValue.fromValue(txFeeBitcoinValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+                              if(!CurrencyValue.isNullOrZero(txFeeCurrencyValue)) {
+                                 txFeeString += " (" + Utils.getFormattedValueWithUnit(txFeeCurrencyValue, _mbwManager.getBitcoinDenomination()) + ")";
+                              }
+                              new AlertDialog.Builder(getActivity())
+                                      .setTitle(_context.getString(R.string.bump_fee_title))
+                                      .setMessage(_context.getString(R.string.description_bump_fee, fee / 1000, txFeeString))
+                                      .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                         @Override
+                                         public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
+                                            startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            dialog.dismiss();
+                                         }
+                                      })
+                                      .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                         @Override
+                                         public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                         }
+                                      })
+                                      .create().show();
+                           }
                            break;
                      }
                      return false;
@@ -398,9 +436,40 @@ public class TransactionHistoryFragment extends Fragment {
                });
             }
          });
-
          return rowView;
       }
+   }
+
+   /**
+    * This method determins the parent's size and fee and builds a transaction that spends from its outputs but with a fee that lifts the parent and the child to high priority.
+    * TODO: consider upstream chains of unconfirmed
+    * TODO: consider parallel attempts to PFP
+    */
+   private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
+      WalletAccount walletAccount = _mbwManager.getSelectedAccount();
+      TransactionDetails transaction = walletAccount.getTransactionDetails(txid);
+      long txFee = 0;
+      for(TransactionDetails.Item i : transaction.inputs) {
+         txFee += i.value;
+      }
+      for(TransactionDetails.Item i : transaction.outputs) {
+         txFee -= i.value;
+      }
+      if(txFee * 1000 / transaction.rawSize >= feePerKB) {
+         makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();
+         return null;
+      }
+      if (walletAccount instanceof AbstractAccount) {
+         AbstractAccount account = (AbstractAccount) walletAccount;
+         try {
+            return account.createUnsignedCPFPTransaction(txid, feePerKB, txFee);
+         } catch (InsufficientFundsException e) {
+            makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+         } catch (UnableToBuildTransactionException e) {
+            makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+         }
+      }
+      return null;
    }
 
    private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {

@@ -32,15 +32,18 @@ package com.mycelium.wallet;/*
  * fitness for a particular purpose and non-infringement.
  */
 
-import junit.framework.TestCase;
-
-// You can run this tests using "gradle connectedInstrumentTest" or "gradle cIT"
+// You can run this tests using "gradle connectedAndroidTest" or "gradle cAT"
 // in the mbw folder.
-// BEWARE!!! running gradle cIT will uninstall  the app, deleting all keys!!!
+// BEWARE!!! running gradle cAT will uninstall the app, deleting all keys!!!
 
-public class UtilsTest extends TestCase {
+import org.junit.Test;
 
-   public void testTruncateAndConvertDecimalString() throws Exception {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class UtilsTest {
+   @Test
+   public void testTruncateAndConvertDecimalString() {
       // Succeed on sane number
       assertEquals(Utils.truncateAndConvertDecimalString("10.12345678", 8), "10.12345678");
       assertEquals(Utils.truncateAndConvertDecimalString("5", 8), "5");
@@ -81,7 +84,5 @@ public class UtilsTest extends TestCase {
 
       // Fail on negative
       assertNull(Utils.truncateAndConvertDecimalString("-1", 8));
-
    }
-
 }

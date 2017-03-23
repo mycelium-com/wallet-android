@@ -32,7 +32,6 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
  * <p/>Note that for every ID an encrypted and a plaintext component can be stored.
  */
 public class SecureKeyValueStore {
-
    private static final byte[] KEK_ID = new byte[]{(byte) 0};
    private static final byte PLAIN_PREFIX = 1;
    private static final byte CIPHER_PREFIX = 2;
@@ -222,5 +221,4 @@ public class SecureKeyValueStore {
    protected synchronized void setValue(byte[] realId, byte[] value){
       _backing.setValue(realId, value);
    }
-
 }

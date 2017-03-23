@@ -43,7 +43,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
 public class GetFromAddressBookActivity extends ActionBarActivity {
-
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
 
@@ -82,5 +81,4 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
       return ownBundle;
    }
-
 }

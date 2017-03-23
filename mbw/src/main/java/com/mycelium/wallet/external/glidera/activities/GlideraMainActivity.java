@@ -43,24 +43,21 @@ public class GlideraMainActivity extends ActionBarActivity {
       tabsAdapter.addTab(transactionHistoryTab.setText(getString(R.string.gd_transaction_history_tab)),
               GlideraTransactionHistoryFragment.class, null);
 
-      Bundle bundle = getIntent().getExtras();
+      Bundle extras = getIntent().getExtras();
 
-      if (bundle != null) {
-         String tab = getIntent().getExtras().getString("tab");
-
-         if (tab.equals("buy")) {
-            actionBar.selectTab(buyBitcoinTab);
-         } else if (tab.equals("sell")) {
-            actionBar.selectTab(sellBitcoinTab);
-         } else if (tab.equals("history")) {
-            actionBar.selectTab(transactionHistoryTab);
-         } else {
-            actionBar.selectTab(buyBitcoinTab);
+      Tab tab = buyBitcoinTab;
+      if (extras != null) {
+         String tabName = extras.getString("tab");
+         switch (tabName) {
+            case "buy":
+               tab = buyBitcoinTab; break;
+            case "sell":
+               tab = sellBitcoinTab; break;
+            case "history":
+               tab = transactionHistoryTab; break;
          }
-      } else {
-         actionBar.selectTab(buyBitcoinTab);
       }
-
+      actionBar.selectTab(tab);
    }
 
    @Override

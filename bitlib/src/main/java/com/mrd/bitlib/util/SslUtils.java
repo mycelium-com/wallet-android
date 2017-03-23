@@ -35,16 +35,14 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-
 /**
  * SSL Utilities.
  */
 public class SslUtils {
-
    private static final Map<String, SSLSocketFactory> _sslSocketFactories = new HashMap<String, SSLSocketFactory>();
 
    public static final HostnameVerifier HOST_NAME_VERIFIER_ACCEPT_ALL;
-   public static final  SSLSocketFactory SSL_SOCKET_FACTORY_ACCEPT_ALL;
+   public static final SSLSocketFactory SSL_SOCKET_FACTORY_ACCEPT_ALL;
 
    public static synchronized SSLSocketFactory getSsLSocketFactory(String certificateThumbprint) {
       SSLSocketFactory factory = _sslSocketFactories.get(certificateThumbprint);
@@ -96,18 +94,16 @@ public class SslUtils {
          SSLContext sc = SSLContext.getInstance("TLS");
          sc.init(null, trustOneCert, null);
          return sc.getSocketFactory();
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e);
-      } catch (KeyManagementException e) {
+      } catch (NoSuchAlgorithmException | KeyManagementException e) {
          throw new RuntimeException(e);
       }
    }
 
    static {
-
-      // Used for disabling host name verification. This is safe because we
-      // trust the MWAPI server certificate explicitly
       HOST_NAME_VERIFIER_ACCEPT_ALL = new HostnameVerifier() {
+         // Used for disabling host name verification. This is safe because we
+         // trust the MWAPI server certificate explicitly
+         @SuppressWarnings("BadHostnameVerifier")
          @Override
          public boolean verify(String hostname, SSLSession session) {
             return true;
@@ -131,9 +127,7 @@ public class SslUtils {
          SSLContext sc = SSLContext.getInstance("TLS");
          sc.init(null, trustOneCert, null);
          SSL_SOCKET_FACTORY_ACCEPT_ALL = sc.getSocketFactory();
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e);
-      } catch (KeyManagementException e) {
+      } catch (NoSuchAlgorithmException | KeyManagementException e) {
          throw new RuntimeException(e);
       }
    }
@@ -191,5 +185,4 @@ public class SslUtils {
          return null;
       }
    }
-
 }

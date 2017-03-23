@@ -34,7 +34,7 @@
 
 package com.mrd.bitlib;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 
 import org.junit.Test;
 
@@ -42,9 +42,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class Base58Test {
-
-   public static final byte[] BYTES = new byte[]{0, 13, -101};
-   public static final byte[] EMPTY = new byte[]{};
+   private static final byte[] BYTES = new byte[]{0, 13, -101};
+   private static final byte[] EMPTY = new byte[]{};
 
    @Test
    public void testSimpleCases() {
@@ -57,5 +56,4 @@ public class Base58Test {
    public void testNull() {
       Base58.decode(null);
    }
-
 }

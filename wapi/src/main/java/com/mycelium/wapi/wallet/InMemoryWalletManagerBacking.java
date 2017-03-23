@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet;
 
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.HexUtils;
@@ -31,19 +32,11 @@ import java.util.*;
  * Backing for a wallet manager which is only kept temporarily in memory
  */
 public class InMemoryWalletManagerBacking implements WalletManagerBacking {
-
-   private final Map<String, byte[]> _values;
-   private final Map<UUID, InMemoryAccountBacking> _backings;
-   private final Map<UUID, Bip44AccountContext> _bip44Contexts;
-   private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts;
+   private final Map<String, byte[]> _values = new HashMap<>();
+   private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
+   private final Map<UUID, Bip44AccountContext> _bip44Contexts = new HashMap<>();
+   private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts = new HashMap<>();
    private int maxSubId = 0;
-
-   public InMemoryWalletManagerBacking() {
-      _values = new HashMap<String, byte[]>();
-      _backings = new HashMap<UUID, InMemoryAccountBacking>();
-      _bip44Contexts = new HashMap<UUID, Bip44AccountContext>();
-      _singleAddressAccountContexts = new HashMap<UUID, SingleAddressAccountContext>();
-   }
 
    @Override
    public void beginTransaction() {
@@ -63,7 +56,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    @Override
    public List<Bip44AccountContext> loadBip44AccountContexts() {
       // Return a list containing copies
-      List<Bip44AccountContext> list = new ArrayList<Bip44AccountContext>();
+      List<Bip44AccountContext> list = new ArrayList<>();
       for (Bip44AccountContext c : _bip44Contexts.values()) {
          list.add(new Bip44AccountContext(c));
       }
@@ -79,7 +72,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    @Override
    public List<SingleAddressAccountContext> loadSingleAddressAccountContexts() {
       // Return a list containing copies
-      List<SingleAddressAccountContext> list = new ArrayList<SingleAddressAccountContext>();
+      List<SingleAddressAccountContext> list = new ArrayList<>();
       for (SingleAddressAccountContext c : _singleAddressAccountContexts.values()) {
          list.add(new SingleAddressAccountContext(c));
       }
@@ -168,20 +161,11 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    }
 
    private class InMemoryAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {
-
-      private final Map<OutPoint, TransactionOutputEx> _unspentOuputs;
-      private final Map<Sha256Hash, TransactionEx> _transactions;
-      private final Map<OutPoint, TransactionOutputEx> _parentOutputs;
-      private final Map<Sha256Hash, byte[]> _outgoingTransactions;
-      private final HashMap<Sha256Hash, OutPoint> _txRefersParentTxOpus;
-
-      public InMemoryAccountBacking() {
-         _unspentOuputs = new HashMap<OutPoint, TransactionOutputEx>();
-         _txRefersParentTxOpus = new HashMap<Sha256Hash, OutPoint>();
-         _transactions = new HashMap<Sha256Hash, TransactionEx>();
-         _parentOutputs = new HashMap<OutPoint, TransactionOutputEx>();
-         _outgoingTransactions = new HashMap<Sha256Hash, byte[]>();
-      }
+      private final Map<OutPoint, TransactionOutputEx> _unspentOuputs = new HashMap<>();
+      private final Map<Sha256Hash, TransactionEx> _transactions = new HashMap<>();
+      private final Map<OutPoint, TransactionOutputEx> _parentOutputs = new HashMap<>();
+      private final Map<Sha256Hash, byte[]> _outgoingTransactions = new HashMap<>();
+      private final HashMap<Sha256Hash, OutPoint> _txRefersParentTxOpus = new HashMap<>();
 
       @Override
       public void updateAccountContext(Bip44AccountContext context) {
@@ -220,7 +204,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public Collection<TransactionOutputEx> getAllUnspentOutputs() {
-         return new LinkedList<TransactionOutputEx>(_unspentOuputs.values());
+         return new LinkedList<>(_unspentOuputs.values());
       }
 
       @Override
@@ -270,7 +254,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public List<TransactionEx> getTransactionHistory(int offset, int limit) {
-         List<TransactionEx> list = new ArrayList<TransactionEx>();
+         List<TransactionEx> list = new ArrayList<>();
          list.addAll(_transactions.values());
          Collections.sort(list);
          if (offset >= list.size()) {
@@ -282,10 +266,10 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public List<TransactionEx> getTransactionsSince(long since) {
-         List<TransactionEx> list = new ArrayList<TransactionEx>();
+         List<TransactionEx> list = new ArrayList<>();
          list.addAll(_transactions.values());
          Collections.sort(list);
-         final ArrayList<TransactionEx> result = new ArrayList<TransactionEx>();
+         final ArrayList<TransactionEx> result = new ArrayList<>();
          for (TransactionEx entry : list) {
             if (entry.time < since) {
                break;
@@ -297,7 +281,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public Collection<TransactionEx> getUnconfirmedTransactions() {
-         List<TransactionEx> unconfirmed = new LinkedList<TransactionEx>();
+         List<TransactionEx> unconfirmed = new LinkedList<>();
          for (TransactionEx tex : _transactions.values()) {
             if (tex.height == -1) {
                unconfirmed.add(tex);
@@ -308,7 +292,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public Collection<TransactionEx> getYoungTransactions(int maxConfirmations, int blockChainHeight) {
-         List<TransactionEx> young = new LinkedList<TransactionEx>();
+         List<TransactionEx> young = new LinkedList<>();
          for (TransactionEx tex : _transactions.values()) {
             int confirmations = tex.calculateConfirmations(blockChainHeight);
             if (confirmations <= maxConfirmations) {
@@ -330,7 +314,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public Map<Sha256Hash, byte[]> getOutgoingTransactions() {
-         return new HashMap<Sha256Hash, byte[]>(_outgoingTransactions);
+         return new HashMap<>(_outgoingTransactions);
       }
 
       @Override
@@ -357,7 +341,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint) {
-         ArrayList<Sha256Hash> ret = new ArrayList<Sha256Hash>();
+         ArrayList<Sha256Hash> ret = new ArrayList<>();
          for (Map.Entry<Sha256Hash, OutPoint> entry : _txRefersParentTxOpus.entrySet()) {
             if (entry.getValue().equals(outPoint)) {
                ret.add(entry.getKey());

@@ -1,6 +1,6 @@
 package com.mycelium.wallet.pop;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -8,6 +8,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.StringTokenizer;
 
+/**
+ * Proof of Payment request
+ */
 public class PopRequest implements Serializable {
     private byte[] n;
     private Long amountSatoshis;

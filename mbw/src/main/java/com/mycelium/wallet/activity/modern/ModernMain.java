@@ -122,7 +122,7 @@ public class ModernMain extends ActionBarActivity {
       setContentView(mViewPager);
       ActionBar bar = getSupportActionBar();
       bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-      bar.setDisplayOptions(1, ActionBar.DISPLAY_SHOW_TITLE);
+      bar.setDisplayShowTitleEnabled(false);
 
       // Load the theme-background (usually happens in styles.xml) but use a lower
       // pixel format, this saves around 10MB of allocated memory
@@ -142,7 +142,6 @@ public class ModernMain extends ActionBarActivity {
          getWindow().setBackgroundDrawable(background);
       } catch (ExecutionException ignore) {
       }
-
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
@@ -278,8 +277,6 @@ public class ModernMain extends ActionBarActivity {
          }, 70);
          _lastSync = new Date().getTime();
       }
-
-
       supportInvalidateOptionsMenu();
       super.onResume();
    }
@@ -329,7 +326,6 @@ public class ModernMain extends ActionBarActivity {
          settingsItem.setTitle(settingsItem.getTitle() + " (" + settingsEn + ")");
       }
    }
-
 
    // controlling the behavior here is the safe but slightly slower responding
    // way of doing this.
@@ -387,57 +383,59 @@ public class ModernMain extends ActionBarActivity {
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       final int itemId = item.getItemId();
-      if (itemId == R.id.miColdStorage) {
-         InstantWalletActivity.callMe(this);
-         return true;
-      } else if (itemId == R.id.miSettings) {
-         Intent intent = new Intent(this, SettingsActivity.class);
-         startActivityForResult(intent, REQUEST_SETTING_CHANGED);
-         return true;
-      } else if (itemId == R.id.miBackup) {
-         Utils.pinProtectedWordlistBackup(this);
-         return true;
+      switch (itemId) {
+         case R.id.miColdStorage:
+            InstantWalletActivity.callMe(this);
+            return true;
+         case R.id.miSettings: {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, REQUEST_SETTING_CHANGED);
+            return true;
+         }
+         case R.id.miBackup:
+            Utils.pinProtectedWordlistBackup(this);
+            return true;
          //with wordlists, we just need to backup and verify in one step
          //} else if (itemId == R.id.miVerifyBackup) {
          //   VerifyBackupActivity.callMe(this);
          //   return true;
-      } else if (itemId == R.id.miRefresh) {
-         //switch server every third time the refresh button gets hit
-         if (new Random().nextInt(3) == 0) {
-            _mbwManager.switchServer();
-         }
-         // every 5th manual refresh make a full scan
-         if (new Random().nextInt(5) == 0) {
-            _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-         } else {
-            if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
+         case R.id.miRefresh:
+            // default only sync the current account
+            SyncMode syncMode = SyncMode.NORMAL_FORCED;
+            // every 5th manual refresh make a full scan
+            if (new Random().nextInt(5) == 0) {
+               syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
+            } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
                // if we are in the accounts tab, sync all accounts if the users forces a sync
-               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL_ALL_ACCOUNTS_FORCED);
-            } else {
-               // only sync the current account
-               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL_FORCED);
+               syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
+            _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+            // also fetch a new exchange rate, if necessary
+            _mbwManager.getExchangeRateManager().requestOptionalRefresh();
+            break;
+         case R.id.miHelp:
+            openMyceliumHelp();
+            break;
+         case R.id.miAbout: {
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            break;
          }
-         _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-         // also fetch a new exchange rate, if necessary
-         _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-      } else if (itemId == R.id.miHelp) {
-         openMyceliumHelp();
-      } else if (itemId == R.id.miAbout) {
-         Intent intent = new Intent(this, AboutActivity.class);
-         startActivity(intent);
-      } else if (itemId == R.id.miRescanTransactions) {
-         _mbwManager.getSelectedAccount().dropCachedData();
-         _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-      } else if (itemId == R.id.miSepaSend) {
-         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
-            @Override
-            public void run() {
-               startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
-            }
-         });
-      } else if (itemId == R.id.miExportHistory) {
-         shareTransactionHistory();
+         case R.id.miRescanTransactions:
+            _mbwManager.getSelectedAccount().dropCachedData();
+            _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+            break;
+         case R.id.miSepaSend:
+            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
+               @Override
+               public void run() {
+                  startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
+               }
+            });
+            break;
+         case R.id.miExportHistory:
+            shareTransactionHistory();
+            break;
       }
       return super.onOptionsItemSelected(item);
    }

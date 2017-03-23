@@ -61,6 +61,23 @@ public class MrdExportTest {
    private static final String TEST_SEED_ENCRYPTED = "xEncEnICAQIDBJBNJp6HyhTN6hrba6RSZLhDEYtPK9jGUOjANFv39SMB0CUbiQ";
    private static final String TEST_SEED_ENCRYPTED_WITH_PASSWORD = "xEncEnICAQIDBKEoue812Lp8YoniMQHkmvnr7bcrlHHbQKQccsg1IFlSwr96qA";
 
+   private class TestNonRandomSource implements RandomSource {
+      private long _state;
+
+      TestNonRandomSource() {
+         _state = 104723;
+      }
+
+      @Override
+      public void nextBytes(byte[] bytes) {
+         for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) (_state & 0xFFL);
+            _state *= _state;
+            _state %= 104729;
+         }
+      }
+   }
+
    @Test
    public void passwordChecksum() {
       Assert.assertEquals('c', MrdExport.V1.calculatePasswordChecksum("abc"));

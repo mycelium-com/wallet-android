@@ -57,7 +57,7 @@ public class OutPoint implements Serializable {
 
    @Override
    public String toString() {
-      return new StringBuilder().append(hash).append(':').append(index).toString();
+      return String.valueOf(hash) + ':' + index;
    }
 
    public ByteWriter toByteWriter(ByteWriter writer) {

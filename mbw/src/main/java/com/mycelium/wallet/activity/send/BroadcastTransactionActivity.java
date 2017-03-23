@@ -40,9 +40,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.Window;
 import android.widget.Toast;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -112,11 +112,9 @@ public class BroadcastTransactionActivity extends Activity {
       overridePendingTransition(0, 0);
    }
 
-
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> startBroadcastingTask() {
       // Broadcast the transaction in the background
       AsyncTask<Void, Integer, WalletAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletAccount.BroadcastResult>() {
-
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
             return _account.broadcastTransaction(_transaction);
@@ -227,5 +225,4 @@ public class BroadcastTransactionActivity extends Activity {
    @Subscribe
    public void syncStopped(SyncStopped sync) {
    }
-
 }

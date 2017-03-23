@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.7" versioncode="28700">
+        <change>Integration with Simplex - buy bitcoin with your credit card</change>
+    </release>
     <release version="2.8.6" versioncode="28600">
         <change>Integration with Bitcoin Store - you can now buy bitcoin with your credit card</change>
-        <change>Removed the star-rating from local trader as it lured people into too much trust</change>
+        <change>Removed the star rating from local trader as it lured people into too much trust</change>
     </release>
     <release version="2.8.5" versioncode="28502">
         <change>Support for "Ledger Nano S"</change>

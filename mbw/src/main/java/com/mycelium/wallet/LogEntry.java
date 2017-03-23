@@ -36,6 +36,7 @@ package com.mycelium.wallet;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class LogEntry {
@@ -58,6 +59,6 @@ public class LogEntry {
       }else {
          shortLevel = "E";
       }
-      return "[" + shortLevel + "] " + new SimpleDateFormat("HH:mm:ss.S").format(date) + ": " + message;
+      return "[" + shortLevel + "] " + new SimpleDateFormat("HH:mm:ss.S", Locale.US).format(date) + ": " + message;
    }
 }

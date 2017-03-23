@@ -43,16 +43,13 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
+import com.mycelium.wallet.external.SimplexServiceDescription;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MbwRegTestEnvironment extends MbwEnvironment {
-
-   public static final String myceliumThumbprint = "9c:8e:d7:ad:6c:28:db:d4:72:6a:71:93:d6:4d:cb:e7:c7:a0:2e:bc";
-
-
-
+   private static final String myceliumThumbprint = "9c:8e:d7:ad:6c:28:db:d4:72:6a:71:93:d6:4d:cb:e7:c7:a0:2e:bc";
 
    public MbwRegTestEnvironment(String brand){
       super(brand);
@@ -69,7 +66,6 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
     */
    private static final ServerEndpoints testnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
          new HttpsEndpoint("https://localhost:4433/lttestnet", myceliumThumbprint),
-         //new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", myceliumThumbprint)
    });
 
    @Override
@@ -81,11 +77,9 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
    /**
     * Wapi
     */
-
    // run `adb reverse tcp:4433 tcp:4433` on your machine running vagrant
    private static final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{
          new HttpsEndpoint("https://localhost:4433/wapitestnet", myceliumThumbprint),
-         //new TorHttpsEndpoint("https://ti4v3ipng2pqutby.onion/wapitestnet", myceliumThumbprint)
    });
 
 
@@ -119,6 +113,7 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
          add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
          add(new GlideraServiceDescription());
+         add(new SimplexServiceDescription());
       }};
    }
 }

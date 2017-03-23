@@ -35,35 +35,63 @@
 package com.mrd.bitlib;
 
 import com.google.common.collect.ImmutableList;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.crypto.IPublicKeyRing;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputStandard;
+import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import static com.megiontechnologies.Bitcoins.SATOSHIS_PER_BITCOIN;
+import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static com.mrd.bitlib.model.NetworkParameters.testNetwork;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- * a programmer
- */
 public class StandardTransactionBuilderTest {
     private StandardTransactionBuilder testme;
 
-    private static final Address ADDR_1 = Address.fromString("mfx7u4LpuqG5CA5NFZBG3U1UTmftKXHzzk");
-    private static final Address ADDR_2 = Address.fromString("mnZj5DJuSNbc3wppJnbihnsyq6mfWfnTrT");
-    private static final Address ADDR_3 = Address.fromString("mrJ3QiPrvY99HQLuRtLDxvf9TKXn3hC9C6");
-    private static final Address ADDR_4 = Address.fromString("mrtjrbKe2xRUgMe8Bso59aMcj4UzzEpiPM");
+    private static final int COUNT = 9;
+    private static final PublicKey KEYS[] = new PublicKey[COUNT];
+    private static final Address ADDRS[] = new Address[COUNT];
+    private static final UnspentTransactionOutput UTXOS[][] = new UnspentTransactionOutput[COUNT][2];
 
-    private static final UnspentTransactionOutput UTXO_1a = getUtxo(ADDR_1, 500);
-    private static final UnspentTransactionOutput UTXO_1b = getUtxo(ADDR_1, 530);
-    private static final UnspentTransactionOutput UTXO_2a = getUtxo(ADDR_2, 10);
-    private static final UnspentTransactionOutput UTXO_2b = getUtxo(ADDR_2, 20);
-    private static final UnspentTransactionOutput UTXO_3a = getUtxo(ADDR_3, 4);
-    private static final UnspentTransactionOutput UTXO_4a = getUtxo(ADDR_4, 800);
+    static {
+        for (int i = 0; i < COUNT; i++) {
+            // create 4 keys,
+            KEYS[i] = getPubKey("1" + i);
+            // their addresses and 2 UTXOs each,
+            ADDRS[i] = KEYS[i].toAddress(testNetwork);
+            // with values 1/3, 3/5, 7/9 and 15/17.
+            UTXOS[i][0] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) - 1 + MINIMUM_OUTPUT_VALUE);
+            UTXOS[i][1] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) + 1 + MINIMUM_OUTPUT_VALUE);
+        }
+    }
+
+    private static final IPublicKeyRing KEY_RING = new IPublicKeyRing() {
+        @Override
+        public PublicKey findPublicKeyByAddress(Address address) {
+            for (int i = 0; i < COUNT; i++) {
+                if (ADDRS[i].equals(address)) {
+                    return KEYS[i];
+                }
+            }
+            return null;
+        }
+    };
 
     @Before
     public void setUp() throws Exception {
@@ -72,22 +100,108 @@ public class StandardTransactionBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyList() throws Exception {
-        testme.extractRichest(ImmutableList.<UnspentTransactionOutput>of(), testNetwork);
+        testRichest(ImmutableList.<UnspentTransactionOutput>of(), ADDRS[0]);
     }
 
     @Test
     public void testSingleList() throws Exception {
-        Address address = testme.extractRichest(ImmutableList.of(UTXO_1a), testNetwork);
-        assertEquals(ADDR_1, address);
+        for (int i = 0; i < COUNT; i++) {
+            testRichest(ImmutableList.of(UTXOS[i][0]), ADDRS[i]);
+        }
     }
 
     @Test
     public void testList() throws Exception {
-        Address address = testme.extractRichest(ImmutableList.of(UTXO_1a, UTXO_2a, UTXO_1b, UTXO_4a, UTXO_2b, UTXO_3a), testNetwork);
-        assertEquals(ADDR_1, address);
+        for (int i = 1; i < COUNT; i++) {
+            List<UnspentTransactionOutput> utxos = new ArrayList<>(2 * i + 1);
+            for (int j = 0; j < i; j++) {
+                utxos.add(UTXOS[j][0]);
+                utxos.add(UTXOS[j][1]);
+            }
+            utxos.add(UTXOS[i][0]);
+            testRichest(utxos, ADDRS[i - 1]);
+            Collections.reverse(utxos);
+            testRichest(utxos, ADDRS[i - 1]);
+            utxos.add(UTXOS[i][1]);
+            testRichest(utxos, ADDRS[i]);
+            Collections.reverse(utxos);
+            testRichest(utxos, ADDRS[i]);
+        }
+    }
+
+    private void testRichest(Collection<UnspentTransactionOutput> utxos, Address winner) {
+        Address address = testme.getRichest(utxos, testNetwork);
+        assertEquals(winner, address);
+    }
+
+    @Test
+    public void testCreateUnsignedTransactionWithoutChange() throws Exception {
+        // UTXOs worth 2BTCs + 70000 satoshis, should result in 2 in 1 out. 2000 satoshis will be
+        // left out because it is inferior of the MINIMUM_OUTPUT_VALUE.
+        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(2, 1) * 200; //68000
+        Collection<UnspentTransactionOutput> inventory = ImmutableList.of(
+            getUtxo(ADDRS[0], SATOSHIS_PER_BITCOIN),
+            getUtxo(ADDRS[0], SATOSHIS_PER_BITCOIN + 70000)
+        );
+        testme.addOutput(ADDRS[2], (long) (2 * SATOSHIS_PER_BITCOIN));
+        UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[3], KEY_RING,
+            testNetwork, 200000);
+        UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
+        assertEquals(2, inputs.length);
+        assertEquals(2 * SATOSHIS_PER_BITCOIN + 70000,
+            inputs[0].value + inputs[1].value);
+
+        TransactionOutput[] outputs = tx.getOutputs();
+        assertEquals(1, outputs.length);
+        assertTrue(tx.calculateFee() <= feeExpected + MINIMUM_OUTPUT_VALUE);
+        assertTrue(tx.calculateFee() >= feeExpected);
+        assertEquals(ADDRS[2], outputs[0].script.getAddress(testNetwork));
+    }
+
+    @Test
+    public void testCreateUnsignedTransactionWithChange() throws Exception {
+        // UTXOs worth 10BTC, spending 1BTC should result in 1 in 2 out, spending 1 and 9-fee
+        Collection<UnspentTransactionOutput> inventory = ImmutableList.of(
+                getUtxo(ADDRS[0], 10 * SATOSHIS_PER_BITCOIN)
+        );
+        testme.addOutput(ADDRS[1], SATOSHIS_PER_BITCOIN);
+        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 2) * 200;
+
+        UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING,
+            testNetwork, 200000); // miner fees to use = 200 satoshis per bytes.
+        UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
+        assertEquals(1, inputs.length);
+        TransactionOutput[] outputs = tx.getOutputs();
+        assertEquals(2, outputs.length);
+        assertEquals(feeExpected, tx.calculateFee());
+        assertEquals(10 * SATOSHIS_PER_BITCOIN, outputs[0].value + outputs[1].value + tx.calculateFee());
+    }
+
+    @Test
+    public void testCreateUnsignedTransactionMinToFee() throws Exception {
+        // UTXOs worth 2MIN + 1 + 3, spending MIN should result in just one output
+        Collection<UnspentTransactionOutput> inventory = ImmutableList.of(
+                UTXOS[0][0], UTXOS[0][1]
+        );
+        testme.addOutput(ADDRS[1], MINIMUM_OUTPUT_VALUE);
+        UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING, testNetwork, 1000);
+        UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
+        assertEquals(2, inputs.length);
+        TransactionOutput[] outputs = tx.getOutputs();
+        assertEquals(1, outputs.length);
+        assertEquals(ADDRS[1], outputs[0].script.getAddress(testNetwork));
     }
 
     private static UnspentTransactionOutput getUtxo(Address address, long value) {
         return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()));
+    }
+
+    /**
+     * Helper to get defined public keys
+     *
+     * @param s one byte hex values as string representation. "00" - "ff"
+     */
+    private static PublicKey getPubKey(String s) {
+        return new InMemoryPrivateKey(HexUtils.toBytes(s + "00000000000000000000000000000000000000000000000000000000000000"), true).getPublicKey();
     }
 }

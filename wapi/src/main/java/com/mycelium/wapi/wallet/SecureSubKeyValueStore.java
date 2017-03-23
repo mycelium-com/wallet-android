@@ -29,5 +29,4 @@ public class SecureSubKeyValueStore extends SecureKeyValueStore {
    public void deleteAllData() {
       _backing.deleteSubStorageId(subId);
    }
-
 }

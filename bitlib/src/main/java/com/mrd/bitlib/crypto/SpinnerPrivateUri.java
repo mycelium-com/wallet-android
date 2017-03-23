@@ -16,11 +16,12 @@
 
 package com.mrd.bitlib.crypto;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.model.NetworkParameters;
 
 import java.security.NoSuchAlgorithmException;
 
+// TODO: Document. Does Spinner refer to the BitcoinSpinner predecessor of MBW?
 public class SpinnerPrivateUri {
    public final InMemoryPrivateKey key;
    public final NetworkParameters network;
@@ -52,14 +53,11 @@ public class SpinnerPrivateUri {
                prng.nextBytes(bytes);
             }
          };
-         @SuppressWarnings("unused")
-         InMemoryPrivateKey discardMe = new InMemoryPrivateKey(randomSource);
+         new InMemoryPrivateKey(randomSource);
          InMemoryPrivateKey key = new InMemoryPrivateKey(randomSource);
          return new SpinnerPrivateUri(key, params);
       } catch (NoSuchAlgorithmException e) {
          throw new IllegalStateException();
       }
-
    }
-
 }

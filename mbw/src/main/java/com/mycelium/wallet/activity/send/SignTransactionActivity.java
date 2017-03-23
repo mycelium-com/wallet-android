@@ -55,7 +55,6 @@ import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
 
-
 public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
    protected WalletAccount _account;
@@ -66,33 +65,37 @@ public class SignTransactionActivity extends Activity {
    private AsyncTask<Void, Integer, Transaction> signingTask;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, int requestCode) {
+      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, unsigned), requestCode);
+   }
+
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
-      Intent intent;
+      Class targetClass;
       if (walletAccount instanceof Bip44AccountExternalSignature) {
          final int bip44AccountType = ((Bip44AccountExternalSignature) walletAccount).getBIP44AccountType();
          switch (bip44AccountType) {
             case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER):
-               intent = new Intent(currentActivity, LedgerSignTransactionActivity.class);
+               targetClass = LedgerSignTransactionActivity.class;
                break;
             case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY):
-               intent = new Intent(currentActivity, KeepKeySignTransactionActivity.class);
+               targetClass = KeepKeySignTransactionActivity.class;
                break;
             case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR):
-               intent = new Intent(currentActivity, TrezorSignTransactionActivity.class);
+               targetClass = TrezorSignTransactionActivity.class;
                break;
             default:
                throw new RuntimeException("Unknown ExtSig Account type " + bip44AccountType);
          }
       } else {
-         intent = new Intent(currentActivity, SignTransactionActivity.class);
+         targetClass = SignTransactionActivity.class;
       }
-
       Preconditions.checkNotNull(account);
-      intent.putExtra("account", account);
-      intent.putExtra("isColdStorage", isColdStorage);
-      intent.putExtra("unsigned", unsigned);
-      currentActivity.startActivityForResult(intent, requestCode);
+
+      return new Intent(currentActivity, targetClass)
+              .putExtra("account", account)
+              .putExtra("isColdStorage", isColdStorage)
+              .putExtra("unsigned", unsigned);
    }
 
    @Override
@@ -112,7 +115,6 @@ public class SignTransactionActivity extends Activity {
          // May be null
          _transaction = (Transaction) savedInstanceState.getSerializable("transaction");
       }
-
    }
 
    protected void setView() {
@@ -183,5 +185,4 @@ public class SignTransactionActivity extends Activity {
       }
       super.onDestroy();
    }
-
 }

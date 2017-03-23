@@ -21,9 +21,9 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 
 import Rijndael.Rijndael;
-import com.google.bitcoinj.Base58;
-import com.lambdaworks.crypto.SCrypt;
-import com.lambdaworks.crypto.SCryptProgress;
+import com.mrd.bitlib.bitcoinj.Base58;
+import com.mrd.bitlib.lambdaworks.crypto.SCrypt;
+import com.mrd.bitlib.lambdaworks.crypto.SCryptProgress;
 
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.model.Address;

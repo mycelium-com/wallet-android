@@ -45,9 +45,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 
 public class AddressTest {
-
-   public static final RandomSource RANDOM_SOURCE = new RandomSource() {
-
+   private static final RandomSource RANDOM_SOURCE = new RandomSource() {
       @Override
       public void nextBytes(byte[] bytes) {
          new SecureRandom().nextBytes(bytes);

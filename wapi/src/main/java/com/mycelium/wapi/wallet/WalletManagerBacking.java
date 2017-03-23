@@ -23,26 +23,28 @@ import java.util.List;
 import java.util.UUID;
 
 public interface WalletManagerBacking extends SecureKeyValueStoreBacking {
-
    void beginTransaction();
 
    void setTransactionSuccessful();
 
    void endTransaction();
 
-   List<Bip44AccountContext> loadBip44AccountContexts();
-
    void createBip44AccountContext(Bip44AccountContext context);
 
-   List<SingleAddressAccountContext> loadSingleAddressAccountContexts();
-
-   void createSingleAddressAccountContext(SingleAddressAccountContext context);
-
-   void deleteSingleAddressAccountContext(UUID accountId);
-
-   void deleteBip44AccountContext(UUID accountId);
+   List<Bip44AccountContext> loadBip44AccountContexts();
 
    Bip44AccountBacking getBip44AccountBacking(UUID accountId);
 
+   void deleteBip44AccountContext(UUID accountId);
+
+   void createSingleAddressAccountContext(SingleAddressAccountContext context);
+
+   List<SingleAddressAccountContext> loadSingleAddressAccountContexts();
+
    SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
+
+   void deleteSingleAddressAccountContext(UUID accountId);
+
+
+
 }

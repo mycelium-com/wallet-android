@@ -1,5 +1,5 @@
+#obfuscation creates more problems than it solves
 -dontobfuscate
-#creates more problems than it solves
 
 -dontwarn javax.annotation.**
 -dontwarn javax.inject.**
@@ -14,6 +14,10 @@
 -keep class org.spongycastle.**
 -dontwarn org.spongycastle.jce.provider.X509LDAPCertStoreSpi
 -dontwarn org.spongycastle.x509.util.LDAPStoreHelper
+
+# ignore unknown class problems related to bitcoinj in mbwlib code as we exclude the package but re build it from mbw itself
+-dontwarn org.bitcoinj.**
+-dontwarn org.bitcoin.**
 
 -keepclassmembers class ** {
     @com.squareup.otto.Subscribe public *;
@@ -194,6 +198,43 @@
 # This is to prevent proguard from removing translations for prettytime
 -keep class org.ocpsoft.prettytime.i18n.**
 
+
+# bitcoinj
+-keep,includedescriptorclasses class org.bitcoinj.wallet.Protos$** { *; }
+-keepclassmembers class org.bitcoinj.wallet.Protos { com.google.protobuf.Descriptors$FileDescriptor descriptor; }
+-keep,includedescriptorclasses class org.bitcoin.protocols.payments.Protos$** { *; }
+-keepclassmembers class org.bitcoin.protocols.payments.Protos { com.google.protobuf.Descriptors$FileDescriptor descriptor; }
+-keep class org.bitcoinj.crypto.** { *; }
+-dontwarn org.bitcoinj.store.WindowsMMapHack
+-dontwarn org.bitcoinj.store.LevelDBBlockStore
+-dontnote org.bitcoinj.crypto.DRMWorkaround
+-dontnote org.bitcoinj.crypto.TrustStoreLoader$DefaultTrustStoreLoader
+-dontnote com.subgraph.orchid.crypto.PRNGFixes
+-dontwarn okio.DeflaterSink
+-dontwarn okio.Okio
+-dontnote com.squareup.okhttp.internal.Platform
+-dontwarn org.bitcoinj.store.LevelDBFullPrunedBlockStore**
+
+# slf4j
+#Warning: com.mrd.bitlib.crypto.Bip38: can't find referenced method 'byte[] scrypt(byte[],byte[],int,int,int,int,com.lambdaworks.crypto.SCryptProgress)' in program class com.lambdaworks.crypto.SCrypt
+#Warning: com.mrd.bitlib.crypto.MrdExport$V1$EncryptionParameters: can't find referenced method 'byte[] scrypt(byte[],byte[],int,int,int,int,com.lambdaworks.crypto.SCryptProgress)' in program class com.lambdaworks.crypto.SCrypt
+-dontwarn org.slf4j.LoggerFactory
+-dontwarn org.slf4j.StaticMDCBinder
+-dontwarn org.slf4j.impl.StaticMarkerBinder
+-dontwarn org.slf4j.impl.StaticMDCBinder
+
+#Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
+#Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
+#Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
+#Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
+#Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
+#Warning: org.slf4j.MDC: can't find referenced class org.slf4j.impl.StaticMDCBinder
+#Warning: org.slf4j.MDC: can't find referenced class org.slf4j.impl.StaticMDCBinder
+#Warning: org.slf4j.MDC: can't find referenced class org.slf4j.impl.StaticMDCBinder
+#Warning: org.slf4j.MarkerFactory: can't find referenced class org.slf4j.impl.StaticMarkerBinder
+#Warning: org.slf4j.MarkerFactory: can't find referenced class org.slf4j.impl.StaticMarkerBinder
+#Warning: org.slf4j.MarkerFactory: can't find referenced class org.slf4j.impl.StaticMarkerBinder
+ 
 ###### ADDITIONAL OPTIONS NOT USED NORMALLY
 
 #To keep callback calls. Uncomment if using any

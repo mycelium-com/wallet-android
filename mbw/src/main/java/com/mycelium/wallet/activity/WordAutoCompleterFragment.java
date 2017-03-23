@@ -58,8 +58,8 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
    private int _minimumCharacters;
 
    public interface WordAutoCompleterListener {
-      public void onWordSelected(String word);
-      public void onCurrentWordChanged(String currentWord);
+      void onWordSelected(String word);
+      void onCurrentWordChanged(String currentWord);
    }
 
    @Override

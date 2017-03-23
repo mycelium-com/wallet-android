@@ -57,9 +57,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Proof Of Payment Transaction selection Activity. Depending on the pop url, the Activity shows a
+ * filtered list of outgoing transactions that match the filter in the first tab and all outgoing
+ * transactions in the second.
+ */
 public class PopSelectTransactionActivity extends ActionBarActivity implements ActionBar.TabListener {
    private PopRequest popRequest;
-   private MbwManager mbwManager;
    private ViewPager viewPager;
 
    @Override
@@ -74,7 +78,7 @@ public class PopSelectTransactionActivity extends ActionBarActivity implements A
       this.popRequest = popRequest;
 
 
-      mbwManager = MbwManager.getInstance(getApplicationContext());
+      MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
       WalletAccount account = mbwManager.getSelectedAccount();
       if (account.isArchived()) {
          return;
@@ -121,20 +125,14 @@ public class PopSelectTransactionActivity extends ActionBarActivity implements A
 
    @Override
    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-
    }
 
    @Override
    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-
    }
 
    public class HistoryPagerAdapter extends FragmentPagerAdapter {
-
-      private ListFragment matchingTransactionsFragment = null;
-      private ListFragment nonMatchingTransactionsFragment = null;
-
-      public HistoryPagerAdapter(FragmentManager fm) {
+      HistoryPagerAdapter(FragmentManager fm) {
          super(fm);
       }
 
@@ -175,7 +173,6 @@ public class PopSelectTransactionActivity extends ActionBarActivity implements A
 
          return list;
       }
-
 
       @Override
       public void onCreate(Bundle savedInstanceState) {

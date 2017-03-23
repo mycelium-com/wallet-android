@@ -36,8 +36,8 @@ package com.mycelium.wallet.service;
 
 import android.content.Context;
 
-import com.lambdaworks.crypto.SCryptProgress;
 import com.mrd.bitlib.crypto.Bip38;
+import com.mrd.bitlib.lambdaworks.crypto.SCryptProgress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.UserFacingException;

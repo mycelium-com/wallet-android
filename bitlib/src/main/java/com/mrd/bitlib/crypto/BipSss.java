@@ -16,14 +16,11 @@
 
 package com.mrd.bitlib.crypto;
 
-import com.google.bitcoinj.Base58;
-import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HashUtils;
 
 import java.io.Serializable;
 import java.util.*;

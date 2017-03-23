@@ -36,30 +36,20 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.coinapult.api.httpclient.CoinapultClient;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -68,7 +58,6 @@ import com.squareup.otto.Bus;
 import java.util.UUID;
 
 public class AddAccountActivity extends Activity {
-
    public static void callMe(Fragment fragment, int requestCode) {
       Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
       fragment.startActivityForResult(intent, requestCode);
@@ -139,7 +128,6 @@ public class AddAccountActivity extends Activity {
       }
    };
 
-
    private void createNewHdAccount() {
       final WalletManager wallet = _mbwManager.getWalletManager(false);
       // at this point, we have to have a master seed, since we created one on startup
@@ -178,7 +166,6 @@ public class AddAccountActivity extends Activity {
          bus.post(new AccountChanged(account));
       }
    }
-
 
    @com.squareup.otto.Subscribe
    public void hdAccountCreated(HdAccountCreated event) {

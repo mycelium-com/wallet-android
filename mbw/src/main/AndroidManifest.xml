@@ -22,6 +22,9 @@
     <!-- we really don't want to spy on our users -->
     <uses-permission android:name="android.permission.READ_CONTACTS" tools:node="remove" />
 
+    <!-- the license checker -->
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
+
     <uses-feature
         android:name="android.hardware.location.network"
         android:required="false"/>
@@ -114,7 +117,7 @@
 
             <!-- Glidera -->
             <!-- used as a callback url from within the browser after signup -->
-            <intent-filter android:label="Glidera">
+            <intent-filter android:label="@string/mycelium">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
@@ -178,6 +181,7 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
+        <activity android:name=".simplex.SimplexMainActivity"/>
         <activity android:name=".lt.activity.LtMainActivity"/>
         <activity android:name=".lt.activity.CreateTrader1Activity"/>
         <activity android:name=".lt.activity.CreateTrader2Activity"/>
@@ -244,8 +248,5 @@
         <activity android:name=".external.BuySellSelectFragment"/>
         <activity android:name=".external.glidera.activities.GlideraMainActivity"/>
         <activity android:name=".external.glidera.activities.GlideraTransaction"/>
-
-
     </application>
-
 </manifest>

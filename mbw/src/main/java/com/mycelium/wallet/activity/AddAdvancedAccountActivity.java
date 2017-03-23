@@ -60,7 +60,6 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
-
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
@@ -69,8 +68,6 @@ public class AddAdvancedAccountActivity extends Activity {
       Intent intent = new Intent(activity, AddAdvancedAccountActivity.class);
       activity.startActivityForResult(intent, requestCode);
    }
-
-   public static final String RESULT_KEY = "account";
 
    private static final int SCAN_RESULT_CODE = 0;
    private static final int CREATE_RESULT_CODE = 1;
@@ -178,8 +175,6 @@ public class AddAdvancedAccountActivity extends Activity {
                   Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
             AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
-
-
          }
       });
    }
@@ -275,9 +270,8 @@ public class AddAdvancedAccountActivity extends Activity {
 
    private void finishOk(UUID account) {
       Intent result = new Intent();
-      result.putExtra(RESULT_KEY, account);
+      result.putExtra(AddAccountActivity.RESULT_KEY, account);
       setResult(RESULT_OK, result);
       finish();
    }
-
 }

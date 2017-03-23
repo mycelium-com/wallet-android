@@ -37,6 +37,7 @@ package com.mycelium.wallet.persistence;
 import android.content.Context;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -51,6 +52,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
    private static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
    private static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
+
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
@@ -60,6 +62,8 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory SHOW_BIP44_PATH = new MetadataKeyCategory("ui", "show_bip44_path");
    private static final MetadataKeyCategory GLIDERA_IS_ENABLED = new MetadataKeyCategory("glidera", "enable");
    private static final MetadataKeyCategory SWISH_CREDIT_CARD_IS_ENABLED = new MetadataKeyCategory("swish_cc", "enable");
+   private static final MetadataKeyCategory SIMPLEX_IS_ENABLED = new MetadataKeyCategory("simplex", "enable");
+
    private static final String EMAIL = "email";
    public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
 
@@ -324,6 +328,14 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void setSwishCreditCardIsEnabled(boolean enable) {
       storeKeyCategoryValueEntry(SWISH_CREDIT_CARD_IS_ENABLED, enable ? "1" : "0");
+   }
+
+   public boolean getSimplexIsEnabled() {
+      return getKeyCategoryValueEntry(SIMPLEX_IS_ENABLED, "1").equals("1");
+   }
+
+   public void setSimplexIsEnabled(boolean enable) {
+      storeKeyCategoryValueEntry(SIMPLEX_IS_ENABLED, enable ? "1" : "0");
    }
 
    public Optional<Long> getLastFullSync() {

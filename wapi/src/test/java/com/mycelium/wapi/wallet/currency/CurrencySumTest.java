@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet.currency;
 import com.google.common.collect.ImmutableMap;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.currency.test.AssertHelper;
-import junit.framework.AssertionFailedError;
 import org.junit.Test;
 
 import java.math.BigDecimal;

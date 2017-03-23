@@ -44,6 +44,7 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
+import com.mycelium.wallet.external.SimplexServiceDescription;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,6 @@ public class MbwTestEnvironment extends MbwEnvironment {
    private static final ServerEndpoints testnetLtEndpoints = new ServerEndpoints(new HttpEndpoint[]{
            new HttpsEndpoint("https://mws30.mycelium.com/lttestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
            new TorHttpsEndpoint("https://grrhi6bwwpiarsfl.onion/lttestnet", "D0:09:70:40:98:71:E0:0E:62:08:1A:36:4C:BC:C7:2E:51:40:50:4C"),
-
    });
 
    @Override
@@ -112,6 +112,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
          add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
          add(new GlideraServiceDescription());
+         add(new SimplexServiceDescription());
       }};
    }
 }

@@ -171,9 +171,7 @@ public abstract class CurrencyValue implements Serializable {
       }
    }
 
-
    abstract boolean hasExactValue();
-
 
    @Override
    public boolean equals(Object o) {
@@ -216,5 +214,4 @@ public abstract class CurrencyValue implements Serializable {
          return Optional.absent();
       }
    }
-
 }

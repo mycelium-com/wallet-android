@@ -18,8 +18,6 @@ package com.mycelium.lt;
 
 import java.util.UUID;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import com.google.common.io.BaseEncoding;
@@ -30,8 +28,10 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.ChatMessageEncryptionKey.InvalidChatMessage;
 
-public class MessageEncryptionTest {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+public class MessageEncryptionTest {
    private static final byte[] MASTER_SEED = HexUtils.toBytes("000102030405060708090a0b0c0d0e0f");
 
    private static final String MESSAGE_ONE = "Hello World!";
@@ -111,7 +111,7 @@ public class MessageEncryptionTest {
    private void checkFailDecrypt(String encryptedMessage, ChatMessageEncryptionKey encryptionKey) {
       try {
          encryptionKey.decryptAndCheckChatMessage(encryptedMessage);
-         Assert.fail("Should fail decryption");
+         fail("Should fail decryption");
       } catch (InvalidChatMessage e) {
          // Expected
       }
@@ -122,9 +122,9 @@ public class MessageEncryptionTest {
       String dmsg1;
       try {
          dmsg1 = encryptionKey.decryptAndCheckChatMessage(emsg1);
-         Assert.assertEquals(dmsg1, message);
+         assertEquals(dmsg1, message);
       } catch (InvalidChatMessage e) {
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
    }
 

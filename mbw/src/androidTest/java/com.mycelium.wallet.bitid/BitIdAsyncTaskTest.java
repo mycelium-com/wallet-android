@@ -9,26 +9,29 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class BitIdAsyncTaskTest extends TestCase {
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class BitIdAsyncTaskTest {
    private CountDownLatch signal;
    private BitIdResponse response;
    private Bus bus;
 
-   @Override
-   protected void setUp() throws Exception {
-      super.setUp();
+   @Before
+   public void setUp() {
       signal = new CountDownLatch(1);
       response = null;
       bus = new Bus(ThreadEnforcer.ANY);
       bus.register(this);
    }
 
+   @Test
    public void testBitcoinblueExpiredNonce() throws Exception {
       InMemoryPrivateKey privateKey = new InMemoryPrivateKey("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
       Address address = Address.fromString("1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj");
@@ -41,6 +44,7 @@ public class BitIdAsyncTaskTest extends TestCase {
       assertTrue(response.message.contains("NONCE is illegal"));
    }
 
+   @Test
    public void testBitcoinblueInvalidSignature() throws Exception {
       InMemoryPrivateKey privateKey = new InMemoryPrivateKey("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
       Address address = Address.fromString("17Dwg2Xx4RVaQgg8crbkvrT8WxNSQYuqLz"); //does not match the priv key
@@ -59,5 +63,4 @@ public class BitIdAsyncTaskTest extends TestCase {
       bus.unregister(this);
       signal.countDown();
    }
-
 }

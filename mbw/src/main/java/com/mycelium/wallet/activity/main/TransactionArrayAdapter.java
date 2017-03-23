@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.main;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +54,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       _addressBook = addressBook;
    }
 
+   @NonNull
    @Override
    public View getView(final int position, View convertView, ViewGroup parent) {
       // Only inflate a new view if we are not reusing an old one

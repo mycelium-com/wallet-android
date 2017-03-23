@@ -109,6 +109,7 @@ Authors
  - Constantin Vennekel
  - Leo Wandersleb
  - Daniel Krawisz
+ - Jerome Rousselot
 
 Credits
 =======
@@ -121,6 +122,7 @@ Just to name a few:
  - Kalle Rosenbaum, Bip120/121
  - David and Alex from Glidera
  - [Wiz](https://twitter.com/wiz) for helping us with KeepKey
+ - Tom Bitton and Asa Zaidman from Simplex
  - (if you think you should be mentioned here, just notify us)
 
 Thanks to Jethro for tirelessly testing the app during beta development.

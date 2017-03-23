@@ -22,7 +22,6 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
@@ -60,8 +59,7 @@ import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
-   public static final String USING_ARCHIVED_ACCOUNT = "Using archived account";
-   protected static final int COINBASE_MIN_CONFIRMATIONS = 100;
+   private static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
 
    public interface EventHandler {
@@ -103,7 +101,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          _eventHandler.onEvent(this.getId(), event);
       }
    }
-
 
    /**
     * Determine whether a transaction was sent from one of our own addresses.
@@ -203,8 +200,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // Make a map for fast lookup
       Map<OutPoint, TransactionOutputEx> localMap = toMap(localUnspent);
 
-      Set<Sha256Hash> transactionsToAddOrUpdate = new HashSet<Sha256Hash>();
-      Set<Address> addressesToDiscover = new HashSet<Address>();
+      Set<Sha256Hash> transactionsToAddOrUpdate = new HashSet<>();
+      Set<Address> addressesToDiscover = new HashSet<>();
 
       // Find remotely removed unspent outputs
       for (TransactionOutputEx l : localUnspent) {
@@ -241,7 +238,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       int newUtxos = 0;
 
       // Find remotely added unspent outputs
-      List<TransactionOutputEx> unspentOutputsToAddOrUpdate = new LinkedList<TransactionOutputEx>();
+      List<TransactionOutputEx> unspentOutputsToAddOrUpdate = new LinkedList<>();
       for (TransactionOutputEx r : remoteUnspent) {
          TransactionOutputEx l = localMap.get(r.outPoint);
          if (l == null || l.height != r.height) {
@@ -296,21 +293,19 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       if (addressesToDiscover.size() > 0) {
          try {
             doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover));
-         } catch (WapiException ign) {
-            // ignore?
+         } catch (WapiException ignore) {
          }
       }
-
       return newUtxos;
    }
 
-
+   @SuppressWarnings("NewApi")
    protected WapiResponse<GetTransactionsResponse> getTransactionsBatched(Collection<Sha256Hash> txids) throws WapiException {
       if (txids.size() > MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
-         final ArrayDeque<Sha256Hash> queue = new ArrayDeque<Sha256Hash>(txids);
+         final ArrayDeque<Sha256Hash> queue = new ArrayDeque<>(txids);
          Sha256Hash elem;
-         ArrayList<Sha256Hash> toFetch = new ArrayList<Sha256Hash>(MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
-         final LinkedList<TransactionExApi> results = new LinkedList<TransactionExApi>();
+         ArrayList<Sha256Hash> toFetch = new ArrayList<>(MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
+         final LinkedList<TransactionExApi> results = new LinkedList<>();
          while ((elem = queue.poll()) != null) {
             toFetch.add(elem);
             if (toFetch.size() == MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
@@ -321,7 +316,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          if (toFetch.size() > 0) {
             handleGetTransactionsResponseWapiResponse(toFetch, results);
          }
-         return new WapiResponse<GetTransactionsResponse>(new GetTransactionsResponse(results));
+         return new WapiResponse<>(new GetTransactionsResponse(results));
       } else {
          final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
          return _wapi.getTransactions(fullRequest);
@@ -336,8 +331,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
 
-   protected static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
-      Map<OutPoint, TransactionOutputEx> map = new HashMap<OutPoint, TransactionOutputEx>();
+   private static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
+      Map<OutPoint, TransactionOutputEx> map = new HashMap<>();
       for (TransactionOutputEx t : list) {
          map.put(t.outPoint, t);
       }
@@ -349,7 +344,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          handleNewExternalTransactionsInt(transactions);
       } else {
          // We have quite a list of transactions to handle, do it in batches
-         ArrayList<TransactionExApi> all = new ArrayList<TransactionExApi>(transactions);
+         ArrayList<TransactionExApi> all = new ArrayList<>(transactions);
          for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
             int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
             Collection<TransactionExApi> sub = all.subList(i, endIndex);
@@ -360,8 +355,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
       // Transform and put into two arrays with matching indexes
-      ArrayList<TransactionEx> texArray = new ArrayList<TransactionEx>(transactions.size());
-      ArrayList<Transaction> txArray = new ArrayList<Transaction>(transactions.size());
+      ArrayList<TransactionEx> texArray = new ArrayList<>(transactions.size());
+      ArrayList<Transaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
          try {
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
@@ -384,11 +379,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    private void fetchStoreAndValidateParentOutputs(ArrayList<Transaction> transactions) throws WapiException {
-      Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<Sha256Hash, TransactionEx>();
-      Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<OutPoint, TransactionOutputEx>();
+      Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<>();
+      Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<>();
 
       // Find list of parent outputs to fetch
-      Collection<Sha256Hash> toFetch = new HashSet<Sha256Hash>();
+      Collection<Sha256Hash> toFetch = new HashSet<>();
       for (Transaction t : transactions) {
          for (TransactionInput in : t.inputs) {
             if (in.outPoint.hash.equals(OutPoint.COINBASE_OUTPOINT.hash)) {
@@ -429,6 +424,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             } else {
                _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
                      + " Calculated: " + hash);
+               //TODO: Document what's happening here.
+               //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to hash to, right?
                throw new RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid
                      + " Calculated: " + hash);
             }
@@ -440,7 +437,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // spends and/or malleability and network latency etc.
 
       // Now figure out which parent outputs we need to persist
-      List<TransactionOutputEx> toPersist = new LinkedList<TransactionOutputEx>();
+      List<TransactionOutputEx> toPersist = new LinkedList<>();
       for (Transaction t : transactions) {
          for (TransactionInput in : t.inputs) {
             if (in.outPoint.hash.equals(OutPoint.COINBASE_OUTPOINT.hash)) {
@@ -470,18 +467,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    protected Balance calculateLocalBalance() {
-
-      Collection<TransactionOutputEx> unspentOutputs = new HashSet<TransactionOutputEx>(_backing.getAllUnspentOutputs());
+      Collection<TransactionOutputEx> unspentOutputs = new HashSet<>(_backing.getAllUnspentOutputs());
       long confirmed = 0;
       long pendingChange = 0;
       long pendingSending = 0;
       long pendingReceiving = 0;
 
-
       //
       // Determine the value we are receiving and create a set of outpoints for fast lookup
       //
-      Set<OutPoint> unspentOutPoints = new HashSet<OutPoint>();
+      Set<OutPoint> unspentOutPoints = new HashSet<>();
       for (TransactionOutputEx output : unspentOutputs) {
          if (output.height == -1) {
             if (isFromMe(output.outPoint.hash)) {
@@ -500,7 +495,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       //
 
       // Get the current set of unconfirmed transactions
-      List<Transaction> unconfirmed = new ArrayList<Transaction>();
+      List<Transaction> unconfirmed = new ArrayList<>();
       for (TransactionEx tex : _backing.getUnconfirmedTransactions()) {
          try {
             Transaction t = Transaction.fromByteReader(new ByteReader(tex.binary));
@@ -571,7 +566,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    @Override
    public synchronized boolean broadcastOutgoingTransactions() {
       checkNotArchived();
-      List<Sha256Hash> broadcastedIds = new LinkedList<Sha256Hash>();
+      List<Sha256Hash> broadcastedIds = new LinkedList<>();
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
       for (byte[] rawTransaction : transactions.values()) {
@@ -633,7 +628,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             _logger.logError("Server connection failed with error: " + response.getErrorCode());
             return BroadcastResult.REJECTED;
          }
-
       } catch (WapiException e) {
          postEvent(Event.SERVER_CONNECTION_ERROR);
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
@@ -642,9 +636,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    protected void checkNotArchived() {
+      final String usingArchivedAccount = "Using archived account";
       if (isArchived()) {
-         _logger.logError(USING_ARCHIVED_ACCOUNT);
-         throw new RuntimeException(USING_ARCHIVED_ACCOUNT);
+         _logger.logError(usingArchivedAccount);
+         throw new RuntimeException(usingArchivedAccount);
       }
    }
 
@@ -667,7 +662,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
-      List<TransactionSummary> history = new ArrayList<TransactionSummary>();
+      List<TransactionSummary> history = new ArrayList<>();
       checkNotArchived();
       int blockChainHeight = getBlockChainHeight();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
@@ -678,12 +673,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
       }
       return history;
-
    }
 
    @Override
    public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-      List<TransactionSummary> history = new ArrayList<TransactionSummary>();
+      List<TransactionSummary> history = new ArrayList<>();
       checkNotArchived();
       int blockChainHeight = getBlockChainHeight();
       List<TransactionEx> list = _backing.getTransactionsSince(receivingSince);
@@ -844,7 +838,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // some spending
       updateLocalBalance();
       persistContextIfNecessary();
-
    }
 
    protected abstract void persistContextIfNecessary();
@@ -892,7 +885,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    protected abstract Address getChangeAddress();
 
    protected static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
-      List<UnspentTransactionOutput> outputs = new ArrayList<UnspentTransactionOutput>();
+      List<UnspentTransactionOutput> outputs = new ArrayList<>();
       for (TransactionOutputEx s : source) {
          ScriptOutput script = ScriptOutput.fromScriptBytes(s.script);
          outputs.add(new UnspentTransactionOutput(s.outPoint, s.height, s.value, script));
@@ -991,6 +984,63 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             _network, minerFeeToUse);
    }
 
+   /**
+    * Create a new, unsigned transaction that spends from a UTXO of the provided transaction.
+    * @see WalletAccount#createUnsignedTransaction(List, long)
+    *
+    * @param txid transaction to spend from
+    * @param minerFeeToUse fee to use to pay up for txid and the new transaction
+    * @param satoshisPaid amount already paid by parent transaction
+    */
+   public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse, long satoshisPaid) throws InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
+      checkNotArchived();
+      Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs()));
+      TransactionDetails parent = getTransactionDetails(txid);
+      long totalSpendableSatoshis = 0;
+      // do we have an output to spend from?
+      List<UnspentTransactionOutput> utxosToSpend = new ArrayList<>();
+      for(UnspentTransactionOutput utxo : utxos) {
+         if(utxo.outPoint.hash.equals(txid)) {
+            totalSpendableSatoshis += utxo.value;
+            utxosToSpend.add(utxo);
+            utxos.remove(utxo);
+            //makeText(this, "Found a UTXO", LENGTH_SHORT).show();
+            // we ideally use just one UTXO even if more than one is owers. This leaves room to add further children at the same depth to pay for parents
+            break;
+         }
+      }
+      if(utxosToSpend.isEmpty()) {
+         //makeText(this, "We own no UTXOs to bump the transaction!", LENGTH_LONG).show();
+         //finish();
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException("We have no UTXO");
+      }
+      Address changeAddress = getChangeAddress();
+      long parentChildFeeSat;
+      do {
+         long childSize = estimateTransactionSize(utxosToSpend.size(), 1);
+         long parentChildSize = parent.rawSize + childSize;
+         parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
+         if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {
+            // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
+            throw new StandardTransactionBuilder.UnableToBuildTransactionException("parent needs no boosting");
+         }
+         long value = totalSpendableSatoshis - parentChildFeeSat;
+         // we have to pay for fee plus one output. Zero outputs are not allowed.
+         // See https://github.com/bitcoin/bitcoin/blob/ba7220b5e82fcfbb7a4912a49e563944a428ab91/src/validation.cpp#L497
+         if(value < MINIMUM_OUTPUT_VALUE && !utxos.isEmpty()) {
+            // we can't pay the fee with the UTXOs at hand
+            UnspentTransactionOutput utxo = utxos.iterator().next();
+            utxosToSpend.add(utxo);
+            totalSpendableSatoshis += utxo.value;
+            utxos.remove(utxo);
+            continue;
+         }
+         List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
+         return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network);
+      } while(!utxos.isEmpty());
+      throw new InsufficientFundsException(0, parentChildFeeSat);
+   }
+
    @Override
    public Balance getBalance() {
       // public method that needs no synchronization
@@ -1040,7 +1090,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return false;
    }
 
-   protected TransactionSummary transform(TransactionEx tex, int blockChainHeight) {
+   private TransactionSummary transform(TransactionEx tex, int blockChainHeight) {
       Transaction tx;
       try {
          tx = Transaction.fromByteReader(new ByteReader(tex.binary));
@@ -1052,7 +1102,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       // Outputs
       long satoshis = 0;
-      List<Address> toAddresses = new ArrayList<Address>();
+      List<Address> toAddresses = new ArrayList<>();
       Address destAddress = null;
       for (TransactionOutput output : tx.outputs) {
          final Address address = output.script.getAddress(_network);
@@ -1123,7 +1173,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       Collection<TransactionOutputEx> outputs = _backing.getAllUnspentOutputs();
 
       // Transform it to a list of summaries
-      List<TransactionOutputSummary> list = new ArrayList<TransactionOutputSummary>();
+      List<TransactionOutputSummary> list = new ArrayList<>();
       int blockChainHeight = getBlockChainHeight();
       for (TransactionOutputEx output : outputs) {
 
@@ -1156,7 +1206,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       if (list.isEmpty()) {
          return true;
       }
-      List<Sha256Hash> txids = new ArrayList<Sha256Hash>(list.size());
+      List<Sha256Hash> txids = new ArrayList<>(list.size());
       for (TransactionEx tex : list) {
          txids.add(tex.txid);
       }
@@ -1238,12 +1288,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    // local cache for received risk assessments for unconfirmed transactions - does not get persisted in the db
-   private HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<Sha256Hash, ConfirmationRiskProfileLocal>();
+   private HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
 
    protected abstract boolean isSynchronizing();
 
    public class PublicKeyRing implements IPublicKeyRing {
-
       @Override
       public PublicKey findPublicKeyByAddress(Address address) {
          PublicKey publicKey = getPublicKeyForAddress(address);
@@ -1257,7 +1306,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          // let the app crash anyway, so that we get notified. after restart it should resync the account completely
          throw new RuntimeException(String.format("Unable to find public key for address %s acc:%s", address.toString(), AbstractAccount.this.getClass().toString()));
       }
-
    }
 
    public class PrivateKeyRing extends PublicKeyRing implements IPublicKeyRing, IPrivateKeyRing {
@@ -1303,7 +1351,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          throw new RuntimeException();
       }
 
-      List<TransactionDetails.Item> inputs = new ArrayList<TransactionDetails.Item>(tx.inputs.length);
+      List<TransactionDetails.Item> inputs = new ArrayList<>(tx.inputs.length);
       if (tx.isCoinbase()) {
          // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
          // and make the address the null address
@@ -1354,7 +1402,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          TransactionEx txExToProve = _backing.getTransaction(txid);
          Transaction txToProve = Transaction.fromByteReader(new ByteReader(txExToProve.binary));
 
-         List<UnspentTransactionOutput> funding = new ArrayList<UnspentTransactionOutput>(txToProve.inputs.length);
+         List<UnspentTransactionOutput> funding = new ArrayList<>(txToProve.inputs.length);
          for (TransactionInput input : txToProve.inputs) {
             TransactionEx inTxEx = _backing.getTransaction(input.outPoint.hash);
             Transaction inTx = Transaction.fromByteReader(new ByteReader(inTxEx.binary));
@@ -1377,7 +1425,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    private TransactionOutput createPopOutput(Sha256Hash txidToProve, byte[] nonce) {
-
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
       byteBuffer.put((byte) Script.OP_RETURN);
 

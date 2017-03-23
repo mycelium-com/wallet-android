@@ -39,11 +39,7 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
       Date lastSync;
       if ( (lastSync = _lastSync.get(syncMode.mode)) != null){
          long lastSyncAge = new Date().getTime() - lastSync.getTime();
-         if (lastSyncAge > getSyncInterval(syncMode)) {
-            return true;
-         } else {
-            return false;
-         }
+         return lastSyncAge > getSyncInterval(syncMode);
       } else {
          // never synced for this mode before - just do it. now.
          return true;
@@ -78,7 +74,6 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
          if (synced){
             _lastSync.put(mode.mode, new Date());
          }
-
 
          return synced;
       } else {

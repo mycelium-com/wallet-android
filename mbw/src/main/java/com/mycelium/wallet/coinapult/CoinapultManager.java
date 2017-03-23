@@ -248,7 +248,7 @@ public class CoinapultManager implements AccountProvider {
    public boolean userAccountExists() throws CoinapultClient.CoinapultBackendException {
       // if we already know it exists, dont try to query the coinapult server again,
       // otherwise make a call to accountInfo and see if we get any result
-      if (userAccountExistsCache == null || userAccountExistsCache == false) {
+      if (userAccountExistsCache == null || !userAccountExistsCache) {
          userAccountExistsCache = getClient().accountExists();
       }
       return userAccountExistsCache;
@@ -359,7 +359,6 @@ public class CoinapultManager implements AccountProvider {
       return coinapultClient;
    }
 
-
    private Supplier<List<Transaction.Json>> queryHistory() {
       return Suppliers.synchronizedSupplier(new Supplier<List<Transaction.Json>>() {
          private List<Transaction.Json> history;
@@ -393,7 +392,6 @@ public class CoinapultManager implements AccountProvider {
          }
       });
    }
-
 
    public List<Transaction.Json> getHistory() throws CoinapultClient.CoinapultBackendException {
       return historyCache.get();

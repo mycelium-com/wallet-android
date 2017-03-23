@@ -1,31 +1,23 @@
-# built application files
-*.apk
-*.ap_
-
-# files for the dex VM
-*.dex
-
-# Java class files
-*.class
-
-# generated files
+local.properties
+mpb.log
+tmp
+__artifacts_temp
+build.properties
+.DS_Store
+classes
+/alfaBank.log
+build/
 bin/
 gen/
-build/
-
-# Local configuration file (sdk path, etc)
-local.properties
-
-# Eclipse project files
-.classpath
-.project
-.settings
-*.iml
-.idea
-
-# Android Studio project files
+out/
 .gradle
-
-#signing Keystores and local gradle overrides
-keystore_*
+*.iml
+!.idea/copyright/
+!.idea/scopes/
+.idea/
+!.idea/codeStyleSettings.xml
+.settings
+nohup.out
 /gradle.properties
+/keystore_mbwProd
+/keystore_mbwTest

@@ -18,7 +18,7 @@ dependencies {
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.google.protobuf:protobuf-java:2.5.0'
 
-    testCompile 'junit:junit:' + junitVersion
+    testCompile "junit:junit:$junitVersion"
 }
 
 android {
@@ -35,4 +35,5 @@ android {
         quiet false
         showAll true
     }
+
 }

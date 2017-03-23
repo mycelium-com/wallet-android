@@ -45,8 +45,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SignatureSValueTest {
-
-   public class FakeRandom implements RandomSource {
+   private class FakeRandom implements RandomSource {
       @Override
       public void nextBytes(byte[] bytes) {
          for (int i = 0; i < bytes.length; i++) {

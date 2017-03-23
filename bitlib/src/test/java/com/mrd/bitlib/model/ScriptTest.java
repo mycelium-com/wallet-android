@@ -40,15 +40,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ScriptTest {
-
-   public static final RandomSource RANDOM_SOURCE = new RandomSource() {
-
-      @Override
-      public void nextBytes(byte[] bytes) {
-         new SecureRandom().nextBytes(bytes);
-      }
-   };
-
    private final String TEST_SCRIPT="5321033e20dea007b39688c6e97427a65aeedd0b47fde14e96631bb0330a403663150c2103b5058635d91ae26306140b90673b89616062c59a80301622f4ed6f8050c65a7f2103c04f34973eee8485e21a014268908d36510ed6f149c0ec3331aa521c6cc3929c2103d87a6d71ab19fda40947450ed2f2240dedc728f9bd373a28a43a93db1677159f54ae";
 
    private final String P2SH_MULTISIG_TRANSACTION ="010000000123d773a6dff771f9e32566b1d3fb08dcd9a0b2be78881461eef23e0861f2de3c01000000b2004730440220363939e550920b4d9947659a70f1c40603230c3e6967d20f22da130976ba01c1022056560d6f480b1bd150faf238c6ab36b42ad03d502970cce0a3092052ba5efe88014c6751210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71410778d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc345552aeffffffff01905f01000000000017a914367e3c2c31cb061606e5a812257fc153f2bef80e8700000000";
@@ -57,16 +48,13 @@ public class ScriptTest {
 
    @Test
    public void chunkTest() throws Script.ScriptParsingException {
-      byte[][] chunks = Script.chunksFromScriptBytes(HexUtils.toBytes(TEST_SCRIPT));
+      Script.chunksFromScriptBytes(HexUtils.toBytes(TEST_SCRIPT));
    }
 
    @Test
    public void parseTransactionTest() throws Transaction.TransactionParsingException {
       Transaction transaction = Transaction.fromByteReader(new ByteReader(HexUtils.toBytes(P2SH_MULTISIG_TRANSACTION)));
       Assert.assertEquals(transaction.outputs[0].script.getAddress(NetworkParameters.productionNetwork).toString(), OUTPUT_ADDRESS);
-      Transaction funding = Transaction.fromByteReader(new ByteReader(HexUtils.toBytes(FUNDING)));
-
+      Transaction.fromByteReader(new ByteReader(HexUtils.toBytes(FUNDING)));
    }
-
-
 }

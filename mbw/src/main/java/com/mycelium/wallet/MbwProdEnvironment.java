@@ -45,6 +45,7 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
+import com.mycelium.wallet.external.SimplexServiceDescription;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;
    }
-
 
    /**
     * Local Trader API for prodnet
@@ -151,7 +151,8 @@ public class MbwProdEnvironment extends MbwEnvironment {
 
    public List<BuySellServiceDescriptor> getBuySellServices(){
       return new ArrayList<BuySellServiceDescriptor>() {{
-         add(new CreditCardBuyServiceDescription());
+         add(new SimplexServiceDescription());
+         // add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
          add(new GlideraServiceDescription());
       }};

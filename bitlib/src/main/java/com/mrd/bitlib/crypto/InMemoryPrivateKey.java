@@ -20,7 +20,7 @@
  */
 package com.mrd.bitlib.crypto;
 
-import com.google.bitcoinj.Base58;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;

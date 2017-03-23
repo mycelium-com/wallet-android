@@ -16,6 +16,8 @@
 
 package com.mycelium.lt.api;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -39,24 +41,40 @@ import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
 import com.mycelium.lt.api.params.CreateTradeParameters;
 import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
+import com.mycelium.lt.api.params.InstantBuyOrderParameters;
 import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.lt.api.params.ReleaseBtcParameters;
 import com.mycelium.lt.api.params.SearchParameters;
 import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
+import com.mycelium.lt.api.params.TradeParameters;
 import com.mycelium.lt.api.params.TraderParameters;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.FeedbackEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.squareup.okhttp.*;
 
+@SuppressWarnings("deprecation")
 public class LtApiClient implements LtApi {
-   private static final int TIMEOUT_MS = 60000 * 2;
+
+   public static final int TIMEOUT_MS = 60000 * 2;
 
    public interface Logger {
       public void logError(String message, Exception e);
       public void logError(String message);
       public void logInfo(String message);
+   }
+
+   protected static byte[] uuidToBytes(UUID uuid) {
+      ByteArrayOutputStream ba = new ByteArrayOutputStream(16);
+      DataOutputStream da = new DataOutputStream(ba);
+      try {
+         da.writeLong(uuid.getMostSignificantBits());
+         da.writeLong(uuid.getLeastSignificantBits());
+      } catch (IOException e) {
+         // Never happens
+      }
+      return ba.toByteArray();
    }
 
    private ServerEndpoints _serverEndpoints;
@@ -116,6 +134,7 @@ public class LtApiClient implements LtApi {
 
       // Figure what our current endpoint is. On errors we fail over until we
       // are back at the initial endpoint
+      HttpEndpoint initialEndpoint = getEndpoint();
       while (true) {
          HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
@@ -208,6 +227,14 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Collection<SellOrder>> listSellOrders(UUID sessionId) {
+      LtRequest r = new LtRequest(Function.LIST_SELL_ORDERS);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Collection<SellOrder>>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Collection<Ad>> listAds(UUID sessionId) {
       LtRequest r = new LtRequest(Function.LIST_ADS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -224,6 +251,15 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<UUID> createSellOrder(UUID sessionId, TradeParameters params) {
+      LtRequest r = new LtRequest(Function.CREATE_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
+      });
+   }
+
+   @Override
    public LtResponse<UUID> createAd(UUID sessionId, AdParameters params) {
       LtRequest r = new LtRequest(Function.CREATE_AD);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -233,11 +269,30 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<SellOrder> getSellOrder(UUID sessionId, UUID sellOrderId) {
+      LtRequest r = new LtRequest(Function.GET_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<SellOrder>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Ad> getAd(UUID sessionId, UUID adId) {
       LtRequest r = new LtRequest(Function.GET_AD);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.AD_ID, adId.toString());
       return sendRequest(r, new TypeReference<LtResponse<Ad>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> editSellOrder(UUID sessionId, UUID sellOrderId, TradeParameters params) {
+      LtRequest r = new LtRequest(Function.EDIT_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
    }
 
@@ -252,10 +307,28 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> activateSellOrder(UUID sessionId, UUID sellOrderId) {
+      LtRequest r = new LtRequest(Function.ACTIVATE_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> activateAd(UUID sessionId, UUID adId) {
       LtRequest r = new LtRequest(Function.ACTIVATE_AD);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.AD_ID, adId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> deactivateSellOrder(UUID sessionId, UUID sellOrderId) {
+      LtRequest r = new LtRequest(Function.DEACTIVATE_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
    }
@@ -270,6 +343,15 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> deleteSellOrder(UUID sessionId, UUID sellOrderId) {
+      LtRequest r = new LtRequest(Function.DELETE_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> deleteAd(UUID sessionId, UUID adId) {
       LtRequest r = new LtRequest(Function.DELETE_AD);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -279,11 +361,36 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<List<SellOrderSearchItem>> sellOrderSearch(UUID sessionId, SearchParameters params) {
+      LtRequest r = new LtRequest(Function.SELL_ORDER_SEARCH);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<List<SellOrderSearchItem>>>() {
+      });
+   }
+
+   @Override
    public LtResponse<List<AdSearchItem>> adSearch(UUID sessionId, SearchParameters params) {
       LtRequest r = new LtRequest(Function.AD_SEARCH);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.setPostObject(_objectMapper, params);
       return sendRequest(r, new TypeReference<LtResponse<List<AdSearchItem>>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<List<AdSearchItem>> getActiveAds() {
+      LtRequest r = new LtRequest(Function.GET_ACTIVE_ADS);
+      return sendRequest(r, new TypeReference<LtResponse<List<AdSearchItem>>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<UUID> createInstantBuyOrder(UUID sessionId, InstantBuyOrderParameters params) {
+      LtRequest r = new LtRequest(Function.CREATE_INSTANT_BUY_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
       });
    }
 

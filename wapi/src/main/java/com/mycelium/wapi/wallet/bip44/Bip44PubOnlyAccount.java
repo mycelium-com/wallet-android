@@ -6,7 +6,6 @@ import com.mycelium.wapi.wallet.Bip44AccountBacking;
 
 
 public class Bip44PubOnlyAccount extends Bip44Account {
-
    public Bip44PubOnlyAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi) {
       super(context, keyManager, network, backing, wapi);
    }
@@ -15,5 +14,4 @@ public class Bip44PubOnlyAccount extends Bip44Account {
    public boolean canSpend() {
       return false;
    }
-
 }

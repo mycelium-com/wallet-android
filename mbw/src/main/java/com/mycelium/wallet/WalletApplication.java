@@ -36,7 +36,6 @@ package com.mycelium.wallet;
 
 import java.util.Locale;
 
-import android.app.Application;
 import android.content.res.Configuration;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
@@ -57,7 +56,6 @@ public class WalletApplication extends MultiDexApplication {
          applyLanguageChange(setLanguage);
       }
       super.onConfigurationChanged(newConfig);
-
    }
 
    public void applyLanguageChange(String lang) {
@@ -75,12 +73,14 @@ public class WalletApplication extends MultiDexApplication {
    }
 
    private Locale stringToLocale(String lang) {
-      if (lang.equals("zh-CN") || lang.equals("zh")) {
-         return Locale.SIMPLIFIED_CHINESE;
-      } else if (lang.equals("zh-TW")) {
-         return Locale.TRADITIONAL_CHINESE;
-      } else {
-         return new Locale(lang);
+      switch (lang) {
+         case "zh-CN":
+         case "zh":
+            return Locale.SIMPLIFIED_CHINESE;
+         case "zh-TW":
+            return Locale.TRADITIONAL_CHINESE;
+         default:
+            return new Locale(lang);
       }
    }
 }

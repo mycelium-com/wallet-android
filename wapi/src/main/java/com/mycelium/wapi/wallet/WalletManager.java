@@ -49,17 +49,53 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
  * 'classic' single address accounts.
  */
 //TODO we might optimize away full TX history for cold storage spending
-
 public class WalletManager {
-
    private static final byte[] MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990");
    // maximum age where we say a fetched fee estimation is valid
    private static final long MAX_AGE_FEE_ESTIMATION = 2 * 60 * 60 * 1000;
 
-   //if there are more external account types, expand this to a list
-   private final Set<AccountProvider> _extraAccountProviders = new HashSet<AccountProvider>();
-   private final Set<String> _extraAccountsCurrencies = new HashSet<String>();
-   private final HashMap<UUID, WalletAccount> _extraAccounts = new HashMap<UUID, WalletAccount>();
+   public AccountScanManager accountScanManager;
+   private final Set<AccountProvider> _extraAccountProviders = new HashSet<>();
+   private final Set<String> _extraAccountsCurrencies = new HashSet<>();
+   private final HashMap<UUID, WalletAccount> _extraAccounts = new HashMap<>();
+   private final SecureKeyValueStore _secureKeyValueStore;
+   private WalletManagerBacking _backing;
+   private final Map<UUID, WalletAccount> _walletAccounts;
+   private final List<Bip44Account> _bip44Accounts;
+   private final Collection<Observer> _observers;
+   private State _state;
+   private Thread _synchronizationThread;
+   private AccountEventManager _accountEventManager;
+   private NetworkParameters _network;
+   private Wapi _wapi;
+   private WapiLogger _logger;
+   private final ExternalSignatureProviderProxy _signatureProviders;
+   private IdentityAccountKeyManager _identityAccountKeyManager;
+   private volatile UUID _activeAccountId;
+   private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
+
+   /**
+    * Create a new wallet manager instance
+    *
+    * @param backing the backing to use for storing everything related to wallet accounts
+    * @param network the network used
+    * @param wapi    the Wapi instance to use
+    */
+   public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
+                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders) {
+      _secureKeyValueStore = secureKeyValueStore;
+      _backing = backing;
+      _network = network;
+      _wapi = wapi;
+      _signatureProviders = signatureProviders;
+      _logger = _wapi.getLogger();
+      _walletAccounts = Maps.newHashMap();
+      _bip44Accounts = new ArrayList<>();
+      _state = State.READY;
+      _accountEventManager = new AccountEventManager();
+      _observers = new LinkedList<>();
+      loadAccounts();
+   }
 
    public void addExtraAccounts(AccountProvider accountProvider) {
       _extraAccountProviders.add(accountProvider);
@@ -81,121 +117,6 @@ public class WalletManager {
 
    public Set<String> getAllActiveFiatCurrencies(){
       return ImmutableSet.copyOf(_extraAccountsCurrencies);
-   }
-
-   /**
-    * Implement this interface to get a callback when the wallet manager changes
-    * state or when some event occurs
-    */
-   public interface Observer {
-
-      /**
-       * Callback which occurs when the state of a wallet manager changes while
-       * the wallet is synchronizing
-       *
-       * @param wallet the wallet manager instance
-       * @param state  the new state of the wallet manager
-       */
-      void onWalletStateChanged(WalletManager wallet, State state);
-
-      /**
-       * Callback telling that an event occurred while synchronizing
-       *
-       * @param wallet    the wallet manager
-       * @param accountId the ID of the account causing the event
-       * @param events    the event that occurred
-       */
-      void onAccountEvent(WalletManager wallet, UUID accountId, Event events);
-   }
-
-   public enum State {
-      /**
-       * The wallet manager is synchronizing
-       */
-      SYNCHRONIZING,
-
-      /*
-       * A fast sync (only a limited subset of all addresses) is running
-       */
-      FAST_SYNC,
-
-      /**
-       * The wallet manager is ready
-       */
-      READY
-   }
-
-   public enum Event {
-      /**
-       * There is currently no connection to the block chain. This is probably
-       * due to network issues, or the Mycelium servers are down (unlikely).
-       */
-      SERVER_CONNECTION_ERROR,
-      /**
-       * The wallet broadcasted a transaction which was accepted by the network
-       */
-      BROADCASTED_TRANSACTION_ACCEPTED,
-      /**
-       * The wallet broadcasted a transaction which was rejected by the network.
-       * This is an rare event which could happen if you double spend yourself,
-       * or you spent an unconfirmed change which was subject to a malleability
-       * attack
-       */
-      BROADCASTED_TRANSACTION_DENIED,
-      /**
-       * The balance of the account changed
-       */
-      BALANCE_CHANGED,
-      /**
-       * The transaction history of the account changed
-       */
-      TRANSACTION_HISTORY_CHANGED,
-      /**
-       * The receiving address of an account has been updated
-       */
-      RECEIVING_ADDRESS_CHANGED
-   }
-
-   private final SecureKeyValueStore _secureKeyValueStore;
-   private WalletManagerBacking _backing;
-   private final Map<UUID, WalletAccount> _walletAccounts;
-   private final List<Bip44Account> _bip44Accounts;
-   private final Collection<Observer> _observers;
-   private State _state;
-   private Thread _synchronizationThread;
-   private AccountEventManager _accountEventManager;
-   private NetworkParameters _network;
-   private Wapi _wapi;
-   private WapiLogger _logger;
-   private final ExternalSignatureProviderProxy _signatureProviders;
-   private IdentityAccountKeyManager _identityAccountKeyManager;
-   private volatile UUID _activeAccountId;
-
-   private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
-
-   public AccountScanManager accountScanManager;
-
-   /**
-    * Create a new wallet manager instance
-    *
-    * @param backing the backing to use for storing everything related to wallet accounts
-    * @param network the network used
-    * @param wapi    the Wapi instance to use
-    */
-   public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders) {
-      _secureKeyValueStore = secureKeyValueStore;
-      _backing = backing;
-      _network = network;
-      _wapi = wapi;
-      _signatureProviders = signatureProviders;
-      _logger = _wapi.getLogger();
-      _walletAccounts = Maps.newHashMap();
-      _bip44Accounts = new ArrayList<Bip44Account>();
-      _state = State.READY;
-      _accountEventManager = new AccountEventManager();
-      _observers = new LinkedList<Observer>();
-      loadAccounts();
    }
 
    /**
@@ -259,7 +180,6 @@ public class WalletManager {
       }
       return id;
    }
-
 
    /**
     * Create a new Bp44 account using an accountRoot or xPrivKey (unrelated to the Masterseed)
@@ -329,7 +249,6 @@ public class WalletManager {
          }
       }
    }
-
 
    public UUID createExternalSignatureAccount(HdKeyNode hdKeyNode, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
       SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();
@@ -434,7 +353,7 @@ public class WalletManager {
     * @return the IDs of the accounts managed by the wallet manager
     */
    public List<UUID> getAccountIds() {
-      List<UUID> list = new ArrayList<UUID>(_walletAccounts.size() + _extraAccounts.size());
+      List<UUID> list = new ArrayList<>(_walletAccounts.size() + _extraAccounts.size());
       for (WalletAccount account : getAllAccounts()) {
          list.add(account.getId());
       }
@@ -467,7 +386,6 @@ public class WalletManager {
    public List<WalletAccount> getActiveOtherAccounts() {
       return filterAndConvert(not(or(MAIN_SEED_HD_ACCOUNT, IS_ARCHIVE)));
    }
-
 
    /**
     * Get archived accounts managed by the wallet manager
@@ -739,12 +657,9 @@ public class WalletManager {
       }
    }
 
-   public void addAccount(WalletAccount account) {
+   public void addAccount(AbstractAccount account) {
       synchronized (_walletAccounts) {
-         if (account instanceof AbstractAccount) {
-            AbstractAccount abstractAccount = (AbstractAccount) account;
-            abstractAccount.setEventHandler(_accountEventManager);
-         }
+         account.setEventHandler(_accountEventManager);
          _walletAccounts.put(account.getId(), account);
          _logger.logInfo("Account Added: " + account.getId());
       }
@@ -766,8 +681,8 @@ public class WalletManager {
 
       @Override
       public void run() {
+         setStateAndNotify(State.SYNCHRONIZING);
          try {
-            setStateAndNotify(State.SYNCHRONIZING);
             synchronized (_walletAccounts) {
                if (!syncMode.ignoreMinerFeeFetch &&
                      (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MAX_AGE_FEE_ESTIMATION / 2))) {
@@ -923,7 +838,7 @@ public class WalletManager {
    private static final Predicate<WalletAccount> MAIN_SEED_HD_ACCOUNT = new Predicate<WalletAccount>() {
       @Override
       public boolean apply(WalletAccount input) {
-         // todo: if relevant also check if this account is derived from the main-masterseed
+         // TODO: if relevant also check if this account is derived from the main-masterseed
          return input instanceof Bip44Account &&
                input.isDerivedFromInternalMasterseed();
       }
@@ -993,7 +908,7 @@ public class WalletManager {
             return x < y?-1:(x == y?0:1);
          }
       });
-      List<Integer> gaps = new LinkedList<Integer>();
+      List<Integer> gaps = new LinkedList<>();
       int lastIndex = 0;
       for (Bip44Account acc : mainAccounts) {
          while (acc.getAccountIndex() > lastIndex++) {
@@ -1015,13 +930,11 @@ public class WalletManager {
       final SecureKeyValueStore tempSecureKeyValueStore = new SecureKeyValueStore(tempSecureBacking, new RandomSource() {
          @Override
          public void nextBytes(byte[] bytes) {
-            for (int i = 0; i < bytes.length; i++) {
-               bytes[0] = 0; // randomness not needed for the temporary keystore
-            }
+            // randomness not needed for the temporary keystore
          }
       });
 
-      final LinkedList<Address> addresses = new LinkedList<Address>();
+      final LinkedList<Address> addresses = new LinkedList<>();
       for (Integer gapIndex : gaps) {
          final Bip44AccountKeyManager keyManager = Bip44AccountKeyManager.createNew(root, _network, gapIndex, tempSecureKeyValueStore, cipher);
          addresses.add(keyManager.getAddress(false, 0)); // get first external address for the account in the gap
@@ -1134,5 +1047,77 @@ public class WalletManager {
       } else {
          return FeeEstimation.DEFAULT;
       }
+   }
+
+   /**
+    * Implement this interface to get a callback when the wallet manager changes
+    * state or when some event occurs
+    */
+   public interface Observer {
+      /**
+       * Callback which occurs when the state of a wallet manager changes while
+       * the wallet is synchronizing
+       *
+       * @param wallet the wallet manager instance
+       * @param state  the new state of the wallet manager
+       */
+      void onWalletStateChanged(WalletManager wallet, State state);
+
+      /**
+       * Callback telling that an event occurred while synchronizing
+       *
+       * @param wallet    the wallet manager
+       * @param accountId the ID of the account causing the event
+       * @param events    the event that occurred
+       */
+      void onAccountEvent(WalletManager wallet, UUID accountId, Event events);
+   }
+
+   public enum State {
+      /**
+       * The wallet manager is synchronizing
+       */
+      SYNCHRONIZING,
+
+      /*
+       * A fast sync (only a limited subset of all addresses) is running
+       */
+      FAST_SYNC,
+
+      /**
+       * The wallet manager is ready
+       */
+      READY
+   }
+
+   public enum Event {
+      /**
+       * There is currently no connection to the block chain. This is probably
+       * due to network issues, or the Mycelium servers are down (unlikely).
+       */
+      SERVER_CONNECTION_ERROR,
+      /**
+       * The wallet broadcasted a transaction which was accepted by the network
+       */
+      BROADCASTED_TRANSACTION_ACCEPTED,
+      /**
+       * The wallet broadcasted a transaction which was rejected by the network.
+       * This is an rare event which could happen if you double spend yourself,
+       * or you spent an unconfirmed change which was subject to a malleability
+       * attack
+       */
+      BROADCASTED_TRANSACTION_DENIED,
+      /**
+       * The balance of the account changed
+       */
+      BALANCE_CHANGED,
+      /**
+       * The transaction history of the account changed
+       */
+      TRANSACTION_HISTORY_CHANGED,
+      /**
+       * The receiving address of an account has been updated
+       */
+      RECEIVING_ADDRESS_CHANGED
    }
 }
