@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.8" versioncode="28803">
+        <change>Better fee estimation, on average 10% cheaper. This will lead to the lowest fee now actually result in transactions getting confirmed later/not at all under extreme circumstances. If you always picked the cheapest, you mighthave to reconsider.</change>
+        <change>sat/byte: Even before picking details, the fee level is shown</change>
+        <change>CPFP: you can now bump the fee of incoming stuck transactions</change>
+        <change>Show UTXO count in UTXO list if more than 5</change>
+        <change>improved localization</change>
+        <change>bug fixes</change>
+        <change>many changes under the hood</change>
+    </release>
     <release version="2.8.7" versioncode="28700">
         <change>Integration with Simplex - buy bitcoin with your credit card</change>
     </release>
