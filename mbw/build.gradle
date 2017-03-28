@@ -40,7 +40,6 @@ dependencies {
     //not upgrading. This will be removed from the core app
     compile 'com.google.android.gms:play-services-base:7.8.0'
     compile 'com.google.android.gms:play-services-gcm:7.8.0'
-    //    compile 'org.bitcoinj:bitcoinj-core:0.14.3'    // depends on jcip-annotations
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
@@ -87,7 +86,7 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 28803
+        versionCode 28804
         versionName '2.8.8'
         multiDexEnabled true
     }
@@ -109,8 +108,6 @@ android {
 
     buildTypes {
         release {
-            debuggable true
-
             minifyEnabled !project.hasProperty('skipProguard')
             proguardFile 'mbw.pro'
             applicationVariants.all { variant ->
@@ -122,6 +119,9 @@ android {
                     }
                 }
             }
+        }
+        debug {
+            debuggable true
         }
     }
 
