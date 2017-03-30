@@ -66,6 +66,7 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
@@ -89,8 +90,6 @@ import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
@@ -111,9 +110,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
+import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
+import static com.mrd.bitlib.util.CoinUtil.Denomination.BTC;
+import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
 
 public class SendMainActivity extends Activity {
    private static final int GET_AMOUNT_RESULT_CODE = 1;
@@ -283,7 +287,7 @@ public class SendMainActivity extends Activity {
       }
 
       // Hide the sepa button, if it isnt wanted
-      btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : View.GONE);
+      btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? VISIBLE : GONE);
 
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
@@ -334,7 +338,7 @@ public class SendMainActivity extends Activity {
 
       //Remove Miner fee if coinapult
       if (isCoinapult()) {
-         llFee.setVisibility(View.GONE);
+         llFee.setVisibility(GONE);
       }
 
       // Amount Hint
@@ -378,7 +382,7 @@ public class SendMainActivity extends Activity {
    private void showSepaInfo(BillPay sepaPayment) {
       // show the sepa information, instead of the Btc Address
       ViewGroup parent = (ViewGroup) tvReceiver.getParent();
-      tvReceiver.setVisibility(View.GONE);
+      tvReceiver.setVisibility(GONE);
       View view = getLayoutInflater().inflate(R.layout.ext_cashila_sepa_info, parent, true);
 
       ((TextView) view.findViewById(R.id.tvName)).setText(sepaPayment.recipient.name);
@@ -393,7 +397,7 @@ public class SendMainActivity extends Activity {
       ((TextView) view.findViewById(R.id.tvBtcAddress)).setText(String.format("(%s)", sepaPayment.details.address.toString()));
 
       // hide the button to change the amount
-      btEnterAmount.setVisibility(View.GONE);
+      btEnterAmount.setVisibility(GONE);
    }
 
    @Override
@@ -681,15 +685,15 @@ public class SendMainActivity extends Activity {
       if (_receivingAddress == null && !hasPaymentRequest) {
          // Hide address, show "Enter"
          tvRecipientTitle.setText(R.string.enter_recipient_title);
-         llEnterRecipient.setVisibility(View.VISIBLE);
-         llRecipientAddress.setVisibility(View.GONE);
-         tvWarning.setVisibility(View.GONE);
+         llEnterRecipient.setVisibility(VISIBLE);
+         llRecipientAddress.setVisibility(GONE);
+         tvWarning.setVisibility(GONE);
          return;
       }
       // Hide "Enter", show address
       tvRecipientTitle.setText(R.string.recipient_title);
-      llRecipientAddress.setVisibility(View.VISIBLE);
-      llEnterRecipient.setVisibility(View.GONE);
+      llRecipientAddress.setVisibility(VISIBLE);
+      llEnterRecipient.setVisibility(GONE);
 
       // See if the address is in the address book or one of our accounts
       String label = null;
@@ -698,11 +702,11 @@ public class SendMainActivity extends Activity {
       }
       if (label == null || label.length() == 0) {
          // Hide label
-         tvReceiverLabel.setVisibility(View.GONE);
+         tvReceiverLabel.setVisibility(GONE);
       } else {
          // Show label
          tvReceiverLabel.setText(label);
-         tvReceiverLabel.setVisibility(View.VISIBLE);
+         tvReceiverLabel.setVisibility(VISIBLE);
       }
 
       // Set Address
@@ -723,9 +727,9 @@ public class SendMainActivity extends Activity {
       // show address (if available - some PRs might have more than one address or a not decodeable input)
       if (hasPaymentRequest && _receivingAddress != null) {
          tvReceiverAddress.setText(_receivingAddress.toDoubleLineString());
-         tvReceiverAddress.setVisibility(View.VISIBLE);
+         tvReceiverAddress.setVisibility(VISIBLE);
       } else {
-         tvReceiverAddress.setVisibility(View.GONE);
+         tvReceiverAddress.setVisibility(GONE);
       }
 
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
@@ -733,29 +737,28 @@ public class SendMainActivity extends Activity {
       if (_receivingAddress != null && walletManager.isMyAddress(_receivingAddress)) {
          if (walletManager.hasPrivateKeyForAddress(_receivingAddress)) {
             // Show a warning as we are sending to one of our own addresses
-            tvWarning.setVisibility(View.VISIBLE);
+            tvWarning.setVisibility(VISIBLE);
             tvWarning.setText(R.string.my_own_address_warning);
             tvWarning.setTextColor(getResources().getColor(R.color.yellow));
          } else {
             // Show a warning as we are sending to one of our own addresses,
             // which is read-only
-            tvWarning.setVisibility(View.VISIBLE);
+            tvWarning.setVisibility(VISIBLE);
             tvWarning.setText(R.string.read_only_warning);
             tvWarning.setTextColor(getResources().getColor(R.color.red));
          }
-
       } else {
-         tvWarning.setVisibility(View.GONE);
+         tvWarning.setVisibility(GONE);
       }
 
       //if present, show transaction label
       if (_transactionLabel != null) {
-         tvTransactionLabelTitle.setVisibility(View.VISIBLE);
-         tvTransactionLabel.setVisibility(View.VISIBLE);
+         tvTransactionLabelTitle.setVisibility(VISIBLE);
+         tvTransactionLabel.setVisibility(VISIBLE);
          tvTransactionLabel.setText(_transactionLabel);
       } else {
-         tvTransactionLabelTitle.setVisibility(View.GONE);
-         tvTransactionLabel.setVisibility(View.GONE);
+         tvTransactionLabelTitle.setVisibility(GONE);
+         tvTransactionLabel.setVisibility(GONE);
       }
    }
 
@@ -775,14 +778,14 @@ public class SendMainActivity extends Activity {
          // No amount to show
          tvAmountTitle.setText(R.string.enter_amount_title);
          tvAmount.setText("");
-         tvAmountFiat.setVisibility(View.GONE);
-         tvError.setVisibility(View.GONE);
+         tvAmountFiat.setVisibility(GONE);
+         tvError.setVisibility(GONE);
       } else {
          tvAmountTitle.setText(R.string.amount_title);
          if (_transactionStatus == TransactionStatus.OutputTooSmall) {
             // Amount too small
             tvAmount.setText(_mbwManager.getBtcValueString(getBitcoinValueToSend().getLongValue()));
-            tvAmountFiat.setVisibility(View.GONE);
+            tvAmountFiat.setVisibility(GONE);
             if (isCoinapult()) {
                CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
                tvError.setText(
@@ -794,14 +797,14 @@ public class SendMainActivity extends Activity {
             } else {
                tvError.setText(R.string.amount_too_small_short);
             }
-            tvError.setVisibility(View.VISIBLE);
+            tvError.setVisibility(VISIBLE);
          } else if (_transactionStatus == TransactionStatus.InsufficientFunds) {
             // Insufficient funds
             tvAmount.setText(
                   Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
             );
             tvError.setText(R.string.insufficient_funds);
-            tvError.setVisibility(View.VISIBLE);
+            tvError.setVisibility(VISIBLE);
          } else {
             // Set Amount
             if (!CurrencyValue.isNullOrZero(_amountToSend)) {
@@ -835,7 +838,7 @@ public class SendMainActivity extends Activity {
                }
                tvAmount.setText(sendAmount);
                if (CurrencyValue.isNullOrZero(alternativeAmount)) {
-                  tvAmountFiat.setVisibility(View.GONE);
+                  tvAmountFiat.setVisibility(GONE);
                } else {
                   // show the alternative amount
                   String alternativeAmountString =
@@ -848,19 +851,19 @@ public class SendMainActivity extends Activity {
                   }
 
                   tvAmountFiat.setText(alternativeAmountString);
-                  tvAmountFiat.setVisibility(View.VISIBLE);
+                  tvAmountFiat.setVisibility(VISIBLE);
                }
             } else {
                tvAmount.setText("");
                tvAmountFiat.setText("");
             }
 
-            tvError.setVisibility(View.GONE);
+            tvError.setVisibility(GONE);
             //check if we need to warn the user about unconfirmed funds
             if (_spendingUnconfirmed) {
-               tvUnconfirmedWarning.setVisibility(View.VISIBLE);
+               tvUnconfirmedWarning.setVisibility(VISIBLE);
             } else {
-               tvUnconfirmedWarning.setVisibility(View.GONE);
+               tvUnconfirmedWarning.setVisibility(GONE);
             }
          }
       }
@@ -871,24 +874,22 @@ public class SendMainActivity extends Activity {
       }
 
       // Update Fee-Display
+      btFeeLvl.setText(_fee.getMinerFeeName(this));
+      String duration = Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks());
       if (_unsigned == null) {
          // Only show button for fee lvl, cannot calculate fee yet
-         btFeeLvl.setText(_fee.getMinerFeeName(this));
-         tvFeeValue.setVisibility(View.INVISIBLE);
-         tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/Byte, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
+         tvFeeValue.setVisibility(GONE);
+         tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/byte, ~"+ duration);
       } else {
          // Show fee fully calculated
-         btFeeLvl.setVisibility(View.VISIBLE);
 
          long fee = _unsigned.calculateFee();
 
-         CoinUtil.Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
+         Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
          //show fee lvl on button - show the fees in mBtc if Btc is the denomination
-         CoinUtil.Denomination feeDenomination =
-               (bitcoinDenomination == CoinUtil.Denomination.BTC) ? CoinUtil.Denomination.mBTC : bitcoinDenomination;
+         Denomination feeDenomination = bitcoinDenomination == BTC ? mBTC : bitcoinDenomination;
 
          String feeString = CoinUtil.valueString(fee, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
-         btFeeLvl.setText(_fee.getMinerFeeName(this));
 
          CurrencyValue fiatFee = CurrencyValue.fromValue(
                ExactBitcoinValue.from(fee),
@@ -900,19 +901,12 @@ public class SendMainActivity extends Activity {
             // Show approximate fee in fiat
             feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
          }
-         tvFeeValue.setVisibility(View.VISIBLE);
+         tvFeeValue.setVisibility(VISIBLE);
          tvFeeValue.setText(String.format("(%s)", feeString));
-         if (_account.isDerivedFromInternalMasterseed()) {
-            Transaction transaction = null;
-            try {
-               transaction = _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               invalidKeyCipher.printStackTrace();
-            }
-            tvSatFeeValue.setText(+ transaction.inputs.length +" In- / "+ transaction.outputs.length+" Outputs, " + transaction.getTxRawSize()+" bytes, \n" + fee / transaction.getTxRawSize()+ " sat/byte Fee, ~ " + Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks()));
-         }else {
-            tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/Byte, ~ "+Utils.formatBlockcountAsApproxDuration(this,_fee.getNBlocks()));
-         }
+         int inCount = _unsigned.getFundingOutputs().length;
+         int outCount = _unsigned.getOutputs().length;
+         int size = estimateTransactionSize(inCount, outCount);
+         tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + (fee / size) + " sat/byte, ~" + duration);
       }
    }
 
@@ -926,7 +920,7 @@ public class SendMainActivity extends Activity {
       }
 
       btClipboard.setEnabled(getUriFromClipboard() != null);
-      pbSend.setVisibility(View.GONE);
+      pbSend.setVisibility(GONE);
 
       updateUi();
       super.onResume();
@@ -961,7 +955,7 @@ public class SendMainActivity extends Activity {
    }
 
    protected void disableButtons() {
-      pbSend.setVisibility(View.VISIBLE);
+      pbSend.setVisibility(VISIBLE);
       btSend.setEnabled(false);
       btAddressBook.setEnabled(false);
       btManualEntry.setEnabled(false);

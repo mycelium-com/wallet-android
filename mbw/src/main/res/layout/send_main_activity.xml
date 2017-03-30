@@ -325,7 +325,6 @@
                         />
 
                 <!-- Fiat Fee -->
-
                 <TextView
                         android:id="@+id/tvFeeValue"
                         android:layout_width="wrap_content"
@@ -337,8 +336,8 @@
                 <TextView
                     android:id="@+id/tvSatFeeValue"
                     android:layout_width="wrap_content"
-                    android:gravity="center"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_gravity="center"
                     android:textSize="13sp"
                     tools:text = "(xxx sat/byte)"/>
