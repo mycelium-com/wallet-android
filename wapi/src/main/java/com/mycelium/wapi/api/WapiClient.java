@@ -259,12 +259,10 @@ public class WapiClient implements Wapi {
       return sendRequest(Function.GET_MINER_FEE_ESTIMATION, null, typeref);
    }
 
-
    @Override
    public WapiLogger getLogger() {
       return _logger;
    }
-
 }
 
 
