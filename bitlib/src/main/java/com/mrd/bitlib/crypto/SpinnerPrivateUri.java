@@ -21,7 +21,9 @@ import com.mrd.bitlib.model.NetworkParameters;
 
 import java.security.NoSuchAlgorithmException;
 
-// TODO: Document. Does Spinner refer to the BitcoinSpinner predecessor of MBW?
+/**
+ * Bitcoin Spinner, the MBW predecessor used a backup-format(?) that we still support.
+ */
 public class SpinnerPrivateUri {
    public final InMemoryPrivateKey key;
    public final NetworkParameters network;

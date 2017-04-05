@@ -51,13 +51,11 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.persistence.MetadataStorage.BackupState;
 
-
 /**
  * Current Serialized Format: <HEX encoded 21 byte address>| <Bitcoin address
  * string>| <HEX encoded private key>| <HEX encoded public key>
  */
 public class Record implements Serializable, Comparable<Record> {
-
    private static final long serialVersionUID = 1L;
 
    private static final int CURRENT_VERSION = 2;
@@ -71,7 +69,7 @@ public class Record implements Serializable, Comparable<Record> {
 
       private final int _index;
 
-      private Tag(int index) {
+      Tag(int index) {
          _index = index;
       }
 
@@ -91,7 +89,6 @@ public class Record implements Serializable, Comparable<Record> {
             return Tag.UNKNOWN;
          }
       }
-
    }
 
    public enum Source {
@@ -108,7 +105,7 @@ public class Record implements Serializable, Comparable<Record> {
                }
             });
 
-      private Source(int index) {
+      Source(int index) {
          _index = index;
       }
 
