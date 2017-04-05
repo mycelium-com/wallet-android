@@ -44,10 +44,16 @@ import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder.SigningRequest;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
@@ -61,15 +67,22 @@ import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.satoshilabs.trezor.ExternalSignatureDevice;
 import com.satoshilabs.trezor.ExtSigDeviceConnectionException;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import com.satoshilabs.trezor.protobuf.TrezorMessage.SignTx;
+import com.satoshilabs.trezor.protobuf.TrezorMessage.TxRequest;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import com.squareup.otto.Bus;
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.*;
 
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.mycelium.wallet.Constants.TAG;
+import static org.bitcoinj.core.NetworkParameters.ID_MAINNET;
+import static org.bitcoinj.core.NetworkParameters.ID_TESTNET;
+
 public abstract class ExternalSignatureDeviceManager extends AbstractAccountScanManager implements ExternalSignatureProvider {
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
-
 
    private ExternalSignatureDevice externalSignatureDevice = null;
    private TrezorMessage.Features features;
@@ -82,8 +95,6 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    }
 
    public static class OnPinMatrixRequest {
-      public OnPinMatrixRequest() {
-      }
    }
 
    public ExternalSignatureDeviceManager(Context context, NetworkParameters network, Bus eventBus) {
@@ -105,7 +116,6 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
       return externalSignatureDevice.getDefaultAccountName();
    }
-
 
    public boolean isMostRecentVersion() {
       if (features != null) {
@@ -197,11 +207,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       return false;
    }
 
-
    // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
-   public Transaction getSignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
-
+   public Transaction getSignedTransaction(UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
       if (!initialize()) {
          return null;
       }
@@ -209,12 +217,11 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       setState(Status.readyToScan, currentAccountState);
 
       // send initial signing-request
-      TrezorMessage.SignTx signTx = TrezorMessage.SignTx.newBuilder()
+      SignTx signTx = SignTx.newBuilder()
             .setCoinName(getNetwork().getCoinName())
             .setInputsCount(unsigned.getFundingOutputs().length)
             .setOutputsCount(unsigned.getOutputs().length)
             .build();
-
 
       Message response;
       try {
@@ -224,12 +231,11 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          return null;
       }
 
-      StandardTransactionBuilder.SigningRequest[] signatureInfo = unsigned.getSignatureInfo();
+      SigningRequest[] signatureInfo = unsigned.getSignatureInfo();
 
       ByteWriter signedTx = new ByteWriter(1024);
 
       while (true) {
-
          // check for common response and handle them
          try {
             response = filterMessages(response);
@@ -243,12 +249,12 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             return null;
          }
 
-         if (!(response instanceof TrezorMessage.TxRequest)) {
+         if (!(response instanceof TxRequest)) {
             Log.e("trezor", "Trezor: Unexpected Response " + response.getClass().toString());
             return null;
          }
 
-         TrezorMessage.TxRequest txRequest = (TrezorMessage.TxRequest) response;
+         TxRequest txRequest = (TxRequest) response;
 
          // response had a part of the signed tx - write it to our buffer
          if (txRequest.hasSerialized() && txRequest.getSerialized().hasSerializedTx()) {
@@ -307,7 +313,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             // get the bip32 path for the address, so that trezor knows with what key to sign it
             // only for the unsigned txin
             if (!txRequestDetailsType.hasTxHash()) {
-               StandardTransactionBuilder.SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
+               SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
                Address toSignWith = signingRequest.publicKey.toAddress(getNetwork());
 
                if (toSignWith != null) {
@@ -378,16 +384,36 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          }
       }
 
-
       Transaction ret;
       try {
          ret = Transaction.fromByteReader(new ByteReader(signedTx.toBytes()));
+         checkSignedTransaction(unsigned, signedTx);
       } catch (Transaction.TransactionParsingException e) {
+         postErrorMessage("Trezor TX not valid.");
          Log.e("trezor", "Trezor TX not valid " + e.getMessage(), e);
+         return null;
+      } catch (ScriptException e) {
+         postErrorMessage("Probably wrong passphrase.");
+         Log.e(TAG, "bitcoinJ doesn't like this transaction: ", e);
          return null;
       }
       return ret;
+   }
 
+   /**
+    * At least Trezor and KeepKey have no way of knowing the input scripts as they see only the outpoints that they are asked to sign against. Therefore, they tend to sign with wrong keys, if using a passphrase that is not stored in the app. See https://github.com/mycelium-com/wallet/issues/169
+    */
+   private void checkSignedTransaction(UnsignedTransaction unsigned, ByteWriter signedTx) {
+      org.bitcoinj.core.NetworkParameters networkParameters =  org.bitcoinj.core.NetworkParameters.fromID(getNetwork().isProdnet() ? ID_MAINNET : ID_TESTNET);
+      org.bitcoinj.core.Transaction tx = new org.bitcoinj.core.Transaction(networkParameters, signedTx.toBytes());
+      for (int i = 0; i < tx.getInputs().size(); i++) {
+         org.bitcoinj.core.TransactionInput input = tx.getInput(i);
+         org.bitcoinj.script.Script scriptSig = input.getScriptSig();
+
+         String addressString = unsigned.getFundingOutputs()[i].script.getAddress(getNetwork()).toString();
+         org.bitcoinj.script.Script outputScript = ScriptBuilder.createOutputScript(org.bitcoinj.core.Address.fromBase58(networkParameters, addressString));
+         scriptSig.correctlySpends(tx, i, outputScript, org.bitcoinj.script.Script.ALL_VERIFY_FLAGS);
+      }
    }
 
    private TrezorType.OutputScriptType mapScriptType(ScriptOutput script) {
