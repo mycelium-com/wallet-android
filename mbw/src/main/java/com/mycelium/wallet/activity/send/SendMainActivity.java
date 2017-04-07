@@ -242,6 +242,7 @@ public class SendMainActivity extends Activity {
    @SuppressLint("ShowToast")
    @Override
    public void onCreate(Bundle savedInstanceState) {
+      // TODO: profile. slow!
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.send_main_activity);
@@ -672,6 +673,7 @@ public class SendMainActivity extends Activity {
    }
 
    private void updateUi() {
+      // TODO: profile. slow!
       updateRecipient();
       updateAmount();
 

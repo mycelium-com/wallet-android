@@ -73,7 +73,6 @@ public abstract class AbstractAccountScanManager implements AccountScanManager {
       mainThreadHandler = new Handler(Looper.getMainLooper());
    }
 
-
    public class ScanStatus {
       public final Status state;
       public final AccountStatus accountState;

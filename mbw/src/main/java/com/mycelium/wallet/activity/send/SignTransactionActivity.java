@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.view.Window;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -59,16 +60,16 @@ public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
    protected WalletAccount _account;
    protected boolean _isColdStorage;
-   protected StandardTransactionBuilder.UnsignedTransaction _unsigned;
+   protected UnsignedTransaction _unsigned;
    private Transaction _transaction;
    private AsyncTask<Void, Integer, Transaction> _signingTask;
    private AsyncTask<Void, Integer, Transaction> signingTask;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, int requestCode) {
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned, int requestCode) {
       currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, unsigned), requestCode);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned) {
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
@@ -108,7 +109,7 @@ public class SignTransactionActivity extends Activity {
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _unsigned = Preconditions.checkNotNull((StandardTransactionBuilder.UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
+      _unsigned = Preconditions.checkNotNull((UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
 
       // Load state
       if (savedInstanceState != null) {
@@ -141,7 +142,6 @@ public class SignTransactionActivity extends Activity {
       cancelSigningTask();
       // Sign transaction in the background
       signingTask = new AsyncTask<Void, Integer, Transaction>() {
-
          @Override
          protected Transaction doInBackground(Void... args) {
             try {

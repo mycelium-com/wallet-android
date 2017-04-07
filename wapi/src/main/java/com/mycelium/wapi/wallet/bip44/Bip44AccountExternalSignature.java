@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;
@@ -17,7 +18,7 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    }
 
    @Override
-   public Transaction signTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, KeyCipher cipher)
+   public Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws KeyCipher.InvalidKeyCipher {
       checkNotArchived();
       if (!isValidEncryptionKey(cipher)) {
@@ -32,7 +33,6 @@ public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    public boolean canSpend() {
       return true;
    }
-
 
    @Override
    public Data getExportData(KeyCipher cipher) {

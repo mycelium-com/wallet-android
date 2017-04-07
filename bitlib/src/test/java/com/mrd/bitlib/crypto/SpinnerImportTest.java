@@ -34,20 +34,18 @@
 
 package com.mrd.bitlib.crypto;
 
-
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
-
 public class SpinnerImportTest {
-
    @Test
-    public void spinnerImprt() {
+   public void spinnerImprt() {
       SpinnerPrivateUri spinnerImport = SpinnerPrivateUri.fromSpinnerUri("bsb:6hm5yUxrSXRYpPkeu5HrfcQ8BXbf6e7d91AQtwa6ViUz?net=0");
       Address addr = spinnerImport.key.getPublicKey().toAddress(NetworkParameters.productionNetwork);
-       assertEquals("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL",addr.toString());
-    }
+      assertEquals("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL", addr.toString());
+   }
 }

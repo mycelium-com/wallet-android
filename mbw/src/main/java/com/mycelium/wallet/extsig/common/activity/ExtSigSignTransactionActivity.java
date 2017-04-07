@@ -70,7 +70,6 @@ public abstract class ExtSigSignTransactionActivity
       super.onCreate(savedInstanceState);
    }
 
-
    @Override
    protected void onResume() {
       super.onResume();
@@ -185,11 +184,8 @@ public abstract class ExtSigSignTransactionActivity
       updateUi();
    }
 
-
    @Subscribe
    public void onStatusChanged(AccountScanManager.OnStatusChanged event){
       updateUi();
    }
-
-
 }
