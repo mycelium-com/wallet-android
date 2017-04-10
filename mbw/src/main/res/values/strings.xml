@@ -870,6 +870,32 @@
     <string name="coinapult_create_account">Creating Coinapult account…</string>
     <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string> 
     <string name="coinapult_currency_account">%1$s Account</string>
+    <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
+    <string name="colu_add_mass_account">Add Mass Account</string>
+    <string name="colu_account_notes">Store digital assets in Mycelium.</string> 
+    <string name="colu_add_cc_account">Add a Colored Coins Account</string>
+    <string name="colu">Colu</string>
+    <string name="colu_select_an_account_type">Please select a Colu account type</string>
+    <string name="colu_create_account">Create Colu Account</string>
+    <string name="colu_mycelium_tokens">Mycelium Tokens</string>
+    <string name="colu_mass_tokens">Mass Tokens</string>
+    <string name="colu_unable_to_create_account">Unable to create Colu account</string>
+    <string name="colu_tos_link">Open Colu Terms and Conditions</string>
+    <string name="colu_tos_link_url">https://www.colu.com/TOS</string>
+    <string name="colu_tos">By clicking "OK" you agree to use Colu technology, third party
+blockchain technology developer. All your interactions with Colu are outside of
+Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.
+Please read them carefully before providing any personal information.
+MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS
+OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR
+RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
+<!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
+    <string name="colu_backup_info">Your Colu account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
+    <string name="colu_sending_via_colu">Sending Colu assets.</string>
+    <string name="colu_failed_to_prepare">Failed to prepare Colu transaction ! Is there enough BTC to finance transaction in this account ?</string>
+    <string name="colu_succeeded_to_prepare">Colu transaction ready to send.</string>
+    <string name="colu_failed_to_broadcast">Colu failed to broadcast transaction.</string>
+    <string name="colu_succeeded_to_broadcast">Colu transaction sent.</string>
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>

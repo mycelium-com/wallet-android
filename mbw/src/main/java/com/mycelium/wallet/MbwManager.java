@@ -45,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -77,6 +78,9 @@ import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
@@ -112,6 +116,7 @@ public class MbwManager {
    private static final String PROXY_PORT = "socksProxyPort";
    private static final String SELECTED_ACCOUNT = "selectedAccount";
    private static volatile MbwManager _instance = null;
+   private static final String TAG = "MbwManager";
 
    /**
     * The root index we use for generating authentication keys.
@@ -120,6 +125,7 @@ public class MbwManager {
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
    private Optional<CoinapultManager> _coinapultManager;
+   private Optional<ColuManager> _coluManager;
 
    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -230,6 +236,8 @@ public class MbwManager {
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
+      //TODOL get it through coluManager instead ?
+      List<String> assetList = ColuAccount.ColuAsset.getAllAssetNames();
       Set<String> fiatCurrencies = new HashSet<>();
       if (currencyList == null) {
          //if there is no list take the default currency
@@ -237,6 +245,8 @@ public class MbwManager {
       } else {
          //else take all dem currencies, yeah
          fiatCurrencies.addAll(currencyList);
+         // also add colu assets ?
+         fiatCurrencies.addAll(assetList);
       }
 
       _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi);
@@ -269,6 +279,14 @@ public class MbwManager {
          addExtraAccounts(_coinapultManager.get());
       }
 
+      InitColuManagerTask initColu = new InitColuManagerTask();
+      initColu.execute(); 
+/*
+      _coluManager = createColuManager(_applicationContext, _environment);
+      if(_coluManager.isPresent()) {
+         addExtraAccounts(_coluManager.get());
+      }
+*/
       // set the currency-list after we added all extra accounts, they may provide
       // additional needed fiat currencies
       setCurrencyList(fiatCurrencies);
@@ -282,6 +300,19 @@ public class MbwManager {
             getPreferences().getString(Constants.BLOCK_EXPLORER,
                   _environment.getBlockExplorerList().get(0).getIdentifier()));
    }
+
+    private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
+        protected Optional<ColuManager> doInBackground(Void... params) {
+            return createColuManager(_applicationContext, _environment);
+        }
+
+        protected void onPostExecute(Optional<ColuManager> coluMgr) {
+            _coluManager = coluMgr;
+            if(_coluManager.isPresent()) {
+                addExtraAccounts(_coluManager.get());
+            }
+        }
+    }
 
    public void addExtraAccounts(AccountProvider accounts) {
       _walletManager.addExtraAccounts(accounts);
@@ -319,6 +350,34 @@ public class MbwManager {
       } else {
          return Optional.absent();
       }
+   }
+
+
+   private Optional<ColuManager> createColuManager(final Context context, MbwEnvironment environment) {
+
+      // Create persisted account backing
+      // we never talk directly to this class. Instead, we use SecureKeyValueStore API
+      SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
+
+      // Create persisted secure storage instance
+      SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking,
+            new AndroidRandomSource());
+
+         return Optional.of(new ColuManager(
+               coluSecureKeyValueStore,
+               coluBacking,
+               this,
+               _environment,
+               _eventBus,
+               new Handler(_applicationContext.getMainLooper()),
+               _storage,
+               _exchangeRateManager, // not sure we need this one for colu
+               retainingWapiLogger));
+/*
+      } else {
+         return Optional.absent();
+      }
+      */
    }
 
    private void createTempWalletManager() {
@@ -565,6 +624,7 @@ public class MbwManager {
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
+
 
    public String getFiatCurrency() {
       return _currencySwitcher.getCurrentFiatCurrency();
@@ -1042,6 +1102,10 @@ public class MbwManager {
       createTempWalletManager();
    }
 
+   public int getBitcoinBlockheight() {
+      return _walletManager.getBlockheight();
+   }
+
    public WalletAccount getSelectedAccount() {
       UUID uuid = getLastSelectedAccountId();
 
@@ -1221,6 +1285,19 @@ public class MbwManager {
             throw new IllegalStateException("tried to obtain coinapult manager without having created one");
          }
       }
+   }
+
+   public ColuManager getColuManager() {
+     if(_coluManager.isPresent()) {
+        return _coluManager.get();
+     } else {
+        _coluManager = createColuManager(_applicationContext, _environment);
+        if(_coluManager.isPresent()) {
+            return _coluManager.get();
+        } else {
+            throw new IllegalStateException("Tried to obtain colu manager without having created one.");
+        }
+     }
    }
 
    public Cache<String, Object> getBackgroundObjectsCache() {

@@ -880,6 +880,17 @@ public class WalletManager {
       }
    }
 
+   ///@brief returns last known blockheight on bitcoin blockchain
+   public int getBlockheight() {
+      int height = 0;
+      //TODO: should we iterate over all accounts and find max blockheight ?
+      Bip44Account account = _bip44Accounts.get(0);
+      if(account != null) {
+         height = account.getBlockChainHeight();
+      }
+      return height;
+   }
+
    // for the not expected case, that no account is activated (i.e. all are achieved), just enable the first one
    // because the app needs at least one active account in several places.
    public void activateFirstAccount(){

@@ -154,8 +154,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void initListeners() {
       // set the text for the currency button
-      btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
-      btCurrency.setEnabled(_mbwManager.getCurrencySwitcher().getExchangeRatePrice() != null);
+      if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+         btCurrency.setText(_amount.getCurrency());
+         btCurrency.setEnabled(false);
+      } else {
+         //btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
+         btCurrency.setEnabled(_mbwManager.getCurrencySwitcher().getExchangeRatePrice() != null);
+      }
    }
 
    private void initNumberEntry(Bundle savedInstanceState) {
@@ -207,16 +212,20 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    @OnClick({R.id.btRight, R.id.btCurrency})
    void onSwitchCurrencyClick() {
-      String targetCurrency = _mbwManager.getNextCurrency(true);
-      CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+
+
 
       // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
       // if there is no exchange rate at all available, we will get to BTC and stay there
-      while (!targetCurrency.equals(CurrencyValue.BTC) && !currencySwitcher.isFiatExchangeRateAvailable()) {
-         targetCurrency = _mbwManager.getNextCurrency(true);
+      // this does not apply to digital assets such as Colu for which we do not have a rate
+      if(!_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+         String targetCurrency = _mbwManager.getNextCurrency(true);
+         CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+         while (!targetCurrency.equals(CurrencyValue.BTC) && !currencySwitcher.isFiatExchangeRateAvailable()) {
+            targetCurrency = _mbwManager.getNextCurrency(true);
+         }
+         _amount = CurrencyValue.fromValue(_amount, targetCurrency, _mbwManager.getExchangeRateManager());
       }
-
-      _amount = CurrencyValue.fromValue(_amount, targetCurrency, _mbwManager.getExchangeRateManager());
 
       updateUI();
    }
@@ -274,9 +283,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (isSendMode) {
          showMaxAmount();
       }
-      // Set current currency name button
-      btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
 
+      if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+         // always set native asset currency here ?
+      } else {
+         // Set current currency name button
+         btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
+      }
       if (_amount != null) {
          //update amount
          int showDecimalPlaces;
@@ -324,6 +337,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
                   && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
+                  && ! _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
       );
 
       btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
@@ -349,7 +363,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void setEnteredAmount(BigDecimal value) {
       // handle denomination
-      String currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
+      String currentCurrency;
+      if( _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+         currentCurrency = _amount.getCurrency();
+      } else {
+         currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
+      }
       if (currentCurrency.equals(CurrencyValue.BTC)) {
          Long satoshis;
          int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
@@ -378,6 +397,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // Set alternate amount if we can
       if (!_mbwManager.hasFiatCurrency()
+            || _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
             || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
             || CurrencyValue.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
@@ -409,10 +429,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          btOk.setEnabled(false);
          return;
       }
-      if (isSendMode && !CurrencyValue.isNullOrZero(_amount)) {
-         AmountValidation result = checkTransaction();
-         // Enable/disable Ok button
-         btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
+      if (isSendMode && !CurrencyValue.isNullOrZero(_amount) || !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+            AmountValidation result = checkTransaction();
+            // Enable/disable Ok button
+            btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
       } else {
          btOk.setEnabled(true);
       }
@@ -493,10 +513,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void updateExchangeRateDisplay() {
-      Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      btCurrency.setEnabled(exchangeRatePrice != null);
-      if (exchangeRatePrice != null) {
-         updateAmountsDisplay(_numberEntry.getEntry());
+      if(! _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+         Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+         btCurrency.setEnabled(exchangeRatePrice != null);
+         if (exchangeRatePrice != null) {
+            updateAmountsDisplay(_numberEntry.getEntry());
+         }
       }
    }
 }

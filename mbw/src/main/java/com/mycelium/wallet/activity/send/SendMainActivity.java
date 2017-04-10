@@ -42,6 +42,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -50,6 +51,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -81,6 +83,10 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
+import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wallet.colu.ColuTransactionData;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -116,6 +122,9 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 
 public class SendMainActivity extends Activity {
+
+   private static final String TAG = "SendMainActivity";
+
    private static final int GET_AMOUNT_RESULT_CODE = 1;
    private static final int SCAN_RESULT_CODE = 2;
    private static final int ADDRESS_BOOK_RESULT_CODE = 3;
@@ -172,6 +181,7 @@ public class SendMainActivity extends Activity {
    @BindView(R.id.llRecipientAddress) LinearLayout llRecipientAddress;
 
    private MbwManager _mbwManager;
+
    private PaymentRequestHandler _paymentRequestHandler;
    private String _paymentRequestHandlerUuid;
 
@@ -185,6 +195,7 @@ public class SendMainActivity extends Activity {
    private TransactionStatus _transactionStatus;
    protected UnsignedTransaction _unsigned;
    protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
+   protected ColuBroadcastTxid.Json _preparedColuTx;
    private Transaction _signedTransaction;
    private MinerFee _fee;
    private ProgressDialog _progress;
@@ -233,6 +244,10 @@ public class SendMainActivity extends Activity {
 
    private boolean isCoinapult() {
       return _account != null && _account instanceof CoinapultAccount;
+   }
+
+   private boolean isColu() {
+      return _account != null && _account instanceof ColuAccount;
    }
 
    @SuppressLint("ShowToast")
@@ -335,6 +350,12 @@ public class SendMainActivity extends Activity {
       //Remove Miner fee if coinapult
       if (isCoinapult()) {
          llFee.setVisibility(View.GONE);
+      }
+
+      //TODO: fee from other bitcoin account if colu
+      if(isColu()) {
+         // no sepa payment with colu
+         btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : View.GONE);
       }
 
       // Amount Hint
@@ -465,12 +486,68 @@ public class SendMainActivity extends Activity {
    void onClickSend() {
       if (isCoinapult()) {
          sendCoinapultTransaction();
+      } else if(isColu()) {
+         sendColuTransaction();
       } else if (_isColdStorage || _account instanceof Bip44AccountExternalSignature) {
          // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
          signTransaction();
       } else {
          _mbwManager.runPinProtectedFunction(this, pinProtectedSignAndSend);
       }
+   }
+
+   private void sendColuTransaction() {
+      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this,
+              Feature.COLU_PREPARE_OUTGOING_TX, true, new Runnable() {
+                 @Override
+                 public void run() {
+                    _mbwManager.runPinProtectedFunction(SendMainActivity.this, new Runnable() {
+                       @Override
+                       public void run() {
+                          if (_account instanceof ColuAccount) {
+                             Log.d(TAG, "sendColuTransaction account type is ColuAccount");
+                             final ProgressDialog progress = new ProgressDialog(SendMainActivity.this);
+                             progress.setCancelable(false);
+                             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                             progress.setMessage(getString(R.string.colu_sending_via_colu));
+                             progress.show();
+                             final ColuAccount coluAccount = (ColuAccount) _account;
+                             final ColuManager coluManager = _mbwManager.getColuManager();
+                             disableButtons();
+                             new AsyncTask<ColuBroadcastTxid.Json, Void, Boolean>() {
+                                @Override
+                                protected Boolean doInBackground(ColuBroadcastTxid.Json... params) {
+                                   Log.d(TAG, "In doInBackground: ColuPreparedTransaction");
+                                   //UnsignedTransaction unsignedTx = new UnsignedTransaction();
+                                   Transaction coluSignedTransaction = coluManager.signTransaction(params[0], coluAccount);
+                                   if(coluSignedTransaction != null) {
+                                      Log.d(TAG, "broadcasting transaction");
+                                      return coluManager.broadcastTransaction(coluSignedTransaction);
+                                   } else {
+                                      Log.d(TAG, "Failed to sign transaction");
+                                      return false;
+                                   }
+                                }
+
+                                @Override
+                                protected void onPostExecute(Boolean aBoolean) {
+                                   super.onPostExecute(aBoolean);
+                                   progress.dismiss();
+                                   if (aBoolean) {
+                                      Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_broadcast, Toast.LENGTH_SHORT).show();
+                                      SendMainActivity.this.finish();
+                                   } else {
+                                      Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_broadcast, Toast.LENGTH_SHORT).show();
+                                      updateUi();
+                                   }
+                                }
+                             }.execute(_preparedColuTx);
+                          }
+                       }
+                    });
+                 }
+              });
+
    }
 
    private void sendCoinapultTransaction() {
@@ -544,8 +621,11 @@ public class SendMainActivity extends Activity {
    }
 
    private TransactionStatus tryCreateUnsignedTransaction() {
-      if(isCoinapult()) {
+      Log.d(TAG, "tryCreateUnsignedTransaction");
+      if (isCoinapult()) {
          return tryCreateCoinapultTX();
+      } else if(isColu()) {
+         return tryCreateUnsignedColuTX();
       } else {
          return tryCreateUnsignedTransactionFromWallet();
       }
@@ -600,6 +680,69 @@ public class SendMainActivity extends Activity {
          _mbwManager.reportIgnoredException("MinerFeeException", e);
          return TransactionStatus.MissingArguments;
       }
+   }
+
+   private TransactionStatus tryCreateUnsignedColuTX() {
+      Log.d(TAG, "tryCreateUnsignedColuTX start");
+      if (_account instanceof ColuAccount) {
+         ColuAccount coluAccount = (ColuAccount) _account;
+         _unsigned = null;
+         _preparedCoinapult = null;
+
+         if (CurrencyValue.isNullOrZero(_amountToSend) || _receivingAddress == null) {
+            Log.d(TAG, "tryCreateUnsignedColuTX Missing argument: amountToSend or receiving address is null.");
+            if(_amountToSend != null) {
+               Log.d(TAG, "_amountToSend="+_amountToSend);
+            } else {
+               Log.d(TAG, "_amountToSend is null");
+            }
+            if(_receivingAddress != null) {
+               Log.d(TAG, " receivingAddress=" + _receivingAddress.toString());
+            }
+            return TransactionStatus.MissingArguments;
+         }
+
+         if( ! _amountToSend.getCurrency().equals(coluAccount.getColuAsset().name)) {
+            //TODO: add new code for incorrect input data (wrong asset type)
+            Log.d(TAG, "tryCreateUnsignedColuTX Missing argument: incorrect asset type: " + _amountToSend.getCurrency()
+                  + " expected: " + coluAccount.getColuAsset().name);
+            return TransactionStatus.MissingArguments;
+         }
+
+         ExactCurrencyValue nativeAmount = ExactCurrencyValue.from(_amountToSend.getValue(), _amountToSend.getCurrency());
+         Log.d(TAG, "preparing colutx");
+         final ColuManager coluManager = _mbwManager.getColuManager();
+         long feePerKb = getFeePerKb().getLongValue();
+         ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount, 
+                                                           coluAccount, feePerKb);
+
+         new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxid.Json>() {
+            @Override
+            protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
+               return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(), 
+                                                params[0].getColuAccount(), params[0].getFeePerKb());
+            }
+
+            @Override
+            protected void onPostExecute(ColuBroadcastTxid.Json preparedTransaction) {
+               super.onPostExecute(preparedTransaction);
+               Log.d(TAG, "onPostExecute prepareColuTransaction");
+               //TODO: add feedback to user about fees when missing funds
+               if(preparedTransaction != null) {
+                  Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
+                  _preparedColuTx = preparedTransaction;
+                  Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
+               } else {
+                  Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_prepare, Toast.LENGTH_SHORT).show();
+                  updateUi();
+               }
+            }
+         }.execute(coluTransactionData);
+         return TransactionStatus.OK;
+      }
+      // if we arrive here it means account is not colu type
+      Log.e(TAG, "tryCreateUnsignedColuTX: We should not arrive here.");
+      return TransactionStatus.MissingArguments;
    }
 
    private TransactionStatus tryCreateCoinapultTX() {
@@ -971,6 +1114,7 @@ public class SendMainActivity extends Activity {
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      Log.d(TAG, "onActivityResult: requestCode="+requestCode + " and resultCode="+resultCode);
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode != RESULT_OK) {
             if (intent != null) {
@@ -1034,7 +1178,8 @@ public class SendMainActivity extends Activity {
             return;
          }
          _receivingAddress = address;
-
+            // this is where colusend is calling tryCreateUnsigned
+         // why is amountToSend not set ?
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
       } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {

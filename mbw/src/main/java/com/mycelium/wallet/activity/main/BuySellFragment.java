@@ -50,7 +50,11 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.BuySellSelectFragment;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.event.SelectedAccountChanged;
 
+import com.squareup.otto.Subscribe;
 import javax.annotation.Nullable;
 
 public class BuySellFragment extends Fragment {
@@ -84,14 +88,24 @@ public class BuySellFragment extends Fragment {
 
     @Override
     public void onResume() {
-        View btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
-        if(showButton) {
-            btBuySell.setVisibility(View.VISIBLE);
-            btBuySell.setOnClickListener(buySellOnClickListener);
-        } else {
-            btBuySell.setVisibility(View.GONE);
-        }
+        _mbwManager.getEventBus().register(this);
+        updateUi();
         super.onResume();
+    }
+
+    private void updateUi() {
+        View btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
+        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        if(account instanceof ColuAccount) {
+            btBuySell.setVisibility(View.INVISIBLE);
+        } else {
+            if(showButton) {
+                btBuySell.setVisibility(View.VISIBLE);
+                btBuySell.setOnClickListener(buySellOnClickListener);
+            } else {
+                btBuySell.setVisibility(View.GONE);
+            }
+        }
     }
 
     OnClickListener buySellOnClickListener = new OnClickListener() {
@@ -101,4 +115,13 @@ public class BuySellFragment extends Fragment {
             startActivity(intent);
         }
     };
+
+   /**
+    * The selected Account changed, update UI to enable/disable purchase
+    */
+   @Subscribe
+   public void selectedAccountChanged(SelectedAccountChanged event) {
+      updateUi();
+   }
+
 }

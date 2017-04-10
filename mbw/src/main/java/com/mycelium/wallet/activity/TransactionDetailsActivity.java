@@ -57,6 +57,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 
@@ -69,6 +70,7 @@ public class TransactionDetailsActivity extends Activity {
    private TransactionSummary _txs;
    private int _white_color;
    private MbwManager _mbwManager;
+   private boolean coluMode = false;
 
    /**
     * Called when the activity is first created.
@@ -87,12 +89,18 @@ public class TransactionDetailsActivity extends Activity {
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
       _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
+      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         coluMode = true;
+      } else {
+         coluMode = false;
+      }
       updateUi();
    }
 
    private void updateUi() {
       // Set Hash
       TransactionDetailsLabel tvHash = ((TransactionDetailsLabel) findViewById(R.id.tvHash));
+      tvHash.setColuMode(coluMode);
       tvHash.setTransaction(_tx);
 
 
@@ -133,14 +141,18 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Inputs
       LinearLayout inputs = (LinearLayout) findViewById(R.id.llInputs);
-      for (TransactionDetails.Item item : _tx.inputs) {
-         inputs.addView(getItemView(item));
+      if(_tx.inputs != null) {
+         for (TransactionDetails.Item item : _tx.inputs) {
+            inputs.addView(getItemView(item));
+         }
       }
 
       // Set Outputs
       LinearLayout outputs = (LinearLayout) findViewById(R.id.llOutputs);
-      for (TransactionDetails.Item item : _tx.outputs) {
-         outputs.addView(getItemView(item));
+      if(_tx.outputs != null) {
+         for (TransactionDetails.Item item : _tx.outputs) {
+            outputs.addView(getItemView(item));
+         }
       }
 
       // Set Fee
@@ -163,8 +175,10 @@ public class TransactionDetailsActivity extends Activity {
 
    private long sum(TransactionDetails.Item[] items) {
       long sum = 0;
-      for (TransactionDetails.Item item : items) {
-         sum += item.value;
+      if(items != null) {
+         for (TransactionDetails.Item item : items) {
+            sum += item.value;
+         }
       }
       return sum;
    }

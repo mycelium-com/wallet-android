@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -46,6 +47,8 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.MbwManager;
@@ -57,6 +60,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
@@ -240,20 +244,86 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
+   // restore single account in asynctask so we can handle Colored Coins case
+   private class ImportSingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+      private InMemoryPrivateKey key;
+      private MetadataStorage.BackupState backupState;
+
+      public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+         this.key = key;
+         this.backupState = backupState;
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         UUID acc = null;
+
+         try {
+            //check if address is colu
+            // do not do this in main thread
+            ColuManager coluManager = _mbwManager.getColuManager();
+            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
+
+            if (asset != null) {
+               acc = _mbwManager.getColuManager().enableAsset(asset, key);
+               //acc = _mbwManager.getColuManager().createAccountFromKey(asset, key);
+            } else {
+               acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+
+               // Dont show a legacy-account warning for freshly generated or imported keys
+               _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
+
+               _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
+            }
+         } catch (IOException e) {
+            // could not determine account type, skipping
+            return null;
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+         }
+         return acc;
+      }
+
+      @Override
+      protected void onPostExecute(UUID account) {
+         if (account != null) {
+            finishOk(account);
+         }
+      }
+   }
+
    private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+
+      new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
+
+      /*
       UUID acc;
+
       try {
-         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+         //check if address is colu
+         // do not do this in main thread
+         ColuAccount.ColuAsset asset = _mbwManager.getColuManager().getColuAddressAsset(key.getPublicKey());
 
-         // Dont show a legacy-account warning for freshly generated or imported keys
-         _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
+         if(asset != null) {
+            acc = _mbwManager.getColuManager().enableAsset(asset, key);
+            //acc = _mbwManager.getColuManager().createAccountFromKey(asset, key);
+         } else {
+            acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
 
-         _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
+            // Dont show a legacy-account warning for freshly generated or imported keys
+            _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
 
+            _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
+         }
+      } catch(IOException e) {
+         // could not determine account type, skipping
+         return;
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }
       finishOk(acc);
+      */
    }
 
    private void returnAccount(HdKeyNode hdKeyNode) {

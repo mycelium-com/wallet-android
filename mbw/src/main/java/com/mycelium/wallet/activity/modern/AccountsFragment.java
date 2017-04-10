@@ -55,6 +55,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -65,6 +66,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
+import com.mycelium.wallet.activity.AddColuAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -72,6 +74,7 @@ import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.colu.*;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.*;
@@ -86,6 +89,8 @@ import java.util.UUID;
 
 public class AccountsFragment extends Fragment {
    public static final int ADD_RECORD_RESULT_CODE = 0;
+
+   public static final String TAG = "AccountsFragment";
 
    private WalletManager walletManager;
 
@@ -172,6 +177,17 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
+    // TODO: refactor these RESULT_XXX constants in a common class ?
+
+      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
+         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+         ColuAccount account = (ColuAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+         _mbwManager.setSelectedAccount(accountId);
+         _focusedAccount = account;
+         update();
+         return;
+      }
+
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
@@ -200,16 +216,23 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setMessage(R.string.delete_account_message);
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
-      final boolean hasPrivateData = accountToDelete instanceof ExportableAccount
-            && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent();
+      final boolean hasPrivateData = (accountToDelete instanceof ColuAccount) || 
+            (accountToDelete instanceof ExportableAccount
+            && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
+         deleteDialog.setView(checkBoxView);
+      }
+
+      if (accountToDelete instanceof ColuAccount) {
+         Log.d(TAG, "Preparing to delete a colu account.");
          deleteDialog.setView(checkBoxView);
       }
 
       deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface arg0, int arg1) {
+            Log.d(TAG, "Entering onClick delete");
             if (hasPrivateData) {
                Long satoshis = getPotentialBalance(accountToDelete);
                AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
@@ -258,12 +281,28 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                   public void onClick(DialogInterface arg0, int arg1) {
+                     Log.d(TAG, "In deleteFragment onClick");
                      if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                         try {
                            ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                            _toaster.toast(R.string.private_key_deleted, false);
                         } catch (KeyCipher.InvalidKeyCipher e) {
                            throw new RuntimeException(e);
+                        }
+                     } else if(accountToDelete instanceof ColuAccount) {
+                        try {
+                            ColuManager coluManager = _mbwManager.getColuManager();
+                            //ColuManager coluManager = ((ColuAccount) accountToDelete).getColuAccountManager();
+                            UUID uuid = accountToDelete.getId();
+                            coluManager.deleteAccount((ColuAccount) accountToDelete);
+                            _toaster.toast("Trying to delete colu account", false);
+                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                            _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
+
+
+                        } catch(Exception e) {
+                            // make a message !
+                            _toaster.toast("Got an error while deleting colu account", false);
                         }
                      } else {
                         try {
@@ -541,6 +580,12 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account instanceof SingleAddressAccount) {
+         menus.add(R.menu.record_options_menu_backup_verify);
+      }
+
+      if(account instanceof ColuAccount) {
+         //TODO: distinguish between ColuAccount in single address mode and HD mode
+         menus.add(R.menu.record_options_menu_backup);
          menus.add(R.menu.record_options_menu_backup_verify);
       }
 
@@ -829,12 +874,19 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-      if (_focusedAccount.isDerivedFromInternalMasterseed()) {
-         //start wordlist backup if a HD account or derived account was selected
-         Utils.pinProtectedWordlistBackup(getActivity());
-      } else if (_focusedAccount instanceof SingleAddressAccount) {
+      if(_focusedAccount instanceof ColuAccount) {
+         //ColuAccount class can be single or HD
+         //TODO: test if account is single address or HD and do wordlist backup instead
          //start legacy backup if a single key or watch only was selected
          Utils.pinProtectedBackup(getActivity());
+      } else {
+         if (_focusedAccount.isDerivedFromInternalMasterseed()) {
+            //start wordlist backup if a HD account or derived account was selected
+            Utils.pinProtectedWordlistBackup(getActivity());
+         } else if (_focusedAccount instanceof SingleAddressAccount) {
+            //start legacy backup if a single key or watch only was selected
+            Utils.pinProtectedBackup(getActivity());
+         }
       }
    }
 

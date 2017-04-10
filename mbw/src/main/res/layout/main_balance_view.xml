@@ -53,7 +53,41 @@
             />
 
 
+    <!-- Colu satoshi balance -->
 
+    <LinearLayout
+        android:id="@+id/llColuSatoshiBalance"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" 
+        android:visibility="gone">
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:text="tx funding balance: "
+                tools:text="tx funding balance: "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvColuSatoshiBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                tools:text="21000 sat"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+      </LinearLayout>
 
         <TextView
             android:id="@+id/tvReceiving"

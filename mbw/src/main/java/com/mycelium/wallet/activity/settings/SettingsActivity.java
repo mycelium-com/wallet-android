@@ -252,6 +252,15 @@ public class SettingsActivity extends PreferenceActivity {
    };
 
 
+   private final OnPreferenceClickListener onClickSimplexEnable = new OnPreferenceClickListener() {
+      @Override
+      public boolean onPreferenceClick(Preference preference) {
+         CheckBoxPreference p = (CheckBoxPreference) preference;
+         _mbwManager.getMetadataStorage().setSimplexIsEnabled(p.isChecked());
+         return true;
+      }
+   };
+
    private ListPreference _bitcoinDenomination;
    private Preference _localCurrency;
    private ListPreference _exchangeSource;

@@ -66,6 +66,9 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wallet.event.*;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -169,27 +172,47 @@ public class BalanceFragment extends Fragment {
 
       updateUiKnownBalance(balance);
 
-      // Set BTC rate
-      if (!_mbwManager.hasFiatCurrency()) {
-         // No fiat currency selected by user
-         _root.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
-      } else if (_exchangeRatePrice == null) {
-         // We have no price, exchange not available
-         TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
-         tvBtcRate.setVisibility(View.VISIBLE);
-         tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+      TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
+      // show / hide components depending on account type
+      View coluSatoshiBalanceLayout = _root.findViewById(R.id.llColuSatoshiBalance);
+      View tcdFiatDisplay = _root.findViewById(R.id.tcdFiatDisplay);
+      if(account instanceof ColuAccount) {
+          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
+          tvBtcRate.setVisibility(View.INVISIBLE);
+          tcdFiatDisplay.setVisibility(View.INVISIBLE);
+          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
+          ColuAccount coluAccount = (ColuAccount) account;
+          tvColuSatoshiBalance.setText(String.valueOf(coluAccount.getSatoshiAmount()) + " sat");
       } else {
-         TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
-         tvBtcRate.setVisibility(View.VISIBLE);
-         String currency = _mbwManager.getFiatCurrency();
-         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice);
-         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+          // restore default settings if account is standard
+          coluSatoshiBalanceLayout.setVisibility(View.GONE);
+          tvBtcRate.setVisibility(View.VISIBLE);
+          tcdFiatDisplay.setVisibility(View.VISIBLE);
+
+          // Set BTC rate
+          if (!_mbwManager.hasFiatCurrency()) {
+             // No fiat currency selected by user
+             tvBtcRate.setVisibility(View.INVISIBLE);
+          } else if (_exchangeRatePrice == null) {
+             // We have no price, exchange not available
+             tvBtcRate.setVisibility(View.VISIBLE);
+             tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+          } else {
+             tvBtcRate.setVisibility(View.VISIBLE);
+             String currency = _mbwManager.getFiatCurrency();
+             String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice);
+             tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+          }
       }
    }
 
    private void updateUiKnownBalance(CurrencyBasedBalance balance) {
       // Set Balance
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if(account instanceof ColuAccount) {
+          valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
+      }
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
       _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);

@@ -88,7 +88,8 @@ public class AddAccountActivity extends Activity {
       } else {
          findViewById(R.id.tvInfoBackup).setVisibility(View.GONE);
       }
-
+      final View coluCreate = findViewById(R.id.btColuCreate);
+      coluCreate.setOnClickListener(createColuAccount);
       _progress = new ProgressDialog(this);
    }
 
@@ -128,6 +129,17 @@ public class AddAccountActivity extends Activity {
       }
    };
 
+   View.OnClickListener createColuAccount = new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+	     // do we really need an activity ? there is actually no user interaction required
+	     Intent intent = AddColuAccountActivity.getIntent(AddAccountActivity.this);
+	     intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+         AddAccountActivity.this.startActivity(intent);
+	     AddAccountActivity.this.finish();
+      }
+   };
+
    private void createNewHdAccount() {
       final WalletManager wallet = _mbwManager.getWalletManager(false);
       // at this point, we have to have a master seed, since we created one on startup
@@ -159,6 +171,7 @@ public class AddAccountActivity extends Activity {
          }
 
       }
+
 
       @Override
       protected void onPostExecute(UUID account) {
