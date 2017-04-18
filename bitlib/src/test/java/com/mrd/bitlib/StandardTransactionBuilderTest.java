@@ -41,7 +41,6 @@ import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
@@ -52,6 +51,8 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import org.bitcoinj.core.DumpedPrivateKey;
+import org.bitcoinj.core.ECKey;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,6 +64,7 @@ import java.util.List;
 
 import static com.megiontechnologies.Bitcoins.SATOSHIS_PER_BITCOIN;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+import static com.mrd.bitlib.model.NetworkParameters.productionNetwork;
 import static com.mrd.bitlib.model.NetworkParameters.testNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -71,7 +73,7 @@ public class StandardTransactionBuilderTest {
     private StandardTransactionBuilder testme;
 
     private static final int COUNT = 9;
-    private static final PrivateKey[] PRIVATE_KEYS = new PrivateKey[COUNT];
+    private static final InMemoryPrivateKey[] PRIVATE_KEYS = new InMemoryPrivateKey[COUNT];
     private static final PublicKey PUBLIC_KEYS[] = new PublicKey[COUNT];
     private static final Address ADDRS[] = new Address[COUNT];
     private static final UnspentTransactionOutput UTXOS[][] = new UnspentTransactionOutput[COUNT][2];
@@ -219,7 +221,7 @@ public class StandardTransactionBuilderTest {
      *
      * @param s one byte hex values as string representation. "00" - "ff"
      */
-    private static PrivateKey getPrivKey(String s) {
+    private static InMemoryPrivateKey getPrivKey(String s) {
         return new InMemoryPrivateKey(HexUtils.toBytes(s + "00000000000000000000000000000000000000000000000000000000000000"), true);
     }
 
@@ -233,5 +235,23 @@ public class StandardTransactionBuilderTest {
             requests.add(new SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(("bla" + i).getBytes())));
         }
         StandardTransactionBuilder.generateSignatures(requests.toArray(new SigningRequest[]{}), PRIVATE_KEY_RING);
+    }
+
+    // to compare with the bitlib signing test that allows 10ms per signature, the bitcoinJ version allows
+    // 500ms for 1000 sigs or 0.5ms per sig or 20 times faster. Not sure if comparing apples and bananas here.
+    @Test(timeout=500)
+    public void generateSignaturesBitcoinJ() {
+        int keyCount = PRIVATE_KEYS.length;
+        ECKey keys[] = new ECKey[keyCount];
+        for(int i = 0; i<keyCount; i++) {
+            keys[i] = DumpedPrivateKey.fromBase58(null, PRIVATE_KEYS[i].getBase58EncodedPrivateKey(productionNetwork)).getKey();
+        }
+
+        // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
+        for(int i = 0; i<1000; i++) {
+            ECKey key = keys[i % keyCount];
+            org.bitcoinj.core.Sha256Hash hash = org.bitcoinj.core.Sha256Hash.of(("bla foo " + i).getBytes());
+            key.sign(hash);
+        }
     }
 }
