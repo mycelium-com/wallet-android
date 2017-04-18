@@ -5,18 +5,29 @@ build:
     - cd /builds/mycelium/mycelium-com-wallet
     - echo working on branch $CI_BUILD_REF_NAME''
     - "if [ $CI_BUILD_REF_NAME'' == 'master' ]; then gradleParam=''; else gradleParam='-PskipProguard'; fi"
-    - ./gradlew build $gradleParam -Pbranch=$CI_BUILD_REF_NAME''
+    - ./gradlew clean test lint build $gradleParam -Pbranch=$CI_BUILD_REF_NAME''
     - "mkdir /cache/root 2>/dev/null || :"
     - cp -ru /root/.android /root/.gradle /root/.profile /root/android-sdk-linux /cache/root
   type: build
   artifacts:
+    expire_in: 4 weeks
     paths:
-      - /builds/mycelium/mycelium-com-wallet/mbw/build/outputs/logs/
-      - /builds/mycelium/mycelium-com-wallet/mbw/build/outputs/lint-results.xml
-      - /builds/mycelium/mycelium-com-wallet/mbw/build/outputs/lint-results.html
-      - /builds/mycelium/mycelium-com-wallet/mbw/build/outputs/lint-results_files/
-      - /builds/mycelium/mycelium-com-wallet/mbw/build/outputs/apk/mbw-btctestnet-debug-*build*.apk
-      - /builds/mycelium/mycelium-com-wallet/btchip/build/outputs/
-      - /builds/mycelium/mycelium-com-wallet/trezor/build/outputs/
+      - */build/reports/
+      - **/build/outputs/
+      - LVL/build/reports/
+      - bitlib/build/reports/
+      - btchip/build/reports/
+      - coinapult/build/reports/
+      - lt-api/build/reports/
+      - libs/zxing-android/build/reports/
+      - libs/nordpol/build/reports/
+      - mbw/build/outputs/logs/
+      - mbw/build/outputs/apk/mbw-btctestnet-debug-*build*.apk
+      - mbw/build/reports/
+      - mbwlib/build/reports/
+      - trezor/build/outputs/
+      - trezor/build/reports/
+      - wapi/build/reports/
+
   tags:
     - 4GB_RAM
