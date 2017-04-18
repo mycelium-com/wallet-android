@@ -936,7 +936,6 @@ public class SendMainActivity extends Activity {
    }
 
    final Runnable pinProtectedSignAndSend = new Runnable() {
-
       @Override
       public void run() {
          signTransaction();

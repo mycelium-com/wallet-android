@@ -3,6 +3,7 @@ package com.mrd.bitlib.crypto;
 import com.mrd.bitlib.crypto.HdKeyNode.KeyGenerationException;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.HexUtils;
+
 import org.junit.Test;
 
 import static com.mrd.bitlib.model.NetworkParameters.productionNetwork;

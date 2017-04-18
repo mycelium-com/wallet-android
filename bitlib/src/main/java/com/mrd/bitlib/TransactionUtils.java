@@ -49,7 +49,6 @@ public class TransactionUtils {
     *           the unspent outputs that fund the transaction
     */
    public static boolean hasInSufficientFees(Transaction tx, UnspentTransactionOutput[] funding, long minerFeeToUse) {
-      // Can this transaction be sent without a fee?
       int txSize = tx.toBytes().length;
       // A fee is required, does it pay enough fees?
       return calculateFeePaid(tx, funding) < calculateFeeRequired(txSize, minerFeeToUse);

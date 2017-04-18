@@ -35,15 +35,20 @@
 package com.mrd.bitlib;
 
 import com.google.common.collect.ImmutableList;
+import com.mrd.bitlib.StandardTransactionBuilder.SigningRequest;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.crypto.BitcoinSigner;
+import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputStandard;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -51,6 +56,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -65,28 +71,40 @@ public class StandardTransactionBuilderTest {
     private StandardTransactionBuilder testme;
 
     private static final int COUNT = 9;
-    private static final PublicKey KEYS[] = new PublicKey[COUNT];
+    private static final PrivateKey[] PRIVATE_KEYS = new PrivateKey[COUNT];
+    private static final PublicKey PUBLIC_KEYS[] = new PublicKey[COUNT];
     private static final Address ADDRS[] = new Address[COUNT];
     private static final UnspentTransactionOutput UTXOS[][] = new UnspentTransactionOutput[COUNT][2];
 
     static {
         for (int i = 0; i < COUNT; i++) {
-            // create 4 keys,
-            KEYS[i] = getPubKey("1" + i);
+            PRIVATE_KEYS[i] = getPrivKey("1" + i);
+            PUBLIC_KEYS[i] = PRIVATE_KEYS[i].getPublicKey();
             // their addresses and 2 UTXOs each,
-            ADDRS[i] = KEYS[i].toAddress(testNetwork);
+            ADDRS[i] = PUBLIC_KEYS[i].toAddress(testNetwork);
             // with values 1/3, 3/5, 7/9 and 15/17.
             UTXOS[i][0] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) - 1 + MINIMUM_OUTPUT_VALUE);
             UTXOS[i][1] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) + 1 + MINIMUM_OUTPUT_VALUE);
         }
     }
 
+    private static final IPrivateKeyRing PRIVATE_KEY_RING = new IPrivateKeyRing() {
+        @Override
+        public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
+            int i = Arrays.asList(PUBLIC_KEYS).lastIndexOf(publicKey);
+            if(i>=0) {
+                return PRIVATE_KEYS[i];
+            }
+            return null;
+        }
+    };
+
     private static final IPublicKeyRing KEY_RING = new IPublicKeyRing() {
         @Override
         public PublicKey findPublicKeyByAddress(Address address) {
             for (int i = 0; i < COUNT; i++) {
                 if (ADDRS[i].equals(address)) {
-                    return KEYS[i];
+                    return PUBLIC_KEYS[i];
                 }
             }
             return null;
@@ -143,7 +161,7 @@ public class StandardTransactionBuilderTest {
             getUtxo(ADDRS[0], SATOSHIS_PER_BITCOIN),
             getUtxo(ADDRS[0], SATOSHIS_PER_BITCOIN + 70000)
         );
-        testme.addOutput(ADDRS[2], (long) (2 * SATOSHIS_PER_BITCOIN));
+        testme.addOutput(ADDRS[2], 2 * SATOSHIS_PER_BITCOIN);
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[3], KEY_RING,
             testNetwork, 200000);
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
@@ -201,7 +219,19 @@ public class StandardTransactionBuilderTest {
      *
      * @param s one byte hex values as string representation. "00" - "ff"
      */
-    private static PublicKey getPubKey(String s) {
-        return new InMemoryPrivateKey(HexUtils.toBytes(s + "00000000000000000000000000000000000000000000000000000000000000"), true).getPublicKey();
+    private static PrivateKey getPrivKey(String s) {
+        return new InMemoryPrivateKey(HexUtils.toBytes(s + "00000000000000000000000000000000000000000000000000000000000000"), true);
+    }
+
+    // timing out after 50 * 10 ms. 50 is the signature count, to average a bit,
+    // 10ms is what it may take at max in the test per sig.
+    @Test(timeout=500)
+    public void generateSignaturesBitlib() throws Exception {
+        // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
+        List<SigningRequest> requests = new ArrayList<>();
+        for(int i = 0; i<50; i++) {
+            requests.add(new SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(("bla" + i).getBytes())));
+        }
+        StandardTransactionBuilder.generateSignatures(requests.toArray(new SigningRequest[]{}), PRIVATE_KEY_RING);
     }
 }
