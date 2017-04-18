@@ -12,8 +12,8 @@ build:
   artifacts:
     expire_in: 4 weeks
     paths:
-      - ./**/build/reports/
-      - ./**/build/outputs/
+      - ./*/build/reports/
+      - ./*/build/outputs/
       - LVL/build/reports/
       - bitlib/build/reports/
       - btchip/build/reports/
