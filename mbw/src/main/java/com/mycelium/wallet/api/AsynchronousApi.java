@@ -81,9 +81,6 @@ public abstract class AsynchronousApi {
          public void handleCallback(VersionInfoExResponse response, WapiException exception) {
             List<FeatureWarning> warnings = new ArrayList<FeatureWarning>();
             //warnings.add(new FeatureWarning(Feature.APP_START, WarningKind.WARN, "AppStart", URI.create("https://google.com")));
-            //warnings.add(new FeatureWarning(Feature.CASHILA, WarningKind.BLOCK, "Warning message", URI.create("https://mycelium.com")));
-            //warnings.add(new FeatureWarning(Feature.CASHILA_NEW_PAYMENT, WarningKind.WARN, "NEWPAY Warning message", URI.create("https://mycelium.com")));
-            //warnings.add(new FeatureWarning(Feature.CASHILA_PAY, WarningKind.WARN, "PAY Warning message", URI.create("https://mycelium.com")));
             response = new VersionInfoExResponse(null, "Neue super Version", URI.create("https://mycelium.com/bitcoinwallet"), warnings);
             eventBus.post(new WalletVersionExEvent(response));
          }

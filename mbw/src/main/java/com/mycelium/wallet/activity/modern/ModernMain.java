@@ -75,7 +75,6 @@ import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.*;
-import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.*;
@@ -358,9 +357,6 @@ public class ModernMain extends ActionBarActivity {
       //export tx history
       Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistoryTab);
 
-      final boolean showSepaEntry = isBalanceTab && _mbwManager.getMetadataStorage().getCashilaIsEnabled();
-      Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
-
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
       final boolean isAddressBook = tabIdx == 3;
@@ -424,14 +420,6 @@ public class ModernMain extends ActionBarActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            break;
-         case R.id.miSepaSend:
-            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
-               @Override
-               public void run() {
-                  startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
-               }
-            });
             break;
          case R.id.miExportHistory:
             shareTransactionHistory();

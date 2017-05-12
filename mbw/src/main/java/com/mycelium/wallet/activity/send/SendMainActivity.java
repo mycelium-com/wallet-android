@@ -86,8 +86,6 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
-import com.mycelium.wallet.external.cashila.api.response.BillPay;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -129,7 +127,6 @@ public class SendMainActivity extends Activity {
    private static final int BROADCAST_REQUEST_CODE = 7;
    private static final int REQUEST_PAYMENT_HANDLER = 8;
    public static final String RAW_PAYMENT_REQUEST = "rawPaymentRequest";
-   private BillPay _sepaPayment;
 
    public static final String ACCOUNT = "account";
    private static final String AMOUNT = "amount";
@@ -142,7 +139,6 @@ public class SendMainActivity extends Activity {
    public static final String PAYMENT_FETCHED = "paymentFetched";
    private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
    private static final String SIGNED_TRANSACTION = "signedTransaction";
-   public static final String SEPA_PAYMENT = "sepaPayment";
 
    private enum TransactionStatus {
       MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -168,7 +164,6 @@ public class SendMainActivity extends Activity {
    @BindView(R.id.btSend) Button btSend;
    @BindView(R.id.btAddressBook) Button btAddressBook;
    @BindView(R.id.btManualEntry) Button btManualEntry;
-   @BindView(R.id.btSepaTransfer) Button btSepaTransfer;
    @BindView(R.id.btScan) Button btScan;
    @BindView(R.id.pbSend) ProgressBar pbSend;
    @BindView(R.id.llFee) LinearLayout llFee;
@@ -208,15 +203,6 @@ public class SendMainActivity extends Activity {
       return getIntent(currentActivity, account, isColdStorage)
               .putExtra(AMOUNT, ExactBitcoinValue.from(amountToSend))
               .putExtra(RECEIVING_ADDRESS, receivingAddress);
-   }
-
-   public static Intent getSepaIntent(Activity currentActivity, UUID account,
-                                      BillPay sepaPayment, String txLabel, boolean isColdStorage) {
-      return getIntent(currentActivity, account, isColdStorage)
-              .putExtra(AMOUNT, ExactBitcoinValue.from(sepaPayment.details.amountToDeposit))
-              .putExtra(RECEIVING_ADDRESS, sepaPayment.details.address)
-              .putExtra(TRANSACTION_LABEL, txLabel)
-              .putExtra(SEPA_PAYMENT, sepaPayment);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, HdKeyNode hdKey) {
@@ -287,9 +273,6 @@ public class SendMainActivity extends Activity {
          }
       }
 
-      // Hide the sepa button, if it isnt wanted
-      btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? VISIBLE : GONE);
-
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
          HdKeyNode hdKey = (HdKeyNode) getIntent().getSerializableExtra(HD_KEY);
@@ -322,11 +305,6 @@ public class SendMainActivity extends Activity {
          return;
       }
 
-      // the activity got called to fulfill a sepa-payment
-      _sepaPayment = (BillPay) getIntent().getSerializableExtra(SEPA_PAYMENT);
-      if (_sepaPayment != null) {
-         showSepaInfo(_sepaPayment);
-      }
       // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
       if (_rawPr != null && _paymentRequestHandler == null) {
          verifyPaymentRequest(_rawPr);
@@ -380,27 +358,6 @@ public class SendMainActivity extends Activity {
       startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
    }
 
-   private void showSepaInfo(BillPay sepaPayment) {
-      // show the sepa information, instead of the Btc Address
-      ViewGroup parent = (ViewGroup) tvReceiver.getParent();
-      tvReceiver.setVisibility(GONE);
-      View view = getLayoutInflater().inflate(R.layout.ext_cashila_sepa_info, parent, true);
-
-      ((TextView) view.findViewById(R.id.tvName)).setText(sepaPayment.recipient.name);
-      ((TextView) view.findViewById(R.id.tvSepaAmount)).setText(
-            String.format("%s %s", Utils.formatFiatValueAsString(sepaPayment.payment.amount), sepaPayment.payment.currency));
-
-      ((TextView) view.findViewById(R.id.tvSepaFee)).setText(getResources().getString(R.string.cashila_fee,
-            Utils.formatFiatValueAsString(sepaPayment.details.fee) + " " + sepaPayment.payment.currency));
-
-      ((TextView) view.findViewById(R.id.tvIban)).setText(sepaPayment.payment.iban);
-      ((TextView) view.findViewById(R.id.tvBic)).setText(sepaPayment.payment.bic);
-      ((TextView) view.findViewById(R.id.tvBtcAddress)).setText(String.format("(%s)", sepaPayment.details.address.toString()));
-
-      // hide the button to change the amount
-      btEnterAmount.setVisibility(GONE);
-   }
-
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
@@ -417,17 +374,6 @@ public class SendMainActivity extends Activity {
    @OnClick(R.id.btScan)
    void onClickScan() {
       ScanActivity.callMe(this, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrUriOrKeynode());
-   }
-
-   @OnClick(R.id.btSepaTransfer)
-   void onClickSepaPayment() {
-      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
-         @Override
-         public void run() {
-            startActivity(CashilaPaymentsActivity.getIntent(SendMainActivity.this));
-            finish();
-         }
-      });
    }
 
    @OnClick(R.id.btAddressBook)
@@ -712,7 +658,7 @@ public class SendMainActivity extends Activity {
       }
 
       // Set Address
-      if (_sepaPayment == null && !hasPaymentRequest) {
+      if (!hasPaymentRequest) {
          String choppedAddress = _receivingAddress.toMultiLineString();
          tvReceiver.setText(choppedAddress);
       }

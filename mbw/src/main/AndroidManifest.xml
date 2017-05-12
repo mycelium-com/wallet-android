@@ -228,16 +228,6 @@
         <activity android:name=".activity.StringHandlerActivity"/>
         <activity android:name=".activity.send.VerifyPaymentRequestActivity"/>
         <activity
-            android:name=".external.cashila.activity.CashilaSignUpActivity"
-            android:parentActivityName=".activity.modern.ModernMain"/>
-        <activity
-            android:name=".external.cashila.activity.CashilaAddRecipientActivity"
-            android:parentActivityName=".activity.modern.ModernMain"/>
-        <activity
-            android:name=".external.cashila.activity.CashilaPaymentsActivity"
-            android:parentActivityName=".activity.modern.ModernMain"/>
-
-        <activity
             android:name="com.mycelium.wallet.bitid.BitIDAuthenticationActivity"
             android:label="@string/title_activity_bit_idauthentication"/>
 

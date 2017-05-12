@@ -9,11 +9,7 @@
             android:id="@+id/miColdStorage"
             yourapp:showAsAction="never"
             android:title="@string/cold_storage"/>
-    <item
-            android:id="@+id/miSepaSend"
-            yourapp:showAsAction="never"
-            android:title="@string/cashila_sepa_transfer"/>
-    <item
+     <item
             android:id="@+id/miAbout"
             android:title="@string/about"/>
     <item
