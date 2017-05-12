@@ -77,7 +77,6 @@
                 android:text="@string/masterseed"
                 android:textSize="20sp"/>
 
-        <!-- Trezor -->
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -86,7 +85,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="@string/label_cold_storage_external_signing"
                 android:textSize="20sp"/>
-
+        <!-- Trezor -->
         <Button
                 android:id="@+id/btTrezor"
                 android:layout_width="180dp"
@@ -96,17 +95,7 @@
                 android:paddingRight="10dp"
                 android:text="@string/trezor"
                 android:textSize="20sp"/>
-
         <!-- KeepKey -->
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="5dp"
-                android:text="@string/label_cold_storage_external_signing"
-                android:textSize="20sp"/>
-
         <Button
                 android:id="@+id/btKeepKey"
                 android:layout_width="180dp"
@@ -116,7 +105,5 @@
                 android:paddingRight="10dp"
                 android:text="@string/keepkey"
                 android:textSize="20sp"/>
-
     </LinearLayout>
-
 </ScrollView>
