@@ -66,6 +66,7 @@ public class AdFragment extends Fragment {
         // do we need this ? ButterKnife.bind(this, _root);
         tvAdvice = (TextView) _root.findViewById(R.id.tvAdvice); 
         tvAdvice.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ledger_nano_s, 0, 0, 0);
+        tvAdvice.setText(R.string.ad_buy_ledger);
         tvAdvice.setMovementMethod(LinkMovementMethod.getInstance());      
         return _root;
     }

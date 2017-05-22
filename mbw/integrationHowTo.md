@@ -1,19 +1,11 @@
 Mycelium Integration Howto
 
-This document describes how to add a buy component to Mycelium wallet, using an external web view.
-
-The following components are needed:
-- a UI fragment (1 new xml layout file and 1 new Java file, updates buy/sell xml layout and MetadataStorage)
-- a settings field (updates preferences xml file, settings Java file)
-- add some strings.xml fields
-
-and that's all !
-
+This document describes how to add an external service buy component to Mycelium wallet, using an external web view and/or activities.
 
 Getting started
 ---------------
 
-git clone  gitlab@gitlab.mycelium.com:mycelium/android-public.git
+git clone  gitlab@gitlab.mycelium.com:mycelium/mycelium-com-wallet.git
 cd android-public/mbw
 gradle assembleDevprodDebug
 adb install -r build/outputs/apk/mbw-devprod-debug-2.8.4build28406.apk
@@ -44,5 +36,19 @@ gradle assembleDevProdDebug
 adb install -r build/outputs/apk/mbw-devprod-debug-2.8.4build28406.apk
 
 
+
+
+
+
+How to edit ads
+---------------
+Requires
+- 1 png file
+- 1 marketing sentence
+- 1 referral URL
+- 1 payment xpub
+
+Add the png to main/src/res/drawable with e.g. wget http://mypartner.com/logo.png
+Edit src/res/values/strings.xml and add a value with id ad_buy_partner with the text and a html anchor link to partner referral URL.
 
 

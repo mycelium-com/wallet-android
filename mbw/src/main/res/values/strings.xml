@@ -916,4 +916,5 @@
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
 
     <string name="ad_buy_ledger">Really concerned about security ? Get <a href="https://www.ledgerwallet.com/r/494d?path=/products">Ledger</a></string>
+    <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on <a href="https://www.purse.io">Purse.io</a></string>
 </resources>
