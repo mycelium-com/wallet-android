@@ -28,7 +28,7 @@
     <string name="lt_tos_1">Mycelium Local Trader is a tool that allows buyers and sellers to trade bitcoin for cash. Trading requires buyers and sellers to meet physically as part of the exchange.</string>
     <string name="lt_tos_2">Mycelium only acts as a means of communication between two parties, and is not in any way responsible for any actions taken by the trading parties before, during, or after physical meetings.</string>
     <string name="lt_tos_3">The Mycelium software guides the trading parties, but they themselves are responsible for exchanging the correct amount of cash and bitcoins, checking the validity thereof and to adhere to all applicable laws.</string>
-    <string name="lt_tos_4" tools:ignore="StringFormatInvalid">Mycelium currently charges no fees for any trade. This might change in the future.</string>
+    <string name="lt_tos_4" tools:ignore="StringFormatInvalid">Mycelium charges 1% fee on every transaction. This helps fund product development and support.</string>
 
     <string name="vn_banner_description">Mua và bán Bitcoin với VNĐ</string>
 
