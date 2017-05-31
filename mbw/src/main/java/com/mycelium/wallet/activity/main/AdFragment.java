@@ -35,40 +35,92 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.text.method.LinkMovementMethod;
+import android.widget.Button;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.external.BuySellServiceDescriptor;
-import com.mycelium.wallet.external.BuySellSelectFragment;
-
-import javax.annotation.Nullable;
 
 public class AdFragment extends Fragment {
-    private MbwManager _mbwManager;
     private View _root;
-    private TextView tvAdvice;
+    private Button btAdvice;
+
+    private CharSequence adBuy;
+    private CharSequence adUrl;
+    private CharSequence adInfo;
+    private int adIcon;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_ad_fragment, container, false));
-        // do we need this ? ButterKnife.bind(this, _root);
-        tvAdvice = (TextView) _root.findViewById(R.id.tvAdvice); 
-        tvAdvice.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ledger_nano_s, 0, 0, 0);
-        tvAdvice.setText(R.string.ad_buy_ledger);
-        tvAdvice.setMovementMethod(LinkMovementMethod.getInstance());      
+        btAdvice = (Button) _root.findViewById(R.id.btAdvice);
+        updateAdContent();
+        btAdvice.setMovementMethod(LinkMovementMethod.getInstance());
         return _root;
+    }
+
+    private void updateAdContent() {
+        double dice = Math.random();
+        if(dice < 0.3334) {
+            adIcon = R.drawable.purse_small;
+            adBuy = getText(R.string.ad_buy_purse);
+            adUrl = getText(R.string.ad_purse_url);
+            adInfo = getText(R.string.ad_purse_info);
+        } else if (dice < 0.6667){
+            adIcon = R.drawable.trezor2;
+            adBuy = getText(R.string.ad_buy_trezor);
+            adUrl = getText(R.string.ad_trezor_url);
+            adInfo = getText(R.string.ad_trezor_info);
+        } else {
+            adIcon = R.drawable.hashing24;
+            adBuy = getText(R.string.ad_buy_hashing24);
+            adUrl = getText(R.string.ad_hashing24_url);
+            adInfo = getText(R.string.ad_hashing24_info);
+        }
+        btAdvice.setCompoundDrawablesWithIntrinsicBounds(adIcon, 0, 0, 0);
+        btAdvice.setText(adBuy);
+        btAdvice.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(adInfo != null && adInfo.length() > 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage(adInfo);
+                    builder.setTitle(R.string.warning_partner);
+                    builder.setIcon(adIcon);
+                    builder.setPositiveButton(R.string.ok,  new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            if(adUrl != null) {
+                                Intent i = new Intent(Intent.ACTION_VIEW); i.setData(Uri.parse(adUrl.toString()));
+                                startActivity(i);
+                            }
+                        }
+                    });
+                    builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                } else {
+                    if (adUrl != null) {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(adUrl.toString()));
+                        startActivity(i);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -80,20 +132,11 @@ public class AdFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _mbwManager = MbwManager.getInstance(activity);
     }
 
     @Override
     public void onResume() {
-/*
-        View btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
-        if(showButton) {
-            btBuySell.setVisibility(View.VISIBLE);
-            btBuySell.setOnClickListener(buySellOnClickListener);
-        } else {
-            btBuySell.setVisibility(View.GONE);
-        }
-*/
+        updateAdContent();
         super.onResume();
     }
 

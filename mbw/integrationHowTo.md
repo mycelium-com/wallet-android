@@ -44,11 +44,9 @@ How to edit ads
 ---------------
 Requires
 - 1 png file
-- 1 marketing sentence
+- marketing text
 - 1 referral URL
-- 1 payment xpub
 
 Add the png to main/src/res/drawable with e.g. wget http://mypartner.com/logo.png
-Edit src/res/values/strings.xml and add a value with id ad_buy_partner with the text and a html anchor link to partner referral URL.
-
-
+Edit src/res/values/strings.xml and add a value with id ad_buy_partner with the text and a html anchor link to partner referral URL. Add optional longer ad_info_partner text.
+Edit AdFragment.java, update ads probabilities and field loading.
