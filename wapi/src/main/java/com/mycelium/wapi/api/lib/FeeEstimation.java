@@ -13,10 +13,10 @@ public class FeeEstimation implements Serializable {
    public static final FeeEstimation DEFAULT = new FeeEstimation(
            new FeeEstimationMap(
                    new ImmutableMap.Builder<Integer, Bitcoins>()
-                           .put(1,  Bitcoins.valueOf(600000))   // 6mBtc/kB
-                           .put(3,  Bitcoins.valueOf( 65000))   // 0.65mBtc/kB
-                           .put(10, Bitcoins.valueOf( 50000))   // 0.5mBtc/kB
-                           .put(20, Bitcoins.valueOf( 36000))   // 0.36mBtc/kB
+                           .put(1,  Bitcoins.valueOf(500000))   // 500sat/B
+                           .put(3,  Bitcoins.valueOf(400000))   // 400sat/B
+                           .put(10, Bitcoins.valueOf(250000))   // 250sat/B
+                           .put(20, Bitcoins.valueOf(150000))   // 150sat/B
                            .build())
            , new Date(0)
    );
