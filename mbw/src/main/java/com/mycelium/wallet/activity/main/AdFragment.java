@@ -52,9 +52,7 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
 
 public class AdFragment extends Fragment {
-    private View _root;
     private Button btAdvice;
-
     private CharSequence adBuy;
     private CharSequence adUrl;
     private CharSequence adInfo;
@@ -62,11 +60,11 @@ public class AdFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_ad_fragment, container, false));
-        btAdvice = (Button) _root.findViewById(R.id.btAdvice);
+        View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_ad_fragment, container, false));
+        btAdvice = (Button) root.findViewById(R.id.btAdvice);
         updateAdContent();
         btAdvice.setMovementMethod(LinkMovementMethod.getInstance());
-        return _root;
+        return root;
     }
 
     private void updateAdContent() {
@@ -92,7 +90,6 @@ public class AdFragment extends Fragment {
         btAdvice.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if(adInfo != null && adInfo.length() > 0) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setMessage(adInfo);
@@ -101,15 +98,13 @@ public class AdFragment extends Fragment {
                     builder.setPositiveButton(R.string.ok,  new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             if(adUrl != null) {
-                                Intent i = new Intent(Intent.ACTION_VIEW); i.setData(Uri.parse(adUrl.toString()));
-                                startActivity(i);
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse(adUrl.toString()));
+                                startActivity(intent);
                             }
                         }
                     });
-                    builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    });
+                    builder.setNegativeButton(R.string.cancel, null);
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 } else {
@@ -139,5 +134,4 @@ public class AdFragment extends Fragment {
         updateAdContent();
         super.onResume();
     }
-
 }
