@@ -54,7 +54,6 @@ import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.Request;
 
 public class MyInfoFragment extends Fragment {
-
    protected static final int CREATE_TRADER_RESULT_CODE = 0;
    private LocalTraderManager _ltManager;
 

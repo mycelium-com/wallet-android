@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.10" versioncode="281000">
+        <change>Introduced partner links</change>
+        <change>LocalTrader fees will be reactivated</change>
+        <change>Default mining fees updated</change>
+        <change>Bugfixes</change>
+    </release>
     <release version="2.8.9" versioncode="28900">
         <change>BTC sales in the US by credit card are now back in all states except WA thanks to our partners</change>
         <change>Removed defunct Cashila. They had stopped serving end customers</change>
