@@ -45,6 +45,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
+                    android:visibility="gone"
                     tools:layout="@layout/main_ad_fragment"/>
 
         </LinearLayout>
