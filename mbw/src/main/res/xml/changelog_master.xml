@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.8.11" versioncode="281100">
+        <change>removed partner links</change>
+    </release>
     <release version="2.8.10" versioncode="281000">
         <change>Introduced partner links</change>
         <change>LocalTrader fees will be reactivated</change>
