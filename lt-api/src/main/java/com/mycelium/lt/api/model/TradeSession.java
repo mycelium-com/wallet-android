@@ -177,5 +177,4 @@ public class TradeSession implements Serializable {
       }
       return id.equals(((TradeSession) obj).id);
    }
-
 }

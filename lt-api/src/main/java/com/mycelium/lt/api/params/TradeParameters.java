@@ -56,5 +56,4 @@ public class TradeParameters implements Serializable {
    private TradeParameters() {
       // For Jackson
    }
-
 }

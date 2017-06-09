@@ -38,5 +38,4 @@ public class SearchParameters {
    private SearchParameters() {
       // For Jackson
    }
-
 }
