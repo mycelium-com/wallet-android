@@ -19,6 +19,7 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     include "btchip"
     include "coinapult"
     include 'LVL'
+    include 'backuputil'
 }
 
 
