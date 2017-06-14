@@ -94,7 +94,7 @@ public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
                 @Override
                 public void onClick(View view) {
                     if (bean.getInfo() != null && bean.getInfo().length() > 0) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder((Activity) context);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
                         builder.setMessage(bean.getInfo());
                         builder.setTitle(R.string.warning_partner);
                         builder.setIcon(bean.getIcon());
