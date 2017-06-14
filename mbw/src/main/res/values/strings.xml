@@ -915,23 +915,34 @@
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
 
-    <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
-    <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>
-    <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
-    <string name="ad_buy_hashing24">Start Bitcoin mining with maximum efficiency</string>
-
     <string name="warning_partner">Partner information</string>
-    <string name="ad_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="ad_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="ad_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="ad_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
 
-    <string name="ad_hashing24_info">
+    <string name="partner_header_title">New to crypto ?</string>
+    <string name="partner_header_text">Please find here a selection of partner businesses.</string>
+    <string name="partner_ledger">Ledger</string>
+    <string name="partner_trezor">Trezor</string>
+    <string name="partner_purse">Purse</string>
+    <string name="partner_hashing24">Hashing24</string>
+
+    <string name="partner_ledger_short">Really concerned about security ? Get a Ledger</string>
+    <string name="partner_trezor_short">Really concerned about security ? Get a Trezor</string>
+    <string name="partner_purse_short">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
+    <string name="partner_hashing24_short">Start Bitcoin mining with maximum efficiency</string>
+
+    <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
+    <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
+    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
+    <string name="partner_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
+
+    <string name="partner_hashing24_info">
         Hashing24 is a cloud mining company partnering with BitFury, one of the largest Bitcoin miners and Segwit supporter.
         Cloud mining is a speculative investment to obtain new Bitcoin. Every investment has a risk.
         Use code MYCELIUM for an exclusive 4% discount.
     </string>
-    <string name="ad_purse_info"/>
-    <string name="ad_trezor_info"/>
-    <string name="ad_ledger_info"/>
+
+    <string name="partner_purse_info"/>
+    <string name="partner_trezor_info"/>
+    <string name="partner_ledger_info"/>
+    <string name="tab_partners">Businesses</string>
+    <string name="partner_more_info">More information</string>
 </resources>

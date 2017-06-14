@@ -64,7 +64,6 @@ public class BalanceMasterFragment extends Fragment {
       fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
       fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
       fragmentTransaction.replace(R.id.phFragmentGlidera, new BuySellFragment());
-      fragmentTransaction.replace(R.id.phFragmentAd, new AdFragment());
       fragmentTransaction.commitAllowingStateLoss();
       return view;
    }

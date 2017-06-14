@@ -40,13 +40,13 @@ adb install -r build/outputs/apk/mbw-devprod-debug-2.8.4build28406.apk
 
 
 
-How to edit ads
----------------
+How to edit partners
+--------------------
 Requires
 - 1 png file
-- marketing text
+- short description
 - 1 referral URL
 
 Add the png to main/src/res/drawable with e.g. wget http://mypartner.com/logo.png
-Edit src/res/values/strings.xml and add a value with id ad_buy_partner with the text and a html anchor link to partner referral URL. Add optional longer ad_info_partner text.
-Edit AdFragment.java, update ads probabilities and field loading.
+Edit src/res/values/strings.xml and add values partner_name, partner_name_buy, partner_name_info, partner_name_url with the text and a html anchor link to partner referral URL. Add optional longer ad_partner_disclaimer text.
+Edit RecommendationsFragment.java and add all resource fields at list view initialization.
