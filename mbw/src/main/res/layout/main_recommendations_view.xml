@@ -1,34 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:gravity="start">
-
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:layout_width="fill_parent" android:layout_height="fill_parent"
+      android:orientation="vertical">
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tvPartnerHeaderTitle"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingTop="12dp"
         android:paddingLeft="12dp"
         android:textStyle="bold"
         android:text="@string/partner_header_title"/>
+
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tvPartnerHeaderText"
+        android:layout_below="@id/tvPartnerHeaderTitle"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="12dp"
         android:paddingBottom="12dp"
         android:text="@string/partner_header_text"/>
 
+    <TextView
+        android:id="@+id/tvMoreInformation"
+        android:layout_alignParentBottom="true"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#0000BB"
+        android:text="@string/partner_more_info"
+        android:paddingLeft="12dp"
+        android:paddingBottom="12dp"
+        />
+
     <ListView android:id="@+id/list"
+        android:layout_below="@id/tvPartnerHeaderText"
         android:layout_marginBottom="70dp"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/partner_more_info"
-        android:paddingBottom="16sp"
-        />
-
 </LinearLayout>

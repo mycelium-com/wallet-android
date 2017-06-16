@@ -35,12 +35,15 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.PartnerInfo;
@@ -52,14 +55,32 @@ public class RecommendationsFragment extends Fragment {
     private View _root;
 
     ListView recommendationsList;
+    TextView moreInformation;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = inflater.inflate(R.layout.main_recommendations_view, container, false);
 
-        recommendationsList = (ListView) _root.findViewById(R.id.list);
+        moreInformation = (TextView) _root.findViewById(R.id.tvMoreInformation);
+        moreInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle(R.string.partner_more_info);
+                builder.setMessage(R.string.partner_more_info_text);
+                builder.setIcon(R.drawable.mycelium_logo_transp);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
 
+        recommendationsList = (ListView) _root.findViewById(R.id.list);
         ArrayList list = new ArrayList<PartnerInfo>();
+
+        list.add(new PartnerInfo(getString(R.string.partner_ledger),
+                getString(R.string.partner_ledger_short),
+                getString(R.string.partner_ledger_info),
+                getString(R.string.partner_ledger_url), R.drawable.ledger_icon));
 
         list.add(new PartnerInfo(getString(R.string.partner_trezor),
                                  getString(R.string.partner_trezor_short),
@@ -70,6 +91,11 @@ public class RecommendationsFragment extends Fragment {
                 getString(R.string.partner_purse_short),
                 getString(R.string.partner_purse_info),
                 getString(R.string.partner_purse_url), R.drawable.purse_small));
+
+        list.add(new PartnerInfo(getString(R.string.partner_coinbase),
+                getString(R.string.partner_coinbase_short),
+                getString(R.string.partner_coinbase_info),
+                getString(R.string.partner_coinbase_url), R.drawable.coinbase));
 
         list.add(new PartnerInfo(getString(R.string.partner_hashing24),
                 getString(R.string.partner_hashing24_short),
