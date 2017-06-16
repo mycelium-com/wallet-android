@@ -951,5 +951,12 @@
 
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>More information</u></string>
-    <string name="partner_more_info_text">What are partner links</string>
+    <string name="partner_more_info_text">
+        Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br/>
+        Developing, maintaining and supporting this product is not free.<br/>
+        Our partner links do not capture any data and we dot not ourselves collect any data.
+        No money is made by displaying these partner links or when users click on them.
+        Referrals happen only when users decide to make a purchase on our partners websites.
+    </string>
+
 </resources>

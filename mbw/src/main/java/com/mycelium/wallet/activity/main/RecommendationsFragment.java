@@ -61,19 +61,6 @@ public class RecommendationsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = inflater.inflate(R.layout.main_recommendations_view, container, false);
 
-        moreInformation = (TextView) _root.findViewById(R.id.tvMoreInformation);
-        moreInformation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle(R.string.partner_more_info);
-                builder.setMessage(R.string.partner_more_info_text);
-                builder.setIcon(R.drawable.mycelium_logo_transp);
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
         recommendationsList = (ListView) _root.findViewById(R.id.list);
         ArrayList list = new ArrayList<PartnerInfo>();
 
@@ -101,6 +88,26 @@ public class RecommendationsFragment extends Fragment {
                 getString(R.string.partner_hashing24_short),
                 getString(R.string.partner_hashing24_info),
                 getString(R.string.partner_hashing24_url), R.drawable.hashing24));
+
+        //View footerView = ((LayoutInflater) ActivityContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer_layout, null, false);
+        View footerView = getActivity().getLayoutInflater().inflate(R.layout.main_recommendations_list_footer, null, false);
+        recommendationsList.addFooterView(footerView);
+        moreInformation = (TextView) footerView.findViewById(R.id.tvMoreInformation);
+        moreInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle(R.string.partner_more_info);
+                builder.setMessage(R.string.partner_more_info_text);
+                builder.setPositiveButton(R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialogInterface, int i) { }
+                        } );
+                builder.setIcon(R.drawable.mycelium_logo_transp);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
 
         recommendationsList.setAdapter(new RecommendationAdapter(getActivity(), R.layout.main_recommendations_list_item, list));
 
