@@ -113,8 +113,8 @@ public class LocalTraderManager {
       _db = db;
       _api = api;
       _mbwManager = mbwManager;
-      _subscribers = new HashSet<LocalTraderEventSubscriber>();
-      _requests = new LinkedList<Request>();
+      _subscribers = new HashSet<>();
+      _requests = new LinkedList<>();
 
       // Preferences
       SharedPreferences preferences = _context.getSharedPreferences(Constants.LOCAL_TRADER_SETTINGS_NAME,
@@ -368,7 +368,6 @@ public class LocalTraderManager {
                break;
          }
       }
-
    }
 
    private void notifyNoConnection(final int errorCode) {
@@ -491,9 +490,7 @@ public class LocalTraderManager {
       Collection<TradeSession> localList = _db.getAll();
 
       // Iterate over local items to find records to delete or update locally
-      Iterator<TradeSession> localIt = localList.iterator();
-      while (localIt.hasNext()) {
-         TradeSession localItem = localIt.next();
+      for (TradeSession localItem : localList) {
          TradeSession remoteItem = findAndEliminate(localItem, remoteList);
          if (remoteItem == null) {
             // A local item is not in the remote list, remove it locally
@@ -507,9 +504,7 @@ public class LocalTraderManager {
       }
 
       // Iterate over remaining remote items and insert them
-      Iterator<TradeSession> remoteIt = remoteList.iterator();
-      while (remoteIt.hasNext()) {
-         TradeSession remoteItem = remoteIt.next();
+      for (TradeSession remoteItem : remoteList) {
          _db.insert(remoteItem);
       }
 
@@ -598,12 +593,12 @@ public class LocalTraderManager {
       _localTraderPrivateKey = Preconditions.checkNotNull(privateKey);
       _localTraderPrivateKeyString = privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork());
       _nickname = Preconditions.checkNotNull(nickname);
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.LOCAL_TRADER_KEY_SETTING, _localTraderPrivateKeyString);
-      editor.putString(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING, accountId.toString());
-      editor.putString(Constants.LOCAL_TRADER_ADDRESS_SETTING, address.toString());
-      editor.putString(Constants.LOCAL_TRADER_NICKNAME_SETTING, nickname);
-      editor.commit();
+      getEditor()
+            .putString(Constants.LOCAL_TRADER_KEY_SETTING, _localTraderPrivateKeyString)
+            .putString(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING, accountId.toString())
+            .putString(Constants.LOCAL_TRADER_ADDRESS_SETTING, address.toString())
+            .putString(Constants.LOCAL_TRADER_NICKNAME_SETTING, nickname)
+            .commit();
    }
 
    public synchronized void setLastTraderSynchronization(long timestamp) {
@@ -641,13 +636,12 @@ public class LocalTraderManager {
    }
 
    public void setLocation(GpsLocationEx location) {
-      SharedPreferences.Editor editor = getEditor();
       _currentLocation = location;
-      editor.putFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING, (float) location.latitude);
-      editor.putFloat(Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) location.longitude);
-      editor.putString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, location.name);
-      editor.putString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, location.countryCode);
-      editor.commit();
+      getEditor().putFloat(Constants.LOCAL_TRADER_LATITUDE_SETTING, (float) location.latitude)
+            .putFloat(Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) location.longitude)
+            .putString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, location.name)
+            .putString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, location.countryCode)
+            .commit();
    }
 
    public GpsLocationEx getUserLocation() {
@@ -791,5 +785,4 @@ public class LocalTraderManager {
       // choose a fee to get included within the next two blocks - our estimation for next block ist often too high
       return _mbwManager.getWalletManager(false).getLastFeeEstimations().getEstimation(2);
    }
-
 }

@@ -48,5 +48,4 @@ public class BtcSellPriceParameters {
    private BtcSellPriceParameters() {
       // For Jackson
    }
-
 }

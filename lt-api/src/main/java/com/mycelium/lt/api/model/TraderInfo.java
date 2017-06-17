@@ -56,5 +56,4 @@ public class TraderInfo extends PublicTraderInfo implements Serializable {
       this.activeTradeSesions = activeTradeSesions;
       this.notificationEmail = notificationEmail;
    }
-
 }

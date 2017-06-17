@@ -79,6 +79,5 @@ public class AcceptTrade extends Request {
          // Handle errors
          context.handleErrors(this, e.errorCode);
       }
-
    }
 }
