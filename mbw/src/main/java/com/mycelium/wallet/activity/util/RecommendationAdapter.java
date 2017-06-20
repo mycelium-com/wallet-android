@@ -40,6 +40,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +51,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
+
+import uk.co.deanwild.flowtextview.FlowTextView;
 
 public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
 
@@ -94,10 +97,18 @@ public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
                 @Override
                 public void onClick(View view) {
                     if (bean.getInfo() != null && bean.getInfo().length() > 0) {
+                        View custom = LayoutInflater.from(view.getContext())
+                                .inflate(R.layout.main_recomendation_dialog_view, null, false);
+                        FlowTextView flowTextView = (FlowTextView) custom.findViewById(R.id.ftv);
+                        flowTextView.setText(bean.getInfo());
+                        flowTextView.setTextColor(Color.WHITE);
+                        ((ImageView) custom.findViewById(R.id.image)).setImageResource(bean.getIcon());
+
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setMessage(bean.getInfo());
+//                        builder.setMessage(bean.getInfo());
                         builder.setTitle(R.string.warning_partner);
-                        builder.setIcon(bean.getIcon());
+//                        builder.setIcon(bean.getIcon());
+                        builder.setView(custom);
                         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 if (bean.getUri() != null) {

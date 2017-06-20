@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 buildscript {
@@ -59,6 +60,7 @@ dependencies {
     compile 'commons-codec:commons-codec:1.5'
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     compile 'com.google.protobuf:protobuf-java:3.1.0'
+    compile 'com.github.deano2390:FlowTextView:2.0.5'
 }
 
 

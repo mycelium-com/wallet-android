@@ -37,11 +37,13 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -51,6 +53,8 @@ import com.mycelium.wallet.activity.util.RecommendationAdapter;
 
 import java.util.ArrayList;
 
+import uk.co.deanwild.flowtextview.FlowTextView;
+
 public class RecommendationsFragment extends Fragment {
     private View _root;
 
@@ -58,7 +62,7 @@ public class RecommendationsFragment extends Fragment {
     TextView moreInformation;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         _root = inflater.inflate(R.layout.main_recommendations_view, container, false);
 
         recommendationsList = (ListView) _root.findViewById(R.id.list);
@@ -96,14 +100,23 @@ public class RecommendationsFragment extends Fragment {
         moreInformation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                View custom = LayoutInflater.from(view.getContext())
+                        .inflate(R.layout.main_recomendation_dialog_view, null, false);
+                FlowTextView flowTextView = (FlowTextView) custom.findViewById(R.id.ftv);
+                flowTextView.setText(getString(R.string.partner_more_info_text));
+                flowTextView.setTextColor(Color.WHITE);
+
+                ((ImageView) custom.findViewById(R.id.image)).setImageResource(R.drawable.mycelium_logo_transp);
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                 builder.setTitle(R.string.partner_more_info);
-                builder.setMessage(R.string.partner_more_info_text);
+//                builder.setMessage(R.string.partner_more_info_text);
                 builder.setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
                             @Override public void onClick(DialogInterface dialogInterface, int i) { }
                         } );
-                builder.setIcon(R.drawable.mycelium_logo_transp);
+//                builder.setIcon(R.drawable.mycelium_logo_transp);
+                builder.setView(custom);
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }

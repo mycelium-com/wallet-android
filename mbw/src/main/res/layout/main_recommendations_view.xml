@@ -13,7 +13,6 @@
 
     <TextView
         android:id="@+id/tvPartnerHeaderText"
-        android:layout_below="@id/tvPartnerHeaderTitle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="12dp"
@@ -21,8 +20,6 @@
         android:text="@string/partner_header_text"/>
 
     <ListView android:id="@+id/list"
-        android:layout_below="@id/tvPartnerHeaderText"
-        android:layout_marginBottom="70dp"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 </LinearLayout>
