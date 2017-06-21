@@ -37,7 +37,8 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -53,7 +54,6 @@ import com.mycelium.wallet.activity.util.RecommendationAdapter;
 
 import java.util.ArrayList;
 
-import uk.co.deanwild.flowtextview.FlowTextView;
 
 public class RecommendationsFragment extends Fragment {
     private View _root;
@@ -102,9 +102,11 @@ public class RecommendationsFragment extends Fragment {
             public void onClick(View view) {
                 View custom = LayoutInflater.from(view.getContext())
                         .inflate(R.layout.main_recomendation_dialog_view, null, false);
-                FlowTextView flowTextView = (FlowTextView) custom.findViewById(R.id.ftv);
-                flowTextView.setText(getString(R.string.partner_more_info_text));
-                flowTextView.setTextColor(Color.WHITE);
+                TextView part1 = (TextView) custom.findViewById(R.id.part1);
+                part1.setText(R.string.partner_more_info_text_part1);
+
+                TextView part2 = (TextView) custom.findViewById(R.id.part2);
+                part2.setText(R.string.partner_more_info_text_part2);
 
                 ((ImageView) custom.findViewById(R.id.image)).setImageResource(R.drawable.mycelium_logo_transp);
 
@@ -121,8 +123,50 @@ public class RecommendationsFragment extends Fragment {
                 dialog.show();
             }
         });
+        RecommendationAdapter adapter = new RecommendationAdapter(getActivity(), R.layout.main_recommendations_list_item, list);
+        recommendationsList.setAdapter(adapter);
 
-        recommendationsList.setAdapter(new RecommendationAdapter(getActivity(), R.layout.main_recommendations_list_item, list));
+        adapter.setClickListener(new RecommendationAdapter.ClickListener() {
+            @Override
+            public void itemClick(final PartnerInfo bean) {
+                if (bean.getInfo() != null && bean.getInfo().length() > 0) {
+                    View custom = LayoutInflater.from(getActivity())
+                            .inflate(R.layout.main_recomendation_dialog_view, null, false);
+                    TextView part1 = (TextView) custom.findViewById(R.id.part1);
+                    int pointIndex = bean.getInfo().indexOf(".") + 1;
+                    part1.setText(bean.getInfo().substring(0, pointIndex));
+
+                    TextView part2 = (TextView) custom.findViewById(R.id.part2);
+                    part2.setText(bean.getInfo().substring(pointIndex));
+
+                    ((ImageView) custom.findViewById(R.id.image)).setImageResource(bean.getIcon());
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//                        builder.setMessage(bean.getInfo());
+                    builder.setTitle(R.string.warning_partner);
+//                        builder.setIcon(bean.getIcon());
+                    builder.setView(custom);
+                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            if (bean.getUri() != null) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse(bean.getUri()));
+                                startActivity(intent);
+                            }
+                        }
+                    });
+                    builder.setNegativeButton(R.string.cancel, null);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                } else {
+                    if (bean.getUri() != null) {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(bean.getUri().toString()));
+                        startActivity(i);
+                    }
+                }
+            }
+        });
 
         return _root;
     }

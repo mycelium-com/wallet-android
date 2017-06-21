@@ -37,11 +37,6 @@ package com.mycelium.wallet.activity.util;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,13 +47,12 @@ import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 
-import uk.co.deanwild.flowtextview.FlowTextView;
-
 public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
 
     Context context;
     int layoutResourceId;
     ArrayList<PartnerInfo> data = null;
+    ClickListener clickListener;
 
     public RecommendationAdapter(Context context, int layoutResourceId, ArrayList<PartnerInfo> data) {
         super(context, layoutResourceId, data);
@@ -67,12 +61,14 @@ public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
         this.data = data;
     }
 
+    public void setClickListener(ClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         ItemHolder holder;
-
-        boolean addListener = false;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -82,7 +78,6 @@ public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
             holder.txtName = (TextView) row.findViewById(R.id.tvTitle);
             holder.txtDescription = (TextView) row.findViewById(R.id.tvDescription);
             row.setTag(holder);
-            addListener = true;
         } else {
             holder = (ItemHolder) row.getTag();
         }
@@ -92,45 +87,14 @@ public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
         holder.txtDescription.setText(bean.getDescription());
         holder.imgIcon.setImageResource(bean.getIcon());
 
-        if(addListener) {
-            row.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (bean.getInfo() != null && bean.getInfo().length() > 0) {
-                        View custom = LayoutInflater.from(view.getContext())
-                                .inflate(R.layout.main_recomendation_dialog_view, null, false);
-                        FlowTextView flowTextView = (FlowTextView) custom.findViewById(R.id.ftv);
-                        flowTextView.setText(bean.getInfo());
-                        flowTextView.setTextColor(Color.WHITE);
-                        ((ImageView) custom.findViewById(R.id.image)).setImageResource(bean.getIcon());
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//                        builder.setMessage(bean.getInfo());
-                        builder.setTitle(R.string.warning_partner);
-//                        builder.setIcon(bean.getIcon());
-                        builder.setView(custom);
-                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                if (bean.getUri() != null) {
-                                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                                    intent.setData(Uri.parse(bean.getUri()));
-                                    context.startActivity(intent);
-                                }
-                            }
-                        });
-                        builder.setNegativeButton(R.string.cancel, null);
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                    } else {
-                        if (bean.getUri() != null) {
-                            Intent i = new Intent(Intent.ACTION_VIEW);
-                            i.setData(Uri.parse(bean.getUri().toString()));
-                            context.startActivity(i);
-                        }
-                    }
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(clickListener != null) {
+                    clickListener.itemClick(bean);
                 }
-            });
-        }
+            }
+        });
         return row;
     }
 
@@ -156,5 +120,9 @@ public class RecommendationAdapter extends ArrayAdapter<PartnerInfo> {
         public ImageView imgIcon;
         public TextView txtName;
         public TextView txtDescription;
+    }
+
+    public interface ClickListener {
+        void itemClick(PartnerInfo info);
     }
 }

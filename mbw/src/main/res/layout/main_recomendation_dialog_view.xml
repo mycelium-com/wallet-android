@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <uk.co.deanwild.flowtextview.FlowTextView
-        android:id="@+id/ftv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@null"
+        android:src="@drawable/mycelium_logo_transp" />
 
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:paddingRight="8dp"
-            android:contentDescription="@null"/>
+    <TextView
+        android:id="@+id/part1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/image"
+        android:textColor="@color/white"
+        android:text="@string/partner_more_info_text_part1" />
 
-    </uk.co.deanwild.flowtextview.FlowTextView>
-</FrameLayout>
+    <TextView
+        android:id="@+id/part2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/part1"
+        android:textColor="@color/white"
+        android:text="@string/partner_more_info_text_part2" />
+</RelativeLayout>
