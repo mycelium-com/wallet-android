@@ -101,7 +101,7 @@ public class RecommendationsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 View custom = LayoutInflater.from(view.getContext())
-                        .inflate(R.layout.main_recomendation_dialog_view, null, false);
+                        .inflate(R.layout.main_recommendation_dialog_view, null, false);
                 TextView part1 = (TextView) custom.findViewById(R.id.part1);
                 part1.setText(R.string.partner_more_info_text_part1);
 
@@ -131,7 +131,7 @@ public class RecommendationsFragment extends Fragment {
             public void itemClick(final PartnerInfo bean) {
                 if (bean.getInfo() != null && bean.getInfo().length() > 0) {
                     View custom = LayoutInflater.from(getActivity())
-                            .inflate(R.layout.main_recomendation_dialog_view, null, false);
+                            .inflate(R.layout.main_recommendation_dialog_view, null, false);
                     TextView part1 = (TextView) custom.findViewById(R.id.part1);
                     int pointIndex = bean.getInfo().indexOf(".") + 1;
                     part1.setText(bean.getInfo().substring(0, pointIndex));
