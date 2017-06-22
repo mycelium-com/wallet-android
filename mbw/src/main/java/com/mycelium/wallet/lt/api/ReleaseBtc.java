@@ -83,6 +83,5 @@ public class ReleaseBtc extends Request {
          // Handle errors
          context.handleErrors(this, e.errorCode);
       }
-
    }
 }

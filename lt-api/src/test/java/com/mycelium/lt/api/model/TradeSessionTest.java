@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import com.mrd.bitlib.TransactionUtils;
 
+import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static org.junit.Assert.fail;
 
 public class TradeSessionTest {
@@ -32,17 +33,14 @@ public class TradeSessionTest {
    @Test
    public void testCommissionMinimum() {
       tryCreateTradeSession(100000000, 100000000, false, "0 commission should not fail");
-      tryCreateTradeSession(100000000 + TransactionUtils.MINIMUM_OUTPUT_VALUE, 100000000, false,
-            "minimum output value commission should not fail");
-      tryCreateTradeSession(100000000 + TransactionUtils.MINIMUM_OUTPUT_VALUE - 1, 100000000, true,
-            "less than minimum output value commission should fail");
-      tryCreateTradeSession(100000000 + TransactionUtils.MINIMUM_OUTPUT_VALUE + 1, 100000000, false,
-            "larger than minimum output value commission should not fail");
+      tryCreateTradeSession(100000000 + MINIMUM_OUTPUT_VALUE, 100000000, false, "minimum output value commission should not fail");
+      tryCreateTradeSession(100000000 + MINIMUM_OUTPUT_VALUE - 1, 100000000, true, "less than minimum output value commission should fail");
+      tryCreateTradeSession(100000000 + MINIMUM_OUTPUT_VALUE + 1, 100000000, false, "larger than minimum output value commission should not fail");
    }
 
    @Test
    public void testSendReceive() {
-      tryCreateTradeSession(TransactionUtils.MINIMUM_OUTPUT_VALUE -1, TransactionUtils.MINIMUM_OUTPUT_VALUE -1, true, "buyer received less than minimum allowed output should fail");
+      tryCreateTradeSession(MINIMUM_OUTPUT_VALUE -1, MINIMUM_OUTPUT_VALUE -1, true, "buyer received less than minimum allowed output should fail");
       tryCreateTradeSession(100000000, 100000001, true, "buyer receives more than what the seller sends should fail");
       tryCreateTradeSession(100000000, 0, true, "buyer receives zero should fail");
       tryCreateTradeSession(100000000, -1, true, "buyer receives negative should fail");

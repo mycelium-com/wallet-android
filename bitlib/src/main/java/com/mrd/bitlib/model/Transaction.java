@@ -43,7 +43,6 @@ public class Transaction implements Serializable {
    private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
 
    public static class TransactionParsingException extends Exception {
-
       private static final long serialVersionUID = 1L;
 
       public TransactionParsingException(String message) {
@@ -53,10 +52,9 @@ public class Transaction implements Serializable {
       public TransactionParsingException(String message, Exception e) {
          super(message, e);
       }
-
    }
 
-   public static final long MAX_MINER_FEE_PER_KB = 20L * ONE_mBTC_IN_SATOSHIS; // 2000sat/B
+   public static final long MAX_MINER_FEE_PER_KB = 200L * ONE_mBTC_IN_SATOSHIS; // 20000sat/B
 
    public int version;
    public final TransactionInput[] inputs;

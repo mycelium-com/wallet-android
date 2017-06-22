@@ -42,5 +42,4 @@ public class TradeChangeParameters implements Serializable {
    private TradeChangeParameters() {
       // For Jackson
    }
-
 }

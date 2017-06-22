@@ -27,21 +27,21 @@ import static org.junit.Assert.assertEquals;
 
 public class GoogleMapsGeocoderTest {
    @Test
-   @Ignore
+   @Ignore // depends on actual google data. try running it manually.
    public void testRemoteCoding() throws IOException, RemoteGeocodeException {
       GeocodeResponse response = new GoogleMapsGeocoder("en").query("Ungargasse 6 1030 Wien", -1);
-      assertEquals("Ungargasse 6, 1030 Vienna, Austria", response.results.get(0).formattedAddress);
+      assertEquals("Ungargasse 6, 1030 Wien, Austria", response.results.get(0).formattedAddress);
    }
 
    @Test
-   @Ignore
+   @Ignore // depends on actual google data. try running it manually.
    public void testRemoteCodingGerman() throws IOException, RemoteGeocodeException {
       GeocodeResponse response = new GoogleMapsGeocoder("de").query("Ungargasse 6 1030 Wien", -1);
       assertEquals("Ungargasse 6, 1030 Wien, Österreich", response.results.get(0).formattedAddress);
    }
 
    @Test
-   public void testCoding() throws IOException, RemoteGeocodeException, RemoteGeocodeException {
+   public void testCoding() throws IOException, RemoteGeocodeException {
       final InputStream stream = Preconditions.checkNotNull(getClass().getResourceAsStream("/ungargasse.json"));
       GeocodeResponse response = new GoogleMapsGeocoder("en").response2Graph(stream);
       assertEquals("Ungargasse 6, 1030 Vienna, Austria", response.results.get(0).formattedAddress);

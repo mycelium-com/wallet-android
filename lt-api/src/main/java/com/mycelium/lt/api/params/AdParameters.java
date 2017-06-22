@@ -61,5 +61,4 @@ public class AdParameters implements Serializable {
    private AdParameters() {
       // For Jackson
    }
-
 }

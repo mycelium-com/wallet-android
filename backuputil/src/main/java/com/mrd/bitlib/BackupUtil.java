@@ -22,14 +22,12 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 
 public class BackupUtil {
-
    private final String encryptedPrivateKey;
    private final String password;
 
    public BackupUtil(String... args) {
       encryptedPrivateKey = args[0];
       password = args[1];
-
    }
 
    public static void main(String[] args) throws IOException, MrdExport.DecodingException, InterruptedException {
@@ -39,7 +37,6 @@ public class BackupUtil {
       }
       BackupUtil backupUtil = new BackupUtil(args);
       System.out.println(backupUtil.getKey());
-
    }
 
    public String getKey() {
@@ -63,9 +60,8 @@ public class BackupUtil {
          MrdExport.V1.EncryptionParameters parameters = MrdExport.V1.EncryptionParameters.generate(kdfParameters);
          String privateKey = MrdExport.V1.decryptPrivateKey(parameters, encryptedPrivateKey, header.network);
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKey, header.network);
-         return "Private key (Wallet Import Format): " +key.getBase58EncodedPrivateKey(header.network) +
-               "\n" +
-                "                   Bitcoin Address: "+key.getPublicKey().toAddress(header.network);
+         return "Private key (Wallet Import Format): " + key.getBase58EncodedPrivateKey(header.network) +
+               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network);
       } catch (InterruptedException e) {
          throw new RuntimeException(e);
       } catch (MrdExport.V1.WrongNetworkException e) {
@@ -76,7 +72,6 @@ public class BackupUtil {
          throw new RuntimeException(e);
       }
    }
-
 
    private static void printHelp() {
       System.out.println("\n" +

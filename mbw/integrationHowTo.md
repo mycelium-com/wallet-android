@@ -36,10 +36,6 @@ gradle assembleDevProdDebug
 adb install -r build/outputs/apk/mbw-devprod-debug-2.8.4build28406.apk
 
 
-
-
-
-
 How to edit partners
 --------------------
 Requires
