@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.main;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -56,7 +55,6 @@ import java.util.ArrayList;
 
 import static com.mycelium.wallet.R.string.*;
 
-
 public class RecommendationsFragment extends Fragment {
     ListView recommendationsList;
     TextView moreInformation;
@@ -76,7 +74,7 @@ public class RecommendationsFragment extends Fragment {
         list.add(getPartnerInfo(partner_hashing24, partner_hashing24_short, partner_hashing24_info, partner_hashing24_url, R.drawable.hashing24));
 
         //View footerView = ((LayoutInflater) ActivityContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer_layout, null, false);
-        View footerView = getActivity().getLayoutInflater().inflate(R.layout.main_recommendations_list_footer, null, false);
+        View footerView = inflater.inflate(R.layout.main_recommendations_list_footer, null, false);
         recommendationsList.addFooterView(footerView);
         moreInformation = (TextView) footerView.findViewById(R.id.tvMoreInformation);
         moreInformation.setOnClickListener(new View.OnClickListener() {
@@ -142,9 +140,7 @@ public class RecommendationsFragment extends Fragment {
                     alertDialog.show();
                 } else {
                     if (bean.getUri() != null) {
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(bean.getUri()));
-                        startActivity(i);
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(bean.getUri())));
                     }
                 }
             }
