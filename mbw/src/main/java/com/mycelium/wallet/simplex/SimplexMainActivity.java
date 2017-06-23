@@ -8,9 +8,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -21,13 +18,6 @@ import com.google.android.vending.licensing.LicenseChecker;
 import com.google.android.vending.licensing.LicenseCheckerCallback;
 import com.google.android.vending.licensing.AESObfuscator;
 import com.google.android.vending.licensing.ServerManagedPolicy;
-
-import org.apache.http.util.EncodingUtils;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.squareup.otto.Bus;
