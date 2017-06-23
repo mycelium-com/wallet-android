@@ -60,6 +60,7 @@ import static com.mycelium.wallet.R.string.*;
 public class RecommendationsFragment extends Fragment {
     ListView recommendationsList;
     TextView moreInformation;
+    private AlertDialog alertDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
@@ -100,8 +101,8 @@ public class RecommendationsFragment extends Fragment {
                         } );
 //                builder.setIcon(R.drawable.mycelium_logo_transp);
                 builder.setView(custom);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                alertDialog = builder.create();
+                alertDialog.show();
             }
         });
         RecommendationAdapter adapter = new RecommendationAdapter(getActivity(), R.layout.main_recommendations_list_item, list);
@@ -137,8 +138,8 @@ public class RecommendationsFragment extends Fragment {
                         }
                     });
                     builder.setNegativeButton(cancel, null);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                    alertDialog = builder.create();
+                    alertDialog.show();
                 } else {
                     if (bean.getUri() != null) {
                         Intent i = new Intent(Intent.ACTION_VIEW);
@@ -156,6 +157,18 @@ public class RecommendationsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
     }
 
     private PartnerInfo getPartnerInfo(int name, int description, int disclaimer, int uri, int icon) {
