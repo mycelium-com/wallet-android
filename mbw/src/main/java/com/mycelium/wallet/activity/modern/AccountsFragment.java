@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -48,8 +49,12 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
 import android.text.InputType;
 import android.util.TypedValue;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -69,15 +74,27 @@ import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.AddColuAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
+import com.mycelium.wallet.activity.rmc.model.StubRMCAccount;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.colu.*;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ExtraAccountsChanged;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
@@ -177,6 +194,20 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
+        if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+            UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+            //check whether the account is active - we might have scanned the priv key for an archived watchonly
+            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+            if (account.isActive()) {
+                _mbwManager.setSelectedAccount(accountid);
+            }
+            _focusedAccount = account;
+            update();
+            setNameForNewAccount(_focusedAccount);
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
     // TODO: refactor these RESULT_XXX constants in a common class ?
 
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
@@ -216,7 +247,7 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setMessage(R.string.delete_account_message);
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
-      final boolean hasPrivateData = (accountToDelete instanceof ColuAccount) || 
+      final boolean hasPrivateData = (accountToDelete instanceof ColuAccount) ||
             (accountToDelete instanceof ExportableAccount
             && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 

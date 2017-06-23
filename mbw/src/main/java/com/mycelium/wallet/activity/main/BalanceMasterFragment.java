@@ -49,6 +49,7 @@ import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.squareup.otto.Subscribe;
 
@@ -60,7 +61,7 @@ public class BalanceMasterFragment extends Fragment {
       setHasOptionsMenu(true);
       View view = Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
       FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-      fragmentTransaction.replace(R.id.phFragmentAddress, new AddressFragment());
+      fragmentTransaction.replace(R.id.phFragmentAddress, /* new AddressFragment()*/ new RMCAddressFragment());
       fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
       fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
       fragmentTransaction.replace(R.id.phFragmentGlidera, new BuySellFragment());

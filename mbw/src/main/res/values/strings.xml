@@ -1009,4 +1009,33 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="requires_btc_amount">Sending tokens requires btc to pay miners fee</string>
     <string name="colu_rmc_tokens">RMC</string>
 
+    <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
+    <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>
+    <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
+    <string name="ad_buy_hashing24">Start Bitcoin mining with maximum efficiency</string>
+
+    <string name="warning_partner">Partner information</string>
+    <string name="ad_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
+    <string name="ad_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
+    <string name="ad_purse_url">https://purse.io/?_a=MYCELIUM</string>
+    <string name="ad_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
+
+    <string name="ad_hashing24_info">
+        Hashing24 is a cloud mining company partnering with BitFury, one of the largest Bitcoin miners and Segwit supporter.
+        Cloud mining is a speculative investment to obtain new Bitcoin. Every investment has a risk.
+        Use code MYCELIUM for an exclusive 4% discount.
+    </string>
+    <string name="ad_purse_info" />
+    <string name="ad_trezor_info" />
+    <string name="ad_ledger_info" />
+    <string name="gd_buy_sell_rmc_button">Buy / Sell RMC</string>
+    <string name="learn_more_rmc"><u>read more about RMC</u></string>
+    <string name="mycelium_no_responaility_rmc">MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING? USE OF? OR RELIANCE UPON RMC\'S INFORMATION AND SERVICES</string>
+    <string name="rmc_seems_like_no_account">Seems like you still have no RMC account.   Hit the button below to generate one</string>
+    <string name="rmc_generate_new_account">Generate new RMC account</string>
+    <string name="rmc_you_buying">You buying</string>
+    <string name="rmc_your_new_account">Your new RMC account</string>
+    <string name="rmc_use_this_account_to_receive_your_rmc">Use this account to receive your RMC?</string>
+    <string name="rmc_yes">Yes</string>
+    <string name="rmc_no">No</string>
 </resources>
