@@ -44,7 +44,4 @@ public interface WalletManagerBacking extends SecureKeyValueStoreBacking {
    SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
 
    void deleteSingleAddressAccountContext(UUID accountId);
-
-
-
 }

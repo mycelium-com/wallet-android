@@ -42,8 +42,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -730,89 +728,89 @@ public class SendMainActivity extends Activity {
          tvError.setVisibility(GONE);
       } else {
          tvAmountTitle.setText(R.string.amount_title);
-         if (_transactionStatus == TransactionStatus.OutputTooSmall) {
-            // Amount too small
-            tvAmount.setText(_mbwManager.getBtcValueString(getBitcoinValueToSend().getLongValue()));
-            tvAmountFiat.setVisibility(GONE);
-            if (isCoinapult()) {
-               CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
-               tvError.setText(
-                     getString(
-                           R.string.coinapult_amount_too_small,
-                           coinapultAccount.getCoinapultCurrency().minimumConversationValue,
-                           coinapultAccount.getCoinapultCurrency().name)
+         switch (_transactionStatus) {
+            case OutputTooSmall:
+               // Amount too small
+               tvAmount.setText(_mbwManager.getBtcValueString(getBitcoinValueToSend().getLongValue()));
+               tvAmountFiat.setVisibility(GONE);
+               if (isCoinapult()) {
+                  CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
+                  tvError.setText(
+                        getString(
+                              R.string.coinapult_amount_too_small,
+                              coinapultAccount.getCoinapultCurrency().minimumConversationValue,
+                              coinapultAccount.getCoinapultCurrency().name)
+                  );
+               } else {
+                  tvError.setText(R.string.amount_too_small_short);
+               }
+               tvError.setVisibility(VISIBLE);
+               break;
+            case InsufficientFunds:
+               // Insufficient funds
+               tvAmount.setText(
+                     Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
                );
-            } else {
-               tvError.setText(R.string.amount_too_small_short);
-            }
-            tvError.setVisibility(VISIBLE);
-         } else if (_transactionStatus == TransactionStatus.InsufficientFunds) {
-            // Insufficient funds
-            tvAmount.setText(
-                  Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
-            );
-            tvError.setText(R.string.insufficient_funds);
-            tvError.setVisibility(VISIBLE);
-         } else {
-            // Set Amount
-            if (!CurrencyValue.isNullOrZero(_amountToSend)) {
-               // show the user entered value as primary amount
-               CurrencyValue primaryAmount = _amountToSend;
-               CurrencyValue alternativeAmount;
-               if (primaryAmount.getCurrency().equals(_account.getAccountDefaultCurrency())) {
-                  if (primaryAmount.isBtc()) {
-                     // if the accounts default currency is BTC and the user entered BTC, use the current
-                     // selected fiat as alternative currency
-                     alternativeAmount = CurrencyValue.fromValue(
-                           primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
-                     );
+               tvError.setText(R.string.insufficient_funds);
+               tvError.setVisibility(VISIBLE);
+               break;
+            default:
+               // Set Amount
+               if (!CurrencyValue.isNullOrZero(_amountToSend)) {
+                  // show the user entered value as primary amount
+                  CurrencyValue primaryAmount = _amountToSend;
+                  CurrencyValue alternativeAmount;
+                  if (primaryAmount.getCurrency().equals(_account.getAccountDefaultCurrency())) {
+                     if (primaryAmount.isBtc()) {
+                        // if the accounts default currency is BTC and the user entered BTC, use the current
+                        // selected fiat as alternative currency
+                        alternativeAmount = CurrencyValue.fromValue(
+                              primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
+                        );
+                     } else {
+                        // if the accounts default currency isn't BTC, use BTC as alternative
+                        alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
+                              primaryAmount, _mbwManager.getExchangeRateManager()
+                        );
+                     }
                   } else {
-                     // if the accounts default currency isn't BTC, use BTC as alternative
-                     alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
-                           primaryAmount, _mbwManager.getExchangeRateManager()
+                     // use the accounts default currency as alternative
+                     alternativeAmount = CurrencyValue.fromValue(
+                           primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
                      );
                   }
-               } else {
-                  // use the accounts default currency as alternative
-                  alternativeAmount = CurrencyValue.fromValue(
-                        primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
-                  );
-               }
-               String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-               if (!primaryAmount.isBtc()) {
-                  // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
-                  // on a FX rate
-                  sendAmount = "~ " + sendAmount;
-               }
-               tvAmount.setText(sendAmount);
-               if (CurrencyValue.isNullOrZero(alternativeAmount)) {
-                  tvAmountFiat.setVisibility(GONE);
-               } else {
-                  // show the alternative amount
-                  String alternativeAmountString =
-                        Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
-
-                  if (!alternativeAmount.isBtc()) {
+                  String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                  if (!primaryAmount.isBtc()) {
                      // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                      // on a FX rate
-                     alternativeAmountString = "~ " + alternativeAmountString;
+                     sendAmount = "~ " + sendAmount;
                   }
+                  tvAmount.setText(sendAmount);
+                  if (CurrencyValue.isNullOrZero(alternativeAmount)) {
+                     tvAmountFiat.setVisibility(GONE);
+                  } else {
+                     // show the alternative amount
+                     String alternativeAmountString =
+                           Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
 
-                  tvAmountFiat.setText(alternativeAmountString);
-                  tvAmountFiat.setVisibility(VISIBLE);
+                     if (!alternativeAmount.isBtc()) {
+                        // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+                        // on a FX rate
+                        alternativeAmountString = "~ " + alternativeAmountString;
+                     }
+
+                     tvAmountFiat.setText(alternativeAmountString);
+                     tvAmountFiat.setVisibility(VISIBLE);
+                  }
+               } else {
+                  tvAmount.setText("");
+                  tvAmountFiat.setText("");
                }
-            } else {
-               tvAmount.setText("");
-               tvAmountFiat.setText("");
-            }
 
-            tvError.setVisibility(GONE);
-            //check if we need to warn the user about unconfirmed funds
-            if (_spendingUnconfirmed) {
-               tvUnconfirmedWarning.setVisibility(VISIBLE);
-            } else {
-               tvUnconfirmedWarning.setVisibility(GONE);
-            }
+               tvError.setVisibility(GONE);
+               //check if we need to warn the user about unconfirmed funds
+               tvUnconfirmedWarning.setVisibility(_spendingUnconfirmed ? VISIBLE : GONE);
+               break;
          }
       }
 
