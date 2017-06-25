@@ -38,9 +38,6 @@ import java.util.*;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
 public class StandardTransactionBuilder {
-   // 1000sat per 1000Bytes, from https://github.com/bitcoin/bitcoin/blob/849a7e645323062878604589df97a1cd75517eb1/src/main.cpp#L78
-   // TODO: This constant is used as a fixed fee but should be used as a fee rate. This would be relevant only if fees fall below 1-5sat/B.
-   static final long MIN_RELAY_FEE = 1000;
    // hash size 32 + output index size 4 + script length 1 + max. script size for compressed keys 107 + sequence number 4
    // also see https://github.com/bitcoin/bitcoin/blob/master/src/primitives/transaction.h#L190
    private static final int MAX_INPUT_SIZE = 32 + 4 + 1 + 107 + 4;
@@ -542,14 +539,7 @@ public class StandardTransactionBuilder {
       // fee is based on the size of the transaction, we have to pay for
       // every 1000 bytes
       float txSizeKb = (float) (estimateTransactionSize(inputs, outputs) / 1000.0); //in kilobytes
-      long requiredFee = (long) (txSizeKb * minerFeePerKb);
-
-      // check if our estimation leads to a small fee that's below the default bitcoind-MIN_RELAY_FEE
-      // if so, use the MIN_RELAY_FEE
-      if (requiredFee < MIN_RELAY_FEE) {
-         requiredFee = MIN_RELAY_FEE;
-      }
-      return requiredFee;
+      return (long) (txSizeKb * minerFeePerKb);
    }
 
    private interface CoinSelector {
