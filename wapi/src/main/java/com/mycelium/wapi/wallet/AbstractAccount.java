@@ -853,9 +853,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    /**
-    * @return all UTXOs that are spendable now, as they ae neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set.
+    * @param minerFeePerKbToUse Determines the dust level, at which including a UTXO costs more than it is worth.
+    * @return all UTXOs that are spendable now, as they are neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set nor dust.
     */
-   protected Collection<TransactionOutputEx> getSpendableOutputs() {
+   protected Collection<TransactionOutputEx> getSpendableOutputs(long minerFeePerKbToUse) {
+      long satDustOutput = StandardTransactionBuilder.MAX_INPUT_SIZE * minerFeePerKbToUse / 1000;
       Collection<TransactionOutputEx> allUnspentOutputs = _backing.getAllUnspentOutputs();
 
       // Prune confirmed outputs for coinbase outputs that are not old enough
@@ -864,19 +866,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       Iterator<TransactionOutputEx> it = allUnspentOutputs.iterator();
       while (it.hasNext()) {
          TransactionOutputEx output = it.next();
-         if (output.isCoinBase) {
-            int confirmations = blockChainHeight - output.height;
-            if (confirmations < COINBASE_MIN_CONFIRMATIONS) {
-               it.remove();
-               continue;
-            }
-         }
+         // we remove all outputs that don't cover their costs (dust)
+         // coinbase outputs are not spendable and this should not be overridden
          // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
-         if (!_allowZeroConfSpending) {
-            if (output.height == -1 && !isFromMe(output.outPoint.hash)) {
-               // Prune receiving coins that is not change sent to ourselves
-               it.remove();
-            }
+         if (output.value < satDustOutput ||
+                     output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS ||
+                     !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.hash)) {
+            it.remove();
          }
       }
       return allUnspentOutputs;
@@ -896,7 +892,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    @Override
    public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
       checkNotArchived();
-      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs());
+      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
 
       // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -957,7 +953,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       checkNotArchived();
 
       // Determine the list of spendable outputs
-      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs(minerFeeToUse));
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
@@ -974,7 +970,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       checkNotArchived();
 
       // Determine the list of spendable outputs
-      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs(minerFeeToUse));
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
@@ -994,7 +990,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
     */
    public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse, long satoshisPaid) throws InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
-      Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs()));
+      Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs(minerFeeToUse)));
       TransactionDetails parent = getTransactionDetails(txid);
       long totalSpendableSatoshis = 0;
       // do we have an output to spend from?

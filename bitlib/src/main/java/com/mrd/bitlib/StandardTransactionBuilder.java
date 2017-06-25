@@ -40,7 +40,7 @@ import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 public class StandardTransactionBuilder {
    // hash size 32 + output index size 4 + script length 1 + max. script size for compressed keys 107 + sequence number 4
    // also see https://github.com/bitcoin/bitcoin/blob/master/src/primitives/transaction.h#L190
-   private static final int MAX_INPUT_SIZE = 32 + 4 + 1 + 107 + 4;
+   public static final int MAX_INPUT_SIZE = 32 + 4 + 1 + 107 + 4;
    // output value 8B + script length 1B + script 25B (always)
    private static final int OUTPUT_SIZE = 8 + 1 + 25;
 
