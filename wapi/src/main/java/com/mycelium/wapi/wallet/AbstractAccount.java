@@ -56,6 +56,7 @@ import java.util.*;
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+import static com.mycelium.wapi.wallet.currency.ExactBitcoinValue.ZERO;
 import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
@@ -900,45 +901,44 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          satoshis += output.value;
       }
 
+      // TODO: 25.06.17 the following comment was justifying to assume two outputs, which might wrongly lead to no spendable funds or am I reading the wrongly? I assume one output only for the max.
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 2, minerFeePerKbToUse);
+      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, minerFeePerKbToUse);
 
-      // Iteratively figure out whether we can send everything by subtracting
-      // the miner fee for every iteration and thus reduce the suggested max amount
-      while (true) {
-         satoshis -= feeToUse;
-         if (satoshis <= 0) {
-            return ExactBitcoinValue.ZERO;
-         }
+      // TODO: 25.06.17 why was there a loop from here to end of method?
+      // Iteratively figure out whether we can send everything by removing the smallest input
+      // or every iteration and thus reduce the suggested max amount
+      satoshis -= feeToUse;
+      if (satoshis <= 0) {
+         return ZERO;
+      }
 
-         // Create transaction builder
-         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+      // Create transaction builder
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
 
-         // Try and add the output
-         try {
-            // Note, null address used here, we just use it for measuring the
-            // transaction size
-            stb.addOutput(Address.getNullAddress(_network), satoshis);
-         } catch (OutputTooSmallException e1) {
-            // The amount we try to send is lower than what the network allows
-            return ExactBitcoinValue.ZERO;
-         }
+      // Try and add the output
+      try {
+         // Note, null address used here, we just use it for measuring the transaction size
+         stb.addOutput(Address.getNullAddress(_network), satoshis);
+      } catch (OutputTooSmallException e1) {
+         // The amount we try to send is lower than what the network allows
+         return ZERO;
+      }
 
-         // Try to create an unsigned transaction
-         try {
-            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
-            // We have enough to pay the fees, return the amount as the maximum
-            return ExactBitcoinValue.from(satoshis);
-         } catch (InsufficientFundsException e) {
-            // We cannot send this amount, try again with a little higher fee
-            // continue;
-         } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-            // something unexpected happened while building the max-amount tx
-            // be cautious here and don't allow spending
-            return ExactBitcoinValue.ZERO;
-         }
+      // Try to create an unsigned transaction
+      try {
+         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
+         // We have enough to pay the fees, return the amount as the maximum
+         return ExactBitcoinValue.from(satoshis);
+      } catch (InsufficientFundsException e) {
+         // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
+         // We cannot send this amount, try again with a little higher fee continue
+         return ZERO;
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         // something unexpected happened while building the max-amount tx. be cautious here and don't allow spending
+         return ZERO;
       }
    }
 
