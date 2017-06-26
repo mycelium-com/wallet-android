@@ -1,31 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="8dp">
-
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:contentDescription="@null"
-        android:src="@drawable/mycelium_logo_transp" />
-
-    <TextView
-        android:id="@+id/part1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/image"
-        android:textColor="@color/white"
-        android:text="@string/partner_more_info_text_part1" />
-
-    <TextView
-        android:id="@+id/part2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/part1"
-        android:textColor="@color/white"
-        android:text="@string/partner_more_info_text_part2" />
-</RelativeLayout>
+    android:padding="8dp"
+    android:text="@string/partner_more_info_text"
+    android:textColor="@color/white" />

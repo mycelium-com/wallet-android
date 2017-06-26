@@ -40,13 +40,19 @@ public class PartnerInfo {
     private final String info;
     private final String uri;
     private final int icon;
+    private final int smallIcon;
 
     public PartnerInfo(String name, String description, String disclaimer, String uri, int icon) {
+        this(name, description, disclaimer, uri, icon, 0);
+    }
+
+    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon) {
         this.name = name;
         this.description = description;
-        this.info = disclaimer;
+        this.info = info;
         this.uri = uri;
         this.icon = icon;
+        this.smallIcon = smallIcon;
     }
 
     public final String getName() {
@@ -67,5 +73,9 @@ public class PartnerInfo {
 
     public final int getIcon() {
         return icon;
+    }
+
+    public int getSmallIcon() {
+        return smallIcon;
     }
 }

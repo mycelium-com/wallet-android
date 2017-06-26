@@ -951,15 +951,13 @@
 
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>More information</u></string>
-    <string name="partner_more_info_text_part1">
+    <string name="partner_more_info_text">
         Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br/>
         Developing, maintaining and supporting this product is not free.<br/>
-    </string>
-    <string name="partner_more_info_text_part2">
         Partner links and logos are statically embedded in the app and do not depend on any ad network.
         Their presence can not be used for tracking users that do not click them.
         No money is made by displaying these partner links or when users click on them.
         Referrals happen only when users decide to make a purchase on our partner websites.
     </string>
-
+    <string name="your_privacy_out_priority">Your privacy is our top priority</string>
 </resources>

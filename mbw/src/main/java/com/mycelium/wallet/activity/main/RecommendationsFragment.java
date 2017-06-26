@@ -37,13 +37,14 @@ package com.mycelium.wallet.activity.main;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -53,7 +54,30 @@ import com.mycelium.wallet.activity.util.RecommendationAdapter;
 
 import java.util.ArrayList;
 
-import static com.mycelium.wallet.R.string.*;
+import static com.mycelium.wallet.R.string.cancel;
+import static com.mycelium.wallet.R.string.ok;
+import static com.mycelium.wallet.R.string.partner_coinbase;
+import static com.mycelium.wallet.R.string.partner_coinbase_info;
+import static com.mycelium.wallet.R.string.partner_coinbase_short;
+import static com.mycelium.wallet.R.string.partner_coinbase_url;
+import static com.mycelium.wallet.R.string.partner_hashing24;
+import static com.mycelium.wallet.R.string.partner_hashing24_info;
+import static com.mycelium.wallet.R.string.partner_hashing24_short;
+import static com.mycelium.wallet.R.string.partner_hashing24_url;
+import static com.mycelium.wallet.R.string.partner_ledger;
+import static com.mycelium.wallet.R.string.partner_ledger_info;
+import static com.mycelium.wallet.R.string.partner_ledger_short;
+import static com.mycelium.wallet.R.string.partner_ledger_url;
+import static com.mycelium.wallet.R.string.partner_more_info_text;
+import static com.mycelium.wallet.R.string.partner_purse;
+import static com.mycelium.wallet.R.string.partner_purse_info;
+import static com.mycelium.wallet.R.string.partner_purse_short;
+import static com.mycelium.wallet.R.string.partner_purse_url;
+import static com.mycelium.wallet.R.string.partner_trezor;
+import static com.mycelium.wallet.R.string.partner_trezor_info;
+import static com.mycelium.wallet.R.string.partner_trezor_short;
+import static com.mycelium.wallet.R.string.partner_trezor_url;
+import static com.mycelium.wallet.R.string.warning_partner;
 
 public class RecommendationsFragment extends Fragment {
     ListView recommendationsList;
@@ -71,7 +95,7 @@ public class RecommendationsFragment extends Fragment {
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
         list.add(getPartnerInfo(partner_coinbase, partner_coinbase_short, partner_coinbase_info, partner_coinbase_url, R.drawable.coinbase));
-        list.add(getPartnerInfo(partner_hashing24, partner_hashing24_short, partner_hashing24_info, partner_hashing24_url, R.drawable.hashing24));
+        list.add(getPartnerInfo(partner_hashing24, partner_hashing24_short, partner_hashing24_info, partner_hashing24_url, R.drawable.hashing24, R.drawable.hashing24_small));
 
         //View footerView = ((LayoutInflater) ActivityContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer_layout, null, false);
         View footerView = inflater.inflate(R.layout.main_recommendations_list_footer, null, false);
@@ -80,25 +104,16 @@ public class RecommendationsFragment extends Fragment {
         moreInformation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View custom = LayoutInflater.from(view.getContext())
-                        .inflate(R.layout.main_recommendation_dialog_view, null, false);
-                TextView part1 = (TextView) custom.findViewById(R.id.part1);
-                part1.setText(partner_more_info_text_part1);
-
-                TextView part2 = (TextView) custom.findViewById(R.id.part2);
-                part2.setText(partner_more_info_text_part2);
-
-                ((ImageView) custom.findViewById(R.id.image)).setImageResource(R.drawable.mycelium_logo_transp);
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle(partner_more_info);
-//                builder.setMessage(partner_more_info_text);
+                builder.setTitle(R.string.your_privacy_out_priority);
+                builder.setMessage(partner_more_info_text);
                 builder.setPositiveButton(ok,
                         new DialogInterface.OnClickListener() {
-                            @Override public void onClick(DialogInterface dialogInterface, int i) { }
-                        } );
-//                builder.setIcon(R.drawable.mycelium_logo_transp);
-                builder.setView(custom);
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                            }
+                        });
+                builder.setIcon(R.drawable.mycelium_logo_transp_small);
                 alertDialog = builder.create();
                 alertDialog.show();
             }
@@ -110,22 +125,10 @@ public class RecommendationsFragment extends Fragment {
             @Override
             public void itemClick(final PartnerInfo bean) {
                 if (bean.getInfo() != null && bean.getInfo().length() > 0) {
-                    View custom = LayoutInflater.from(getActivity())
-                            .inflate(R.layout.main_recommendation_dialog_view, null, false);
-                    TextView part1 = (TextView) custom.findViewById(R.id.part1);
-                    int pointIndex = bean.getInfo().indexOf(".") + 1;
-                    part1.setText(bean.getInfo().substring(0, pointIndex));
-
-                    TextView part2 = (TextView) custom.findViewById(R.id.part2);
-                    part2.setText(bean.getInfo().substring(pointIndex));
-
-                    ((ImageView) custom.findViewById(R.id.image)).setImageResource(bean.getIcon());
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//                        builder.setMessage(bean.getInfo());
+                    builder.setMessage(bean.getInfo());
                     builder.setTitle(warning_partner);
-//                        builder.setIcon(bean.getIcon());
-                    builder.setView(custom);
+                    builder.setIcon(bean.getSmallIcon());
                     builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             if (bean.getUri() != null) {
@@ -169,5 +172,9 @@ public class RecommendationsFragment extends Fragment {
 
     private PartnerInfo getPartnerInfo(int name, int description, int disclaimer, int uri, int icon) {
         return new PartnerInfo(getString(name), getString(description), getString(disclaimer), getString(uri), icon);
+    }
+
+    private PartnerInfo getPartnerInfo(int name, int description, int disclaimer, int uri, int icon, int smallIcon) {
+        return new PartnerInfo(getString(name), getString(description), getString(disclaimer), getString(uri), icon, smallIcon);
     }
 }
