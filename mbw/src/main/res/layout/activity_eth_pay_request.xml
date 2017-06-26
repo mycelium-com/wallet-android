@@ -8,10 +8,21 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="20dp"
-        android:text="Payment Request"
-        android:textSize="30sp" />
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Please send\n100 ETH\nto this address"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="0x787346583768734"
+        android:textSize="14sp" />
 
 
     <com.mycelium.wallet.activity.util.QrImageView
@@ -22,6 +33,7 @@
         android:background="@color/white"
         android:contentDescription="@string/qr_code"
         android:longClickable="false"
+        android:layout_marginTop="8dp"
         android:maxHeight="@dimen/large_qrcode"
         android:maxWidth="@dimen/large_qrcode"
         android:minHeight="@dimen/large_qrcode"

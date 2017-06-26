@@ -6,6 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ViewFlipper;
 import android.widget.ViewSwitcher;
 
 import com.google.common.base.Preconditions;
@@ -26,7 +29,7 @@ public class RMCAddressFragment extends Fragment {
 
     private View _root;
     @BindView(R.id.switcher)
-    protected ViewSwitcher switcher;
+    protected ViewFlipper switcher;
 
     @BindView(R.id.graph)
     protected GraphView graphView;
@@ -35,6 +38,8 @@ public class RMCAddressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
+        graphView.getGridLabelRenderer().setHorizontalAxisTitle("Day");
+        graphView.getGridLabelRenderer().setVerticalAxisTitle("USD");
         return _root;
     }
 
@@ -55,5 +60,10 @@ public class RMCAddressFragment extends Fragment {
     @OnClick(R.id.show_graph)
     void clickShowGraph() {
         switcher.showNext();
+    }
+
+    @OnClick(R.id.show_stats)
+    void clickShowStats() {
+        switcher.showPrevious();
     }
 }

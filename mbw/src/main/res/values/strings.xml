@@ -1029,13 +1029,14 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="ad_trezor_info" />
     <string name="ad_ledger_info" />
     <string name="gd_buy_sell_rmc_button">Buy / Sell RMC</string>
-    <string name="learn_more_rmc"><u>read more about RMC</u></string>
-    <string name="mycelium_no_responaility_rmc">MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING? USE OF? OR RELIANCE UPON RMC\'S INFORMATION AND SERVICES</string>
+    <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
+    <string name="mycelium_no_responaility_rmc">MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
     <string name="rmc_seems_like_no_account">Seems like you still have no RMC account.   Hit the button below to generate one</string>
     <string name="rmc_generate_new_account">Generate new RMC account</string>
-    <string name="rmc_you_buying">You buying</string>
+    <string name="rmc_you_buying">You are buying</string>
     <string name="rmc_your_new_account">Your new RMC account</string>
     <string name="rmc_use_this_account_to_receive_your_rmc">Use this account to receive your RMC?</string>
     <string name="rmc_yes">Yes</string>
     <string name="rmc_no">No</string>
+    <string name="rmc_return_of_investment">Return on Investment</string>
 </resources>

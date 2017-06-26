@@ -89,15 +89,6 @@ public class RmcEthAmountFragment extends Fragment {
         etUSDWatcher = new InputWatcher(etUSD, "USD");
 
         addChangeListener();
-
-        ((TextView)view.findViewById(R.id.test)).setText(Html.fromHtml("<img src=\"test.png\" width=\"24\" height=\"39\"> text tefasd asdf sajdkh fasdj lfhasd hasd fasd" +
-                "sadfhkjsadhf kjasdhfkjasdh fasjdk asjkd fakjsdf haksdjl fakjsd fhalksd fhasjkd fhasjkdf haskdjf hasdkjf hasdf haksd " +
-                "asjd hfsjdkh lkajshd fkjlasdhf kjashd fklj hsdkjfh kjsdh fkajsdh f sdfha skjdf hkasjdh fakjsd hasdjfh", new Html.ImageGetter() {
-            @Override
-            public Drawable getDrawable(String s) {
-                return getResources().getDrawable(R.drawable.mycelium_logo_transp);
-            }
-        }, null));
     }
 
     private void addChangeListener() {
