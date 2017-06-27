@@ -937,7 +937,7 @@
 
     <string name="partner_coinbase">Coinbase</string>
     <string name="partner_coinbase_short">Buy and sell digital currency.</string>
-    <string name="partner_coinbase_url">https://www.coinbase.com/signup?MYCELIUM</string>
+    <string name="partner_coinbase_url">https://www.coinbase.com/join/5412b8d2199875ec99000001</string>
     <string name="partner_coinbase_info"/>
 
     <string name="partner_hashing24">Hashing24</string>
@@ -950,7 +950,7 @@
     </string>
 
     <string name="tab_partners">Businesses</string>
-    <string name="partner_more_info"><u>More information</u></string>
+    <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
     <string name="partner_more_info_text">
         Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br/>
         Developing, maintaining and supporting this product is not free.<br/>
