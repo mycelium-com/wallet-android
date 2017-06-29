@@ -308,8 +308,23 @@
                         android:layout_gravity="center"
                         android:textSize="24sp"/>
 
-                <!-- Fee toggle button, Fee amount in BTC -->
+                <Button
+                    android:id="@+id/btFromBtcAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/MyceliumSlimButton"
+                    android:paddingTop="4sp"
+                    android:paddingBottom="4sp"
+                    android:paddingLeft="10sp"
+                    android:paddingRight="10sp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="16sp"
+                    tools:text="from BtcAccount: AACASD274687ASD"
+                    android:visibility="gone"
+                    />
 
+                <!-- Fee toggle button, Fee amount in BTC -->
                 <Button
                         android:id="@+id/btFeeLvl"
                         android:layout_width="wrap_content"

@@ -46,14 +46,28 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
@@ -71,19 +85,24 @@ public class AddressBookFragment extends Fragment {
 
    public static final int SCAN_RESULT_CODE = 0;
    public static final String ADDRESS_RESULT_NAME = "address_result";
+   public static final String ADDRESS_RESULT_ID = "address_result_id";
    public static final String OWN = "own";
    public static final String SELECT_ONLY = "selectOnly";
+   public static final String SPENDABLE_ONLY = "spendable_only";
+
 
    private Address mSelectedAddress;
    private MbwManager _mbwManager;
    private Dialog _addDialog;
    private ActionMode currentActionMode;
    private Boolean ownAddresses; // set to null on purpose
+   private Boolean spendableOnly;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.address_book, container, false));
       ownAddresses = getArguments().getBoolean(OWN);
+      spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
@@ -144,7 +163,11 @@ public class AddressBookFragment extends Fragment {
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
          if (receivingAddress.isPresent()) {
-            entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount));
+            if ((spendableOnly && account.canSpend()
+                    && !account.getCurrencyBasedBalance().confirmed.isZero()
+                    && account.getCurrencyBasedBalance().confirmed.isBtc()) || !spendableOnly) {
+               entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+            }
          }
       }
       if (entries.isEmpty()) {
@@ -417,6 +440,10 @@ public class AddressBookFragment extends Fragment {
          Address address = (Address) view.getTag();
          Intent result = new Intent();
          result.putExtra(ADDRESS_RESULT_NAME, address.toString());
+         if( parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
+            AddressBookManager.IconEntry item  = (AddressBookManager.IconEntry)parent.getItemAtPosition(position);
+            result.putExtra(ADDRESS_RESULT_ID, item.getId());
+         }
          getActivity().setResult(Activity.RESULT_OK, result);
          getActivity().finish();
       }

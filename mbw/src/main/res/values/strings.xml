@@ -868,11 +868,11 @@
     <string name="coinapult_tos_question">To create a Coinapult Account you must agree to their Terms and Conditions</string>
     <string name="coinapult_mail_question">Do you want to provide your mail address?</string>
     <string name="coinapult_create_account">Creating Coinapult account…</string>
-    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string> 
+    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
     <string name="coinapult_currency_account">%1$s Account</string>
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
-    <string name="colu_account_notes">Store digital assets in Mycelium.</string> 
+    <string name="colu_account_notes">Store digital assets in Mycelium.</string>
     <string name="colu_add_cc_account">Add a Colored Coins Account</string>
     <string name="colu">Colu</string>
     <string name="colu_select_an_account_type">Please select a Colu account type</string>
@@ -889,7 +889,7 @@ Please read them carefully before providing any personal information.
 MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS
 OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR
 RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
-<!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
+    <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <string name="colu_backup_info">Your Colu account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
     <string name="colu_sending_via_colu">Sending Colu assets.</string>
     <string name="colu_failed_to_prepare">Failed to prepare Colu transaction ! Is there enough BTC to finance transaction in this account ?</string>
