@@ -48,6 +48,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -161,6 +162,9 @@ public class RecordRowBuilder {
          CurrencyBasedBalance balance = walletAccount.getCurrencyBasedBalance();
          rowView.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
          String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
+         if(walletAccount instanceof ColuAccount) {
+            balanceString = String.format("%s %s", walletAccount.getCurrencyBasedBalance().confirmed.getValue(), walletAccount.getCurrencyBasedBalance().confirmed.getCurrency());
+         }
          TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);

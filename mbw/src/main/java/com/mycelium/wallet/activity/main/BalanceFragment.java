@@ -46,6 +46,7 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -64,6 +65,7 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wallet.event.*;
@@ -211,7 +213,8 @@ public class BalanceFragment extends Fragment {
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if(account instanceof ColuAccount) {
-          valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
+          valueString =  String.format("%s %s", account.getCurrencyBasedBalance().confirmed.getValue(), account.getCurrencyBasedBalance().confirmed.getCurrency());
+//         Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
       }
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 

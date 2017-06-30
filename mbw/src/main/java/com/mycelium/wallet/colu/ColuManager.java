@@ -37,6 +37,7 @@ import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
+import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.WapiClient;
@@ -198,7 +199,7 @@ public class ColuManager implements AccountProvider {
         Log.d(TAG, "getSignature: start iterating over " + copyTx.getInputs().size());
         for (int i = 0; i < copyTx.getInputs().size(); i++) {
             TransactionInput input = copyTx.getInput(i);
-            Log.d(TAG, "getSignature: Processing input " + i + " : " + input.toString());
+            Log.d(TAG, "getSignature: Processing input " + i + " : " + input.toString());ы
             TransactionOutput connectedOutput = input.getConnectedOutput();
             if (connectedOutput == null) {
                 Log.e(TAG, "getSignature: connectedOutput for input " + i + " is null ! Returning null");
@@ -1116,6 +1117,7 @@ public class ColuManager implements AccountProvider {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                eventBus.post(new BalanceChanged(null));
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
