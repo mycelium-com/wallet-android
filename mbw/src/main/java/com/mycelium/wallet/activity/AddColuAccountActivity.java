@@ -93,8 +93,7 @@ public class AddColuAccountActivity extends Activity {
       setContentView(R.layout.add_colu_account_activity);
       _mbwManager = MbwManager.getInstance(this);
       ButterKnife.bind(this);
-      //btColuAddAccount.setText(getString(R.string.colu_asset_account, ColuAccount.Asset.MT.name));
-
+      btColuAddAccount.setText(getString(R.string.colu_create_account, ""));
       setTosLink(tvTosLink);
    }
 
@@ -186,6 +185,11 @@ public class AddColuAccountActivity extends Activity {
                selectedColuAsset = ColuAccount.ColuAsset.Mass;
             Toast.makeText(AddColuAccountActivity.this, "Mass selected", Toast.LENGTH_SHORT).show();
                break;
+         case R.id.radio_rmc_tokens:
+            if (checked)
+               selectedColuAsset = ColuAccount.ColuAsset.RMC;
+            Toast.makeText(AddColuAccountActivity.this, "RMC selected", Toast.LENGTH_SHORT).show();
+            break;
       }
    }
 
@@ -250,7 +254,7 @@ public class AddColuAccountActivity extends Activity {
          this.mail = mail;
          this.coluAsset = coluAsset;
          this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
-         progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_create_account));
+         progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_create_account, coluAsset.label));
          progressDialog.setCancelable(false);
          progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
          progressDialog.show();

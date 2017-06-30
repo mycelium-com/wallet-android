@@ -1104,4 +1104,19 @@ public class ColuManager implements AccountProvider {
         return null;
     }
 
+    public void startSynchronization() {
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                scanForAccounts();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 }

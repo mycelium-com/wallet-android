@@ -410,6 +410,7 @@ public class ModernMain extends ActionBarActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+            _mbwManager.getColuManager().startSynchronization();
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
             break;

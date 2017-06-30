@@ -387,10 +387,10 @@ public class SendMainActivity extends Activity {
         if (isColu()) {
             // no sepa payment with colu
             btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : View.GONE);
-            WalletAccount account = null;
             List<WalletAccount> walletAccountList =_mbwManager.getWalletManager(false).getActiveAccounts();
             for (WalletAccount walletAccount : walletAccountList) {
-                if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()) {
+                if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()
+                        && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()) {
                     feeColuAccount = walletAccount;
                     break;
                 }
@@ -414,7 +414,7 @@ public class SendMainActivity extends Activity {
                 btFeeFromAccount.setVisibility(View.VISIBLE);
             }
         } else if(isColu()){
-            tvError.setText("You need btc account for sent tokens");
+            tvError.setText(R.string.requires_btc_amount);
             tvError.setVisibility(View.VISIBLE);
         }
     }

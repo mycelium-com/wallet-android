@@ -86,6 +86,7 @@ import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -786,6 +787,14 @@ public class Utils {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
             return resources.getDrawable(R.drawable.coinapultgrey);
+         }
+      }
+      if(walletAccount instanceof ColuAccount) {
+         ColuAccount account = (ColuAccount) walletAccount;
+         if(account.getColuAsset() == ColuAccount.ColuAsset.MT) {
+            return resources.getDrawable(R.drawable.mt_icon);
+         }else if(account.getColuAsset() == ColuAccount.ColuAsset.Mass) {
+            return resources.getDrawable(R.drawable.mass_icon);
          }
       }
 

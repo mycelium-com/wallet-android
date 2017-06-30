@@ -807,7 +807,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
    }
 
    public String getDefaultLabel() {
-      return "Colu " + coluAsset.name;
+      return coluAsset.label;
    }
 
    public static class Currency {
@@ -860,16 +860,19 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
    }
 
    public static class ColuAsset {
-      public static final ColuAsset MT = new ColuAsset("MT", "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K", 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
-      public static final ColuAsset Mass = new ColuAsset("MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
+      public static final ColuAsset MT = new ColuAsset("MT","MT", "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K", 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
+      public static final ColuAsset Mass = new ColuAsset("Mass Coin", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
+      public static final ColuAsset RMC = new ColuAsset("RMC", "RMC", "", 0, "");
 
       public static final Map<String, ColuAsset> all = ImmutableMap.of(
               MT.id, MT,
-              Mass.id, Mass
+              Mass.id, Mass,
+              RMC.id, RMC
               // add other assets here
       );
 
-      public static final Set<String> getAllAssetID() {
+
+       public static final Set<String> getAllAssetID() {
          return all.keySet();
       }
 
@@ -881,12 +884,14 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
          return assetNames;
       }
 
+      final public String label;
       final public String name;
       final public String id;
       final public int scale; // number of fractional digits
       final public String issuance;
 
-      private ColuAsset(String name, String id, int scale, String issuance) {
+      private ColuAsset(String label, String name, String id, int scale, String issuance) {
+         this.label = label;
          this.name = name;
          this.id = id;
          this.scale = scale;
