@@ -40,5 +40,7 @@
     <color name="status_red">#ffea5e5e</color>
     <color name="status_yellow">#ddb352</color>
 
+    <color name="rmc_active">#ff8838</color>
+
     <fraction name="background_alpha">50%</fraction>
 </resources>
