@@ -30,16 +30,11 @@ public class ScriptOutputOpReturn extends ScriptOutput implements Serializable {
    }
 
    protected static boolean isScriptOutputOpReturn(byte[][] chunks) {
-      if (chunks.length != 2) {
-         return false;
-      }
-      if (!Script.isOP(chunks[0], OP_RETURN)) {
-         return false;
-      }
-      if (chunks[1].length == 0) {
-         return false;
-      }
-      return true;
+      // {{OP_RETURN},{something non-null non-empty}}
+      return chunks.length == 2 &&
+            Script.isOP(chunks[0], OP_RETURN) &&
+            chunks[1] != null &&
+            chunks[1].length > 0;
    }
 
    /**
@@ -56,5 +51,4 @@ public class ScriptOutputOpReturn extends ScriptOutput implements Serializable {
       // there is no address associated with this output
       return Address.getNullAddress(network);
    }
-
 }
