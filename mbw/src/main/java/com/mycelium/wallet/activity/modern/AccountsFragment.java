@@ -207,7 +207,6 @@ public class AccountsFragment extends Fragment {
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
         }
-    }
     // TODO: refactor these RESULT_XXX constants in a common class ?
 
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
