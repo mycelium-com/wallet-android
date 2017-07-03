@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.mycelium.wallet.activity.rmc.RmcActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="32dp"
+        android:gravity="center_horizontal"
+        android:text="1 RMC = 4000 USD"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:text="How would you like to pay?"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btBtc"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:text="BTC"
+            android:textSize="20sp" />
+
+
+        <Button
+            android:id="@+id/btEth"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:text="ETH"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btBankwire"
+        style="@style/MyceliumButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:text="BANK"
+        android:textSize="20sp" />
+
+</LinearLayout>

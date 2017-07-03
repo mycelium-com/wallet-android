@@ -35,6 +35,8 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -48,11 +50,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.external.BuySellServiceDescriptor;
+import com.mycelium.wallet.activity.rmc.RmcActivity;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.external.BuySellServiceDescriptor;
 
 import com.squareup.otto.Subscribe;
 import javax.annotation.Nullable;
@@ -97,7 +100,7 @@ public class BuySellFragment extends Fragment {
         View btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if(account instanceof ColuAccount) {
-            btBuySell.setVisibility(View.INVISIBLE);
+            btBuySell.setVisibility(View.GONE);
         } else {
             if(showButton) {
                 btBuySell.setVisibility(View.VISIBLE);
@@ -106,6 +109,9 @@ public class BuySellFragment extends Fragment {
                 btBuySell.setVisibility(View.GONE);
             }
         }
+        View btBuySellRmc = _root.findViewById(R.id.btBuySellRMC);
+        btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
+        super.onResume();
     }
 
     OnClickListener buySellOnClickListener = new OnClickListener() {
@@ -113,6 +119,22 @@ public class BuySellFragment extends Fragment {
         public void onClick(View view) {
             Intent intent = new Intent(getActivity(), BuySellSelectFragment.class);
             startActivity(intent);
+        }
+    };
+
+    OnClickListener buySellRmcOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage(R.string.mycelium_no_responaility_rmc)
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent(getActivity(), RmcActivity.class));
+                        }
+                    })
+                    .create()
+                    .show();
         }
     };
 
