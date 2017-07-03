@@ -51,81 +51,93 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
-   private  TextView tvTor;
+    private TextView tvTor;
 
-   @Override
-   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      setHasOptionsMenu(true);
-      View view = Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
-      FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-      WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
-      fragmentTransaction.replace(R.id.phFragmentAddress,
-              account instanceof ColuAccount && ((ColuAccount) account).getColuAsset() == ColuAccount.ColuAsset.MT ?
-                      new RMCAddressFragment() : new AddressFragment());
-      fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
-      fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
-      fragmentTransaction.replace(R.id.phFragmentGlidera, new BuySellFragment());
-      fragmentTransaction.commitAllowingStateLoss();
-      return view;
-   }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        View view = Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
+        fragmentTransaction.replace(R.id.phFragmentAddress,
+                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset() == ColuAccount.ColuAsset.MT ?
+                        new RMCAddressFragment() : new AddressFragment());
+        fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
+        fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
+        fragmentTransaction.replace(R.id.phFragmentGlidera, new BuySellFragment());
+        fragmentTransaction.commitAllowingStateLoss();
+        return view;
+    }
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-   }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
-   @Override
-   public void onResume() {
-      Activity activity = getActivity();
-      // Set beta build
-      PackageInfo pInfo;
-      try {
-         pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
-         ((TextView) activity.findViewById(R.id.tvBuildText)).setText(getResources().getString(R.string.build_text,
-               pInfo.versionName));
-      } catch (NameNotFoundException e) {
-         // Ignore
-         //todo insert uncaught error handler
-      }
+    @Override
+    public void onResume() {
+        Activity activity = getActivity();
+        // Set beta build
+        PackageInfo pInfo;
+        try {
+            pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+            ((TextView) activity.findViewById(R.id.tvBuildText)).setText(getResources().getString(R.string.build_text,
+                    pInfo.versionName));
+        } catch (NameNotFoundException e) {
+            // Ignore
+            //todo insert uncaught error handler
+        }
 
-      MbwManager mbwManager = MbwManager.getInstance(activity);
-      tvTor = (TextView) activity.findViewById(R.id.tvTorState);
-      if (mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbwManager.getTorManager() != null) {
-         tvTor.setVisibility(View.VISIBLE);
-         showTorState(mbwManager.getTorManager().getInitState());
-      }else{
-         tvTor.setVisibility(View.GONE);
-      }
+        MbwManager mbwManager = MbwManager.getInstance(activity);
+        tvTor = (TextView) activity.findViewById(R.id.tvTorState);
+        if (mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbwManager.getTorManager() != null) {
+            tvTor.setVisibility(View.VISIBLE);
+            showTorState(mbwManager.getTorManager().getInitState());
+        } else {
+            tvTor.setVisibility(View.GONE);
+        }
 
-      MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
-      super.onResume();
-   }
+        MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
+        super.onResume();
+    }
 
-   @Override
-   public void onPause() {
-      MbwManager.getInstance(this.getActivity()).getEventBus().unregister(this);
-      super.onPause();
-   }
+    @Override
+    public void onPause() {
+        MbwManager.getInstance(this.getActivity()).getEventBus().unregister(this);
+        super.onPause();
+    }
 
-   @Subscribe
-   public void onTorState(TorStateChanged torState){
-      showTorState(torState.percentage);
-   }
+    @Subscribe
+    public void onTorState(TorStateChanged torState) {
+        showTorState(torState.percentage);
+    }
 
-   private void showTorState(int percentage) {
-      if (percentage==0) {
-         tvTor.setText("");
-      } else if (percentage==100){
-         tvTor.setText("");
-      } else {
-         tvTor.setText(getString(R.string.tor_state_init));
-      }
-   }
+    @Subscribe
+    public void selectedAccountChanged(SelectedAccountChanged event) {
+        WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.phFragmentAddress,
+                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset() == ColuAccount.ColuAsset.MT ?
+                        new RMCAddressFragment() : new AddressFragment());
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
+
+    private void showTorState(int percentage) {
+        if (percentage == 0) {
+            tvTor.setText("");
+        } else if (percentage == 100) {
+            tvTor.setText("");
+        } else {
+            tvTor.setText(getString(R.string.tor_state_init));
+        }
+    }
 
 
 }
