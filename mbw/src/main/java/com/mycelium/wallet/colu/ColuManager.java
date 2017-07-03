@@ -199,7 +199,7 @@ public class ColuManager implements AccountProvider {
         Log.d(TAG, "getSignature: start iterating over " + copyTx.getInputs().size());
         for (int i = 0; i < copyTx.getInputs().size(); i++) {
             TransactionInput input = copyTx.getInput(i);
-            Log.d(TAG, "getSignature: Processing input " + i + " : " + input.toString());ы
+            Log.d(TAG, "getSignature: Processing input " + i + " : " + input.toString());
             TransactionOutput connectedOutput = input.getConnectedOutput();
             if (connectedOutput == null) {
                 Log.e(TAG, "getSignature: connectedOutput for input " + i + " is null ! Returning null");
