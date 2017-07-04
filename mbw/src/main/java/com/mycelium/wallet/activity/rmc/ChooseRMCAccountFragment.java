@@ -195,6 +195,8 @@ public class ChooseRMCAccountFragment extends Fragment {
         protected void onPostExecute(CreateRmcOrderResponse.Json result) {
             //Address should be funded to get tokens
             String fundingAddress = result.order.paymentDetails.address;
+
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount)));
         }
     }
 
@@ -203,7 +205,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         if (payMethod.equals("BTC")) {
             RmsApiTask task = new RmsApiTask(btcCount,rmcCount, coluAddress, payMethod);
             task.execute();
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:13sTW2pA3U8LwixoSapi92LsXyjyXPYhA3?amount=0.004179&r=https%3A%2F%2Fbitpay.com%2Fi%2FMLdKWpRhJXcTv8NKFGLPhT")));
+
         } else if (payMethod.equals("ETH")) {
             Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
             intent.putExtra(Keys.RMC_COUNT, rmcCount);
