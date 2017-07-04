@@ -22,5 +22,8 @@ public class ColuTransactionRequest {
 
         @Key
         public List<ColuTxDest.Json> to;
+
+        @Key
+        public ColuTxFlags.Json flags;
     }
 }

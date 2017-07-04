@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.params.RegTestParams;
+import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.TransactionInput;
@@ -111,8 +113,17 @@ public class ColuManager implements AccountProvider {
         this.metadataStorage = metadataStorage;
         this.exchangeRateManager = exchangeRateManager;
         this.logger = logger;
-        this.netParams = MainNetParams.get(); // bitcoinj
-        this._network = NetworkParameters.productionNetwork; // only prodnet for now
+
+        //Setting up the network
+        this._network = env.getNetwork();
+        if (this._network.isProdnet()) {
+            this.netParams = MainNetParams.get();
+        } else if (this._network.isTestnet()) {
+            this.netParams = TestNet3Params.get();
+        } else {
+            this.netParams = RegTestParams.get();
+        }
+
         this.context = org.bitcoinj.core.Context.getOrCreate(netParams);
         this._walletAccounts = Maps.newHashMap();
 
@@ -127,6 +138,7 @@ public class ColuManager implements AccountProvider {
         coluAccounts = new HashMap<>();
         loadAccounts();
     }
+
 
     private void saveEnabledAssetIds() {
         String all = Joiner.on(",").join(Iterables.transform(coluAccounts.values(), new Function<ColuAccount, String>() {
@@ -454,7 +466,7 @@ public class ColuManager implements AccountProvider {
             return null;
         }
 
-        org.bitcoinj.core.Transaction signTx = getBitcoinjTransaction(txBytes);
+        org.bitcoinj.core.Transaction signTx = new org.bitcoinj.core.Transaction(this.netParams, txBytes);
         if (signTx == null) {
             Log.e(TAG, "signTransaction: could not create bitcoinj object");
             return null;
@@ -463,33 +475,27 @@ public class ColuManager implements AccountProvider {
         byte[] privateKeyBytes = coluAccount.getPrivateKey().getPrivateKeyBytes();
         byte[] publicKeyBytes = coluAccount.getPrivateKey().getPublicKey().getPublicKeyBytes();
         ECKey ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes);
-        //LinkedList<Script> keySignatures = getSignature(signTx, ecKey);
 
-/*
-        // start accelerated short code
-        org.bitcoinj.core.Transaction signedTransaction2 = getSignatureAndSign(signTx, ecKey);
+        Script inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(this.netParams));
 
-
-        if (signedTransaction2 != null) {
-            Log.d(TAG, "signTransaction: Success ! Received signed transaction object : " + signedTransaction2.toString());
-            //return signedTransaction;
-            //TODO: convert bitcoinj transaction into mycelium transaction
-            byte[] signedTransactionBytes = signedTransaction2.bitcoinSerialize();
-            Transaction signedBitlibTransaction;
-            try {
-                signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes);
-            } catch (Transaction.TransactionParsingException e) {
-                Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.getMessage());
-                return null;
-            }
-            Log.d(TAG, "signTransaction: Parsed bitlib transaction: " + signedBitlibTransaction.toString());
-            return signedBitlibTransaction;
-        } else {
-            return null;
+        for (int i = 0; i < signTx.getInputs().size();i++) {
+            TransactionSignature signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false);
+            Script scriptSig = ScriptBuilder.createInputScript(signature, ecKey);
+            signTx.getInput(i).setScriptSig(scriptSig);
         }
 
-        // end accelerated short code
-*/
+        byte[] signedTransactionBytes = signTx.bitcoinSerialize();
+        Transaction signedBitlibTransaction;
+        try {
+          signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes);
+        } catch (Transaction.TransactionParsingException e) {
+           Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.getMessage());
+           return null;
+        }
+        Log.d(TAG, "signTransaction: Parsed bitlib transaction: " + signedBitlibTransaction.toString());
+        return signedBitlibTransaction;
+
+/*
 
         HashMap<String, Script> keySignatures = getSignature(signTx, ecKey);
 
@@ -524,6 +530,7 @@ public class ColuManager implements AccountProvider {
             }
         }
         return null;
+        */
     }
 
     public ColuBroadcastTxid.Json prepareColuTx(Address _receivingAddress,
@@ -918,7 +925,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private ColuClient createClient() {
-        ColuClient client = new ColuClient();
+        ColuClient client = new ColuClient(this._network);
         return client;
     }
 

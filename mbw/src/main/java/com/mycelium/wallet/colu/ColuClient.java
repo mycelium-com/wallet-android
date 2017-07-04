@@ -10,6 +10,7 @@ import com.google.api.client.util.Base64;
 import com.google.common.base.Stopwatch;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
@@ -19,6 +20,7 @@ import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.ColuTransactionRequest;
 import com.mycelium.wallet.colu.json.ColuTxDest;
+import com.mycelium.wallet.colu.json.ColuTxFlags;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
@@ -55,9 +57,11 @@ public class ColuClient {
 
    private static final Set<String> SEARCH_CRITERIA = new HashSet<String>();
 
-   public static final boolean coluAutoSelectUtxo = false;
+   public static final boolean coluAutoSelectUtxo = true;
 
    public static final boolean traceRequests = true;
+
+   public NetworkParameters network;
 
    static {
       SEARCH_CRITERIA.add("transaction_id");
@@ -76,9 +80,14 @@ public class ColuClient {
 
    private final String config;
 
+   private static String MAINNET_COLOREDCOINS_API_URL = "https://api.coloredcoins.org/v3/";
+   private static String TESTNET_COLOREDCOINS_API_URL = "https://testnet.api.coloredcoins.org/v3/";
+   private static String MAINNET_COLU_BLOCK_EXPLORER_URL = "https://explorer.coloredcoins.org/api/";
+   private static String TESTNET_COLU_BLOCK_EXPLORER_URL = "https://testnet.explorer.coloredcoins.org/api/";
 
-   public ColuClient() {
+   public ColuClient(NetworkParameters network) {
       this.logger = logger;
+      this.network = network;
       config = null;
       // Level.CONFIG logs everything but Authorization header
       // Level.ALL also logs Authorization header
@@ -106,6 +115,20 @@ public class ColuClient {
                     request.setParser(new JsonObjectParser(JSON_FACTORY));
                  }
               });
+   }
+
+   private String getColoredCoinsApiURL() {
+      if (this.network.isTestnet()) {
+         return TESTNET_COLOREDCOINS_API_URL;
+      }
+      return MAINNET_COLOREDCOINS_API_URL;
+   }
+
+   private String getColuBlockExplorerUrl() {
+      if (this.network.isTestnet()) {
+         return TESTNET_COLU_BLOCK_EXPLORER_URL;
+      }
+      return MAINNET_COLU_BLOCK_EXPLORER_URL;
    }
 
    private <T> T sendGetRequest(Class<T> t, GenericUrl url) throws IOException {
@@ -222,14 +245,14 @@ public class ColuClient {
 
    public AddressInfo.Json getBalance(Address address) throws IOException {
       //TODO with colu: HTTPS Handshake failed when switching to TLS
-      Log.d("ColuClient", " addressinfo uri is " + "https://api.coloredcoins.org/v3/addressinfo/" + address.toString());
-      GenericUrl url = new GenericUrl("https://api.coloredcoins.org/v3/addressinfo/" + address.toString());
+      Log.d("ColuClient", " addressinfo uri is " + getColoredCoinsApiURL() + "addressinfo/" + address.toString());
+      GenericUrl url = new GenericUrl(getColoredCoinsApiURL() + "addressinfo/" + address.toString());
       return sendGetRequest(AddressInfo.Json.class, url);
    }
 
    public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
-      Log.d("ColuClient", " addressinfowithtransactions uri is " + "https://explorer.coloredcoins.org/api/getaddressinfowithtransactions?address=" + address.toString());
-      GenericUrl url = new GenericUrl("https://explorer.coloredcoins.org/api/getaddressinfowithtransactions?address=" + address.toString());
+      Log.d("ColuClient", " addressinfowithtransactions uri is " + getColuBlockExplorerUrl() + "getaddressinfowithtransactions?address=" + address.toString());
+      GenericUrl url = new GenericUrl(getColuBlockExplorerUrl() + "getaddressinfowithtransactions?address=" + address.toString());
       return sendGetRequest(AddressTransactionsInfo.Json.class, url);
    }
 
@@ -262,18 +285,17 @@ public class ColuClient {
       List<ColuTxDest.Json> to = new LinkedList<ColuTxDest.Json>();
       ColuTxDest.Json dest = new ColuTxDest.Json();
       dest.address = destAddress.toString();
-      BigDecimal amountAssetSatoshi = (nativeAmount.getValue().multiply(new BigDecimal(10).pow(coluAccount.getColuAsset().scale)));
-      dest.amount = amountAssetSatoshi.longValue();
+      dest.amount = nativeAmount.getValue().longValue();
       dest.assetId = coluAccount.getColuAsset().id;
       to.add(dest);
-      // add source address as last output for asset change
-      // the remainder of all assets is sent on the last output
-      ColuTxDest.Json coluChange = new ColuTxDest.Json();
-      coluChange.address = src.get(0).toString();
-      coluChange.assetId = coluAccount.getColuAsset().id;
-      to.add(coluChange);
+
       request.to = to;
       request.fee = 25000; // TODO: dynamically compute fee ?
+
+      ColuTxFlags.Json flags = new ColuTxFlags.Json();
+      flags.splitChange = true;
+      request.flags = flags;
+
       // v1: let colu chose source tx
       if (ColuClient.coluAutoSelectUtxo) {
          LinkedList<String> from = new LinkedList<String>();
@@ -332,7 +354,7 @@ public class ColuClient {
          request.financeOutputTxid = "";
       }
       return makePostRequest(ColuBroadcastTxid.Json.class,
-              new GenericUrl("https://api.coloredcoins.org/v3/sendasset"),
+              new GenericUrl(getColoredCoinsApiURL() + "sendasset"),
               null, request);
    }
 
@@ -350,7 +372,7 @@ public class ColuClient {
       tx.txHex = bytesToHex(signedTr);
       Log.d(TAG, "broadcastTransaction: hexbytes=" + tx.txHex);
       return makePostRequest(ColuBroadcastTxid.Json.class,
-              new GenericUrl("https://api.coloredcoins.org/v3/broadcast"),
+              new GenericUrl(getColoredCoinsApiURL() + "broadcast"),
               null, tx);
    }
 
