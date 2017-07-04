@@ -52,6 +52,7 @@ import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GetSpendingRecordActivity extends Activity {
@@ -154,6 +155,14 @@ public class GetSpendingRecordActivity extends Activity {
          //if we dont have any account with a balance, just show all accounts with priv key
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
+      ArrayList<WalletAccount> result = new ArrayList<>();
+      for (WalletAccount spendingAccount : spendingAccounts) {
+         if(spendingAccount.getCurrencyBasedBalance().confirmed.isBtc()) {
+            result.add(spendingAccount);
+         }
+      }
+      spendingAccounts = result;
+
       //if we have no accounts to show, just display the info text
       if (!_showAccounts || spendingAccounts.isEmpty()) {
          listView.setVisibility(View.GONE);
