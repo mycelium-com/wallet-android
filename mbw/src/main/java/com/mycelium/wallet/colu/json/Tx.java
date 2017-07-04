@@ -61,7 +61,7 @@ public class Tx {
         public boolean ccparsed;
 
         @Key
-        public int totalsent;
+        public long totalsent;
 
         @Key
         public int fee;
