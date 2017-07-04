@@ -56,6 +56,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -154,8 +155,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void initListeners() {
       // set the text for the currency button
-      if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
-         btCurrency.setText(_amount.getCurrency());
+      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
+         if (_amount == null || _amount.getValue() == null) {
+            _amount = ExactCurrencyValue.from(null, coluAccount.getAccountDefaultCurrency());
+         }
+         btCurrency.setText(coluAccount.getAccountDefaultCurrency());
          btCurrency.setEnabled(false);
       } else {
          //btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());

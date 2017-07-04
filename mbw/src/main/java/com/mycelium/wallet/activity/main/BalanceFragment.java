@@ -180,7 +180,7 @@ public class BalanceFragment extends Fragment {
       View tcdFiatDisplay = _root.findViewById(R.id.tcdFiatDisplay);
       if(account instanceof ColuAccount) {
           coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
-          tvBtcRate.setVisibility(View.INVISIBLE);
+          tvBtcRate.setVisibility(View.GONE);
           tcdFiatDisplay.setVisibility(View.INVISIBLE);
           TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
           ColuAccount coluAccount = (ColuAccount) account;

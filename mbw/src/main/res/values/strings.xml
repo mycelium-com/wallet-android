@@ -1041,4 +1041,5 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="rmc_return_of_investment">Return on Investment</string>
     <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it become active. <font color="#4583de">Set reminder?</font></string>
     <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
+    <string name="address_title" >%s Address</string>
 </resources>

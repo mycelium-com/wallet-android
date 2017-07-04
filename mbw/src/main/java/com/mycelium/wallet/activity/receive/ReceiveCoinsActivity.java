@@ -67,6 +67,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -159,8 +160,13 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       // Amount Hint
-      tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-              _mbwManager.getBitcoinDenomination().toString()));
+      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
+         tvAmount.setHint(getString(R.string.amount_hint_denomination, account.getColuAsset().name));
+      } else {
+         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
+                 _mbwManager.getBitcoinDenomination().toString()));
+      }
       shareByNfc();
    }
 
@@ -240,7 +246,12 @@ public class ReceiveCoinsActivity extends Activity {
       final String qrText = getPaymentUri();
 
       if (CurrencyValue.isNullOrZero(_amount)) {
-         tvTitle.setText(R.string.bitcoin_address_title);
+         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
+            tvTitle.setText(getString(R.string.address_title, account.getColuAsset().label));
+         } else {
+            tvTitle.setText(R.string.bitcoin_address_title);
+         }
          btShare.setText(R.string.share_bitcoin_address);
          tvAmountLabel.setText(R.string.optional_amount);
          tvAmount.setText("");
