@@ -400,8 +400,14 @@ public class SendMainActivity extends Activity {
         }
 
         // Amount Hint
-        tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                _mbwManager.getBitcoinDenomination().toString()));
+        if(_account instanceof ColuAccount){
+            ColuAccount coluAccount = (ColuAccount) _account;
+            tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
+                    coluAccount.getColuAsset().name));
+        } else  {
+            tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
+                    _mbwManager.getBitcoinDenomination().toString()));
+        }
     }
 
     private void coluSpendAccount() {
