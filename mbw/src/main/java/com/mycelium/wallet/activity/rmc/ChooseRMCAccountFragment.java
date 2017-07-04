@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.activity.rmc.json.CreateRmcOrderResponse;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
@@ -44,7 +45,9 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     private static final String TAG = "ChooseRMCAccount";
     String rmcCount = "0";
+    String btcCount;
     String payMethod;
+    String coluAddress;
     private MbwManager _mbwManager;
 
     @BindView(R.id.create_new_rmc)
@@ -61,6 +64,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         if (getArguments() != null) {
             rmcCount = getArguments().getString(Keys.RMC_COUNT);
             payMethod = getArguments().getString(Keys.PAY_METHOD);
+            btcCount = getArguments().getString(Keys.BTC_COUNT);
         }
         _mbwManager = MbwManager.getInstance(getActivity());
     }
@@ -95,6 +99,9 @@ public class ChooseRMCAccountFragment extends Fragment {
                 accountView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        UUID accountID = uuidWalletAccountEntry.getKey();
+                        ColuAccount account = _mbwManager.getColuManager().getAccount(accountID);
+                        coluAddress = account.getReceivingAddress().get().toString();
                         clickYes();
                     }
                 });
@@ -131,6 +138,7 @@ public class ChooseRMCAccountFragment extends Fragment {
     private void accountAddressForAccept(UUID accountID) {
         newRmcAccount.setVisibility(View.VISIBLE);
         ColuAccount account = _mbwManager.getColuManager().getAccount(accountID);
+        coluAddress = account.getReceivingAddress().get().toString();
         ((TextView) newRmcAccount.findViewById(R.id.address)).setText(account.getReceivingAddress().get().toString());
     }
 
@@ -156,9 +164,45 @@ public class ChooseRMCAccountFragment extends Fragment {
         dialog.show();
     }
 
+
+    class RmsApiTask extends AsyncTask<Void, Void, CreateRmcOrderResponse.Json> {
+
+        private String amount;
+        private String amountInRmc;
+        private String assetAddress;
+        private String paymentMethod;
+
+        public RmsApiTask(String amount, String amountInRmc, String assetAddress, String paymentMethod) {
+            this.amount = amount;
+            this.amountInRmc = amountInRmc;
+            this.assetAddress = assetAddress;
+            this.paymentMethod = paymentMethod;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected CreateRmcOrderResponse.Json doInBackground(Void... params) {
+            RmcApiClient client = new RmcApiClient(_mbwManager.getNetwork());
+            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amount, amountInRmc, assetAddress, paymentMethod);
+            return orderResponse;
+        }
+
+        @Override
+        protected void onPostExecute(CreateRmcOrderResponse.Json result) {
+            //Address should be funded to get tokens
+            String fundingAddress = result.order.paymentDetails.address;
+        }
+    }
+
     @OnClick(R.id.btYes)
     void clickYes() {
         if (payMethod.equals("BTC")) {
+            RmsApiTask task = new RmsApiTask(btcCount,rmcCount, coluAddress, payMethod);
+            task.execute();
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:13sTW2pA3U8LwixoSapi92LsXyjyXPYhA3?amount=0.004179&r=https%3A%2F%2Fbitpay.com%2Fi%2FMLdKWpRhJXcTv8NKFGLPhT")));
         } else if (payMethod.equals("ETH")) {
             Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);

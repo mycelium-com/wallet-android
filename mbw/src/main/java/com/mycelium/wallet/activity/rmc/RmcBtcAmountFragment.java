@@ -46,6 +46,7 @@ public class RmcBtcAmountFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("rmc_count", etRMC.getText().toString());
                 bundle.putString("pay_method", "BTC");
+                bundle.putString("btc_count", etBTC.getText().toString());
                 rmcAccountFragment.setArguments(bundle);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, rmcAccountFragment)
