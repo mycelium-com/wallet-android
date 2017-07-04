@@ -5,37 +5,43 @@
     android:orientation="vertical">
 
     <Switch
+        android:thumb="@drawable/switch_thumb"
+        android:track="@drawable/switch_track"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="12dp"
         android:text="Recieve push notification" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#999999" />
+        android:background="#ac999999" />
 
     <Switch
+        android:thumb="@drawable/switch_thumb"
+        android:track="@drawable/switch_track"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="12dp"
         android:text="Add to Google calendar" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#999999" />
+        android:background="#ac999999" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="12dp"
         android:text="Remind on my email" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginBottom="12dp"
         android:hint="example@gmail.com" />
 
 </LinearLayout>

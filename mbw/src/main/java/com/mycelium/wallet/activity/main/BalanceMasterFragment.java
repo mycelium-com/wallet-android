@@ -65,14 +65,18 @@ public class BalanceMasterFragment extends Fragment {
         View view = Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
-        fragmentTransaction.replace(R.id.phFragmentAddress,
-                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset() == ColuAccount.ColuAsset.MT ?
-                        new RMCAddressFragment() : new AddressFragment());
+        defineAddressAccountView(fragmentTransaction, account);
         fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
         fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
         fragmentTransaction.replace(R.id.phFragmentGlidera, new BuySellFragment());
         fragmentTransaction.commitAllowingStateLoss();
         return view;
+    }
+
+    private void defineAddressAccountView(FragmentTransaction fragmentTransaction, WalletAccount account) {
+        fragmentTransaction.replace(R.id.phFragmentAddress,
+                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset() == ColuAccount.ColuAsset.RMC ?
+                        new RMCAddressFragment() : new AddressFragment());
     }
 
     @Override
@@ -122,9 +126,7 @@ public class BalanceMasterFragment extends Fragment {
     public void selectedAccountChanged(SelectedAccountChanged event) {
         WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.phFragmentAddress,
-                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset() == ColuAccount.ColuAsset.MT ?
-                        new RMCAddressFragment() : new AddressFragment());
+        defineAddressAccountView(fragmentTransaction, account);
         fragmentTransaction.commitAllowingStateLoss();
     }
 

@@ -57,7 +57,7 @@ public class RMCAddressFragment extends Fragment {
                 new DataPoint(4, 6)
         });
         graphView.addSeries(series);
-        activeProgressBar.setProgress(20);
+        activeProgressBar.setProgress(50);
         activeProgressBar.setMax(100);
     }
 
