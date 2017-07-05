@@ -1,8 +1,12 @@
 package com.mycelium.wallet.activity.rmc;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -16,6 +20,9 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.R;
+
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,15 +81,40 @@ public class RMCAddressFragment extends Fragment {
     @OnClick(R.id.rmc_active_set_reminder)
     void setReminderClick() {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rmc_reminder, null, false);
-        new AlertDialog.Builder(getActivity()).setTitle("RMC reminder")
+        new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
+                        addEventToCalendar();
                     }
                 }).setNegativeButton("CANCEL", null)
                 .create()
                 .show();
+    }
+
+    private void addEventToCalendar() {
+        ContentResolver cr = getActivity().getContentResolver();
+        ContentValues values = new ContentValues();
+
+        Calendar start = Calendar.getInstance();
+        start.add(Calendar.DAY_OF_MONTH, 1);
+        long dtstart = start.getTimeInMillis();
+        values.put(CalendarContract.Events.DTSTART, dtstart);
+        values.put(CalendarContract.Events.TITLE, "RMC activate");
+        values.put(CalendarContract.Events.DESCRIPTION, "Activate RMC for maximum Return");
+
+        TimeZone timeZone = TimeZone.getDefault();
+        values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
+
+// Default calendar
+        values.put(CalendarContract.Events.CALENDAR_ID, 1);
+
+// Set Period for 1 Hour
+        values.put(CalendarContract.Events.DURATION, "+P1H");
+        values.put(CalendarContract.Events.HAS_ALARM, 1);
+
+// Insert event to calendar
+        Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
     }
 }

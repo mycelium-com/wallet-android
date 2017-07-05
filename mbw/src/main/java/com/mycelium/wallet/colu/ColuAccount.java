@@ -931,7 +931,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
 
    @Override
    public String getAccountDefaultCurrency() {
-      return ColuAsset.MT.name;
+      return getColuAsset().name;
    }
 
 }

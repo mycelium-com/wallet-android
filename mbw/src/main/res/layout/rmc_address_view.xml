@@ -192,8 +192,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Bitcoin/Altcoin mining button"
+        android:text="@string/bitcoin_altcoin_mining_button"
         android:textColor="@color/white"
+        android:layout_marginBottom="8dp"
         android:textSize="24sp" />
 
     <FrameLayout
@@ -217,7 +218,7 @@
             android:background="@drawable/rmc_bg_active_in_day_text"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:text="Active in 159 days"
+            android:text="@string/rmc_active_in_159_days"
             android:textColor="@color/rmc_active"
             android:textStyle="bold" />
     </FrameLayout>

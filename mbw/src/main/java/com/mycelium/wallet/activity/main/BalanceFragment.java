@@ -35,6 +35,8 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -46,7 +48,6 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -58,6 +59,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -65,12 +67,8 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wallet.event.*;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -130,7 +128,21 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btSend) void onClickSend() {
-      SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if (account instanceof ColuAccount && ((ColuAccount) account).getSatoshiAmount() == 0) {
+         new AlertDialog.Builder(getActivity())
+                 .setMessage(R.string.rmc_send_warning)
+                 .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                       SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                    }
+                 })
+                 .create()
+                 .show();
+      } else {
+         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+      }
    }
 
    @OnClick(R.id.btReceive) void onClickReceive() {
@@ -176,18 +188,18 @@ public class BalanceFragment extends Fragment {
 
       TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
       // show / hide components depending on account type
-      View coluSatoshiBalanceLayout = _root.findViewById(R.id.llColuSatoshiBalance);
+//      View coluSatoshiBalanceLayout = _root.findViewById(R.id.llColuSatoshiBalance);
       View tcdFiatDisplay = _root.findViewById(R.id.tcdFiatDisplay);
       if(account instanceof ColuAccount) {
-          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
+//          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
           tvBtcRate.setVisibility(View.GONE);
           tcdFiatDisplay.setVisibility(View.INVISIBLE);
-          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
-          ColuAccount coluAccount = (ColuAccount) account;
-          tvColuSatoshiBalance.setText(String.valueOf(coluAccount.getSatoshiAmount()) + " sat");
+//          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
+//          ColuAccount coluAccount = (ColuAccount) account;
+//          tvColuSatoshiBalance.setText(String.valueOf(coluAccount.getSatoshiAmount()) + " sat");
       } else {
           // restore default settings if account is standard
-          coluSatoshiBalanceLayout.setVisibility(View.GONE);
+//          coluSatoshiBalanceLayout.setVisibility(View.GONE);
           tvBtcRate.setVisibility(View.VISIBLE);
           tcdFiatDisplay.setVisibility(View.VISIBLE);
 
