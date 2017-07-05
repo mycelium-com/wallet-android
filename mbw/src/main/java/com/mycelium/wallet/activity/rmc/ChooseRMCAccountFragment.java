@@ -239,7 +239,7 @@ public class ChooseRMCAccountFragment extends Fragment {
             this.coluAsset = coluAsset;
             this.created = created;
             this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
-            progressDialog = ProgressDialog.show(getActivity(), getString(R.string.colu), getString(R.string.colu_create_account, coluAsset.label));
+            progressDialog = ProgressDialog.show(getActivity(), getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.label));
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.show();
