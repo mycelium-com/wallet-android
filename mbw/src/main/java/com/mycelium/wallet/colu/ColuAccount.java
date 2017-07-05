@@ -859,29 +859,70 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
       }
    }
 
-   public static class ColuAsset {
-      public static final ColuAsset MT = new ColuAsset("MT","MT", "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K", 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
-      public static final ColuAsset Mass = new ColuAsset("Mass Coin", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      public static final ColuAsset RMC = new ColuAsset("RMC", "RMC", "", 0, "");
+   public enum ColuAssetType {
+      MT,
+      MASS,
+      RMC
+   }
 
-      public static final Map<String, ColuAsset> all = ImmutableMap.of(
-              MT.id, MT,
-              Mass.id, Mass,
-              RMC.id, RMC
-              // add other assets here
+   public static class ColuAsset {
+      private static final ColuAsset mainNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K", 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
+      private static final ColuAsset mainNetAssetMass = new ColuAsset(ColuAssetType.MASS, "Mass Coin", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
+      private static final ColuAsset mainNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "", 0, "");
+
+      private static final ColuAsset testNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM", 4, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
+      private static final ColuAsset testNetAssetMass = new ColuAsset(ColuAssetType.MASS, "Mass Coin", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
+      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "Ua8QtAfzLVe1vjfSQPgp3aHoTmfUik8x9qtsx7", 4, "");
+
+      private static final Map<String, ColuAsset> mainNetAssetMap = ImmutableMap.of(
+              mainNetAssetMT.id, mainNetAssetMT,
+              mainNetAssetMass.id, mainNetAssetMass,
+              mainNetAssetRMC.id, mainNetAssetRMC
       );
 
+      private static final Map<String, ColuAsset> testNetAssetMap = ImmutableMap.of(
+              testNetAssetMT.id, testNetAssetMT,
+              testNetAssetMass.id, testNetAssetMass,
+              testNetAssetRMC.id, testNetAssetRMC
+      );
 
-       public static final Set<String> getAllAssetID() {
-         return all.keySet();
+       public static Map<String, ColuAsset> getAssetMap(NetworkParameters network) {
+         if (network == NetworkParameters.testNetwork)
+            return testNetAssetMap;
+
+          return mainNetAssetMap;
       }
 
-      public static final List<String> getAllAssetNames() {
+      public static final List<String> getAllAssetNames(NetworkParameters network) {
          LinkedList<String> assetNames = new LinkedList<String>();
-         for (ColuAsset asset : all.values()) {
+         for (ColuAsset asset : getAssetMap(network).values()) {
             assetNames.add(asset.name);
          }
          return assetNames;
+      }
+
+      public static final ColuAsset getByType(ColuAssetType assetType, NetworkParameters network) {
+         if (network == NetworkParameters.testNetwork) {
+            switch (assetType) {
+               case MT:
+                  return testNetAssetMT;
+               case MASS:
+                  return testNetAssetMass;
+               case RMC:
+                  return testNetAssetRMC;
+            }
+         } else {
+            switch (assetType) {
+               case MT:
+                  return mainNetAssetMT;
+               case MASS:
+                  return mainNetAssetMass;
+               case RMC:
+                  return mainNetAssetRMC;
+            }
+         }
+
+         return null;
       }
 
       final public String label;
@@ -889,23 +930,15 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
       final public String id;
       final public int scale; // number of fractional digits
       final public String issuance;
+      final public ColuAssetType assetType;
 
-      private ColuAsset(String label, String name, String id, int scale, String issuance) {
+      private ColuAsset(ColuAssetType assetType, String label, String name, String id, int scale, String issuance) {
+         this.assetType= assetType;
          this.label = label;
          this.name = name;
          this.id = id;
          this.scale = scale;
          this.issuance = issuance;
-      }
-
-      public URL getAssetUrl() {
-         URL url = null;
-         try {
-            url = new URL("http://coloredcoins.org/explorer/asset/" + id + "/" + issuance);
-         } catch (MalformedURLException e) {
-            Log.e(TAG, "MalformedURLException while building CC asset URL ! " + e.getMessage());
-         }
-         return url;
       }
 
       @Override

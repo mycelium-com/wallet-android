@@ -177,17 +177,17 @@ public class AddColuAccountActivity extends Activity {
       switch(view.getId()) {
          case R.id.radio_mycelium_tokens:
             if (checked)
-               selectedColuAsset = ColuAccount.ColuAsset.MT;
+               selectedColuAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.MT, _mbwManager.getNetwork());
             Toast.makeText(AddColuAccountActivity.this, "MT selected", Toast.LENGTH_SHORT).show();
                break;
          case R.id.radio_mass_tokens:
             if (checked)
-               selectedColuAsset = ColuAccount.ColuAsset.Mass;
+               selectedColuAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.MASS, _mbwManager.getNetwork());
             Toast.makeText(AddColuAccountActivity.this, "Mass selected", Toast.LENGTH_SHORT).show();
                break;
          case R.id.radio_rmc_tokens:
             if (checked)
-               selectedColuAsset = ColuAccount.ColuAsset.RMC;
+               selectedColuAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.RMC, _mbwManager.getNetwork());
             Toast.makeText(AddColuAccountActivity.this, "RMC selected", Toast.LENGTH_SHORT).show();
             break;
       }

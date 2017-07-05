@@ -597,7 +597,7 @@ public class ColuManager implements AccountProvider {
         for (String assetId : assetsId) {
             if (!Strings.isNullOrEmpty(assetId)) {
                 Log.d(TAG, "loadAccounts: assetid=" + assetId);
-                ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.all.get(assetId);
+                ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(assetId);
                 if (assetDefinition == null) {
                     Log.e(TAG, "loadAccounts: could not find asset with id " + assetId);
                 } else {
@@ -832,7 +832,7 @@ public class ColuManager implements AccountProvider {
     // maps asset id to asset object
     @android.support.annotation.Nullable
     private UUID enableAsset(String id) {
-        if (ColuAccount.ColuAsset.all.containsKey(id)) {
+        if (ColuAccount.ColuAsset.getAssetMap(getNetwork()).containsKey(id)) {
             return enableAsset(id);
         } else {
             return null;
@@ -885,8 +885,8 @@ public class ColuManager implements AccountProvider {
 
     @android.support.annotation.Nullable
     private ColuAccount getAccountForColuAsset(String assetId) {
-        if (ColuAccount.ColuAsset.all.containsKey(assetId)) {
-            ColuAccount.ColuAsset asset = ColuAccount.ColuAsset.all.get(assetId);
+        if (ColuAccount.ColuAsset.getAssetMap(getNetwork()).containsKey(assetId)) {
+            ColuAccount.ColuAsset asset = ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(assetId);
             return getAccountForColuAsset(asset);
         } else {
             return null;
@@ -1079,7 +1079,7 @@ public class ColuManager implements AccountProvider {
     }
 
     public boolean isColuAsset(String assetName) {
-        for (String asset : ColuAccount.ColuAsset.getAllAssetNames()) {
+        for (String asset : ColuAccount.ColuAsset.getAllAssetNames(getNetwork())) {
             if (asset.contentEquals(assetName)) {
                 return true;
             }
@@ -1089,7 +1089,7 @@ public class ColuManager implements AccountProvider {
 
     public ColuAccount.ColuAsset getColuAddressAsset(PublicKey key) throws IOException {
 
-        AddressInfo.Json addressInfo = coluClient.getBalance(key.toAddress(NetworkParameters.productionNetwork));
+        AddressInfo.Json addressInfo = coluClient.getBalance(key.toAddress(getNetwork()));
 
         if (addressInfo != null) {
             if(addressInfo.utxos != null) {
@@ -1100,9 +1100,9 @@ public class ColuManager implements AccountProvider {
                     //txidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(utxo.txid));
                     for (Asset.Json txidAsset : utxo.assets) {
                         Log.d(TAG, "isColuAddress: utxo " + utxo.txid + " asset " + txidAsset.assetId);
-                        for (String knownAssetId : ColuAccount.ColuAsset.all.keySet()) {
+                        for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap(getNetwork()).keySet()) {
                             if (txidAsset.assetId.equals(knownAssetId)) {
-                                return ColuAccount.ColuAsset.all.get(knownAssetId);
+                                return ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(knownAssetId);
                             }
                         }
                     }

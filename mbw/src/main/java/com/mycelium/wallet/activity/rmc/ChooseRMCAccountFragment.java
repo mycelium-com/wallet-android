@@ -82,7 +82,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         ((TextView) view.findViewById(R.id.rmcCount)).setText(rmcCount + " RMC");
         List<Map.Entry<UUID, WalletAccount>> accountsList = new ArrayList<>();
         for (Map.Entry<UUID, WalletAccount> uuidWalletAccountEntry : _mbwManager.getColuManager().getAccounts().entrySet()) {
-            if (((ColuAccount) uuidWalletAccountEntry.getValue()).getColuAsset() == ColuAccount.ColuAsset.RMC) {
+            if (((ColuAccount) uuidWalletAccountEntry.getValue()).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
                 accountsList.add(uuidWalletAccountEntry);
             }
         }
@@ -121,7 +121,7 @@ public class ChooseRMCAccountFragment extends Fragment {
                         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
                             @Override
                             public void run() {
-                                createColuAccount(ColuAccount.ColuAsset.RMC, new Callback() {
+                                createColuAccount(ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.RMC, _mbwManager.getNetwork()), new Callback() {
                                     @Override
                                     public void created(UUID accountID) {
                                         accountAddressForAccept(accountID);

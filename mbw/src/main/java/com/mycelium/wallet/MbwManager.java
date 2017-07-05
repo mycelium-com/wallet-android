@@ -237,7 +237,7 @@ public class MbwManager {
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
       //TODOL get it through coluManager instead ?
-      List<String> assetList = ColuAccount.ColuAsset.getAllAssetNames();
+      List<String> assetList = ColuAccount.ColuAsset.getAllAssetNames(getNetwork());
       Set<String> fiatCurrencies = new HashSet<>();
       if (currencyList == null) {
          //if there is no list take the default currency
