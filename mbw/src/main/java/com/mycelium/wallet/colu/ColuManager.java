@@ -2,6 +2,7 @@ package com.mycelium.wallet.colu;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -40,6 +41,7 @@ import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.WapiClient;
@@ -54,6 +56,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -98,6 +101,7 @@ public class ColuManager implements AccountProvider {
 
     final org.bitcoinj.core.NetworkParameters netParams;
     final org.bitcoinj.core.Context context;
+    private EventTranslator eventTranslator;
 
     public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBacking backing,
                         MbwManager manager, MbwEnvironment env,
@@ -113,6 +117,7 @@ public class ColuManager implements AccountProvider {
         this.metadataStorage = metadataStorage;
         this.exchangeRateManager = exchangeRateManager;
         this.logger = logger;
+        eventTranslator = new EventTranslator(handler, eventBus);
 
         //Setting up the network
         this._network = env.getNetwork();
@@ -1113,6 +1118,7 @@ public class ColuManager implements AccountProvider {
     }
 
     public void startSynchronization() {
+        eventTranslator.onWalletStateChanged(null, WalletManager.State.SYNCHRONIZING);
         new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -1125,6 +1131,7 @@ public class ColuManager implements AccountProvider {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 eventBus.post(new BalanceChanged(null));
+                eventTranslator.onWalletStateChanged(null, WalletManager.State.READY);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
