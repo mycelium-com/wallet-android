@@ -81,9 +81,9 @@ public class ColuClient {
    private final String config;
 
    private static String MAINNET_COLOREDCOINS_API_URL = "https://api.coloredcoins.org/v3/";
-   private static String TESTNET_COLOREDCOINS_API_URL = "https://testnet.api.coloredcoins.org/v3/";
+   private static String TESTNET_COLOREDCOINS_API_URL = "http://testnet.api.coloredcoins.org/v3/";
    private static String MAINNET_COLU_BLOCK_EXPLORER_URL = "https://explorer.coloredcoins.org/api/";
-   private static String TESTNET_COLU_BLOCK_EXPLORER_URL = "https://testnet.explorer.coloredcoins.org/api/";
+   private static String TESTNET_COLU_BLOCK_EXPLORER_URL = "http://testnet.explorer.coloredcoins.org/api/";
 
    public ColuClient(NetworkParameters network) {
       this.logger = logger;
