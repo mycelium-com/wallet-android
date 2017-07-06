@@ -163,7 +163,7 @@ public class RecordRowBuilder {
          rowView.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
          String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
          if(walletAccount instanceof ColuAccount) {
-            balanceString = String.format("%s %s", walletAccount.getCurrencyBasedBalance().confirmed.getValue(), walletAccount.getCurrencyBasedBalance().confirmed.getCurrency());
+            balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
          }
          TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
          tvBalance.setText(balanceString);

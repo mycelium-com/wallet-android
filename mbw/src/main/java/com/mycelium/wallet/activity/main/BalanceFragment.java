@@ -225,7 +225,7 @@ public class BalanceFragment extends Fragment {
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if(account instanceof ColuAccount) {
-          valueString =  String.format("%s %s", account.getCurrencyBasedBalance().confirmed.getValue(), account.getCurrencyBasedBalance().confirmed.getCurrency());
+          valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
 //         Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
       }
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);

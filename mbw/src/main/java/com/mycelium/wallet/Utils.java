@@ -906,6 +906,10 @@ public class Utils {
       }
    }
 
+   public static String getColuFormattedValueWithUnit(CurrencyValue value) {
+      return String.format("%s %s", value.getValue().stripTrailingZeros(), value.getCurrency());
+   }
+
    // prevent ambiguous call for ExactBitcoinValue
    public static String getFormattedValueWithUnit(ExactBitcoinValue value, CoinUtil.Denomination denomination) {
       return getFormattedValueWithUnit((BitcoinValue)value, denomination);

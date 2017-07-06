@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.google.common.base.Preconditions;
@@ -23,6 +24,7 @@ import com.mycelium.wallet.R;
 
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +46,9 @@ public class RMCAddressFragment extends Fragment {
     @BindView(R.id.active_in_day_progress)
     protected ProgressBar activeProgressBar;
 
+    @BindView(R.id.active_in_day)
+    protected TextView activeInDay;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
@@ -64,8 +69,19 @@ public class RMCAddressFragment extends Fragment {
                 new DataPoint(4, 6)
         });
         graphView.addSeries(series);
-        activeProgressBar.setProgress(50);
-        activeProgressBar.setMax(100);
+        activeBtnProgress();
+    }
+
+    private void activeBtnProgress() {
+        Calendar calendarStart = Calendar.getInstance();
+        calendarStart.set(2017, 7, 12);
+        Calendar calendarEnd = Calendar.getInstance();
+        calendarEnd.set(2018, 7, 12);
+        int progress = (int) TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis() - calendarStart.getTimeInMillis());
+        int total = (int) TimeUnit.MILLISECONDS.toDays(calendarEnd.getTimeInMillis() - calendarStart.getTimeInMillis());
+        activeProgressBar.setProgress(progress);
+        activeProgressBar.setMax(total);
+        activeInDay.setText(getString(R.string.rmc_active_in_159_days, total - progress));
     }
 
     @OnClick(R.id.show_graph)
