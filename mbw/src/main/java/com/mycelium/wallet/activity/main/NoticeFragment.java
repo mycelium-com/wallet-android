@@ -45,6 +45,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
@@ -52,16 +54,16 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
-
-import java.util.List;
 
 public class NoticeFragment extends Fragment {
 
@@ -108,52 +110,97 @@ public class NoticeFragment extends Fragment {
       super.onPause();
    }
 
+//   private Notice determineNotice() {
+//      List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getActiveAccounts();
+//      MetadataStorage meta = _mbwManager.getMetadataStorage();
+//
+//      Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
+//      // Check first if a Pin-Reset is now possible
+//      if (resetPinRemainingBlocksCount.isPresent() && resetPinRemainingBlocksCount.get()==0){
+//         return Notice.RESET_PIN_AVAILABLE;
+//      }
+//
+//      // Then check if a Pin-Reset is in process
+//      if (resetPinRemainingBlocksCount.isPresent()){
+//         return Notice.RESET_PIN_IN_PROGRESS;
+//      }
+//
+//      // First check if we have HD accounts with funds, but have no master seed backup
+//      if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
+//         for (WalletAccount account : accounts) {
+//            if (account instanceof Bip44Account) {
+//               Bip44Account ba = (Bip44Account) account;
+//               Balance balance = ba.getBalance();
+//               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
+//                  // We have an HD account with funds, and no master seed backup, tell the user to act
+//                  return Notice.BACKUP_MISSING;
+//               }
+//            }
+//         }
+//      }
+//
+//      // Then check if there are some SingleAddressAccounts with funds on it
+//      for (WalletAccount account : accounts){
+//         if (account instanceof SingleAddressAccount && account.canSpend()){
+//            if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
+//               Balance balance = account.getBalance();
+//               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0){
+//                  return Notice.SINGLEKEY_BACKUP_MISSING;
+//               }
+//            }
+//         }
+//      }
+//
+//      // Second check whether to warn about legacy accounts with funds
+//      for (WalletAccount account : accounts) {
+//         if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
+//            return Notice.MOVE_LEGACY_FUNDS;
+//         }
+//      }
+//
+//      return Notice.NONE;
+//   }
+
    private Notice determineNotice() {
-      List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getActiveAccounts();
+      WalletAccount account = _mbwManager.getSelectedAccount();
       MetadataStorage meta = _mbwManager.getMetadataStorage();
 
       Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
       // Check first if a Pin-Reset is now possible
-      if (resetPinRemainingBlocksCount.isPresent() && resetPinRemainingBlocksCount.get()==0){
+      if (resetPinRemainingBlocksCount.isPresent() && resetPinRemainingBlocksCount.get() == 0) {
          return Notice.RESET_PIN_AVAILABLE;
       }
 
       // Then check if a Pin-Reset is in process
-      if (resetPinRemainingBlocksCount.isPresent()){
+      if (resetPinRemainingBlocksCount.isPresent()) {
          return Notice.RESET_PIN_IN_PROGRESS;
       }
 
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-         for (WalletAccount account : accounts) {
-            if (account instanceof Bip44Account) {
-               Bip44Account ba = (Bip44Account) account;
-               Balance balance = ba.getBalance();
-               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
-                  // We have an HD account with funds, and no master seed backup, tell the user to act
-                  return Notice.BACKUP_MISSING;
-               }
+         if (account instanceof Bip44Account) {
+            Bip44Account ba = (Bip44Account) account;
+            Balance balance = ba.getBalance();
+            if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
+               // We have an HD account with funds, and no master seed backup, tell the user to act
+               return Notice.BACKUP_MISSING;
             }
          }
       }
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      for (WalletAccount account : accounts){
-         if (account instanceof SingleAddressAccount && account.canSpend()){
-            if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
-               Balance balance = account.getBalance();
-               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0){
-                  return Notice.SINGLEKEY_BACKUP_MISSING;
-               }
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+         if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED) {
+            Balance balance = account.getBalance();
+            if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
+               return Notice.SINGLEKEY_BACKUP_MISSING;
             }
          }
       }
 
       // Second check whether to warn about legacy accounts with funds
-      for (WalletAccount account : accounts) {
-         if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
-            return Notice.MOVE_LEGACY_FUNDS;
-         }
+      if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
+         return Notice.MOVE_LEGACY_FUNDS;
       }
 
       return Notice.NONE;
@@ -302,6 +349,9 @@ public class NoticeFragment extends Fragment {
 
       // Only show the "Secure My Funds" button when necessary
       _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.BACKUP_MISSING || _notice == Notice.SINGLEKEY_BACKUP_MISSING ? View.VISIBLE : View.GONE);
+      if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
+         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
+      }
 
       // Only show the heartbleed warning when necessary
       _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
@@ -323,6 +373,11 @@ public class NoticeFragment extends Fragment {
 
    @Subscribe
    public void balanceChanged(BalanceChanged event) {
+      recheckNotice();
+   }
+
+   @Subscribe
+   public void selectedAccountChanged(SelectedAccountChanged event) {
       recheckNotice();
    }
 

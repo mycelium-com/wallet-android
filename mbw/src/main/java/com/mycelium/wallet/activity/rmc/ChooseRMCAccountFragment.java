@@ -98,6 +98,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         } else {
             createRmcAccount.setVisibility(View.GONE);
             useRmcAccount.setVisibility(View.VISIBLE);
+            useAccountTitle.setVisibility(View.GONE);
             showAccountForAccept(walletAccount);
         }
 

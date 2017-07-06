@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
 import java.util.Calendar;
@@ -49,6 +50,20 @@ public class RMCAddressFragment extends Fragment {
     @BindView(R.id.active_in_day)
     protected TextView activeInDay;
 
+    @BindView(R.id.tvLabel)
+    protected TextView tvLabel;
+
+    @BindView(R.id.tvAddress)
+    protected TextView tvAddress;
+
+    private MbwManager _mbwManager;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        _mbwManager = MbwManager.getInstance(getActivity());
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
@@ -70,6 +85,9 @@ public class RMCAddressFragment extends Fragment {
         });
         graphView.addSeries(series);
         activeBtnProgress();
+        String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
+        tvLabel.setText(name);
+        tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
     }
 
     private void activeBtnProgress() {

@@ -1050,4 +1050,8 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="rmc_remind_by_email">Remind by email</string>
     <string name="rmc_recieve_push_notification">Receive push notification</string>
     <string name="rmc_add_to_google_calendar">Add to Google calendar</string>
+    <string name="create_backup">Create Backup</string>
+    <string name="label">Label:</string>
+    <string name="rmc_account">Account:</string>
+    <string name="verify">Verify</string>
 </resources>

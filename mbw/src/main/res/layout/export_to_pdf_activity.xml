@@ -136,9 +136,19 @@
             android:text="@string/share_pdf"
             android:textSize="20sp" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="2dp" />
+
+        <Button
+            android:id="@+id/btVerify"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_blue"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="2dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/verify"
+            android:textSize="20sp" />
+
     </LinearLayout>
 
 </ScrollView>

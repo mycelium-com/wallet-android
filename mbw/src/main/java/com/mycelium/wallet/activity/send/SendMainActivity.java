@@ -330,7 +330,7 @@ public class SendMainActivity extends Activity {
         }
 
         // Hide the sepa button, if it isnt wanted
-        btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : View.GONE);
+        btSepaTransfer.setVisibility(/*_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE :*/ View.GONE);
 
         //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
         if (_receivingAddress == null) {
@@ -387,7 +387,7 @@ public class SendMainActivity extends Activity {
         //TODO: fee from other bitcoin account if colu
         if (isColu()) {
             // no sepa payment with colu
-            btSepaTransfer.setVisibility(_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : View.GONE);
+            btSepaTransfer.setVisibility(/*_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : */View.GONE);
             List<WalletAccount> walletAccountList =_mbwManager.getWalletManager(false).getActiveAccounts();
             for (WalletAccount walletAccount : walletAccountList) {
                 if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()

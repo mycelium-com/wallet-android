@@ -35,11 +35,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="left"
-                        android:text="Account:"
+                        android:text="@string/label"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
                     <TextView
+                        android:id="@+id/tvLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -59,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:gravity="left"
-                        android:text="Address:"
+                        android:text="@string/rmc_account"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -68,6 +69,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:ellipsize="middle"
+                        android:maxLines="1"
                         android:text="1A1zP1eP5QG"
                         android:textColor="@color/white"
                         android:textSize="15sp"

@@ -192,8 +192,14 @@ public class BalanceFragment extends Fragment {
       View tcdFiatDisplay = _root.findViewById(R.id.tcdFiatDisplay);
       if(account instanceof ColuAccount) {
 //          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
-          tvBtcRate.setVisibility(View.GONE);
-          tcdFiatDisplay.setVisibility(View.INVISIBLE);
+
+         if(((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC){
+            tcdFiatDisplay.setVisibility(View.VISIBLE);
+            tvBtcRate.setText("1 RMC = 4000 USD");
+         }else {
+            tcdFiatDisplay.setVisibility(View.INVISIBLE);
+            tvBtcRate.setVisibility(View.INVISIBLE);
+         }
 //          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
 //          ColuAccount coluAccount = (ColuAccount) account;
 //          tvColuSatoshiBalance.setText(String.valueOf(coluAccount.getSatoshiAmount()) + " sat");
@@ -233,7 +239,7 @@ public class BalanceFragment extends Fragment {
       _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
 
       // Show alternative values
-      _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc());
+      _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc() || (account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC));
       _tcdFiatDisplay.setValue(balance.confirmed);
 
       // Show/Hide Receiving

@@ -98,6 +98,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    private ServiceTaskStatusEx _taskStatus;
    private boolean _isPdfGenerated;
    private boolean _oomDetected;
+   private boolean isShared;
 
    /**
     * Called when the activity is first created.
@@ -146,6 +147,13 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
       });
 
+      findViewById(R.id.btVerify).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            VerifyBackupActivity.callMe(BackupToPdfActivity.this);
+         }
+      });
+
       _progressUpdater = new ProgressUpdater();
    }
 
@@ -181,6 +189,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
          enableSharing();
       }
 
+      findViewById(R.id.btVerify).setVisibility(isShared ? View.VISIBLE : View.GONE);
       _progressUpdater.start();
       super.onResume();
    }
@@ -391,4 +400,11 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       }
    }
 
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      super.onActivityResult(requestCode, resultCode, data);
+      if(requestCode == SHARE_REQUEST_CODE) {
+         isShared = true;
+      }
+   }
 }
