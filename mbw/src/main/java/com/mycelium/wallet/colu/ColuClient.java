@@ -291,7 +291,7 @@ public class ColuClient {
       to.add(dest);
 
       request.to = to;
-      request.fee = 25000; // TODO: dynamically compute fee ?
+      request.fee = (int)feePerKb;
 
       ColuTxFlags.Json flags = new ColuTxFlags.Json();
       flags.splitChange = true;

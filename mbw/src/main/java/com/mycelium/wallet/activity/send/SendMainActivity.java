@@ -110,6 +110,7 @@ import com.squareup.otto.Subscribe;
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -585,6 +586,20 @@ public class SendMainActivity extends Activity {
                                     new AsyncTask<ColuBroadcastTxid.Json, Void, Boolean>() {
                                         @Override
                                         protected Boolean doInBackground(ColuBroadcastTxid.Json... params) {
+                                            //Create funding transaction and broadcast it to network
+                                            List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
+                                            long feePerKb = getFeePerKb().getLongValue();
+                                            WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(coluAccount.getReceivingAddress().get(), feePerKb);
+                                            try {
+                                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
+                                                Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
+                                                WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
+                                                if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
+                                                    return false;
+                                                }
+                                            } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException| KeyCipher.InvalidKeyCipher ex) {
+                                                return false;
+                                            }
                                             Log.d(TAG, "In doInBackground: ColuPreparedTransaction");
                                             //UnsignedTransaction unsignedTx = new UnsignedTransaction();
                                             Transaction coluSignedTransaction = coluManager.signTransaction(params[0], coluAccount);

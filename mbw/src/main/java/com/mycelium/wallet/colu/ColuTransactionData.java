@@ -15,7 +15,7 @@ public class ColuTransactionData {
     private long feePerKb;
 
     public ColuTransactionData(Address receivingAddress, ExactCurrencyValue nativeAmount, 
-                               ColuAccount coluAccount, long feePerkb) {
+                               ColuAccount coluAccount, long feePerKb) {
         super();
         this.coluAccount = coluAccount;
         this.receivingAddress = receivingAddress;
