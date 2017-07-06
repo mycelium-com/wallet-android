@@ -58,6 +58,9 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 
 import com.squareup.otto.Subscribe;
+
+import java.util.Calendar;
+
 import javax.annotation.Nullable;
 
 public class BuySellFragment extends Fragment {
@@ -110,7 +113,14 @@ public class BuySellFragment extends Fragment {
             }
         }
         View btBuySellRmc = _root.findViewById(R.id.btBuySellRMC);
-        btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2017, 9, 1);
+        if(Calendar.getInstance().before(calendar)) {
+            btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
+        }else {
+            btBuySellRmc.setVisibility(View.GONE);
+            _root.findViewById(R.id.btLearnMoreRMC).setVisibility(View.GONE);
+        }
         super.onResume();
     }
 

@@ -60,30 +60,6 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center_horizontal"
-            android:text="@string/rmc_select_account_for_receive_rmc"
-            android:textSize="18sp" />
-
-        <LinearLayout
-            android:id="@+id/rmc_accounts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/new_rmc_account"
@@ -92,27 +68,19 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/useAccountTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:gravity="center_horizontal"
             android:text="@string/rmc_your_new_account"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="16dp"
-            android:gravity="center_horizontal"
-            android:text="RMC123JHSGDASJH12KJASD"
-            android:textSize="20sp" />
+        <include layout="@layout/record_row"/>
 
         <TextView
             android:layout_width="wrap_content"

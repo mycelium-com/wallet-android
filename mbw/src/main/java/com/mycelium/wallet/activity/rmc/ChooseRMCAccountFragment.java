@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,13 +13,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.rmc.json.CreateRmcOrderResponse;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
@@ -53,10 +56,10 @@ public class ChooseRMCAccountFragment extends Fragment {
     @BindView(R.id.create_new_rmc)
     protected View createRmcAccount;
     @BindView(R.id.new_rmc_account)
-    protected View newRmcAccount;
+    protected View useRmcAccount;
 
-    @BindView(R.id.rmc_accounts)
-    LinearLayout accountList;
+    @BindView(R.id.useAccountTitle)
+    protected TextView useAccountTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,42 +81,73 @@ public class ChooseRMCAccountFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        newRmcAccount.setVisibility(View.GONE);
+
         ((TextView) view.findViewById(R.id.rmcCount)).setText(rmcCount + " RMC");
         List<Map.Entry<UUID, WalletAccount>> accountsList = new ArrayList<>();
+        WalletAccount walletAccount = null;
         for (Map.Entry<UUID, WalletAccount> uuidWalletAccountEntry : _mbwManager.getColuManager().getAccounts().entrySet()) {
             if (((ColuAccount) uuidWalletAccountEntry.getValue()).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
                 accountsList.add(uuidWalletAccountEntry);
+                walletAccount = uuidWalletAccountEntry.getValue();
             }
         }
+
         if (accountsList.isEmpty()) {
             createRmcAccount.setVisibility(View.VISIBLE);
-            accountList.setVisibility(View.GONE);
+            useRmcAccount.setVisibility(View.GONE);
         } else {
             createRmcAccount.setVisibility(View.GONE);
-            accountList.setVisibility(View.VISIBLE);
-            accountList.removeAllViews();
-            for (final Map.Entry<UUID, WalletAccount> uuidWalletAccountEntry : accountsList) {
-                View accountView = new RecordRowBuilder(_mbwManager, getResources(), LayoutInflater.from(getActivity()))
-                        .buildRecordView(accountList, uuidWalletAccountEntry.getValue(), true, true);
-                accountView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        UUID accountID = uuidWalletAccountEntry.getKey();
-                        ColuAccount account = _mbwManager.getColuManager().getAccount(accountID);
-                        coluAddress = account.getReceivingAddress().get().toString();
-                        clickYes();
-                    }
-                });
-                accountList.addView(accountView);
-            }
+            useRmcAccount.setVisibility(View.VISIBLE);
+            showAccountForAccept(walletAccount);
         }
 
     }
 
+    private void showAccountForAccept(WalletAccount walletAccount) {
+        useRmcAccount.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
+        useRmcAccount.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
+
+        ImageView icon = (ImageView) useRmcAccount.findViewById(R.id.ivIcon);
+        Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
+        if (drawableForAccount == null) {
+            icon.setVisibility(View.INVISIBLE);
+        } else {
+            icon.setVisibility(View.VISIBLE);
+            icon.setImageDrawable(drawableForAccount);
+        }
+
+        String name = _mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
+        String displayAddress;
+        Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
+        if (receivingAddress.isPresent()) {
+            if (name.length() == 0) {
+                // Display address in it's full glory, chopping it into three
+                displayAddress = receivingAddress.get().toMultiLineString();
+            } else {
+                // Display address in short form
+                displayAddress = receivingAddress.get().getShortAddress();
+            }
+        } else {
+            displayAddress = "";
+        }
+        ((TextView) useRmcAccount.findViewById(R.id.tvAddress)).setText(displayAddress);
+
+        TextView labelView = (TextView) useRmcAccount.findViewById(R.id.tvLabel);
+        if (name.length() == 0) {
+            labelView.setVisibility(View.GONE);
+        } else {
+            labelView.setVisibility(View.VISIBLE);
+            labelView.setText(name);
+        }
+
+        TextView tvBalance = ((TextView) useRmcAccount.findViewById(R.id.tvBalance));
+        tvBalance.setVisibility(View.VISIBLE);
+        String balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
+        tvBalance.setText(balanceString);
+    }
+
     @OnClick(R.id.btCreateNew)
     void clickCreateAcc() {
-        createRmcAccount.setVisibility(View.GONE);
         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
                 getActivity(), Feature.COLU_NEW_ACCOUNT, true, new Runnable() {
                     @Override
@@ -124,7 +158,9 @@ public class ChooseRMCAccountFragment extends Fragment {
                                 createColuAccount(ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.RMC, _mbwManager.getNetwork()), new Callback() {
                                     @Override
                                     public void created(UUID accountID) {
-                                        accountAddressForAccept(accountID);
+                                        useRmcAccount.setVisibility(View.VISIBLE);
+                                        createRmcAccount.setVisibility(View.GONE);
+                                        showAccountForAccept(_mbwManager.getColuManager().getAccount(accountID));
                                     }
                                 });
                             }
@@ -133,13 +169,6 @@ public class ChooseRMCAccountFragment extends Fragment {
                 }
         );
 
-    }
-
-    private void accountAddressForAccept(UUID accountID) {
-        newRmcAccount.setVisibility(View.VISIBLE);
-        ColuAccount account = _mbwManager.getColuManager().getAccount(accountID);
-        coluAddress = account.getReceivingAddress().get().toString();
-        ((TextView) newRmcAccount.findViewById(R.id.address)).setText(account.getReceivingAddress().get().toString());
     }
 
     private void createColuAccount(final ColuAccount.ColuAsset coluAsset, final Callback created) {
