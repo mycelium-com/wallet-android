@@ -935,11 +935,6 @@
     <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
     <string name="partner_purse_info"/>
 
-    <string name="partner_coinbase">Coinbase</string>
-    <string name="partner_coinbase_short">Buy and sell digital currency.</string>
-    <string name="partner_coinbase_url">https://www.coinbase.com/join/5412b8d2199875ec99000001</string>
-    <string name="partner_coinbase_info"/>
-
     <string name="partner_hashing24">Hashing24</string>
     <string name="partner_hashing24_short">Start Bitcoin mining with maximum efficiency</string>
     <string name="partner_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
