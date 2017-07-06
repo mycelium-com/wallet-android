@@ -1040,12 +1040,12 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="rmc_yes">Yes</string>
     <string name="rmc_no">No</string>
     <string name="rmc_return_of_investment">Return on Investment</string>
-    <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it become active. <font color="#4583de">Set reminder?</font></string>
+    <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
     <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
     <string name="address_title" >%s Address</string>
     <string name="rmc_send_warning" >RMC is an asset (token) issued on Bitcoin blockchain as colored coin. RMC transaction is a bitcoin transaction and  like  all bitcoin transactions requires miners fee in order to get it included in blocks by miners. You need to have some small amounts of btc to fund such transaction. Please send about 5 USD to your RMC (?) account to make sure you can  send  your  RMC over Bitcoin  blockchain.</string>
     <string name="rmc_reminder">RMC reminder</string>
-    <string name="rmc_active_in_159_days">Active in 159 days</string>
+    <string name="rmc_active_in_159_days">Active in %d days</string>
     <string name="bitcoin_altcoin_mining_button">Bitcoin/Altcoin mining button</string>
     <string name="rmc_remind_by_email">Remind by email</string>
     <string name="rmc_recieve_push_notification">Receive push notification</string>
