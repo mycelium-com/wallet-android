@@ -61,6 +61,7 @@ import com.mycelium.wallet.colu.json.ColuPreparedTransaction;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
+import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -346,7 +347,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
    private List<TransactionSummary> getTransactionSummaries() {
       //TODO: optimization - if allTransactionSummaries is not null and last one matches last utxo
       // return list immediately instead of re generating it
-      allTransactionSummaries = new LinkedList<TransactionSummary>();
+      allTransactionSummaries = new ArrayList<>();
 
       for (Tx.Json tx : historyTxList) {
          Sha256Hash hash = new Sha256Hash(Hex.decode(tx.txid));
@@ -372,32 +373,67 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
 
          // is it a BTC transaction or an asset transaction ?
          // count assets and BTC
-         double valueAsset = 0;
-         long valueSatoshi = 0;
+         double outgoingAsset = 0;
+         long outgoingSatoshi = 0;
          for (Vin.Json vin : tx.vin) {
-            for (Asset.Json anAsset : vin.assets) {
-               if (anAsset.assetId.contentEquals(coluAsset.id)) {
-                  valueAsset = valueAsset + anAsset.amount;
+            if (vin.assets.size() > 0) {
+               if (vin.previousOutput.addresses != null && vin.previousOutput.addresses.contains(this.address.toString())) {
+                  for (Asset.Json anAsset : vin.assets) {
+                     if (anAsset.assetId.contentEquals(coluAsset.id)) {
+                        outgoingAsset = outgoingAsset + anAsset.amount;
+                     }
+                  }
+                  break;
+               }
+            } else {
+               if (vin.previousOutput.addresses != null && vin.previousOutput.addresses.contains(this.address.toString())) {
+                  outgoingSatoshi += vin.value;
                }
             }
-            if (vin.assets == null) {
-               valueSatoshi = valueSatoshi + vin.value;
+
+         }
+
+         Log.d(TAG, "Debug: valueAsset=" + outgoingAsset);
+         Log.d(TAG, "Debug: valueSatoshi=" + outgoingSatoshi);
+
+
+         double incomingAsset = 0;
+         long incomingSatoshi = 0;
+
+         for (Vout.Json vout : tx.vout) {
+            if (vout.assets.size() > 0) {
+               if (vout.scriptPubKey.addresses != null && vout.scriptPubKey.addresses.contains(this.address.toString())) {
+                  for (Asset.Json anAsset : vout.assets) {
+                     if (anAsset.assetId.contentEquals(coluAsset.id)) {
+                        incomingAsset = incomingAsset + anAsset.amount;
+                     }
+                  }
+                  break;
+               }
+            } else {
+               if (vout.scriptPubKey.addresses != null && vout.scriptPubKey.addresses.contains(this.address.toString())) {
+                  incomingSatoshi += vout.value;
+               }
             }
          }
-         Log.d(TAG, "Debug: valueAsset=" + valueAsset);
-         Log.d(TAG, "Debug: valueSatoshi=" + valueSatoshi);
 
          BigDecimal valueBigDecimal;
          ExactCurrencyValue value;
-         if (valueAsset > 0) {
-            valueBigDecimal = BigDecimal.valueOf((long) valueAsset, coluAsset.scale);
+
+         double assetBalance = incomingAsset - outgoingAsset;
+         double satoshiBalance = incomingSatoshi - outgoingSatoshi;
+
+         boolean isIncoming;
+
+         if (assetBalance != 0) {
+            isIncoming = assetBalance > 0;
+            valueBigDecimal = BigDecimal.valueOf((long) Math.abs(assetBalance), coluAsset.scale);
             value = ExactCurrencyValue.from(valueBigDecimal, coluAsset.name);
          } else {
-            valueBigDecimal = BigDecimal.valueOf((long) tx.totalsent, 8);
+            isIncoming = satoshiBalance > 0;
+            valueBigDecimal = BigDecimal.valueOf((long) Math.abs(satoshiBalance), 8);
             value = ExactCurrencyValue.from(valueBigDecimal, "BTC");
          }
-
-         boolean isIncoming = false; // check ownAddress
 
          long time = 0;
          //int height = tx.blockheight;
@@ -432,6 +468,13 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
          allTransactionSummaries.add(summary);
       }
       Log.d(TAG, "getTransactionSummaries: returning " + allTransactionSummaries.size() + " transactions.");
+
+      Collections.sort(allTransactionSummaries, new Comparator<TransactionSummary>(){
+         public int compare(TransactionSummary p1, TransactionSummary p2){
+            return (int)(p2.time - p1.time);
+         }
+      });
+
       return allTransactionSummaries;
    }
 

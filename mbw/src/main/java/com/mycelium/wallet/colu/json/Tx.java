@@ -81,8 +81,8 @@ public class Tx {
         @Key
         public List<Vin.Json> vin;
 
-//        @Key
-//        public List<vout.Json> vout;
+        @Key
+        public List<Vout.Json> vout;
 
    //     @Key
    //     public ScriptSig.Json scriptSig;
