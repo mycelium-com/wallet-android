@@ -60,6 +60,38 @@ https://play.google.com/store/apps/details?id=com.mycelium.wallet
 
 If you cannot access the Play store, you can obtain the apk directly from https://mycelium.com/bitcoinwallet
 
+Deterministic builds
+====================
+To validate the Mycelium image you obtain from Google Play Store, you can rebuild myself yourself using Docker and compare both images.
+
+Step 1: create your own Doker image.
+$ docker build . --tag mycelium-wallet .
+Check that this step succeeds by listing the available docker images:
+$ docker images 
+
+Step 2: build Mycelium using Docker
+$ docker run --rm -v $(pwd):/project -w /project mycelium-wallet ./gradlew mbw::clean mbw::assembleProdnetRelease 
+After this step succeeds, the mycelium unsigned apk is in mbw/builds/outputs/apk
+You may need to create a gradle.properties file and set
+org.gradle.jvmargs = -Xmx5120m
+
+Step 3: retrieve Google Play Mycelium APK from your phone
+Gets package path:
+$ adb shell pm path com.mycelium.wallet
+package:/data/app/com.mycelium.wallet-1/base.apk
+Retrieve file:
+adb pull /data/app/com.mycelium.wallet-1/base.apk mycelium-signed.apk
+
+Step 4: compare signed apk with unsigned locally built apk using Signal apkdiff
+$ wget https://raw.githubusercontent.com/WhisperSystems/Signal-Android/master/apkdiff/apkdiff.py
+apkdiff.py mycelium-signed.apk mbw/builds/outputs/apk/mycelium-unsigned.apk
+
+
+This work is based on WhisperSystems Signal reproducible builds:
+https://whispersystems.org/blog/reproducible-android/
+https://github.com/WhisperSystems/Signal-Android/wiki/Reproducible-Builds
+
+
 Features
 ========
 
