@@ -104,15 +104,6 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       }
    }
 
-   @Override
-   protected CurrencyValue getValueToShow() {
-      if(currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString())){
-         return new ExactFiatValue(currentValue.getValue().multiply(BigDecimal.valueOf(4000)), "USD");
-      }else {
-         return super.getValueToShow();
-      }
-   }
-
    public void switchToNextCurrency(){
       Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
       if (eventBus != null){
