@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
+import org.junit.Before;
 import org.junit.Test;
 import java.util.UUID;
 
@@ -16,23 +17,20 @@ import static org.mockito.Mockito.when;
 
 public class Bip44AccountTest {
    private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
-   private static final String MASTER_SEED_512_A0_R0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
-   private static final String MASTER_SEED_512_A0_C0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
+   private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
+   private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
+   private Bip44Account account;
 
-   /**
-    * Test that the first two addresses we generate agree with a specific seed agree with Wallet32
-    */
-   @Test
-   public void addressGenerationTest() throws KeyCipher.InvalidKeyCipher {
+   @Before
+   public void setup() throws KeyCipher.InvalidKeyCipher {
       RandomSource fakeRandomSource = mock(RandomSource.class);
       Wapi fakeWapi = mock(Wapi.class);
       WapiLogger fakeLogger = mock(WapiLogger.class);
       when(fakeWapi.getLogger()).thenReturn(fakeLogger);
 
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), fakeRandomSource);
-      KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
-
       WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+      SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);
+      KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
       // Determine the next BIP44 account index
       Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
@@ -43,9 +41,21 @@ public class Bip44AccountTest {
 
       UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
 
-      Bip44Account account1 = (Bip44Account) walletManager.getAccount(account1Id);
+      account = (Bip44Account) walletManager.getAccount(account1Id);
+   }
 
-      assertEquals(Address.fromString(MASTER_SEED_512_A0_R0_ADDRESS), account1.getReceivingAddress().get());
-      assertEquals(Address.fromString(MASTER_SEED_512_A0_C0_ADDRESS), account1.getChangeAddress());
+   /**
+    * Test that the first two addresses we generate agree with a specific seed agree with Wallet32
+    */
+   @Test
+   public void addressGenerationTest() throws KeyCipher.InvalidKeyCipher {
+      assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
+      assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
+   }
+
+   @Test
+   public void calculateMaxSpendableAmount() throws Exception {
+      // TODO: 25.06.17 add UTXOs, write tests with unconfirmed and dust UTXOs.
+      account.calculateMaxSpendableAmount(1000);
    }
 }

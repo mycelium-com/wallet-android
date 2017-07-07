@@ -56,6 +56,7 @@ import java.util.*;
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+import static com.mycelium.wapi.wallet.currency.ExactBitcoinValue.ZERO;
 import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
@@ -853,9 +854,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    }
 
    /**
-    * @return all UTXOs that are spendable now, as they ae neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set.
+    * @param minerFeePerKbToUse Determines the dust level, at which including a UTXO costs more than it is worth.
+    * @return all UTXOs that are spendable now, as they are neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set nor dust.
     */
-   protected Collection<TransactionOutputEx> getSpendableOutputs() {
+   protected Collection<TransactionOutputEx> getSpendableOutputs(long minerFeePerKbToUse) {
+      long satDustOutput = StandardTransactionBuilder.MAX_INPUT_SIZE * minerFeePerKbToUse / 1000;
       Collection<TransactionOutputEx> allUnspentOutputs = _backing.getAllUnspentOutputs();
 
       // Prune confirmed outputs for coinbase outputs that are not old enough
@@ -864,19 +867,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       Iterator<TransactionOutputEx> it = allUnspentOutputs.iterator();
       while (it.hasNext()) {
          TransactionOutputEx output = it.next();
-         if (output.isCoinBase) {
-            int confirmations = blockChainHeight - output.height;
-            if (confirmations < COINBASE_MIN_CONFIRMATIONS) {
-               it.remove();
-               continue;
-            }
-         }
+         // we remove all outputs that don't cover their costs (dust)
+         // coinbase outputs are not spendable and this should not be overridden
          // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
-         if (!_allowZeroConfSpending) {
-            if (output.height == -1 && !isFromMe(output.outPoint.hash)) {
-               // Prune receiving coins that is not change sent to ourselves
-               it.remove();
-            }
+         if (output.value < satDustOutput ||
+                     output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS ||
+                     !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.hash)) {
+            it.remove();
          }
       }
       return allUnspentOutputs;
@@ -896,7 +893,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    @Override
    public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
       checkNotArchived();
-      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs());
+      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
 
       // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -904,45 +901,44 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          satoshis += output.value;
       }
 
+      // TODO: 25.06.17 the following comment was justifying to assume two outputs, which might wrongly lead to no spendable funds or am I reading the wrongly? I assume one output only for the max.
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 2, minerFeePerKbToUse);
+      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, minerFeePerKbToUse);
 
-      // Iteratively figure out whether we can send everything by subtracting
-      // the miner fee for every iteration and thus reduce the suggested max amount
-      while (true) {
-         satoshis -= feeToUse;
-         if (satoshis <= 0) {
-            return ExactBitcoinValue.ZERO;
-         }
+      // TODO: 25.06.17 why was there a loop from here to end of method?
+      // Iteratively figure out whether we can send everything by removing the smallest input
+      // or every iteration and thus reduce the suggested max amount
+      satoshis -= feeToUse;
+      if (satoshis <= 0) {
+         return ZERO;
+      }
 
-         // Create transaction builder
-         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+      // Create transaction builder
+      StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
 
-         // Try and add the output
-         try {
-            // Note, null address used here, we just use it for measuring the
-            // transaction size
-            stb.addOutput(Address.getNullAddress(_network), satoshis);
-         } catch (OutputTooSmallException e1) {
-            // The amount we try to send is lower than what the network allows
-            return ExactBitcoinValue.ZERO;
-         }
+      // Try and add the output
+      try {
+         // Note, null address used here, we just use it for measuring the transaction size
+         stb.addOutput(Address.getNullAddress(_network), satoshis);
+      } catch (OutputTooSmallException e1) {
+         // The amount we try to send is lower than what the network allows
+         return ZERO;
+      }
 
-         // Try to create an unsigned transaction
-         try {
-            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
-            // We have enough to pay the fees, return the amount as the maximum
-            return ExactBitcoinValue.from(satoshis);
-         } catch (InsufficientFundsException e) {
-            // We cannot send this amount, try again with a little higher fee
-            // continue;
-         } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-            // something unexpected happened while building the max-amount tx
-            // be cautious here and don't allow spending
-            return ExactBitcoinValue.ZERO;
-         }
+      // Try to create an unsigned transaction
+      try {
+         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
+         // We have enough to pay the fees, return the amount as the maximum
+         return ExactBitcoinValue.from(satoshis);
+      } catch (InsufficientFundsException e) {
+         // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
+         // We cannot send this amount, try again with a little higher fee continue
+         return ZERO;
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         // something unexpected happened while building the max-amount tx. be cautious here and don't allow spending
+         return ZERO;
       }
    }
 
@@ -957,7 +953,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       checkNotArchived();
 
       // Determine the list of spendable outputs
-      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs(minerFeeToUse));
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
@@ -974,7 +970,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       checkNotArchived();
 
       // Determine the list of spendable outputs
-      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+      Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs(minerFeeToUse));
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
@@ -994,7 +990,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
     */
    public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse, long satoshisPaid) throws InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
-      Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs()));
+      Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs(minerFeeToUse)));
       TransactionDetails parent = getTransactionDetails(txid);
       long totalSpendableSatoshis = 0;
       // do we have an output to spend from?

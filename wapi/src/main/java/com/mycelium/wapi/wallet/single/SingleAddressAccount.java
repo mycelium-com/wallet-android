@@ -277,7 +277,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          }
          Optional<Address> receivingAddress = getReceivingAddress();
          sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
-         sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
+         sb.append(" Spendable Outputs: ").append(getSpendableOutputs(0).size());
       }
       return sb.toString();
    }

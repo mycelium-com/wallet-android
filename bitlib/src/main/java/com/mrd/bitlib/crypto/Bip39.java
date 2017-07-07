@@ -382,7 +382,7 @@ public class Bip39 {
     * @return the BIP32 master seed
     */
    public static MasterSeed generateSeedFromWordList(String[] wordList, String passphrase) {
-      return generateSeedFromWordList(new ArrayList<String>(Arrays.asList(wordList)), passphrase);
+      return generateSeedFromWordList(new ArrayList<>(Arrays.asList(wordList)), passphrase);
    }
 
    /**
@@ -416,11 +416,8 @@ public class Bip39 {
       try {
          byte[] saltBytes = Normalizer.normalize(salt, Normalizer.Form.NFKD).getBytes(UTF8);
          seed = PBKDF.pbkdf2(ALGORITHM, mnemonic.getBytes(UTF8), saltBytes, REPETITIONS, BIP32_SEED_LENGTH);
-      } catch (UnsupportedEncodingException e) {
+      } catch (UnsupportedEncodingException | GeneralSecurityException e) {
          // UTF-8 should be supported by every system we run on
-         throw new RuntimeException(e);
-      } catch (GeneralSecurityException e) {
-         // HMAC-SHA512 should be supported by every system we run on
          throw new RuntimeException(e);
       }
       return new MasterSeed(wordListToRawEntropy(wordList.toArray(new String[0])), passphrase, seed);
