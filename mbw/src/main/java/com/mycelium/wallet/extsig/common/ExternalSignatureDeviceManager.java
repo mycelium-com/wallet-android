@@ -360,7 +360,6 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                // outputs of the new tx
                Address address = ak_output.script.getAddress(getNetwork());
                TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
-                     .setAddress(address.toString())
                      .setAmount(ak_output.value)
                      .setScriptType(mapScriptType(ak_output.script));
 
@@ -369,6 +368,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   // If it is one of our internal change addresses, add the HD-PathID
                   // so that trezor knows, this is the change txout and can calculate the value of the tx correctly
                   new OutputAddressSetter(txOutput).setAddressN(forAccount.getAccountIndex(), addId.get());
+               } else {
+                  // If it is regular address (non-change), set address instead of address_n
+                  txOutput.setAddress(address.toString());
                }
 
                txType = TrezorType.TransactionType.newBuilder()
