@@ -293,6 +293,7 @@ public class ReceiveCoinsActivity extends Activity {
          tvAmount.setText("");
       } else {
          // Set Amount
+         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) return;
          tvAmount.setText(
                  Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
          );
