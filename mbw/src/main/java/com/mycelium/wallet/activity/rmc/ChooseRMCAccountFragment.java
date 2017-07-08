@@ -223,10 +223,14 @@ public class ChooseRMCAccountFragment extends Fragment {
 
         @Override
         protected void onPostExecute(CreateRmcOrderResponse.Json result) {
-            //Address should be funded to get tokens
-            String fundingAddress = result.order.paymentDetails.address;
+            if (result != null) {
+                //Address should be funded to get tokens
+                String fundingAddress = result.order.paymentDetails.address;
 
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount)));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount)));
+            } else {
+                Toast.makeText(getActivity(), "Error getting response from RMC server", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
