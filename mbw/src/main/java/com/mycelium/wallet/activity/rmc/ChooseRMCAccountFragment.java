@@ -228,8 +228,8 @@ public class ChooseRMCAccountFragment extends Fragment {
             if (result != null) {
                 //Address should be funded to get tokens
                 String fundingAddress = result.order.paymentDetails.address;
-                String paymentId = result.order.paymentDetails.id;
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount + "&r=https://gateway.gear.mycelium.com/pay/" + paymentId)));
+                String invoice = result.order.paymentDetails.invoice;
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount + "&r=" + invoice)));
             } else {
                 Toast.makeText(getActivity(), "Error getting response from RMC server", Toast.LENGTH_SHORT).show();
             }

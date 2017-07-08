@@ -15,5 +15,8 @@ public class RmcOrderPaymentDetails {
 
         @Key
         public String address;
+
+        @Key
+        public String invoice;
     }
 }
