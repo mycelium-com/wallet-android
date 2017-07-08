@@ -9,6 +9,10 @@ import com.google.api.client.util.Key;
 
 public class RmcOrderPaymentDetails {
     public static class Json extends GenericJson {
+
+        @Key
+        public String id;
+
         @Key
         public String address;
     }
