@@ -249,19 +249,24 @@ public class ReceiveCoinsActivity extends Activity {
          if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
             ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
             tvTitle.setText(getString(R.string.address_title, account.getColuAsset().label));
+            btShare.setText(getString(R.string.share_x_address, account.getColuAsset().name));
          } else {
             tvTitle.setText(R.string.bitcoin_address_title);
+            btShare.setText(R.string.share_bitcoin_address);
          }
-         btShare.setText(R.string.share_bitcoin_address);
          tvAmountLabel.setText(R.string.optional_amount);
          tvAmount.setText("");
       } else {
          tvTitle.setText(R.string.payment_request);
          btShare.setText(R.string.share_payment_request);
          tvAmountLabel.setText(R.string.amount_title);
-         tvAmount.setText(
-                 Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
-         );
+         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            tvAmount.setText(Utils.getColuFormattedValueWithUnit(_amount));
+         } else {
+            tvAmount.setText(
+                    Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
+            );
+         }
       }
 
       // QR code
@@ -288,6 +293,7 @@ public class ReceiveCoinsActivity extends Activity {
          tvAmount.setText("");
       } else {
          // Set Amount
+         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) return;
          tvAmount.setText(
                  Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
          );
@@ -295,10 +301,18 @@ public class ReceiveCoinsActivity extends Activity {
    }
 
    private String getPaymentUri() {
-      final StringBuilder uri = new StringBuilder("bitcoin:");
+      String prefix = "bitcoin:";
+      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         prefix = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuAsset().assetType.toString() + ":";
+      }
+      final StringBuilder uri = new StringBuilder(prefix);
       uri.append(getBitcoinAddress());
       if (!CurrencyValue.isNullOrZero(_amount)) {
-         uri.append("?amount=").append(CoinUtil.valueString(getBitcoinAmount().getLongValue(), false));
+         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            uri.append("?amount=").append(_amount.getValue().toPlainString());
+         } else {
+            uri.append("?amount=").append(CoinUtil.valueString(getBitcoinAmount().getLongValue(), false));
+         }
       }
       return uri.toString();
    }

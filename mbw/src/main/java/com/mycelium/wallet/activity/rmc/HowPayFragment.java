@@ -30,22 +30,22 @@ public class HowPayFragment extends Fragment {
             }
         });
 
-        view.findViewById(R.id.btEth).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new RmcEthAmountFragment())
-                        .commitAllowingStateLoss();
-
-            }
-        });
-        view.findViewById(R.id.btBankwire).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new RmcBankAmountFragment())
-                        .commitAllowingStateLoss();
-            }
-        });
+//        view.findViewById(R.id.btEth).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                getFragmentManager().beginTransaction()
+//                        .replace(R.id.fragment_container, new RmcEthAmountFragment())
+//                        .commitAllowingStateLoss();
+//
+//            }
+//        });
+//        view.findViewById(R.id.btBankwire).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                getFragmentManager().beginTransaction()
+//                        .replace(R.id.fragment_container, new RmcBankAmountFragment())
+//                        .commitAllowingStateLoss();
+//            }
+//        });
     }
 }
