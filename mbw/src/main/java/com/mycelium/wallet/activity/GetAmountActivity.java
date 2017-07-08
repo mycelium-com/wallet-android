@@ -289,13 +289,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          showMaxAmount();
       }
 
-      if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
-         // always set native asset currency here ?
-      } else {
-         // Set current currency name button
-         btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
-      }
       if (_amount != null) {
+         if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+            // always set native asset currency here ?
+         } else {
+            // Set current currency name button
+            btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
+         }
          //update amount
          int showDecimalPlaces;
          BigDecimal newAmount = null;

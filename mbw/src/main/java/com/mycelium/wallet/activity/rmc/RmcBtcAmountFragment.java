@@ -16,12 +16,20 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactFiatValue;
 
 import java.math.BigDecimal;
+import java.util.Objects;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by elvis on 20.06.17.
  */
 
 public class RmcBtcAmountFragment extends Fragment {
+
+    @BindView(R.id.btOk)
+    protected View btnOk;
 
     private EditText etBTC;
     private EditText etUSD;
@@ -39,20 +47,7 @@ public class RmcBtcAmountFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.btOk).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("rmc_count", etRMC.getText().toString());
-                bundle.putString("pay_method", "BTC");
-                bundle.putString("btc_count", etBTC.getText().toString());
-                rmcAccountFragment.setArguments(bundle);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, rmcAccountFragment)
-                        .commitAllowingStateLoss();
-            }
-        });
+        ButterKnife.bind(this, view);
 
         etBTC = (EditText) view.findViewById(R.id.etBTC);
         etUSD = (EditText) view.findViewById(R.id.etUSD);
@@ -61,8 +56,21 @@ public class RmcBtcAmountFragment extends Fragment {
         etBTCWatcher = new InputWatcher(etBTC, "BTC");
         etRMCWatcher = new InputWatcher(etRMC, "RMC");
         etUSDWatcher = new InputWatcher(etUSD, "USD");
-
+        update(" ", "");
         addChangeListener();
+    }
+
+    @OnClick(R.id.btOk)
+    void okClick(){
+        ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("rmc_count", etRMC.getText().toString());
+        bundle.putString("pay_method", "BTC");
+        bundle.putString("btc_count", etBTC.getText().toString());
+        rmcAccountFragment.setArguments(bundle);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, rmcAccountFragment)
+                .commitAllowingStateLoss();
     }
 
     private void addChangeListener() {
@@ -79,6 +87,7 @@ public class RmcBtcAmountFragment extends Fragment {
 
     public void update(String amount, String currency) {
         removeChangeListener();
+
         BigDecimal value = BigDecimal.ZERO;
         try {
             value = new BigDecimal(amount);
@@ -99,6 +108,8 @@ public class RmcBtcAmountFragment extends Fragment {
             BigDecimal btcValue = CurrencyValue.fromValue(ExactFiatValue.from(value, "USD"), "BTC", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue();
             etBTC.setText(btcValue.toPlainString());
         }
+        btnOk.setEnabled(!value.equals(BigDecimal.ZERO));
+
         addChangeListener();
     }
 

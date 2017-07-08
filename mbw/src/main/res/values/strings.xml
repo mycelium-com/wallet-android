@@ -1054,4 +1054,5 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="label">Label:</string>
     <string name="rmc_account">Account:</string>
     <string name="verify">Verify</string>
+    <string name="share_x_address">Share %s Address</string>
 </resources>
