@@ -128,6 +128,8 @@ public class ChooseRMCAccountFragment extends Fragment {
                 // Display address in short form
                 displayAddress = receivingAddress.get().getShortAddress();
             }
+
+            coluAddress = receivingAddress.get().toString();
         } else {
             displayAddress = "";
         }
