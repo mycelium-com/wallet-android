@@ -841,5 +841,7 @@
   <string name="error_details">Detalhes do erro</string>
   <string name="glidera_setting_show_button_summary">Mostrar a opção de compra/venda do Glidera</string>
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
   <string name="label_use_device_location">usar localização do dispositivo</string>
 </resources>

@@ -808,4 +808,6 @@
   <string name="gd_btc_symbol">฿</string>
   <string name="error_details">Detalles del error</string>
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>

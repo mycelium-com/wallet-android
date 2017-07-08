@@ -20,24 +20,28 @@ UpdateOne () {
 
 mkdir -p ${cwd}/res/values || exit
 
-UpdateOne da da
-UpdateOne de de
-UpdateOne el el
-UpdateOne es-ES es
-UpdateOne fr fr
-UpdateOne he iw
-UpdateOne it it
-UpdateOne ja ja
-UpdateOne ko ko
-UpdateOne nl nl
-UpdateOne pl pl
-UpdateOne pt-PT pt
-UpdateOne ru ru
-UpdateOne sk sk
-UpdateOne sl sl
-UpdateOne sv-SE sv
-UpdateOne zh-CN zh
-UpdateOne zh-TW zh-rTW
-UpdateOne vi vi
-UpdateOne sq sq
-UpdateOne cs cs
+UpdateOne bg bg        Bulgarian-Bulgaria
+UpdateOne cs cs        Czech
+UpdateOne da da        Danish-Danmark
+UpdateOne de de        German-Germany
+UpdateOne el el        Greek-Greece
+UpdateOne es-ES es     Spanish-Spain
+UpdateOne fil fil      Philipino
+UpdateOne fr fr        French-France
+UpdateOne he iw        Hebrew-Israel
+UpdateOne id id        Indonesian-Indonesia
+UpdateOne it it        Italian-Italy
+UpdateOne ja ja        Japanese-Japan
+UpdateOne ko ko        Korean-Korea
+UpdateOne nl nl        Dutch/Netherlands
+UpdateOne pl pl        Polish-Poland
+UpdateOne pt-PT pt     Portuguese-Portugal
+UpdateOne ro ro        Romanian/Moldavian-Romania
+UpdateOne ru ru        Russian-Russia
+UpdateOne sk sk        Slovak-Slovakia
+UpdateOne sl sl        Slovenia
+UpdateOne sq sq        Albania
+UpdateOne sv-SE sv     Swedish-Sweden
+UpdateOne vi vi        Vietnamese-Vietnam
+UpdateOne zh-CN zh     Chinese-China
+UpdateOne zh-TW zh-rTW Chinese-Taiwan

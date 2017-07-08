@@ -75,7 +75,7 @@
   <string name="date">Date</string>
   <string name="inputs">Entrées</string>
   <string name="outputs">Sorties</string>
-  <string name="confirmed_in_block">En bloc #%1$d</string>
+  <string name="confirmed_in_block">Au bloc #%1$d</string>
   <string name="no">Non</string>
   <string name="yes">Oui</string>
   <string name="pref_category_pin">Paramètres de code d\'accès</string>
@@ -760,7 +760,7 @@
   <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
-  <string name="coinapult_add_locks_account">Ajouter un compte barré Coinapult</string>
+  <string name="coinapult_add_locks_account">Ajouter un compte verrouillé Coinapult</string>
   <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
   <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
   <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
@@ -849,4 +849,6 @@
   <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
   <string name="glidera_setting_show_button_summary">Afficher l’option d’achat/vente de Glidera</string>
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>
