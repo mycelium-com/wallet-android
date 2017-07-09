@@ -246,7 +246,7 @@ public class BalanceFragment extends Fragment {
       if (balance.receiving.getValue().compareTo(BigDecimal.ZERO) > 0) {
          String receivingString;
          if (account instanceof ColuAccount) {
-            receivingString = Utils.getColuFormattedValueWithUnit(balance.sending);
+            receivingString = Utils.getColuFormattedValueWithUnit(balance.receiving);
          } else {
             receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
          }
