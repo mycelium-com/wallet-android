@@ -59,6 +59,7 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuPreparedTransaction;
+import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
@@ -522,22 +523,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
       return null;
    }
 
-   private boolean isColuTransaction(Tx.Json tx) {
-      for (Vin.Json vin : tx.vin) {
-         if (vin.assets.size() > 0) {
-            return true;
-         }
-      }
-
-      for (Vout.Json vout : tx.vout) {
-         if (vout.assets.size() > 0) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
       TransactionDetails details = null;
       TransactionSummary summary = getTransactionSummary(txid);
@@ -570,7 +555,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
          }
 
          Tx.Json coluTxInfo = GetColuTransactionInfoById(txid);
-         boolean isColuTransaction = isColuTransaction(coluTxInfo);
 
          List<TransactionDetails.Item> inputs = new ArrayList<>();
 
@@ -587,11 +571,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
                if (vin.assets.size() > 0) {
                      for (Asset.Json anAsset : vin.assets) {
                         if (anAsset.assetId.contentEquals(coluAsset.id) && vin.previousOutput.addresses.size() > 0) {
-                           inputs.add(new TransactionDetails.Item(Address.fromString(vin.previousOutput.addresses.get(0)), anAsset.amount, false));
+                           inputs.add(new ColuTxDetailsItem(Address.fromString(vin.previousOutput.addresses.get(0)), vin.value, false, anAsset.amount));
                         }
                      }
                } else {
-                  if (!isColuTransaction)
                      inputs.add(new TransactionDetails.Item(this.address, vin.value, false));
                }
             }
@@ -603,12 +586,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
             if (vout.assets.size() > 0) {
                   for (Asset.Json anAsset : vout.assets) {
                      if (anAsset.assetId.contentEquals(coluAsset.id) && vout.scriptPubKey.addresses.size() > 0) {
-                        outputs.add(new TransactionDetails.Item(Address.fromString(vout.scriptPubKey.addresses.get(0)), anAsset.amount, false));
+                        outputs.add(new ColuTxDetailsItem(Address.fromString(vout.scriptPubKey.addresses.get(0)), vout.value, false, anAsset.amount));
                      }
                   }
-                  break;
             } else {
-               if (!isColuTransaction)
+               if (vout.value > 0)
                   outputs.add(new TransactionDetails.Item(this.address, vout.value, false));
             }
          }
