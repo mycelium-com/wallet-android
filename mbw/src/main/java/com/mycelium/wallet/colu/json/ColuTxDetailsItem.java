@@ -10,8 +10,11 @@ import com.mycelium.wapi.model.TransactionDetails;
 public class ColuTxDetailsItem extends TransactionDetails.Item {
     public final long assetAmount;
 
-    public ColuTxDetailsItem(Address address, long value, boolean isCoinbase, long assetAmount) {
+    public final int scale;
+
+    public ColuTxDetailsItem(Address address, long value, boolean isCoinbase, long assetAmount, int scale) {
         super(address, value, isCoinbase);
         this.assetAmount = assetAmount;
+        this.scale = scale;
     }
 }

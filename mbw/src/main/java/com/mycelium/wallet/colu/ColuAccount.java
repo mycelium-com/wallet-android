@@ -571,7 +571,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
                if (vin.assets.size() > 0) {
                      for (Asset.Json anAsset : vin.assets) {
                         if (anAsset.assetId.contentEquals(coluAsset.id) && vin.previousOutput.addresses.size() > 0) {
-                           inputs.add(new ColuTxDetailsItem(Address.fromString(vin.previousOutput.addresses.get(0)), vin.value, false, anAsset.amount));
+                           inputs.add(new ColuTxDetailsItem(Address.fromString(vin.previousOutput.addresses.get(0)), vin.value, false, anAsset.amount, anAsset.divisibility));
                         }
                      }
                } else {
@@ -586,7 +586,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
             if (vout.assets.size() > 0) {
                   for (Asset.Json anAsset : vout.assets) {
                      if (anAsset.assetId.contentEquals(coluAsset.id) && vout.scriptPubKey.addresses.size() > 0) {
-                        outputs.add(new ColuTxDetailsItem(Address.fromString(vout.scriptPubKey.addresses.get(0)), vout.value, false, anAsset.amount));
+                        outputs.add(new ColuTxDetailsItem(Address.fromString(vout.scriptPubKey.addresses.get(0)), vout.value, false, anAsset.amount, anAsset.divisibility));
                      }
                   }
             } else {

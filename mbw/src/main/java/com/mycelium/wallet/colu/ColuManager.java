@@ -1059,7 +1059,7 @@ public class ColuManager implements AccountProvider {
                         } else {
                             assetConfirmedAmount = assetConfirmedAmount + (long) txidAsset.amount;
                         }
-                        assetScale = (int) txidAsset.divisibility;
+                        assetScale = txidAsset.divisibility;
                     }
                 }
 

@@ -18,7 +18,7 @@ public class Asset {
         public String issueTxid;
 
         @Key
-        public double divisibility;
+        public int divisibility;
 
         @Key
         public boolean lockStatus;
