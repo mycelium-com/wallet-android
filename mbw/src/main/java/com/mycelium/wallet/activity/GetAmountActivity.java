@@ -101,6 +101,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private ExactCurrencyValue _maxSpendableAmount;
    private long _kbMinerFee;
 
+   private boolean isColu;
+
    public static void callMe(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Long kbMinerFee, boolean isColdStorage) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class);
       intent.putExtra(ACCOUNT, account);
@@ -127,7 +129,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       ButterKnife.bind(this);
 
       _mbwManager = MbwManager.getInstance(getApplication());
-
+      isColu = _mbwManager.getSelectedAccount() instanceof ColuAccount;
       initNumberEntry(savedInstanceState);
 
       isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
@@ -164,7 +166,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void initListeners() {
       // set the text for the currency button
-      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+      if(isColu) {
          ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
          if (_amount == null || _amount.getValue() == null) {
             _amount = ExactCurrencyValue.from(null, coluAccount.getAccountDefaultCurrency());
@@ -196,7 +198,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          amountString = "";
       }
-      _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
+      if(isColu) {
+         _numberEntry = new NumberEntry(4, this, this, amountString);
+      } else {
+         _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
+      }
 
    }
 
@@ -256,7 +262,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return;
       }
       setEnteredAmount(clipboardValue);
-      _numberEntry.setEntry(clipboardValue, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+
+      _numberEntry.setEntry(clipboardValue, isColu ? 4 : _mbwManager.getBitcoinDenomination().getDecimalPlaces());
    }
 
 
@@ -327,7 +334,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             showDecimalPlaces = 2;
             newAmount = _amount.getValue();
          }
-         _numberEntry.setEntry(newAmount, showDecimalPlaces);
+         _numberEntry.setEntry(newAmount, isColu ? 4 : showDecimalPlaces);
       } else {
          tvAmount.setText("");
       }
@@ -391,7 +398,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void setEnteredAmount(BigDecimal value) {
       // handle denomination
       String currentCurrency;
-      if( _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+      if(_amount != null && _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
          currentCurrency = _amount.getCurrency();
       } else {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
