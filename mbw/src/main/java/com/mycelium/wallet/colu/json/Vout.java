@@ -24,7 +24,7 @@ public class Vout {
         public boolean used;
 
         @Key
-        public long blockHeight;
+        public long blockheight;
 
         @Key
         public List<Asset.Json> assets;

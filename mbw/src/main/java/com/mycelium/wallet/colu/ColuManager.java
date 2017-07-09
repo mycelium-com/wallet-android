@@ -30,6 +30,8 @@ import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
+import com.mycelium.wallet.colu.json.Vin;
+import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
@@ -957,9 +959,6 @@ public class ColuManager implements AccountProvider {
             }
             Log.e(TAG, "getBalances: address=" + address.get().toString());
 
-            AddressInfo.Json addressInfo = coluClient.getBalance(address.get());
-
-            getAddressBalance(addressInfo, account);
 
             // collect all tx history at that address from mycelium wapi server (non colored)
             LinkedList<com.mrd.bitlib.util.Sha256Hash> allTxidList =
@@ -978,6 +977,9 @@ public class ColuManager implements AccountProvider {
                 Log.d(TAG, " addressInfoWithTransactios is null");
                 continue;
             }
+
+            getAddressBalance(addressInfoWithTransactions.transactions, account);
+
             Log.d(TAG, "retrieved addressInfoWithTransactions");
             if(addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
                 account.setHistory(addressInfoWithTransactions.transactions);
@@ -1012,57 +1014,47 @@ public class ColuManager implements AccountProvider {
         return balances;
     }
 
-    private CurrencyBasedBalance getAddressBalance(AddressInfo.Json addressInfo, ColuAccount account) {
-        long assetAmount = 0;
+    private CurrencyBasedBalance getAddressBalance(List<Tx.Json> transactions, ColuAccount account) {
         long assetConfirmedAmount = 0;
         long assetReceivingAmount = 0;
         long assetSendingAmount = 0;
+
         int assetScale = 0;
         long satoshiAmount = 0;
         // collect all utxos at that address from colu server (colored)
         LinkedList<com.mrd.bitlib.util.Sha256Hash> utxoList =
                 new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
 
-        Log.d(TAG, "addressInfo: " + addressInfo);
-        if (addressInfo == null) {
-            Log.e(TAG, "Error received null addressInfo object.");
-            return null;
-        }
+        for(Tx.Json tx : transactions) {
 
-        if (addressInfo.utxos == null) {
-            Log.d(TAG, "addressInfo.utxos is null !");
-        } else {
-            Log.d(TAG, "addressInfo.utxos.size()" + addressInfo.utxos.size());
-        }
+            for (Vout.Json vout : tx.vout) {
+                if (vout.used)
+                    continue;
 
-        Log.d(TAG, "getBalance: processing " + addressInfo.utxos.size() + " utxos.");
-        if (addressInfo.utxos != null) {
-            for (Utxo.Json utxo : addressInfo.utxos) {
-                Log.d(TAG, "getBalance: utxo " + utxo.txid);
+                Vout.Json utxo = vout;
+                Log.d(TAG, "getBalance: utxo " + tx.txid);
                 // adding utxo to list of txid list request
-                utxoList.add(com.mrd.bitlib.util.Sha256Hash.fromString(utxo.txid));
-               satoshiAmount = satoshiAmount + utxo.value;
+                utxoList.add(com.mrd.bitlib.util.Sha256Hash.fromString(tx.txid));
+                satoshiAmount = satoshiAmount + utxo.value;
                 for (Asset.Json txidAsset : utxo.assets) {
-                    Log.d(TAG, "getBalance: utxo " + utxo.txid + " asset " + txidAsset.assetId);
+                    Log.d(TAG, "getBalance: utxo " + tx.txid + " asset " + txidAsset.assetId);
                     if (txidAsset.assetId.equals(account.getColuAsset().id)) {
                         Log.d(TAG, "getBalance: asset match, increasing balance by " + txidAsset.amount);
-                        assetAmount = assetAmount + (long) txidAsset.amount;
                         if (utxo.blockheight == -1) {
                             Log.d(TAG, "Receiving utxo blockheight = -1");
-                            if (!account.ownAddress(utxo.scriptPubKey.addresses)) {
+                            if (account.ownAddress(utxo.scriptPubKey.addresses)) {
                                 Log.d(TAG, "Receiving utxo blockheight = -1 from unknown source address, updating reception balance");
-                                assetReceivingAmount = assetReceivingAmount + (long) txidAsset.amount;
+                                assetReceivingAmount = assetReceivingAmount + txidAsset.amount;
                             } else {
-                                Log.d(TAG, "Receiving from self, change, adding to confirmed balance");
-                                assetConfirmedAmount = assetConfirmedAmount + (long) txidAsset.amount;
+                                assetSendingAmount += txidAsset.amount;
                             }
                         } else {
-                            assetConfirmedAmount = assetConfirmedAmount + (long) txidAsset.amount;
+                            if (account.ownAddress(utxo.scriptPubKey.addresses))
+                                assetConfirmedAmount += txidAsset.amount;
                         }
                         assetScale = txidAsset.divisibility;
                     }
                 }
-
             }
         }
 
