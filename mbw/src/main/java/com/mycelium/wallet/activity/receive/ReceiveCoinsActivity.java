@@ -161,7 +161,9 @@ public class ReceiveCoinsActivity extends Activity {
       // Amount Hint
       tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
               _mbwManager.getBitcoinDenomination().toString()));
-      shareByNfc();
+      if(Build.VERSION.SDK_INT >= 16) {
+         shareByNfc();
+      }
    }
 
    @TargetApi(16)
