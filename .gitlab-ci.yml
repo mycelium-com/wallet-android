@@ -10,6 +10,7 @@ build:
     - cp -ru /root/.android /root/.gradle /root/.profile /root/android-sdk-linux /cache/root
   type: build
   artifacts:
+    when: always
     expire_in: 4 weeks
     paths:
       - ./*/build/reports/
