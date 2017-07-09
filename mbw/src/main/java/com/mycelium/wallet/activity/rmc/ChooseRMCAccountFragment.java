@@ -40,6 +40,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by elvis on 20.06.17.
  */
@@ -231,7 +233,7 @@ public class ChooseRMCAccountFragment extends Fragment {
                 //Address should be funded to get tokens
                 String fundingAddress = result.order.paymentDetails.address;
                 String invoice = result.order.paymentDetails.invoice;
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount + "&r=" + invoice)));
+                startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount + "&r=" + invoice)), Keys.PAYMENT_REQUEST_CODE);
             } else {
                 Toast.makeText(getActivity(), "Error getting response from RMC server", Toast.LENGTH_SHORT).show();
             }
@@ -261,6 +263,24 @@ public class ChooseRMCAccountFragment extends Fragment {
     @OnClick(R.id.btNo)
     void clickNo() {
         getActivity().finish();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == Keys.PAYMENT_REQUEST_CODE && resultCode == RESULT_OK) {
+            data.getSerializableExtra("transaction_hash");
+            new AlertDialog.Builder(getActivity())
+                    .setMessage("Your payment accepted, you receive your RMC after 3 confirmation")
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            getActivity().finish();
+                        }
+                    })
+                    .create()
+                    .show();
+        }
     }
 
     interface Callback {
