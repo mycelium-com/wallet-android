@@ -397,6 +397,7 @@
   <string name="lt_deactivate_menu">Deaktivovat</string>
   <string name="lt_price_of_one_btc_label">(za 1 BTC)</string>
   <string name="lt_confirm_title">Potvrdit</string>
+  <string name="lt_confirm_cash_received">Obdrželi jste %1$d %2$s a jste připraveni poslat bitcoiny %3$s?</string>
   <string name="lt_confirm_stop">Chcete zastavit tento obchod?</string>
   <string name="lt_confirm_abort">Neboť jste oba nabídku přijali, vaše hodnocení může být penalizováno.\nChcete tento obchod zrušit?</string>
   <string name="lt_enter_location_tite">Zadejte umístění</string>
@@ -427,6 +428,8 @@
   <string name="lt_mycelium_marketplace_description">Najděte v okolí uživatele Mycelia, který kupuje/prodává Bitcoin.</string>
   <string name="lt_missing_fx_rate">Zdroj aktuální ceny není k dispozici</string>
   <string name="lt_price_source_not_available">není k dispozici!</string>
+  <string name="lt_cash_only_hint_be_your_own_bank">Buďte svou vlastní bankou:</string>
+  <string name="lt_cash_only_hint_cash_only">Obchodujte tváří v tvář, jen hotově.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Používáte soukromý klíč s následující BTC adresou:</string>
   <string name="cs_address_description">Naskenovali jste BTC adresu. Můžete vidět její zůstatek, ale nemůžete z ní utrácet.</string>
@@ -573,6 +576,8 @@
   <string name="sss_incompatible_shares_warning">Díly, které jste importovali, nejsou kompatibilní.</string>
   <string name="sss_one_more_share_needed">Potřebujete ještě jeden díl</string>
   <string name="sss_unrecognized_share_warning">Nerozpoznaný obsah dílu</string>
+  <string name="sss_more_shares_needed">Potřebujete ještě %1$d sdílení.</string>
+  <string name="sss_share_number_scanned">Naskenovali jste díl č. %1$d.</string>
   <string name="lt_delete_account">Vymazat identitu obchodníka</string>
   <string name="lt_delete_trade_history">Vymazat tento obchod</string>
   <string name="lt_confirm_delete_history">Chcete z vašeho telefonu vymazat informace o tomto obchodu?</string>
@@ -806,6 +811,9 @@
   <string name="warning_amount_does_not_match">Upozornění: částka neodpovídá!</string>
   <string name="mycelium_terms_of_use">Podmínky použití Mycelium</string>
   <!-- Credit Card -->
+  <string name="credit_card_buy">Kreditní karta</string>
+  <string name="credit_card_buy_description">Koupit bitcoiny kreditní kartou</string>
+  <string name="credit_card_buy_setting_description">Koupit bitcoiny kreditní kartou</string>
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Koupit/prodat BTC</string>
@@ -853,9 +861,14 @@
   <string name="glidera_setting_show_button_summary">Zobrazit volbu Koupit/Prodat služby Glidera</string>
   <string name="tap_to_toggle_through_other_currencies">Ťuknutím přepínejte dalšími měnami</string>
   <!-- GlideraService End -->
+  <string name="settings_service_enabled">Povolit %1$s</string>
+  <!-- Simplex start -->
+  <!-- Simplex end -->
   <string name="label_single_key_icon">jeden klíč</string>
   <string name="label_blue_circle">modrý kruh</string>
   <string name="label_type_it_in">napište to dovnitř</string>
   <string name="label_use_device_location">použít polohu zařízení</string>
   <string name="label_list_activity_indicator">mělo aktivitu</string>
+  <string name="buy_with_cc_spend_only_warning_title">Účet pouze pro příjem</string>
+  <string name="buy_with_cc_spend_only_warning">Aktuálně zvolený účet je pouze pro příjem.\n\nJste si jisti, že chcete tento účet použít pro nákup bitcoinů?</string>
 </resources>

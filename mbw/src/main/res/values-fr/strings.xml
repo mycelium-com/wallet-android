@@ -75,7 +75,7 @@
   <string name="date">Date</string>
   <string name="inputs">Entrées</string>
   <string name="outputs">Sorties</string>
-  <string name="confirmed_in_block">En bloc #%1$d</string>
+  <string name="confirmed_in_block">Au bloc #%1$d</string>
   <string name="no">Non</string>
   <string name="yes">Oui</string>
   <string name="pref_category_pin">Paramètres de code d\'accès</string>
@@ -397,6 +397,7 @@
   <string name="lt_deactivate_menu">Désactiver</string>
   <string name="lt_price_of_one_btc_label">(Par 1 BTC)</string>
   <string name="lt_confirm_title">Confirmer</string>
+  <string name="lt_confirm_cash_received">Avez-vous reçu %1$d %2$s et êtes-vous prêt à envoyer les bitcoins à %3$s ?</string>
   <string name="lt_confirm_stop">Souhaitez-vous mettre fin à cet échange ?</string>
   <string name="lt_confirm_abort">Parce que vous avez accepté conjointement l\'accord, vos cotes peuvent souffrir d\'une pénalité.\nDésirez-vous abandonner cet échange ?</string>
   <string name="lt_enter_location_tite">Entrez l\'emplacement</string>
@@ -425,6 +426,10 @@
   <string name="lt_warn_account_not_spandable">L\'adresse cible sélectionnée (%s) ne peut pas être dépensée.\n\n Vous devez avoir la clé privée dans une sauvegarde hors ligne ou vous perdrez les fonds reçus.</string>
   <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
   <string name="lt_mycelium_marketplace_description">Trouver des utilisateurs de Mycelium dans votre région qui achète/vends des bitcoins.</string>
+  <string name="lt_missing_fx_rate">Prix actuelle n’est pas disponible</string>
+  <string name="lt_price_source_not_available">non disponible !</string>
+  <string name="lt_cash_only_hint_be_your_own_bank">Soyez votre propre banque :</string>
+  <string name="lt_cash_only_hint_cash_only">Échange de personne à personne seulement, comptant seulement.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
@@ -574,6 +579,8 @@
   <string name="sss_incompatible_shares_warning">Les parts que vous avez importé ne sont pas compatibles.</string>
   <string name="sss_one_more_share_needed">Il faut une part supplémentaire</string>
   <string name="sss_unrecognized_share_warning">La part n\'est pas reconnue</string>
+  <string name="sss_more_shares_needed">Il vous faut %1$d parts supplémentaires.</string>
+  <string name="sss_share_number_scanned">Vous avez numérisé la part numéro %1$d.</string>
   <string name="lt_delete_account">Supprimer l\'identité marchande</string>
   <string name="lt_delete_trade_history">Supprimer cet échange</string>
   <string name="lt_confirm_delete_history">Voulez-vous supprimer l\'information pour cette échange de votre téléphone ?</string>
@@ -598,6 +605,7 @@
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importer un compte HD Trezor</string>
   <string name="trezor_name">Trezor :</string>
+  <string name="ext_sig_import_account_caption">Importer un compte</string>
   <string name="ext_sig_select_account_to_import">Sélectionnez un compte à importer</string>
   <string name="ext_sig_verify_transaction_on_device">Vérifier et confirmer les\ntransactions sur votre appareil</string>
   <string name="ext_sig_amount">Montant :</string>
@@ -608,6 +616,9 @@
   <string name="ext_sig_next_unused_account_info">Cette option va importer le prochain compte inutilisé de cet appareil. Il n’apparaîtra dans autres portefeuilles seulement si vous envoyez des fonds.</string>
   <string name="ext_sig_next_unused_account_button">Importer le prochain compte inutilisé&#8230;</string>
   <string name="ext_sig_new_firmware">Un nouveau firmware est disponible&#8230;</string>
+  <string name="ext_sig_configuration_dialog_title">Configuration du périphérique</string>
+  <string name="ext_sig_device_not_initialized">Périphérique n’est pas initialisé. Vous devez utiliser une application externe pour configurer l’appareil avant l\'usage.</string>
+  <string name="external_app_needed">Pour mettre à jour le périphérique vous avez besoin d’une application externe, cliquez sur OK pour la lancer.</string>
   <string name="trezor_new_firmware_description">Un nouveau firmware trezor est disponible.\nVeuillez utiliser MyTrezor.com sur un PC pour mettre à jour votre trezor.</string>
   <string name="ext_sig_unnamed">(sans nom)</string>
   <string name="keepkey_cold_storage_header">Fonds hors ligne KeepKey</string>
@@ -731,10 +742,13 @@
   <string name="menu_item_cancel_transaction">Annuler la transaction</string>
   <string name="menu_item_rebroadcast_transaction">Rediffuser la transaction</string>
   <string name="menu_item_delete_unconfirmed_transaction">Supprimer la transaction non confirmée</string>
+  <string name="menu_item_bump_mining_fee">Tromper le Frais (CPFP)</string>
   <string name="delete_unconfirmed_transaction_title">Supprimer la transaction non confirmée</string>
   <string name="warning_delete_unconfirmed_transaction">Attention : Ceci supprime uniquement la transaction de l\'application locale. Cette fonction ne peut pas annuler une transaction et ne peut pas l\'empêcher de se confirmer. Cela n\'est utile que si le réseau a déjà oublié la transaction parce qu\'il ne l\'a pas confirmé depuis longtemps. Dans ce cas, vous pouvez la supprimer pour accéder de nouveau aux fonds. Vous devez synchroniser après avoir fait cela. Si le réseau connaît toujours la transaction, elle s\'affichera de nouveau juste après la synchronisation.\\n\\nVoulez-vous supprimer la transaction à partir du cache local ?</string>
   <string name="rebroadcast_transaction_title">Rediffuser la transaction</string>
+  <string name="bump_fee_title">Tromper le Frais des Mineurs (CPFP)</string>
   <string name="description_rebroadcast_transaction">Soumettre de nouveau cette transaction au serveur pour la diffuser. Ceci peut-être utilisé si vous suspectez que le réseau n\'a pas propagé votre transaction ou qu\'il l\'a oublié, parce qu\'il ne l\'a pas confirmé depuis longtemps par exemple. Voulez-vous rediffuser cette transaction ?</string>
+  <string name="description_bump_fee">Envoyer une transaction qui augmentera les frais pour cette transaction.\n\nConfirmées que vous voulez passer à %2$s pour obtenir le frais de %1$dsat/B ?</string>
   <string name="message_rebroadcast_successfull">La transaction a été diffusée avec succès.</string>
   <string name="message_rebroadcast_failed">La diffusion a échoué, vérifiez votre connexion internet et synchronisez votre portefeuille.</string>
   <string name="block_explorer_title">Explorateur de blocs (%1$s)</string>
@@ -760,7 +774,7 @@
   <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
-  <string name="coinapult_add_locks_account">Ajouter un compte barré Coinapult</string>
+  <string name="coinapult_add_locks_account">Ajouter un compte verrouillé Coinapult</string>
   <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
   <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
   <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
@@ -803,6 +817,9 @@
   <string name="warning_amount_does_not_match">ATTENTION : le montant ne correspond pas !</string>
   <string name="mycelium_terms_of_use">Conditions d\'utilisation de Mycelium</string>
   <!-- Credit Card -->
+  <string name="credit_card_buy">Carte de Crédit</string>
+  <string name="credit_card_buy_description">Acheter Bitcoin avec une carte de crédit</string>
+  <string name="credit_card_buy_setting_description">Acheter Bitcoin à l’aide de la carte de crédit</string>
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Acheter / Vendre Bitcoin</string>
@@ -848,5 +865,23 @@
   <string name="error_details">Détails de l’erreur</string>
   <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
   <string name="glidera_setting_show_button_summary">Afficher l’option d’achat/vente de Glidera</string>
+  <string name="tap_to_toggle_through_other_currencies">Appuyez pour alterner entre les autres monnaies</string>
   <!-- GlideraService End -->
+  <string name="settings_service_enabled">Activez %1$s</string>
+  <!-- Simplex start -->
+  <string name="si_buy_sell">Carte de Crédit</string>
+  <string name="si_simplex">Simplex</string>
+  <string name="si_buy_sell_description">Acheter bitcoin facilement et en toute sécurité avec votre carte de crédit.</string>
+  <string name="si_setting_show_button_summary">Afficher l’option d’achat de Simplex</string>
+  <string name="si_loading">téléchargement&#8230;</string>
+  <string name="si_error_message">message d’erreur</string>
+  <string name="si_retry">Réessayez</string>
+  <!-- Simplex end -->
+  <string name="label_single_key_icon">une seule clé</string>
+  <string name="label_blue_circle">cercle bleu</string>
+  <string name="label_type_it_in">saisir les données</string>
+  <string name="label_use_device_location">utiliser l’emplacement de l\'appareil</string>
+  <string name="label_list_activity_indicator">avait de l\'activité</string>
+  <string name="buy_with_cc_spend_only_warning_title">Compte receveur seulement</string>
+  <string name="buy_with_cc_spend_only_warning">Le compte sélectionné actuel est un compte receveur seulement.\n\nÊtes vous sure de vouloir utiliser ce compte pour acheter votre bitcoin ?</string>
 </resources>

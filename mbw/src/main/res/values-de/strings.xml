@@ -399,6 +399,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_deactivate_menu">Deaktivieren</string>
   <string name="lt_price_of_one_btc_label">(Pro 1 BTC)</string>
   <string name="lt_confirm_title">Bestätigen</string>
+  <string name="lt_confirm_cash_received">Haben Sie %1$d %2$s erhalten und sind Sie bereit, die Bitcoins an %3$s zu senden?</string>
   <string name="lt_confirm_stop">Möchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_confirm_abort">Sie haben beide dieses Geschäft akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_enter_location_tite">Standort eingeben</string>
@@ -429,6 +430,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_mycelium_marketplace_description">Finde Mycelium-Nutzer in deiner Umgebung die bitcoin (ver)kaufen.</string>
   <string name="lt_missing_fx_rate">Aktuelle Preisquelle nicht verfügbar</string>
   <string name="lt_price_source_not_available">nicht verfügbar!</string>
+  <string name="lt_cash_only_hint_be_your_own_bank">Seien Sie Ihre eigene Bank:</string>
+  <string name="lt_cash_only_hint_cash_only">Tausche von Angesicht zu Angesicht, nur Bargeld.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
@@ -577,6 +580,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="sss_incompatible_shares_warning">Die Teile, die Sie importiert haben, sind nicht kompatibel.</string>
   <string name="sss_one_more_share_needed">Sie benötigen einen weiteren Teil</string>
   <string name="sss_unrecognized_share_warning">Der Inhalt dieses Teils wurde nicht erkannt</string>
+  <string name="sss_more_shares_needed">Sie benötigen %1$d mehr Teile.</string>
+  <string name="sss_share_number_scanned">Sie haben Teil Nummer %1$d gescannt.</string>
   <string name="lt_delete_account">Händler Identität löschen</string>
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
@@ -810,6 +815,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
   <string name="mycelium_terms_of_use">Mycelium Nutzungsbedingungen</string>
   <!-- Credit Card -->
+  <string name="credit_card_buy">Kreditkarte</string>
+  <string name="credit_card_buy_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
+  <string name="credit_card_buy_setting_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Bitcoin kaufen/verkaufen</string>
@@ -857,9 +865,14 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="glidera_setting_show_button_summary">Glidera Kauf/Verkauf-Option anzeigen</string>
   <string name="tap_to_toggle_through_other_currencies">Tippen, um durch andere Währungen zu wechseln</string>
   <!-- GlideraService End -->
+  <string name="settings_service_enabled">%1$s aktivieren</string>
+  <!-- Simplex start -->
+  <!-- Simplex end -->
   <string name="label_single_key_icon">Einzelschlüssel</string>
   <string name="label_blue_circle">blauer Kreis</string>
   <string name="label_type_it_in">geben Sie etwas ein</string>
   <string name="label_use_device_location">Geräteposition verwenden</string>
   <string name="label_list_activity_indicator">hatte Aktivität</string>
+  <string name="buy_with_cc_spend_only_warning_title">Nur Empfangskonto</string>
+  <string name="buy_with_cc_spend_only_warning">Das aktuelle ausgewählte Konto kann nur empfangen.\n\nSind Sie sicher, dass Sie gekaufte Bitcoins in dieses Konto empfangen möchten?</string>
 </resources>

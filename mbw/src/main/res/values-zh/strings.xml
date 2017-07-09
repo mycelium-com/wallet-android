@@ -856,6 +856,8 @@
   <string name="glidera_setting_show_button_summary">显示 Glidera 的买入/卖出选项</string>
   <string name="tap_to_toggle_through_other_currencies">通过点击切换其它货币</string>
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
   <string name="label_single_key_icon">单一密钥</string>
   <string name="label_blue_circle">蓝色圆圈</string>
   <string name="label_type_it_in">请将其输入</string>

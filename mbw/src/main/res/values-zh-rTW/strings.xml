@@ -847,4 +847,6 @@
   <string name="warning_sync_failed_reusing_first">同步失敗 ！重用此 xpub #1地址 ！</string>
   <string name="glidera_setting_show_button_summary">顯示 Glidera 的買入/賣出選項</string>
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>
