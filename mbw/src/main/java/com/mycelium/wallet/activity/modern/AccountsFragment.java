@@ -66,6 +66,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -97,7 +98,9 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
@@ -284,12 +287,18 @@ public class AccountsFragment extends Fragment {
                         address = "";
                      }
                      message = getString(R.string.confirm_delete_pk_with_balance_with_label, label,
-                           address, _mbwManager.getBtcValueString(satoshis));
+                                address, accountToDelete instanceof ColuAccount ?
+                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     : _mbwManager.getBtcValueString(satoshis)
+                     );
                   } else {
                      message = getString(
                            R.string.confirm_delete_pk_with_balance,
                            receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
-                           _mbwManager.getBtcValueString(satoshis)
+                             accountToDelete instanceof ColuAccount ?
+                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     : _mbwManager.getBtcValueString(satoshis)
+
                      );
                   }
                } else {
@@ -365,6 +374,16 @@ public class AccountsFragment extends Fragment {
                finishCurrentActionMode();
                _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
                _toaster.toast(R.string.account_deleted, false);
+            }
+         }
+
+         private CurrencyValue getPotentialBalanceColu(WalletAccount account) {
+            if (account.isArchived()) {
+               return null;
+            } else {
+               CurrencyBasedBalance balance = account.getCurrencyBasedBalance();
+               ExchangeRateManager exchanger = _mbwManager.getExchangeRateManager();
+               return balance.confirmed.add(balance.receiving, exchanger);
             }
          }
 

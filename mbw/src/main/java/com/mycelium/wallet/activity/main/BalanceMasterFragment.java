@@ -106,7 +106,7 @@ public class BalanceMasterFragment extends Fragment {
         } else {
             tvTor.setVisibility(View.GONE);
         }
-
+        updateAddressView();
         MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
         super.onResume();
     }
@@ -124,6 +124,10 @@ public class BalanceMasterFragment extends Fragment {
 
     @Subscribe
     public void selectedAccountChanged(SelectedAccountChanged event) {
+        updateAddressView();
+    }
+
+    private void updateAddressView() {
         WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         defineAddressAccountView(fragmentTransaction, account);
