@@ -9,7 +9,7 @@ import com.google.api.client.util.Key;
 public class Asset {
     public static class Json extends GenericJson {
         @Key
-        public double amount;
+        public long amount;
 
         @Key
         public String assetId;
