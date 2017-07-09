@@ -51,6 +51,7 @@ import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
 
 import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -67,6 +68,7 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
@@ -373,7 +375,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
 
          // is it a BTC transaction or an asset transaction ?
          // count assets and BTC
-         double outgoingAsset = 0;
+         long outgoingAsset = 0;
          long outgoingSatoshi = 0;
          for (Vin.Json vin : tx.vin) {
             if (vin.assets.size() > 0) {
@@ -383,7 +385,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
                         outgoingAsset = outgoingAsset + anAsset.amount;
                      }
                   }
-                  break;
                }
             } else {
                if (vin.previousOutput.addresses != null && vin.previousOutput.addresses.contains(this.address.toString())) {
@@ -397,7 +398,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
          Log.d(TAG, "Debug: valueSatoshi=" + outgoingSatoshi);
 
 
-         double incomingAsset = 0;
+         long incomingAsset = 0;
          long incomingSatoshi = 0;
 
          for (Vout.Json vout : tx.vout) {
@@ -420,18 +421,18 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
          BigDecimal valueBigDecimal;
          ExactCurrencyValue value;
 
-         double assetBalance = incomingAsset - outgoingAsset;
-         double satoshiBalance = incomingSatoshi - outgoingSatoshi;
+         long assetBalance = incomingAsset - outgoingAsset;
+         long satoshiBalance = incomingSatoshi - outgoingSatoshi;
 
          boolean isIncoming;
 
          if (assetBalance != 0) {
             isIncoming = assetBalance > 0;
-            valueBigDecimal = BigDecimal.valueOf((long) Math.abs(assetBalance), coluAsset.scale);
+            valueBigDecimal = BigDecimal.valueOf(Math.abs(assetBalance), coluAsset.scale);
             value = ExactCurrencyValue.from(valueBigDecimal, coluAsset.name);
          } else if (satoshiBalance != 0) {
             isIncoming = satoshiBalance > 0;
-            valueBigDecimal = BigDecimal.valueOf((long) Math.abs(satoshiBalance), 8);
+            valueBigDecimal = BigDecimal.valueOf(Math.abs(satoshiBalance), 8);
             value = ExactCurrencyValue.from(valueBigDecimal, "BTC");
          } else {
             //We can hypothetically have a situation when we our Colu address received assets with another assetId (not RMC)
@@ -512,7 +513,31 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
       return null;
    }
 
-   @Override
+   private Tx.Json GetColuTransactionInfoById(Sha256Hash txid) {
+      for (Tx.Json tx : historyTxList) {
+         if (tx.txid.equals(txid.toString())) {
+            return tx;
+         }
+      }
+      return null;
+   }
+
+   private boolean isColuTransaction(Tx.Json tx) {
+      for (Vin.Json vin : tx.vin) {
+         if (vin.assets.size() > 0) {
+            return true;
+         }
+      }
+
+      for (Vout.Json vout : tx.vout) {
+         if (vout.assets.size() > 0) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
       TransactionDetails details = null;
       TransactionSummary summary = getTransactionSummary(txid);
@@ -535,31 +560,66 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
             Log.d(TAG, "historyTxInfosList is null, ignoring it for allTransactionSummaries.");
          }
 
-         com.mrd.bitlib.model.Transaction bitlibTr = null;
-/* commented out because mycelium wapi server does not always return info on OP_RETURN unconfirmed TX
-            try {
-                // not really used for now, we rely on extendedInfo
-                bitlibTr = com.mrd.bitlib.model.Transaction.fromByteReader(new ByteReader(extendedInfo.binary), txid);
-            } catch(com.mrd.bitlib.model.Transaction.TransactionParsingException e) {
-                Log.d(TAG, "Transaction parsing exception : " + e.getMessage());
-            }
-*/
          if (extendedInfo == null) {
             Log.d(TAG, "Extended info for hash " + txid + " not found !");
          }
-         if (bitlibTr == null) {
-            details = new TransactionDetails(txid, extendedInfo.height, (int) summary.time,
-                    //summary.toAddresses
-                    null, null, extendedInfo.binary.length);
-         } else {
-            // todo: copy transactionDetails builder from wapi AbstractAccount getTransactionDetails method
-            details = new TransactionDetails(txid, extendedInfo.height, extendedInfo.time,
-                    //summary.toAddresses
-                    null, null, bitlibTr.getTxRawSize());
+
+         Transaction tx = TransactionEx.toTransaction(extendedInfo);
+         if (tx == null) {
+            throw new RuntimeException();
          }
-      } else {
-         Log.d(TAG, "getTransactionDetails: could not get summary ! Returning null details");
+
+         Tx.Json coluTxInfo = GetColuTransactionInfoById(txid);
+         boolean isColuTransaction = isColuTransaction(coluTxInfo);
+
+         List<TransactionDetails.Item> inputs = new ArrayList<>();
+
+         if (tx.isCoinbase()) {
+            // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
+            // and make the address the null address
+            long value = 0;
+            for (TransactionOutput out : tx.outputs) {
+               value += out.value;
+            }
+            inputs.add(new TransactionDetails.Item(Address.getNullAddress(getNetwork()), value, true));
+         } else {
+            for (Vin.Json vin : coluTxInfo.vin) {
+               if (vin.assets.size() > 0) {
+                     for (Asset.Json anAsset : vin.assets) {
+                        if (anAsset.assetId.contentEquals(coluAsset.id) && vin.previousOutput.addresses.size() > 0) {
+                           inputs.add(new TransactionDetails.Item(Address.fromString(vin.previousOutput.addresses.get(0)), anAsset.amount, false));
+                        }
+                     }
+               } else {
+                  if (!isColuTransaction)
+                     inputs.add(new TransactionDetails.Item(this.address, vin.value, false));
+               }
+            }
+         }
+
+         List<TransactionDetails.Item> outputs = new ArrayList<>();
+
+         for (Vout.Json vout : coluTxInfo.vout) {
+            if (vout.assets.size() > 0) {
+                  for (Asset.Json anAsset : vout.assets) {
+                     if (anAsset.assetId.contentEquals(coluAsset.id) && vout.scriptPubKey.addresses.size() > 0) {
+                        outputs.add(new TransactionDetails.Item(Address.fromString(vout.scriptPubKey.addresses.get(0)), anAsset.amount, false));
+                     }
+                  }
+                  break;
+            } else {
+               if (!isColuTransaction)
+                  outputs.add(new TransactionDetails.Item(this.address, vout.value, false));
+            }
+         }
+
+         details = new TransactionDetails(
+                 txid, extendedInfo.height, extendedInfo.time,
+                 inputs.toArray(new TransactionDetails.Item[inputs.size()]),
+                 outputs.toArray(new TransactionDetails.Item[outputs.size()]),
+                 extendedInfo.binary.length);
       }
+
       return details;
    }
 
