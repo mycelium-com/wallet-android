@@ -8,4 +8,6 @@ public class Keys {
     public static final String RMC_COUNT = "rmc_count";
     public static final String PAY_METHOD = "pay_method";
     public static final String BTC_COUNT = "btc_count";
+
+    public static final int PAYMENT_REQUEST_CODE = 10002;
 }
