@@ -102,8 +102,8 @@ public class RmcBtcAmountFragment extends Fragment {
         if (currency.equals("BTC")) {
             if (decimalsAfterDot(amount) > 8) {
                 amount = amount.substring(0, amount.length() - 1);
-                etRMC.setText(amount);
-                etRMC.setSelection(amount.length());
+                etBTC.setText(amount);
+                etBTC.setSelection(amount.length());
             }
             BigDecimal usdValue = !value.equals(BigDecimal.ZERO) ?
                     CurrencyValue.fromValue(ExactBitcoinValue.from(value), "USD", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue()

@@ -244,7 +244,12 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Receiving
       if (balance.receiving.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
+         String receivingString;
+         if (account instanceof ColuAccount) {
+            receivingString = Utils.getColuFormattedValueWithUnit(balance.sending);
+         } else {
+            receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
+         }
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = (TextView) _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -257,7 +262,12 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       if (balance.sending.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
+         String sendingString;
+         if (account instanceof ColuAccount) {
+            sendingString = Utils.getColuFormattedValueWithUnit(balance.sending);
+         } else {
+            sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
+         }
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
