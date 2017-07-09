@@ -61,6 +61,8 @@ public class ChooseRMCAccountFragment extends Fragment {
     @BindView(R.id.useAccountTitle)
     protected TextView useAccountTitle;
 
+    private ProgressDialog progressDialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -213,7 +215,6 @@ public class ChooseRMCAccountFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
         }
 
         @Override
@@ -225,6 +226,7 @@ public class ChooseRMCAccountFragment extends Fragment {
 
         @Override
         protected void onPostExecute(CreateRmcOrderResponse.Json result) {
+            progressDialog.dismiss();
             if (result != null) {
                 //Address should be funded to get tokens
                 String fundingAddress = result.order.paymentDetails.address;
@@ -239,8 +241,11 @@ public class ChooseRMCAccountFragment extends Fragment {
     @OnClick(R.id.btYes)
     void clickYes() {
         if (payMethod.equals("BTC")) {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Creating order");
+            progressDialog.show();
             RmsApiTask task = new RmsApiTask(btcCount,rmcCount, coluAddress, payMethod);
-            task.execute();
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         } else if (payMethod.equals("ETH")) {
             Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);

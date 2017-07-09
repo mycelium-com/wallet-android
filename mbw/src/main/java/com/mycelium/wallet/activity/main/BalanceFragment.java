@@ -192,13 +192,13 @@ public class BalanceFragment extends Fragment {
       View tcdFiatDisplay = _root.findViewById(R.id.tcdFiatDisplay);
       if(account instanceof ColuAccount) {
 //          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
-
+         tvBtcRate.setVisibility(View.VISIBLE);
          if(((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC){
             tcdFiatDisplay.setVisibility(View.VISIBLE);
             tvBtcRate.setText("1 RMC = 4000 USD");
          }else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);
-            tvBtcRate.setVisibility(View.INVISIBLE);
+            tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
          }
 //          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
 //          ColuAccount coluAccount = (ColuAccount) account;

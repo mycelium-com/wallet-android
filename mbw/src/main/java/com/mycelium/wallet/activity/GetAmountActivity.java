@@ -44,9 +44,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.BindView;
-import butterknife.OnClick;
+
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
@@ -54,17 +52,28 @@ import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.CurrencySwitcher;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.currency.*;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class GetAmountActivity extends Activity implements NumberEntryListener {
@@ -178,7 +187,11 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // Init the number pad
       String amountString;
       if (!CurrencyValue.isNullOrZero(_amount)) {
-         amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
+         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            amountString = Utils.getColuFormattedValue(_amount);
+         }else {
+            amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
+         }
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
       } else {
          amountString = "";
@@ -306,6 +319,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
                newAmount = _amount.getValue().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
             }
+         } else if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            showDecimalPlaces = CoinUtil.Denomination.BTC.getDecimalPlaces();
+            newAmount = _amount.getValue();
          } else {
             //take what was typed in
             showDecimalPlaces = 2;
@@ -323,8 +339,14 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void showMaxAmount() {
       CurrencyValue maxSpendable = CurrencyValue.fromValue(_maxSpendableAmount,
             _amount.getCurrency(), _mbwManager.getExchangeRateManager());
-      String maxBalanceString = getResources().getString(R.string.max_btc,
-            Utils.getFormattedValueWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+      String maxBalanceString = "";
+      if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         maxBalanceString = getResources().getString(R.string.max_btc,
+                 Utils.getColuFormattedValueWithUnit(maxSpendable));
+      } else {
+         maxBalanceString = getResources().getString(R.string.max_btc,
+                 Utils.getFormattedValueWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+      }
       tvMaxAmount.setText(maxBalanceString);
    }
 

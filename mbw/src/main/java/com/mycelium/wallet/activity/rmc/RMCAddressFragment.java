@@ -22,6 +22,10 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.squareup.otto.Subscribe;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -84,10 +88,7 @@ public class RMCAddressFragment extends Fragment {
                 new DataPoint(4, 6)
         });
         graphView.addSeries(series);
-        activeBtnProgress();
-        String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
-        tvLabel.setText(name);
-        tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
+        updateUi();
     }
 
     private void activeBtnProgress() {
@@ -150,5 +151,27 @@ public class RMCAddressFragment extends Fragment {
 
 // Insert event to calendar
         Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+    }
+
+    @Subscribe
+    public void receivingAddressChanged(ReceivingAddressChanged event) {
+        updateUi();
+    }
+
+    private void updateUi() {
+        activeBtnProgress();
+        String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
+        tvLabel.setText(name);
+        tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
+    }
+
+    @Subscribe
+    public void accountChanged(AccountChanged event) {
+        updateUi();
+    }
+
+    @Subscribe
+    public void balanceChanged(BalanceChanged event) {
+        updateUi();
     }
 }

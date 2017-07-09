@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.rmc;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,7 +17,6 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactFiatValue;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +38,12 @@ public class RmcBtcAmountFragment extends Fragment {
     private InputWatcher etBTCWatcher;
     private InputWatcher etUSDWatcher;
     private InputWatcher etRMCWatcher;
+    private MbwManager mbwManager;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mbwManager = MbwManager.getInstance(getActivity());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,17 +62,16 @@ public class RmcBtcAmountFragment extends Fragment {
         etBTCWatcher = new InputWatcher(etBTC, "BTC");
         etRMCWatcher = new InputWatcher(etRMC, "RMC");
         etUSDWatcher = new InputWatcher(etUSD, "USD");
-        update(" ", "");
         addChangeListener();
     }
 
     @OnClick(R.id.btOk)
-    void okClick(){
+    void okClick() {
         ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("rmc_count", etRMC.getText().toString());
-        bundle.putString("pay_method", "BTC");
-        bundle.putString("btc_count", etBTC.getText().toString());
+        bundle.putString(Keys.RMC_COUNT, etRMC.getText().toString());
+        bundle.putString(Keys.PAY_METHOD, "BTC");
+        bundle.putString(Keys.BTC_COUNT, etBTC.getText().toString());
         rmcAccountFragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, rmcAccountFragment)
@@ -94,26 +99,30 @@ public class RmcBtcAmountFragment extends Fragment {
         } catch (NumberFormatException e) {
         }
         if (currency.equals("BTC")) {
-            BigDecimal usdValue = CurrencyValue.fromValue(ExactBitcoinValue.from(value), "USD", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue();
+            BigDecimal usdValue = !value.equals(BigDecimal.ZERO) ?
+                    CurrencyValue.fromValue(ExactBitcoinValue.from(value), "USD", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue()
+                    : BigDecimal.ZERO;
             usdValue = usdValue == null ? BigDecimal.ZERO : usdValue;
-            etUSD.setText(usdValue.toPlainString());
-            etRMC.setText(usdValue.divide(BigDecimal.valueOf(4000)).toPlainString());
+            etUSD.setText(usdValue.stripTrailingZeros().toPlainString());
+            etRMC.setText(usdValue.divide(BigDecimal.valueOf(4000)).stripTrailingZeros().toPlainString());
         } else if (currency.equals("RMC")) {
             BigDecimal usdValue = value.multiply(BigDecimal.valueOf(4000));
-            etUSD.setText(usdValue.toPlainString());
+            etUSD.setText(usdValue.stripTrailingZeros().toPlainString());
             BigDecimal btcValue = CurrencyValue.fromValue(ExactFiatValue.from(usdValue, "USD"), "BTC", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue();
-            etBTC.setText(btcValue.toPlainString());
+            etBTC.setText(btcValue != null ? btcValue.stripTrailingZeros().toPlainString()
+                    : getString(R.string.exchange_source_not_available, mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
         } else if (currency.equals("USD")) {
-            etRMC.setText(value.divide(BigDecimal.valueOf(4000)).toPlainString());
+            etRMC.setText(value.divide(BigDecimal.valueOf(4000)).stripTrailingZeros().toPlainString());
             BigDecimal btcValue = CurrencyValue.fromValue(ExactFiatValue.from(value, "USD"), "BTC", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue();
-            etBTC.setText(btcValue.toPlainString());
+            etBTC.setText(btcValue != null ? btcValue.stripTrailingZeros().toPlainString()
+                    : getString(R.string.exchange_source_not_available, mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
         }
         btnOk.setEnabled(!value.equals(BigDecimal.ZERO));
 
         addChangeListener();
     }
 
-    class InputWatcher implements TextWatcher {
+    private class InputWatcher implements TextWatcher {
         EditText et;
         String currency;
 

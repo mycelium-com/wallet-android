@@ -72,15 +72,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:gravity="center_horizontal"
             android:text="@string/rmc_your_new_account"
             android:textSize="18sp" />
 
-        <include layout="@layout/record_row"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/darkgrey" />
+
+        <include layout="@layout/record_row" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/darkgrey" />
 
         <TextView
             android:layout_width="wrap_content"

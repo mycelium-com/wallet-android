@@ -1059,7 +1059,9 @@ public class SendMainActivity extends Activity {
                         );
                     }
                     String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-                    if (!primaryAmount.isBtc()) {
+                    if(isColu()){
+                        sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount);
+                    } else  if (!primaryAmount.isBtc()) {
                         // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                         // on a FX rate
                         sendAmount = "~ " + sendAmount;

@@ -108,7 +108,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total RMC hash power:"
+                        android:text="@string/total_rmc_hash_power_ph_s"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -131,7 +131,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Your RMC hash power:"
+                        android:text="@string/your_rmc_hash_power_th_s"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 

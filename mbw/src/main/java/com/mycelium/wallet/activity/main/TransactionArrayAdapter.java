@@ -20,6 +20,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,7 +89,11 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // Set value
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(Utils.getFormattedValueWithUnit(record.value, _mbwManager.getBitcoinDenomination()));
+      if(_mbwManager.getColuManager().isColuAsset(record.value.getCurrency())) {
+         tvAmount.setText(Utils.getColuFormattedValueWithUnit(record.value));
+      }else {
+         tvAmount.setText(Utils.getFormattedValueWithUnit(record.value, _mbwManager.getBitcoinDenomination()));
+      }
       tvAmount.setTextColor(color);
 
       // Set alternative value
@@ -119,7 +124,11 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
             tvFiat.setText(Utils.getFormattedValueWithUnit(alternativeCurrencyValue, _mbwManager.getBitcoinDenomination()));
             tvFiat.setTextColor(color);
          }
-      } else {
+      } if(_mbwManager.getColuManager().isColuAsset(record.value.getCurrency())) {
+         tvFiat.setVisibility(View.VISIBLE);
+         tvFiat.setText(record.value.getValue().multiply(BigDecimal.valueOf(4000)).stripTrailingZeros().toPlainString() + " USD");
+         tvFiat.setTextColor(color);
+      }else {
          tvFiat.setVisibility(View.GONE);
       }
 

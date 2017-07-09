@@ -910,6 +910,10 @@ public class Utils {
       return String.format("%s %s", value.getValue().stripTrailingZeros(), value.getCurrency());
    }
 
+   public static String getColuFormattedValue(CurrencyValue value) {
+      return value.getValue().stripTrailingZeros().toPlainString();
+   }
+
    // prevent ambiguous call for ExactBitcoinValue
    public static String getFormattedValueWithUnit(ExactBitcoinValue value, CoinUtil.Denomination denomination) {
       return getFormattedValueWithUnit((BitcoinValue)value, denomination);

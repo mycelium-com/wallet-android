@@ -1055,4 +1055,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="rmc_account">Account:</string>
     <string name="verify">Verify</string>
     <string name="share_x_address">Share %s Address</string>
+    <string name="note_can_have_one_account">NOTE THAT YOU CAN ONLY HAVE ONE ACCOUNT FOR EACH TYPE OF ASSET</string>
+    <string name="your_rmc_hash_power_th_s">Your RMC hash power (TH/s):</string>
+    <string name="total_rmc_hash_power_ph_s">Total RMC hash power ( PH/s):</string>
 </resources>
