@@ -44,26 +44,28 @@
             android:textSize="20sp" />
 
 
+        <Button
+            android:id="@+id/btEth"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:text="ETH"
+            android:enabled="false"
+            android:textSize="20sp" />
+
         <!--<Button-->
-        <!--android:id="@+id/btEth"-->
+        <!--android:id="@+id/btBankwire"-->
         <!--style="@style/MyceliumButton"-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
         <!--android:layout_margin="16dp"-->
         <!--android:paddingLeft="32dp"-->
         <!--android:paddingRight="32dp"-->
-        <!--android:text="ETH"-->
+        <!--android:text="BANK"-->
         <!--android:textSize="20sp" />-->
-        <!--<Button-->
-            <!--android:id="@+id/btBankwire"-->
-            <!--style="@style/MyceliumButton"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_margin="16dp"-->
-            <!--android:paddingLeft="32dp"-->
-            <!--android:paddingRight="32dp"-->
-            <!--android:text="BANK"-->
-            <!--android:textSize="20sp" />-->
 
     </LinearLayout>
 
