@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -190,7 +191,7 @@ public class TransactionDetailsActivity extends Activity {
       ll.setOrientation(LinearLayout.VERTICAL);
       ll.setLayoutParams(WCWC);
       if(item instanceof ColuTxDetailsItem) {
-         ll.addView(getColuValue(((ColuTxDetailsItem) item).assetAmount,
+         ll.addView(getColuValue(((ColuTxDetailsItem) item).getAmount(),
                  ((ColuAccount)_mbwManager.getSelectedAccount()).getColuAsset().name));
       }
       if (item.isCoinbase) {
@@ -242,11 +243,11 @@ public class TransactionDetailsActivity extends Activity {
       return tv;
    }
 
-   private View getColuValue(final long value, String currency) {
+   private View getColuValue(final BigDecimal value, String currency) {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(value + " " + currency);
+      tv.setText(value.stripTrailingZeros() + " " + currency);
       tv.setTextColor(_white_color);
 
       tv.setOnLongClickListener(new View.OnLongClickListener() {
