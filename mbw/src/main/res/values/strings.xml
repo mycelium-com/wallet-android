@@ -180,7 +180,7 @@
     <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nAccount label:\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</string>
     <string name="verify_private_key_backup">Verify Backup</string>
     <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
-    <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
+    <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin and digital assets funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
     <string name="verify_backup_scan_desc">Verify your backup by scanning the private key or master seed QR code.\nSeveral formats are accepted, including the Mycelium encrypted paper backup.</string>
     <string name="verify_backup_clipboard_desc">Verify private key backup by taking the private key from the clipboard.</string>
     <string name="verify_backup_num_keys">You have %1$s keys that have never been verified.</string>

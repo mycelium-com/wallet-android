@@ -149,6 +149,18 @@ public class VerifyBackupActivity extends Activity {
             }
          }
       }
+      for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
+         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
+
+         if (backupState!= MetadataStorage.BackupState.IGNORED) {
+            boolean needsBackup = account.canSpend()
+                    && backupState != MetadataStorage.BackupState.VERIFIED;
+            if (needsBackup) {
+               num++;
+            }
+         }
+      }
       return num;
    }
 
