@@ -1040,4 +1040,5 @@ You can either add miner\'s fee every time you make %1$s transaction or top up y
         Referrals happen only when users decide to make a purchase on our partner websites.
     </string>
     <string name="your_privacy_out_priority">Your privacy is our top priority</string>
+    <string name="rmc_payment_success">Payment is successful! You will get your assets after three confirmations.</string>
 </resources>

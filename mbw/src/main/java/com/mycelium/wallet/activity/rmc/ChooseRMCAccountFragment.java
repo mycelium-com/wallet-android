@@ -269,9 +269,9 @@ public class ChooseRMCAccountFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == Keys.PAYMENT_REQUEST_CODE && resultCode == RESULT_OK) {
-            data.getSerializableExtra("transaction_hash");
+//            data.getSerializableExtra("transaction_hash");
             new AlertDialog.Builder(getActivity())
-                    .setMessage("Your payment accepted, you receive your RMC after 3 confirmation")
+                    .setMessage(R.string.rmc_payment_success)
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
