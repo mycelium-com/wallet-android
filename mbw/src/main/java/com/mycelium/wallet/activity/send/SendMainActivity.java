@@ -398,11 +398,15 @@ public class SendMainActivity extends Activity {
     private void coluSpendAccount() {
 
         if(feeColuAccount != null) {
-            String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
-            Optional<Address> receivingAddress = feeColuAccount.getReceivingAddress();
-            if (receivingAddress.isPresent()) {
-                btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
-                btFeeFromAccount.setVisibility(View.VISIBLE);
+            if(checkFee())  {
+                btFeeFromAccount.setVisibility(View.GONE);
+            } else{
+                String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
+                Optional<Address> receivingAddress = feeColuAccount.getReceivingAddress();
+                if (receivingAddress.isPresent()) {
+                    btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
+                    btFeeFromAccount.setVisibility(View.VISIBLE);
+                }
             }
         } else if(isColu()){
             tvError.setText(R.string.requires_btc_amount);
@@ -410,7 +414,11 @@ public class SendMainActivity extends Activity {
         }
     }
 
-   // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
+    private boolean checkFee() {
+        return false;
+    }
+
+    // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
    // only uses the ExchangeRate-Manager if we dont have it already converted
    private BitcoinValue getBitcoinValueToSend() {
       if (CurrencyValue.isNullOrZero(_amountToSend)) {
