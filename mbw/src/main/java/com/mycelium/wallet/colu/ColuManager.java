@@ -27,9 +27,11 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
+import com.mycelium.wallet.colu.json.AssetBalance;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
+import com.mycelium.wallet.colu.json.Vin;
 import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
@@ -981,7 +983,7 @@ public class ColuManager implements AccountProvider {
                 continue;
             }
 
-            getAddressBalance(addressInfoWithTransactions.transactions, account);
+            getAddressBalance(addressInfoWithTransactions, account);
 
             Log.d(TAG, "retrieved addressInfoWithTransactions");
             if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
@@ -1017,46 +1019,55 @@ public class ColuManager implements AccountProvider {
         return balances;
     }
 
-    private CurrencyBasedBalance getAddressBalance(List<Tx.Json> transactions, ColuAccount account) {
+    private CurrencyBasedBalance getAddressBalance(AddressTransactionsInfo.Json atInfo, ColuAccount account) {
         long assetConfirmedAmount = 0;
         long assetReceivingAmount = 0;
         long assetSendingAmount = 0;
 
         int assetScale = 0;
         long satoshiAmount = 0;
-        // collect all utxos at that address from colu server (colored)
-        LinkedList<com.mrd.bitlib.util.Sha256Hash> utxoList =
-                new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
 
-        for (Tx.Json tx : transactions) {
+        for(Tx.Json tx : atInfo.transactions) {
+            if (tx.blockheight != -1)
+                continue;
 
-            for (Vout.Json vout : tx.vout) {
-                if (vout.used)
-                    continue;
+            boolean isInitiatedByMe = false;
 
-                Vout.Json utxo = vout;
-                Log.d(TAG, "getBalance: utxo " + tx.txid);
-                // adding utxo to list of txid list request
-                utxoList.add(com.mrd.bitlib.util.Sha256Hash.fromString(tx.txid));
-                satoshiAmount = satoshiAmount + utxo.value;
-                for (Asset.Json txidAsset : utxo.assets) {
-                    Log.d(TAG, "getBalance: utxo " + tx.txid + " asset " + txidAsset.assetId);
-                    if (txidAsset.assetId.equals(account.getColuAsset().id)) {
-                        Log.d(TAG, "getBalance: asset match, increasing balance by " + txidAsset.amount);
-                        if (utxo.blockheight == -1) {
-                            Log.d(TAG, "Receiving utxo blockheight = -1");
-                            if (account.ownAddress(utxo.scriptPubKey.addresses)) {
-                                Log.d(TAG, "Receiving utxo blockheight = -1 from unknown source address, updating reception balance");
-                                assetReceivingAmount = assetReceivingAmount + txidAsset.amount;
-                            } else {
-                                assetSendingAmount += txidAsset.amount;
-                            }
-                        } else {
-                            if (account.ownAddress(utxo.scriptPubKey.addresses))
-                                assetConfirmedAmount += txidAsset.amount;
+            for(Vin.Json vin : tx.vin) {
+                if (account.ownAddress(vin.previousOutput.addresses)) {
+                    isInitiatedByMe = true;
+                    break;
+                }
+            }
+            for(Vout.Json vout : tx.vout) {
+                if (vout.scriptPubKey.addresses != null)
+                    if (!account.ownAddress(vout.scriptPubKey.addresses)) {
+                        for (Asset.Json asset : vout.assets) {
+                            if (!asset.assetId.equals(account.getColuAsset().id))
+                                continue;
+                            if (isInitiatedByMe)
+                                assetSendingAmount += asset.amount;
                         }
-                        assetScale = txidAsset.divisibility;
+                    } else {
+                        for (Asset.Json asset : vout.assets) {
+                            if (!asset.assetId.equals(account.getColuAsset().id))
+                                continue;
+
+                            if (!isInitiatedByMe)
+                                assetReceivingAmount += asset.amount;
+                        }
                     }
+            }
+        }
+
+        for(Utxo.Json utxo : atInfo.utxos) {
+            satoshiAmount = satoshiAmount + utxo.value;
+            for (Asset.Json txidAsset : utxo.assets) {
+                if (txidAsset.assetId.equals(account.getColuAsset().id)) {
+                    if (utxo.blockheight != -1) {
+                        assetConfirmedAmount += txidAsset.amount;
+                    }
+                    assetScale = txidAsset.divisibility;
                 }
             }
         }

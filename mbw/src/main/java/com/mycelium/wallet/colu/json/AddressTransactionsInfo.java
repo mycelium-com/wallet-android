@@ -25,7 +25,7 @@ public class AddressTransactionsInfo {
         public long received;
 
         @Key
-        public List<Asset.Json> assets;
+        public List<AssetBalance.Json> assets;
 
         @Key
         public int numOfTransactions;
