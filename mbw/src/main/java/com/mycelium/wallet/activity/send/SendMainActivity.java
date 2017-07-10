@@ -94,6 +94,7 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -415,7 +416,10 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean checkFee() {
-        return false;
+        Balance balance = feeColuAccount.getBalance();
+        long feePerKb = getFeePerKb().getLongValue();
+        long spendableBalance =  balance.getSpendableBalance();
+        return spendableBalance >= feePerKb;
     }
 
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
@@ -550,6 +554,7 @@ public class SendMainActivity extends Activity {
                                             List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
                                             long feePerKb = getFeePerKb().getLongValue();
                                             WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(coluAccount.getReceivingAddress().get(), feePerKb);
+                                            receivers.add(coluReceiver);
                                             try {
                                                 UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
                                                 Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
