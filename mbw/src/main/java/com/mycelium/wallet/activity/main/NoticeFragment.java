@@ -191,10 +191,7 @@ public class NoticeFragment extends Fragment {
       // Then check if there are some SingleAddressAccounts with funds on it
       if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
          if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED) {
-            Balance balance = account.getBalance();
-            if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
-               return Notice.SINGLEKEY_BACKUP_MISSING;
-            }
+            return Notice.SINGLEKEY_BACKUP_MISSING;
          }
       }
 
