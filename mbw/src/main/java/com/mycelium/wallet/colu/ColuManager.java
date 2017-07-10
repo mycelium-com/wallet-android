@@ -30,7 +30,6 @@ import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
-import com.mycelium.wallet.colu.json.Vin;
 import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
@@ -101,6 +100,7 @@ public class ColuManager implements AccountProvider {
     private final HashMap<UUID, ColuAccount> coluAccounts;
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
+    private WalletManager.State state;
 
 
     final org.bitcoinj.core.NetworkParameters netParams;
@@ -108,10 +108,10 @@ public class ColuManager implements AccountProvider {
     private EventTranslator eventTranslator;
 
     public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBacking backing,
-                        MbwManager manager, MbwEnvironment env,
-                        final Bus eventBus, Handler handler,
-                        MetadataStorage metadataStorage, ExchangeRateManager exchangeRateManager,
-                        WapiLogger logger) {
+                       MbwManager manager, MbwEnvironment env,
+                       final Bus eventBus, Handler handler,
+                       MetadataStorage metadataStorage, ExchangeRateManager exchangeRateManager,
+                       WapiLogger logger) {
         this._secureKeyValueStore = secureKeyValueStore;
         this._backing = backing;
         this.env = env;
@@ -161,6 +161,9 @@ public class ColuManager implements AccountProvider {
         metadataStorage.storeColuAssetIds(all);
     }
 
+    public WalletManager.State getState() {
+        return state;
+    }
 
     public WapiClient getWapi() {
         return mgr.getWapi();
@@ -179,9 +182,9 @@ public class ColuManager implements AccountProvider {
                 return null;
             }
             input.setScriptSig(inScript);
-           if(connectedOutput == null) {
-              return null;
-           }
+            if (connectedOutput == null) {
+                return null;
+            }
             try {
                 input.verify(connectedOutput);
                 Log.d(TAG, "signTransactionInternal: Input verification passed for input " + i +
@@ -243,8 +246,8 @@ public class ColuManager implements AccountProvider {
             try {
                 input.verify(connectedOutput);
                 Log.d(TAG, "getSignature: input set input script signature and verified output ! " +
-                        "Adding validated signature with key " + input.toString()); 
-                    // connectedOutput.getAddressFromP2SH(netParams) + ":" + connectedOutput.getIndex());
+                        "Adding validated signature with key " + input.toString());
+                // connectedOutput.getAddressFromP2SH(netParams) + ":" + connectedOutput.getIndex());
                 signatures.put(input.toString(), inputScript);
             } catch (VerificationException e) {
                 Log.e(TAG, "getSignature: VerificationException : " + e.getMessage());
@@ -494,7 +497,7 @@ public class ColuManager implements AccountProvider {
 
         Script inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(this.netParams));
 
-        for (int i = 0; i < signTx.getInputs().size();i++) {
+        for (int i = 0; i < signTx.getInputs().size(); i++) {
             TransactionSignature signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false);
             Script scriptSig = ScriptBuilder.createInputScript(signature, ecKey);
             signTx.getInput(i).setScriptSig(scriptSig);
@@ -503,10 +506,10 @@ public class ColuManager implements AccountProvider {
         byte[] signedTransactionBytes = signTx.bitcoinSerialize();
         Transaction signedBitlibTransaction;
         try {
-          signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes);
+            signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes);
         } catch (Transaction.TransactionParsingException e) {
-           Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.getMessage());
-           return null;
+            Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.getMessage());
+            return null;
         }
         Log.d(TAG, "signTransaction: Parsed bitlib transaction: " + signedBitlibTransaction.toString());
         return signedBitlibTransaction;
@@ -603,7 +606,7 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-    private void loadAccounts() {  
+    private void loadAccounts() {
         Log.d(TAG, "ColuAssetIds=" + metadataStorage.getColuAssetIds());
         //TODO: migrate assets list from metadataStorage to backing as a cache table
         //TODO: auto-discover assets at load time by querying ColoredCoins servers instead on relying on local data
@@ -640,36 +643,36 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-   /**
-    * Create a new account using a single private key and address
-    *
-    * @param privateKey key the private key to use
-    * @param cipher     the cipher used to encrypt the private key. Must be the same
-    *                   cipher as the one used by the secure storage instance
-    * @return the ID of the new account
-    * @throws InvalidKeyCipher
-    */
-   public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
-      if(privateKey == null) {
-          Log.d(TAG, "createSingleAddressAccount: null private key !");
-      }
-      PublicKey publicKey = privateKey.getPublicKey();
-      Address address = publicKey.toAddress(_network);
-      PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-      store.setPrivateKey(address, privateKey, cipher);
-      return createSingleAddressAccount(address);
-   }
+    /**
+     * Create a new account using a single private key and address
+     *
+     * @param privateKey key the private key to use
+     * @param cipher     the cipher used to encrypt the private key. Must be the same
+     *                   cipher as the one used by the secure storage instance
+     * @return the ID of the new account
+     * @throws InvalidKeyCipher
+     */
+    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
+        if (privateKey == null) {
+            Log.d(TAG, "createSingleAddressAccount: null private key !");
+        }
+        PublicKey publicKey = privateKey.getPublicKey();
+        Address address = publicKey.toAddress(_network);
+        PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
+        store.setPrivateKey(address, privateKey, cipher);
+        return createSingleAddressAccount(address);
+    }
 
-   /**
-    * Create a new read-only account using a single address
-    *
-    * @param address the address to use
-    * @return the ID of the new account
-    */
-   public UUID createSingleAddressAccount(Address address) {
-      UUID id = SingleAddressAccount.calculateId(address);
-         _backing.beginTransaction();
-         try {
+    /**
+     * Create a new read-only account using a single address
+     *
+     * @param address the address to use
+     * @return the ID of the new account
+     */
+    public UUID createSingleAddressAccount(Address address) {
+        UUID id = SingleAddressAccount.calculateId(address);
+        _backing.beginTransaction();
+        try {
             SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(id, address, false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(singleAccountContext.getId());
@@ -678,17 +681,17 @@ public class ColuManager implements AccountProvider {
             SingleAddressAccount account = new SingleAddressAccount(singleAccountContext, store, _network, accountBacking, getWapi());
             singleAccountContext.persist(accountBacking);
             _backing.setTransactionSuccessful();
-         } finally {
+        } finally {
             _backing.endTransaction();
-         }
-      return id;
-   }
+        }
+        return id;
+    }
 
     // convenience method to make it easier to migrate from metadataStorage to backing later on
     public UUID getAssetAccountUUID(ColuAccount.ColuAsset coluAsset) {
         Log.d(TAG, "Looking for UUID associated to coluAsset " + coluAsset.id);
         Optional<UUID> uuid = metadataStorage.getColuUUID(coluAsset.id);
-        if(uuid.isPresent()) { 
+        if (uuid.isPresent()) {
             Log.d(TAG, "Found UUID for asset: " + uuid.get().toString());
             return uuid.get();
         }
@@ -707,29 +710,29 @@ public class ColuManager implements AccountProvider {
     }
 
     public void deleteAccount(ColuAccount account) {
-       Log.d(TAG, "deleteAccount: attempting to delete account.");
-       // find asset
-       // disable account
-       // remove key from storage
-       UUID uuid = getAssetAccountUUID(account.getColuAsset());
-       SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
-       try { 
-           acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
-           Log.d(TAG, "deleteAccount: forgot private key.");
-           Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
-           _walletAccounts.remove(uuid);
-           coluAccounts.remove(account.getId());
-           Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
-           deleteAssetAccountUUID(account.getColuAsset());
-           saveEnabledAssetIds();
-       } catch(InvalidKeyCipher e) {
-       }
-       // remove asset UUID association
-       // remove objects: AbstractAccounts in _walletAccounts, ColuAccount in ColuAccounts, 
-       // and reference in WalletManager ?
+        Log.d(TAG, "deleteAccount: attempting to delete account.");
+        // find asset
+        // disable account
+        // remove key from storage
+        UUID uuid = getAssetAccountUUID(account.getColuAsset());
+        SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
+        try {
+            acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+            Log.d(TAG, "deleteAccount: forgot private key.");
+            Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
+            _walletAccounts.remove(uuid);
+            coluAccounts.remove(account.getId());
+            Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
+            deleteAssetAccountUUID(account.getColuAsset());
+            saveEnabledAssetIds();
+        } catch (InvalidKeyCipher e) {
+        }
+        // remove asset UUID association
+        // remove objects: AbstractAccounts in _walletAccounts, ColuAccount in ColuAccounts,
+        // and reference in WalletManager ?
     }
 
-// create OR load account if a key already exists
+    // create OR load account if a key already exists
 // converts old dev key storage into backend storage
     private ColuAccount createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
         if (coluAsset == null) {
@@ -740,14 +743,14 @@ public class ColuManager implements AccountProvider {
         InMemoryPrivateKey accountKey = null;
         InMemoryPrivateKey metadataKey = null;
         // case 1: check if private key already exists in secure store for this asset
-        if(_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
-           // account exists in mycelium colu keystore, use it to create ColuAccount object
-           Log.d(TAG, "Found UUID in metatadaStorage mapping for asset and loaded key from mycelium secure store.");
-           try {
-               SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(getAssetAccountUUID(coluAsset));
-               accountKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-           } catch(InvalidKeyCipher e) {
-           }
+        if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
+            // account exists in mycelium colu keystore, use it to create ColuAccount object
+            Log.d(TAG, "Found UUID in metatadaStorage mapping for asset and loaded key from mycelium secure store.");
+            try {
+                SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(getAssetAccountUUID(coluAsset));
+                accountKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+            } catch (InvalidKeyCipher e) {
+            }
         }
 
         // case 2:  check if private key exists in metadataStorage
@@ -757,19 +760,19 @@ public class ColuManager implements AccountProvider {
         if (key.isPresent()) {
             Log.d(TAG, "createAccount: loaded key from legacy storage " + key.toString());
             metadataKey = new InMemoryPrivateKey(key.get(), getNetwork());
-            if(accountKey != null) {
-               Log.d(TAG, "key found in backing, comparing with metadata key.");
-               if(accountKey.getBase58EncodedPrivateKey(getNetwork()).equals(
-                  metadataKey.getBase58EncodedPrivateKey(getNetwork()))) {
-                       Log.d(TAG, "Legacy stored key matches mycelium secure store key ! Removing old key.");
-                       metadataStorage.deleteColuKey(coluAsset.id);
-               } else {
-                   Log.d(TAG, "Error, legacy key and newly stored key differ !");
-               }
+            if (accountKey != null) {
+                Log.d(TAG, "key found in backing, comparing with metadata key.");
+                if (accountKey.getBase58EncodedPrivateKey(getNetwork()).equals(
+                        metadataKey.getBase58EncodedPrivateKey(getNetwork()))) {
+                    Log.d(TAG, "Legacy stored key matches mycelium secure store key ! Removing old key.");
+                    metadataStorage.deleteColuKey(coluAsset.id);
+                } else {
+                    Log.d(TAG, "Error, legacy key and newly stored key differ !");
+                }
             } else {
-                Log.d(TAG, 
-                      "createAccount: metadataStorage key found, key not found in backing." +
-                      " Saving into backing (conversion).");
+                Log.d(TAG,
+                        "createAccount: metadataStorage key found, key not found in backing." +
+                                " Saving into backing (conversion).");
                 // save key into mycelium secure keystore
                 UUID accountUUID;
                 try {
@@ -781,14 +784,14 @@ public class ColuManager implements AccountProvider {
                 accountKey = metadataKey;
                 Log.d(TAG, "createAccount: saved key into keystore uuid=" + accountUUID.toString());
             }
-        } 
+        }
         // end migration code
 
         // case 3: new account or import account
-        if(accountKey == null && metadataKey == null) {
+        if (accountKey == null && metadataKey == null) {
             UUID accountUUID;
-            try { 
-                if(importKey != null) {
+            try {
+                if (importKey != null) {
                     accountKey = importKey;
                 } else {
                     accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
@@ -796,15 +799,15 @@ public class ColuManager implements AccountProvider {
                 accountUUID = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
                 setAssetAccountUUID(coluAsset, accountUUID);
                 Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
-            } catch(KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                 throw new RuntimeException(invalidKeyCipher);
             }
         }
 
-        if(accountKey == null) {
+        if (accountKey == null) {
             Log.d(TAG, "Error ! accountKey should not be null.");
             return null;
-        }       
+        }
         ColuAccount account = new ColuAccount(
                 ColuManager.this, _backing, metadataStorage, accountKey,
                 exchangeRateManager, handler, eventBus, logger, coluAsset
@@ -815,7 +818,7 @@ public class ColuManager implements AccountProvider {
             // TODO: do this only if newly created key or imported key ?
             loadSingleAddressAccounts();  // reload account from mycelium secure store
             // loaded account should be in the list
-            if(_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
+            if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
                 Log.d(TAG, "createAccount: SUCCESS ! Key found in mycelium secure store.");
             } else {
                 Log.d(TAG, "createAccount: Error, key not found in mycelium secure store.");
@@ -826,24 +829,24 @@ public class ColuManager implements AccountProvider {
         return account;
     }
 
-   private void loadSingleAddressAccounts() {
-      Log.d(TAG, "Loading single address accounts");
-      List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
-      for (SingleAddressAccountContext context : contexts) {
-         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-         SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(context.getId());
-         Preconditions.checkNotNull(accountBacking);
-         SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
-         addAccount(account);
-      }
-   }
+    private void loadSingleAddressAccounts() {
+        Log.d(TAG, "Loading single address accounts");
+        List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
+        for (SingleAddressAccountContext context : contexts) {
+            PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
+            SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(context.getId());
+            Preconditions.checkNotNull(accountBacking);
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
+            addAccount(account);
+        }
+    }
 
-   public void addAccount(AbstractAccount account) {
-      synchronized (_walletAccounts) {
-         _walletAccounts.put(account.getId(), account);
-         Log.d(TAG, "Account Added: " + account.getId());
-      }
-   }
+    public void addAccount(AbstractAccount account) {
+        synchronized (_walletAccounts) {
+            _walletAccounts.put(account.getId(), account);
+            Log.d(TAG, "Account Added: " + account.getId());
+        }
+    }
 
     // maps asset id to asset object
     @android.support.annotation.Nullable
@@ -913,7 +916,7 @@ public class ColuManager implements AccountProvider {
         return getAccountForColuAsset(asset) != null;
     }
 
-   // getAccounts is called by WalletManager
+    // getAccounts is called by WalletManager
     @Override
     public Map<UUID, WalletAccount> getAccounts() {
         return ImmutableMap.<UUID, WalletAccount>copyOf(coluAccounts);
@@ -981,9 +984,9 @@ public class ColuManager implements AccountProvider {
             getAddressBalance(addressInfoWithTransactions.transactions, account);
 
             Log.d(TAG, "retrieved addressInfoWithTransactions");
-            if(addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
+            if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
                 account.setHistory(addressInfoWithTransactions.transactions);
-                for(Tx.Json historyTx: addressInfoWithTransactions.transactions) {
+                for (Tx.Json historyTx : addressInfoWithTransactions.transactions) {
                     allTxidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(historyTx.txid));
                 }
             }
@@ -1025,7 +1028,7 @@ public class ColuManager implements AccountProvider {
         LinkedList<com.mrd.bitlib.util.Sha256Hash> utxoList =
                 new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
 
-        for(Tx.Json tx : transactions) {
+        for (Tx.Json tx : transactions) {
 
             for (Vout.Json vout : tx.vout) {
                 if (vout.used)
@@ -1068,7 +1071,7 @@ public class ColuManager implements AccountProvider {
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);
         CurrencyBasedBalance newBalanceFiat = new CurrencyBasedBalance(confirmed, sending, receiving);
         account.setBalanceFiat(newBalanceFiat);
-       account.setBalanceSatoshi(satoshiAmount);
+        account.setBalanceSatoshi(satoshiAmount);
         return newBalanceFiat;
     }
 
@@ -1098,7 +1101,7 @@ public class ColuManager implements AccountProvider {
         AddressInfo.Json addressInfo = coluClient.getBalance(key.toAddress(getNetwork()));
 
         if (addressInfo != null) {
-            if(addressInfo.utxos != null) {
+            if (addressInfo.utxos != null) {
                 Log.d(TAG, "isColuAddress: processing " + addressInfo.utxos.size() + " utxos.");
                 for (Utxo.Json utxo : addressInfo.utxos) {
                     Log.d(TAG, "isColuAddress: utxo " + utxo.txid);
@@ -1119,8 +1122,7 @@ public class ColuManager implements AccountProvider {
     }
 
     public void startSynchronization() {
-        eventTranslator.onWalletStateChanged(null, WalletManager.State.SYNCHRONIZING);
-        Log.e("!!!!", "colu WalletManager.State.SYNCHRONIZING");
+        eventTranslator.onWalletStateChanged(null, state = WalletManager.State.SYNCHRONIZING);
         new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -1132,9 +1134,8 @@ public class ColuManager implements AccountProvider {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                Log.e("!!!!", "colu WalletManager.State.READY");
                 eventBus.post(new BalanceChanged(null));
-                eventTranslator.onWalletStateChanged(null, WalletManager.State.READY);
+                eventTranslator.onWalletStateChanged(null, state = WalletManager.State.READY);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

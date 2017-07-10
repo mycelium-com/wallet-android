@@ -827,7 +827,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <string name="colu_backup_info">Your Colu account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
     <string name="colu_sending_via_colu">Sending Colu assets.</string>
-    <string name="colu_failed_to_prepare">Failed to prepare Colu transaction ! Is there enough BTC to finance transaction in this account ?</string>
+    <string name="colu_failed_to_prepare">Failed to prepare Colu transaction! Make sure you have funded your RMC account with mBTC ( up to $10) to perform transactions.</string>
     <string name="colu_succeeded_to_prepare">Colu transaction ready to send.</string>
     <string name="colu_failed_to_broadcast">Colu failed to broadcast transaction.</string>
     <string name="colu_succeeded_to_broadcast">Colu transaction sent.</string>

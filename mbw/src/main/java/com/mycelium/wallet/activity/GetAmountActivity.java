@@ -172,7 +172,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             _amount = ExactCurrencyValue.from(null, coluAccount.getAccountDefaultCurrency());
          }
          btCurrency.setText(coluAccount.getAccountDefaultCurrency());
-         btCurrency.setEnabled(false);
       } else {
          //btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
          btCurrency.setEnabled(_mbwManager.getCurrencySwitcher().getExchangeRatePrice() != null);

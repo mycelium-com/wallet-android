@@ -495,7 +495,8 @@ public class ModernMain extends ActionBarActivity {
 
    public void setRefreshAnimation() {
       if (refreshItem != null) {
-         if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING) {
+         if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
+                 || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
             MenuItem menuItem = MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
             ImageView ivTorIcon = (ImageView) menuItem.getActionView().findViewById(R.id.ivTorIcon);
 
