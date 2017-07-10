@@ -25,6 +25,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.Calendar;
@@ -91,6 +92,23 @@ public class RMCAddressFragment extends Fragment {
         updateUi();
     }
 
+    @Override
+    public void onResume() {
+        getEventBus().register(this);
+        updateUi();
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        getEventBus().unregister(this);
+        super.onPause();
+    }
+
+    private Bus getEventBus() {
+        return _mbwManager.getEventBus();
+    }
+
     private void activeBtnProgress() {
         Calendar calendarStart = Calendar.getInstance();
         calendarStart.set(2017, 7, 12);
@@ -153,16 +171,17 @@ public class RMCAddressFragment extends Fragment {
         Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
     }
 
-    @Subscribe
-    public void receivingAddressChanged(ReceivingAddressChanged event) {
-        updateUi();
-    }
 
     private void updateUi() {
         activeBtnProgress();
         String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
         tvLabel.setText(name);
         tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
+    }
+
+    @Subscribe
+    public void receivingAddressChanged(ReceivingAddressChanged event) {
+        updateUi();
     }
 
     @Subscribe

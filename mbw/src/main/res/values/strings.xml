@@ -1043,7 +1043,10 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
     <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
     <string name="address_title" >%s Address</string>
-    <string name="rmc_send_warning" >RMC is an asset (token) issued on Bitcoin blockchain as colored coin. RMC transaction is a bitcoin transaction and  like  all bitcoin transactions requires miners fee in order to get it included in blocks by miners. You need to have some small amounts of btc to fund such transaction. Please send about 5 USD to your RMC (?) account to make sure you can  send  your  RMC over Bitcoin  blockchain.</string>
+    <string name="rmc_send_warning">RMC is an asset (token) issued on Bitcoin blockchain as  colored coin.
+RMC transaction is a bitcoin transaction and requires miner\'s fee in order to be included in a block.
+To be able to send RMC token to another RMC address you need to top up your RMC address with a small amount of BTC wich will be used to fund your transaction.
+You can either add miner\'s fee every time you make RMC transaction or top up your RMC account with a little bit more btc so you will not have to fund (means spend on miner\'s fee) each time you make RMC transaction.</string>
     <string name="rmc_reminder">RMC reminder</string>
     <string name="rmc_active_in_159_days">Active in %d days</string>
     <string name="bitcoin_altcoin_mining_button">Bitcoin/Altcoin mining button</string>
@@ -1058,4 +1061,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="note_can_have_one_account">NOTE THAT YOU CAN ONLY HAVE ONE ACCOUNT FOR EACH TYPE OF ASSET</string>
     <string name="your_rmc_hash_power_th_s">Your RMC hash power (TH/s):</string>
     <string name="total_rmc_hash_power_ph_s">Total RMC hash power ( PH/s):</string>
+    <string name="enter_address">Enter %s Address</string>
+    <string name="address_valid">%s Address Valid</string>
+    <string name="address_invalid">Invalid %s Address</string>
 </resources>
