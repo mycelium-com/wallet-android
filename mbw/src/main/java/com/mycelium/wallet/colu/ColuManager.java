@@ -1120,6 +1120,7 @@ public class ColuManager implements AccountProvider {
 
     public void startSynchronization() {
         eventTranslator.onWalletStateChanged(null, WalletManager.State.SYNCHRONIZING);
+        Log.e("!!!!", "colu WalletManager.State.SYNCHRONIZING");
         new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -1131,6 +1132,7 @@ public class ColuManager implements AccountProvider {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                Log.e("!!!!", "colu WalletManager.State.READY");
                 eventBus.post(new BalanceChanged(null));
                 eventTranslator.onWalletStateChanged(null, WalletManager.State.READY);
             }

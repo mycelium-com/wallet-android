@@ -94,6 +94,8 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
@@ -139,7 +141,6 @@ public class SendMainActivity extends Activity {
     private static final int REQUEST_PAYMENT_HANDLER = 8;
     private static final int REQUET_BTC_ACCOUNT = 9;
     public static final String RAW_PAYMENT_REQUEST = "rawPaymentRequest";
-    private BillPay _sepaPayment;
 
     public static final String ACCOUNT = "account";
     private static final String AMOUNT = "amount";
@@ -198,8 +199,6 @@ public class SendMainActivity extends Activity {
     Button btAddressBook;
     @BindView(R.id.btManualEntry)
     Button btManualEntry;
-    @BindView(R.id.btSepaTransfer)
-    Button btSepaTransfer;
     @BindView(R.id.btScan)
     Button btScan;
     @BindView(R.id.pbSend)
@@ -373,7 +372,6 @@ public class SendMainActivity extends Activity {
         //TODO: fee from other bitcoin account if colu
         if (isColu()) {
             // no sepa payment with colu
-            btSepaTransfer.setVisibility(/*_mbwManager.getMetadataStorage().getCashilaIsEnabled() ? View.VISIBLE : */View.GONE);
             List<WalletAccount> walletAccountList =_mbwManager.getWalletManager(false).getActiveAccounts();
             for (WalletAccount walletAccount : walletAccountList) {
                 if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()

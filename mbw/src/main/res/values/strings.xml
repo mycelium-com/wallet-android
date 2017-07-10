@@ -119,7 +119,7 @@
     <string name="payment_request">Payment Request</string>
     <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to these keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
     <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
-    <string name="backup_legacy_warning">You will back up the single address accounts in your wallet. \nThis backup will not contain your master seed, none of your HD accounts can be restored from it!\n\nDo you want to proceed?</string>
+    <string name="backup_legacy_warning">Make a Backup of you Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to clear the clipboard?</string>
@@ -949,7 +949,6 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
     <string name="ad_buy_hashing24">Start Bitcoin mining with maximum efficiency</string>
 
-    <string name="warning_partner">Partner information</string>
     <string name="ad_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
     <string name="ad_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
     <string name="ad_purse_url">https://purse.io/?_a=MYCELIUM</string>
