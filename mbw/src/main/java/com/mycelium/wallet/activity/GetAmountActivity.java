@@ -367,11 +367,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       _mbwManager.getEventBus().register(this);
 
       _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-
-      btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
-                  && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
-                  && ! _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
-      );
+      if(!isColu) {
+         btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
+                 && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
+                 && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
+         );
+      }
 
       btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
       super.onResume();
@@ -462,7 +463,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          btOk.setEnabled(false);
          return;
       }
-      if (isSendMode && !CurrencyValue.isNullOrZero(_amount) || !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+      if (isSendMode && !CurrencyValue.isNullOrZero(_amount) /*|| !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())*/) {
             AmountValidation result = checkTransaction();
             // Enable/disable Ok button
             btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
@@ -495,20 +496,37 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       return AmountValidation.Ok;
    }
 
+   private AmountValidation checkSendAmount(CurrencyValue value) {
+      if (value == null) {
+         return AmountValidation.Ok; //entering a fiat value + exchange is not availible
+      }
+      if(_account.getCurrencyBasedBalance().confirmed.getValue().compareTo(value.getValue()) == -1) {
+         return AmountValidation.ValueTooSmall;
+      } else if(_account.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.ZERO) < 1) {
+         return AmountValidation.NotEnoughFunds;
+      }
+      return AmountValidation.Ok;
+   }
+
    private enum AmountValidation {
       Ok, ValueTooSmall, Invalid, NotEnoughFunds
    }
 
    private AmountValidation checkTransaction() {
-      Bitcoins satoshis;
-      try {
-         satoshis = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager());
-      } catch (IllegalArgumentException ex){
-         // something failed while calculating the bitcoin amount
-         return AmountValidation.Invalid;
+      AmountValidation result;
+      Bitcoins satoshis= null;
+      if(isColu) {
+         result = checkSendAmount(_amount);
+      } else {
+         try {
+            satoshis = _amount.getAsBitcoin(_mbwManager.getExchangeRateManager());
+         } catch (IllegalArgumentException ex) {
+            // something failed while calculating the bitcoin amount
+            return AmountValidation.Invalid;
+         }
+         // Check whether we have sufficient funds, and whether the output is too small
+         result = checkSendAmount(satoshis);
       }
-      // Check whether we have sufficient funds, and whether the output is too small
-      AmountValidation result = checkSendAmount(satoshis);
 
       if (result == AmountValidation.Ok) {
          tvAmount.setTextColor(getResources().getColor(R.color.white));
@@ -516,7 +534,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          tvAmount.setTextColor(getResources().getColor(R.color.red));
          if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
-            if (_account.getBalance().getSpendableBalance() < satoshis.getLongValue()) {
+            if (satoshis == null || _account.getBalance().getSpendableBalance() < satoshis.getLongValue()) {
                // We do not have enough funds for sending the requested amount
                String msg = getResources().getString(R.string.insufficient_funds);
                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();

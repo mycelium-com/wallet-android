@@ -131,7 +131,7 @@ public class BalanceFragment extends Fragment {
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if (account instanceof ColuAccount && ((ColuAccount) account).getSatoshiAmount() == 0) {
          new AlertDialog.Builder(getActivity())
-                 .setMessage(R.string.rmc_send_warning)
+                 .setMessage(getString(R.string.rmc_send_warning, ((ColuAccount) account).getColuAsset().label))
                  .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

@@ -768,7 +768,7 @@ public class SendMainActivity extends Activity {
                         _preparedColuTx = preparedTransaction;
                         Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_prepare, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare, ((ColuAccount) _account).getColuAsset().label), Toast.LENGTH_SHORT).show();
                         updateUi();
                     }
                 }
