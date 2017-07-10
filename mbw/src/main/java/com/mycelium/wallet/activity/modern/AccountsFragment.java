@@ -913,7 +913,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-      if (_focusedAccount instanceof SingleAddressAccount) {
+      if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
          //start legacy backup verification
          VerifyBackupActivity.callMe(getActivity());
       }
