@@ -44,7 +44,7 @@
     <application
         android:name=".WalletApplication"
         android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/mycelium_logo_transp_small"
         android:label="@string/app_name"
         android:theme="@style/MyceliumModern">
 
@@ -231,15 +231,6 @@
         <activity android:name=".activity.StringHandlerActivity"/>
         <activity android:name=".activity.send.VerifyPaymentRequestActivity"/>
         <activity
-            android:name=".external.cashila.activity.CashilaSignUpActivity"
-            android:parentActivityName=".activity.modern.ModernMain" />
-        <activity
-            android:name=".external.cashila.activity.CashilaAddRecipientActivity"
-            android:parentActivityName=".activity.modern.ModernMain" />
-        <activity
-            android:name=".external.cashila.activity.CashilaPaymentsActivity"
-            android:parentActivityName=".activity.modern.ModernMain" />
-        <activity
             android:name=".bitid.BitIDAuthenticationActivity"
             android:label="@string/title_activity_bit_idauthentication" />
         <activity android:name=".activity.pop.PopActivity" />
@@ -253,5 +244,4 @@
         <activity android:name=".activity.rmc.EthPaymentRequestActivity" />
         <activity android:name=".activity.rmc.BankPaymentRequestActivity"></activity>
     </application>
-
 </manifest>

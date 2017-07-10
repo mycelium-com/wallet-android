@@ -399,6 +399,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_deactivate_menu">Deaktivieren</string>
   <string name="lt_price_of_one_btc_label">(Pro 1 BTC)</string>
   <string name="lt_confirm_title">Bestätigen</string>
+  <string name="lt_confirm_cash_received">Haben Sie %1$d %2$s erhalten und sind Sie bereit, die Bitcoins an %3$s zu senden?</string>
   <string name="lt_confirm_stop">Möchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_confirm_abort">Sie haben beide dieses Geschäft akzeptiert. Ihre Ratings könnten sich damit verschlechtern.\nMöchten Sie diesen Handel abbrechen?\"</string>
   <string name="lt_enter_location_tite">Standort eingeben</string>
@@ -429,6 +430,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_mycelium_marketplace_description">Finde Mycelium-Nutzer in deiner Umgebung die bitcoin (ver)kaufen.</string>
   <string name="lt_missing_fx_rate">Aktuelle Preisquelle nicht verfügbar</string>
   <string name="lt_price_source_not_available">nicht verfügbar!</string>
+  <string name="lt_cash_only_hint_be_your_own_bank">Seien Sie Ihre eigene Bank:</string>
+  <string name="lt_cash_only_hint_cash_only">Tausche von Angesicht zu Angesicht, nur Bargeld.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
@@ -577,6 +580,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="sss_incompatible_shares_warning">Die Teile, die Sie importiert haben, sind nicht kompatibel.</string>
   <string name="sss_one_more_share_needed">Sie benötigen einen weiteren Teil</string>
   <string name="sss_unrecognized_share_warning">Der Inhalt dieses Teils wurde nicht erkannt</string>
+  <string name="sss_more_shares_needed">Sie benötigen %1$d mehr Teile.</string>
+  <string name="sss_share_number_scanned">Sie haben Teil Nummer %1$d gescannt.</string>
   <string name="lt_delete_account">Händler Identität löschen</string>
   <string name="lt_delete_trade_history">Diesen Handel löschen</string>
   <string name="lt_confirm_delete_history">Möchten Sie die Informationen über diesen Handel von Ihrem Telefon löschen?</string>
@@ -702,71 +707,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="remove_queued_transaction_title">Transaktion gereiht</string>
   <string name="remove_queued_transaction_hint">Ihr Saldo wird nach der nächsten Synchronisation mit dem Netzwerk korrigiert</string>
   <string name="remove_queued_transaction_error">Transaktion kann nicht entfernt werden</string>
-  <!-- Cashila -->
-  <string name="cashila_tab_new">Neu</string>
-  <string name="cashila_tab_pending">Zahlungen</string>
-  <string name="cashila_sepa_transfer">Euro-Zahlung</string>
-  <string name="cashila_status_received">erhalten</string>
-  <string name="cashila_status_chained">eingereiht</string>
-  <string name="cashila_status_confirmed">bestätigt</string>
-  <string name="cashila_status_completed">durchgeführt</string>
-  <string name="cashila_status_pending">zahlungsbereit</string>
-  <string name="cashila_status_expired">zahlungsbereit</string>
-  <string name="cashila_status_uploaded">hochgeladen</string>
-  <string name="cashila_status_transcribed">übertragen</string>
-  <string name="cashila_title_paired">Bitcoin-Wallet mit Dienst verknüpft</string>
-  <string name="cashila_welcome_message_cashila">Sie haben Ihre Bitcoin-Wallet mit dem externen Dienst Cashila verknüpft.\nEs ist nun im Hauptmenü und im Senden-Fenster eine neue Optionen verfügbar. Sie können damit SEPA-Transaktionen mittels Cashila durchführen. Bitte haben Sie Verständnis dafür, dass Sie Cashila vertrauen müssen und dass, sobald Sie eine Zahlung an Cashila gemacht haben, Sie keine direkt Kontrolle mehr über das Geld haben. \n\nBesuchen Sie www.cashila.com für mehr Informationen.</string>
-  <string name="cashila_fee">"Gebühr:%s"</string>
-  <string name="cashila_account_needs_pairing">Ihr Cashila-Konto ist nicht mir Ihrem aktuellen ID-Konto verknüpft - bitte verbinden Sie die Konten</string>
-  <string name="cashila_fetching">Letzte Zahlungen abrufen&#8230;</string>
-  <string name="cashila">Cashila</string>
-  <string name="cashila_amount_not_valid">Betrag ungültig</string>
-  <string name="cashila_pending">Ausstehend</string>
-  <string name="cashila_done">Erledigt</string>
-  <string name="cashila_already_paid">Bereits in voller Höhe bezahlt</string>
-  <string name="cashila_pending_payment">Zahlung ausstehend</string>
-  <string name="cashila_are_you_sure_to_delete_payment">Wollen Sie diese Zahlung wirklich löschen?</string>
-  <string name="cashila_button_delete">Löschen</string>
-  <string name="cashila_men_pay_now">Jetzt bezahlen</string>
-  <string name="cashila_send_payment_to">Zahlung senden an</string>
-  <string name="cashila_fiat_amount">Betrag</string>
-  <string name="cashila_reference_text">Referenztext</string>
-  <string name="cashila_enqueue_payment">Zahlung einreihen</string>
-  <string name="cashila_pay_now">Jetzt bezahlen</string>
-  <string name="cashila_sepa_payment_title">SEPA-Zahlung</string>
-  <string name="cashila_uploaded_title">hochgeladen</string>
-  <string name="cashila_no_recipients">Es scheint, als haben Sie Cashila zuvor noch nie verwendet und haben keine erfassten Empfänger.\n\nWählen Sie OK um einen neuen Empfänger auf der Cashila Webseite anzulegen</string>
-  <string name="cashila_amount_outstanding">(%s ausstehend)</string>
-  <string name="cashila_add_new_sepa_recipient_title">neuen SEPA-Empfänger hinzufügen</string>
-  <string name="cashila_recipient_name">Name</string>
-  <string name="cashila_recipient_address">Adresse</string>
-  <string name="cashila_recipient_zip_code">PLZ</string>
-  <string name="cashila_recipient_city">Stadt</string>
-  <string name="cashila_recipient_iban">IBAN</string>
-  <string name="cashila_recipient_bic">BIC (optional)</string>
-  <string name="cashila_no_payments_found">Keine Zahlungen gefunden</string>
-  <string name="cashila_new_recipient_saved">Empfänger gespeichert</string>
-  <string name="cashila_setting_show_sepa_button_summary">Schaltfläche für Euro-Zahlungen anzeigen</string>
-  <string name="cashila_setting_show_sepa_button">Cashila aktivieren</string>
-  <string name="cashila_create_new_account">Neues Konto\n einrichten</string>
-  <string name="cashila_already_have_account">Ich habe ein\nKonto</string>
-  <string name="cashila_your_existing_account">Ihr bestehendes Cashila-Konto</string>
-  <string name="cashila_email_address">E-Mail-Adresse</string>
-  <string name="cashila_password">Passwort</string>
-  <string name="cashila_second_factor_auth_code">Zwei-Faktor-Code (optional)</string>
-  <string name="cashila_sign_up_for_new_account">Registrieren Sie sich für ein neues Cashila-Konto</string>
-  <string name="cashila_accept_tos_title">Ich akzeptiere folgende Bedingungen:</string>
-  <string name="cashila_sign_up">Registrieren</string>
-  <string name="cashila_login">Einloggen</string>
-  <string name="cashila_tos">Allgemeine Geschäftsbedingungen</string>
-  <string name="cashila_limit_liability">Haftungsbeschränkung</string>
-  <string name="cashila_error">"Cashila-Fehler: %s"</string>
-  <string name="cashila_error_wrong_second_factor">Falscher Zwei-Faktor-Code</string>
-  <string name="cashila_error_wrong_password">Falsches Passwort</string>
-  <string name="cashila_error_user_already_exists">Ein Benutzer mit dieser E-Mail-Adresse existiert bereits</string>
-  <string name="cashila_error_generic">"Fehler beim einloggen: %s"</string>
-  <string name="cashila_fetching_tos">Lade Geschäftsbedingungen von Cashila&#8230;</string>
-  <string name="cashila_fill_out_all_fields">Füllen Sie alle Pflichtfelder aus</string>
   <string name="payment_request_unable_to_read_payment_request">Kann die Zahlungsaufforderung nicht lesen</string>
   <string name="payment_request_not_sent_expired">Zahlung nicht gesendet - Zahlungsaufforderung bereits abgelaufen!</string>
   <string name="payment_request_no_amount_specified">kein Betrag angegeben</string>
@@ -875,6 +815,9 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
   <string name="mycelium_terms_of_use">Mycelium Nutzungsbedingungen</string>
   <!-- Credit Card -->
+  <string name="credit_card_buy">Kreditkarte</string>
+  <string name="credit_card_buy_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
+  <string name="credit_card_buy_setting_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Bitcoin kaufen/verkaufen</string>
@@ -922,9 +865,14 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="glidera_setting_show_button_summary">Glidera Kauf/Verkauf-Option anzeigen</string>
   <string name="tap_to_toggle_through_other_currencies">Tippen, um durch andere Währungen zu wechseln</string>
   <!-- GlideraService End -->
+  <string name="settings_service_enabled">%1$s aktivieren</string>
+  <!-- Simplex start -->
+  <!-- Simplex end -->
   <string name="label_single_key_icon">Einzelschlüssel</string>
   <string name="label_blue_circle">blauer Kreis</string>
   <string name="label_type_it_in">geben Sie etwas ein</string>
   <string name="label_use_device_location">Geräteposition verwenden</string>
   <string name="label_list_activity_indicator">hatte Aktivität</string>
+  <string name="buy_with_cc_spend_only_warning_title">Nur Empfangskonto</string>
+  <string name="buy_with_cc_spend_only_warning">Das aktuelle ausgewählte Konto kann nur empfangen.\n\nSind Sie sicher, dass Sie gekaufte Bitcoins in dieses Konto empfangen möchten?</string>
 </resources>

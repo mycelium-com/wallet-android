@@ -656,70 +656,6 @@
   <string name="remove_queued_transaction_title">Nakazilo v čakalni vrsti</string>
   <string name="remove_queued_transaction_hint">Vaše stanje na računu bo osveženo ob naslednji uskladitvi z omrežjem</string>
   <string name="remove_queued_transaction_error">Odstranjevanje nakazila iz čakalne vrste je spodletelo</string>
-  <!-- Cashila -->
-  <string name="cashila_tab_new">Novo</string>
-  <string name="cashila_tab_pending">Plačila</string>
-  <string name="cashila_sepa_transfer">Plačilo v EUR</string>
-  <string name="cashila_status_received">prejeto</string>
-  <string name="cashila_status_chained">veriženo</string>
-  <string name="cashila_status_confirmed">potrjeno</string>
-  <string name="cashila_status_completed">zaključeno</string>
-  <string name="cashila_status_pending">čaka plačilo</string>
-  <string name="cashila_status_expired">pretečeno</string>
-  <string name="cashila_status_uploaded">naloženo</string>
-  <string name="cashila_status_transcribed">prepisano</string>
-  <string name="cashila_title_paired">Denarnica je uparjena s storitvijo</string>
-  <string name="cashila_welcome_message_cashila">Svojo denarnico ste uparili s Cashilo.\nS tem ste pridobili možnost pošiljanja sredstev prek omrežja SEPA neposredno iz svoje denarnice. To možnost najdete v meniju glavnega zaslona denarnice in v zaslonu za pošiljanje.\nProsimo, zavedajte se, da morate pri tem zaupati Cashili, saj sredstva po nakazilu Cashili niso več pod vašim nadzorom.\n\nProsimo, obiščite www.cashila.com za več informacij.</string>
-  <string name="cashila_fee">"Pristojbina: %s"</string>
-  <string name="cashila_account_needs_pairing">Vaš račun pri Cashili ni povezan z vašo identiteto krajevnega trgovanja. Prosimo, uparite računa.</string>
-  <string name="cashila_fetching">Prenašam zadnja plačila&#8230;</string>
-  <string name="cashila">Cashila</string>
-  <string name="cashila_amount_not_valid">Znesek ni veljaven</string>
-  <string name="cashila_pending">V čakanju</string>
-  <string name="cashila_done">Opravljeno</string>
-  <string name="cashila_already_paid">Plačano v celoti</string>
-  <string name="cashila_pending_payment">Čakajoče plačilo</string>
-  <string name="cashila_are_you_sure_to_delete_payment">Ste prepričani, da želite izbrisati to plačilo?</string>
-  <string name="cashila_button_delete">Briši</string>
-  <string name="cashila_men_pay_now">Plačaj zdaj</string>
-  <string name="cashila_send_payment_to">Prejemnik plačila</string>
-  <string name="cashila_fiat_amount">Znesek</string>
-  <string name="cashila_reference_text">Sklic</string>
-  <string name="cashila_enqueue_payment">V čakalno vrsto</string>
-  <string name="cashila_pay_now">Plačaj zdaj</string>
-  <string name="cashila_sepa_payment_title">SEPA-plačilo</string>
-  <string name="cashila_uploaded_title">Naloženo</string>
-  <string name="cashila_no_recipients">Kaže, da Cashile še niste uporabljali in nimate shranjenih prejemnikov.\n\nIzberite OK za dodajanje novega prejemnika</string>
-  <string name="cashila_add_new_sepa_recipient_title">Dodaj novega SEPA-prejemnika</string>
-  <string name="cashila_recipient_name">Ime</string>
-  <string name="cashila_recipient_address">Naslov</string>
-  <string name="cashila_recipient_zip_code">Poštna št.</string>
-  <string name="cashila_recipient_city">Mesto</string>
-  <string name="cashila_recipient_iban">IBAN</string>
-  <string name="cashila_recipient_bic">BIC (neobvezno)</string>
-  <string name="cashila_no_payments_found">Ni plačil</string>
-  <string name="cashila_new_recipient_saved">Prejemnik shranjen</string>
-  <string name="cashila_setting_show_sepa_button_summary">Prikaži gumb za EUR-plačila</string>
-  <string name="cashila_setting_show_sepa_button">Omogoči Cashilo</string>
-  <string name="cashila_create_new_account">Ustvari\nnov račun</string>
-  <string name="cashila_already_have_account">Račun\nže imam</string>
-  <string name="cashila_your_existing_account">Vaš obstoječi račun pri Cashili</string>
-  <string name="cashila_email_address">E-naslov</string>
-  <string name="cashila_password">Geslo</string>
-  <string name="cashila_second_factor_auth_code">Drugostopenjsko geslo (neobvezno)</string>
-  <string name="cashila_sign_up_for_new_account">Odpri račun pri Cashili</string>
-  <string name="cashila_accept_tos_title">Sprejemam pogoje:</string>
-  <string name="cashila_sign_up">Registracija</string>
-  <string name="cashila_login">Prijava</string>
-  <string name="cashila_tos">Pogoji in storitve</string>
-  <string name="cashila_limit_liability">Omejitev odgovornosti</string>
-  <string name="cashila_error">"Napaka Cashile: %s"</string>
-  <string name="cashila_error_wrong_second_factor">Napačno drugostopenjsko geslo</string>
-  <string name="cashila_error_wrong_password">Napačno geslo</string>
-  <string name="cashila_error_user_already_exists">Uporabnik s tem e-naslovom že obstaja</string>
-  <string name="cashila_error_generic">"Napaka pri prijavi: %s"</string>
-  <string name="cashila_fetching_tos">Prenšam pogoje uporab s Cashile&#8230;</string>
-  <string name="cashila_fill_out_all_fields">Izpolnite vsa obvezna polja</string>
   <string name="payment_request_not_sent_expired">Plačilo ni bilo poslano - zahtevek za plačilo je potekel!</string>
   <string name="payment_request_no_amount_specified">Manjka znesek</string>
   <string name="payment_request_unable_to_verify">Preverjanje nemogoče</string>
@@ -763,4 +699,6 @@
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>

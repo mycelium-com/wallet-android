@@ -48,7 +48,6 @@ import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 
 public class InstantTrezorActivity extends InstantExtSigActivity {
-
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, InstantTrezorActivity.class);
       currentActivity.startActivityForResult(intent, requestCode);
@@ -98,6 +97,4 @@ public class InstantTrezorActivity extends InstantExtSigActivity {
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
       super.onPassphraseRequest(event);
    }
-
-
 }

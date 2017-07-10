@@ -14,8 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class StandardBitcoinSigning {
-
-
    private static InMemoryPrivateKey privKey;
    private static Address address;
 
@@ -28,7 +26,6 @@ public class StandardBitcoinSigning {
       Assert.assertEquals(privKey.getPublicKey().toAddress(network), address);
    }
 
-
    @Test
    public void testVerification() throws WrongSignatureException {
       String message = "Hello, this is Mycelium";
@@ -38,7 +35,6 @@ public class StandardBitcoinSigning {
       Assert.assertEquals(address, pubkey.toAddress(address.getNetwork()));
    }
 
-
    @Test
    public void testFailsWrongSignature() {
       String message = "Hello, this is NOT Mycelium";
@@ -47,8 +43,6 @@ public class StandardBitcoinSigning {
       message = "Hello, this is Mycelium";
       signature = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=";
       assertFailingSig(message, signature);
-
-
    }
 
    private void assertFailingSig(String message, String signature) {
@@ -72,7 +66,6 @@ public class StandardBitcoinSigning {
       System.out.println(sigStr);
       PublicKey recoverFromSignature = SignedMessage.recoverFromSignature(message, sigStr);
       assertEquals(privKey.getPublicKey(), recoverFromSignature);
-
    }
 
    @Test
@@ -81,6 +74,4 @@ public class StandardBitcoinSigning {
       BigInteger expectedY = new BigInteger("85895366384747149408010284714111852077055649506395260922968891100383188440129");
       assertEquals(expectedY, point.getY().toBigInteger());
    }
-
-
 }

@@ -4,6 +4,7 @@ include "libs:zxing-core"
 include "lt-api"
 include "wapi"
 include "mbwlib"
+include 'backuputil'
 
 //on the servers, we don't want to build android projects
 //    nano /etc/profile.d/env.sh
@@ -19,6 +20,7 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     include "btchip"
     include "coinapult"
     include 'LVL'
+    include 'backuputil'
 }
 
 

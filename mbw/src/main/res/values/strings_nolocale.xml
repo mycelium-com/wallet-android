@@ -28,7 +28,7 @@
     <string name="lt_tos_1">Mycelium Local Trader is a tool that allows buyers and sellers to trade bitcoin for cash. Trading requires buyers and sellers to meet physically as part of the exchange.</string>
     <string name="lt_tos_2">Mycelium only acts as a means of communication between two parties, and is not in any way responsible for any actions taken by the trading parties before, during, or after physical meetings.</string>
     <string name="lt_tos_3">The Mycelium software guides the trading parties, but they themselves are responsible for exchanging the correct amount of cash and bitcoins, checking the validity thereof and to adhere to all applicable laws.</string>
-    <string name="lt_tos_4" tools:ignore="StringFormatInvalid">Mycelium currently charges no fees for any trade. This might change in the future.</string>
+    <string name="lt_tos_4" tools:ignore="StringFormatInvalid">Mycelium charges 1% fee on every transaction. This helps fund product development and support.</string>
 
     <string name="vn_banner_description">Mua và bán Bitcoin với VNĐ</string>
 
@@ -38,61 +38,63 @@
 
 
     <string-array name="languages">
+        <item>bg</item>
+        <item>cs</item>
         <item>da</item>
         <item>de</item>
         <item>el</item>
         <item>en</item>
         <item>es</item>
         <item>fr</item>
-        <item>cs</item>
         <item>iw</item>
+        <item>id</item>
         <item>it</item>
         <item>ja</item>
         <item>ko</item>
         <item>nl</item>
         <item>pl</item>
         <item>pt</item>
+        <item>ro</item>
         <item>ru</item>
         <item>sk</item>
         <item>sl</item>
-        <item>vi</item>
-        <item>sv</item>
         <item>sq</item>
+        <item>sv</item>
+        <item>vi</item>
         <item>zh</item>
         <item>zh-TW</item>
-        </string-array>
-
+    </string-array>
     <string-array name="languages_desc">
+        <item>Български</item>
+        <item>čeština</item>
         <item>Dansk</item>
         <item>Deutsch</item>
-        <item>ελληνικά</item>
+        <item>Ελληνικά</item>
         <item>English</item>
         <item>Español</item>
         <item>Français</item>
-        <item>čeština</item>
         <item>עברית</item>
+        <item>Indonesia</item>
         <item>Italiano</item>
         <item>日本語</item>
         <item>한국의</item>
         <item>Nederlands</item>
         <item>Polski</item>
         <item>Português</item>
+        <item>Română</item>
         <item>Русский</item>
         <item>Slovensky</item>
         <item>Slovenščina</item>
-        <item>Tiếng Việt</item>
-        <item>Svenska</item>
         <item>Shqip</item>
+        <item>Svenska</item>
+        <item>Tiếng Việt</item>
         <item>简体中文</item>
         <item>繁体中文</item>
-        </string-array>
+    </string-array>
 
     <string name="company">Mycelium</string>
     <string name="coinapult">Coinapult</string>
     <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
-    <string name="cashila_mycelium_limited_liability">Warning\n\nYou are about to begin using money transfer services provided by a third party ‘Cashila OOD s.r.o’, a registered European small payment institution.\n\nMycelium Holdings accepts no duty, responsibility or liability for the services offered by Cashila. Furthermore, this integration does not represent an endorsement of Cashila services.\nBy signing up the user accepts all responsibility for risks associated with using the third party provider. \n\nPlease go to Cashila.com for further details on Cashila services.
-</string>
     <string name="glidera_tos">If you continue, you agree to proceed to Glidera, a third party service. All your interactions with Glidera are outside of Mycelium’s control and are subject to Glidera’s User Agreement and Privacy Policy. Please read them carefully before providing any personal information. Mycelium won’t provide any personal information to Glidera. All information that you may provide to Glidera will be subject to Glidera’s Privacy Policy and will not be collected, stored, or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON GLIDERA’S INFORMATION AND SERVICES.</string>
     <string name="buy_with_cc_tos">If you continue, you agree to proceed to the Swish BTC Store, a third party service. All your interactions with the Swish BTC Store are outside of Mycelium Wallet’s control and are subject to Swish BTC Store’s User Agreement and Privacy Policy. Please read them carefully before providing any personal information. Mycelium Wallet won’t provide any personal information to the Swish BTC Store. All information that you may provide to the Swish BTC Store will be subject to Swish BTC Store’s Privacy Policy and will not be collected, stored, or used by Mycelium Wallet.\n\nMYCELIUM WALLET ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON SWISH BTC STORE’S INFORMATION AND SERVICES.</string>
-
 </resources>

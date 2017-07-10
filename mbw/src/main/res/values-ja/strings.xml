@@ -635,14 +635,6 @@
   <string name="xpub_title">拡張公開鍵</string>
   <string name="share_xpub">拡張公開鍵を共有</string>
   <string name="share_account_data">アカウントデータを共有</string>
-  <!-- Cashila -->
-  <string name="cashila_tab_new">新規入金</string>
-  <string name="cashila_fee">"手数料： %s"</string>
-  <string name="cashila">Cashila</string>
-  <string name="cashila_amount_not_valid">金額が無効です。</string>
-  <string name="cashila_done">完了</string>
-  <string name="cashila_button_delete">削除</string>
-  <string name="cashila_fiat_amount">金額</string>
   <string name="payment_request_signature">署名</string>
   <string name="payment_request_amount_to_pay">支払い金額</string>
   <string name="payment_request_message">メッセージ</string>
@@ -656,4 +648,6 @@
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>

@@ -16,23 +16,20 @@
 
 package com.mycelium.wapi.api;
 
-public class WapiConst {
+public interface WapiConst {
+   String WAPI_BASE_PATH = "/wapi";
 
-   public static final String WAPI_BASE_PATH = "/wapi";
-
-   public static class Function {
-
-      public static final String QUERY_UNSPENT_OUTPUTS = "queryUnspentOutputs";
-      public static final String QUERY_TRANSACTION_INVENTORY = "queryTransactionInventory";
-      public static final String GET_TRANSACTIONS = "getTransactions";
-      public static final String BROADCAST_TRANSACTION = "broadcastTransaction";
-      public static final String CHECK_TRANSACTIONS = "checkTransactions";
-      public static final String QUERY_EXCHANGE_RATES = "queryExchangeRates";
-      public static final String PING = "ping";
-      public static final String COLLECT_ERROR = "collectError";
-      public static final String GET_VERSION_INFO = "getVersion";
-      public static final String GET_VERSION_INFO_EX = "getVersionEx";
-      public static final String GET_MINER_FEE_ESTIMATION = "getMinerFeeEstimations";
+   interface Function {
+       String QUERY_UNSPENT_OUTPUTS = "queryUnspentOutputs";
+       String QUERY_TRANSACTION_INVENTORY = "queryTransactionInventory";
+       String GET_TRANSACTIONS = "getTransactions";
+       String BROADCAST_TRANSACTION = "broadcastTransaction";
+       String CHECK_TRANSACTIONS = "checkTransactions";
+       String QUERY_EXCHANGE_RATES = "queryExchangeRates";
+       String PING = "ping";
+       String COLLECT_ERROR = "collectError";
+       String GET_VERSION_INFO = "getVersion";
+       String GET_VERSION_INFO_EX = "getVersionEx";
+       String GET_MINER_FEE_ESTIMATION = "getMinerFeeEstimations";
    }
-
 }

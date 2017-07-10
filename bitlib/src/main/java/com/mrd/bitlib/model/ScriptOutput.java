@@ -42,7 +42,6 @@ public abstract class ScriptOutput extends Script {
       } else {
          return new ScriptOutputStrange(chunks, scriptBytes);
       }
-
    }
 
    protected ScriptOutput(byte[] scriptBytes) {
@@ -50,5 +49,4 @@ public abstract class ScriptOutput extends Script {
    }
 
    public abstract Address getAddress(NetworkParameters network);
-
 }

@@ -53,7 +53,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
    private static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
 
-   // various key value fields info for colu 
+   // various key value fields info for colu
    private static final MetadataCategory COLU = new MetadataCategory("colu_data");
    // associates asset label for each assetId
    private static final MetadataCategory COLU_ASSET_LABEL_CATEGORY = new MetadataCategory("colu_asset_labels");
@@ -63,8 +63,6 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
-   private static final MetadataKeyCategory CASHILA_COUNTRY_CODE = new MetadataKeyCategory("cashila", "country");
-   private static final MetadataKeyCategory CASHILA_IS_ENABLED = new MetadataKeyCategory("cashila", "enable");
    private static final MetadataKeyCategory SYNC_LAST_FULLSYNC = new MetadataKeyCategory("lastFull", "sync");
    private static final MetadataKeyCategory SHOW_BIP44_PATH = new MetadataKeyCategory("ui", "show_bip44_path");
    private static final MetadataKeyCategory GLIDERA_IS_ENABLED = new MetadataKeyCategory("glidera", "enable");
@@ -341,22 +339,6 @@ public class MetadataStorage extends GenericMetadataStorage {
          return Optional.absent();
       }
       return Optional.of(UUID.fromString(uuid.get()));
-   }
-
-   public String getCashilaLastUsedCountryCode() {
-      return getKeyCategoryValueEntry(CASHILA_COUNTRY_CODE, "");
-   }
-
-   public void setCashilaLastUsedCountryCode(String countryCode) {
-      storeKeyCategoryValueEntry(CASHILA_COUNTRY_CODE, countryCode);
-   }
-
-   public boolean getCashilaIsEnabled() {
-      return getKeyCategoryValueEntry(CASHILA_IS_ENABLED, "1").equals("1");
-   }
-
-   public void setCashilaIsEnabled(boolean enable) {
-      storeKeyCategoryValueEntry(CASHILA_IS_ENABLED, enable ? "1" : "0");
    }
 
    public boolean getGlideraIsEnabled() {

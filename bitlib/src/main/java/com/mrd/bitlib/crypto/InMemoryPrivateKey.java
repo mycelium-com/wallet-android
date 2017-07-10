@@ -38,7 +38,6 @@ import java.util.Arrays;
  * A Bitcoin private key that is kept in memory.
  */
 public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Serializable {
-
    private static final long serialVersionUID = 1L;
 
    private final BigInteger _privateKey;
@@ -222,8 +221,6 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       return _publicKey;
    }
 
-
-
    private BigInteger calculateE(BigInteger n, byte[] messageHash) {
       if (n.bitLength() > messageHash.length * 8) {
          return new BigInteger(1, messageHash);
@@ -336,7 +333,6 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       }
    }
 
-
    @Override
    protected Signature generateSignature(Sha256Hash messageHash) {
       return generateSignatureInternal(messageHash, new DsaSignatureNonceGenDeterministic(messageHash, this));
@@ -433,5 +429,4 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       // Encode
       return Base58.encode(toEncode);
    }
-
 }

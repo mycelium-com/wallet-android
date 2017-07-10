@@ -543,7 +543,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
          Optional<Address> receivingAddress = getReceivingAddress();
          sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
          toStringMonitoredAddresses(sb);
-         sb.append(" Spendable Outputs: ").append(getSpendableOutputs().size());
+         sb.append(" Spendable Outputs: ").append(getSpendableOutputs(0).size());
       }
       return sb.toString();
    }

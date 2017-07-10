@@ -75,7 +75,7 @@
   <string name="date">Date</string>
   <string name="inputs">Entrées</string>
   <string name="outputs">Sorties</string>
-  <string name="confirmed_in_block">En bloc #%1$d</string>
+  <string name="confirmed_in_block">Au bloc #%1$d</string>
   <string name="no">Non</string>
   <string name="yes">Oui</string>
   <string name="pref_category_pin">Paramètres de code d\'accès</string>
@@ -397,6 +397,7 @@
   <string name="lt_deactivate_menu">Désactiver</string>
   <string name="lt_price_of_one_btc_label">(Par 1 BTC)</string>
   <string name="lt_confirm_title">Confirmer</string>
+  <string name="lt_confirm_cash_received">Avez-vous reçu %1$d %2$s et êtes-vous prêt à envoyer les bitcoins à %3$s ?</string>
   <string name="lt_confirm_stop">Souhaitez-vous mettre fin à cet échange ?</string>
   <string name="lt_confirm_abort">Parce que vous avez accepté conjointement l\'accord, vos cotes peuvent souffrir d\'une pénalité.\nDésirez-vous abandonner cet échange ?</string>
   <string name="lt_enter_location_tite">Entrez l\'emplacement</string>
@@ -425,6 +426,10 @@
   <string name="lt_warn_account_not_spandable">L\'adresse cible sélectionnée (%s) ne peut pas être dépensée.\n\n Vous devez avoir la clé privée dans une sauvegarde hors ligne ou vous perdrez les fonds reçus.</string>
   <string name="lt_mycelium_marketplace">Mycelium Marketplace</string>
   <string name="lt_mycelium_marketplace_description">Trouver des utilisateurs de Mycelium dans votre région qui achète/vends des bitcoins.</string>
+  <string name="lt_missing_fx_rate">Prix actuelle n’est pas disponible</string>
+  <string name="lt_price_source_not_available">non disponible !</string>
+  <string name="lt_cash_only_hint_be_your_own_bank">Soyez votre propre banque :</string>
+  <string name="lt_cash_only_hint_cash_only">Échange de personne à personne seulement, comptant seulement.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
@@ -574,6 +579,8 @@
   <string name="sss_incompatible_shares_warning">Les parts que vous avez importé ne sont pas compatibles.</string>
   <string name="sss_one_more_share_needed">Il faut une part supplémentaire</string>
   <string name="sss_unrecognized_share_warning">La part n\'est pas reconnue</string>
+  <string name="sss_more_shares_needed">Il vous faut %1$d parts supplémentaires.</string>
+  <string name="sss_share_number_scanned">Vous avez numérisé la part numéro %1$d.</string>
   <string name="lt_delete_account">Supprimer l\'identité marchande</string>
   <string name="lt_delete_trade_history">Supprimer cet échange</string>
   <string name="lt_confirm_delete_history">Voulez-vous supprimer l\'information pour cette échange de votre téléphone ?</string>
@@ -598,6 +605,7 @@
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importer un compte HD Trezor</string>
   <string name="trezor_name">Trezor :</string>
+  <string name="ext_sig_import_account_caption">Importer un compte</string>
   <string name="ext_sig_select_account_to_import">Sélectionnez un compte à importer</string>
   <string name="ext_sig_verify_transaction_on_device">Vérifier et confirmer les\ntransactions sur votre appareil</string>
   <string name="ext_sig_amount">Montant :</string>
@@ -608,6 +616,9 @@
   <string name="ext_sig_next_unused_account_info">Cette option va importer le prochain compte inutilisé de cet appareil. Il n’apparaîtra dans autres portefeuilles seulement si vous envoyez des fonds.</string>
   <string name="ext_sig_next_unused_account_button">Importer le prochain compte inutilisé&#8230;</string>
   <string name="ext_sig_new_firmware">Un nouveau firmware est disponible&#8230;</string>
+  <string name="ext_sig_configuration_dialog_title">Configuration du périphérique</string>
+  <string name="ext_sig_device_not_initialized">Périphérique n’est pas initialisé. Vous devez utiliser une application externe pour configurer l’appareil avant l\'usage.</string>
+  <string name="external_app_needed">Pour mettre à jour le périphérique vous avez besoin d’une application externe, cliquez sur OK pour la lancer.</string>
   <string name="trezor_new_firmware_description">Un nouveau firmware trezor est disponible.\nVeuillez utiliser MyTrezor.com sur un PC pour mettre à jour votre trezor.</string>
   <string name="ext_sig_unnamed">(sans nom)</string>
   <string name="keepkey_cold_storage_header">Fonds hors ligne KeepKey</string>
@@ -695,71 +706,6 @@
   <string name="remove_queued_transaction_title">Transaction en attente</string>
   <string name="remove_queued_transaction_hint">Votre solde sera corrigé après la prochaine synchronisation avec le réseau</string>
   <string name="remove_queued_transaction_error">Impossible de supprimer la transaction</string>
-  <!-- Cashila -->
-  <string name="cashila_tab_new">Nouveau</string>
-  <string name="cashila_tab_pending">Paiements</string>
-  <string name="cashila_sepa_transfer">Paiement en euro</string>
-  <string name="cashila_status_received">reçu</string>
-  <string name="cashila_status_chained">Service Cashila lié</string>
-  <string name="cashila_status_confirmed">confirmé</string>
-  <string name="cashila_status_completed">terminé</string>
-  <string name="cashila_status_pending">prêt à payer</string>
-  <string name="cashila_status_expired">prêt à payer</string>
-  <string name="cashila_status_uploaded">téléchargées</string>
-  <string name="cashila_status_transcribed">transcrire</string>
-  <string name="cashila_title_paired">Portefeuille synchronisé</string>
-  <string name="cashila_welcome_message_cashila">Vous avez synchronisé votre portefeuille avec le service externe Cashila.\nCe service ajoutera des options à votre menu principal et à votre boite de dialogue d\'envoi, afin d\'appeler directement des virements SEPA depuis votre portefeuille bitcoin.\nComprennez qu\'il faut faire confiance à Cashila, et que les sommes déposées ne sont plus sous votre contrôle dès que vous y avez fait un paiement.\n\nVisitez www.cashila.com pour plus d\'informations.</string>
-  <string name="cashila_fee">"Frais : %s"</string>
-  <string name="cashila_account_needs_pairing">Votre compte Cashila n\'est pas lié avec votre compte d\'identification actuel - s\'il vous plaît synchroniser vos comptes</string>
-  <string name="cashila_fetching">Derniers paiements en cours de recherche...</string>
-  <string name="cashila">Cashila</string>
-  <string name="cashila_amount_not_valid">Montant non valide</string>
-  <string name="cashila_pending">En attente</string>
-  <string name="cashila_done">Terminé</string>
-  <string name="cashila_already_paid">Déjà payé intégralement</string>
-  <string name="cashila_pending_payment">Paiement en attente</string>
-  <string name="cashila_are_you_sure_to_delete_payment">Êtes-vous sûr de vouloir supprimer ce paiement ?</string>
-  <string name="cashila_button_delete">Supprimer</string>
-  <string name="cashila_men_pay_now">Payer maintenant</string>
-  <string name="cashila_send_payment_to">Envoyer le paiement à</string>
-  <string name="cashila_fiat_amount">Montant</string>
-  <string name="cashila_reference_text">Texte de référence</string>
-  <string name="cashila_enqueue_payment">Paiement placé en attente</string>
-  <string name="cashila_pay_now">Payer maintenant</string>
-  <string name="cashila_sepa_payment_title">Paiement SEPA</string>
-  <string name="cashila_uploaded_title">Téléchargées</string>
-  <string name="cashila_no_recipients">Il semble, vous avez jamais utilisé cashila auparavant et n\'avez aucun récipiendaire existant.\n\nTap OK pour créer un nouveau récipiendaire</string>
-  <string name="cashila_amount_outstanding">(%s restants)</string>
-  <string name="cashila_add_new_sepa_recipient_title">Ajouter un nouveau récipiendaire-SEPA</string>
-  <string name="cashila_recipient_name">Nom</string>
-  <string name="cashila_recipient_address">Adresse</string>
-  <string name="cashila_recipient_zip_code">Code postal</string>
-  <string name="cashila_recipient_city">Ville</string>
-  <string name="cashila_recipient_iban">IBAN</string>
-  <string name="cashila_recipient_bic">BIC (optionnel)</string>
-  <string name="cashila_no_payments_found">Aucun paiement trouvé</string>
-  <string name="cashila_new_recipient_saved">Récipiendaire enregistré</string>
-  <string name="cashila_setting_show_sepa_button_summary">Afficher le bouton pour les versements en euros</string>
-  <string name="cashila_setting_show_sepa_button">Activer Cashila</string>
-  <string name="cashila_create_new_account">Créer un nouveau compte\n</string>
-  <string name="cashila_already_have_account">J\'ai un compte\n</string>
-  <string name="cashila_your_existing_account">Votre compte cashila</string>
-  <string name="cashila_email_address">adresse e-mail</string>
-  <string name="cashila_password">Mot de passe</string>
-  <string name="cashila_second_factor_auth_code">Code d\'authentification secondaire (optionnelle)</string>
-  <string name="cashila_sign_up_for_new_account">Inscrivez-vous pour un nouveau compte cashila</string>
-  <string name="cashila_accept_tos_title">J\'accepte les conditions suivantes:</string>
-  <string name="cashila_sign_up">Inscription</string>
-  <string name="cashila_login">Ouverture de session</string>
-  <string name="cashila_tos">Conditions de services</string>
-  <string name="cashila_limit_liability">Limite de responsabilité</string>
-  <string name="cashila_error">"Cashila-erreur : %s"</string>
-  <string name="cashila_error_wrong_second_factor">Code d\'authentification secondaire erroné</string>
-  <string name="cashila_error_wrong_password">Mot de passe incorrect</string>
-  <string name="cashila_error_user_already_exists">Un utilisateur avec cette adresse mail existe déjà</string>
-  <string name="cashila_error_generic">"Erreur d'ouverture de session : %s"</string>
-  <string name="cashila_fetching_tos">Acquisition des termes de services de cashila&#8230;</string>
-  <string name="cashila_fill_out_all_fields">Complétez tous les champs obligatoires</string>
   <string name="payment_request_unable_to_read_payment_request">Impossible de lire la demande de paiement</string>
   <string name="payment_request_not_sent_expired">Paiement non envoyé - La demande de paiement est déjà expirée !</string>
   <string name="payment_request_no_amount_specified">aucun montant spécifié</string>
@@ -796,10 +742,13 @@
   <string name="menu_item_cancel_transaction">Annuler la transaction</string>
   <string name="menu_item_rebroadcast_transaction">Rediffuser la transaction</string>
   <string name="menu_item_delete_unconfirmed_transaction">Supprimer la transaction non confirmée</string>
+  <string name="menu_item_bump_mining_fee">Tromper le Frais (CPFP)</string>
   <string name="delete_unconfirmed_transaction_title">Supprimer la transaction non confirmée</string>
   <string name="warning_delete_unconfirmed_transaction">Attention : Ceci supprime uniquement la transaction de l\'application locale. Cette fonction ne peut pas annuler une transaction et ne peut pas l\'empêcher de se confirmer. Cela n\'est utile que si le réseau a déjà oublié la transaction parce qu\'il ne l\'a pas confirmé depuis longtemps. Dans ce cas, vous pouvez la supprimer pour accéder de nouveau aux fonds. Vous devez synchroniser après avoir fait cela. Si le réseau connaît toujours la transaction, elle s\'affichera de nouveau juste après la synchronisation.\\n\\nVoulez-vous supprimer la transaction à partir du cache local ?</string>
   <string name="rebroadcast_transaction_title">Rediffuser la transaction</string>
+  <string name="bump_fee_title">Tromper le Frais des Mineurs (CPFP)</string>
   <string name="description_rebroadcast_transaction">Soumettre de nouveau cette transaction au serveur pour la diffuser. Ceci peut-être utilisé si vous suspectez que le réseau n\'a pas propagé votre transaction ou qu\'il l\'a oublié, parce qu\'il ne l\'a pas confirmé depuis longtemps par exemple. Voulez-vous rediffuser cette transaction ?</string>
+  <string name="description_bump_fee">Envoyer une transaction qui augmentera les frais pour cette transaction.\n\nConfirmées que vous voulez passer à %2$s pour obtenir le frais de %1$dsat/B ?</string>
   <string name="message_rebroadcast_successfull">La transaction a été diffusée avec succès.</string>
   <string name="message_rebroadcast_failed">La diffusion a échoué, vérifiez votre connexion internet et synchronisez votre portefeuille.</string>
   <string name="block_explorer_title">Explorateur de blocs (%1$s)</string>
@@ -825,7 +774,7 @@
   <string name="coinapult_verify_mail_error">Une erreur s\'est produite lors de la vérification votre adresse e-mail. Veuillez vérifier que vous avez copié entièrement le lien de vérification.</string>
   <string name="coinapult_unable_to_create_account">Impossible de créer le compte Coinapult</string>
   <string name="coinapult_failed_to_broadcast">La diffusion de la transaction Coinapult a échoué</string>
-  <string name="coinapult_add_locks_account">Ajouter un compte barré Coinapult</string>
+  <string name="coinapult_add_locks_account">Ajouter un compte verrouillé Coinapult</string>
   <string name="coinapult_tos_link">Ouvrir les conditions générales de Coinapult</string>
   <string name="coinapult_tos_question">Pour créer un compte Coinapult, vous devez accepter les conditions générales</string>
   <string name="coinapult_mail_question">Voulez-vous fournir votre adresse e-mail ?</string>
@@ -868,6 +817,9 @@
   <string name="warning_amount_does_not_match">ATTENTION : le montant ne correspond pas !</string>
   <string name="mycelium_terms_of_use">Conditions d\'utilisation de Mycelium</string>
   <!-- Credit Card -->
+  <string name="credit_card_buy">Carte de Crédit</string>
+  <string name="credit_card_buy_description">Acheter Bitcoin avec une carte de crédit</string>
+  <string name="credit_card_buy_setting_description">Acheter Bitcoin à l’aide de la carte de crédit</string>
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <string name="gd_buy_sell_button">Acheter / Vendre Bitcoin</string>
@@ -913,5 +865,23 @@
   <string name="error_details">Détails de l’erreur</string>
   <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
   <string name="glidera_setting_show_button_summary">Afficher l’option d’achat/vente de Glidera</string>
+  <string name="tap_to_toggle_through_other_currencies">Appuyez pour alterner entre les autres monnaies</string>
   <!-- GlideraService End -->
+  <string name="settings_service_enabled">Activez %1$s</string>
+  <!-- Simplex start -->
+  <string name="si_buy_sell">Carte de Crédit</string>
+  <string name="si_simplex">Simplex</string>
+  <string name="si_buy_sell_description">Acheter bitcoin facilement et en toute sécurité avec votre carte de crédit.</string>
+  <string name="si_setting_show_button_summary">Afficher l’option d’achat de Simplex</string>
+  <string name="si_loading">téléchargement&#8230;</string>
+  <string name="si_error_message">message d’erreur</string>
+  <string name="si_retry">Réessayez</string>
+  <!-- Simplex end -->
+  <string name="label_single_key_icon">une seule clé</string>
+  <string name="label_blue_circle">cercle bleu</string>
+  <string name="label_type_it_in">saisir les données</string>
+  <string name="label_use_device_location">utiliser l’emplacement de l\'appareil</string>
+  <string name="label_list_activity_indicator">avait de l\'activité</string>
+  <string name="buy_with_cc_spend_only_warning_title">Compte receveur seulement</string>
+  <string name="buy_with_cc_spend_only_warning">Le compte sélectionné actuel est un compte receveur seulement.\n\nÊtes vous sure de vouloir utiliser ce compte pour acheter votre bitcoin ?</string>
 </resources>

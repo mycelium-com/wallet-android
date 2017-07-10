@@ -69,6 +69,7 @@ public class FieldElement implements Serializable {
       return new FieldElement(_q, _x.multiply(b.toBigInteger()).mod(_q));
    }
 
+   // TODO: optimize. much time is spent here. (13% total)
    public FieldElement divide(FieldElement b) {
       return new FieldElement(_q, _x.multiply(b.toBigInteger().modInverse(_q)).mod(_q));
    }

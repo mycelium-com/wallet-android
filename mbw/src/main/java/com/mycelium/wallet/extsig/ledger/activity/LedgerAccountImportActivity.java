@@ -37,6 +37,7 @@ package com.mycelium.wallet.extsig.ledger.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -69,13 +70,17 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
    protected void onResume() {
       super.onResume();
       updateUi();
-      dispatcher.enableExclusiveNfc();
+      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+         dispatcher.enableExclusiveNfc();
+      }
    }
 
    @Override
    protected void onPause() {
       super.onPause();
-      dispatcher.disableExclusiveNfc();
+      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+         dispatcher.disableExclusiveNfc();
+      }
    }
 
    @Override

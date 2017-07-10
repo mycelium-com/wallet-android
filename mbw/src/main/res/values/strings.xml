@@ -727,72 +727,6 @@
     <string name="remove_queued_transaction_hint">Your balance will be corrected after the next synchronisation with the network</string>
     <string name="remove_queued_transaction_error">Unable to remove transaction</string>
 
-    <!-- Cashila -->
-    <string name="cashila_tab_new">New</string>
-    <string name="cashila_tab_pending">Payments</string>
-    <string name="cashila_sepa_transfer">Euro Payment</string>
-    <string name="cashila_status_received">received</string>
-    <string name="cashila_status_chained">chained</string>
-    <string name="cashila_status_confirmed">confirmed</string>
-    <string name="cashila_status_completed">completed</string>
-    <string name="cashila_status_pending">ready to pay</string>
-    <string name="cashila_status_expired">ready to pay</string>
-    <string name="cashila_status_uploaded">uploaded</string>
-    <string name="cashila_status_transcribed">transcribed</string>
-    <string name="cashila_title_paired">Wallet paired with service</string>
-    <string name="cashila_welcome_message_cashila">You have paired your wallet with the external service Cashila.\nThis will add options to your main screen menu and your send dialog for directly invoking SEPA money transfers from within your bitcoin wallet.\nPlease understand that you have to trust Cashila, and that the money is no longer under your control as soon as you made a payment to Cashila.\n\nPlease visit www.cashila.com for more info.</string>
-    <string name="cashila_fee">"Fee: %s"</string>
-    <string name="cashila_account_needs_pairing">Your Cashila account is not linked with your current Identity account - please pair your accounts</string>
-    <string name="cashila_fetching">Fetching last payments…</string>
-    <string name="cashila">Cashila</string>
-    <string name="cashila_amount_not_valid">Amount not valid</string>
-    <string name="cashila_pending">Pending</string>
-    <string name="cashila_done">Done</string>
-    <string name="cashila_already_paid">Already paid in full</string>
-    <string name="cashila_pending_payment">Pending payment</string>
-    <string name="cashila_are_you_sure_to_delete_payment">Are you sure you want to delete this payment?</string>
-    <string name="cashila_button_delete">Delete</string>
-    <string name="cashila_men_pay_now">Pay now</string>
-    <string name="cashila_send_payment_to">Send payment to</string>
-    <string name="cashila_fiat_amount">Amount</string>
-    <string name="cashila_reference_text">Reference text</string>
-    <string name="cashila_enqueue_payment">Enqueue Payment</string>
-    <string name="cashila_pay_now">Pay now</string>
-    <string name="cashila_sepa_payment_title">Sepa Payment</string>
-    <string name="cashila_uploaded_title">Uploaded</string>
-    <string name="cashila_no_recipients">It seems, you never used cashila before and have no existing recipients.\n\nTap OK to create a new recipient</string>
-    <string name="cashila_amount_outstanding">(%s outstanding)</string>
-    <string name="cashila_add_new_sepa_recipient_title">Add a new SEPA-recipient</string>
-    <string name="cashila_recipient_name">Name</string>
-    <string name="cashila_recipient_address">Address</string>
-    <string name="cashila_recipient_zip_code">ZIP</string>
-    <string name="cashila_recipient_city">City</string>
-    <string name="cashila_recipient_iban">IBAN</string>
-    <string name="cashila_recipient_bic">BIC (optional)</string>
-    <string name="cashila_no_payments_found">No payments found</string>
-    <string name="cashila_new_recipient_saved">Recipient saved</string>
-    <string name="cashila_setting_show_sepa_button_summary">Show button for Euro Payments</string>
-    <string name="cashila_setting_show_sepa_button">Enable Cashila</string>
-    <string name="cashila_create_new_account">Create a new\n account</string>
-    <string name="cashila_already_have_account">I have an\naccount</string>
-    <string name="cashila_your_existing_account">Your existing cashila account</string>
-    <string name="cashila_email_address">e-Mail address</string>
-    <string name="cashila_password">Password</string>
-    <string name="cashila_second_factor_auth_code">Second factor code (optional)</string>
-    <string name="cashila_sign_up_for_new_account">Sign up for a new cashila account</string>
-    <string name="cashila_accept_tos_title">I accept following terms:</string>
-    <string name="cashila_sign_up">Sign Up</string>
-    <string name="cashila_login">Login</string>
-    <string name="cashila_tos">Terms and Services</string>
-    <string name="cashila_limit_liability">Limitation of liability</string>
-    <string name="cashila_error">"Cashila-Error: %s"</string>
-    <string name="cashila_error_wrong_second_factor">Wrong second factor code</string>
-    <string name="cashila_error_wrong_password">Wrong Password</string>
-    <string name="cashila_error_user_already_exists">An User with this mail address already exists</string>
-    <string name="cashila_error_generic">"Error while login in: %s"</string>
-    <string name="cashila_fetching_tos">Fetching TOS from Cashila…</string>
-    <string name="cashila_fill_out_all_fields">Fill out all required fields</string>
-
     <string name="payment_request_unable_to_read_payment_request">Unable to read payment request</string>
     <string name="payment_request_not_sent_expired">Payment not sent - Payment request is already expired!</string>
     <string name="payment_request_no_amount_specified">no amount specified</string>
@@ -1067,4 +1001,44 @@ You can either add miner\'s fee every time you make RMC transaction or top up yo
     <string name="rmc_activate_rmc">Activate RMC for maximum Return</string>
     <string name="rmc_activate">RMC activate</string>
     <string name="save">Save</string>
+    <string name="warning_partner">Partner information</string>
+
+    <string name="partner_header_title">New to crypto?</string>
+    <string name="partner_header_text">Please find here a selection of partner businesses.</string>
+
+    <string name="partner_ledger">Ledger</string>
+    <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
+    <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
+    <string name="partner_ledger_info"/>
+
+    <string name="partner_trezor">Trezor</string>
+    <string name="partner_trezor_short">The original hardware wallet.</string>
+    <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
+    <string name="partner_trezor_info"/>
+
+    <string name="partner_purse">Purse</string>
+    <string name="partner_purse_short">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
+    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
+    <string name="partner_purse_info"/>
+
+    <string name="partner_hashing24">Hashing24</string>
+    <string name="partner_hashing24_short">Start Bitcoin mining with maximum efficiency</string>
+    <string name="partner_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
+    <string name="partner_hashing24_info">
+        Hashing24 is a cloud mining company partnering with BitFury, one of the largest Bitcoin miners and SegWit supporter.
+        Cloud mining is a speculative investment to obtain new Bitcoin. Every investment has a risk.
+        Use code MYCELIUM for an exclusive 4% discount.
+    </string>
+
+    <string name="tab_partners">Businesses</string>
+    <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
+    <string name="partner_more_info_text">
+        Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br/>
+        Developing, maintaining and supporting this product is not free.<br/>
+        Partner links and logos are statically embedded in the app and do not depend on any ad network.
+        Their presence can not be used for tracking users that do not click them.
+        No money is made by displaying these partner links or when users click on them.
+        Referrals happen only when users decide to make a purchase on our partner websites.
+    </string>
+    <string name="your_privacy_out_priority">Your privacy is our top priority</string>
 </resources>

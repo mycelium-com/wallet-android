@@ -160,14 +160,17 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       // Amount Hint
-      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-         ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
-         tvAmount.setHint(getString(R.string.amount_hint_denomination, account.getColuAsset().name));
-      } else {
-         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                 _mbwManager.getBitcoinDenomination().toString()));
+       if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+           ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
+           tvAmount.setHint(getString(R.string.amount_hint_denomination, account.getColuAsset().name));
+       } else {
+           tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
+                   _mbwManager.getBitcoinDenomination().toString()));
+       }
+
+       if(Build.VERSION.SDK_INT >= 16) {
+         shareByNfc();
       }
-      shareByNfc();
    }
 
    @TargetApi(16)

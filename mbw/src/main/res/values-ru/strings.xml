@@ -667,71 +667,6 @@
   <string name="remove_queued_transaction_title">Транзакция в очереди</string>
   <string name="remove_queued_transaction_hint">Ваш баланс будет скорректирован после следующей синхронизации с сетью</string>
   <string name="remove_queued_transaction_error">Не удаётся удалить транзакцию</string>
-  <!-- Cashila -->
-  <string name="cashila_tab_new">Новое</string>
-  <string name="cashila_tab_pending">Платежи</string>
-  <string name="cashila_sepa_transfer">Евро платёж</string>
-  <string name="cashila_status_received">получено</string>
-  <string name="cashila_status_chained">сцепленно</string>
-  <string name="cashila_status_confirmed">подтверждено</string>
-  <string name="cashila_status_completed">завершено</string>
-  <string name="cashila_status_pending">готовность к оплате</string>
-  <string name="cashila_status_expired">готовность к оплате</string>
-  <string name="cashila_status_uploaded">загружено</string>
-  <string name="cashila_status_transcribed">записано</string>
-  <string name="cashila_title_paired">Бумажник связан с сервисом</string>
-  <string name="cashila_welcome_message_cashila">Вы связали ваш бумажник с внешним сервисом Cashila. Это добавляет настройки в ваше главное меню и диалоговое окно для непосредственной передачи платежа SEPA из вашего биткойн бумажника. Помните, что вы должны доверять сервису Cashila, и что деньги больше не под вашим контролем, когда вы делаете платёж через сервис Cashila. Пожалуйств, посетите сайт www.cashila.com для более детальной информации.</string>
-  <string name="cashila_fee">"Комиссия: %s"</string>
-  <string name="cashila_account_needs_pairing">Ваш Cashila аккаунт не связан с вашим текущим идентификационным счётом - пожалуйста, свяжите его с вашими счетом(ами)</string>
-  <string name="cashila_fetching">Получение последних платежей&#8230;</string>
-  <string name="cashila">Cashila</string>
-  <string name="cashila_amount_not_valid">Не верное количество</string>
-  <string name="cashila_pending">На исполнении</string>
-  <string name="cashila_done">Выполнено</string>
-  <string name="cashila_already_paid">Уже оплачено в полном объёме</string>
-  <string name="cashila_pending_payment">Платёж на исполнении</string>
-  <string name="cashila_are_you_sure_to_delete_payment">Вы уверены, что хотите удалить этот платёж?</string>
-  <string name="cashila_button_delete">Удалить</string>
-  <string name="cashila_men_pay_now">Оплатить сейчас</string>
-  <string name="cashila_send_payment_to">Отправить платёж к</string>
-  <string name="cashila_fiat_amount">Количество</string>
-  <string name="cashila_reference_text">Примечание</string>
-  <string name="cashila_enqueue_payment">Платёж в очереди</string>
-  <string name="cashila_pay_now">Оплатить сейчас</string>
-  <string name="cashila_sepa_payment_title">SEPA Платёж</string>
-  <string name="cashila_uploaded_title">Загружено</string>
-  <string name="cashila_no_recipients">Кажется, вы никогда не использовали Cashila и у вас нет получателей.\n\nНажмите OK для создания нового получателя</string>
-  <string name="cashila_amount_outstanding">(%s неисполненных)</string>
-  <string name="cashila_add_new_sepa_recipient_title">Добавить нового SEPA-получателя</string>
-  <string name="cashila_recipient_name">Имя</string>
-  <string name="cashila_recipient_address">Адрес</string>
-  <string name="cashila_recipient_zip_code">Индекс</string>
-  <string name="cashila_recipient_city">Город</string>
-  <string name="cashila_recipient_iban">IBAN</string>
-  <string name="cashila_recipient_bic">BIC (опционально)</string>
-  <string name="cashila_no_payments_found">Платежи не найдены</string>
-  <string name="cashila_new_recipient_saved">Получатель сохранён</string>
-  <string name="cashila_setting_show_sepa_button_summary">Показать кнопку для Евро платежей</string>
-  <string name="cashila_setting_show_sepa_button">Включить Cashila</string>
-  <string name="cashila_create_new_account">Создание новой\nучётной записи</string>
-  <string name="cashila_already_have_account">У меня есть\nучётная запись</string>
-  <string name="cashila_your_existing_account">Ваша существующая учётная запись Cashila</string>
-  <string name="cashila_email_address">Адрес электронной почты</string>
-  <string name="cashila_password">Пароль</string>
-  <string name="cashila_second_factor_auth_code">Двух-факторная верификация (не обязательно)</string>
-  <string name="cashila_sign_up_for_new_account">Зарегистрироваться для новой учётной записи на Cashila</string>
-  <string name="cashila_accept_tos_title">Я принимаю следующие условия:</string>
-  <string name="cashila_sign_up">Зарегистрироваться</string>
-  <string name="cashila_login">Логин</string>
-  <string name="cashila_tos">Определения и Условия</string>
-  <string name="cashila_limit_liability">Ограничение ответственности</string>
-  <string name="cashila_error">"Cashila ошибка: %s"</string>
-  <string name="cashila_error_wrong_second_factor">Неверный код двух-факторной верификации</string>
-  <string name="cashila_error_wrong_password">Неверный пароль</string>
-  <string name="cashila_error_user_already_exists">Пользователь с таким адресом электронной почты уже существует</string>
-  <string name="cashila_error_generic">"Ошибка во время входа: %s"</string>
-  <string name="cashila_fetching_tos">Получение \"Правил предоставления сервиса\" от Cashila&#8230;</string>
-  <string name="cashila_fill_out_all_fields">Заполните все обязательные поля</string>
   <string name="payment_request_unable_to_read_payment_request">Не удается прочитать запрос платежа</string>
   <string name="payment_request_not_sent_expired">Платёж не отправлен - Запрос платежа уже истёк!</string>
   <string name="payment_request_no_amount_specified">не указана сумма</string>
@@ -834,4 +769,6 @@
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>

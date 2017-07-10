@@ -52,7 +52,8 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
 public class WalletManager {
    private static final byte[] MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990");
    // maximum age where we say a fetched fee estimation is valid
-   private static final long MAX_AGE_FEE_ESTIMATION = 2 * 60 * 60 * 1000;
+   private static final long MAX_AGE_FEE_ESTIMATION = 2 * 60 * 60 * 1000; // 2 hours
+   private static final long MIN_AGE_FEE_ESTIMATION = 20 * 60 * 1000; // 20 minutes
 
    public AccountScanManager accountScanManager;
    private final Set<AccountProvider> _extraAccountProviders = new HashSet<>();
@@ -685,8 +686,8 @@ public class WalletManager {
          try {
             synchronized (_walletAccounts) {
                if (!syncMode.ignoreMinerFeeFetch &&
-                     (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MAX_AGE_FEE_ESTIMATION / 2))) {
-                  // only fetch the fee estimations if the latest available fee is older than half of its max-age
+                     (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MIN_AGE_FEE_ESTIMATION))) {
+                  // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
                   fetchFeeEstimation();
                }
 

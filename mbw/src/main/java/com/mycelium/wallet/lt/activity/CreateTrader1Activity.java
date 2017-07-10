@@ -45,7 +45,6 @@ import android.widget.TextView;
 import com.mycelium.wallet.R;
 
 public class CreateTrader1Activity extends Activity {
-
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
       currentActivity.startActivityForResult(intent, requestCode);
@@ -86,7 +85,5 @@ public class CreateTrader1Activity extends Activity {
             finish();
          }
       });
-
    }
-
 }

@@ -71,11 +71,11 @@ import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
+import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.*;
-import com.mycelium.wallet.external.cashila.activity.CashilaPaymentsActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.*;
@@ -108,6 +108,7 @@ public class ModernMain extends ActionBarActivity {
    TabsAdapter mTabsAdapter;
    ActionBar.Tab mBalanceTab;
    ActionBar.Tab mAccountsTab;
+   ActionBar.Tab mRecommendationsTab;
    private MenuItem refreshItem;
    private Toaster _toaster;
    private long _lastSync = 0;
@@ -149,6 +150,8 @@ public class ModernMain extends ActionBarActivity {
       mBalanceTab = bar.newTab();
       mTabsAdapter.addTab(mBalanceTab.setText(getString(R.string.tab_balance)), BalanceMasterFragment.class, null);
       mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
+      mRecommendationsTab = bar.newTab();
+      mTabsAdapter.addTab(mRecommendationsTab.setText(getString(R.string.tab_partners)), RecommendationsFragment.class, null);
       final Bundle addressBookConfig = new Bundle();
       addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
       mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class, addressBookConfig);
@@ -358,9 +361,6 @@ public class ModernMain extends ActionBarActivity {
       //export tx history
       Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistoryTab);
 
-      final boolean showSepaEntry = isBalanceTab && _mbwManager.getMetadataStorage().getCashilaIsEnabled();
-      Preconditions.checkNotNull(menu.findItem(R.id.miSepaSend).setVisible(showSepaEntry));
-
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
       final boolean isAddressBook = tabIdx == 3;
@@ -425,14 +425,6 @@ public class ModernMain extends ActionBarActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            break;
-         case R.id.miSepaSend:
-            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.CASHILA, true, new Runnable() {
-               @Override
-               public void run() {
-                  startActivity(CashilaPaymentsActivity.getIntent(ModernMain.this));
-               }
-            });
             break;
          case R.id.miExportHistory:
             shareTransactionHistory();

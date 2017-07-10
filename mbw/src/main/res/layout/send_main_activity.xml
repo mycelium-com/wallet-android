@@ -103,15 +103,6 @@
                     <View
                             android:layout_width="1dp"
                             android:layout_height="12dp"/>
-
-                    <!-- SEPA Transfer -->
-                    <Button
-                            android:id="@+id/btSepaTransfer"
-                            android:layout_width="220dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="@string/cashila_sepa_transfer"
-                            android:textSize="20sp"/>
                 </LinearLayout>
 
                 <!-- Recipient Address Box -->
@@ -340,7 +331,6 @@
                         />
 
                 <!-- Fiat Fee -->
-
                 <TextView
                         android:id="@+id/tvFeeValue"
                         android:layout_width="wrap_content"
@@ -352,8 +342,8 @@
                 <TextView
                     android:id="@+id/tvSatFeeValue"
                     android:layout_width="wrap_content"
-                    android:gravity="center"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_gravity="center"
                     android:textSize="13sp"
                     tools:text = "(xxx sat/byte)"/>

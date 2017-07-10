@@ -48,7 +48,8 @@ import com.mycelium.wapi.model.ExchangeRate;
 import java.util.*;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
-   private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60;
+   private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
+   private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
 
    public interface Observer {
@@ -126,7 +127,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
    // only refresh if last refresh is old
    public void requestOptionalRefresh(){
-      if (System.currentTimeMillis() - _latestRatesTime > (MAX_RATE_AGE_MS/2) ){
+      if (System.currentTimeMillis() - _latestRatesTime > MIN_RATE_AGE_MS){
          requestRefresh();
       }
    }

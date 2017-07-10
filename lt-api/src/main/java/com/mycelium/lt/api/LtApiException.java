@@ -24,5 +24,4 @@ public class LtApiException extends Exception {
    public LtApiException(int errorCode) {
       this.errorCode = errorCode;
    }
-
 }

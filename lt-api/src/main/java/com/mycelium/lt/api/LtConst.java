@@ -16,114 +16,100 @@
 
 package com.mycelium.lt.api;
 
-public class LtConst {
+public interface LtConst {
+   String TRADE = "/trade";
+   String INFO = "/info";
+   String MAIL = "/mail";
 
-   public static final String TRADE = "/trade";
-   public static final String INFO = "/info";
-   public static final String MAIL = "/mail";
-
-   public static class Param {
-      public static final String API_VERSION = "v";
-      public static final String SESSION_ID = "sessionId";
-      public static final String NICKNAME = "nickname";
-      public static final String ADDRESS = "address";
-      public static final String SIG_HASH_SESSION_ID = "sigHashSessionId";
-      public static final String LONGITUDE = "longitude";
-      public static final String LATITUDE = "latitude";
-      public static final String CURRENCY = "currency";
-      public static final String MINIMUM_FIAT = "minimumFiat";
-      public static final String MAXIMUM_FIAT = "maximumFiat";
-      public static final String PRICE_FORMULA_ID = "priceFormulaId";
-      public static final String PREMIUM = "premium";
-      public static final String DESCRIPTION = "description";
-      @Deprecated
-      public static final String SELL_ORDER_ID = "sellOrderId";
-      public static final String FIAT_OFFERED = "fiatOffered";
-      public static final String BITCOIN_ADDRESS = "bitcoinAddress";
-      public static final String TRADER_ID = "traderId";
-      public static final String LOCALE = "locale";
-      public static final String TRADE_SESSION_ID = "tradeSessionId";
-      public static final String BITCOIN_DENOMINATION = "bitcoinDenomination";
-      public static final String TIMESTAMP = "timestamp";
-      public static final String MESSAGE = "message";
-      public static final String RAW_HEX_TRANSACTION = "rawtx";
-      public static final String CAPTCHA_SOLUTION = "solution";
-      public static final String NAME = "name";
-      public static final String LIMIT = "limit";
-      public static final String OFFSET = "offset";
-      public static final String TOKEN = "token";
-      public static final String AD_ID = "adId";
-      public static final String EMAIL = "email";
-      public static final String QUERY = "query";
-      public static final String MAX_RESULTS = "maxResults";
+   interface Param {
+      String API_VERSION = "v";
+      String SESSION_ID = "sessionId";
+      String NICKNAME = "nickname";
+      String ADDRESS = "address";
+      String SIG_HASH_SESSION_ID = "sigHashSessionId";
+      String LONGITUDE = "longitude";
+      String LATITUDE = "latitude";
+      String CURRENCY = "currency";
+      String MINIMUM_FIAT = "minimumFiat";
+      String MAXIMUM_FIAT = "maximumFiat";
+      String PRICE_FORMULA_ID = "priceFormulaId";
+      String PREMIUM = "premium";
+      String DESCRIPTION = "description";
+      @Deprecated String SELL_ORDER_ID = "sellOrderId";
+      String FIAT_OFFERED = "fiatOffered";
+      String BITCOIN_ADDRESS = "bitcoinAddress";
+      String TRADER_ID = "traderId";
+      String LOCALE = "locale";
+      String TRADE_SESSION_ID = "tradeSessionId";
+      String BITCOIN_DENOMINATION = "bitcoinDenomination";
+      String TIMESTAMP = "timestamp";
+      String MESSAGE = "message";
+      String RAW_HEX_TRANSACTION = "rawtx";
+      String CAPTCHA_SOLUTION = "solution";
+      String NAME = "name";
+      String LIMIT = "limit";
+      String OFFSET = "offset";
+      String TOKEN = "token";
+      String AD_ID = "adId";
+      String EMAIL = "email";
+      String QUERY = "query";
+      String MAX_RESULTS = "maxResults";
    }
 
-   public static class Function {
+   interface Function {
+      String CREATE_TRADER = "createTrader";
+      String CREATE_SESSION = "createSession";
+      String TRADER_LOGIN = "traderLogin";
+      @Deprecated String LIST_SELL_ORDERS = "listSellOrders";
+      String GET_SUPPORTED_PRICE_FORMULAS = "getSupportedPriceFormulas";
+      @Deprecated String CREATE_SELL_ORDER = "createSellOrder";
+      @Deprecated String GET_SELL_ORDER = "getSellOrder";
+      @Deprecated String EDIT_SELL_ORDER = "editSellOrder";
+      @Deprecated String ACTIVATE_SELL_ORDER = "activateSellOrder";
+      @Deprecated String DEACTIVATE_SELL_ORDER = "deactivateSellOrder";
+      @Deprecated String DELETE_SELL_ORDER = "deleteSellOrder";
+      @Deprecated String CREATE_INSTANT_BUY_ORDER = "createInstantBuyOrder";
+      String GET_ACTIVE_TRADE_SESSIONS = "getActiveTradeSessions";
+      String GET_FINAL_TRADE_SESSIONS = "getFinalTradeSessions";
+      String GET_TRADE_SESSIONS = "getTradeSessions";
+      String GET_TRADE_SESSION = "getTradeSession";
+      @Deprecated String SELL_ORDER_SEARCH = "sellOrderSearch";
+      String ACCEPT_TRADE = "acceptTrade";
+      String ABORT_TRADE = "abortTrade";
+      String SEND_CHAT_MESSAGE = "sendChatMessage";
+      String WAIT_FOR_TRADE_SESSION_CHANGE = "waitForTradeSessionChange";
+      String STOP_WAITING_FOR_TRADE_SESSION_CHANGE = "stopWaitingForTradeSessionChange";
+      String WAIT_FOR_TRADER_CHANGE = "waitForTraderChange";
+      String STOP_WAITING_FOR_TRADER_CHANGE = "stopWaitingForTraderChange";
+      String REQUEST_MARKET_RATE_REFRESH = "requestMarketRateRefresh";
+      String REQUEST_RELEASE_BTC = "releaseBtc";
+      String GET_TRADER_INFO = "getTraderInfo";
+      String GET_PUBLIC_TRADER_INFO = "getPublicTraderInfo";
+      String GET_CAPTCHA = "getCaptcha";
+      String SOLVE_CAPTCHA = "solveCaptcha";
+      String GET_LAST_TRADE_SESSION_CHANGE = "getLastTradeSessionChange";
+      String ASSESS_BTC_PRICE = "assessBtcPrice";
+      String CHANGE_TRADE_SESSION_PRICE = "changeTradeSessionPrice";
+      String AD_SEARCH = "adSearch";
+      String LIST_ADS = "listAds";
+      String CREATE_AD = "createAd";
+      String EDIT_AD = "editAd";
+      String ACTIVATE_AD = "activateAd";
+      String DEACTIVATE_AD = "deactivateAd";
+      String GET_AD = "getAd";
+      String DELETE_AD = "deleteAd";
+      String GET_ACTIVE_ADS = "getActiveAds";
+      String CREATE_TRADE = "createTrade";
+      String SET_TRADE_RECEIVING_ADDRESS = "setTradeReceivingAddress";
+      String SET_NOTIFICATION_EMAIL = "setNotificationEmail";
+      String MAIL_LINK_CONFIRM_MAIL = "confirmMail";
+      String MAIL_LINK_UNSUBSCRIBE_MAIL = "unsubscribeMail";
+      String MAIL_LINK_AD_RENEWAL = "renewAd";
+      String LT_API_HEALTHCHECK = "apiHealthCheck";
 
-      public static final String CREATE_TRADER = "createTrader";
-      public static final String CREATE_SESSION = "createSession";
-      public static final String TRADER_LOGIN = "traderLogin";
-      @Deprecated
-      public static final String LIST_SELL_ORDERS = "listSellOrders";
-      public static final String GET_SUPPORTED_PRICE_FORMULAS = "getSupportedPriceFormulas";
-      @Deprecated
-      public static final String CREATE_SELL_ORDER = "createSellOrder";
-      @Deprecated
-      public static final String GET_SELL_ORDER = "getSellOrder";
-      @Deprecated
-      public static final String EDIT_SELL_ORDER = "editSellOrder";
-      @Deprecated
-      public static final String ACTIVATE_SELL_ORDER = "activateSellOrder";
-      @Deprecated
-      public static final String DEACTIVATE_SELL_ORDER = "deactivateSellOrder";
-      @Deprecated
-      public static final String DELETE_SELL_ORDER = "deleteSellOrder";
-      @Deprecated
-      public static final String CREATE_INSTANT_BUY_ORDER = "createInstantBuyOrder";
-      public static final String GET_ACTIVE_TRADE_SESSIONS = "getActiveTradeSessions";
-      public static final String GET_FINAL_TRADE_SESSIONS = "getFinalTradeSessions";
-      public static final String GET_TRADE_SESSIONS = "getTradeSessions";
-      public static final String GET_TRADE_SESSION = "getTradeSession";
-      @Deprecated
-      public static final String SELL_ORDER_SEARCH = "sellOrderSearch";
-      public static final String ACCEPT_TRADE = "acceptTrade";
-      public static final String ABORT_TRADE = "abortTrade";
-      public static final String SEND_CHAT_MESSAGE = "sendChatMessage";
-      public static final String WAIT_FOR_TRADE_SESSION_CHANGE = "waitForTradeSessionChange";
-      public static final String STOP_WAITING_FOR_TRADE_SESSION_CHANGE = "stopWaitingForTradeSessionChange";
-      public static final String WAIT_FOR_TRADER_CHANGE = "waitForTraderChange";
-      public static final String STOP_WAITING_FOR_TRADER_CHANGE = "stopWaitingForTraderChange";
-      public static final String REQUEST_MARKET_RATE_REFRESH = "requestMarketRateRefresh";
-      public static final String REQUEST_RELEASE_BTC = "releaseBtc";
-      public static final String GET_TRADER_INFO = "getTraderInfo";
-      public static final String GET_PUBLIC_TRADER_INFO = "getPublicTraderInfo";
-      public static final String GET_CAPTCHA = "getCaptcha";
-      public static final String SOLVE_CAPTCHA = "solveCaptcha";
-      public static final String GET_LAST_TRADE_SESSION_CHANGE = "getLastTradeSessionChange";
-      public static final String ASSESS_BTC_PRICE = "assessBtcPrice";
-      public static final String CHANGE_TRADE_SESSION_PRICE = "changeTradeSessionPrice";
-      public static final String AD_SEARCH = "adSearch";
-      public static final String LIST_ADS = "listAds";
-      public static final String CREATE_AD = "createAd";
-      public static final String EDIT_AD = "editAd";
-      public static final String ACTIVATE_AD = "activateAd";
-      public static final String DEACTIVATE_AD = "deactivateAd";
-      public static final String GET_AD = "getAd";
-      public static final String DELETE_AD = "deleteAd";
-      public static final String GET_ACTIVE_ADS = "getActiveAds";
-      public static final String CREATE_TRADE = "createTrade";
-      public static final String SET_TRADE_RECEIVING_ADDRESS = "setTradeReceivingAddress";
-      public static final String SET_NOTIFICATION_EMAIL = "setNotificationEmail";
-      public static final String MAIL_LINK_CONFIRM_MAIL = "confirmMail";
-      public static final String MAIL_LINK_UNSUBSCRIBE_MAIL = "unsubscribeMail";
-      public static final String MAIL_LINK_AD_RENEWAL = "renewAd";
-      public static final String LT_API_HEALTHCHECK = "apiHealthCheck";
-
-      public static final String SEARCH_GEOCODER = "searchGeocoder";
-      public static final String REVERSE_GEOCODER = "reverseGeocode";
-      public static final String DELETE_TRADE_HISTORY = "deleteTradeHistory";
-      public static final String DELETE_ACCOUNT = "deleteAccount";
-
+      String SEARCH_GEOCODER = "searchGeocoder";
+      String REVERSE_GEOCODER = "reverseGeocode";
+      String DELETE_TRADE_HISTORY = "deleteTradeHistory";
+      String DELETE_ACCOUNT = "deleteAccount";
    }
-
 }

@@ -24,7 +24,6 @@ import java.io.Serializable;
 
 
 public abstract class PrivateKey implements BitcoinSigner, Serializable {
-
    private static final long serialVersionUID = 1L;
 
    public abstract PublicKey getPublicKey();
@@ -87,7 +86,5 @@ public abstract class PrivateKey implements BitcoinSigner, Serializable {
       }
       return SignedMessage.from(sig, targetPubKey, recId);
 //      return Base64.encodeToString(sigData,false);
-
    }
-
 }

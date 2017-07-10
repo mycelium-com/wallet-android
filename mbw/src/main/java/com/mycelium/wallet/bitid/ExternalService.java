@@ -42,20 +42,20 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 
 public enum ExternalService {
-
-   CASHILA("www.cashila.com", "www.cashila-staging.com", "https://www.cashila.com/api/", "https://cashila-staging.com/api/", R.string.cashila_welcome_message_cashila);
-
+   ; // empty enum, hooray?
    private final String prodnetHost;
    private final String testnetHost;
    private final String prodnetApi;
    private final String testnetApi;
+   private final int welcomeTitleId;
    private final int welcomeMessageId;
 
-   ExternalService(String prodnetHost, String testnetHost, String prodnetApi, String testnetApi, int welcomeMessageId) {
+   ExternalService(String prodnetHost, String testnetHost, String prodnetApi, String testnetApi, int welcomeTitleId, int welcomeMessageId) {
       this.prodnetHost = prodnetHost;
       this.testnetHost = testnetHost;
       this.prodnetApi = prodnetApi;
       this.testnetApi = testnetApi;
+      this.welcomeTitleId = welcomeTitleId;
       this.welcomeMessageId = welcomeMessageId;
    }
 
@@ -73,7 +73,7 @@ public enum ExternalService {
 
    public void showWelcomeMessage(Context context) {
       new AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.cashila_title_paired))
+            .setTitle(context.getString(welcomeTitleId))
             .setMessage(context.getString(welcomeMessageId))
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setPositiveButton(context.getString(R.string.ok), null)

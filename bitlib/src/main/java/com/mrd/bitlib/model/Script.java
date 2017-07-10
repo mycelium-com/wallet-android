@@ -38,7 +38,6 @@ public abstract class Script implements Serializable {
       public ScriptParsingException(String message) {
          super(message);
       }
-
    }
 
    public static final int OP_FALSE = 0;
@@ -143,8 +142,8 @@ public abstract class Script implements Serializable {
       return _isCoinbase;
    }
 
-   protected static final boolean isOP(byte[] chunk, int op) {
-      return chunk.length == 1 && (((int) chunk[0]) & 0xFF) == op;
+   protected static boolean isOP(byte[] chunk, int op) {
+      return chunk != null && chunk.length == 1 && (((int) chunk[0]) & 0xFF) == op;
    }
 
    public static int opToIntValue(byte[] chunk) {
@@ -157,7 +156,7 @@ public abstract class Script implements Serializable {
       return -1;
    }
 
-   protected static final byte[][] chunksFromScriptBytes(byte[] script) throws ScriptParsingException {
+   protected static byte[][] chunksFromScriptBytes(byte[] script) throws ScriptParsingException {
       try {
          ByteReader reader = new ByteReader(script);
          int numChunks = countChunks(reader);

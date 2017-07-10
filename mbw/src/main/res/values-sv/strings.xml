@@ -652,38 +652,6 @@
   <string name="remove_queued_transaction_title">Uppköad transaktion</string>
   <string name="remove_queued_transaction_hint">Ditt saldo kommer att vara korrigerat efter nästa synkronisering med nätverket</string>
   <string name="remove_queued_transaction_error">Kunde inte ta bort transaktion</string>
-  <!-- Cashila -->
-  <string name="cashila_tab_new">Ny</string>
-  <string name="cashila_tab_pending">Betalningar</string>
-  <string name="cashila_status_received">mottaget</string>
-  <string name="cashila_status_chained">kedjad</string>
-  <string name="cashila_status_confirmed">bekräftad</string>
-  <string name="cashila_status_completed">slutförd</string>
-  <string name="cashila_status_pending">redo att betala</string>
-  <string name="cashila_status_expired">redo att betala</string>
-  <string name="cashila_status_uploaded">uppladdad</string>
-  <string name="cashila_status_transcribed">transkriberad</string>
-  <string name="cashila_title_paired">Plånbok kopplad mot tjänst</string>
-  <string name="cashila_welcome_message_cashila">Du har parat din plånbok med den externa tjänsten Cashila. Detta lägger till alternativ i menyn på din huvudskärm och din skicka dialog för att direkt genomföra SEPA-pengaöverföringar direkt från din bitcoinplånbok. Ha dock i åtanke att du måste lita på Cashila, och att pengarna inte längre är under din kontroll efter att du gjort en betalning till Cashila. Besök www.cashila.com för mer information.</string>
-  <string name="cashila_fee">"Avgift: %s"</string>
-  <string name="cashila_account_needs_pairing">Ditt Cashila-konto är inte ihopkopplat med ditt nuvarande identitetskonto - vänligen koppla ihop kontona</string>
-  <string name="cashila_fetching">Hämtar senaste betalningar&#8230;</string>
-  <string name="cashila">Cashila</string>
-  <string name="cashila_amount_not_valid">Ogiltigt belopp</string>
-  <string name="cashila_pending">Väntar</string>
-  <string name="cashila_done">Klar</string>
-  <string name="cashila_already_paid">Full betalning redan genomförd</string>
-  <string name="cashila_pending_payment">Väntande betalning</string>
-  <string name="cashila_are_you_sure_to_delete_payment">Är du säker att du vill ta bort denna betalning?</string>
-  <string name="cashila_button_delete">Ta bort</string>
-  <string name="cashila_men_pay_now">Betala nu</string>
-  <string name="cashila_send_payment_to">Skicka betalningsinformation</string>
-  <string name="cashila_fiat_amount">Belopp</string>
-  <string name="cashila_reference_text">Referenstext</string>
-  <string name="cashila_enqueue_payment">Köa upp betalning</string>
-  <string name="cashila_pay_now">Betala nu</string>
-  <string name="cashila_sepa_payment_title">Sepa-betalning</string>
-  <string name="cashila_uploaded_title">Uppladdad</string>
   <string name="label_cold_storage_external_signing">Signera med:</string>
   <string name="spending_unconfirmed_warning">Varning: spenderar obekräftade tillgångar</string>
   <string name="spending_unconfirmed_title">Spenderar obekräftade tillgångar</string>
@@ -692,4 +660,6 @@
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
+  <!-- Simplex start -->
+  <!-- Simplex end -->
 </resources>
