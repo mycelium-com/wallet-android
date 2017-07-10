@@ -416,10 +416,10 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean checkFee() {
-        Balance balance = feeColuAccount.getBalance();
+        ColuAccount coluAccount = (ColuAccount) _account;
         long feePerKb = getFeePerKb().getLongValue();
-        long spendableBalance =  balance.getSpendableBalance();
-        return spendableBalance >= feePerKb;
+        long spendableAmount =  coluAccount.getSatoshiAmount();
+        return spendableAmount >= feePerKb;
     }
 
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
@@ -550,21 +550,6 @@ public class SendMainActivity extends Activity {
                                     new AsyncTask<ColuBroadcastTxid.Json, Void, Boolean>() {
                                         @Override
                                         protected Boolean doInBackground(ColuBroadcastTxid.Json... params) {
-                                            //Create funding transaction and broadcast it to network
-                                            List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
-                                            long feePerKb = getFeePerKb().getLongValue();
-                                            WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(coluAccount.getReceivingAddress().get(), feePerKb);
-                                            receivers.add(coluReceiver);
-                                            try {
-                                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
-                                                Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
-                                                WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
-                                                if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
-                                                    return false;
-                                                }
-                                            } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException| KeyCipher.InvalidKeyCipher ex) {
-                                                return false;
-                                            }
                                             Log.d(TAG, "In doInBackground: ColuPreparedTransaction");
                                             //UnsignedTransaction unsignedTx = new UnsignedTransaction();
                                             Transaction coluSignedTransaction = coluManager.signTransaction(params[0], coluAccount);
@@ -764,9 +749,29 @@ public class SendMainActivity extends Activity {
             ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
                     coluAccount, feePerKb);
 
+
             new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxid.Json>() {
                 @Override
                 protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
+
+                    if (!checkFee()) {
+                        //Create funding transaction and broadcast it to network
+                        List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
+                        long feePerKb = getFeePerKb().getLongValue();
+                        WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), feePerKb + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
+                        receivers.add(coluReceiver);
+                        try {
+                            UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
+                            Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
+                                WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
+                            if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
+                                return new ColuBroadcastTxid.Json();
+                            }
+                        } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException| KeyCipher.InvalidKeyCipher ex) {
+                            return new ColuBroadcastTxid.Json();
+                        }
+                    }
+
                     return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
                             params[0].getColuAccount(), params[0].getFeePerKb());
                 }
@@ -776,7 +781,7 @@ public class SendMainActivity extends Activity {
                     super.onPostExecute(preparedTransaction);
                     Log.d(TAG, "onPostExecute prepareColuTransaction");
                     //TODO: add feedback to user about fees when missing funds
-                    if (preparedTransaction != null) {
+                    if (preparedTransaction != null && !preparedTransaction.txHex.isEmpty()) {
                         Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
                         _preparedColuTx = preparedTransaction;
                         Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();

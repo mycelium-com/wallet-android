@@ -318,10 +318,7 @@ public class ColuClient {
             Log.d(TAG, "addressUnspent.size=" + addressUnspent.size());
             for (Utxo.Json utxo : addressUnspent) {
                Log.d(TAG, "Processing " + utxo.txid + ":" + utxo.index);
-               if (utxo.blockheight == -1) {
-                  Log.d(TAG, "Skipping unconfirmed utxo " + utxo.txid + ":" + utxo.index);
-                  continue; // skip unconfirmed utxo
-               }
+
                // case 1: this is a BTC/satoshi utxo, we select it for fee finance
                // Colu server will only take as much as it needs from the utxo we send it
                if (utxo.assets == null || utxo.assets.size() == 0) {

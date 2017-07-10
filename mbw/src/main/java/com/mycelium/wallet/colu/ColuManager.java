@@ -104,6 +104,8 @@ public class ColuManager implements AccountProvider {
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
 
+    public static final int DUST_OUTPUT_SIZE = 600;
+    public static final int METADATA_OUTPUT_SIZE = 1;
 
     final org.bitcoinj.core.NetworkParameters netParams;
     final org.bitcoinj.core.Context context;
@@ -993,6 +995,8 @@ public class ColuManager implements AccountProvider {
                 }
             }
 
+            account.setUtxos(addressInfoWithTransactions.utxos);
+
             // start additional code to retrieve extended info from wapi server
             GetTransactionsRequest trRequest = new GetTransactionsRequest(2, allTxidList);
             WapiResponse<GetTransactionsResponse> wapiResponse = wapiClient.getTransactions(trRequest);
@@ -1055,6 +1059,8 @@ public class ColuManager implements AccountProvider {
 
                             if (!isInitiatedByMe)
                                 assetReceivingAmount += asset.amount;
+                            else
+                                assetConfirmedAmount += asset.amount;
                         }
                     }
             }
