@@ -73,6 +73,9 @@ public class Tx {
         public String blockhash;
 
         @Key
+        public long blockheight;
+
+        @Key
         public long time;
 
         @Key
