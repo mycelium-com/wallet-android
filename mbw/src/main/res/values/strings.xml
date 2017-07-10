@@ -1064,4 +1064,7 @@ You can either add miner\'s fee every time you make RMC transaction or top up yo
     <string name="enter_address">Enter %s Address</string>
     <string name="address_valid">%s Address Valid</string>
     <string name="address_invalid">Invalid %s Address</string>
+    <string name="rmc_activate_rmc">Activate RMC for maximum Return</string>
+    <string name="rmc_activate">RMC activate</string>
+    <string name="save">Save</string>
 </resources>

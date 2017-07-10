@@ -136,12 +136,12 @@ public class RMCAddressFragment extends Fragment {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rmc_reminder, null, false);
         new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         addEventToCalendar();
                     }
-                }).setNegativeButton("CANCEL", null)
+                }).setNegativeButton(R.string.cancel, null)
                 .create()
                 .show();
     }
@@ -154,8 +154,8 @@ public class RMCAddressFragment extends Fragment {
         start.add(Calendar.DAY_OF_MONTH, 1);
         long dtstart = start.getTimeInMillis();
         values.put(CalendarContract.Events.DTSTART, dtstart);
-        values.put(CalendarContract.Events.TITLE, "RMC activate");
-        values.put(CalendarContract.Events.DESCRIPTION, "Activate RMC for maximum Return");
+        values.put(CalendarContract.Events.TITLE, getString(R.string.rmc_activate));
+        values.put(CalendarContract.Events.DESCRIPTION, getString(R.string.rmc_activate_rmc));
 
         TimeZone timeZone = TimeZone.getDefault();
         values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
