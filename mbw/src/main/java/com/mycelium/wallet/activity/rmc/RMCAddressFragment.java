@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -133,13 +134,15 @@ public class RMCAddressFragment extends Fragment {
 
     @OnClick(R.id.rmc_active_set_reminder)
     void setReminderClick() {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rmc_reminder, null, false);
+        final View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rmc_reminder, null, false);
         new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        addEventToCalendar();
+                        if(((Switch)view.findViewById(R.id.add_to_calendar)).isChecked()) {
+                            addEventToCalendar();
+                        }
                     }
                 }).setNegativeButton(R.string.cancel, null)
                 .create()

@@ -36,6 +36,7 @@
         android:background="#ac999999" />
 
     <Switch
+        android:id="@+id/add_to_calendar"
         android:thumb="@drawable/switch_thumb"
         android:track="@drawable/switch_track"
         android:layout_width="match_parent"

@@ -63,6 +63,7 @@ public class RmcBtcAmountFragment extends Fragment {
         etBTCWatcher = new InputWatcher(etBTC, "BTC");
         etRMCWatcher = new InputWatcher(etRMC, "RMC");
         etUSDWatcher = new InputWatcher(etUSD, "USD");
+        btnOk.setEnabled(false);
         addChangeListener();
     }
 
@@ -99,6 +100,7 @@ public class RmcBtcAmountFragment extends Fragment {
             value = new BigDecimal(amount);
         } catch (NumberFormatException e) {
         }
+        BigDecimal rmcValue = BigDecimal.ZERO;
         if (currency.equals("BTC")) {
             if (decimalsAfterDot(amount) > 8) {
                 amount = amount.substring(0, amount.length() - 1);
@@ -110,13 +112,15 @@ public class RmcBtcAmountFragment extends Fragment {
                     : BigDecimal.ZERO;
             usdValue = usdValue == null ? BigDecimal.ZERO : usdValue;
             etUSD.setText(usdValue.setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
-            etRMC.setText(usdValue.divide(BigDecimal.valueOf(4000)).setScale(4, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
+            rmcValue = usdValue.divide(BigDecimal.valueOf(4000)).setScale(4, BigDecimal.ROUND_HALF_UP);
+            etRMC.setText(rmcValue.stripTrailingZeros().toPlainString());
         } else if (currency.equals("RMC")) {
             if (decimalsAfterDot(amount) > 4) {
                 amount = amount.substring(0, amount.length() - 1);
                 etRMC.setText(amount);
                 etRMC.setSelection(amount.length());
             }
+            rmcValue = value;
             BigDecimal usdValue = value.multiply(BigDecimal.valueOf(4000));
             etUSD.setText(usdValue.setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
             BigDecimal btcValue = CurrencyValue.fromValue(ExactFiatValue.from(usdValue, "USD"), "BTC", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue();
@@ -129,12 +133,13 @@ public class RmcBtcAmountFragment extends Fragment {
                 etUSD.setSelection(amount.length());
 
             }
-            etRMC.setText(value.divide(BigDecimal.valueOf(4000)).setScale(4, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
+            rmcValue = value.divide(BigDecimal.valueOf(4000)).setScale(4, BigDecimal.ROUND_HALF_UP);
+            etRMC.setText(rmcValue.stripTrailingZeros().toPlainString());
             BigDecimal btcValue = CurrencyValue.fromValue(ExactFiatValue.from(value, "USD"), "BTC", MbwManager.getInstance(getActivity()).getExchangeRateManager()).getValue();
             etBTC.setText(btcValue != null ? btcValue.stripTrailingZeros().toPlainString()
                     : getString(R.string.exchange_source_not_available, mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
         }
-        btnOk.setEnabled(!value.equals(BigDecimal.ZERO));
+        btnOk.setEnabled(rmcValue.compareTo(new BigDecimal("0.1")) > -1);
 
         addChangeListener();
     }
