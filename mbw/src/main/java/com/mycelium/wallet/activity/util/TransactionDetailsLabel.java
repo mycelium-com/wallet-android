@@ -81,7 +81,7 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       this.transaction = tx;
       update_ui();
       if(coluMode) {
-         MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer();
+         setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
       }else {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }

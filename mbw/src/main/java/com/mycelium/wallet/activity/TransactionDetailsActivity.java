@@ -205,6 +205,7 @@ public class TransactionDetailsActivity extends Activity {
          ll.addView(getValue(item.value, address));
 
          AddressLabel adrLabel = new AddressLabel(this);
+         adrLabel.setColuMode(coluMode);
          adrLabel.setAddress(item.address);
          ll.addView(adrLabel);
       }

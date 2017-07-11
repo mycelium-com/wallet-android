@@ -44,6 +44,7 @@ import com.mycelium.wallet.Utils;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
    private Address address;
+   private boolean coluMode;
 
    public AddressLabel(Context context) {
       super(context);
@@ -72,11 +73,18 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(address,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
+   public void setColuMode(boolean coluMode) {
+      this.coluMode = coluMode;
+   }
 
    public void setAddress(final Address address){
       this.address = address;
       update_ui();
-      setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+      if(coluMode) {
+         setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
+      } else {
+         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+      }
    }
    public Address getAddress() {
       return address;
