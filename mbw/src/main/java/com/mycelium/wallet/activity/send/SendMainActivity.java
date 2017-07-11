@@ -60,6 +60,7 @@ import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
@@ -760,7 +761,12 @@ public class SendMainActivity extends Activity {
                         //Create funding transaction and broadcast it to network
                         List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
                         long feePerKb = getFeePerKb().getLongValue();
-                        WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), feePerKb + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
+                        long fundingAmountToSend = feePerKb;
+
+                        if (feePerKb < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+                            fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
+
+                        WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
                         receivers.add(coluReceiver);
                         try {
                             UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
