@@ -142,7 +142,7 @@ android {
             targetSdkVersion 19
             minSdkVersion 14
 
-            applicationId 'com.mycelium.wallet'
+            applicationId 'com.mycelium.digitalassets'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }

@@ -74,8 +74,8 @@ public class RMCAddressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
-        graphView.getGridLabelRenderer().setHorizontalAxisTitle("Day");
-        graphView.getGridLabelRenderer().setVerticalAxisTitle("USD");
+        graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.weeks));
+        graphView.getGridLabelRenderer().setVerticalAxisTitle("%");
         return _root;
     }
 
@@ -111,10 +111,8 @@ public class RMCAddressFragment extends Fragment {
     }
 
     private void activeBtnProgress() {
-        Calendar calendarStart = Calendar.getInstance();
-        calendarStart.set(2017, 7, 12);
-        Calendar calendarEnd = Calendar.getInstance();
-        calendarEnd.set(2018, 7, 12);
+        Calendar calendarStart = Keys.getActiveStartDay();
+        Calendar calendarEnd = Keys.getActiveEndDay();
         int progress = (int) TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis() - calendarStart.getTimeInMillis());
         int total = (int) TimeUnit.MILLISECONDS.toDays(calendarEnd.getTimeInMillis() - calendarStart.getTimeInMillis());
         activeProgressBar.setProgress(progress);
@@ -153,8 +151,7 @@ public class RMCAddressFragment extends Fragment {
         ContentResolver cr = getActivity().getContentResolver();
         ContentValues values = new ContentValues();
 
-        Calendar start = Calendar.getInstance();
-        start.add(Calendar.DAY_OF_MONTH, 1);
+        Calendar start = Keys.getActiveEndDay();
         long dtstart = start.getTimeInMillis();
         values.put(CalendarContract.Events.DTSTART, dtstart);
         values.put(CalendarContract.Events.TITLE, getString(R.string.rmc_activate));

@@ -50,6 +50,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.rmc.Keys;
 import com.mycelium.wallet.activity.rmc.RmcActivity;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -114,9 +115,7 @@ public class BuySellFragment extends Fragment {
             }
         }
         View btBuySellRmc = _root.findViewById(R.id.btBuySellRMC);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, 9, 1);
-        if(Calendar.getInstance().before(calendar)) {
+        if(Calendar.getInstance().before(Keys.getICOEnd())) {
             btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
             _root.findViewById(R.id.btLearnMoreRMC).setOnClickListener(new OnClickListener() {
                 @Override

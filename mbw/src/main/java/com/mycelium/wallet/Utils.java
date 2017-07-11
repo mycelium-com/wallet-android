@@ -791,10 +791,12 @@ public class Utils {
       }
       if(walletAccount instanceof ColuAccount) {
          ColuAccount account = (ColuAccount) walletAccount;
-         if(account.getColuAsset().assetType == ColuAccount.ColuAssetType.MT) {
+         if (account.getColuAsset().assetType == ColuAccount.ColuAssetType.MT) {
             return resources.getDrawable(R.drawable.mt_icon);
-         }else if(account.getColuAsset().assetType == ColuAccount.ColuAssetType.MASS) {
+         } else if (account.getColuAsset().assetType == ColuAccount.ColuAssetType.MASS) {
             return resources.getDrawable(R.drawable.mass_icon);
+         } else if (account.getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+            return resources.getDrawable(R.drawable.rmc_icon);
          }
       }
 
