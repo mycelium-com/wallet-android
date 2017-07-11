@@ -533,6 +533,15 @@ public class SendMainActivity extends Activity {
    }
 
     private void sendColuTransaction() {
+        tryCreateUnsignedColuTX(new Runnable() {
+            @Override
+            public void run() {
+                sendColu();
+            }
+        });
+    }
+
+    private void sendColu() {
         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this,
                 Feature.COLU_PREPARE_OUTGOING_TX, true, new Runnable() {
                     @Override
@@ -583,7 +592,6 @@ public class SendMainActivity extends Activity {
                         });
                     }
                 });
-
     }
 
     private void sendCoinapultTransaction() {
@@ -661,7 +669,7 @@ public class SendMainActivity extends Activity {
         if (isCoinapult()) {
             return tryCreateCoinapultTX();
         } else if (isColu()) {
-            return tryCreateUnsignedColuTX();
+            return tryCreateUnsignedColuTX(null);
         } else {
             return tryCreateUnsignedTransactionFromWallet();
         }
@@ -718,7 +726,7 @@ public class SendMainActivity extends Activity {
       }
    }
 
-    private TransactionStatus tryCreateUnsignedColuTX() {
+    private TransactionStatus tryCreateUnsignedColuTX(final Runnable success) {
         Log.d(TAG, "tryCreateUnsignedColuTX start");
         if (_account instanceof ColuAccount) {
             ColuAccount coluAccount = (ColuAccount) _account;
@@ -752,69 +760,73 @@ public class SendMainActivity extends Activity {
             ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
                     coluAccount, feePerKb);
 
+            if(success != null) {
+                new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxid.Json>() {
+                    @Override
+                    protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
 
-            new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxid.Json>() {
-                @Override
-                protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
+                        if (!checkFee(true)) {
+                            //Create funding transaction and broadcast it to network
+                            List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
+                            long feePerKb = getFeePerKb().getLongValue();
+                            long fundingAmountToSend = feePerKb;
 
-                    if (!checkFee(true)) {
-                        //Create funding transaction and broadcast it to network
-                        List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
-                        long feePerKb = getFeePerKb().getLongValue();
-                        long fundingAmountToSend = feePerKb;
+                            if (feePerKb < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+                                fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
-                        if (feePerKb < TransactionUtils.MINIMUM_OUTPUT_VALUE)
-                            fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
-
-                        WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
-                        receivers.add(coluReceiver);
-                        try {
-                            UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
-                            Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
+                            WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
+                            receivers.add(coluReceiver);
+                            try {
+                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
+                                Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
                                 WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
-                            if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
+                                if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
+                                    return new ColuBroadcastTxid.Json();
+                                }
+                            } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException | KeyCipher.InvalidKeyCipher ex) {
                                 return new ColuBroadcastTxid.Json();
                             }
-                        } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException| KeyCipher.InvalidKeyCipher ex) {
-                            return new ColuBroadcastTxid.Json();
-                        }
 
-                        //Before sending colu transaction preparation request we make sure colu see the new funding transaction
+                            //Before sending colu transaction preparation request we make sure colu see the new funding transaction
 
-                        for(int attemtps = 0; attemtps < 10; attemtps++) {
-                            if (checkFee(true)) {
-                                Log.d(TAG, "Now we have enough fee on the address");
-                                break;
+                            for (int attemtps = 0; attemtps < 10; attemtps++) {
+                                if (checkFee(true)) {
+                                    Log.d(TAG, "Now we have enough fee on the address");
+                                    break;
+                                }
+
+                                try {
+                                    Thread.sleep(ColuManager.TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
-                            try {
-                                Thread.sleep(ColuManager.TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                         }
 
+                        return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
+                                params[0].getColuAccount(), params[0].getFeePerKb());
                     }
 
-                    return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
-                            params[0].getColuAccount(), params[0].getFeePerKb());
-                }
-
-                @Override
-                protected void onPostExecute(ColuBroadcastTxid.Json preparedTransaction) {
-                    super.onPostExecute(preparedTransaction);
-                    Log.d(TAG, "onPostExecute prepareColuTransaction");
-                    //TODO: add feedback to user about fees when missing funds
-                    if (preparedTransaction != null && !preparedTransaction.txHex.isEmpty()) {
-                        Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
-                        _preparedColuTx = preparedTransaction;
-                        Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare, ((ColuAccount) _account).getColuAsset().label), Toast.LENGTH_SHORT).show();
-                        updateUi();
+                    @Override
+                    protected void onPostExecute(ColuBroadcastTxid.Json preparedTransaction) {
+                        super.onPostExecute(preparedTransaction);
+                        Log.d(TAG, "onPostExecute prepareColuTransaction");
+                        //TODO: add feedback to user about fees when missing funds
+                        if (preparedTransaction != null && !preparedTransaction.txHex.isEmpty()) {
+                            Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
+                            _preparedColuTx = preparedTransaction;
+                            if (success != null) {
+                                success.run();
+                            }
+                            Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare, ((ColuAccount) _account).getColuAsset().label), Toast.LENGTH_SHORT).show();
+                            updateUi();
+                        }
                     }
-                }
-            }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
+                }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
+            }
             return TransactionStatus.OK;
         }
         // if we arrive here it means account is not colu type
