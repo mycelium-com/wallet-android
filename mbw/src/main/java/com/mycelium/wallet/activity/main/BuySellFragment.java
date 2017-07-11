@@ -59,6 +59,7 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 
 import com.squareup.otto.Subscribe;
 
+import java.net.URISyntaxException;
 import java.util.Calendar;
 
 import javax.annotation.Nullable;
@@ -117,6 +118,16 @@ public class BuySellFragment extends Fragment {
         calendar.set(2017, 9, 1);
         if(Calendar.getInstance().before(calendar)) {
             btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
+            _root.findViewById(R.id.btLearnMoreRMC).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        startActivity(Intent.parseUri("http://rmc.one/", 0));
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }else {
             btBuySellRmc.setVisibility(View.GONE);
             _root.findViewById(R.id.btLearnMoreRMC).setVisibility(View.GONE);
