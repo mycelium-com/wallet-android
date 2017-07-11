@@ -74,17 +74,17 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkURL(BlockExplorer blockExplorer){
-      if(coluMode) {
-         String coluLinkURL = "http://coloredcoins.org/explorer/tx/" + transaction.hash.toString();
-         return coluLinkURL;
-      }
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
    public void setTransaction(final TransactionDetails tx){
       this.transaction = tx;
       update_ui();
-      setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+      if(coluMode) {
+         MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer();
+      }else {
+         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+      }
    }
 
    public TransactionDetails getAddress() {

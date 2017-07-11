@@ -21,9 +21,12 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.ByteReader;
 import com.mycelium.WapiLogger;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.activity.util.BlockExplorer;
+import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
@@ -148,6 +151,21 @@ public class ColuManager implements AccountProvider {
         });
         coluAccounts = new HashMap<>();
         loadAccounts();
+    }
+
+    public BlockExplorer getBlockExplorer() {
+        String baseUrl;
+        if (this._network.isProdnet()) {
+            baseUrl = "http://coloredcoins.org/explorer/";
+        } else if (this._network.isTestnet()) {
+            baseUrl = "http://coloredcoins.org/explorer/testnet/";
+        } else {
+            baseUrl = "http://coloredcoins.org/explorer/testnet/";
+        }
+
+        return new BlockExplorer("CCO", "coloredcoins.org"
+                , baseUrl + "address/", baseUrl + "tx/"
+                , baseUrl + "address/", baseUrl + "tx/");
     }
 
 
