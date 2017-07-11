@@ -576,7 +576,7 @@ public class SendMainActivity extends Activity {
                                                 updateUi();
                                             }
                                         }
-                                    }.execute(_preparedColuTx);
+                                    }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, _preparedColuTx);
                                 }
                             }
                         });
@@ -808,7 +808,7 @@ public class SendMainActivity extends Activity {
                         updateUi();
                     }
                 }
-            }.execute(coluTransactionData);
+            }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
             return TransactionStatus.OK;
         }
         // if we arrive here it means account is not colu type
