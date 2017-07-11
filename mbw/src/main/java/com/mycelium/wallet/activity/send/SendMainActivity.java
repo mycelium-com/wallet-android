@@ -44,7 +44,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -94,7 +93,6 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -758,7 +756,7 @@ public class SendMainActivity extends Activity {
                 @Override
                 protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
 
-                    if (!checkFee(false)) {
+                    if (!checkFee(true)) {
                         //Create funding transaction and broadcast it to network
                         List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
                         long feePerKb = getFeePerKb().getLongValue();
@@ -774,6 +772,22 @@ public class SendMainActivity extends Activity {
                         } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException| KeyCipher.InvalidKeyCipher ex) {
                             return new ColuBroadcastTxid.Json();
                         }
+
+                        //Before sending colu transaction preparation request we make sure colu see the new funding transaction
+
+                        for(int attemtps = 0; attemtps < 10; attemtps++) {
+                            if (checkFee(true)) {
+                                Log.d(TAG, "Now we have enough fee on the address");
+                                break;
+                            }
+
+                            try {
+                                Thread.sleep(ColuManager.TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
                     }
 
                     return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
