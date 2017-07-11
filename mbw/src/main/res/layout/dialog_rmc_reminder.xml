@@ -47,7 +47,7 @@
         android:layout_margin="12dp"
         android:text="@string/rmc_add_to_google_calendar" />
 
-    <View
+   <!-- <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#ac999999" />
@@ -64,6 +64,6 @@
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginBottom="12dp"
-        android:hint="example@gmail.com" />
+        android:hint="example@gmail.com" />-->
 
 </LinearLayout>
