@@ -421,9 +421,13 @@ public class SendMainActivity extends Activity {
             coluManager.scanForAccounts();
         }
         ColuAccount coluAccount = (ColuAccount) _account;
-        long feePerKb = getFeePerKb().getLongValue();
+
+        long fundingAmountToSend = getFeePerKb().getLongValue();
+        if (fundingAmountToSend < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+            fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
+
         long spendableAmount =  coluAccount.getSatoshiAmount();
-        return spendableAmount >= feePerKb;
+        return spendableAmount >= fundingAmountToSend;
     }
 
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
