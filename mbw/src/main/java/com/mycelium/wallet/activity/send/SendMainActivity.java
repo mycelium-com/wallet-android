@@ -236,6 +236,7 @@ public class SendMainActivity extends Activity {
     private boolean _spendingUnconfirmed = false;
     private boolean _paymentFetched = false;
     private WalletAccount feeColuAccount;
+    private ProgressDialog progress;
 
     public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
         return new Intent(currentActivity, SendMainActivity.class)
@@ -533,10 +534,20 @@ public class SendMainActivity extends Activity {
    }
 
     private void sendColuTransaction() {
-        tryCreateUnsignedColuTX(new Runnable() {
+        progress = new ProgressDialog(SendMainActivity.this);
+        progress.setCancelable(false);
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setMessage(getString(R.string.colu_sending_via_colu));
+        progress.show();
+        tryCreateUnsignedColuTX(new PrepareCallback() {
             @Override
-            public void run() {
+            public void success() {
                 sendColu();
+            }
+
+            @Override
+            public void fail() {
+                progress.dismiss();
             }
         });
     }
@@ -551,11 +562,6 @@ public class SendMainActivity extends Activity {
                             public void run() {
                                 if (_account instanceof ColuAccount) {
                                     Log.d(TAG, "sendColuTransaction account type is ColuAccount");
-                                    final ProgressDialog progress = new ProgressDialog(SendMainActivity.this);
-                                    progress.setCancelable(false);
-                                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                    progress.setMessage(getString(R.string.colu_sending_via_colu));
-                                    progress.show();
                                     final ColuAccount coluAccount = (ColuAccount) _account;
                                     final ColuManager coluManager = _mbwManager.getColuManager();
                                     disableButtons();
@@ -726,7 +732,7 @@ public class SendMainActivity extends Activity {
       }
    }
 
-    private TransactionStatus tryCreateUnsignedColuTX(final Runnable success) {
+    private TransactionStatus tryCreateUnsignedColuTX(final PrepareCallback callback) {
         Log.d(TAG, "tryCreateUnsignedColuTX start");
         if (_account instanceof ColuAccount) {
             ColuAccount coluAccount = (ColuAccount) _account;
@@ -760,7 +766,7 @@ public class SendMainActivity extends Activity {
             ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
                     coluAccount, feePerKb);
 
-            if(success != null) {
+            if(callback != null) {
                 new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxid.Json>() {
                     @Override
                     protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
@@ -816,11 +822,14 @@ public class SendMainActivity extends Activity {
                         if (preparedTransaction != null && !preparedTransaction.txHex.isEmpty()) {
                             Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
                             _preparedColuTx = preparedTransaction;
-                            if (success != null) {
-                                success.run();
+                            if (callback != null) {
+                                callback.success();
                             }
                             Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
                         } else {
+                            if (callback != null) {
+                                callback.fail();
+                            }
                             Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare, ((ColuAccount) _account).getColuAsset().label), Toast.LENGTH_SHORT).show();
                             updateUi();
                         }
@@ -832,6 +841,11 @@ public class SendMainActivity extends Activity {
         // if we arrive here it means account is not colu type
         Log.e(TAG, "tryCreateUnsignedColuTX: We should not arrive here.");
         return TransactionStatus.MissingArguments;
+    }
+
+    private interface PrepareCallback {
+        void success();
+        void fail();
     }
 
     private TransactionStatus tryCreateCoinapultTX() {
