@@ -416,6 +416,8 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean checkFee() {
+        ColuManager coluManager = _mbwManager.getColuManager();
+        coluManager.scanForAccounts();
         ColuAccount coluAccount = (ColuAccount) _account;
         long feePerKb = getFeePerKb().getLongValue();
         long spendableAmount =  coluAccount.getSatoshiAmount();
