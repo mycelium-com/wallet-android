@@ -399,7 +399,7 @@ public class SendMainActivity extends Activity {
     private void coluSpendAccount() {
 
         if(feeColuAccount != null) {
-            if(checkFee())  {
+            if(checkFee(true))  {
                 btFeeFromAccount.setVisibility(View.GONE);
             } else{
                 String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
@@ -415,9 +415,11 @@ public class SendMainActivity extends Activity {
         }
     }
 
-    private boolean checkFee() {
-        ColuManager coluManager = _mbwManager.getColuManager();
-        coluManager.scanForAccounts();
+    private boolean checkFee(boolean rescan) {
+        if (rescan) {
+            ColuManager coluManager = _mbwManager.getColuManager();
+            coluManager.scanForAccounts();
+        }
         ColuAccount coluAccount = (ColuAccount) _account;
         long feePerKb = getFeePerKb().getLongValue();
         long spendableAmount =  coluAccount.getSatoshiAmount();
@@ -756,7 +758,7 @@ public class SendMainActivity extends Activity {
                 @Override
                 protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
 
-                    if (!checkFee()) {
+                    if (!checkFee(false)) {
                         //Create funding transaction and broadcast it to network
                         List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
                         long feePerKb = getFeePerKb().getLongValue();
