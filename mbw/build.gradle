@@ -153,7 +153,7 @@ android {
             minSdkVersion 21
 
             // if we are not on master, include the branchname in appId
-            def appId = 'com.mycelium.devwallet';
+            def appId = 'com.mycelium.devdigitalassets';
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
@@ -170,7 +170,7 @@ android {
             buildToolsVersion androidSdkBuildVersion
             minSdkVersion 21
 
-            def appId = 'com.mycelium.devprodwallet';
+            def appId = 'com.mycelium.devproddigitalassets';
 
             applicationId appId
             signingConfig signingConfigs.debug
@@ -180,7 +180,7 @@ android {
             targetSdkVersion 19
             minSdkVersion 14
 
-            applicationId 'com.mycelium.testnetwallet'
+            applicationId 'com.mycelium.testnetdigitalassets'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.btctestnet
         }
