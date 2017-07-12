@@ -12,12 +12,13 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/digital_assets_on_board" android:textSize="30sp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_gravity="bottom"
         android:textColor="@color/red" android:gravity="center_vertical|center_horizontal"
-        android:layout_marginTop="200dp"/>
+        android:layout_marginBottom="50dp"/>
 
 
 </FrameLayout>
