@@ -6,9 +6,18 @@
         >
 
     <TextView android:layout_width="fill_parent" android:layout_height="fill_parent"
-              android:text="@string/testnet_label_startup" android:textSize="70dp"
+              android:text="@string/testnet_label_startup" android:textSize="70sp"
               android:textColor="@color/red" android:gravity="center_vertical|center_horizontal"
               android:paddingBottom="200dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/digital_assets_on_board" android:textSize="30sp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textColor="@color/red" android:gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="200dp"/>
 
 
 </FrameLayout>
