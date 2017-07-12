@@ -180,7 +180,7 @@ android {
             targetSdkVersion 19
             minSdkVersion 14
 
-            applicationId 'com.mycelium.testnetdigitalassets'
+            applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.btctestnet
         }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="app_name_da">Mycelium Digital Assets</string>
-    <string name="app_short_name_da">Mycelium DA</string>
-
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
 
