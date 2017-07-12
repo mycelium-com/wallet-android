@@ -903,7 +903,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       } //result precomputed from accountHistory query
 
       // if we dont have a balance, return 0 in the accounts native currency
-      ExactCurrencyValue zero = ExactCurrencyValue.from(BigDecimal.ZERO, "");
+      ExactCurrencyValue zero = ExactCurrencyValue.from(BigDecimal.ZERO, getColuAsset().name);
       return new CurrencyBasedBalance(zero, zero, zero, true);
    }
 

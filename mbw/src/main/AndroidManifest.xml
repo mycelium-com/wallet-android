@@ -3,6 +3,12 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.mycelium.wallet">
 
+    <!--  Note that the permission below depends on the package and must be changed for each build target -->
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE"
+                android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+
+
     <!-- basics -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -45,8 +51,30 @@
         android:name=".WalletApplication"
         android:allowBackup="false"
         android:icon="@drawable/mycelium_logo_transp_small"
-        android:label="@string/app_name"
+        android:label="@string/app_name_da"
         android:theme="@style/MyceliumModern">
+
+        <!--  Receiver for Google Cloud Messaging -->
+        <receiver
+                android:name="com.mycelium.wallet.lt.notification.GcmBroadcastReceiver"
+                android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <!--  Note that the below must match the package name -->
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+        <!--file provider to enable secure intent sharing for encrypted backups-->
+        <provider
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="${applicationId}.files"
+                android:exported="false"
+                android:grantUriPermissions="true">
+            <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/my_paths" />
+        </provider>
 
         <!-- Service for Google Cloud Messaging -->
         <service android:name=".lt.notification.GcmIntentService"/>
@@ -64,7 +92,7 @@
         <!-- Startup -->
         <activity
             android:name="com.mycelium.wallet.activity.StartupActivity"
-            android:label="@string/app_short_name"
+            android:label="@string/app_short_name_da"
             android:theme="@style/MyceliumLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -74,7 +102,7 @@
             </intent-filter>
 
             <!-- bitcoin uri scheme -->
-            <intent-filter android:label="@string/app_name">
+            <intent-filter android:label="@string/app_name_da">
                 <action android:name="android.intent.action.VIEW"/>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
@@ -85,7 +113,7 @@
             </intent-filter>
 
             <!-- payment request mime type uri scheme -->
-            <intent-filter android:label="@string/app_name">
+            <intent-filter android:label="@string/app_name_da">
                 <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -239,9 +267,9 @@
         <activity android:name=".external.BuySellSelectFragment" />
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
-        <activity android:name=".activity.send.GetBtcAccountForFeeActivity"></activity>
+        <activity android:name=".activity.send.GetBtcAccountForFeeActivity"/>
         <activity android:name=".activity.rmc.RmcActivity" />
         <activity android:name=".activity.rmc.EthPaymentRequestActivity" />
-        <activity android:name=".activity.rmc.BankPaymentRequestActivity"></activity>
+        <activity android:name=".activity.rmc.BankPaymentRequestActivity"/>
     </application>
 </manifest>
