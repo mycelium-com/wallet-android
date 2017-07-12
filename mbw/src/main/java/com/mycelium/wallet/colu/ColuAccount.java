@@ -38,10 +38,9 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
-//import com.colu.api.httpclient.ColuClient;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
@@ -49,7 +48,6 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
-
 import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteWriter;
@@ -64,12 +62,16 @@ import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
 import com.mycelium.wallet.colu.json.Vout;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.TransactionExApi;
-import com.mycelium.wapi.model.*;
-import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
@@ -79,17 +81,22 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Bus;
 import com.subgraph.orchid.encoders.Hex;
 
-import javax.annotation.Nullable;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-public class ColuAccount extends SynchronizeAbleWalletAccount {
+//import com.colu.api.httpclient.ColuClient;
+
+public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
 
    public static final String TAG = "ColuAccount";
 
@@ -634,6 +641,16 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
       utxosList = null;
    }
 
+   @Override
+   public Data getExportData(KeyCipher cipher) {
+      Optional<String> privateKey = Optional.absent();
+      if (canSpend()) {
+         privateKey = Optional.of(accountKey.getBase58EncodedPrivateKey(manager.getNetwork()));
+      }
+      Optional<String> pubKey = Optional.of(address.toString());
+      return new Data(privateKey, pubKey);
+   }
+
    private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
       @Override
       protected UUID doInBackground(Void... params) {
@@ -886,7 +903,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount {
       } //result precomputed from accountHistory query
 
       // if we dont have a balance, return 0 in the accounts native currency
-      ExactCurrencyValue zero = ExactCurrencyValue.from(BigDecimal.ZERO, "");
+      ExactCurrencyValue zero = ExactCurrencyValue.from(BigDecimal.ZERO, getColuAsset().name);
       return new CurrencyBasedBalance(zero, zero, zero, true);
    }
 
