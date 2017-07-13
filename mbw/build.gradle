@@ -107,7 +107,10 @@ android {
             keyAlias = ''
         }
         btctestnet {
-            keyAlias = ''
+            keyAlias 'testtest'
+            keyPassword 'testtest'
+            storeFile file('release-keystore.jks')
+            storePassword 'testtest'
         }
         commonDebug {
             storeFile commonDebugKeystore
@@ -193,26 +196,26 @@ if (commonDebugKeystore.exists()) {
     logger.info("keytore_debug detected")
 }
 
-if (project.hasProperty('prodKeyStore') &&
-        project.hasProperty('prodKeyAlias') &&
-        project.hasProperty('prodKeyStorePassword') &&
-        project.hasProperty('prodKeyAliasPassword')) {
-    android.signingConfigs.release.storeFile = file('../../' + prodKeyStore)
-    android.signingConfigs.release.keyAlias = prodKeyAlias
-    android.signingConfigs.release.storePassword = prodKeyStorePassword
-    android.signingConfigs.release.keyPassword = prodKeyAliasPassword
-} else {
-    android.productFlavors.prodnet.signingConfig = null
-}
-
-if (project.hasProperty('testKeyStore') &&
-        project.hasProperty('testKeyAlias') &&
-        project.hasProperty('testKeyStorePassword') &&
-        project.hasProperty('testKeyAliasPassword')) {
-    android.signingConfigs.btctestnet.storeFile = file('../../' + testKeyStore)
-    android.signingConfigs.btctestnet.keyAlias = testKeyAlias
-    android.signingConfigs.btctestnet.storePassword = testKeyStorePassword
-    android.signingConfigs.btctestnet.keyPassword = testKeyAliasPassword
-} else {
-    android.productFlavors.btctestnet.signingConfig = null
-}
+//if (project.hasProperty('prodKeyStore') &&
+//        project.hasProperty('prodKeyAlias') &&
+//        project.hasProperty('prodKeyStorePassword') &&
+//        project.hasProperty('prodKeyAliasPassword')) {
+//    android.signingConfigs.release.storeFile = file('../../' + prodKeyStore)
+//    android.signingConfigs.release.keyAlias = prodKeyAlias
+//    android.signingConfigs.release.storePassword = prodKeyStorePassword
+//    android.signingConfigs.release.keyPassword = prodKeyAliasPassword
+//} else {
+//    android.productFlavors.prodnet.signingConfig = null
+//}
+//
+//if (project.hasProperty('testKeyStore') &&
+//        project.hasProperty('testKeyAlias') &&
+//        project.hasProperty('testKeyStorePassword') &&
+//        project.hasProperty('testKeyAliasPassword')) {
+//    android.signingConfigs.btctestnet.storeFile = file('../../' + testKeyStore)
+//    android.signingConfigs.btctestnet.keyAlias = testKeyAlias
+//    android.signingConfigs.btctestnet.storePassword = testKeyStorePassword
+//    android.signingConfigs.btctestnet.keyPassword = testKeyAliasPassword
+//} else {
+//    android.productFlavors.btctestnet.signingConfig = null
+//}
