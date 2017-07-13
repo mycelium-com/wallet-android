@@ -89,6 +89,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -451,13 +452,19 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          long time = 0;
          //int height = tx.blockheight;
          int height = -1;
-         int confirmations = 1;
          boolean isQueuedOutgoing = false;
          Optional<Address> destinationAddress = null;
          if (extendedInfo != null) {
             time = extendedInfo.time;
-            confirmations = extendedInfo.calculateConfirmations(manager.getBitcoinBlockheight());
+         } else {
+            //Since we merge transactions information from two data sources - colu server and WAPI server, there might be a data syncronization issue -
+            //colu server detects recently added transactions earlier then WAPI server, so at some moment they may return different numbers of transactions available
+            //So for transaction retuned inside colu list we may not found the corresponding transaction in the list returned by WAPI
+            //The syncronization lag seems to be small, so we can return current time
+            time = new Date().getTime();
          }
+
+         int confirmations = tx.confirmations;
 
          List<Address> toAddresses = null; //TODO: is this list ever used ?
          if (destinationAddress == null) {
