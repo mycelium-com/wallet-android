@@ -237,6 +237,11 @@
 -dontwarn org.slf4j.impl.StaticMarkerBinder
 -dontwarn org.slf4j.impl.StaticMDCBinder
 
+
+
+#rmc
+-keep class com.mycelium.wallet.activity.rmc.json.** { *; }
+
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
