@@ -450,8 +450,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          }
 
          long time = 0;
-         //int height = tx.blockheight;
-         int height = -1;
+         int height = (int)tx.blockheight;
          boolean isQueuedOutgoing = false;
          Optional<Address> destinationAddress = null;
          if (extendedInfo != null) {

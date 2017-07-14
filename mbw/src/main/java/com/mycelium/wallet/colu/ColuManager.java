@@ -40,12 +40,15 @@ import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
+import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
+import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -82,6 +85,7 @@ import org.bitcoinj.script.ScriptBuilder;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1012,6 +1016,14 @@ public class ColuManager implements AccountProvider {
                 for (Tx.Json historyTx : addressInfoWithTransactions.transactions) {
                     allTxidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(historyTx.txid));
                 }
+            }
+
+            try {
+                QueryUnspentOutputsResponse unspentOutputResponse = wapiClient.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, account.getSendingAddresses()))
+                        .getResult();
+                account.setBlockChainHeight(unspentOutputResponse.height);
+            } catch (WapiException e) {
+                Log.d(TAG, "Warning ! Error accessing unspent outputs response: " + e.getMessage());
             }
 
             account.setUtxos(addressInfoWithTransactions.utxos);
