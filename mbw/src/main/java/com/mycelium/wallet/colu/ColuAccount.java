@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
@@ -63,6 +64,7 @@ import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
 import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -71,6 +73,8 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.AbstractAccount;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -97,7 +101,7 @@ import java.util.UUID;
 
 //import com.colu.api.httpclient.ColuClient;
 
-public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
+public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
    public static final String TAG = "ColuAccount";
 
@@ -105,7 +109,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
 
    private final ColuManager manager;
-   private final SqliteColuManagerBacking _backing;
    private final Bus eventBus;
    private final Handler handler;
    private final UUID uuid;
@@ -132,16 +135,17 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    private List<Tx.Json> historyTxList;
 
    private Collection<TransactionExApi> historyTxInfosList;
-
+   private AccountBacking accountBacking;
 
    public InMemoryPrivateKey getPrivateKey() {
       return accountKey;
    }
 
-   public ColuAccount(ColuManager manager, SqliteColuManagerBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
+   public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
+      super(backing, manager.getNetwork(), manager.getWapi());
+      this.accountBacking = backing;
       this.manager = manager;
-      this._backing = backing;
       this.eventBus = eventBus;
       this.handler = handler;
       this.exchangeRateManager = exchangeRateManager;
@@ -304,8 +308,18 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    @Override
+   protected Address getChangeAddress() {
+      return null;
+   }
+
+   @Override
    public UUID getId() {
       return uuid;
+   }
+
+   @Override
+   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+      return false;
    }
 
    @Override
@@ -631,6 +645,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    @Override
+   protected void onNewTransaction(TransactionEx tex, Transaction t) {
+
+   }
+
+   @Override
    public void archiveAccount() {
       archived = true;
       metadataStorage.storeArchived(uuid, true);
@@ -767,9 +786,36 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    @Override
    protected boolean doSynchronization(SyncMode mode) {
-      return true;
+      return updateUnspentOutputs(mode);
    }
 
+   private boolean updateUnspentOutputs(SyncMode mode) {
+      List<Address> checkAddresses = getSendingAddresses();
+
+      final int newUtxos = synchronizeUnspentOutputs(checkAddresses);
+
+      if (newUtxos == -1) {
+         return false;
+      }
+
+      if (newUtxos > 0 && !mode.mode.equals(SyncMode.Mode.FULL_SYNC)){
+         if (synchronizeUnspentOutputs(checkAddresses) == -1){
+            return false;
+         }
+      }
+
+
+      // update state of recent received transaction to update their confirmation state
+      if (mode.mode != SyncMode.Mode.ONE_ADDRESS) {
+         // Monitor young transactions
+         if (!monitorYoungTransactions()) {
+            return false;
+         }
+      }
+
+      updateLocalBalance();
+      return true;
+   }
 
    /* TODO: update for Colu
       private List<com.colu.api.httpclient.Transaction.Json> getHistoryWithExtras() {
@@ -843,6 +889,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    @Override
+   protected void persistContextIfNecessary() {
+
+   }
+
+   @Override
    public boolean deleteTransaction(Sha256Hash transactionId) {
       return false;
    }
@@ -850,6 +901,16 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    @Override
    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
       return getCurrencyBasedBalance().confirmed;
+   }
+
+   @Override
+   protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      return null;
+   }
+
+   @Override
+   protected PublicKey getPublicKeyForAddress(Address address) {
+      return null;
    }
 
    @Override
@@ -880,6 +941,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    @Override
    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
       return null;
+   }
+
+   @Override
+   protected boolean isSynchronizing() {
+      return false;
    }
 
    /// returns all utxo associated with this address
@@ -1078,5 +1144,4 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public String getAccountDefaultCurrency() {
       return getColuAsset().name;
    }
-
 }

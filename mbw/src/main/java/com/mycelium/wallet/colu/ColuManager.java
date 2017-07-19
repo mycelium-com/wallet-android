@@ -53,6 +53,7 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -670,6 +671,10 @@ public class ColuManager implements AccountProvider {
         }
     }
 
+    class CreatedAccountInfo {
+        public UUID id;
+        public AccountBacking accountBacking;
+    }
     /**
      * Create a new account using a single private key and address
      *
@@ -679,7 +684,7 @@ public class ColuManager implements AccountProvider {
      * @return the ID of the new account
      * @throws InvalidKeyCipher
      */
-    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
+    public CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         if (privateKey == null) {
             Log.d(TAG, "createSingleAddressAccount: null private key !");
         }
@@ -696,22 +701,24 @@ public class ColuManager implements AccountProvider {
      * @param address the address to use
      * @return the ID of the new account
      */
-    public UUID createSingleAddressAccount(Address address) {
-        UUID id = SingleAddressAccount.calculateId(address);
+    public CreatedAccountInfo createSingleAddressAccount(Address address) {
+        CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
+        createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
-            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(id, address, false, 0);
+            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, address, false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(singleAccountContext.getId());
             Preconditions.checkNotNull(accountBacking);
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccount account = new SingleAddressAccount(singleAccountContext, store, _network, accountBacking, getWapi());
             singleAccountContext.persist(accountBacking);
+            createdAccountInfo.accountBacking = accountBacking;
             _backing.setTransactionSuccessful();
         } finally {
             _backing.endTransaction();
         }
-        return id;
+        return createdAccountInfo;
     }
 
     // convenience method to make it easier to migrate from metadataStorage to backing later on
@@ -769,13 +776,17 @@ public class ColuManager implements AccountProvider {
 
         InMemoryPrivateKey accountKey = null;
         InMemoryPrivateKey metadataKey = null;
+        CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
+
         // case 1: check if private key already exists in secure store for this asset
         if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
             // account exists in mycelium colu keystore, use it to create ColuAccount object
             Log.d(TAG, "Found UUID in metatadaStorage mapping for asset and loaded key from mycelium secure store.");
             try {
-                SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(getAssetAccountUUID(coluAsset));
+                createdAccountInfo.id = getAssetAccountUUID(coluAsset);
+                SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
                 accountKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+                createdAccountInfo.accountBacking = account.getAccountBacking();
             } catch (InvalidKeyCipher e) {
             }
         }
@@ -801,15 +812,14 @@ public class ColuManager implements AccountProvider {
                         "createAccount: metadataStorage key found, key not found in backing." +
                                 " Saving into backing (conversion).");
                 // save key into mycelium secure keystore
-                UUID accountUUID;
                 try {
-                    accountUUID = createSingleAddressAccount(metadataKey, AesKeyCipher.defaultKeyCipher());
-                    setAssetAccountUUID(coluAsset, accountUUID);
+                    createdAccountInfo = createSingleAddressAccount(metadataKey, AesKeyCipher.defaultKeyCipher());
+                    setAssetAccountUUID(coluAsset, createdAccountInfo.id);
                 } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                     throw new RuntimeException(invalidKeyCipher);
                 }
                 accountKey = metadataKey;
-                Log.d(TAG, "createAccount: saved key into keystore uuid=" + accountUUID.toString());
+                Log.d(TAG, "createAccount: saved key into keystore uuid=" + createdAccountInfo.id.toString());
             }
         }
         // end migration code
@@ -823,8 +833,8 @@ public class ColuManager implements AccountProvider {
                 } else {
                     accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
                 }
-                accountUUID = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
-                setAssetAccountUUID(coluAsset, accountUUID);
+                createdAccountInfo = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
+                setAssetAccountUUID(coluAsset, createdAccountInfo.id);
                 Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                 throw new RuntimeException(invalidKeyCipher);
@@ -836,7 +846,7 @@ public class ColuManager implements AccountProvider {
             return null;
         }
         ColuAccount account = new ColuAccount(
-                ColuManager.this, _backing, metadataStorage, accountKey,
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
                 exchangeRateManager, handler, eventBus, logger, coluAsset
         );
 
