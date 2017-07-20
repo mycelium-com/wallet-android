@@ -50,6 +50,7 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     private static final String TAG = "ChooseRMCAccount";
     String rmcCount = "0";
+    String ethCount = "0";
     String btcCount;
     String payMethod;
     String coluAddress;
@@ -70,6 +71,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             rmcCount = getArguments().getString(Keys.RMC_COUNT);
+            ethCount = getArguments().getString(Keys.ETH_COUNT);
             payMethod = getArguments().getString(Keys.PAY_METHOD);
             btcCount = getArguments().getString(Keys.BTC_COUNT);
         }
@@ -250,9 +252,12 @@ public class ChooseRMCAccountFragment extends Fragment {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         } else if (payMethod.equals("ETH")) {
-            Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
-            intent.putExtra(Keys.RMC_COUNT, rmcCount);
-            startActivity(intent);
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Creating order");
+            progressDialog.show();
+            RmsApiTask task = new RmsApiTask(ethCount,rmcCount, coluAddress, payMethod);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         } else {
             Intent intent = new Intent(getActivity(), BankPaymentRequestActivity.class);
             intent.putExtra(Keys.RMC_COUNT, rmcCount);

@@ -53,7 +53,7 @@
             android:paddingLeft="32dp"
             android:paddingRight="32dp"
             android:text="ETH"
-            android:enabled="false"
+            android:enabled="true"
             android:textSize="20sp" />
 
         <!--<Button-->
