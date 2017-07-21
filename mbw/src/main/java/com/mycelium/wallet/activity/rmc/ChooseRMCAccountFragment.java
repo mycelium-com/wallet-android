@@ -232,10 +232,16 @@ public class ChooseRMCAccountFragment extends Fragment {
         protected void onPostExecute(CreateRmcOrderResponse.Json result) {
             progressDialog.dismiss();
             if (result != null) {
-                //Address should be funded to get tokens
-                String fundingAddress = result.order.paymentDetails.address;
-                String invoice = result.order.paymentDetails.invoice;
-                startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount + "&r=" + invoice)), Keys.PAYMENT_REQUEST_CODE);
+                if (this.paymentMethod.equals("BTC")) {
+                    startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(result.order.paymentDetails.uri)), Keys.PAYMENT_REQUEST_CODE);
+                }
+
+                if (this.paymentMethod.equals("ETH")) {
+                    Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
+                    intent.putExtra(Keys.ADDRESS, result.order.paymentDetails.address);
+                    intent.putExtra(Keys.PAYMENT_URI, result.order.paymentDetails.uri);
+                    startActivity(intent);
+                }
             } else {
                 Toast.makeText(getActivity(), "Error getting response from RMC server", Toast.LENGTH_SHORT).show();
             }
@@ -257,7 +263,6 @@ public class ChooseRMCAccountFragment extends Fragment {
             progressDialog.show();
             RmsApiTask task = new RmsApiTask(ethCount,rmcCount, coluAddress, payMethod);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
         } else {
             Intent intent = new Intent(getActivity(), BankPaymentRequestActivity.class);
             intent.putExtra(Keys.RMC_COUNT, rmcCount);
