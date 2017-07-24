@@ -107,10 +107,7 @@ android {
             keyAlias = ''
         }
         btctestnet {
-            keyAlias 'testtest'
-            keyPassword 'testtest'
-            storeFile file('test-release-keystore.jks')
-            storePassword 'testtest'
+            keyAlias = ''
         }
         commonDebug {
             storeFile commonDebugKeystore
