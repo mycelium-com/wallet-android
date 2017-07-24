@@ -32,6 +32,9 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
     @BindView(R.id.address)
     TextView addressView;
 
+    @BindView(R.id.infoSendAddress)
+    TextView infoSendAddressView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +42,8 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
         ButterKnife.bind(this);
         paymentURI = getIntent().getStringExtra(Keys.PAYMENT_URI);
         address = getIntent().getStringExtra(Keys.ADDRESS);
+        String amount = getIntent().getStringExtra(Keys.ETH_COUNT);
+        infoSendAddressView.setText("Please send " + amount + " ETH into this address");
     }
 
     @Override

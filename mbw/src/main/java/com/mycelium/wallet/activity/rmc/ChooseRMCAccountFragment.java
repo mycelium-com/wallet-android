@@ -240,6 +240,7 @@ public class ChooseRMCAccountFragment extends Fragment {
                     Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
                     intent.putExtra(Keys.ADDRESS, result.order.paymentDetails.address);
                     intent.putExtra(Keys.PAYMENT_URI, result.order.paymentDetails.uri);
+                    intent.putExtra(Keys.ETH_COUNT, amount);
                     startActivity(intent);
                 }
             } else {
