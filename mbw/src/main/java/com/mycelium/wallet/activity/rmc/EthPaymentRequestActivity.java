@@ -22,6 +22,7 @@ import butterknife.ButterKnife;
 public class EthPaymentRequestActivity extends ActionBarActivity {
     String address;
     String paymentURI;
+    String amount;
 
     @BindView(R.id.ivQrCode)
     QrImageView ivQrCode;
@@ -42,7 +43,7 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
         ButterKnife.bind(this);
         paymentURI = getIntent().getStringExtra(Keys.PAYMENT_URI);
         address = getIntent().getStringExtra(Keys.ADDRESS);
-        String amount = getIntent().getStringExtra(Keys.ETH_COUNT);
+        amount = getIntent().getStringExtra(Keys.ETH_COUNT);
         infoSendAddressView.setText("Please send " + amount + " ETH into this address");
     }
 
@@ -68,8 +69,13 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
     }
 
 
-    public void copyToClipboard(View view) {
-        Utils.setClipboardString(getPaymentUri(), this);
+    public void copyAddressToClipboard(View view) {
+        Utils.setClipboardString(address, this);
+        Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+    }
+
+    public void copyAmountToClipboard(View view) {
+        Utils.setClipboardString(amount, this);
         Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 

@@ -220,7 +220,7 @@
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="copyToClipboard"
+                android:onClick="copyAddressToClipboard"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:layout_marginBottom="20dp"
