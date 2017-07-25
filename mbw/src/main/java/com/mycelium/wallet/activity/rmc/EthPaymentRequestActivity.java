@@ -44,7 +44,7 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
         paymentURI = getIntent().getStringExtra(Keys.PAYMENT_URI);
         address = getIntent().getStringExtra(Keys.ADDRESS);
         amount = getIntent().getStringExtra(Keys.ETH_COUNT);
-        infoSendAddressView.setText("Please send " + amount + " ETH into this address");
+        infoSendAddressView.setText("Please send " + amount + " ETH to this address");
     }
 
     @Override
