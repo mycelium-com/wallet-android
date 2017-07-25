@@ -11,12 +11,12 @@ public class RmcOrderPaymentDetails {
     public static class Json extends GenericJson {
 
         @Key
-        public String id;
-
-        @Key
         public String address;
 
         @Key
         public String invoice;
+
+        @Key
+        public String uri;
     }
 }

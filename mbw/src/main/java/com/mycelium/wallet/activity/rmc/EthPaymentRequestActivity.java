@@ -20,7 +20,9 @@ import butterknife.ButterKnife;
  */
 
 public class EthPaymentRequestActivity extends ActionBarActivity {
-    String tokenCount;
+    String address;
+    String paymentURI;
+    String amount;
 
     @BindView(R.id.ivQrCode)
     QrImageView ivQrCode;
@@ -31,12 +33,18 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
     @BindView(R.id.address)
     TextView addressView;
 
+    @BindView(R.id.infoSendAddress)
+    TextView infoSendAddressView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_eth_pay_request);
         ButterKnife.bind(this);
-        tokenCount = getIntent().getStringExtra(Keys.RMC_COUNT);
+        paymentURI = getIntent().getStringExtra(Keys.PAYMENT_URI);
+        address = getIntent().getStringExtra(Keys.ADDRESS);
+        amount = getIntent().getStringExtra(Keys.ETH_COUNT);
+        infoSendAddressView.setText("Please send " + amount + " ETH to this address");
     }
 
     @Override
@@ -55,39 +63,28 @@ public class EthPaymentRequestActivity extends ActionBarActivity {
     public void shareRequest(View view) {
         Intent s = new Intent(android.content.Intent.ACTION_SEND);
         s.setType("text/plain");
-        if (tokenCount.isEmpty()) {
-            s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.bitcoin_address_title));
-            s.putExtra(Intent.EXTRA_TEXT, getAddress());
-            startActivity(Intent.createChooser(s, getResources().getString(R.string.share_bitcoin_address)));
-        } else {
-            s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.payment_request));
-            s.putExtra(Intent.EXTRA_TEXT, getPaymentUri());
-            startActivity(Intent.createChooser(s, getResources().getString(R.string.share_payment_request)));
-        }
+        s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.payment_request));
+        s.putExtra(Intent.EXTRA_TEXT, getPaymentUri());
+        startActivity(Intent.createChooser(s, getResources().getString(R.string.share_payment_request)));
     }
 
 
-    public void copyToClipboard(View view) {
-        String text;
-        if (tokenCount.isEmpty()) {
-            text = getAddress();
-        } else {
-            text = getPaymentUri();
-        }
-        Utils.setClipboardString(text, this);
+    public void copyAddressToClipboard(View view) {
+        Utils.setClipboardString(address, this);
+        Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+    }
+
+    public void copyAmountToClipboard(View view) {
+        Utils.setClipboardString(amount, this);
         Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 
     public String getPaymentUri() {
-        final StringBuilder uri = new StringBuilder("ethereum:");
-        uri.append(getAddress());
-        if (!tokenCount.isEmpty()) {
-            uri.append("?value=").append(tokenCount);
-        }
-        return uri.toString();
+        return paymentURI;
     }
 
-    private String getAddress() {
-        return "0x8b7f8bd6b3e7997666871b86c3a4297252e8e5ad";
+    public String getAddress() {
+        return address;
     }
+
 }

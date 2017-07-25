@@ -71,6 +71,7 @@ public class RmcEthAmountFragment extends Fragment {
             public void onClick(View view) {
                 ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
                 Bundle bundle = new Bundle();
+                bundle.putString(Keys.ETH_COUNT, etETH.getText().toString());
                 bundle.putString(Keys.RMC_COUNT, etRMC.getText().toString());
                 bundle.putString(Keys.PAY_METHOD, "ETH");
                 rmcAccountFragment.setArguments(bundle);

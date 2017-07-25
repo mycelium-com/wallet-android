@@ -1446,5 +1446,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public String getAccountDefaultCurrency() {
       return CurrencyValue.BTC;
    }
+
+   public AccountBacking getAccountBacking() {
+      return this._backing;
+   }
 }
 
