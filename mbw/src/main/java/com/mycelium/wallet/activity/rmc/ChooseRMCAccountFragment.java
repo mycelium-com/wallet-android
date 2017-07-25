@@ -114,7 +114,10 @@ public class ChooseRMCAccountFragment extends Fragment {
     public void onResume() {
         super.onResume();
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        View view = getActivity().getCurrentFocus();
+        if(view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void showAccountForAccept(WalletAccount walletAccount) {
