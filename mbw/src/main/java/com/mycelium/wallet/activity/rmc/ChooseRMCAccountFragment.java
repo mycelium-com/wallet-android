@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.rmc;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -106,6 +108,13 @@ public class ChooseRMCAccountFragment extends Fragment {
             showAccountForAccept(walletAccount);
         }
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
     }
 
     private void showAccountForAccept(WalletAccount walletAccount) {
