@@ -817,45 +817,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       return true;
    }
 
-   /* TODO: update for Colu
-      private List<com.colu.api.httpclient.Transaction.Json> getHistoryWithExtras() {
-         if (accountHistory == null) {
-            return Lists.newArrayList();
-         }
-         Function<com.coinapult.api.httpclient.Transaction.Json, String> txMapping = new Function<com.coinapult.api.httpclient.Transaction.Json, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable com.coinapult.api.httpclient.Transaction.Json input) {
-               return input.tid;
-            }
-         };
-         ImmutableMap<String, Transaction.Json> localHistoryMap = Maps.uniqueIndex(extraHistory, txMapping);
-         final HashMap<String, Transaction.Json> historyMap = new HashMap<String, Transaction.Json>();
-         for (Transaction.Json historyEntry : accountHistory) {
-            // sometimes the entry contains the same tx twice - timing problem in combination with paging-request
-            if (!historyMap.containsKey(historyEntry.tid)) {
-               historyMap.put(historyEntry.tid, historyEntry);
-            }
-         }
-         HashMap<String, Transaction.Json> merged = Maps.newHashMap();
-         merged.putAll(localHistoryMap);
-         merged.putAll(historyMap); //accountHistory overwrites local results
-         Collection<Transaction.Json> unfiltered = merged.values();
-         Iterable<com.coinapult.api.httpclient.Transaction.Json> withoutConversion = Iterables.filter(unfiltered, TX_NOT_CONVERSION);
-         ImmutableList<Transaction.Json> ret = Ordering.natural().onResultOf(new Function<com.coinapult.api.httpclient.Transaction.Json, Comparable>() {
-            @Nullable
-            @Override
-            public Comparable apply(@Nullable com.coinapult.api.httpclient.Transaction.Json input) {
-               Long completeTime = input.completeTime;
-               if (completeTime.equals(0L)) {
-                  return input.timestamp;
-               }
-               return completeTime;
-            }
-         }).reverse().immutableSortedCopy(withoutConversion);
-         return ret;
-      }
-   */
    @Override
    public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
       return null;
@@ -866,12 +827,11 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       TransactionEx tex = null;
       for (Utxo.Json utxo : utxosList) {
          if (utxo.txid.contentEquals(txid.toString())) {
-            //TODO: set time and byte values
             Sha256Hash tHash = new Sha256Hash(Hex.decode(utxo.txid));
             tex = new TransactionEx(tHash,
                     utxo.blockheight,
-                    utxo.blockheight,  //TODO: convert this to time ?
-                    null);  //TODO: fetch transaction bytes somewhere ?
+                    utxo.blockheight,
+                    null);
          }
       }
 

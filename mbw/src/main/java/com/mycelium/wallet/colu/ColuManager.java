@@ -401,10 +401,6 @@ public class ColuManager implements AccountProvider {
         return signTx;
     }
 
-    // utility method from AbstractAccount
-    //TODO: set accountbacking to ColuAccount by ColuManager
-    // move method to ColuAccount
-    // call method from ColuManager at right time ? Or call from within ColuAccount
     private TransactionSummary transform(ColuAccount account, TransactionEx tex, int blockChainHeight) {
         Transaction tx;
         try {
