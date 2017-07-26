@@ -3,6 +3,12 @@
     <release version="2.9.0" versioncode="290001">
         <change>added colu token handling</change>
     </release>
+    <release version="2.8.12" versioncode="281200">
+        <change>fix issue with trezor firmware 1.5.0</change>
+        <change>only consider UTXOs that pay for themselves when spending to fix the spendable amount issue</change>
+        <change>added tab with links to partners</change>
+        <change>added and activated translations, mainly Български, Indonesia, Română, čeština</change>
+    </release>
     <release version="2.8.11" versioncode="281100">
         <change>removed partner links</change>
     </release>
