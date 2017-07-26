@@ -102,7 +102,7 @@ import java.util.UUID;
 
 //import com.colu.api.httpclient.ColuClient;
 
-public class ColuAccount extends AbstractAccount implements ExportableAccount {
+public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
 
    public static final String TAG = "ColuAccount";
 
@@ -144,7 +144,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
    public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
-      super(backing, manager.getNetwork(), manager.getWapi());
       this.accountBacking = backing;
       this.manager = manager;
       this.eventBus = eventBus;
@@ -281,18 +280,8 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected Address getChangeAddress() {
-      return null;
-   }
-
-   @Override
    public UUID getId() {
       return uuid;
-   }
-
-   @Override
-   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
-      return false;
    }
 
    @Override
@@ -618,11 +607,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected void onNewTransaction(TransactionEx tex, Transaction t) {
-
-   }
-
-   @Override
    public void archiveAccount() {
       archived = true;
       metadataStorage.storeArchived(uuid, true);
@@ -771,11 +755,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected void persistContextIfNecessary() {
-
-   }
-
-   @Override
    public boolean deleteTransaction(Sha256Hash transactionId) {
       return false;
    }
@@ -784,17 +763,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
       return getCurrencyBasedBalance().confirmed;
    }
-
-   @Override
-   protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      return null;
-   }
-
-   @Override
-   protected PublicKey getPublicKeyForAddress(Address address) {
-      return null;
-   }
-
    @Override
    public boolean isValidEncryptionKey(KeyCipher cipher) {
       return false;
@@ -823,11 +791,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    @Override
    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
       return null;
-   }
-
-   @Override
-   protected boolean isSynchronizing() {
-      return false;
    }
 
    /// returns all utxo associated with this address
