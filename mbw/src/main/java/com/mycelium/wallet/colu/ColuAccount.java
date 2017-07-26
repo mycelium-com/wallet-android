@@ -895,7 +895,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
       private static final ColuAsset testNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM", 4, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
       private static final ColuAsset testNetAssetMass = new ColuAsset(ColuAssetType.MASS, "Mass Coin", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "Ua81Eh8cHipXdp2Hfm6RrFpF4R5WTafUroRGSp", 4, "");
+      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "Ua6XMGm6XLCDig5LfsrVABSN1XfDWDY9HZyRKP", 4, "");
 
       private static final Map<String, ColuAsset> mainNetAssetMap = ImmutableMap.of(
               mainNetAssetMT.id, mainNetAssetMT,

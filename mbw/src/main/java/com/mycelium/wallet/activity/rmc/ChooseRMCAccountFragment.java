@@ -217,13 +217,11 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     class RmsApiTask extends AsyncTask<Void, Void, CreateRmcOrderResponse.Json> {
 
-        private String amount;
         private String amountInRmc;
         private String assetAddress;
         private String paymentMethod;
 
-        public RmsApiTask(String amount, String amountInRmc, String assetAddress, String paymentMethod) {
-            this.amount = amount;
+        public RmsApiTask(String amountInRmc, String assetAddress, String paymentMethod) {
             this.amountInRmc = amountInRmc;
             this.assetAddress = assetAddress;
             this.paymentMethod = paymentMethod;
@@ -236,7 +234,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         @Override
         protected CreateRmcOrderResponse.Json doInBackground(Void... params) {
             RmcApiClient client = new RmcApiClient(_mbwManager.getNetwork());
-            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amount, amountInRmc, assetAddress, paymentMethod);
+            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amountInRmc, assetAddress, paymentMethod);
             return orderResponse;
         }
 
@@ -252,7 +250,7 @@ public class ChooseRMCAccountFragment extends Fragment {
                     Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
                     intent.putExtra(Keys.ADDRESS, result.order.paymentDetails.address);
                     intent.putExtra(Keys.PAYMENT_URI, result.order.paymentDetails.uri);
-                    intent.putExtra(Keys.ETH_COUNT, amount);
+                    intent.putExtra(Keys.ETH_COUNT, result.order.amount);
                     startActivity(intent);
                 }
             } else {
@@ -267,14 +265,14 @@ public class ChooseRMCAccountFragment extends Fragment {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("Creating order");
             progressDialog.show();
-            RmsApiTask task = new RmsApiTask(btcCount,rmcCount, coluAddress, payMethod);
+            RmsApiTask task = new RmsApiTask(rmcCount, coluAddress, payMethod);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         } else if (payMethod.equals(ETH)) {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("Creating order");
             progressDialog.show();
-            RmsApiTask task = new RmsApiTask(ethCount,rmcCount, coluAddress, payMethod);
+            RmsApiTask task = new RmsApiTask(rmcCount, coluAddress, payMethod);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             Intent intent = new Intent(getActivity(), BankPaymentRequestActivity.class);
