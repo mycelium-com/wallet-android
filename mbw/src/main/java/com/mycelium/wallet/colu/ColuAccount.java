@@ -85,6 +85,7 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Bus;
 import com.subgraph.orchid.encoders.Hex;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.ByteBuffer;
@@ -730,34 +731,11 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
    @Override
    protected boolean doSynchronization(SyncMode mode) {
-      return updateUnspentOutputs(mode);
-   }
-
-   private boolean updateUnspentOutputs(SyncMode mode) {
-      List<Address> checkAddresses = getSendingAddresses();
-
-      final int newUtxos = synchronizeUnspentOutputs(checkAddresses);
-
-      if (newUtxos == -1) {
-         return false;
+      try {
+         manager.updateAccountBalance(this);
+      } catch (IOException e) {
+         Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
       }
-
-      if (newUtxos > 0 && !mode.mode.equals(SyncMode.Mode.FULL_SYNC)){
-         if (synchronizeUnspentOutputs(checkAddresses) == -1){
-            return false;
-         }
-      }
-
-
-      // update state of recent received transaction to update their confirmation state
-      if (mode.mode != SyncMode.Mode.ONE_ADDRESS) {
-         // Monitor young transactions
-         if (!monitorYoungTransactions()) {
-            return false;
-         }
-      }
-
-      updateLocalBalance();
       return true;
    }
 
