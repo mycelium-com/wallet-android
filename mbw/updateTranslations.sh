@@ -37,7 +37,7 @@ UpdateOne es-ES es     Español       Spanish-Spain
 UpdateOne fil fil      Filipino      Philipino
 UpdateOne fr fr        Français      French-France
 UpdateOne he iw        עברית         Hebrew-Israel
-UpdateOne id id        Indonesia     Indonesian-Indonesia
+UpdateOne id in        Indonesia     Indonesian-Indonesia
 UpdateOne it it        Italiano      Italian-Italy
 UpdateOne ja ja        日本語         Japanese-Japan
 UpdateOne ko ko        한국의         Korean-Korea

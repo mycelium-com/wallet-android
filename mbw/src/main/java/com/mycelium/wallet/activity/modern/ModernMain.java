@@ -104,6 +104,8 @@ public class ModernMain extends ActionBarActivity {
    private static final String APP_START = "APP_START";
    private MbwManager _mbwManager;
 
+   private int addressBookTabIndex;
+
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
    ActionBar.Tab mBalanceTab;
@@ -155,7 +157,7 @@ public class ModernMain extends ActionBarActivity {
       final Bundle addressBookConfig = new Bundle();
       addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
       mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class, addressBookConfig);
-
+      addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
       bar.selectTab(mBalanceTab);
       _toaster = new Toaster(this);
 
@@ -363,7 +365,7 @@ public class ModernMain extends ActionBarActivity {
 
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
-      final boolean isAddressBook = tabIdx == 3;
+      final boolean isAddressBook = tabIdx == addressBookTabIndex;
       Preconditions.checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
 
       return super.onPrepareOptionsMenu(menu);
