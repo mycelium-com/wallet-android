@@ -264,35 +264,7 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       sendingAddresses.add(address);
       return sendingAddresses;
    }
-/*
-   private List<Transaction.Json> filterHistory(List<Transaction.Json> completeHistory) {
-      if (completeHistory == null) {
-         return null;
-      }
-      return Lists.newArrayList(
-              Iterables.filter(completeHistory, new Predicate<Transaction.Json>() {
-                         @Override
-                         public boolean apply(@Nullable Transaction.Json input) {
-                            // only add items with the correct currency for the current selected account
-                            if (input != null) {
-                               if (input.state.equals("canceled")) {
-                                  // todo: show somehow that a tx got canceled
-                                  // dont show canceled transactions
-                                  return false;
-                               }
 
-                               boolean isSending = isSending(input);
-                               // depending on the sending/incoming direction, check either in or out half
-                               return false;
-                            }
-                            return false;
-                         }
-                      }
-              )
-      );
-
-   }
-*/
    private <T> List<T> limitedList(int offset, int limit, List<T> list) {
       if (offset >= list.size()) {
          return Collections.emptyList();
@@ -676,28 +648,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       return new Data(privateKey, pubKey);
    }
 
-   private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      @Override
-      protected UUID doInBackground(Void... params) {
-/*
-         try {
-            manager.activateAccount(Optional.<String>absent());
-         } catch(Exception e) {
-         //} catch (ColuClient.ColuBackendException e) {
-            return null;
-         }
-*/
-         return getId(); // what is this ?
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-      }
-   }
-
-   private void refreshReceivingAddress() {
-   }
-
    @Override
    public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
       throw new IllegalStateException("not supported, use prepareColuTX instead");
@@ -707,12 +657,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
       return null;
    }
-
-   public com.mrd.bitlib.model.Transaction signTransaction(ColuPreparedTransaction.Json transaction) {
-      Log.d(TAG, "Faking signing transaction " + transaction);
-      return null;
-   }
-
 
    @Override
    public com.mrd.bitlib.model.Transaction signTransaction(
