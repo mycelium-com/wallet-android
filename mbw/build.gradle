@@ -90,10 +90,6 @@ android {
         targetCompatibility = 'VERSION_1_7'
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
