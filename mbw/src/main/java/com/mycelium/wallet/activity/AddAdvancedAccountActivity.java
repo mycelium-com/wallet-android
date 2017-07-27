@@ -296,34 +296,6 @@ public class AddAdvancedAccountActivity extends Activity {
    private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
 
       new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
-
-      /*
-      UUID acc;
-
-      try {
-         //check if address is colu
-         // do not do this in main thread
-         ColuAccount.ColuAsset asset = _mbwManager.getColuManager().getColuAddressAsset(key.getPublicKey());
-
-         if(asset != null) {
-            acc = _mbwManager.getColuManager().enableAsset(asset, key);
-            //acc = _mbwManager.getColuManager().createAccountFromKey(asset, key);
-         } else {
-            acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
-
-            // Dont show a legacy-account warning for freshly generated or imported keys
-            _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
-
-            _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
-         }
-      } catch(IOException e) {
-         // could not determine account type, skipping
-         return;
-      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-         throw new RuntimeException(invalidKeyCipher);
-      }
-      finishOk(acc);
-      */
    }
 
    private void returnAccount(HdKeyNode hdKeyNode) {

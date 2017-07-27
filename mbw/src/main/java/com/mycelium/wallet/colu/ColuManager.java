@@ -787,39 +787,6 @@ public class ColuManager implements AccountProvider {
             }
         }
 
-        // case 2:  check if private key exists in metadataStorage
-        // if true accountKey will be non null
-        // This code is only required for migration for dev releases to be removed for prod release.
-        Optional<String> key = metadataStorage.getColuKey(coluAsset.id);
-        if (key.isPresent()) {
-            Log.d(TAG, "createAccount: loaded key from legacy storage " + key.toString());
-            metadataKey = new InMemoryPrivateKey(key.get(), getNetwork());
-            if (accountKey != null) {
-                Log.d(TAG, "key found in backing, comparing with metadata key.");
-                if (accountKey.getBase58EncodedPrivateKey(getNetwork()).equals(
-                        metadataKey.getBase58EncodedPrivateKey(getNetwork()))) {
-                    Log.d(TAG, "Legacy stored key matches mycelium secure store key ! Removing old key.");
-                    metadataStorage.deleteColuKey(coluAsset.id);
-                } else {
-                    Log.d(TAG, "Error, legacy key and newly stored key differ !");
-                }
-            } else {
-                Log.d(TAG,
-                        "createAccount: metadataStorage key found, key not found in backing." +
-                                " Saving into backing (conversion).");
-                // save key into mycelium secure keystore
-                try {
-                    createdAccountInfo = createSingleAddressAccount(metadataKey, AesKeyCipher.defaultKeyCipher());
-                    setAssetAccountUUID(coluAsset, createdAccountInfo.id);
-                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                    throw new RuntimeException(invalidKeyCipher);
-                }
-                accountKey = metadataKey;
-                Log.d(TAG, "createAccount: saved key into keystore uuid=" + createdAccountInfo.id.toString());
-            }
-        }
-        // end migration code
-
         // case 3: new account or import account
         if (accountKey == null && metadataKey == null) {
             UUID accountUUID;
@@ -848,7 +815,6 @@ public class ColuManager implements AccountProvider {
 
         if (account != null) {
             coluAccounts.put(account.getId(), account);
-            // TODO: do this only if newly created key or imported key ?
             loadSingleAddressAccounts();  // reload account from mycelium secure store
             // loaded account should be in the list
             if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
@@ -1100,8 +1066,6 @@ public class ColuManager implements AccountProvider {
 
                             if (!isInitiatedByMe)
                                 assetReceivingAmount += asset.amount;
-                            else
-                                assetConfirmedAmount += asset.amount;
                         }
                     }
             }
@@ -1111,9 +1075,7 @@ public class ColuManager implements AccountProvider {
             satoshiAmount = satoshiAmount + utxo.value;
             for (Asset.Json txidAsset : utxo.assets) {
                 if (txidAsset.assetId.equals(account.getColuAsset().id)) {
-                    if (utxo.blockheight != -1) {
-                        assetConfirmedAmount += txidAsset.amount;
-                    }
+                    assetConfirmedAmount += txidAsset.amount;
                     assetScale = txidAsset.divisibility;
                 }
             }
@@ -1123,7 +1085,6 @@ public class ColuManager implements AccountProvider {
         BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale);
         BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale);
         BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale);
-        BigDecimal zeroBalance = BigDecimal.valueOf(0);
         ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance, account.getColuAsset().name);
         ExactCurrencyValue sending = ExactCurrencyValue.from(assetSendingBalance, account.getColuAsset().name);
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);

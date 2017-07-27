@@ -43,9 +43,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactFiatValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -91,7 +88,6 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          // there are more than one fiat-currency
          findViewById(R.id.ivSwitchable).setVisibility(VISIBLE);
       }
-
    }
 
    @Override
@@ -100,7 +96,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          llContainer.setVisibility(VISIBLE);
          tvValue.setText(currentValue.getValue().multiply(BigDecimal.valueOf(4000)).stripTrailingZeros().toPlainString());
          tvCurrency.setText("USD");
-      }else{
+      } else {
          super.showFiat();
       }
    }
@@ -114,7 +110,6 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          updateUi();
       }
    }
-
 
    @Subscribe
    @Override
