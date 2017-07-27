@@ -8,8 +8,11 @@ import java.util.Calendar;
 
 public class Keys {
     public static final String RMC_COUNT = "rmc_count";
+    public static final String ETH_COUNT = "eth_count";
     public static final String PAY_METHOD = "pay_method";
     public static final String BTC_COUNT = "btc_count";
+    public static final String PAYMENT_URI = "payment_uri";
+    public static final String ADDRESS = "address";
 
     public static final int PAYMENT_REQUEST_CODE = 10002;
     public static Calendar getActiveStartDay() {

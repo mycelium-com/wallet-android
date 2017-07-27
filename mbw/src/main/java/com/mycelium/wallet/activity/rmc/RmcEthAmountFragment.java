@@ -27,6 +27,9 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit.RestAdapter;
 import retrofit.http.GET;
 
@@ -35,6 +38,9 @@ import retrofit.http.GET;
  */
 
 public class RmcEthAmountFragment extends Fragment {
+
+    @BindView(R.id.btOk)
+    protected View btnOk;
 
     private EditText etETH;
     private EditText etUSD;
@@ -63,22 +69,23 @@ public class RmcEthAmountFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_rmc_eth_amount, container, false);
     }
 
+    @OnClick(R.id.btOk)
+    void okClick() {
+        ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString(Keys.ETH_COUNT, etETH.getText().toString());
+        bundle.putString(Keys.RMC_COUNT, etRMC.getText().toString());
+        bundle.putString(Keys.PAY_METHOD, "ETH");
+        rmcAccountFragment.setArguments(bundle);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, rmcAccountFragment)
+                .commitAllowingStateLoss();
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.btOk).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString(Keys.RMC_COUNT, etRMC.getText().toString());
-                bundle.putString(Keys.PAY_METHOD, "ETH");
-                rmcAccountFragment.setArguments(bundle);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, rmcAccountFragment)
-                        .commitAllowingStateLoss();
-            }
-        });
+        ButterKnife.bind(this, view);
 
         etETH = (EditText) view.findViewById(R.id.etETH);
         etUSD = (EditText) view.findViewById(R.id.etUSD);
@@ -88,6 +95,7 @@ public class RmcEthAmountFragment extends Fragment {
         etRMCWatcher = new InputWatcher(etRMC, "RMC");
         etUSDWatcher = new InputWatcher(etUSD, "USD");
 
+        btnOk.setEnabled(false);
         addChangeListener();
     }
 
@@ -110,11 +118,14 @@ public class RmcEthAmountFragment extends Fragment {
             value = new BigDecimal(amount);
         } catch (NumberFormatException ignored) {
         }
+        BigDecimal rmcValue = BigDecimal.ZERO;
+
         if (currency.equals("ETH")) {
             BigDecimal usdValue = value.multiply(BigDecimal.valueOf(ethRate));
             usdValue = usdValue == null ? BigDecimal.ZERO : usdValue;
             etUSD.setText(usdValue.toPlainString());
-            etRMC.setText(usdValue.divide(BigDecimal.valueOf(4000)).toPlainString());
+            rmcValue = usdValue.divide(BigDecimal.valueOf(4000));
+            etRMC.setText(rmcValue.toPlainString());
         } else if (currency.equals("RMC")) {
             BigDecimal usdValue = value.multiply(BigDecimal.valueOf(4000));
             etUSD.setText(usdValue.toPlainString());
@@ -125,7 +136,8 @@ public class RmcEthAmountFragment extends Fragment {
                 etETH.setText("");
             }
         } else if (currency.equals("USD")) {
-            etRMC.setText(value.divide(BigDecimal.valueOf(4000)).toPlainString());
+            rmcValue = value.divide(BigDecimal.valueOf(4000));
+            etRMC.setText(rmcValue.toPlainString());
             try {
                 BigDecimal ethValue = value.divide(BigDecimal.valueOf(ethRate), MathContext.DECIMAL32);
                 etETH.setText(ethValue.toPlainString());
@@ -133,6 +145,9 @@ public class RmcEthAmountFragment extends Fragment {
                 etETH.setText("");
             }
         }
+
+        btnOk.setEnabled(rmcValue.compareTo(new BigDecimal("0.1")) > -1);
+
         addChangeListener();
     }
 

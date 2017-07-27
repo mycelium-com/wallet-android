@@ -401,10 +401,6 @@ public class ColuManager implements AccountProvider {
         return signTx;
     }
 
-    // utility method from AbstractAccount
-    //TODO: set accountbacking to ColuAccount by ColuManager
-    // move method to ColuAccount
-    // call method from ColuManager at right time ? Or call from within ColuAccount
     private TransactionSummary transform(ColuAccount account, TransactionEx tex, int blockChainHeight) {
         Transaction tx;
         try {
@@ -993,75 +989,79 @@ public class ColuManager implements AccountProvider {
             UUID uuid = (UUID) entry.getKey();
             ColuAccount account = (ColuAccount) entry.getValue();
             Log.e(TAG, "ColuManager::getBalances in loop uuid=" + uuid.toString() + " asset " + account.getColuAsset().id);
-            Optional<Address> address = account.getReceivingAddress(); // for single address account
-            if (!address.isPresent()) {
-                continue;
-            }
-            Log.e(TAG, "getBalances: address=" + address.get().toString());
 
-
-            // collect all tx history at that address from mycelium wapi server (non colored)
-            LinkedList<com.mrd.bitlib.util.Sha256Hash> allTxidList =
-                    new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
-
-            WapiClient wapiClient = getWapi();
-            if (wapiClient == null) {
-                Log.e(TAG, "getTransactionSummaries: wapiClient not found !");
-                continue;
-            }
-
-            Log.d(TAG, "Retrieving addressInfoWithTransactions");
-            // retrieve history from colu server
-            AddressTransactionsInfo.Json addressInfoWithTransactions = coluClient.getAddressTransactions(address.get());
-            if (addressInfoWithTransactions == null) {
-                Log.d(TAG, " addressInfoWithTransactios is null");
-                continue;
-            }
-
-            getAddressBalance(addressInfoWithTransactions, account);
-
-            Log.d(TAG, "retrieved addressInfoWithTransactions");
-            if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
-                account.setHistory(addressInfoWithTransactions.transactions);
-                for (Tx.Json historyTx : addressInfoWithTransactions.transactions) {
-                    allTxidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(historyTx.txid));
-                }
-            }
-
-            try {
-                QueryUnspentOutputsResponse unspentOutputResponse = wapiClient.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, account.getSendingAddresses()))
-                        .getResult();
-                account.setBlockChainHeight(unspentOutputResponse.height);
-            } catch (WapiException e) {
-                Log.d(TAG, "Warning ! Error accessing unspent outputs response: " + e.getMessage());
-            }
-
-            account.setUtxos(addressInfoWithTransactions.utxos);
-
-            // start additional code to retrieve extended info from wapi server
-            GetTransactionsRequest trRequest = new GetTransactionsRequest(2, allTxidList);
-            WapiResponse<GetTransactionsResponse> wapiResponse = wapiClient.getTransactions(trRequest);
-            GetTransactionsResponse trResponse = null;
-            if (wapiResponse == null) {
-                Log.d(TAG, "Warning ! Could not fetch wapiresponse. Some data may be unavailable.");
-                continue;
-            }
-            Log.d(TAG, "Received wapiResponse, extracting result");
-            try {
-                trResponse = wapiResponse.getResult();
-                //Log.d(TAG, "signTransaction: wapiRespone transactions: nb=" + trResponse.transactions.size()
-                //        + " data=" + trResponse.toString());
-                TransactionExApi trExApi = (TransactionExApi) trResponse.transactions.toArray()[0];
-            } catch (Exception e) {
-                Log.d(TAG, "Warning ! Error accessing transaction response: " + e.getMessage());
-            }
-
-            if (trResponse != null && trResponse.transactions != null) {
-                account.setHistoryTxInfos(trResponse.transactions);
-            }
-            // end additional code to retrieve extended info from wapi server
+            updateAccountBalance(account);
         }   // for loop over accounts
         return balances;
+    }
+
+    public void updateAccountBalance(ColuAccount account) throws IOException {
+        Optional<Address> address = account.getReceivingAddress(); // for single address account
+        if (!address.isPresent()) {
+            return;
+        }
+        Log.e(TAG, "getBalances: address=" + address.get().toString());
+
+
+        // collect all tx history at that address from mycelium wapi server (non colored)
+        LinkedList<com.mrd.bitlib.util.Sha256Hash> allTxidList =
+                new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
+
+        WapiClient wapiClient = getWapi();
+        if (wapiClient == null) {
+            Log.e(TAG, "getTransactionSummaries: wapiClient not found !");
+            return;
+        }
+
+        Log.d(TAG, "Retrieving addressInfoWithTransactions");
+        // retrieve history from colu server
+        AddressTransactionsInfo.Json addressInfoWithTransactions = coluClient.getAddressTransactions(address.get());
+        if (addressInfoWithTransactions == null) {
+            Log.d(TAG, " addressInfoWithTransactios is null");
+            return;
+        }
+
+        getAddressBalance(addressInfoWithTransactions, account);
+
+        Log.d(TAG, "retrieved addressInfoWithTransactions");
+        if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
+            account.setHistory(addressInfoWithTransactions.transactions);
+            for (Tx.Json historyTx : addressInfoWithTransactions.transactions) {
+                allTxidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(historyTx.txid));
+            }
+        }
+
+        try {
+            QueryUnspentOutputsResponse unspentOutputResponse = wapiClient.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, account.getSendingAddresses()))
+                    .getResult();
+            account.setBlockChainHeight(unspentOutputResponse.height);
+        } catch (WapiException e) {
+            Log.d(TAG, "Warning ! Error accessing unspent outputs response: " + e.getMessage());
+        }
+
+        account.setUtxos(addressInfoWithTransactions.utxos);
+
+        // start additional code to retrieve extended info from wapi server
+        GetTransactionsRequest trRequest = new GetTransactionsRequest(2, allTxidList);
+        WapiResponse<GetTransactionsResponse> wapiResponse = wapiClient.getTransactions(trRequest);
+        GetTransactionsResponse trResponse = null;
+        if (wapiResponse == null) {
+            Log.d(TAG, "Warning ! Could not fetch wapiresponse. Some data may be unavailable.");
+            return;
+        }
+        Log.d(TAG, "Received wapiResponse, extracting result");
+        try {
+            trResponse = wapiResponse.getResult();
+            //Log.d(TAG, "signTransaction: wapiRespone transactions: nb=" + trResponse.transactions.size()
+            //        + " data=" + trResponse.toString());
+            TransactionExApi trExApi = (TransactionExApi) trResponse.transactions.toArray()[0];
+        } catch (Exception e) {
+            Log.d(TAG, "Warning ! Error accessing transaction response: " + e.getMessage());
+        }
+
+        if (trResponse != null && trResponse.transactions != null) {
+            account.setHistoryTxInfos(trResponse.transactions);
+        }
     }
 
     private CurrencyBasedBalance getAddressBalance(AddressTransactionsInfo.Json atInfo, ColuAccount account) {
@@ -1100,8 +1100,6 @@ public class ColuManager implements AccountProvider {
 
                             if (!isInitiatedByMe)
                                 assetReceivingAmount += asset.amount;
-                            else
-                                assetConfirmedAmount += asset.amount;
                         }
                     }
             }
@@ -1111,9 +1109,7 @@ public class ColuManager implements AccountProvider {
             satoshiAmount = satoshiAmount + utxo.value;
             for (Asset.Json txidAsset : utxo.assets) {
                 if (txidAsset.assetId.equals(account.getColuAsset().id)) {
-                    if (utxo.blockheight != -1) {
-                        assetConfirmedAmount += txidAsset.amount;
-                    }
+                    assetConfirmedAmount += txidAsset.amount;
                     assetScale = txidAsset.divisibility;
                 }
             }
@@ -1123,7 +1119,6 @@ public class ColuManager implements AccountProvider {
         BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale);
         BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale);
         BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale);
-        BigDecimal zeroBalance = BigDecimal.valueOf(0);
         ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance, account.getColuAsset().name);
         ExactCurrencyValue sending = ExactCurrencyValue.from(assetSendingBalance, account.getColuAsset().name);
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);

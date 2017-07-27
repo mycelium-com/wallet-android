@@ -1288,7 +1288,7 @@ public class MbwManager {
    }
 
    public ColuManager getColuManager() {
-     if(_coluManager.isPresent()) {
+     if(_coluManager != null && _coluManager.isPresent()) {
         return _coluManager.get();
      } else {
         _coluManager = createColuManager(_applicationContext, _environment);

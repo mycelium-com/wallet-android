@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.rmc;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,7 +51,11 @@ import static android.app.Activity.RESULT_OK;
 public class ChooseRMCAccountFragment extends Fragment {
 
     private static final String TAG = "ChooseRMCAccount";
+    public static final String BTC = "BTC";
+    public static final String ETH = "ETH";
+
     String rmcCount = "0";
+    String ethCount = "0";
     String btcCount;
     String payMethod;
     String coluAddress;
@@ -70,6 +76,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             rmcCount = getArguments().getString(Keys.RMC_COUNT);
+            ethCount = getArguments().getString(Keys.ETH_COUNT);
             payMethod = getArguments().getString(Keys.PAY_METHOD);
             btcCount = getArguments().getString(Keys.BTC_COUNT);
         }
@@ -106,6 +113,16 @@ public class ChooseRMCAccountFragment extends Fragment {
             showAccountForAccept(walletAccount);
         }
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        View view = getActivity().getCurrentFocus();
+        if(view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void showAccountForAccept(WalletAccount walletAccount) {
@@ -187,9 +204,6 @@ public class ChooseRMCAccountFragment extends Fragment {
         b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Create the account initially without set email address
-                // if needed, the user can later set and verify it via account menu.
-                // for now we hard code asset = MT
                 new AddColuAsyncTask(_mbwManager.getEventBus(), coluAsset, created).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
@@ -203,13 +217,11 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     class RmsApiTask extends AsyncTask<Void, Void, CreateRmcOrderResponse.Json> {
 
-        private String amount;
         private String amountInRmc;
         private String assetAddress;
         private String paymentMethod;
 
-        public RmsApiTask(String amount, String amountInRmc, String assetAddress, String paymentMethod) {
-            this.amount = amount;
+        public RmsApiTask(String amountInRmc, String assetAddress, String paymentMethod) {
             this.amountInRmc = amountInRmc;
             this.assetAddress = assetAddress;
             this.paymentMethod = paymentMethod;
@@ -222,7 +234,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         @Override
         protected CreateRmcOrderResponse.Json doInBackground(Void... params) {
             RmcApiClient client = new RmcApiClient(_mbwManager.getNetwork());
-            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amount, amountInRmc, assetAddress, paymentMethod);
+            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amountInRmc, assetAddress, paymentMethod);
             return orderResponse;
         }
 
@@ -230,10 +242,17 @@ public class ChooseRMCAccountFragment extends Fragment {
         protected void onPostExecute(CreateRmcOrderResponse.Json result) {
             progressDialog.dismiss();
             if (result != null) {
-                //Address should be funded to get tokens
-                String fundingAddress = result.order.paymentDetails.address;
-                String invoice = result.order.paymentDetails.invoice;
-                startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:" + fundingAddress + "?amount=" + btcCount + "&r=" + invoice)), Keys.PAYMENT_REQUEST_CODE);
+                if (this.paymentMethod.equals(BTC)) {
+                    startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(result.order.paymentDetails.uri)), Keys.PAYMENT_REQUEST_CODE);
+                }
+
+                if (this.paymentMethod.equals(ETH)) {
+                    Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
+                    intent.putExtra(Keys.ADDRESS, result.order.paymentDetails.address);
+                    intent.putExtra(Keys.PAYMENT_URI, result.order.paymentDetails.uri);
+                    intent.putExtra(Keys.ETH_COUNT, result.order.amount);
+                    startActivity(intent);
+                }
             } else {
                 Toast.makeText(getActivity(), "Error getting response from RMC server", Toast.LENGTH_SHORT).show();
             }
@@ -242,17 +261,19 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     @OnClick(R.id.btYes)
     void clickYes() {
-        if (payMethod.equals("BTC")) {
+        if (payMethod.equals(BTC)) {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("Creating order");
             progressDialog.show();
-            RmsApiTask task = new RmsApiTask(btcCount,rmcCount, coluAddress, payMethod);
+            RmsApiTask task = new RmsApiTask(rmcCount, coluAddress, payMethod);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        } else if (payMethod.equals("ETH")) {
-            Intent intent = new Intent(getActivity(), EthPaymentRequestActivity.class);
-            intent.putExtra(Keys.RMC_COUNT, rmcCount);
-            startActivity(intent);
+        } else if (payMethod.equals(ETH)) {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Creating order");
+            progressDialog.show();
+            RmsApiTask task = new RmsApiTask(rmcCount, coluAddress, payMethod);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             Intent intent = new Intent(getActivity(), BankPaymentRequestActivity.class);
             intent.putExtra(Keys.RMC_COUNT, rmcCount);

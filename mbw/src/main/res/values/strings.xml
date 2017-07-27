@@ -53,6 +53,8 @@
     <string name="export">Export</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
+    <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
+    <string name="copy_amount_to_clipboard">Copy amount to Clipboard</string>
     <string name="copy_private_key_to_clipboard">Copy Private Key to Clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="private_key">Private Key</string>

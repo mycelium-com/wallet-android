@@ -90,10 +90,6 @@ android {
         targetCompatibility = 'VERSION_1_7'
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
@@ -107,10 +103,7 @@ android {
             keyAlias = ''
         }
         btctestnet {
-            keyAlias 'testtest'
-            keyPassword 'testtest'
-            storeFile file('test-release-keystore.jks')
-            storePassword 'testtest'
+            keyAlias = ''
         }
         commonDebug {
             storeFile commonDebugKeystore
@@ -145,7 +138,7 @@ android {
             targetSdkVersion 19
             minSdkVersion 14
 
-            applicationId 'com.mycelium.digitalassets'
+            applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
         }
@@ -156,7 +149,7 @@ android {
             minSdkVersion 21
 
             // if we are not on master, include the branchname in appId
-            def appId = 'com.mycelium.devdigitalassets';
+            def appId = 'com.mycelium.devwallet';
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
@@ -173,7 +166,7 @@ android {
             buildToolsVersion androidSdkBuildVersion
             minSdkVersion 21
 
-            def appId = 'com.mycelium.devproddigitalassets';
+            def appId = 'com.mycelium.devprodwallet';
 
             applicationId appId
             signingConfig signingConfigs.debug
@@ -205,7 +198,7 @@ if (project.hasProperty('prodKeyStore') &&
     android.signingConfigs.release.storePassword = prodKeyStorePassword
     android.signingConfigs.release.keyPassword = prodKeyAliasPassword
 } else {
-//    android.productFlavors.prodnet.signingConfig = null
+    android.productFlavors.prodnet.signingConfig = null
 }
 
 if (project.hasProperty('testKeyStore') &&
@@ -217,5 +210,5 @@ if (project.hasProperty('testKeyStore') &&
     android.signingConfigs.btctestnet.storePassword = testKeyStorePassword
     android.signingConfigs.btctestnet.keyPassword = testKeyAliasPassword
 } else {
-//    android.productFlavors.btctestnet.signingConfig = null
+    android.productFlavors.btctestnet.signingConfig = null
 }

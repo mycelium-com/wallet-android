@@ -85,6 +85,7 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Bus;
 import com.subgraph.orchid.encoders.Hex;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.ByteBuffer;
@@ -101,7 +102,7 @@ import java.util.UUID;
 
 //import com.colu.api.httpclient.ColuClient;
 
-public class ColuAccount extends AbstractAccount implements ExportableAccount {
+public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
 
    public static final String TAG = "ColuAccount";
 
@@ -143,7 +144,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
    public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
-      super(backing, manager.getNetwork(), manager.getWapi());
       this.accountBacking = backing;
       this.manager = manager;
       this.eventBus = eventBus;
@@ -264,35 +264,7 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       sendingAddresses.add(address);
       return sendingAddresses;
    }
-/*
-   private List<Transaction.Json> filterHistory(List<Transaction.Json> completeHistory) {
-      if (completeHistory == null) {
-         return null;
-      }
-      return Lists.newArrayList(
-              Iterables.filter(completeHistory, new Predicate<Transaction.Json>() {
-                         @Override
-                         public boolean apply(@Nullable Transaction.Json input) {
-                            // only add items with the correct currency for the current selected account
-                            if (input != null) {
-                               if (input.state.equals("canceled")) {
-                                  // todo: show somehow that a tx got canceled
-                                  // dont show canceled transactions
-                                  return false;
-                               }
 
-                               boolean isSending = isSending(input);
-                               // depending on the sending/incoming direction, check either in or out half
-                               return false;
-                            }
-                            return false;
-                         }
-                      }
-              )
-      );
-
-   }
-*/
    private <T> List<T> limitedList(int offset, int limit, List<T> list) {
       if (offset >= list.size()) {
          return Collections.emptyList();
@@ -308,18 +280,8 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected Address getChangeAddress() {
-      return null;
-   }
-
-   @Override
    public UUID getId() {
       return uuid;
-   }
-
-   @Override
-   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
-      return false;
    }
 
    @Override
@@ -645,11 +607,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected void onNewTransaction(TransactionEx tex, Transaction t) {
-
-   }
-
-   @Override
    public void archiveAccount() {
       archived = true;
       metadataStorage.storeArchived(uuid, true);
@@ -676,28 +633,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       return new Data(privateKey, pubKey);
    }
 
-   private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      @Override
-      protected UUID doInBackground(Void... params) {
-/*
-         try {
-            manager.activateAccount(Optional.<String>absent());
-         } catch(Exception e) {
-         //} catch (ColuClient.ColuBackendException e) {
-            return null;
-         }
-*/
-         return getId(); // what is this ?
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-      }
-   }
-
-   private void refreshReceivingAddress() {
-   }
-
    @Override
    public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
       throw new IllegalStateException("not supported, use prepareColuTX instead");
@@ -707,12 +642,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
       return null;
    }
-
-   public com.mrd.bitlib.model.Transaction signTransaction(ColuPreparedTransaction.Json transaction) {
-      Log.d(TAG, "Faking signing transaction " + transaction);
-      return null;
-   }
-
 
    @Override
    public com.mrd.bitlib.model.Transaction signTransaction(
@@ -786,76 +715,14 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
    @Override
    protected boolean doSynchronization(SyncMode mode) {
-      return updateUnspentOutputs(mode);
-   }
-
-   private boolean updateUnspentOutputs(SyncMode mode) {
-      List<Address> checkAddresses = getSendingAddresses();
-
-      final int newUtxos = synchronizeUnspentOutputs(checkAddresses);
-
-      if (newUtxos == -1) {
-         return false;
+      try {
+         manager.updateAccountBalance(this);
+      } catch (IOException e) {
+         Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
       }
-
-      if (newUtxos > 0 && !mode.mode.equals(SyncMode.Mode.FULL_SYNC)){
-         if (synchronizeUnspentOutputs(checkAddresses) == -1){
-            return false;
-         }
-      }
-
-
-      // update state of recent received transaction to update their confirmation state
-      if (mode.mode != SyncMode.Mode.ONE_ADDRESS) {
-         // Monitor young transactions
-         if (!monitorYoungTransactions()) {
-            return false;
-         }
-      }
-
-      updateLocalBalance();
       return true;
    }
 
-   /* TODO: update for Colu
-      private List<com.colu.api.httpclient.Transaction.Json> getHistoryWithExtras() {
-         if (accountHistory == null) {
-            return Lists.newArrayList();
-         }
-         Function<com.coinapult.api.httpclient.Transaction.Json, String> txMapping = new Function<com.coinapult.api.httpclient.Transaction.Json, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable com.coinapult.api.httpclient.Transaction.Json input) {
-               return input.tid;
-            }
-         };
-         ImmutableMap<String, Transaction.Json> localHistoryMap = Maps.uniqueIndex(extraHistory, txMapping);
-         final HashMap<String, Transaction.Json> historyMap = new HashMap<String, Transaction.Json>();
-         for (Transaction.Json historyEntry : accountHistory) {
-            // sometimes the entry contains the same tx twice - timing problem in combination with paging-request
-            if (!historyMap.containsKey(historyEntry.tid)) {
-               historyMap.put(historyEntry.tid, historyEntry);
-            }
-         }
-         HashMap<String, Transaction.Json> merged = Maps.newHashMap();
-         merged.putAll(localHistoryMap);
-         merged.putAll(historyMap); //accountHistory overwrites local results
-         Collection<Transaction.Json> unfiltered = merged.values();
-         Iterable<com.coinapult.api.httpclient.Transaction.Json> withoutConversion = Iterables.filter(unfiltered, TX_NOT_CONVERSION);
-         ImmutableList<Transaction.Json> ret = Ordering.natural().onResultOf(new Function<com.coinapult.api.httpclient.Transaction.Json, Comparable>() {
-            @Nullable
-            @Override
-            public Comparable apply(@Nullable com.coinapult.api.httpclient.Transaction.Json input) {
-               Long completeTime = input.completeTime;
-               if (completeTime.equals(0L)) {
-                  return input.timestamp;
-               }
-               return completeTime;
-            }
-         }).reverse().immutableSortedCopy(withoutConversion);
-         return ret;
-      }
-   */
    @Override
    public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
       return null;
@@ -866,12 +733,11 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
       TransactionEx tex = null;
       for (Utxo.Json utxo : utxosList) {
          if (utxo.txid.contentEquals(txid.toString())) {
-            //TODO: set time and byte values
             Sha256Hash tHash = new Sha256Hash(Hex.decode(utxo.txid));
             tex = new TransactionEx(tHash,
                     utxo.blockheight,
-                    utxo.blockheight,  //TODO: convert this to time ?
-                    null);  //TODO: fetch transaction bytes somewhere ?
+                    utxo.blockheight,
+                    null);
          }
       }
 
@@ -889,11 +755,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    }
 
    @Override
-   protected void persistContextIfNecessary() {
-
-   }
-
-   @Override
    public boolean deleteTransaction(Sha256Hash transactionId) {
       return false;
    }
@@ -902,17 +763,6 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
       return getCurrencyBasedBalance().confirmed;
    }
-
-   @Override
-   protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      return null;
-   }
-
-   @Override
-   protected PublicKey getPublicKeyForAddress(Address address) {
-      return null;
-   }
-
    @Override
    public boolean isValidEncryptionKey(KeyCipher cipher) {
       return false;
@@ -940,12 +790,7 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
    @Override
    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
-      return null;
-   }
-
-   @Override
-   protected boolean isSynchronizing() {
-      return false;
+      return new ArrayList<>();
    }
 
    /// returns all utxo associated with this address
@@ -1050,7 +895,7 @@ public class ColuAccount extends AbstractAccount implements ExportableAccount {
 
       private static final ColuAsset testNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM", 4, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
       private static final ColuAsset testNetAssetMass = new ColuAsset(ColuAssetType.MASS, "Mass Coin", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "Ua81Eh8cHipXdp2Hfm6RrFpF4R5WTafUroRGSp", 4, "");
+      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "Ua6XMGm6XLCDig5LfsrVABSN1XfDWDY9HZyRKP", 4, "");
 
       private static final Map<String, ColuAsset> mainNetAssetMap = ImmutableMap.of(
               mainNetAssetMT.id, mainNetAssetMT,
