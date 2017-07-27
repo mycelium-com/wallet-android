@@ -132,7 +132,6 @@ public class AddAccountActivity extends Activity {
    View.OnClickListener createColuAccount = new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-	     // do we really need an activity ? there is actually no user interaction required
 	     Intent intent = AddColuAccountActivity.getIntent(AddAccountActivity.this);
 	     intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
          AddAccountActivity.this.startActivity(intent);

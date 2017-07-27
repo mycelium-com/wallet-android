@@ -815,7 +815,6 @@ public class ColuManager implements AccountProvider {
 
         if (account != null) {
             coluAccounts.put(account.getId(), account);
-            // TODO: do this only if newly created key or imported key ?
             loadSingleAddressAccounts();  // reload account from mycelium secure store
             // loaded account should be in the list
             if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {

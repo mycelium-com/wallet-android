@@ -281,12 +281,6 @@ public class MbwManager {
 
       InitColuManagerTask initColu = new InitColuManagerTask();
       initColu.execute(); 
-/*
-      _coluManager = createColuManager(_applicationContext, _environment);
-      if(_coluManager.isPresent()) {
-         addExtraAccounts(_coluManager.get());
-      }
-*/
       // set the currency-list after we added all extra accounts, they may provide
       // additional needed fiat currencies
       setCurrencyList(fiatCurrencies);
