@@ -790,7 +790,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    @Override
    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
-      return null;
+      return new ArrayList<>();
    }
 
    /// returns all utxo associated with this address

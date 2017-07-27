@@ -1123,8 +1123,7 @@ public class ColuManager implements AccountProvider {
         BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale);
         BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale);
         BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale);
-        BigDecimal zeroBalance = BigDecimal.valueOf(0);
-        ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance, account.getColuAsset().name);
+        ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance.add(assetReceivingBalance).subtract(assetSendingBalance), account.getColuAsset().name);
         ExactCurrencyValue sending = ExactCurrencyValue.from(assetSendingBalance, account.getColuAsset().name);
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);
         CurrencyBasedBalance newBalanceFiat = new CurrencyBasedBalance(confirmed, sending, receiving);
