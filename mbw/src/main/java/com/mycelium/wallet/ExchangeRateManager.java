@@ -37,15 +37,21 @@ package com.mycelium.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.google.common.collect.ImmutableList;
-import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
@@ -148,6 +154,15 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
       for (QueryExchangeRatesResponse response : latestRates) {
          _latestRates.put(response.currency, response);
+         if(response.currency.equals("USD")) {
+            ExchangeRate[] rmcExchangeRates = new ExchangeRate[response.exchangeRates.length];
+            ExchangeRate[] exchangeRates = response.exchangeRates;
+            for (int i = 0; i < exchangeRates.length; i++) {
+               ExchangeRate exchangeRate = exchangeRates[i];
+               rmcExchangeRates[i] = new ExchangeRate(exchangeRate.name, exchangeRate.time, exchangeRate.price / 4000,  "RMC");
+            }
+            _latestRates.put("RMC", new QueryExchangeRatesResponse("RMC",rmcExchangeRates));
+         }
       }
       _latestRatesTime = System.currentTimeMillis();
 
