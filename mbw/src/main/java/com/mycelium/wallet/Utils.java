@@ -903,7 +903,7 @@ public class Utils {
    }
 
    public static String getColuFormattedValueWithUnit(CurrencyValue value) {
-      return String.format("%s %s", value.getValue().stripTrailingZeros(), value.getCurrency());
+      return String.format("%s %s", value.getValue().stripTrailingZeros().toPlainString(), value.getCurrency());
    }
 
    public static String getColuFormattedValue(CurrencyValue value) {
