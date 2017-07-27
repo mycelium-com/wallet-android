@@ -12,6 +12,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.common.net.HttpHeaders;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.rmc.json.CreateRmcOrderResponse;
@@ -42,13 +43,11 @@ public class RmcApiClient {
         return "https://rmc-ico-test.gear.mycelium.com/api/";
     }
 
-    public CreateRmcOrderResponse.Json createOrder(String amount, String amountInRmc, String assetAddress, String paymentMethod) {
+    public CreateRmcOrderResponse.Json createOrder(String amountInRmc, String assetAddress, String paymentMethod) {
 
         HashMap<String, String> data = new HashMap<>();
-        data.put("amount", amount);
         data.put("amount_in_rmc", amountInRmc);
         data.put("asset_address", assetAddress);
-        data.put("mycelium_wallet_token", assetAddress);
         data.put("payment_method", paymentMethod);
         data.put("currency", paymentMethod);
 
