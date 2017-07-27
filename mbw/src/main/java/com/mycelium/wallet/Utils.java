@@ -139,13 +139,7 @@ public class Utils {
 
    @SuppressLint(Constants.IGNORE_NEW_API)
    public static void setAlpha(View view, float alpha) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-         AlphaAnimation aa = new AlphaAnimation(alpha, alpha);
-         aa.setDuration(Long.MAX_VALUE);
-         view.startAnimation(aa);
-      } else {
-         view.setAlpha(alpha);
-      }
+      view.setAlpha(alpha);
    }
 
    public static String loadEnglish(int resId) {
@@ -171,7 +165,6 @@ public class Utils {
        * defaultResources.getString(resId); } return settingsEn;
        */
    }
-
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
       Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
@@ -791,12 +784,13 @@ public class Utils {
       }
       if(walletAccount instanceof ColuAccount) {
          ColuAccount account = (ColuAccount) walletAccount;
-         if (account.getColuAsset().assetType == ColuAccount.ColuAssetType.MT) {
-            return resources.getDrawable(R.drawable.mt_icon);
-         } else if (account.getColuAsset().assetType == ColuAccount.ColuAssetType.MASS) {
-            return resources.getDrawable(R.drawable.mass_icon);
-         } else if (account.getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
-            return resources.getDrawable(R.drawable.rmc_icon);
+         switch (account.getColuAsset().assetType) {
+            case MT:
+               return resources.getDrawable(R.drawable.mt_icon);
+            case MASS:
+               return resources.getDrawable(R.drawable.mass_icon);
+            case RMC:
+               return resources.getDrawable(R.drawable.rmc_icon);
          }
       }
 
