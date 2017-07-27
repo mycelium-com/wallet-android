@@ -1100,8 +1100,6 @@ public class ColuManager implements AccountProvider {
 
                             if (!isInitiatedByMe)
                                 assetReceivingAmount += asset.amount;
-                            else
-                                assetConfirmedAmount += asset.amount;
                         }
                     }
             }
@@ -1111,9 +1109,7 @@ public class ColuManager implements AccountProvider {
             satoshiAmount = satoshiAmount + utxo.value;
             for (Asset.Json txidAsset : utxo.assets) {
                 if (txidAsset.assetId.equals(account.getColuAsset().id)) {
-                    if (utxo.blockheight != -1) {
-                        assetConfirmedAmount += txidAsset.amount;
-                    }
+                    assetConfirmedAmount += txidAsset.amount;
                     assetScale = txidAsset.divisibility;
                 }
             }
@@ -1123,7 +1119,7 @@ public class ColuManager implements AccountProvider {
         BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale);
         BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale);
         BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale);
-        ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance.add(assetReceivingBalance).subtract(assetSendingBalance), account.getColuAsset().name);
+        ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance, account.getColuAsset().name);
         ExactCurrencyValue sending = ExactCurrencyValue.from(assetSendingBalance, account.getColuAsset().name);
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);
         CurrencyBasedBalance newBalanceFiat = new CurrencyBasedBalance(confirmed, sending, receiving);
