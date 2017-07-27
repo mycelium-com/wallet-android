@@ -155,7 +155,13 @@ public class BalanceFragment extends Fragment {
 
    @OnClick(R.id.btScan) void onClickScan() {
       //perform a generic scan, act based upon what we find in the QR code
-      ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, StringHandleConfig.genericScanRequest());
+      StringHandleConfig config = StringHandleConfig.genericScanRequest();
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if(account instanceof ColuAccount) {
+         config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_RMC;
+         config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_RMC;
+      }
+      ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
    }
 
    @Override

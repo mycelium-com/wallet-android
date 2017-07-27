@@ -439,6 +439,29 @@ public class StringHandleConfig implements Serializable {
    }
 
    public enum BitcoinUriAction implements Action {
+      SEND_RMC {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("rmc")) return false;
+            MbwManager manager = MbwManager.getInstance(handlerActivity);
+            Optional<? extends RmcUri> uri = getRmcUri(handlerActivity, content);
+            if (!uri.isPresent()) {
+               handlerActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+            } else {
+               Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), uri.get(), false);
+               intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+               handlerActivity.startActivity(intent);
+               handlerActivity.finishOk();
+            }
+            return true;
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return isRmcUri(network, content);
+         }
+      },
       SEND {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
@@ -493,6 +516,29 @@ public class StringHandleConfig implements Serializable {
    }
 
    public enum BitcoinUriWithAddressAction implements Action {
+      SEND_RMC {
+         @Override
+         public boolean handle(StringHandlerActivity handlerActivity, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("rmc")) return false;
+            Optional<RmcUriWithAddress> uri = getRmcUri(handlerActivity, content);
+            if (!uri.isPresent()) {
+               handlerActivity.finishError(R.string.unrecognized_format, content);
+               //started with bitcoin: but could not be parsed, was handled
+               return false;
+            } else {
+               Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), uri.get(), false);
+               intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+               handlerActivity.startActivity(intent);
+               handlerActivity.finishOk();
+               return true;
+            }
+         }
+
+         @Override
+         public boolean canHandle(NetworkParameters network, String content) {
+            return isRmcUri(network, content);
+         }
+      },
       SEND {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
@@ -556,6 +602,7 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
+            if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             return isUri(network, content);
          }
       },
@@ -587,6 +634,15 @@ public class StringHandleConfig implements Serializable {
       private static boolean isUri(NetworkParameters network, String content) {
          return BitcoinUriWithAddress.parseWithAddress(content, network).isPresent();
       }
+   }
+
+   private static Optional<RmcUriWithAddress> getRmcUri(StringHandlerActivity handlerActivity, String content) {
+      MbwManager manager = MbwManager.getInstance(handlerActivity);
+      return RmcUriWithAddress.parseWithAddress(content, manager.getNetwork());
+   }
+
+   private static boolean isRmcUri(NetworkParameters network, String content) {
+      return RmcUriWithAddress.parseWithAddress(content, network).isPresent();
    }
 
    public enum BitIdAction implements Action {

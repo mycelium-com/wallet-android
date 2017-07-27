@@ -76,6 +76,7 @@ import com.mycelium.wallet.BitcoinUriWithAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.RmcUri;
 import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
@@ -85,6 +86,7 @@ import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuCurrencyValue;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.ColuTransactionData;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
@@ -154,6 +156,7 @@ public class SendMainActivity extends Activity {
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
     private static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String SEPA_PAYMENT = "sepaPayment";
+    private static final String RMC_URI = "rmcUri";
 
     private enum TransactionStatus {
         MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -223,6 +226,7 @@ public class SendMainActivity extends Activity {
     private Address _receivingAddress;
     protected String _transactionLabel;
     private BitcoinUri _bitcoinUri;
+    private RmcUri _rmcUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
     protected UnsignedTransaction _unsigned;
@@ -262,6 +266,14 @@ public class SendMainActivity extends Activity {
                 .putExtra(BITCOIN_URI, uri);
     }
 
+    public static Intent getIntent(Activity currentActivity, UUID account, RmcUri uri, boolean isColdStorage) {
+        return getIntent(currentActivity, account, isColdStorage)
+                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, "RMC"))
+                .putExtra(RECEIVING_ADDRESS, uri.address)
+                .putExtra(TRANSACTION_LABEL, uri.label)
+                .putExtra(RMC_URI, uri);
+    }
+
     public static Intent getIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
                 .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
@@ -296,6 +308,8 @@ public class SendMainActivity extends Activity {
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
         _bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(BITCOIN_URI);
+        //May be null
+        _rmcUri = (RmcUri) getIntent().getSerializableExtra(RMC_URI);
 
         // did we get a raw payment request
         byte[] _rawPr = getIntent().getByteArrayExtra(RAW_PAYMENT_REQUEST);
@@ -311,6 +325,7 @@ public class SendMainActivity extends Activity {
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             _fee = MinerFee.fromString(savedInstanceState.getString(FEE_LVL));
             _bitcoinUri = (BitcoinUri) savedInstanceState.getSerializable(BITCOIN_URI);
+            _rmcUri = (RmcUri) savedInstanceState.getSerializable(RMC_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
             _signedTransaction = (Transaction) savedInstanceState.getSerializable(SIGNED_TRANSACTION);
 
@@ -472,6 +487,7 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putString(FEE_LVL, _fee.tag);
       savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
       savedInstanceState.putSerializable(BITCOIN_URI, _bitcoinUri);
+      savedInstanceState.putSerializable(RMC_URI, _rmcUri);
       savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
       savedInstanceState.putSerializable(SIGNED_TRANSACTION, _signedTransaction);
    }
