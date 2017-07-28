@@ -127,7 +127,8 @@ public class RmcEthAmountFragment extends Fragment {
             rmcValue = usdValue.divide(BigDecimal.valueOf(4000));
             etRMC.setText(rmcValue.toPlainString());
         } else if (currency.equals("RMC")) {
-            BigDecimal usdValue = value.multiply(BigDecimal.valueOf(4000));
+            rmcValue = value;
+            BigDecimal usdValue = rmcValue.multiply(BigDecimal.valueOf(4000));
             etUSD.setText(usdValue.toPlainString());
             try {
                 BigDecimal ethValue = usdValue.divide(BigDecimal.valueOf(ethRate), MathContext.DECIMAL32);
