@@ -370,7 +370,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if(!isColu) {
          btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
                  && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
-                 && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
+                 && _amount != null && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
          );
       }
 
@@ -564,7 +564,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void updateExchangeRateDisplay() {
-      if(! _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+      if(_amount != null && ! _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
          Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
          btCurrency.setEnabled(exchangeRatePrice != null);
          if (exchangeRatePrice != null) {
