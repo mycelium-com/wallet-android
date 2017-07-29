@@ -94,7 +94,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
-                        android:text="25000"
+                        android:text="250000"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:typeface="monospace" />
