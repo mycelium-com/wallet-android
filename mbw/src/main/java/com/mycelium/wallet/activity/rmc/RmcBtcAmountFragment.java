@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.rmc;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.mycelium.wallet.MbwManager;
@@ -69,6 +71,12 @@ public class RmcBtcAmountFragment extends Fragment {
 
     @OnClick(R.id.btOk)
     void okClick() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        View view = getActivity().getCurrentFocus();
+        if(view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
         ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
         Bundle bundle = new Bundle();
         bundle.putString(Keys.RMC_COUNT, etRMC.getText().toString());
