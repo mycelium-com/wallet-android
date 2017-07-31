@@ -83,6 +83,16 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/rmc_active_set_reminder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:text="@string/rmc_price_fluctations"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
     <Button
         android:id="@+id/btOk"
         style="@style/MyceliumButton"
