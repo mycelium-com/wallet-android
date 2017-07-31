@@ -267,6 +267,7 @@ public class ModernMain extends ActionBarActivity {
             public void run() {
                _mbwManager.getVersionManager().checkForUpdate();
                _mbwManager.getExchangeRateManager().requestRefresh();
+               _mbwManager.getColuManager().startSynchronization();
 
                // if the last full sync is too old (or not known), start a full sync for _all_ accounts
                // otherwise just run a normal sync for the current account
@@ -427,6 +428,7 @@ public class ModernMain extends ActionBarActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+            _mbwManager.getColuManager().startSynchronization();
             break;
          case R.id.miExportHistory:
             shareTransactionHistory();
