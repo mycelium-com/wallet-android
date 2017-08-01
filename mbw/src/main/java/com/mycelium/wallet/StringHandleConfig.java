@@ -447,9 +447,9 @@ public class StringHandleConfig implements Serializable {
             Optional<? extends RmcUri> uri = getRmcUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
-               //started with bitcoin: but could not be parsed, was handled
+               //started with rmc: but could not be parsed, was handled
             } else {
-               Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), uri.get(), false);
+               Intent intent = SendMainActivity.getIntent(handlerActivity, manager.getSelectedAccount().getId(), uri.get(), false);
                intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
                handlerActivity.startActivity(intent);
                handlerActivity.finishOk();
