@@ -82,6 +82,7 @@ import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.subgraph.orchid.encoders.Hex;
 
@@ -156,12 +157,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       this.accountKey = accountKey;
       this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork());
 
-      // derive the UUID for the account from the "sha256(PubKey(AccountPrivateKey) || <coluAssetID>)"
-      ByteWriter byteWriter = new ByteWriter(36);
-      byteWriter.putBytes(accountKey.getPublicKey().getPublicKeyBytes());
-      byteWriter.putRawStringUtf8(coluAsset.id);
-      Sha256Hash accountId = HashUtils.sha256(byteWriter.toBytes());
-      uuid = getGuidFromByteArray(accountId.getBytes());
+      uuid = SingleAddressAccount.calculateId(this.address);
 
       archived = metadataStorage.getArchived(uuid);
 
