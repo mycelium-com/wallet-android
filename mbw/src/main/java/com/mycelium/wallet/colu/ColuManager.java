@@ -21,16 +21,13 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.ByteReader;
 import com.mycelium.WapiLogger;
-import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.AssetBalance;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
@@ -86,7 +83,6 @@ import org.bitcoinj.script.ScriptBuilder;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -943,8 +939,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private ColuClient createClient() {
-        ColuClient client = new ColuClient(this._network);
-        return client;
+        return new ColuClient(_network);
     }
 
     public Map<String, Object> getBalances() throws Exception {
@@ -970,8 +965,7 @@ public class ColuManager implements AccountProvider {
 
 
         // collect all tx history at that address from mycelium wapi server (non colored)
-        LinkedList<com.mrd.bitlib.util.Sha256Hash> allTxidList =
-                new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
+        LinkedList<com.mrd.bitlib.util.Sha256Hash> allTxidList = new LinkedList<>();
 
         WapiClient wapiClient = getWapi();
         if (wapiClient == null) {

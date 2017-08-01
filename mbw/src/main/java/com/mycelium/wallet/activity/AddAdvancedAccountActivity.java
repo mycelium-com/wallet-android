@@ -257,7 +257,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
       @Override
       protected UUID doInBackground(Void... params) {
-         UUID acc = null;
+         UUID acc;
 
          try {
             //check if address is colu
@@ -267,7 +267,6 @@ public class AddAdvancedAccountActivity extends Activity {
 
             if (asset != null) {
                acc = _mbwManager.getColuManager().enableAsset(asset, key);
-               //acc = _mbwManager.getColuManager().createAccountFromKey(asset, key);
             } else {
                acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
 
@@ -294,7 +293,6 @@ public class AddAdvancedAccountActivity extends Activity {
    }
 
    private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
-
       new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
    }
 
