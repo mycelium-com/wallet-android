@@ -981,7 +981,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="address_title" >%s Address</string>
     <string name="rmc_send_warning" formatted="false">%1$s is an asset (token) issued on Bitcoin blockchain as  colored coin.
 %1$s transaction is a bitcoin transaction and requires miner\'s fee in order to be included in a block.
-To be able to send %1$s token to another %1$s address you need to top up your %1$s address with a small amount of BTC wich will be used to fund your transaction.
+To be able to send %1$s token to another %1$s address you need to top up your %1$s address with a small amount of BTC which will be used to fund your transaction.
 You can either add miner\'s fee every time you make %1$s transaction or top up your %1$s account with a little bit more btc so you will not have to fund (means spend on miner\'s fee) each time you make %1$s transaction.</string>
     <string name="rmc_reminder">RMC reminder</string>
     <string name="rmc_active_in_159_days">Active in %d days</string>
