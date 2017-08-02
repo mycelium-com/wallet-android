@@ -1048,4 +1048,5 @@ You can either add miner\'s fee every time you make %1$s transaction or top up y
     <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Minimum amount to buy is 0.1 RMC</string>
     <string name="weeks">weeks</string>
     <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
+    <string name="colu_before_sending_make_sure">before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#ff8838">here</font> to see the procedure to restore your digital assets. If this happens.</string>
 </resources>

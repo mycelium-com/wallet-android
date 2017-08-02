@@ -214,7 +214,8 @@ public class SendMainActivity extends Activity {
     LinearLayout llRecipientAddress;
     @BindView(R.id.btFromBtcAccount)
     Button btFeeFromAccount;
-
+    @BindView(R.id.colu_tips_check_address)
+    View tips_check_address;
     private MbwManager _mbwManager;
 
     private PaymentRequestHandler _paymentRequestHandler;
@@ -405,9 +406,11 @@ public class SendMainActivity extends Activity {
             ColuAccount coluAccount = (ColuAccount) _account;
             tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
                     coluAccount.getColuAsset().name));
+            tips_check_address.setVisibility(View.VISIBLE);
         } else  {
             tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
                     _mbwManager.getBitcoinDenomination().toString()));
+            tips_check_address.setVisibility(View.GONE);
         }
     }
 
