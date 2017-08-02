@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.colu;
 
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
@@ -43,13 +42,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
@@ -57,14 +54,12 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.ColuPreparedTransaction;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
 import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -73,7 +68,6 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -90,7 +84,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.ByteBuffer;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -159,14 +152,18 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork());
 
       // derive the UUID for the account from the "sha256(PubKey(AccountPrivateKey) || <coluAssetID>)"
-      ByteWriter byteWriter = new ByteWriter(36);
-      byteWriter.putBytes(accountKey.getPublicKey().getPublicKeyBytes());
-      byteWriter.putRawStringUtf8(coluAsset.id);
-      Sha256Hash accountId = HashUtils.sha256(byteWriter.toBytes());
-      uuid = getGuidFromByteArray(accountId.getBytes());
+      uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().getPublicKeyBytes());
 
       archived = metadataStorage.getArchived(uuid);
 
+   }
+
+   public static UUID getGuidForAsset(ColuAsset coluAsset, byte[] publicKeyBytes) {
+      ByteWriter byteWriter = new ByteWriter(36);
+      byteWriter.putBytes(publicKeyBytes);
+      byteWriter.putRawStringUtf8(coluAsset.id);
+      Sha256Hash accountId = HashUtils.sha256(byteWriter.toBytes());
+      return getGuidFromByteArray(accountId.getBytes());
    }
 
    public static UUID getGuidFromByteArray(byte[] bytes) {

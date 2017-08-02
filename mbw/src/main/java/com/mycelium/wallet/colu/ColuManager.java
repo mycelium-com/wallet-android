@@ -183,7 +183,7 @@ public class ColuManager implements AccountProvider {
 
     public boolean hasAccountWithType(ColuAccount.ColuAssetType type) {
         for (WalletAccount account : getAccounts().values()) {
-            if (((ColuAccount) account).getColuAsset().assetType == type) return true;
+            if (account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == type) return true;
         }
         return false;
     }

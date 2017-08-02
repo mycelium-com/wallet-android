@@ -751,10 +751,12 @@ public class Utils {
          @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            if (input instanceof ColuAccount) {
-               return 1;
+            if(!input.getReceivingAddress().isPresent()) {
+               return Integer.MAX_VALUE;
+            }else if (input instanceof ColuAccount) {
+               return input.getReceivingAddress().get().hashCode() + 1;
             }else {
-               return 2;
+               return input.getReceivingAddress().get().hashCode() + 2;
             }
          }
       });
