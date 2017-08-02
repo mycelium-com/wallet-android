@@ -556,7 +556,13 @@ public class ColuManager implements AccountProvider {
     public Map<UUID, WalletAccount> getAccounts() {
         Map<UUID, WalletAccount> allAccounts = new HashMap<>();
         allAccounts.putAll(coluAccounts);
-        allAccounts.putAll(_walletAccounts);
+
+        for (ColuAccount coluAccount : coluAccounts.values()) {
+            SingleAddressAccount linkedAccount = coluAccount.getLinkedAccount();
+            if (linkedAccount != null) {
+                allAccounts.put(linkedAccount.getId(), linkedAccount);
+            }
+        }
         return allAccounts;
     }
 
