@@ -54,6 +54,7 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -243,10 +244,20 @@ public class StringHandleConfig implements Serializable {
             // Calculate the account ID that this key would have
             UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
             // Check whether regular wallet contains the account
-            boolean success = mbwManager.getWalletManager(false).hasAccount(account);
+            boolean success = mbwManager.getWalletManager(false).hasAccount(account)
+                    || mbwManager.getColuManager().hasAccount(account);
+            for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(mbwManager.getColuManager().getNetwork()).values()) {
+               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().getPublicKeyBytes());
+               success |= mbwManager.getColuManager().hasAccount(coluUUID);
+            }
+
             if (success) {
                // Mark key as verified
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
+               for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(mbwManager.getColuManager().getNetwork()).values()) {
+                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().getPublicKeyBytes());
+                  mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
+               }
                handlerActivity.finishOk();
             } else {
                handlerActivity.finishError(R.string.verify_backup_no_such_record, "");

@@ -9,7 +9,7 @@
     <!-- Key Icon -->
 
     <FrameLayout
-            android:layout_width="46dp"
+            android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
             android:gravity="center"
@@ -23,14 +23,14 @@
                 android:contentDescription="@string/label_single_key_icon"
                 tools:src="@drawable/singlekey_grey" />
 
-        <ImageView
-                android:id="@+id/ivIconPrivKey"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="right"
-                android:visibility="gone"
-                android:src="@drawable/singlekey_grey"
-                android:contentDescription="@string/label_single_key_icon" />
+        <!--<ImageView-->
+                <!--android:id="@+id/ivIconPrivKey"-->
+                <!--android:layout_width="16dp"-->
+                <!--android:layout_height="16dp"-->
+                <!--android:layout_gravity="right"-->
+                <!--android:visibility="gone"-->
+                <!--android:src="@drawable/singlekey_grey"-->
+                <!--android:contentDescription="@string/label_single_key_icon" />-->
     </FrameLayout>
 
     <LinearLayout
