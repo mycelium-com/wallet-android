@@ -142,6 +142,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return accountKey;
    }
 
+   private SingleAddressAccount linkedAccount;
+
    public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
       this.accountBacking = backing;
@@ -955,5 +957,17 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    @Override
    public String getAccountDefaultCurrency() {
       return getColuAsset().name;
+   }
+
+   public SingleAddressAccount getLinkedAccount() {
+      return linkedAccount;
+   }
+
+   public void setLinkedAccount(SingleAddressAccount linkedAccount) {
+      this.linkedAccount = linkedAccount;
+   }
+
+   public Address getAddress() {
+      return address;
    }
 }

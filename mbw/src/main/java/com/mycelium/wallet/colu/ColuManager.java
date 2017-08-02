@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -19,7 +18,6 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.util.ByteReader;
 import com.mycelium.WapiLogger;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwEnvironment;
@@ -41,14 +39,10 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
-import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.AccountProvider;
@@ -60,7 +54,6 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -69,10 +62,6 @@ import com.squareup.otto.Bus;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.Sha256Hash;
-import org.bitcoinj.core.TransactionInput;
-import org.bitcoinj.core.TransactionOutput;
-import org.bitcoinj.core.VerificationException;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.RegTestParams;
@@ -82,7 +71,6 @@ import org.bitcoinj.script.ScriptBuilder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -501,6 +489,14 @@ public class ColuManager implements AccountProvider {
             Preconditions.checkNotNull(accountBacking);
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
             addAccount(account);
+
+            for(ColuAccount coluAccount : coluAccounts.values()) {
+                if (coluAccount.getAddress().equals(account.getAddress())) {
+                    coluAccount.setLinkedAccount(account);
+                    break;
+                }
+
+            }
         }
     }
 
