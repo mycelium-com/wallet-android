@@ -106,12 +106,12 @@ public class RecordRowBuilder {
          icon.setImageDrawable(drawableForAccount);
       }
 
-      ImageView iconPrivKey = (ImageView) rowView.findViewById(R.id.ivIconPrivKey);
-      if (walletAccount instanceof ColuAccount) {
-         iconPrivKey.setVisibility(walletAccount.canSpend() ? View.VISIBLE : View.GONE);
-      } else {
-         iconPrivKey.setVisibility(View.GONE);
-      }
+//      ImageView iconPrivKey = (ImageView) rowView.findViewById(R.id.ivIconPrivKey);
+//      if (walletAccount instanceof ColuAccount) {
+//         iconPrivKey.setVisibility(walletAccount.canSpend() ? View.VISIBLE : View.GONE);
+//      } else {
+//         iconPrivKey.setVisibility(View.GONE);
+//      }
 
       TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
       TextView tvWhatIsIt = ((TextView) rowView.findViewById(R.id.tvWhatIsIt));
