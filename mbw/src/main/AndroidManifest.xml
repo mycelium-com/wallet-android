@@ -31,7 +31,6 @@
     <!-- the license checker -->
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 
-    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
 
     <uses-feature
         android:name="android.hardware.location.network"

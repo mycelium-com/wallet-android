@@ -1,12 +1,9 @@
 package com.mycelium.wallet.activity.rmc;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,7 +27,6 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -148,27 +144,19 @@ public class RMCAddressFragment extends Fragment {
     }
 
     private void addEventToCalendar() {
-        ContentResolver cr = getActivity().getContentResolver();
-        ContentValues values = new ContentValues();
 
+        Intent intent = new Intent(Intent.ACTION_EDIT);
+        intent.setType("vnd.android.cursor.item/event");
         Calendar start = Keys.getActiveEndDay();
         long dtstart = start.getTimeInMillis();
-        values.put(CalendarContract.Events.DTSTART, dtstart);
-        values.put(CalendarContract.Events.TITLE, getString(R.string.rmc_activate));
-        values.put(CalendarContract.Events.DESCRIPTION, getString(R.string.rmc_activate_rmc));
-
-        TimeZone timeZone = TimeZone.getDefault();
-        values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
-
-// Default calendar
-        values.put(CalendarContract.Events.CALENDAR_ID, 1);
-
-// Set Period for 1 Hour
-        values.put(CalendarContract.Events.DURATION, "+P1H");
-        values.put(CalendarContract.Events.HAS_ALARM, 1);
-
-// Insert event to calendar
-        Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+        intent.putExtra("beginTime", dtstart);
+        intent.putExtra("allDay", true);
+        intent.putExtra("title", getString(R.string.rmc_activate));
+        intent.putExtra("description", getString(R.string.rmc_activate_rmc));
+        try {
+            startActivity(intent);
+        } catch (Exception ignore) {
+        }
     }
 
 
