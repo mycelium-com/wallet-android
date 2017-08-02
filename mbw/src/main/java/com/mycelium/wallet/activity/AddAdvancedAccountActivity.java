@@ -35,27 +35,29 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
-import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
+import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -249,6 +251,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
+      private Error error;
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -257,7 +260,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
       @Override
       protected UUID doInBackground(Void... params) {
-         UUID acc;
+         UUID acc = null;
 
          try {
             //check if address is colu
@@ -266,7 +269,11 @@ public class AddAdvancedAccountActivity extends Activity {
             ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
 
             if (asset != null) {
-               acc = _mbwManager.getColuManager().enableAsset(asset, key);
+               if (coluManager.getAssetAccountUUID(asset) != null) {
+                  error = new Error("Export is not possible you already have " + asset.name + "account");
+               } else {
+                  acc = _mbwManager.getColuManager().enableAsset(asset, key);
+               }
             } else {
                acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
 
@@ -288,6 +295,12 @@ public class AddAdvancedAccountActivity extends Activity {
       protected void onPostExecute(UUID account) {
          if (account != null) {
             finishOk(account);
+         } else if (error != null) {
+            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                    .setMessage(error.getMessage())
+                    .setPositiveButton(R.string.button_ok, null)
+                    .create()
+                    .show();
          }
       }
    }
