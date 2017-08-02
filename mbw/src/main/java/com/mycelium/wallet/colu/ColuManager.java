@@ -193,284 +193,12 @@ public class ColuManager implements AccountProvider {
         return mgr.getWapi();
     }
 
-    // insert signatures for each input of the unsigned transaction
-    // returns null if encounters an error (invalid or missing signature)
-    public org.bitcoinj.core.Transaction signTransaction(org.bitcoinj.core.Transaction signTx,
-                                                         HashMap<String, Script> programSignatures) {
-        for (int i = 0; i < signTx.getInputs().size(); i++) {
-            TransactionInput input = signTx.getInput(i);
-            TransactionOutput connectedOutput = input.getConnectedOutput();
-            byte[] originalScript = input.getScriptBytes().clone();
-            Script inScript = programSignatures.get(input.toString());
-            if (inScript == null) {
-                return null;
-            }
-            input.setScriptSig(inScript);
-            if (connectedOutput == null) {
-                return null;
-            }
-            try {
-                input.verify(connectedOutput);
-                Log.d(TAG, "signTransactionInternal: Input verification passed for input " + i +
-                        " and output " + input.toString()); // connectedOutput.getAddressFromP2SH(netParams) +
-                //":" + connectedOutput.getIndex() + " .");
-            } catch (VerificationException e) {
-                Log.d(TAG, "signTransactionInternal: Error while processing input " + i +
-                        " ! VerificationException " + e.getMessage());
-                input.setScriptSig(new Script(originalScript));
-                return null;
-                //if (i == signTx.getInputs().size() - 1) {
-                //    return null;
-                //}
-            }
-        }
-        return signTx;
-    }
-
     public boolean hasAccountWithType(ColuAccount.ColuAssetType type) {
         for (WalletAccount account : getAccounts().values()) {
             if (((ColuAccount) account).getColuAsset().assetType == type) return true;
         }
         return false;
     }
-
-    /**
-     * Takes in a transaction and a private key and returns a signature (if possible)
-     * as a Bytestring object.
-     */
-    public HashMap<String, Script> getSignature(org.bitcoinj.core.Transaction signTx, ECKey privKey) {
-        HashMap<String, Script> signatures = new HashMap<>();
-
-        if (signTx == null) {
-            Log.e(TAG, "getSignature: Error signTx is null");
-            return null;
-        }
-        if (privKey == null) {
-            Log.e(TAG, "getSignature: Error privKey is null");
-            return null;
-        }
-
-        org.bitcoinj.core.Transaction copyTx = signTx;
-        Log.d(TAG, "getSignature: start iterating over " + copyTx.getInputs().size());
-        for (int i = 0; i < copyTx.getInputs().size(); i++) {
-            TransactionInput input = copyTx.getInput(i);
-            Log.d(TAG, "getSignature: Processing input " + i + " : " + input.toString());
-            TransactionOutput connectedOutput = input.getConnectedOutput();
-            if (connectedOutput == null) {
-                Log.e(TAG, "getSignature: connectedOutput for input " + i + " is null ! Returning null");
-                return null;
-            }
-            Sha256Hash hash = copyTx.hashForSignature(i, connectedOutput.getScriptPubKey(),
-                    org.bitcoinj.core.Transaction.SigHash.ALL, false);
-            ECKey.ECDSASignature ecSig = privKey.sign(hash);
-            TransactionSignature txSig = new TransactionSignature(ecSig, org.bitcoinj.core.Transaction.SigHash.ALL, false);
-            byte[] originalScript = input.getScriptBytes().clone();
-            Script inputScript = ScriptBuilder.createInputScript(txSig, ECKey.fromPublicOnly(privKey.getPubKey()));
-            input.setScriptSig(inputScript);
-            try {
-                input.verify(connectedOutput);
-                Log.d(TAG, "getSignature: input set input script signature and verified output ! " +
-                        "Adding validated signature with key " + input.toString());
-                // connectedOutput.getAddressFromP2SH(netParams) + ":" + connectedOutput.getIndex());
-                signatures.put(input.toString(), inputScript);
-            } catch (VerificationException e) {
-                Log.e(TAG, "getSignature: VerificationException : " + e.getMessage());
-                return null;
-                //input.setScriptSig(this.bytestringToInputScript(new Bytestring(originalScript)));
-            }
-        }
-        Log.d(TAG, "getSignature: returning " + signatures.size() + " signatures");
-        return signatures;
-    }
-
-    public org.bitcoinj.core.Transaction getSignatureAndSign(org.bitcoinj.core.Transaction signTx, ECKey privKey) {
-        //LinkedList<Script> signatures = new LinkedList<Script>();
-        HashMap<String, Script> signatures = new HashMap<String, Script>();
-
-        if (signTx == null) {
-            Log.e(TAG, "getSignatureAndSign: Error signTx is null");
-            return null;
-        }
-        if (privKey == null) {
-            Log.e(TAG, "getSignatureAndSign: Error privKey is null");
-            return null;
-        }
-
-        org.bitcoinj.core.Transaction copyTx = signTx;
-        Log.d(TAG, "getSignatureAndSign: start iterating over " + copyTx.getInputs().size());
-        for (int i = 0; i < copyTx.getInputs().size(); i++) {
-            TransactionInput input = copyTx.getInput(i);
-            Log.d(TAG, "getSignatureAndSign: Processing input " + i + " : " + input.toString());
-            TransactionOutput connectedOutput = input.getConnectedOutput();
-            if (connectedOutput == null) {
-                Log.e(TAG, "getSignatureAndSign: connectedOutput for input " + i + " is null ! Returning null");
-                return null;
-            }
-            Sha256Hash hash = copyTx.hashForSignature(i, connectedOutput.getScriptPubKey(),
-                    org.bitcoinj.core.Transaction.SigHash.ALL, false);
-            ECKey.ECDSASignature ecSig = privKey.sign(hash);
-            TransactionSignature txSig = new TransactionSignature(ecSig, org.bitcoinj.core.Transaction.SigHash.ALL, false);
-            byte[] originalScript = input.getScriptBytes().clone();
-            Script inputScript = ScriptBuilder.createInputScript(txSig, ECKey.fromPublicOnly(privKey.getPubKey()));
-            input.setScriptSig(inputScript);
-            try {
-                input.verify(connectedOutput);
-                //Log.d(TAG, "getSignatureAndSign: input set input script signature and verified output ! " +
-                //        "Adding validated signature with key " + input.toString()); // connectedOutput.getAddressFromP2SH(netParams) + ":" + connectedOutput.getIndex());
-                //signatures.put(connectedOutput.getAddressFromP2SH(netParams) + ":" + connectedOutput.getIndex(), inputScript);
-                //signatures.put(input.toString(), inputScript);
-            } catch (VerificationException e) {
-                Log.e(TAG, "getSignatureAndSign: VerificationException : " + e.getMessage());
-                return null;
-                //input.setScriptSig(this.bytestringToInputScript(new Bytestring(originalScript)));
-            }
-        }
-        Log.d(TAG, "getSignatureAndSign: returning signed transaction");
-        return signTx;
-    }
-
-    private org.bitcoinj.core.Transaction getBitcoinjTransaction(byte[] txBytes) {
-        org.bitcoinj.core.Transaction signTx = new org.bitcoinj.core.Transaction(netParams, txBytes);
-
-        Log.d(TAG, "signTransaction: Found " + signTx.getInputs().size() + " to connect to their inputs.");
-        for (int i = 0; i < signTx.getInputs().size(); i++) {
-            TransactionInput input = signTx.getInput(i);
-            Log.d(TAG, "signTransaction: Connecting input " + i + " : " + input.toString());
-            TransactionOutput connectedOutput = input.getConnectedOutput();
-            if (connectedOutput != null) {
-                Log.d(TAG, "signTransaction: Output already connected at input " + i + " ! Skipping");
-                // go to next input transaction
-                continue;
-            }
-
-            // TransactionOutput outputToConnect = new TransactionOutput();
-            // step 1: search for transaction with hash = input.getHash()
-            // step 2: retrieve output of found transaction with id
-            Sha256Hash previousTrHash = input.getOutpoint().getHash();
-            long previousTrOutputIdx = input.getOutpoint().getIndex();
-            LinkedList<com.mrd.bitlib.util.Sha256Hash> previousTransactions =
-                    new LinkedList<com.mrd.bitlib.util.Sha256Hash>();
-            previousTransactions.add(new com.mrd.bitlib.util.Sha256Hash(previousTrHash.getBytes()));
-            GetTransactionsRequest trRequest = new GetTransactionsRequest(2, previousTransactions);
-            WapiClient wapiClient = mgr.getWapi();
-            if (wapiClient == null) {
-                Log.e(TAG, "signTransaction: wapiClient not found !");
-                return null;
-            }
-            WapiResponse<GetTransactionsResponse> wapiResponse =
-                    wapiClient.getTransactions(trRequest);
-            if (wapiResponse != null) {
-                //Log.d(TAG, "signTransaction: Received tr wapiResponse: " + wapiResponse.toString());
-                try {
-                    GetTransactionsResponse trResponse = wapiResponse.getResult();
-                    //Log.d(TAG, "signTransaction: wapiRespone transactions: nb=" + trResponse.transactions.size()
-                    //        + " data=" + trResponse.toString());
-                    TransactionExApi trExApi = (TransactionExApi) trResponse.transactions.toArray()[0];
-                    org.bitcoinj.core.Transaction utxo = new org.bitcoinj.core.Transaction(netParams, trExApi.binary);
-                    TransactionOutput trOutput = utxo.getOutput(previousTrOutputIdx);
-                    //Log.d(TAG, "signTransaction: wapiResponse trOutput " + trOutput.toString());
-                    byte[] trOutputScript = trOutput.getScriptBytes();
-                    if (trOutputScript != null) {
-                        //Log.d(TAG, "signTransaction: Attempting to connect previous transaction to transaction to sign.");
-                        TransactionInput.ConnectionResult connRes = input.connect(utxo, TransactionInput.ConnectMode.ABORT_ON_CONFLICT);
-                        if (connRes != null) {
-                            if (connRes == TransactionInput.ConnectionResult.NO_SUCH_TX) {
-                                Log.e(TAG, "signTransaction: No Such Tx - failed to connect");
-                                return null;
-                            } else if (connRes == TransactionInput.ConnectionResult.ALREADY_SPENT) {
-                                Log.d(TAG, "signTransaction: Already spent - failed to connect");
-                                return null;
-                            } else if (connRes == TransactionInput.ConnectionResult.SUCCESS) {
-                                Log.e(TAG, "signTransaction: Connection Success");
-                            }
-                        } else {
-                            Log.e(TAG, "signTransaction: Error - no connRes returned");
-                            return null;
-                        }
-                    }
-                } catch (WapiException e) {
-                    Log.d(TAG, "signTransaction: WapiException " + e.getMessage());
-                }
-            }
-        } // end loop over inputs
-
-        return signTx;
-    }
-
-    private TransactionSummary transform(ColuAccount account, TransactionEx tex, int blockChainHeight) {
-        Transaction tx;
-        try {
-            tx = Transaction.fromByteReader(new ByteReader(tex.binary));
-        } catch (Transaction.TransactionParsingException e) {
-            // Should not happen as we have parsed the transaction earlier
-            Log.e(TAG, "Unable to parse ");
-            return null;
-        }
-
-        // Outputs
-        long satoshis = 0;
-        List<Address> toAddresses = new ArrayList<Address>();
-        Address destAddress = null;
-        for (com.mrd.bitlib.model.TransactionOutput output : tx.outputs) {
-            final Address address = output.script.getAddress(_network);
-            if (account.isMine(output.script)) {
-                satoshis += output.value;
-            } else {
-                destAddress = address;
-            }
-            if (address != null && !address.equals(Address.getNullAddress(_network))) {
-                toAddresses.add(address);
-            }
-        }
-
-        // Inputs
-        if (!tx.isCoinbase()) {
-            for (com.mrd.bitlib.model.TransactionInput input : tx.inputs) {
-                // find parent output
-                TransactionOutputEx funding = null; // account.getAccountBacking().getParentTransactionOutput(input.outPoint);
-                if (funding == null) {
-                    Log.e(TAG, "Unable to find parent output for: " + input.outPoint);
-                    continue;
-                }
-                if (account.isMine(funding)) {
-                    satoshis -= funding.value;
-                }
-            }
-        }
-        // else {
-        //    For coinbase transactions there is nothing to subtract
-        // }
-        int confirmations;
-        if (tex.height == -1) {
-            confirmations = 0;
-        } else {
-            confirmations = Math.max(0, blockChainHeight - tex.height + 1);
-        }
-
-        // only track a destinationAddress if it is an outgoing transaction (i.e. send money to someone)
-        // to prevent the user that he tries to return money to an address he got bitcoin from.
-        if (satoshis >= 0) {
-            destAddress = null;
-        }
-
-        boolean isQueuedOutgoing = false; // account.getBbacking().isOutgoingTransaction(tx.getHash());
-
-        // see if we have a riskAssessment for this tx available in memory (i.e. valid for last sync)
-        //final ConfirmationRiskProfileLocal risk = riskAssessmentForUnconfirmedTx.get(tx.getHash());
-
-        return new TransactionSummary(
-                tx.getHash(),
-                ExactBitcoinValue.from(Math.abs(satoshis)),
-                satoshis >= 0,
-                tex.time,
-                tex.height,
-                confirmations,
-                isQueuedOutgoing,
-                null,  // risk,
-                com.google.common.base.Optional.fromNullable(destAddress),
-                toAddresses);
-    }
-
 
     public Transaction signTransaction(ColuBroadcastTxid.Json txid, ColuAccount coluAccount) {
 
@@ -533,43 +261,6 @@ public class ColuManager implements AccountProvider {
         }
         Log.d(TAG, "signTransaction: Parsed bitlib transaction: " + signedBitlibTransaction.toString());
         return signedBitlibTransaction;
-
-/*
-
-        HashMap<String, Script> keySignatures = getSignature(signTx, ecKey);
-
-        if (keySignatures == null || keySignatures.size() == 0)
-
-        {
-            Log.d(TAG, "signTransaction: Received null or 0 signature from getSignature !");
-        } else
-
-        {
-            Log.d(TAG, "signTransaction: received " + keySignatures.size() + " signatures to inject in transaction.");
-            //TODO: copy all keySignatures into programSignatures to handle multiple input key signing
-            //LinkedList<Script> programSignatures = keySignatures;
-            HashMap<String, Script> programSignatures = keySignatures;
-            //programSignatures.add(signature);
-            org.bitcoinj.core.Transaction signedTransaction =
-                    signTransaction(signTx, programSignatures);
-            if (signedTransaction != null) {
-                Log.d(TAG, "signTransaction: Success ! Received signed transaction object : " + signedTransaction.toString());
-                //return signedTransaction;
-                //TODO: convert bitcoinj transaction into mycelium transaction
-                byte[] signedTransactionBytes = signedTransaction.bitcoinSerialize();
-                Transaction signedBitlibTransaction;
-                try {
-                    signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes);
-                } catch (Transaction.TransactionParsingException e) {
-                    Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.getMessage());
-                    return null;
-                }
-                Log.d(TAG, "signTransaction: Parsed bitlib transaction: " + signedBitlibTransaction.toString());
-                return signedBitlibTransaction;
-            }
-        }
-        return null;
-        */
     }
 
     public ColuBroadcastTxid.Json prepareColuTx(Address _receivingAddress,
@@ -785,7 +476,6 @@ public class ColuManager implements AccountProvider {
 
         // case 3: new account or import account
         if (accountKey == null && metadataKey == null) {
-            UUID accountUUID;
             try {
                 if (importKey != null) {
                     accountKey = importKey;
@@ -843,16 +533,6 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    // maps asset id to asset object
-    @android.support.annotation.Nullable
-    private UUID enableAsset(String id) {
-        if (ColuAccount.ColuAsset.getAssetMap(getNetwork()).containsKey(id)) {
-            return enableAsset(id);
-        } else {
-            return null;
-        }
-    }
-
     public NetworkParameters getNetwork() {
         return env.getNetwork();
     }
@@ -897,20 +577,6 @@ public class ColuManager implements AccountProvider {
         return null;
     }
 
-    @android.support.annotation.Nullable
-    private ColuAccount getAccountForColuAsset(String assetId) {
-        if (ColuAccount.ColuAsset.getAssetMap(getNetwork()).containsKey(assetId)) {
-            ColuAccount.ColuAsset asset = ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(assetId);
-            return getAccountForColuAsset(asset);
-        } else {
-            return null;
-        }
-    }
-
-    public boolean hasAssetEnabled(ColuAccount.ColuAsset asset) {
-        return getAccountForColuAsset(asset) != null;
-    }
-
     // getAccounts is called by WalletManager
     @Override
     public Map<UUID, WalletAccount> getAccounts() {
@@ -928,7 +594,7 @@ public class ColuManager implements AccountProvider {
     // this method updates balances for all colu accounts
     public boolean scanForAccounts() {
         try {
-            Map<String, Object> balances = getBalances();
+            getBalances();
             return true;
         } catch (Exception e) {
             Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
@@ -1015,9 +681,6 @@ public class ColuManager implements AccountProvider {
         Log.d(TAG, "Received wapiResponse, extracting result");
         try {
             trResponse = wapiResponse.getResult();
-            //Log.d(TAG, "signTransaction: wapiRespone transactions: nb=" + trResponse.transactions.size()
-            //        + " data=" + trResponse.toString());
-            TransactionExApi trExApi = (TransactionExApi) trResponse.transactions.toArray()[0];
         } catch (Exception e) {
             Log.d(TAG, "Warning ! Error accessing transaction response: " + e.getMessage());
         }
@@ -1095,14 +758,6 @@ public class ColuManager implements AccountProvider {
         return coluClient;
     }
 
-    public int getBitcoinBlockheight() {
-        int height = mgr.getBitcoinBlockheight();
-        for (ColuAccount account : coluAccounts.values()) {
-            account.setBlockChainHeight(height);
-        }
-        return height;
-    }
-
     public boolean isColuAsset(String assetName) {
         for (String asset : ColuAccount.ColuAsset.getAllAssetNames(getNetwork())) {
             if (asset.contentEquals(assetName)) {
@@ -1122,7 +777,6 @@ public class ColuManager implements AccountProvider {
                 for (Utxo.Json utxo : addressInfo.utxos) {
                     Log.d(TAG, "isColuAddress: utxo " + utxo.txid);
                     // adding utxo to list of txid list request
-                    //txidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(utxo.txid));
                     for (Asset.Json txidAsset : utxo.assets) {
                         Log.d(TAG, "isColuAddress: utxo " + utxo.txid + " asset " + txidAsset.assetId);
                         for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap(getNetwork()).keySet()) {
