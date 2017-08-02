@@ -23,7 +23,6 @@ public class RmcUri implements Serializable {
     public final String label;
     public final String callbackURL;
 
-    // returns a BitcoinUriWithAddress if address != null
     public static RmcUri from(Address address, BigDecimal amount, String label, String callbackURL) {
         if (address != null) {
             return new RmcUriWithAddress(address, amount, label, callbackURL);
