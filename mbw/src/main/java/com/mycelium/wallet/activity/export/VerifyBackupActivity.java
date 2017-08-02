@@ -181,7 +181,8 @@ public class VerifyBackupActivity extends Activity {
       UUID account = SingleAddressAccount.calculateId(address);
 
       // Check whether regular wallet contains that account
-      boolean success = _mbwManager.getWalletManager(false).hasAccount(account);
+      boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
+              || _mbwManager.getColuManager().hasAccount(account);
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
