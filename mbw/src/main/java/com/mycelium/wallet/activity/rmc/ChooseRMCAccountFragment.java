@@ -97,7 +97,8 @@ public class ChooseRMCAccountFragment extends Fragment {
         List<Map.Entry<UUID, WalletAccount>> accountsList = new ArrayList<>();
         WalletAccount walletAccount = null;
         for (Map.Entry<UUID, WalletAccount> uuidWalletAccountEntry : _mbwManager.getColuManager().getAccounts().entrySet()) {
-            if (((ColuAccount) uuidWalletAccountEntry.getValue()).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+            if (uuidWalletAccountEntry.getValue() instanceof ColuAccount
+                    && ((ColuAccount) uuidWalletAccountEntry.getValue()).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
                 accountsList.add(uuidWalletAccountEntry);
                 walletAccount = uuidWalletAccountEntry.getValue();
             }

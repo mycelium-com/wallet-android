@@ -34,14 +34,17 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -103,14 +106,38 @@ public class RecordRowBuilder {
          icon.setImageDrawable(drawableForAccount);
       }
 
+      ImageView iconPrivKey = (ImageView) rowView.findViewById(R.id.ivIconPrivKey);
+      if (walletAccount instanceof ColuAccount) {
+         iconPrivKey.setVisibility(walletAccount.canSpend() ? View.VISIBLE : View.GONE);
+      } else {
+         iconPrivKey.setVisibility(View.GONE);
+      }
+
+      TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
+      TextView tvWhatIsIt = ((TextView) rowView.findViewById(R.id.tvWhatIsIt));
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
+      if (Utils.checkIsLinked(walletAccount, mbwManager.getColuManager().getAccounts().values())) {
+         tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               new AlertDialog.Builder(view.getContext())
+                       .setMessage(R.string.rmc_bitcoin_acc_what_is_it)
+                       .setPositiveButton(R.string.button_ok, null)
+                       .create()
+                       .show();
+            }
+         });
+         tvWhatIsIt.setVisibility(View.VISIBLE);
+      } else {
+         tvWhatIsIt.setVisibility(View.GONE);
+      }
       if (name.length() == 0) {
          rowView.findViewById(R.id.tvLabel).setVisibility(View.GONE);
       } else {
          // Display name
-         TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
+
          tvLabel.setVisibility(View.VISIBLE);
-         tvLabel.setText(name);
+         tvLabel.setText(Html.fromHtml(name));
          tvLabel.setTextColor(textColor);
       }
 

@@ -56,7 +56,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
@@ -107,6 +106,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -706,7 +706,17 @@ public class Utils {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 
-   public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts, final MetadataStorage storage) {
+   public static boolean checkIsLinked(WalletAccount account, final Collection<WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof ColuAccount
+                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Nullable
          @Override
@@ -715,10 +725,12 @@ public class Utils {
                return 0;
             }
             if (input instanceof SingleAddressAccount) {
-               return 1;
+              return checkIsLinked(input, accounts) ? 3 : 1;
             }
+            if(input instanceof ColuAccount)
+               return 3;
             if (input instanceof CoinapultAccount) {
-               return 3; //coinapult last
+               return 4; //coinapult last
             }
             return 2;
          }
@@ -735,6 +747,19 @@ public class Utils {
          }
       });
 
+      Ordering<WalletAccount> linked = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         @Nullable
+         @Override
+         public Integer apply(@Nullable WalletAccount input) {
+            if (input instanceof ColuAccount) {
+               return 1;
+            }else {
+               return 2;
+            }
+         }
+      });
+
+
       Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
          @Nullable
          @Override
@@ -742,7 +767,7 @@ public class Utils {
             return storage.getLabelByAccount(input.getId());
          }
       });
-      return type.compound(index).compound(name).sortedCopy(accounts);
+      return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);
    }
 
    public static List<Address> sortAddresses(List<Address> addresses) {
@@ -754,6 +779,18 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
+      if(walletAccount instanceof ColuAccount) {
+         ColuAccount account = (ColuAccount) walletAccount;
+         switch (account.getColuAsset().assetType) {
+            case MT:
+               return resources.getDrawable(R.drawable.mt_icon);
+            case MASS:
+               return resources.getDrawable(R.drawable.mass_icon);
+            case RMC:
+               return resources.getDrawable(R.drawable.rmc_icon);
+         }
+      }
+
       // Watch only
       if (!walletAccount.canSpend()) {
          return null;
@@ -780,17 +817,6 @@ public class Utils {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
             return resources.getDrawable(R.drawable.coinapultgrey);
-         }
-      }
-      if(walletAccount instanceof ColuAccount) {
-         ColuAccount account = (ColuAccount) walletAccount;
-         switch (account.getColuAsset().assetType) {
-            case MT:
-               return resources.getDrawable(R.drawable.mt_icon);
-            case MASS:
-               return resources.getDrawable(R.drawable.mass_icon);
-            case RMC:
-               return resources.getDrawable(R.drawable.rmc_icon);
          }
       }
 

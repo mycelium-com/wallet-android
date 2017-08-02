@@ -1048,5 +1048,7 @@ You can either add miner\'s fee every time you make %1$s transaction or top up y
     <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Minimum amount to buy is 0.1 RMC</string>
     <string name="weeks">weeks</string>
     <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
-    <string name="colu_before_sending_make_sure">before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#ff8838">here</font> to see the procedure to restore your digital assets. If this happens.</string>
+    <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets. If this happens.</string>
+    <string name="rmc_bitcoin_acc_what_is_it">RMC bitcoin address account allows to receive and spend dividends from RMC mining token.\n\nBoth RMC tokens and mining dividends are safely stored in the same bitcoin address.\n\nTo access RMC tokens use Colu RMC account instead.</string>
+    <string name="what_is_it">What is it?</string>
 </resources>
