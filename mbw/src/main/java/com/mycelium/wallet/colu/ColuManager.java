@@ -914,7 +914,10 @@ public class ColuManager implements AccountProvider {
     // getAccounts is called by WalletManager
     @Override
     public Map<UUID, WalletAccount> getAccounts() {
-        return ImmutableMap.<UUID, WalletAccount>copyOf(coluAccounts);
+        Map<UUID, WalletAccount> allAccounts = new HashMap<>();
+        allAccounts.putAll(coluAccounts);
+        allAccounts.putAll(_walletAccounts);
+        return allAccounts;
     }
 
     @Override
