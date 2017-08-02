@@ -127,7 +127,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    private boolean archived;
 
-   private Optional<Address> currentAddress = Optional.absent();
    private CurrencyBasedBalance balanceFiat;
 
    private int height;
@@ -687,33 +686,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return receivingAddress.isPresent() && receivingAddress.get().equals(address);
    }
 
-   // from AbstractAccount.java
-   /**
-    * Determine whether a transaction was sent from one of our own addresses.
-    * <p>
-    * This is a costly operation as we have to lookup funding outputs of the
-    * transaction
-    *
-    * @param t the transaction to investigate
-    * @return true iff one of the funding outputs were sent from one of our own
-    * addresses
-    */
-   protected boolean isFromMe(Transaction t) {
-      for (TransactionInput input : t.inputs) {
-         TransactionOutputEx funding = null; // _backing.getParentTransactionOutput(input.outPoint);
-         if (funding == null || funding.isCoinBase) {
-            continue;
-         }
-         ScriptOutput fundingScript = ScriptOutput.fromScriptBytes(funding.script);
-         Address fundingAddress = fundingScript.getAddress(getNetwork());
-         if (isMine(fundingAddress)) {
-            return true;
-         }
-      }
-      return false;
-   }
-
-
    @Override
    protected boolean doSynchronization(SyncMode mode) {
       try {
@@ -796,7 +768,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    /// returns all utxo associated with this address
    public List<Utxo.Json> getAddressUnspent(String address) {
-      LinkedList<Utxo.Json> addressUnspent = new LinkedList<Utxo.Json>();
+      LinkedList<Utxo.Json> addressUnspent = new LinkedList<>();
       if (utxosList != null) {
          for (Utxo.Json utxo : utxosList) {
             for (String addr : utxo.scriptPubKey.addresses) {
@@ -876,10 +848,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          int result = name.hashCode();
          result = 31 * result + minimumConversationValue.hashCode();
          return result;
-      }
-
-      public String getMinimumConversationString() {
-         return new DecimalFormat("#0.00##").format(minimumConversationValue) + " " + name;
       }
    }
 
@@ -979,10 +947,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          if (!name.equals(asset.name)) {
             return false;
          }
-         return id.equals(asset.id); //TODO: update to string equality test
+         return id.equals(asset.id);
       }
-
-      // TODO: do we need to override hashCode
 
    }
 

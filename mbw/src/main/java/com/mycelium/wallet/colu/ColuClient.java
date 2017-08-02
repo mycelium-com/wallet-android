@@ -257,7 +257,7 @@ public class ColuClient {
    }
 
    //TODO: move most of the logic to ColuManager
-   public ColuBroadcastTxid.Json prepareTransaction(Address destAddress, List<Address> src, Address funding,
+   public ColuBroadcastTxid.Json prepareTransaction(Address destAddress, List<Address> src,
                                                     ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
                                                     long feePerKb)
            throws IOException {
@@ -269,11 +269,6 @@ public class ColuClient {
       if (src == null || src.size() == 0) {
          Log.e(TAG, "src is null or empty");
          return null;
-      }
-      if (funding == null) {
-         Log.d(TAG, "funding address is null");
-         // transaction can also be funded with transactions that have both BTC and assets
-         //return null;
       }
       if (nativeAmount == null) {
          Log.e(TAG, "nativeAmount is null");
@@ -309,7 +304,6 @@ public class ColuClient {
          // v2: chose utxo ourselves
          LinkedList<String> sendutxo = new LinkedList<String>();
          double selectedAmount = 0;
-         // TODO: add fee utxo ?
          double selectedSatoshiAmount = 0;
          for (Address addr : src) {
             Log.d(TAG, "Selected address " + addr.toString());
