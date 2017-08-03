@@ -116,7 +116,9 @@ public class RecordRowBuilder {
       TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
       TextView tvWhatIsIt = ((TextView) rowView.findViewById(R.id.tvWhatIsIt));
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
-      if (Utils.checkIsLinked(walletAccount, mbwManager.getColuManager().getAccounts().values())) {
+      WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
+      if (linked != null && linked instanceof ColuAccount) {
+         name += ((ColuAccount) linked).getColuAsset().name + " Bitcoin";
          tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

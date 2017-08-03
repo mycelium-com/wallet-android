@@ -716,6 +716,16 @@ public class Utils {
       return false;
    }
 
+   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof ColuAccount
+                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
+            return walletAccount;
+         }
+      }
+      return null;
+   }
+
    public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Nullable

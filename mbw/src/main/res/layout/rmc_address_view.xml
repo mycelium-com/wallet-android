@@ -113,6 +113,7 @@
                         android:textSize="15sp" />
 
                     <TextView
+                        android:id="@+id/tvTotalHP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -136,6 +137,7 @@
                         android:textSize="15sp" />
 
                     <TextView
+                        android:id="@+id/tvUserHP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.google.common.base.Preconditions;
@@ -57,6 +58,12 @@ public class RMCAddressFragment extends Fragment {
 
     @BindView(R.id.tvAddress)
     protected TextView tvAddress;
+
+    @BindView(R.id.tvTotalHP)
+    protected TextView tvTotalHP;
+
+    @BindView(R.id.tvUserHP)
+    protected TextView tvUserHP;
 
     private MbwManager _mbwManager;
 
@@ -156,6 +163,7 @@ public class RMCAddressFragment extends Fragment {
         try {
             startActivity(intent);
         } catch (Exception ignore) {
+            Toast.makeText(getActivity(), R.string.error_start_google_calendar, Toast.LENGTH_LONG);
         }
     }
 
