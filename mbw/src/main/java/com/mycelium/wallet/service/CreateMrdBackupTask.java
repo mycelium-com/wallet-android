@@ -35,6 +35,7 @@
 package com.mycelium.wallet.service;
 
 import android.content.Context;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.MrdExport;
@@ -44,6 +45,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.UserFacingException;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.pdf.ExportDistiller;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportEntry;
@@ -114,47 +116,42 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          if (account instanceof SingleAddressAccount) {
             EntryToExport entry;
             SingleAddressAccount a = (SingleAddressAccount) account;
+            Address address = a.getAddress();
+            String label = storage.getLabelByAccount(a.getId());
+
+            WalletAccount linked = Utils.getLinkedAccount(account, walletManager.getActiveAccounts());
+            if (linked != null && linked instanceof ColuAccount) {
+               label += " " + ((ColuAccount) linked).getColuAsset().name + " Bitcoin";
+            }
+            String base58EncodedPrivateKey = null;
             if (a.canSpend()) {
-               String base58EncodedPrivateKey;
                try {
                   base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
                } catch (KeyCipher.InvalidKeyCipher e) {
                   throw new RuntimeException(e);
                }
-               Address address = a.getAddress();
-               String label = storage.getLabelByAccount(a.getId());
-               entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
-            } else {
-               Address address = a.getAddress();
-               String label = storage.getLabelByAccount(a.getId());
-               entry = new EntryToExport(address.toString(), null, label);
             }
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
             if (a.isActive()) {
                _active.add(entry);
             } else {
                _archived.add(entry);
             }
-         }
-         else if(account instanceof ColuAccount) {
+         } else if (account instanceof ColuAccount) {
             EntryToExport entry;
             ColuAccount a = (ColuAccount) account;
+            String label = storage.getLabelByAccount(a.getId());
+            String base58EncodedPrivateKey = null;
+            Address address = a.getReceivingAddress().get();
             if (a.canSpend()) {
-               String base58EncodedPrivateKey;
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
-               Address address = a.getReceivingAddress().get();
-               String label = storage.getLabelByAccount(a.getId());
-               entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
-            } else {
-               Address address = a.getReceivingAddress().get();
-               String label = storage.getLabelByAccount(a.getId());
-               entry = new EntryToExport(address.toString(), null, label);
             }
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
             if (a.isActive()) {
                _active.add(entry);
             } else {
                _archived.add(entry);
             }
-
          }
       }
 
