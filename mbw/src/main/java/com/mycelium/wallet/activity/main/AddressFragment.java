@@ -146,7 +146,7 @@ public class AddressFragment extends Fragment {
       String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
       WalletAccount linked = Utils.getLinkedAccount(_mbwManager.getSelectedAccount(), _mbwManager.getColuManager().getAccounts().values());
       if (linked != null && linked instanceof ColuAccount) {
-         name += ((ColuAccount) linked).getColuAsset().name + " Bitcoin";
+         name += " " + ((ColuAccount) linked).getColuAsset().name + " Bitcoin";
       }
       if (name.length() == 0) {
          tvAddressTitle.setVisibility(View.GONE);
