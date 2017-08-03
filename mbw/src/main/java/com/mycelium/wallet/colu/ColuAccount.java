@@ -563,7 +563,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                         }
                      }
                } else {
-                     inputs.add(new TransactionDetails.Item(this.address, vin.value, false));
+                     if (vin.previousOutput.addresses.size() > 0)
+                        inputs.add(new TransactionDetails.Item(Address.fromString(vin.previousOutput.addresses.get(0)), vin.value, false));
                }
             }
          }
@@ -578,8 +579,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                      }
                   }
             } else {
-               if (vout.value > 0)
-                  outputs.add(new TransactionDetails.Item(this.address, vout.value, false));
+               if (vout.value > 0 && vout.scriptPubKey.addresses.size() > 0)
+                  outputs.add(new TransactionDetails.Item(Address.fromString(vout.scriptPubKey.addresses.get(0)), vout.value, false));
             }
          }
 
