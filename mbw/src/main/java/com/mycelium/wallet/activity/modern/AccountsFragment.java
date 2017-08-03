@@ -327,15 +327,15 @@ public class AccountsFragment extends Fragment {
                         }
                      } else if(accountToDelete instanceof ColuAccount) {
                         try {
-                            ColuManager coluManager = _mbwManager.getColuManager();
-                            //ColuManager coluManager = ((ColuAccount) accountToDelete).getColuAccountManager();
-                            UUID uuid = accountToDelete.getId();
-                            coluManager.deleteAccount((ColuAccount) accountToDelete);
-                            _toaster.toast("Trying to delete colu account", false);
-                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                            _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
-
-
+                           ColuManager coluManager = _mbwManager.getColuManager();
+                           if (keepAddrCheckbox.isChecked()) {
+                              coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
+                           } else {
+                              coluManager.deleteAccount((ColuAccount) accountToDelete);
+                              _toaster.toast("Trying to delete colu account", false);
+                              _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                              _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
+                           }
                         } catch(Exception e) {
                             // make a message !
                             _toaster.toast("Got an error while deleting colu account", false);

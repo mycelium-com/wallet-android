@@ -401,6 +401,17 @@ public class ColuManager implements AccountProvider {
         metadataStorage.deleteColuUUID(coluAsset.id);
     }
 
+    public void forgetPrivateKey(ColuAccount account) {
+        try {
+            UUID uuid = getAssetAccountUUID(account.getColuAsset());
+            SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
+            acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+            account.forgetPrivateKey();
+        } catch (InvalidKeyCipher e) {
+            Log.e(TAG, e.toString());
+        }
+    }
+    
     public void deleteAccount(ColuAccount account) {
         Log.d(TAG, "deleteAccount: attempting to delete account.");
         // find asset

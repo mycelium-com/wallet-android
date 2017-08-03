@@ -116,7 +116,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    // single address mode
    private final Address address;
-   private final InMemoryPrivateKey accountKey;
+   private InMemoryPrivateKey accountKey;
 
    private boolean archived;
 
@@ -303,7 +303,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    @Override
    public boolean canSpend() {
-      return true;
+      return accountKey != null;
    }
 
    @Override
@@ -967,5 +967,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    public Address getAddress() {
       return address;
+   }
+
+   public void forgetPrivateKey() {
+      accountKey = null;
    }
 }
