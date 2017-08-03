@@ -795,11 +795,14 @@ public class Utils {
          ColuAccount account = (ColuAccount) walletAccount;
          switch (account.getColuAsset().assetType) {
             case MT:
-               return resources.getDrawable(R.drawable.mt_icon);
+               return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+                       resources.getDrawable(R.drawable.mt_icon_no_priv_key);
             case MASS:
-               return resources.getDrawable(R.drawable.mass_icon);
+               return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
+                       : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
             case RMC:
-               return resources.getDrawable(R.drawable.rmc_icon);
+               return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+                       : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
          }
       }
 

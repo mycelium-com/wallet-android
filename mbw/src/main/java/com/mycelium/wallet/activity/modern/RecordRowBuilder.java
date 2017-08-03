@@ -120,19 +120,23 @@ public class RecordRowBuilder {
       if (linked != null && linked instanceof ColuAccount) {
          final String assetName = ((ColuAccount) linked).getColuAsset().name;
          name += " " + assetName + " Bitcoin";
-         tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               new AlertDialog.Builder(view.getContext())
-                       .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it, assetName))
-                       .setPositiveButton(R.string.button_ok, null)
-                       .create()
-                       .show();
-            }
-         });
-         tvWhatIsIt.setVisibility(View.VISIBLE);
+          if (((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+              tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View view) {
+                      new AlertDialog.Builder(view.getContext())
+                              .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it, assetName))
+                              .setPositiveButton(R.string.button_ok, null)
+                              .create()
+                              .show();
+                  }
+              });
+              tvWhatIsIt.setVisibility(View.VISIBLE);
+          } else {
+              tvWhatIsIt.setVisibility(View.GONE);
+          }
       } else {
-         tvWhatIsIt.setVisibility(View.GONE);
+          tvWhatIsIt.setVisibility(View.GONE);
       }
       if (name.length() == 0) {
          rowView.findViewById(R.id.tvLabel).setVisibility(View.GONE);
