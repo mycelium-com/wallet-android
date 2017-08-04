@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.rmc;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -66,6 +67,7 @@ public class RMCAddressFragment extends Fragment {
     @BindView(R.id.tvUserHP)
     protected TextView tvUserHP;
 
+
     private MbwManager _mbwManager;
 
     @Override
@@ -83,6 +85,29 @@ public class RMCAddressFragment extends Fragment {
         return _root;
     }
 
+
+    class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
+
+        public BtcPoolStatisticsTask() {
+
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
+            BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager();
+            return btcPoolStatisticsManager.getStatistics();
+        }
+
+        @Override
+        protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
+            tvTotalHP.setText(Double.toString(result.totalRmcHashrate));
+        }
+    }
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -90,6 +115,10 @@ public class RMCAddressFragment extends Fragment {
         RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
         LineGraphSeries<DataPoint> series = paymentsStatistics.getStatistics();
         graphView.addSeries(series);
+
+        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         updateUi();
     }
 
