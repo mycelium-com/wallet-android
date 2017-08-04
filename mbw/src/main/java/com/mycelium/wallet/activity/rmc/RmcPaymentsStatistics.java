@@ -50,12 +50,14 @@ public class RmcPaymentsStatistics {
 
             Calendar curEndWeekInstance = Calendar.getInstance();
             curEndWeekInstance.setTimeInMillis(firstTransaction.time);
-            curEndWeekInstance.set(Calendar.DAY_OF_WEEK, 7);
 
-            int dataPointIndex = -1;
+            int dayOfWeek = curEndWeekInstance.get(Calendar.DAY_OF_WEEK);
+            curEndWeekInstance.set(Calendar.DAY_OF_MONTH, curEndWeekInstance.get(Calendar.DAY_OF_MONTH) + (7 - dayOfWeek));
+
+            int dataPointIndex = 0;
 
             for(int i = 0; i < txSummaries.size(); i++ ) {
-                TransactionSummary curTransaction = txSummaries.get(0);
+                TransactionSummary curTransaction = txSummaries.get(i);
                 Calendar curTxTimeCalendar = Calendar.getInstance();
                 curTxTimeCalendar.setTimeInMillis(curTransaction.time);
 
@@ -64,13 +66,13 @@ public class RmcPaymentsStatistics {
                 double curValue = curTransaction.value.getValue().doubleValue() * rate.price;
 
                 if (curTxTimeCalendar.before(curEndWeekInstance)) {
-
                     processDataPoint(dataPoints, dataPointIndex, curValue);
-
                 } else {
                     dataPointIndex = dataPointIndex + 1;
-                    curEndWeekInstance.setTimeInMillis(firstTransaction.time);
-                    curEndWeekInstance.set(Calendar.DAY_OF_WEEK, 7);
+                    curEndWeekInstance.setTimeInMillis(curTransaction.time);
+
+                    dayOfWeek = curEndWeekInstance.get(Calendar.DAY_OF_WEEK);
+                    curEndWeekInstance.set(Calendar.DAY_OF_MONTH, curEndWeekInstance.get(Calendar.DAY_OF_MONTH) + (7 - dayOfWeek));
 
                     processDataPoint(dataPoints, dataPointIndex, curValue);
                 }
@@ -83,13 +85,16 @@ public class RmcPaymentsStatistics {
 
     private void processDataPoint(List<DataPoint> dataPoints, int dataPointIndex, double curValue) {
         DataPoint dataPoint;
-        if (dataPointIndex < dataPoints.size()) {
-            dataPoint = new DataPoint(dataPointIndex + 1, curValue);
+
+        boolean addNew = dataPoints.size() == 0 || (dataPointIndex > dataPoints.size());
+
+        if (addNew) {
+            dataPoint = new DataPoint(dataPointIndex, curValue);
         } else {
             dataPoint = dataPoints.get(dataPointIndex);
         }
 
-        if (dataPointIndex < dataPoints.size()) {
+        if (addNew) {
             dataPoints.add(dataPoint);
         } else {
             double accumulatedValue = dataPoint.getY();
