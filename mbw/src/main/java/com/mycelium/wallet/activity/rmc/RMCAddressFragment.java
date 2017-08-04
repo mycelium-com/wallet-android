@@ -29,6 +29,7 @@ import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -104,7 +105,12 @@ public class RMCAddressFragment extends Fragment {
 
         @Override
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
-            tvTotalHP.setText(Double.toString(result.totalRmcHashrate));
+            tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
+                    .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+
+            BigDecimal userHP = new BigDecimal(result.totalRmcHashrate).multiply(_mbwManager.getSelectedAccount().getCurrencyBasedBalance().confirmed.getValue()
+                            .divide(BigDecimal.valueOf(250000), BigDecimal.ROUND_DOWN));
+            tvUserHP.setText(userHP.movePointLeft(9).setScale(3, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
         }
     }
 

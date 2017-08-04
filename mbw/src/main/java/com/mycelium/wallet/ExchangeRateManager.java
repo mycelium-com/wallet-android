@@ -154,15 +154,15 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
       for (QueryExchangeRatesResponse response : latestRates) {
          _latestRates.put(response.currency, response);
-         if(response.currency.equals("USD")) {
-            ExchangeRate[] rmcExchangeRates = new ExchangeRate[response.exchangeRates.length];
-            ExchangeRate[] exchangeRates = response.exchangeRates;
-            for (int i = 0; i < exchangeRates.length; i++) {
-               ExchangeRate exchangeRate = exchangeRates[i];
-               rmcExchangeRates[i] = new ExchangeRate(exchangeRate.name, exchangeRate.time, exchangeRate.price / 4000,  "RMC");
-            }
-            _latestRates.put("RMC", new QueryExchangeRatesResponse("RMC",rmcExchangeRates));
-         }
+//         if(response.currency.equals("USD")) {
+//            ExchangeRate[] rmcExchangeRates = new ExchangeRate[response.exchangeRates.length];
+//            ExchangeRate[] exchangeRates = response.exchangeRates;
+//            for (int i = 0; i < exchangeRates.length; i++) {
+//               ExchangeRate exchangeRate = exchangeRates[i];
+//               rmcExchangeRates[i] = new ExchangeRate(exchangeRate.name, exchangeRate.time, exchangeRate.price / 4000,  "RMC");
+//            }
+//            _latestRates.put("RMC", new QueryExchangeRatesResponse("RMC",rmcExchangeRates));
+//         }
       }
       _latestRatesTime = System.currentTimeMillis();
 

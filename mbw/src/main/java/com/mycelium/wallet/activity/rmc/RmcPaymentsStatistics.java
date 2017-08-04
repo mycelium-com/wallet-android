@@ -89,7 +89,7 @@ public class RmcPaymentsStatistics {
         boolean addNew = dataPoints.size() == 0 || (dataPointIndex > dataPoints.size());
 
         if (addNew) {
-            dataPoint = new DataPoint(dataPointIndex, curValue);
+            dataPoint = new DataPoint(curValue, dataPointIndex);
         } else {
             dataPoint = dataPoints.get(dataPointIndex);
         }
@@ -99,7 +99,7 @@ public class RmcPaymentsStatistics {
         } else {
             double accumulatedValue = dataPoint.getY();
             accumulatedValue += curValue;
-            dataPoints.set(dataPointIndex, new DataPoint(dataPointIndex, accumulatedValue));
+            dataPoints.set(dataPointIndex, new DataPoint(accumulatedValue, dataPointIndex));
         }
     }
 

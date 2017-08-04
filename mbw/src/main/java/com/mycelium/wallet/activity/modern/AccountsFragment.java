@@ -619,7 +619,10 @@ public class AccountsFragment extends Fragment {
       WalletAccount account = _focusedAccount;
 
       final List<Integer> menus = Lists.newArrayList();
-      menus.add(R.menu.record_options_menu);
+      if(!(account instanceof ColuAccount)
+              && !Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()) ) {
+         menus.add(R.menu.record_options_menu);
+      }
 
       if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
          menus.add(R.menu.record_options_menu_backup);
