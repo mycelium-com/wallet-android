@@ -5,6 +5,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import java.util.Date;
@@ -16,6 +17,8 @@ public class RmcPaymentsStatistics {
     public static final int MAX_TRANSACTION_RETRIEVAL_LIMIT = 1000;
     public static final String CURRENCY = "USD";
     public static final int MILLISECONDS_IN_SECOND = 1000;
+
+    public static final String POOL_ADDRESS = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9";
 
     private ColuAccount coluAccount;
     private final ExchangeRateManager exchangeRateManager;
@@ -33,6 +36,20 @@ public class RmcPaymentsStatistics {
         for(TransactionSummary summary : txSummaries) {
             if (!summary.isIncoming)
                 continue;
+
+            TransactionDetails txDetails = linkedAccount.getTransactionDetails(summary.txid);
+
+            boolean isPoolAddressFounded = false;
+            for(TransactionDetails.Item item : txDetails.inputs) {
+                if (item.address.toString().equals(POOL_ADDRESS)) {
+                    isPoolAddressFounded = true;
+                    break;
+                }
+            }
+
+            if (!isPoolAddressFounded)
+                continue;
+
             result.add(summary);
         }
         return result;
@@ -42,6 +59,12 @@ public class RmcPaymentsStatistics {
     {
         List<DataPoint> dataPoints = new ArrayList<>();
         List<TransactionSummary> txSummaries = getTransactionSummaries();
+
+        ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
+
+        if (rate == null) {
+            return new LineGraphSeries<>();
+        }
 
         if (txSummaries.size() > 0) {
             TransactionSummary firstTransaction = txSummaries.get(0);
@@ -58,8 +81,6 @@ public class RmcPaymentsStatistics {
                 TransactionSummary curTransaction = txSummaries.get(i);
                 Calendar curTxTimeCalendar = Calendar.getInstance();
                 curTxTimeCalendar.setTimeInMillis(curTransaction.time);
-
-                ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
 
                 double curValue = curTransaction.value.getValue().doubleValue() * rate.price;
 

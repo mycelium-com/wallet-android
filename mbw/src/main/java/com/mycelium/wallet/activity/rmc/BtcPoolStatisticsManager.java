@@ -9,12 +9,17 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.mycelium.wallet.activity.rmc.json.BtcPoolResponse;
+import com.mycelium.wallet.colu.ColuAccount;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 public class BtcPoolStatisticsManager {
 
     public static String ACCOUNT_INFO_API_URL = "https://bitcoin-russia.ru/api/accounts/13Zhk1JbpUmWfSMcyzLTAv7A6VkuecvaJb";
+    public static int TOTAL_RMC_COUNT = 250000;
+
+    private ColuAccount coluAccount;
 
     class PoolStatisticInfo {
         double totalRmcHashrate;
@@ -26,9 +31,16 @@ public class BtcPoolStatisticsManager {
         }
     }
 
+    public BtcPoolStatisticsManager(ColuAccount coluAccount) {
+        this.coluAccount = coluAccount;
+    }
+
     public PoolStatisticInfo getStatistics() {
+        BigDecimal rmcBalance = coluAccount.getCurrencyBasedBalance().confirmed.getValue();
         BtcPoolResponse.Json response = getInfo();
-        return new PoolStatisticInfo(response.hashrate / 3600, 0);
+        double totalRmcHashrate = response.hashrate / 3600;
+        double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / TOTAL_RMC_COUNT;
+        return new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);
     }
 
     private BtcPoolResponse.Json getInfo() {
