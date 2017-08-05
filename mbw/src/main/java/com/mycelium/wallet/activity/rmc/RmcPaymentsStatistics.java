@@ -15,6 +15,7 @@ import java.util.List;
 public class RmcPaymentsStatistics {
     public static final int MAX_TRANSACTION_RETRIEVAL_LIMIT = 1000;
     public static final String CURRENCY = "USD";
+    public static final int MILLISECONDS_IN_SECOND = 1000;
 
     private ColuAccount coluAccount;
     private final ExchangeRateManager exchangeRateManager;
@@ -46,7 +47,7 @@ public class RmcPaymentsStatistics {
             TransactionSummary firstTransaction = txSummaries.get(0);
 
             Calendar curEndWeekInstance = Calendar.getInstance();
-            curEndWeekInstance.setTimeInMillis(firstTransaction.time);
+            curEndWeekInstance.setTimeInMillis(firstTransaction.time * MILLISECONDS_IN_SECOND);
 
             int dayOfWeek = curEndWeekInstance.get(Calendar.DAY_OF_WEEK);
             curEndWeekInstance.set(Calendar.DAY_OF_MONTH, curEndWeekInstance.get(Calendar.DAY_OF_MONTH) + (7 - dayOfWeek));
