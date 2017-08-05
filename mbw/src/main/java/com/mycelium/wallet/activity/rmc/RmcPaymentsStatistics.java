@@ -1,16 +1,13 @@
 package com.mycelium.wallet.activity.rmc;
 
-import com.google.api.client.util.DateTime;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -66,7 +63,7 @@ public class RmcPaymentsStatistics {
                 double curValue = curTransaction.value.getValue().doubleValue() * rate.price;
 
                 if (curTxTimeCalendar.before(curEndWeekInstance)) {
-                    processDataPoint(dataPoints, dataPointIndex, curValue);
+                    processDataPoint(dataPoints, curEndWeekInstance.getTime(), dataPointIndex, curValue);
                 } else {
                     dataPointIndex = dataPointIndex + 1;
                     curEndWeekInstance.setTimeInMillis(curTransaction.time);
@@ -74,7 +71,7 @@ public class RmcPaymentsStatistics {
                     dayOfWeek = curEndWeekInstance.get(Calendar.DAY_OF_WEEK);
                     curEndWeekInstance.set(Calendar.DAY_OF_MONTH, curEndWeekInstance.get(Calendar.DAY_OF_MONTH) + (7 - dayOfWeek));
 
-                    processDataPoint(dataPoints, dataPointIndex, curValue);
+                    processDataPoint(dataPoints, curEndWeekInstance.getTime(), dataPointIndex, curValue);
                 }
             }
 
@@ -83,13 +80,13 @@ public class RmcPaymentsStatistics {
         return new LineGraphSeries<>(dataPoints.toArray(new DataPoint[dataPoints.size()]));
     }
 
-    private void processDataPoint(List<DataPoint> dataPoints, int dataPointIndex, double curValue) {
+    private void processDataPoint(List<DataPoint> dataPoints, Date date, int dataPointIndex, double curValue) {
         DataPoint dataPoint;
 
         boolean addNew = dataPoints.size() == 0 || (dataPointIndex > dataPoints.size());
 
         if (addNew) {
-            dataPoint = new DataPoint(curValue, dataPointIndex);
+            dataPoint = new DataPoint(date, curValue);
         } else {
             dataPoint = dataPoints.get(dataPointIndex);
         }
@@ -99,7 +96,7 @@ public class RmcPaymentsStatistics {
         } else {
             double accumulatedValue = dataPoint.getY();
             accumulatedValue += curValue;
-            dataPoints.set(dataPointIndex, new DataPoint(accumulatedValue, dataPointIndex));
+            dataPoints.set(dataPointIndex, new DataPoint(date, accumulatedValue));
         }
     }
 
