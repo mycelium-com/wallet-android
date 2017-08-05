@@ -650,7 +650,8 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)) {
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+              && !(account instanceof ColuAccount)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
