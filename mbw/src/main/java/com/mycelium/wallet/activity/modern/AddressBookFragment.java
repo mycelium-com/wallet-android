@@ -90,6 +90,8 @@ public class AddressBookFragment extends Fragment {
    public static final String OWN = "own";
    public static final String SELECT_ONLY = "selectOnly";
    public static final String SPENDABLE_ONLY = "spendable_only";
+   public static final String EXCLUDE_SELECTED = "exclude_selected";
+   public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
 
    private Address mSelectedAddress;
@@ -98,6 +100,7 @@ public class AddressBookFragment extends Fragment {
    private ActionMode currentActionMode;
    private Boolean ownAddresses; // set to null on purpose
    private Boolean spendableOnly;
+   private Boolean excudeSelected;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,6 +108,7 @@ public class AddressBookFragment extends Fragment {
       ownAddresses = getArguments().getBoolean(OWN);
       spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
+      excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
@@ -169,6 +173,7 @@ public class AddressBookFragment extends Fragment {
          Optional<Address> receivingAddress = account.getReceivingAddress();
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
+                    && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
                     && !account.getCurrencyBasedBalance().confirmed.isZero()
                     && account.getCurrencyBasedBalance().confirmed.isBtc()) || !spendableOnly) {
                entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
@@ -445,9 +450,11 @@ public class AddressBookFragment extends Fragment {
          Address address = (Address) view.getTag();
          Intent result = new Intent();
          result.putExtra(ADDRESS_RESULT_NAME, address.toString());
+
          if( parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
             AddressBookManager.IconEntry item  = (AddressBookManager.IconEntry)parent.getItemAtPosition(position);
             result.putExtra(ADDRESS_RESULT_ID, item.getId());
+            result.putExtra(ADDRESS_RESULT_LABEL, item.getName());
          }
          getActivity().setResult(Activity.RESULT_OK, result);
          getActivity().finish();

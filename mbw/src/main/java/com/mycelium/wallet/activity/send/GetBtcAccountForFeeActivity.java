@@ -17,6 +17,7 @@ public class GetBtcAccountForFeeActivity extends ActionBarActivity {
         Bundle ownBundle = new Bundle();
         ownBundle.putBoolean(AddressBookFragment.SPENDABLE_ONLY, true);
         ownBundle.putBoolean(AddressBookFragment.OWN, true);
+        ownBundle.putBoolean(AddressBookFragment.EXCLUDE_SELECTED, true);
         ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
         fragment.setArguments(ownBundle);
         getSupportFragmentManager().beginTransaction()

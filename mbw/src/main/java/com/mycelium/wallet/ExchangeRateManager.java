@@ -215,6 +215,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     */
    @Override
    public synchronized ExchangeRate getExchangeRate(String currency) {
+      boolean rmcFlag = false;
+      if(currency.equals("RMC")) {
+         currency = "USD";
+         rmcFlag = true;
+      }
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
          return null;
       }
@@ -231,6 +236,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
             //everything is fine, return the rate
+            if(rmcFlag) {
+               r = new ExchangeRate(r.name, r.time, r.price * 4000, "RMC");
+            }
             return r;
          }
       }

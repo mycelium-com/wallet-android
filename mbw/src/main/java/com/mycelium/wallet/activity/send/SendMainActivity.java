@@ -225,6 +225,7 @@ public class SendMainActivity extends Activity {
     private CurrencyValue _amountToSend;
     private BitcoinValue _lastBitcoinAmountToSend = null;
     private Address _receivingAddress;
+    private String _receivingLabel;
     protected String _transactionLabel;
     private BitcoinUri _bitcoinUri;
     private RmcUri _rmcUri;
@@ -967,10 +968,12 @@ public class SendMainActivity extends Activity {
         llEnterRecipient.setVisibility(View.GONE);
 
       // See if the address is in the address book or one of our accounts
-      String label = null;
-      if (_receivingAddress != null) {
-         label = getAddressLabel(_receivingAddress);
-      }
+        String label = null;
+        if (_receivingLabel != null) {
+            label = _receivingLabel;
+        } else if (_receivingAddress != null) {
+            label = getAddressLabel(_receivingAddress);
+        }
       if (label == null || label.length() == 0) {
          // Hide label
          tvReceiverLabel.setVisibility(GONE);
@@ -1301,6 +1304,9 @@ public class SendMainActivity extends Activity {
                 return;
             }
             _receivingAddress = address;
+            if (intent.getExtras().containsKey(AddressBookFragment.ADDRESS_RESULT_LABEL)) {
+                _receivingLabel = intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_LABEL);
+            }
             // this is where colusend is calling tryCreateUnsigned
             // why is amountToSend not set ?
             _transactionStatus = tryCreateUnsignedTransaction();

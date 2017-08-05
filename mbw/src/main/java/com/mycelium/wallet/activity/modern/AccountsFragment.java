@@ -47,6 +47,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,7 +60,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-import android.util.Log;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -78,7 +79,8 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
-import com.mycelium.wallet.colu.*;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
@@ -243,7 +245,13 @@ public class AccountsFragment extends Fragment {
 
       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
       deleteDialog.setTitle(R.string.delete_account_title);
-      deleteDialog.setMessage(R.string.delete_account_message);
+      if (_mbwManager.getSelectedAccount() instanceof ColuAccount
+              || Utils.checkIsLinked(_mbwManager.getSelectedAccount(), _mbwManager.getColuManager().getAccounts().values())) {
+         deleteDialog.setMessage(getString(R.string.delete_account_message)
+                 + "\n" + getString(R.string.both_rmc_will_deleted));
+      } else {
+         deleteDialog.setMessage(R.string.delete_account_message);
+      }
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ColuAccount) ||
