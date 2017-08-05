@@ -501,9 +501,11 @@ public class ColuManager implements AccountProvider {
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
             addAccount(account);
 
+
             for(ColuAccount coluAccount : coluAccounts.values()) {
                 if (coluAccount.getAddress().equals(account.getAddress())) {
                     coluAccount.setLinkedAccount(account);
+                    metadataStorage.storeAccountLabel(account.getId(), coluAccount.getColuAsset().assetType.toString() + " Bitcoin");
                     break;
                 }
 
