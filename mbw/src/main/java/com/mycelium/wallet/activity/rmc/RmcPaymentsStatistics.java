@@ -60,6 +60,12 @@ public class RmcPaymentsStatistics {
         List<DataPoint> dataPoints = new ArrayList<>();
         List<TransactionSummary> txSummaries = getTransactionSummaries();
 
+        ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
+
+        if (rate == null) {
+            return new LineGraphSeries<>();
+        }
+
         if (txSummaries.size() > 0) {
             TransactionSummary firstTransaction = txSummaries.get(0);
 
@@ -75,8 +81,6 @@ public class RmcPaymentsStatistics {
                 TransactionSummary curTransaction = txSummaries.get(i);
                 Calendar curTxTimeCalendar = Calendar.getInstance();
                 curTxTimeCalendar.setTimeInMillis(curTransaction.time);
-
-                ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
 
                 double curValue = curTransaction.value.getValue().doubleValue() * rate.price;
 

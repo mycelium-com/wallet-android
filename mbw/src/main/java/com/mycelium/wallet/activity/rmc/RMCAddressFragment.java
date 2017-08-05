@@ -89,9 +89,12 @@ public class RMCAddressFragment extends Fragment {
 
     class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
 
-        public BtcPoolStatisticsTask() {
+        private ColuAccount coluAccount;
 
+        public BtcPoolStatisticsTask(ColuAccount coluAccount) {
+            this.coluAccount = coluAccount;
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -99,7 +102,7 @@ public class RMCAddressFragment extends Fragment {
 
         @Override
         protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
-            BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager();
+            BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager(coluAccount);
             return btcPoolStatisticsManager.getStatistics();
         }
 
@@ -107,10 +110,9 @@ public class RMCAddressFragment extends Fragment {
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
             tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
                     .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+            tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(9)
+                    .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
 
-            BigDecimal userHP = new BigDecimal(result.totalRmcHashrate).multiply(_mbwManager.getSelectedAccount().getCurrencyBasedBalance().confirmed.getValue()
-                            .divide(BigDecimal.valueOf(250000), BigDecimal.ROUND_DOWN));
-            tvUserHP.setText(userHP.movePointLeft(9).setScale(3, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
         }
     }
 
@@ -122,7 +124,7 @@ public class RMCAddressFragment extends Fragment {
         LineGraphSeries<DataPoint> series = paymentsStatistics.getStatistics();
         graphView.addSeries(series);
 
-        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask();
+        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         updateUi();
