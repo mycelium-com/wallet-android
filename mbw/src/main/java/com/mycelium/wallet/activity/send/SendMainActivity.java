@@ -496,6 +496,15 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putSerializable(SIGNED_TRANSACTION, _signedTransaction);
    }
 
+    @OnClick(R.id.colu_tips_check_address)
+    void tipsClick() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.tips_rmc_check_address)
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show();
+    }
+
     @OnClick(R.id.btFromBtcAccount)
     void feeFromAcc() {
         Intent intent = new Intent(this, GetBtcAccountForFeeActivity.class);
