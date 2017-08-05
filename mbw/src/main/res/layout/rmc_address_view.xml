@@ -187,14 +187,21 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="125dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="%"/>
                     <com.jjoe64.graphview.GraphView
                         android:id="@+id/graph"
                         android:layout_width="match_parent"
                         android:layout_height="125dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="24dp"
+                        android:text="%"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|right"
+                        android:layout_marginBottom="24dp"
+                        android:text="days"/>
                 </FrameLayout>
 
             </LinearLayout>
