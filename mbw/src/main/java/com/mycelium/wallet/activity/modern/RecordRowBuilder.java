@@ -118,14 +118,12 @@ public class RecordRowBuilder {
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
       WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
       if (linked != null && linked instanceof ColuAccount) {
-         final String assetName = ((ColuAccount) linked).getColuAsset().name;
-         name += " " + assetName + " Bitcoin";
           if (((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
               tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
                   @Override
                   public void onClick(View view) {
                       new AlertDialog.Builder(view.getContext())
-                              .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it, assetName))
+                              .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it))
                               .setPositiveButton(R.string.button_ok, null)
                               .create()
                               .show();

@@ -119,10 +119,6 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             Address address = a.getAddress();
             String label = storage.getLabelByAccount(a.getId());
 
-            WalletAccount linked = Utils.getLinkedAccount(account, walletManager.getActiveAccounts());
-            if (linked != null && linked instanceof ColuAccount) {
-               label += " " + ((ColuAccount) linked).getColuAsset().name + " Bitcoin";
-            }
             String base58EncodedPrivateKey = null;
             if (a.canSpend()) {
                try {

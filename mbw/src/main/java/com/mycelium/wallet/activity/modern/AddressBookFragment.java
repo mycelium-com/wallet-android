@@ -165,10 +165,6 @@ public class AddressBookFragment extends Fragment {
       List<Entry> entries = new ArrayList<Entry>();
       for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-         WalletAccount linked = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
-         if (linked != null && linked instanceof ColuAccount) {
-            name += " " + ((ColuAccount) linked).getColuAsset().name + " Bitcoin";
-         }
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
          if (receivingAddress.isPresent()) {
