@@ -110,9 +110,11 @@ public class RMCAddressFragment extends Fragment {
 
         @Override
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
+            // peta flops
             tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
                     .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
-            tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(9)
+            // tera flops
+            tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(6)
                     .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
 
         }
