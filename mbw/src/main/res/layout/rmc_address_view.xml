@@ -184,10 +184,18 @@
                     android:gravity="center"
                     android:text="@string/rmc_return_of_investment" />
 
-                <com.jjoe64.graphview.GraphView
-                    android:id="@+id/graph"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="125dp" />
+                    android:layout_height="125dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="%"/>
+                    <com.jjoe64.graphview.GraphView
+                        android:id="@+id/graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="125dp" />
+                </FrameLayout>
 
             </LinearLayout>
         </LinearLayout>

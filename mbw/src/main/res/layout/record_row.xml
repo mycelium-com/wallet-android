@@ -70,6 +70,7 @@
                 android:layout_marginLeft="4dp"
                 android:textColor="#4583de"
                 android:textSize="16sp"
+                android:visibility="gone"
                 />
         </LinearLayout>
 

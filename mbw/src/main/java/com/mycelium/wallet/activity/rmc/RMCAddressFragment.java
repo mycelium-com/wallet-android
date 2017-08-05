@@ -18,6 +18,7 @@ import android.widget.ViewFlipper;
 
 import com.google.common.base.Preconditions;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.MbwManager;
@@ -81,8 +82,9 @@ public class RMCAddressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
-        graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.weeks));
-        graphView.getGridLabelRenderer().setVerticalAxisTitle("%");
+        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
+        graphView.getViewport().setDrawBorder(true);
         return _root;
     }
 
@@ -195,7 +197,7 @@ public class RMCAddressFragment extends Fragment {
         try {
             startActivity(intent);
         } catch (Exception ignore) {
-            Toast.makeText(getActivity(), R.string.error_start_google_calendar, Toast.LENGTH_LONG);
+            Toast.makeText(getActivity(), R.string.error_start_google_calendar, Toast.LENGTH_LONG).show();
         }
     }
 
