@@ -202,8 +202,8 @@ public class RecordRowBuilder {
          tvBalance.setTextColor(textColor);
 
          // Show legacy account with funds warning if necessary
-         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
-         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
+//         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
+//         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
 
          // Show legacy account with funds warning if necessary
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
@@ -212,7 +212,7 @@ public class RecordRowBuilder {
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
-         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
+//         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
       }
 

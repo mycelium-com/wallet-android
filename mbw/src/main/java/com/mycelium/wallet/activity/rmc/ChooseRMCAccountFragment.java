@@ -127,7 +127,7 @@ public class ChooseRMCAccountFragment extends Fragment {
     }
 
     private void showAccountForAccept(WalletAccount walletAccount) {
-        useRmcAccount.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
+//        useRmcAccount.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
         useRmcAccount.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
 
         ImageView icon = (ImageView) useRmcAccount.findViewById(R.id.ivIcon);

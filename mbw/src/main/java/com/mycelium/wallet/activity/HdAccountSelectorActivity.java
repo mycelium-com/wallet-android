@@ -254,7 +254,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          ((TextView)row.findViewById(R.id.tvAddress)).setVisibility(View.GONE);
          ((ImageView)row.findViewById(R.id.ivIcon)).setImageDrawable(drawableForAccount);
 
-         ((TextView)row.findViewById(R.id.tvLegacyAccountWarning)).setVisibility(View.GONE);
+//         ((TextView)row.findViewById(R.id.tvLegacyAccountWarning)).setVisibility(View.GONE);
          ((TextView)row.findViewById(R.id.tvBackupMissingWarning)).setVisibility(View.GONE);
 
          return row;
