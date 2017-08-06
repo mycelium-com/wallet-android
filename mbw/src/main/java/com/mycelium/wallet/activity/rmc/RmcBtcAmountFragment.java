@@ -79,9 +79,9 @@ public class RmcBtcAmountFragment extends Fragment {
 
         ChooseRMCAccountFragment rmcAccountFragment = new ChooseRMCAccountFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(Keys.RMC_COUNT, etRMC.getText().toString());
+        bundle.putSerializable(Keys.RMC_COUNT, new BigDecimal(etRMC.getText().toString()));
         bundle.putString(Keys.PAY_METHOD, "BTC");
-        bundle.putString(Keys.BTC_COUNT, etBTC.getText().toString());
+        bundle.putSerializable(Keys.BTC_COUNT, new BigDecimal(etBTC.getText().toString()));
         rmcAccountFragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, rmcAccountFragment)

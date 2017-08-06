@@ -33,6 +33,7 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +55,9 @@ public class ChooseRMCAccountFragment extends Fragment {
     public static final String BTC = "BTC";
     public static final String ETH = "ETH";
 
-    String rmcCount = "0";
-    String ethCount = "0";
-    String btcCount;
+    BigDecimal rmcCount = BigDecimal.ZERO;
+    BigDecimal ethCount = BigDecimal.ZERO;
+    BigDecimal btcCount;
     String payMethod;
     String coluAddress;
     private MbwManager _mbwManager;
@@ -75,10 +76,10 @@ public class ChooseRMCAccountFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            rmcCount = getArguments().getString(Keys.RMC_COUNT);
-            ethCount = getArguments().getString(Keys.ETH_COUNT);
+            rmcCount = (BigDecimal) getArguments().getSerializable(Keys.RMC_COUNT);
+            ethCount = (BigDecimal) getArguments().getSerializable(Keys.ETH_COUNT);
             payMethod = getArguments().getString(Keys.PAY_METHOD);
-            btcCount = getArguments().getString(Keys.BTC_COUNT);
+            btcCount = (BigDecimal) getArguments().getSerializable(Keys.BTC_COUNT);
         }
         _mbwManager = MbwManager.getInstance(getActivity());
     }
@@ -218,11 +219,11 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     class RmsApiTask extends AsyncTask<Void, Void, CreateRmcOrderResponse.Json> {
 
-        private String amountInRmc;
+        private BigDecimal amountInRmc;
         private String assetAddress;
         private String paymentMethod;
 
-        public RmsApiTask(String amountInRmc, String assetAddress, String paymentMethod) {
+        public RmsApiTask(BigDecimal amountInRmc, String assetAddress, String paymentMethod) {
             this.amountInRmc = amountInRmc;
             this.assetAddress = assetAddress;
             this.paymentMethod = paymentMethod;
@@ -235,7 +236,7 @@ public class ChooseRMCAccountFragment extends Fragment {
         @Override
         protected CreateRmcOrderResponse.Json doInBackground(Void... params) {
             RmcApiClient client = new RmcApiClient(_mbwManager.getNetwork());
-            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amountInRmc, assetAddress, paymentMethod);
+            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amountInRmc.toPlainString(), assetAddress, paymentMethod);
             return orderResponse;
         }
 

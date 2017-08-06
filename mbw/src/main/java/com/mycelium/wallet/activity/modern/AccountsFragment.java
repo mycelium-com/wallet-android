@@ -684,7 +684,8 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_sign);
       }
 
-      if (account.isActive() && !(account instanceof ColuAccount)) {
+      if (account.isActive() && !(account instanceof ColuAccount)
+              && !(Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()))) {
          menus.add(R.menu.record_options_menu_active);
       }
 
