@@ -397,17 +397,22 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.show();
             } else {
                // account has no private data - dont make a fuzz about it and just delete it
-               //Check if this SingleAddress account is related with ColuAccount
-               WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
-               if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+               if (accountToDelete instanceof ColuAccount) {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                  coluManager.deleteAccount((ColuAccount) accountToDelete);
                } else {
-                  try {
-                     walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                     _storage.deleteAccountMetadata(accountToDelete.getId());
-                  } catch (KeyCipher.InvalidKeyCipher e) {
-                     throw new RuntimeException(e);
+                  //Check if this SingleAddress account is related with ColuAccount
+                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                  if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                     ColuManager coluManager = _mbwManager.getColuManager();
+                     coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                  } else {
+                     try {
+                        walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                        _storage.deleteAccountMetadata(accountToDelete.getId());
+                     } catch (KeyCipher.InvalidKeyCipher e) {
+                        throw new RuntimeException(e);
+                     }
                   }
                }
                finishCurrentActionMode();
