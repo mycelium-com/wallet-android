@@ -385,7 +385,16 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          long incomingAsset = 0;
          long incomingSatoshi = 0;
 
+         List<Address> toAddresses = new ArrayList<>();
+
          for (Vout.Json vout : tx.vout) {
+
+            if (vout.scriptPubKey.addresses != null) {
+               for(String address : vout.scriptPubKey.addresses) {
+                  toAddresses.add(Address.fromString(address));
+               }
+            }
+
             if (vout.assets.size() > 0) {
                if (vout.scriptPubKey.addresses != null && vout.scriptPubKey.addresses.contains(this.address.toString())) {
                   for (Asset.Json anAsset : vout.assets) {
@@ -440,7 +449,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
          int confirmations = tx.confirmations;
 
-         List<Address> toAddresses = null; //TODO: is this list ever used ?
          if (destinationAddress == null) {
             destinationAddress = Optional.absent();
          }
