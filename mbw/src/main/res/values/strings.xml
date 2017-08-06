@@ -945,7 +945,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
     <string name="requires_btc_amount">Sending tokens requires btc to pay miners fee</string>
-    <string name="colu_rmc_tokens">RMC</string>
+    <string name="colu_rmc_tokens">RMC Tokens</string>
 
     <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
     <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>
