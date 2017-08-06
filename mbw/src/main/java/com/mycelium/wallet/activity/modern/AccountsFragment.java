@@ -341,7 +341,14 @@ public class AccountsFragment extends Fragment {
                      Log.d(TAG, "In deleteFragment onClick");
                      if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                         try {
-                           ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                           //Check if this SingleAddress account is related with ColuAccount
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                              ColuManager coluManager = _mbwManager.getColuManager();
+                              coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
+                           } else {
+                              ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                           }
                            _toaster.toast(R.string.private_key_deleted, false);
                         } catch (KeyCipher.InvalidKeyCipher e) {
                            throw new RuntimeException(e);
@@ -362,7 +369,7 @@ public class AccountsFragment extends Fragment {
                             _toaster.toast("Got an error while deleting colu account", false);
                         }
                      } else {
-                        //Check if we this SingleAddress account is related with ColuAccount
+                        //Check if this SingleAddress account is related with ColuAccount
                         WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                         if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                            ColuManager coluManager = _mbwManager.getColuManager();
