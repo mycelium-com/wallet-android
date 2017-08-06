@@ -245,10 +245,18 @@ public class AccountsFragment extends Fragment {
 
       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
       deleteDialog.setTitle(R.string.delete_account_title);
-      if (_mbwManager.getSelectedAccount() instanceof ColuAccount
-              || Utils.checkIsLinked(_mbwManager.getSelectedAccount(), _mbwManager.getColuManager().getAccounts().values())) {
+      final WalletAccount account = _mbwManager.getSelectedAccount();
+      final WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      if (account instanceof ColuAccount) {
          deleteDialog.setMessage(getString(R.string.delete_account_message)
-                 + "\n" + getString(R.string.both_rmc_will_deleted));
+                 + "\n" + getString(R.string.both_rmc_will_deleted
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId())));
+      } else if (linkedAccount != null) {
+         deleteDialog.setMessage(getString(R.string.delete_account_message)
+                 + "\n" + getString(R.string.both_rmc_will_deleted
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId())));
       } else {
          deleteDialog.setMessage(R.string.delete_account_message);
       }
@@ -278,6 +286,11 @@ public class AccountsFragment extends Fragment {
 
                // Set the message. There are four combinations, with and without label, with and without BTC amount.
                String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
+               if (account instanceof ColuAccount) {
+                  label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId());
+               } else if (linkedAccount != null) {
+                  label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+               }
                String message;
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
@@ -991,6 +1004,9 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(getString(R.string.selected_hd_info), true);
       } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
+      } else if(account instanceof ColuAccount) {
+          _toaster.toast(getString(R.string.selected_colu_info
+                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
       }
    }
 
