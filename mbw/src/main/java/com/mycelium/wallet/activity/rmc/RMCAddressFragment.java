@@ -131,13 +131,18 @@ public class RMCAddressFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ColuAccount coluAccount = (ColuAccount)_mbwManager.getSelectedAccount();
-        RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
-        LineGraphSeries<DataPoint> series = paymentsStatistics.getStatistics();
-        graphView.addSeries(series);
 
-        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        try {
+            ColuAccount coluAccount = (ColuAccount)_mbwManager.getSelectedAccount();
+            RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
+            LineGraphSeries<DataPoint> series = paymentsStatistics.getStatistics();
+            graphView.addSeries(series);
+
+            BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        } catch (Exception ex) {
+        }
 
         updateUi();
     }
