@@ -19,6 +19,7 @@ import android.widget.ViewFlipper;
 import com.google.common.base.Preconditions;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.MbwManager;
@@ -31,6 +32,8 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -83,8 +86,13 @@ public class RMCAddressFragment extends Fragment {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
         graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
-        graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
+//        graphView.getGridLabelRenderer().setNumHorizontalLabels(2);
+        graphView.getGridLabelRenderer().setNumVerticalLabels(3);
+        graphView.getViewport().setMaxY(0.2);
+        graphView.getViewport().setYAxisBoundsManual(true);
         graphView.getViewport().setDrawBorder(true);
+        graphView.getGridLabelRenderer().setLabelFormatter(
+                new DateAsXAxisLabelFormatter(getActivity(), new SimpleDateFormat("dd.MM")));
         return _root;
     }
 

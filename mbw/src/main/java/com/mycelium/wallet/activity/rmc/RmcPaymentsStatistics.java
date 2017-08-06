@@ -2,16 +2,19 @@ package com.mycelium.wallet.activity.rmc;
 
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import java.util.Date;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class RmcPaymentsStatistics {
     public static final int MAX_TRANSACTION_RETRIEVAL_LIMIT = 1000;
@@ -97,6 +100,15 @@ public class RmcPaymentsStatistics {
                 }
             }
 
+        } else if (BuildConfig.DEBUG) {
+            Random random = new Random(System.currentTimeMillis());
+            Calendar calendar = Calendar.getInstance();
+            double value = 0.1;
+            for (int i = 0; i < 100; i++) {
+                dataPoints.add(new DataPoint(calendar.getTime(), value));
+                value += random.nextBoolean() ? 0.01 : -0.01;
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
         }
 
         return new LineGraphSeries<>(dataPoints.toArray(new DataPoint[dataPoints.size()]));
