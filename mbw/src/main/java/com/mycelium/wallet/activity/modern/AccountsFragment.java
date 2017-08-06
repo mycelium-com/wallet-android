@@ -262,15 +262,14 @@ public class AccountsFragment extends Fragment {
       }
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
-      final boolean hasPrivateData = (accountToDelete instanceof ColuAccount) ||
-            (accountToDelete instanceof ExportableAccount
+      final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
             && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
       }
 
-      if (accountToDelete instanceof ColuAccount) {
+      if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
          Log.d(TAG, "Preparing to delete a colu account.");
          deleteDialog.setView(checkBoxView);
       }
