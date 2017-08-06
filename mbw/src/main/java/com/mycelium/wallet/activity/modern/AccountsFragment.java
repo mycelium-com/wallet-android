@@ -349,14 +349,22 @@ public class AccountsFragment extends Fragment {
                             _toaster.toast("Got an error while deleting colu account", false);
                         }
                      } else {
-                        try {
-                           walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                           _storage.deleteAccountMetadata(accountToDelete.getId());
-                        } catch (KeyCipher.InvalidKeyCipher e) {
-                           throw new RuntimeException(e);
+                        //Check if we this SingleAddress account is related with ColuAccount
+                        WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                        if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                           ColuManager coluManager = _mbwManager.getColuManager();
+                           coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                        } else {
+                           try {
+                              walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                              _storage.deleteAccountMetadata(accountToDelete.getId());
+                           } catch (KeyCipher.InvalidKeyCipher e) {
+                              throw new RuntimeException(e);
+                           }
                         }
                         _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                         _toaster.toast(R.string.account_deleted, false);
+                        _mbwManager.getEventBus().post(new ExtraAccountsChanged());
                      }
                      finishCurrentActionMode();
                      _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
