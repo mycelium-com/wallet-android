@@ -513,7 +513,15 @@ public class SendMainActivity extends Activity {
 
     @OnClick(R.id.btScan)
     void onClickScan() {
-        ScanActivity.callMe(this, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrUriOrKeynode());
+        StringHandleConfig config = StringHandleConfig.returnKeyOrAddressOrUriOrKeynode();
+
+        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        if(account instanceof ColuAccount) {
+            config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_RMC;
+            config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_RMC;
+        }
+
+        ScanActivity.callMe(this, SCAN_RESULT_CODE, config);
     }
 
    @OnClick(R.id.btAddressBook)
