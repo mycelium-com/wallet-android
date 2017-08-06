@@ -27,7 +27,7 @@
     <string name="send">Send</string>
     <string name="receive">Receive</string>
     <string name="private_key_deleted">Private key deleted.</string>
-    <string name="account_deleted">Account deleted</string>
+    <string name="account_deleted">Account deleted.</string>
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Enter Recipient Address</string>
