@@ -360,7 +360,7 @@ public class AccountsFragment extends Fragment {
                               coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
                            } else {
                               coluManager.deleteAccount((ColuAccount) accountToDelete);
-                              _toaster.toast("Trying to delete colu account", false);
+                              _toaster.toast("Deleting account", false);
                               _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                               _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                            }
