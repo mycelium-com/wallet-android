@@ -655,7 +655,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_sign);
       }
 
-      if (account.isActive()) {
+      if (account.isActive() && !(account instanceof ColuAccount)) {
          menus.add(R.menu.record_options_menu_active);
       }
 
