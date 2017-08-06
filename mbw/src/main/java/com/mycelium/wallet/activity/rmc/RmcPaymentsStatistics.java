@@ -10,6 +10,7 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -85,7 +86,11 @@ public class RmcPaymentsStatistics {
                 Calendar curTxTimeCalendar = Calendar.getInstance();
                 curTxTimeCalendar.setTimeInMillis(curTransaction.time);
 
-                double curValue = curTransaction.value.getValue().doubleValue() * rate.price;
+                BigDecimal currencyValue = curTransaction.value.getValue();
+                if (currencyValue == null)
+                    continue;
+
+                double curValue = currencyValue.doubleValue() * rate.price;
 
                 if (curTxTimeCalendar.before(curEndWeekInstance)) {
                     processDataPoint(dataPoints, curEndWeekInstance.getTime(), dataPointIndex, curValue);
