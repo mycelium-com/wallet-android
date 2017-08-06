@@ -423,7 +423,7 @@ public class AccountsFragment extends Fragment {
             } else {
                CurrencyBasedBalance balance = account.getCurrencyBasedBalance();
                ExchangeRateManager exchanger = _mbwManager.getExchangeRateManager();
-               return balance.confirmed.add(balance.receiving, exchanger);
+               return balance.confirmed;
             }
          }
 
