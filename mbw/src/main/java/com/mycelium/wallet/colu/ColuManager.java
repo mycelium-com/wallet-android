@@ -505,7 +505,7 @@ public class ColuManager implements AccountProvider {
             for(ColuAccount coluAccount : coluAccounts.values()) {
                 if (coluAccount.getAddress().equals(account.getAddress())) {
                     coluAccount.setLinkedAccount(account);
-                    metadataStorage.storeAccountLabel(account.getId(), coluAccount.getColuAsset().assetType.toString() + " Bitcoin");
+                    metadataStorage.storeAccountLabel(account.getId(), coluAccount.getColuAsset().name + " Bitcoin");
                     break;
                 }
 
