@@ -387,7 +387,7 @@ public class ReceiveCoinsActivity extends Activity {
       final ArrayList<TransactionSummary> interesting = new ArrayList<TransactionSummary>();
       CurrencyValue sum = ExactBitcoinValue.ZERO;
       for (TransactionSummary item : transactionsSince) {
-         if (item.toAddresses.contains(_address) && item.confirmations == 0) {
+         if (item.toAddresses.contains(_address)) {
             interesting.add(item);
             sum = item.value;
          }
