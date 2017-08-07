@@ -98,6 +98,7 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
@@ -626,6 +627,8 @@ public class SendMainActivity extends Activity {
                                             super.onPostExecute(aBoolean);
                                             progress.dismiss();
                                             if (aBoolean) {
+                                                coluManager.startSynchronization();
+                                                _mbwManager.getWalletManager(false).startSynchronization(coluAccount.getLinkedAccount().getId());
                                                 Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_broadcast, Toast.LENGTH_SHORT).show();
                                                 SendMainActivity.this.finish();
                                             } else {

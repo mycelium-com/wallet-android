@@ -92,7 +92,7 @@ public class RMCAddressFragment extends Fragment {
         graphView.getViewport().setYAxisBoundsManual(true);
         graphView.getViewport().setDrawBorder(true);
         graphView.getGridLabelRenderer().setLabelFormatter(
-                new DateAsXAxisLabelFormatter(getActivity(), new SimpleDateFormat("dd.MM")));
+                new DateAsXAxisLabelFormatter(getActivity(), new SimpleDateFormat("MM.yy")));
         return _root;
     }
 

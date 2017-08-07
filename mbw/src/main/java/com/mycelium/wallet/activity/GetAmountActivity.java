@@ -385,6 +385,16 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    @Override
+   protected void onDestroy() {
+      if (_mbwManager.getCurrencySwitcher().getCurrenciesCount() > 0) {
+         _mbwManager.getCurrencySwitcher().setCurrency(_mbwManager.getCurrencySwitcher().getCurrencyList().get(0));
+      } else {
+         _mbwManager.getCurrencySwitcher().setCurrency("");
+      }
+      super.onDestroy();
+   }
+
+   @Override
    public void onEntryChanged(String entry, boolean wasSet) {
       if (!wasSet) {
          // if it was change by the user pressing buttons (show it unformatted)

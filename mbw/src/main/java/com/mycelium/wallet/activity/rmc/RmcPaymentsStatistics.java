@@ -105,7 +105,7 @@ public class RmcPaymentsStatistics {
                 }
             }
 
-        } else if (BuildConfig.DEBUG) {
+        } else {
             Random random = new Random(System.currentTimeMillis());
             Calendar calendar = Calendar.getInstance();
             double value = 0.1;
