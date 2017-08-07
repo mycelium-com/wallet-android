@@ -241,7 +241,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
       // if there is no exchange rate at all available, we will get to BTC and stay there
       // this does not apply to digital assets such as Colu for which we do not have a rate
-      if(!_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
+      if(_amount != null && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
          String targetCurrency = _mbwManager.getNextCurrency(true);
          CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
          while (!targetCurrency.equals(CurrencyValue.BTC) && !currencySwitcher.isFiatExchangeRateAvailable()) {
