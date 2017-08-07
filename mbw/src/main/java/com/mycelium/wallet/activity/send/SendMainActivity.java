@@ -628,7 +628,7 @@ public class SendMainActivity extends Activity {
                                             progress.dismiss();
                                             if (aBoolean) {
                                                 coluManager.startSynchronization();
-                                                _mbwManager.getWalletManager(false).startSynchronization(coluAccount.getLinkedAccount().getId());
+                                                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL);
                                                 Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_broadcast, Toast.LENGTH_SHORT).show();
                                                 SendMainActivity.this.finish();
                                             } else {
