@@ -708,16 +708,21 @@ public class ColuManager implements AccountProvider {
                         for (Asset.Json asset : vout.assets) {
                             if (!asset.assetId.equals(account.getColuAsset().id))
                                 continue;
-                            if (isInitiatedByMe)
+                            if (isInitiatedByMe) {
                                 assetSendingAmount += asset.amount;
+                                assetScale = asset.divisibility;
+                            }
                         }
                     } else {
                         for (Asset.Json asset : vout.assets) {
                             if (!asset.assetId.equals(account.getColuAsset().id))
                                 continue;
 
-                            if (!isInitiatedByMe)
+                            if (!isInitiatedByMe) {
                                 assetReceivingAmount += asset.amount;
+                                assetScale = asset.divisibility;
+                            }
+
                         }
                     }
             }
