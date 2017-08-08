@@ -698,6 +698,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    protected boolean doSynchronization(SyncMode mode) {
       try {
          manager.updateAccountBalance(this);
+         linkedAccount.doSynchronization(SyncMode.NORMAL);
       } catch (IOException e) {
          Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
       }

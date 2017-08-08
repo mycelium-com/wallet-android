@@ -51,6 +51,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
@@ -612,7 +613,7 @@ public class ColuManager implements AccountProvider {
             ColuAccount account = (ColuAccount) entry.getValue();
             Log.e(TAG, "ColuManager::getBalances in loop uuid=" + uuid.toString() + " asset " + account.getColuAsset().id);
 
-            updateAccountBalance(account);
+            account.doSynchronization(SyncMode.NORMAL);
         }   // for loop over accounts
     }
 
