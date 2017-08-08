@@ -739,9 +739,13 @@ public class ColuManager implements AccountProvider {
         }
 
         // set balance in account
-        BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale).stripTrailingZeros();
-        BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale).stripTrailingZeros();
-        BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale).stripTrailingZeros();
+        // stripTrailingZeros can't strip 0.0000 to 0 (java known bug), so we need fix it
+        BigDecimal assetConfirmedBalance = assetConfirmedAmount == 0 ? BigDecimal.ZERO
+                : BigDecimal.valueOf(assetConfirmedAmount, assetScale).stripTrailingZeros();
+        BigDecimal assetReceivingBalance = assetReceivingAmount == 0 ? BigDecimal.ZERO
+                : BigDecimal.valueOf(assetReceivingAmount, assetScale).stripTrailingZeros();
+        BigDecimal assetSendingBalance = assetSendingAmount == 0 ? BigDecimal.ZERO
+                : BigDecimal.valueOf(assetSendingAmount, assetScale).stripTrailingZeros();
         ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance, account.getColuAsset().name);
         ExactCurrencyValue sending = ExactCurrencyValue.from(assetSendingBalance, account.getColuAsset().name);
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);
