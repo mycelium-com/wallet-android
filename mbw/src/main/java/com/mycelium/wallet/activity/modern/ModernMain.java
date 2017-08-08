@@ -87,6 +87,8 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -115,6 +117,8 @@ public class ModernMain extends ActionBarActivity {
    private Toaster _toaster;
    private volatile long _lastSync = 0;
    private boolean _isAppStart = true;
+
+   private Timer balanceRefreshTimer;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -253,21 +257,32 @@ public class ModernMain extends ActionBarActivity {
       }
    }
 
+   protected void stopBalanceRefreshTimer() {
+      if (balanceRefreshTimer != null) {
+         balanceRefreshTimer.cancel();
+      }
+   }
 
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
 
-      // Start WAPI as a delayed action. This way we don't immediately block the account
-      // while synchronizing
-      Handler h = new Handler();
+      long curTime = new Date().getTime();
+      if (_lastSync == 0 || curTime - _lastSync > MIN_AUTOSYNC_INTERVAL) {
+         Handler h = new Handler();
+         h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+               _mbwManager.getVersionManager().checkForUpdate();
+            }
+         }, 50);
+      }
 
-      Runnable updateRunnable = new Runnable() {
+      stopBalanceRefreshTimer();
+      balanceRefreshTimer = new Timer();
+      balanceRefreshTimer.scheduleAtFixedRate(new TimerTask() {
          @Override
          public void run() {
-            _lastSync = new Date().getTime();
-
-            _mbwManager.getVersionManager().checkForUpdate();
             _mbwManager.getExchangeRateManager().requestRefresh();
             _mbwManager.getColuManager().startSynchronization();
 
@@ -281,17 +296,10 @@ public class ModernMain extends ActionBarActivity {
                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
                _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
             }
-         }
-      };
 
-      long curTime = new Date().getTime();
-      if (_lastSync == 0 || curTime - _lastSync > MIN_AUTOSYNC_INTERVAL) {
-         h.postDelayed(updateRunnable, 70);
-      } else {
-         long lastSyncInterval = curTime - _lastSync;
-         long scheduleInterval = MIN_AUTOSYNC_INTERVAL - lastSyncInterval;
-         h.postDelayed(updateRunnable, scheduleInterval);
-      }
+            _lastSync = new Date().getTime();
+         }
+      }, 100, MIN_AUTOSYNC_INTERVAL);
 
       supportInvalidateOptionsMenu();
       super.onResume();
@@ -299,6 +307,7 @@ public class ModernMain extends ActionBarActivity {
 
    @Override
    protected void onPause() {
+      stopBalanceRefreshTimer();
       _mbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
       super.onPause();
