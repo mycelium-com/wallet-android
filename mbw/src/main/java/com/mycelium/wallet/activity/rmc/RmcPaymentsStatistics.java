@@ -64,13 +64,12 @@ public class RmcPaymentsStatistics {
         List<DataPoint> dataPoints = new ArrayList<>();
         List<TransactionSummary> txSummaries = getTransactionSummaries();
 
-        ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
-
-        if (rate == null) {
-            return new LineGraphSeries<>();
-        }
-
         if (txSummaries.size() > 0) {
+            ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
+            if (rate == null) {
+                return new LineGraphSeries<>();
+            }
+
             TransactionSummary firstTransaction = txSummaries.get(0);
 
             Calendar curEndWeekInstance = Calendar.getInstance();
@@ -106,12 +105,10 @@ public class RmcPaymentsStatistics {
             }
 
         } else {
-            Random random = new Random(System.currentTimeMillis());
             Calendar calendar = Calendar.getInstance();
-            double value = 0.1;
             for (int i = 0; i < 100; i++) {
-                dataPoints.add(new DataPoint(calendar.getTime(), value));
-                value += random.nextBoolean() ? 0.01 : -0.01;
+                Date date = calendar.getTime();
+                dataPoints.add(new DataPoint(date, Math.sin(date.getTime()) / 50 + 0.14));
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
             }
         }
