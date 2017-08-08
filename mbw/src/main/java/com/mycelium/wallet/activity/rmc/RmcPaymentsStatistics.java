@@ -113,9 +113,9 @@ public class RmcPaymentsStatistics {
             double shift = 0;
             for (int i = 0; i < 365; i++) {
                 Date date = calendar.getTime();
-                dataPoints.add(new DataPoint(date, Math.sin(date.getTime() / 700) / 70 + 0.14 + shift));
+                dataPoints.add(new DataPoint(date, Math.sin(i / 20.0f) / 70 + 0.14 + shift));
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
-                if(i % 15 == 14) shift = random.nextDouble() / 40;
+                if(i % 60 == 59) shift = random.nextDouble() / 40;
             }
         }
 
