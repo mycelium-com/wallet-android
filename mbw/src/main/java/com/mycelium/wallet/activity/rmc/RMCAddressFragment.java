@@ -86,7 +86,7 @@ public class RMCAddressFragment extends Fragment {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
         graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
-//        graphView.getGridLabelRenderer().setNumHorizontalLabels(2);
+
         graphView.getGridLabelRenderer().setNumVerticalLabels(3);
         graphView.getViewport().setMaxY(0.2);
         graphView.getViewport().setYAxisBoundsManual(true);

@@ -112,9 +112,9 @@ public class RmcPaymentsStatistics {
             double shift = 0;
             for (int i = 0; i < 50; i++) {
                 Date date = calendar.getTime();
-                dataPoints.add(new DataPoint(date, Math.sin(date.getTime() / 2) / 70 + 0.14 + shift));
-                calendar.add(Calendar.DAY_OF_MONTH, 2);
-                if(i % 15 == 14) shift = random.nextDouble() / 25;
+                dataPoints.add(new DataPoint(date, Math.sin(date.getTime() / 5) / 70 + 0.14 + shift));
+                calendar.add(Calendar.DAY_OF_MONTH, 7);
+                if(i % 15 == 14) shift = random.nextDouble() / 40;
             }
         }
 
