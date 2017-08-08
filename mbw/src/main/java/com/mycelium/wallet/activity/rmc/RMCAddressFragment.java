@@ -90,9 +90,16 @@ public class RMCAddressFragment extends Fragment {
         graphView.getGridLabelRenderer().setNumVerticalLabels(3);
         graphView.getViewport().setMaxY(0.2);
         graphView.getViewport().setYAxisBoundsManual(true);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2017, 10, 1);
+        graphView.getViewport().setMinX(calendar.getTime().getTime());
+        calendar.set(2018, 10, 1);
+        graphView.getViewport().setMaxX(calendar.getTime().getTime());
+        graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setDrawBorder(true);
         graphView.getGridLabelRenderer().setLabelFormatter(
                 new DateAsXAxisLabelFormatter(getActivity(), new SimpleDateFormat("MM.yy")));
+        graphView.getGridLabelRenderer().setHumanRounding(false);
         return _root;
     }
 
