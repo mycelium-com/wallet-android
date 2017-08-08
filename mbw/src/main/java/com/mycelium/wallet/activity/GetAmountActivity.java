@@ -195,6 +195,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          }
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
       } else {
+         if(_amount != null && _amount.getCurrency() != null) {
+            _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
+         }
          amountString = "";
       }
       if(isColu) {
