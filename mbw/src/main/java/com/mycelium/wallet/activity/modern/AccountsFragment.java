@@ -1114,6 +1114,7 @@ public class AccountsFragment extends Fragment {
       }
       _focusedAccount.dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+      _mbwManager.getColuManager().startSynchronization();
    }
 
    private void ignoreSelectedPrivateKey() {
