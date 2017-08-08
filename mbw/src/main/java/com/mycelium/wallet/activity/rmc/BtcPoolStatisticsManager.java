@@ -38,6 +38,10 @@ public class BtcPoolStatisticsManager {
     public PoolStatisticInfo getStatistics() {
         BigDecimal rmcBalance = coluAccount.getCurrencyBasedBalance().confirmed.getValue();
         BtcPoolResponse.Json response = getInfo();
+
+        if (response == null)
+            return null;
+
         double totalRmcHashrate = response.hashrate / 3600;
         double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / TOTAL_RMC_COUNT;
         return new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);

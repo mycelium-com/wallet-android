@@ -118,6 +118,9 @@ public class RMCAddressFragment extends Fragment {
 
         @Override
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
+            if (result == null)
+                return;
+
             // peta flops
             tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
                     .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
