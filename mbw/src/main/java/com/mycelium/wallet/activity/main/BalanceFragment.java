@@ -66,6 +66,7 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -343,6 +344,11 @@ public class BalanceFragment extends Fragment {
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
+      updateUi();
+   }
+
+   @Subscribe
+   public void syncStopped(SyncStopped event) {
       updateUi();
    }
 
