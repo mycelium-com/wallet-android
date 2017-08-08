@@ -777,10 +777,16 @@ public class SendMainActivity extends Activity {
       }
    }
 
+    private ColuBroadcastTxid.Json createEmptyColuBroadcastJson() {
+        ColuBroadcastTxid.Json result = new ColuBroadcastTxid.Json();
+        result.txHex = "";
+        return result;
+    }
+
     private TransactionStatus tryCreateUnsignedColuTX(final PrepareCallback callback) {
         Log.d(TAG, "tryCreateUnsignedColuTX start");
         if (_account instanceof ColuAccount) {
-            ColuAccount coluAccount = (ColuAccount) _account;
+            final ColuAccount coluAccount = (ColuAccount) _account;
             _unsigned = null;
             _preparedCoinapult = null;
 
@@ -817,6 +823,13 @@ public class SendMainActivity extends Activity {
                     protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
 
                         if (!checkFee(true)) {
+
+                            // Handling the abnormal use case when a colu account doesn't have enough funds
+                            // and however it is chosen itself for funding
+                            if (coluAccount.getLinkedAccount() == feeColuAccount) {
+                                return createEmptyColuBroadcastJson();
+                            }
+
                             //Create funding transaction and broadcast it to network
                             List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
                             long feePerKb = getFeePerKb().getLongValue();
@@ -832,10 +845,10 @@ public class SendMainActivity extends Activity {
                                 Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
                                 WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
                                 if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
-                                    return new ColuBroadcastTxid.Json();
+                                    return createEmptyColuBroadcastJson();
                                 }
                             } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException | KeyCipher.InvalidKeyCipher ex) {
-                                return new ColuBroadcastTxid.Json();
+                                return createEmptyColuBroadcastJson();
                             }
 
                             //Before sending colu transaction preparation request we make sure colu see the new funding transaction
