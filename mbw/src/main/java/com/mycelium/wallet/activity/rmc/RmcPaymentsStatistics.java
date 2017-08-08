@@ -103,8 +103,10 @@ public class RmcPaymentsStatistics {
                     processDataPoint(dataPoints, curEndWeekInstance.getTime(), dataPointIndex, curValue);
                 }
             }
+        }
 
-        } else {
+        //Temporarily show the sample data
+        if (dataPoints.size() == 0) {
             Calendar calendar = Calendar.getInstance();
             Random random = new Random(System.currentTimeMillis());
             double shift = 0;
