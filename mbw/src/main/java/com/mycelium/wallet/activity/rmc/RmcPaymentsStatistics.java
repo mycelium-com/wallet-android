@@ -106,10 +106,13 @@ public class RmcPaymentsStatistics {
 
         } else {
             Calendar calendar = Calendar.getInstance();
-            for (int i = 0; i < 100; i++) {
+            Random random = new Random(System.currentTimeMillis());
+            double shift = 0;
+            for (int i = 0; i < 50; i++) {
                 Date date = calendar.getTime();
-                dataPoints.add(new DataPoint(date, Math.sin(date.getTime()) / 50 + 0.14));
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
+                dataPoints.add(new DataPoint(date, Math.sin(date.getTime() / 2) / 70 + 0.14 + shift));
+                calendar.add(Calendar.DAY_OF_MONTH, 2);
+                if(i % 15 == 14) shift = random.nextDouble() / 25;
             }
         }
 
