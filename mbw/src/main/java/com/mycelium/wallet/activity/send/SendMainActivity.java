@@ -395,7 +395,8 @@ public class SendMainActivity extends Activity {
             List<WalletAccount> walletAccountList =_mbwManager.getWalletManager(false).getActiveAccounts();
             for (WalletAccount walletAccount : walletAccountList) {
                 if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()
-                        && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()) {
+                        && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
+                        && walletAccount.getBalance().confirmed > getFeePerKb().getLongValue()) {
                     feeColuAccount = walletAccount;
                     break;
                 }

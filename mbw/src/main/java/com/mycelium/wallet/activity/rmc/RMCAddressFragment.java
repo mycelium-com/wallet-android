@@ -86,14 +86,13 @@ public class RMCAddressFragment extends Fragment {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
         graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
-
         graphView.getGridLabelRenderer().setNumVerticalLabels(3);
         graphView.getViewport().setMaxY(0.2);
         graphView.getViewport().setYAxisBoundsManual(true);
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, 10, 1);
+        calendar.set(2017, 8, 1);
         graphView.getViewport().setMinX(calendar.getTime().getTime());
-        calendar.set(2018, 10, 1);
+        calendar.set(2018, 8, 1);
         graphView.getViewport().setMaxX(calendar.getTime().getTime());
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setDrawBorder(true);
