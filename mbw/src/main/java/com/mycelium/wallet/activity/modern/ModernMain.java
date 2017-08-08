@@ -113,7 +113,7 @@ public class ModernMain extends ActionBarActivity {
    ActionBar.Tab mRecommendationsTab;
    private MenuItem refreshItem;
    private Toaster _toaster;
-   private long _lastSync = 0;
+   private volatile long _lastSync = 0;
    private boolean _isAppStart = true;
 
    @Override
@@ -261,28 +261,38 @@ public class ModernMain extends ActionBarActivity {
       // Start WAPI as a delayed action. This way we don't immediately block the account
       // while synchronizing
       Handler h = new Handler();
-      if (_lastSync == 0 || new Date().getTime() - _lastSync > MIN_AUTOSYNC_INTERVAL) {
-         h.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-               _mbwManager.getVersionManager().checkForUpdate();
-               _mbwManager.getExchangeRateManager().requestRefresh();
-               _mbwManager.getColuManager().startSynchronization();
 
-               // if the last full sync is too old (or not known), start a full sync for _all_ accounts
-               // otherwise just run a normal sync for the current account
-               final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
-               if (lastFullSync.isPresent()
-                     && (new Date().getTime() - lastFullSync.get()< MIN_FULLSYNC_INTERVAL) ) {
-                  _mbwManager.getWalletManager(false).startSynchronization();
-               } else {
-                  _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
-                  _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
-               }
+      Runnable updateRunnable = new Runnable() {
+         @Override
+         public void run() {
+            _lastSync = new Date().getTime();
+
+            _mbwManager.getVersionManager().checkForUpdate();
+            _mbwManager.getExchangeRateManager().requestRefresh();
+            _mbwManager.getColuManager().startSynchronization();
+
+            // if the last full sync is too old (or not known), start a full sync for _all_ accounts
+            // otherwise just run a normal sync for the current account
+            final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
+            if (lastFullSync.isPresent()
+                    && (new Date().getTime() - lastFullSync.get()< MIN_FULLSYNC_INTERVAL) ) {
+               _mbwManager.getWalletManager(false).startSynchronization();
+            } else {
+               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+               _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
             }
-         }, 70);
-         _lastSync = new Date().getTime();
+         }
+      };
+
+      long curTime = new Date().getTime();
+      if (_lastSync == 0 || curTime - _lastSync > MIN_AUTOSYNC_INTERVAL) {
+         h.postDelayed(updateRunnable, 70);
+      } else {
+         long lastSyncInterval = curTime - _lastSync;
+         long scheduleInterval = MIN_AUTOSYNC_INTERVAL - lastSyncInterval;
+         h.postDelayed(updateRunnable, scheduleInterval);
       }
+
       supportInvalidateOptionsMenu();
       super.onResume();
    }
