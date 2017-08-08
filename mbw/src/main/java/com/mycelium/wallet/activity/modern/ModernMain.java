@@ -284,7 +284,6 @@ public class ModernMain extends ActionBarActivity {
          @Override
          public void run() {
             _mbwManager.getExchangeRateManager().requestRefresh();
-            _mbwManager.getColuManager().startSynchronization();
 
             // if the last full sync is too old (or not known), start a full sync for _all_ accounts
             // otherwise just run a normal sync for the current account
