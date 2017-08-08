@@ -739,9 +739,9 @@ public class ColuManager implements AccountProvider {
         }
 
         // set balance in account
-        BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale);
-        BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale);
-        BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale);
+        BigDecimal assetConfirmedBalance = BigDecimal.valueOf(assetConfirmedAmount, assetScale).stripTrailingZeros();
+        BigDecimal assetReceivingBalance = BigDecimal.valueOf(assetReceivingAmount, assetScale).stripTrailingZeros();
+        BigDecimal assetSendingBalance = BigDecimal.valueOf(assetSendingAmount, assetScale).stripTrailingZeros();
         ExactCurrencyValue confirmed = ExactCurrencyValue.from(assetConfirmedBalance, account.getColuAsset().name);
         ExactCurrencyValue sending = ExactCurrencyValue.from(assetSendingBalance, account.getColuAsset().name);
         ExactCurrencyValue receiving = ExactCurrencyValue.from(assetReceivingBalance, account.getColuAsset().name);
