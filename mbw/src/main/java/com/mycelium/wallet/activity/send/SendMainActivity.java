@@ -42,7 +42,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -99,7 +98,6 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
@@ -159,6 +157,7 @@ public class SendMainActivity extends Activity {
     private static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String SEPA_PAYMENT = "sepaPayment";
     private static final String RMC_URI = "rmcUri";
+    public static final String NO_MY_ACCOUNTS = "no_my_accounts";
 
     private enum TransactionStatus {
         MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -529,8 +528,11 @@ public class SendMainActivity extends Activity {
 
    @OnClick(R.id.btAddressBook)
    void onClickAddressBook() {
-      Intent intent = new Intent(this, GetFromAddressBookActivity.class);
-      startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+       Intent intent = new Intent(this, GetFromAddressBookActivity.class);
+       if (isColu()) {
+           intent.putExtra(NO_MY_ACCOUNTS, true);
+       }
+       startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
    }
 
    @OnClick(R.id.btManualEntry)
