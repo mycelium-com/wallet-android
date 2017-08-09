@@ -392,6 +392,7 @@ public class SendMainActivity extends Activity {
         if (isColu()) {
             // no sepa payment with colu
             List<WalletAccount> walletAccountList =_mbwManager.getWalletManager(false).getActiveAccounts();
+            walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
             for (WalletAccount walletAccount : walletAccountList) {
                 if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()
                         && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
@@ -431,6 +432,7 @@ public class SendMainActivity extends Activity {
                 }
             }
         } else if(isColu()){
+            btFeeFromAccount.setVisibility(View.GONE);
             tvError.setText(R.string.requires_btc_amount);
             tvError.setVisibility(View.VISIBLE);
         }
