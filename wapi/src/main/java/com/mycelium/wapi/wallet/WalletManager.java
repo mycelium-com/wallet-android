@@ -104,13 +104,15 @@ public class WalletManager {
    }
 
    public void refreshExtraAccounts() {
-      _extraAccounts.clear();
-      _extraAccountsCurrencies.clear();
-      for (AccountProvider accounts : _extraAccountProviders) {
-         for (WalletAccount account : accounts.getAccounts().values()) {
-            if (!_extraAccounts.containsKey(account.getId())) {
-               _extraAccounts.put(account.getId(), account);
-               _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
+      synchronized (_walletAccounts) {
+         _extraAccounts.clear();
+         _extraAccountsCurrencies.clear();
+         for (AccountProvider accounts : _extraAccountProviders) {
+            for (WalletAccount account : accounts.getAccounts().values()) {
+               if (!_extraAccounts.containsKey(account.getId())) {
+                  _extraAccounts.put(account.getId(), account);
+                  _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
+               }
             }
          }
       }
