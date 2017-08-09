@@ -432,6 +432,7 @@ public class SendMainActivity extends Activity {
                 }
             }
         } else if(isColu()){
+            _transactionStatus = TransactionStatus.InsufficientFunds;
             btFeeFromAccount.setVisibility(View.GONE);
             tvError.setText(R.string.requires_btc_amount);
             tvError.setVisibility(View.VISIBLE);
