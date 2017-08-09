@@ -982,7 +982,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="rmc_send_warning" formatted="false">%1$s is an asset (token) issued on Bitcoin blockchain as  colored coin.
 %1$s transaction is a bitcoin transaction and requires miner\'s fee in order to be included in a block.
 To be able to send %1$s token to another %1$s address you need to top up your %1$s address with a small amount of BTC which will be used to fund your transaction.
-You can either add miner\'s fee every time you make %1$s transaction or top up your %1$s account with a little bit more btc so you will not have to fund (means spend on miner\'s fee) each time you make %1$s transaction.</string>
+You can either add miner\'s fee from any account with bitcoins every time you make %1$s transaction or top up your %1$s account with a little bit more btc so you will not have to fund (means spend on miner\'s fee) each time you make %1$s transaction.</string>
     <string name="rmc_reminder">RMC reminder</string>
     <string name="rmc_active_in_159_days">Active in %d days</string>
     <string name="bitcoin_altcoin_mining_button">Bitcoin/Altcoin mining button</string>
@@ -1055,4 +1055,5 @@ You can either add miner\'s fee every time you make %1$s transaction or top up y
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
+    <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
 </resources>

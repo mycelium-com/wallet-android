@@ -71,9 +71,9 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
+import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -102,6 +102,9 @@ public class AddressBookFragment extends Fragment {
    private Boolean spendableOnly;
    private Boolean excudeSelected;
 
+   private Boolean blockPage = false;
+   private String blockPageMsg = null;
+
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.address_book, container, false));
@@ -109,6 +112,8 @@ public class AddressBookFragment extends Fragment {
       spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
+      blockPage = getArguments().getBoolean(SendMainActivity.NO_MY_ACCOUNTS, false);
+      blockPageMsg = getArguments().getString(SendMainActivity.NO_MY_ACCOUNTS_MESSAGE, null);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
@@ -152,6 +157,13 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUi() {
       if (!isAdded()) {
+         return;
+      }
+      if (blockPage) {
+         TextView textView = (TextView) findViewById(R.id.tvNoRecords);
+         textView.setText(blockPageMsg);
+         textView.setVisibility(View.VISIBLE);
+         findViewById(R.id.lvForeignAddresses).setVisibility(View.GONE);
          return;
       }
       if (ownAddresses) {

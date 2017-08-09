@@ -53,6 +53,7 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
       super.onCreate(savedInstanceState);
       MbwManager _mbwManager = MbwManager.getInstance(this);
       boolean noMyAccounts = getIntent().getBooleanExtra(SendMainActivity.NO_MY_ACCOUNTS, false);
+      String noMyAccountsMsg = getIntent().getStringExtra(SendMainActivity.NO_MY_ACCOUNTS_MESSAGE);
       mViewPager = new ViewPager(this);
       mViewPager.setId(R.id.pager);
 
@@ -63,11 +64,13 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
-      Tab myAddressesTab = null;
-      if(!noMyAccounts) {
-         myAddressesTab = bar.newTab();
-         mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, addressBookBundle(true));
+      Tab myAddressesTab = bar.newTab();
+      Bundle bundle = addressBookBundle(true);
+      if(noMyAccounts) {
+         bundle.putBoolean(SendMainActivity.NO_MY_ACCOUNTS, noMyAccounts);
+         bundle.putString(SendMainActivity.NO_MY_ACCOUNTS_MESSAGE, noMyAccountsMsg);
       }
+      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, bundle);
       Tab contactsTab = bar.newTab();
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
 
@@ -75,7 +78,7 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
 
       if (countContactsEntries > 0) {
          bar.selectTab(contactsTab);
-      } else if (myAddressesTab != null) {
+      } else {
          bar.selectTab(myAddressesTab);
       }
    }
