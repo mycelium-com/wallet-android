@@ -967,7 +967,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="ad_ledger_info" />
     <string name="gd_buy_sell_rmc_button">Buy / Sell RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
-    <string name="mycelium_no_responaility_rmc">MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
+    <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
     <string name="rmc_seems_like_no_account">Seems like you still have no RMC account.   Hit the button below to generate one</string>
     <string name="rmc_generate_new_account">Generate new RMC account</string>
     <string name="rmc_you_buying">You are buying</string>

@@ -50,6 +50,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.rmc.Keys;
 import com.mycelium.wallet.activity.rmc.RmcActivity;
 import com.mycelium.wallet.external.BuySellSelectFragment;
@@ -145,16 +146,12 @@ public class BuySellFragment extends Fragment {
     OnClickListener buySellRmcOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            new AlertDialog.Builder(getActivity())
-                    .setMessage(R.string.mycelium_no_responaility_rmc)
-                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            startActivity(new Intent(getActivity(), RmcActivity.class));
-                        }
-                    })
-                    .create()
-                    .show();
+            Utils.showOptionalMessage(getActivity(), R.string.mycelium_no_responaility_rmc, new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(getActivity(), RmcActivity.class));
+                }
+            });
         }
     };
 
