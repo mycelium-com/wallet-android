@@ -178,7 +178,7 @@
     <string name="delete_account_message">Do you want to delete this account?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
     <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\nAccounts labels:\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
     <string name="confirm_delete_pk_without_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</string>
     <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nAccounts labels:\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</string>
     <string name="verify_private_key_backup">Verify Backup</string>
@@ -1056,4 +1056,8 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
+    <plurals name="account_label">
+        <item quantity="one">Account label:\n%s</item>
+        <item quantity="other">Accounts labels:\n%s</item>
+    </plurals>
 </resources>

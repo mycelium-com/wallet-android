@@ -272,10 +272,13 @@ public class AccountsFragment extends Fragment {
 
                // Set the message. There are four combinations, with and without label, with and without BTC amount.
                String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
+               int labelCount = 1;
                if (account instanceof ColuAccount) {
                   label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId());
+                  labelCount++;
                } else if (linkedAccount != null) {
                   label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                  labelCount++;
                }
                String message;
 
@@ -290,8 +293,9 @@ public class AccountsFragment extends Fragment {
                      } else {
                         address = "";
                      }
-                     message = getString(R.string.confirm_delete_pk_with_balance_with_label, label,
-                                address, accountToDelete instanceof ColuAccount ?
+                     message = getString(R.string.confirm_delete_pk_with_balance_with_label
+                             , getResources().getQuantityString(R.plurals.account_label, labelCount, label)
+                             , address, accountToDelete instanceof ColuAccount ?
                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
                                      : _mbwManager.getBtcValueString(satoshis)
                      );
@@ -307,10 +311,9 @@ public class AccountsFragment extends Fragment {
                   }
                } else {
                   if (label != null && label.length() != 0) {
-                     message = getString(
-                           R.string.confirm_delete_pk_without_balance_with_label,
-                           label,
-                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                     message = getString(R.string.confirm_delete_pk_without_balance_with_label
+                             ,getResources().getQuantityString(R.plurals.account_label, labelCount, label)
+                           ,receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
                      );
                   } else {
                      message = getString(
