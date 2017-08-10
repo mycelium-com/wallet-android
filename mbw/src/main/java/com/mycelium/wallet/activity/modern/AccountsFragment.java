@@ -196,19 +196,6 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-        if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-            //check whether the account is active - we might have scanned the priv key for an archived watchonly
-            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-            if (account.isActive()) {
-                _mbwManager.setSelectedAccount(accountid);
-            }
-            _focusedAccount = account;
-            update();
-            setNameForNewAccount(_focusedAccount);
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
     // TODO: refactor these RESULT_XXX constants in a common class ?
 
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
