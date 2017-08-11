@@ -316,16 +316,21 @@ public class AddAdvancedAccountActivity extends Activity {
       finishOk(acc);
    }
 
+   enum AddressType {
+      UNKNOWN,
+      BTC,
+      COLU
+   }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
 
       private Address address;
-      private MetadataStorage.BackupState backupState;
+      private AddressType addressType;
       private Error error;
 
-      public ImportReadOnlySingleAddressAccountAsyncTask(Address address) {
+      public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AddressType addressType) {
          this.address = address;
-         this.backupState = backupState;
+         this.addressType = addressType;
       }
 
       @Override
@@ -333,15 +338,29 @@ public class AddAdvancedAccountActivity extends Activity {
          UUID acc = null;
 
          try {
-            //check if address is colu
-            // do not do this in main thread
-            ColuManager coluManager = _mbwManager.getColuManager();
-            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+            switch(addressType) {
+               case UNKNOWN: {
+                     ColuManager coluManager = _mbwManager.getColuManager();
+                     ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
 
-            if (asset != null) {
-               acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
-            } else {
-               acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                     if (asset != null) {
+                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                     } else {
+                        acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                     }
+                  }
+                  break;
+               case BTC:
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                  break;
+               case COLU:
+                  ColuManager coluManager = _mbwManager.getColuManager();
+                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+
+                  if (asset != null) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  }
+                  break;
             }
          } catch (IOException e) {
             // could not determine account type, skipping
@@ -366,7 +385,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
    private void returnAccount(Address address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
+      new ImportReadOnlySingleAddressAccountAsyncTask(address, AddressType.UNKNOWN).execute();
    }
 
    private void finishOk(UUID account) {
