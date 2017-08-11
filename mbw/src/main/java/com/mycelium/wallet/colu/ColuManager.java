@@ -434,6 +434,21 @@ public class ColuManager implements AccountProvider {
         }
     }
 
+    private ColuAccount createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
+
+        CreatedAccountInfo createdAccountInfo = createSingleAddressAccount(address);
+        setAssetAccountUUID(coluAsset, createdAccountInfo.id);
+
+        ColuAccount account = new ColuAccount(
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, address,
+                exchangeRateManager, handler, eventBus, logger, coluAsset
+        );
+
+        coluAccounts.put(account.getId(), account);
+        loadSingleAddressAccounts();  // reload account from mycelium secure store
+
+        return account;
+    }
     // create OR load account if a key already exists
 // converts old dev key storage into backend storage
     private ColuAccount createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
@@ -525,6 +540,29 @@ public class ColuManager implements AccountProvider {
         return env.getNetwork();
     }
 
+    public UUID enableReadOnlyAsset(ColuAccount.ColuAsset coluAsset, Address address) {
+
+        ColuAccount newAccount = createReadOnlyColuAccount(coluAsset, address);
+
+        // check if we already have a label for this account, otherwise set the default one
+        String label = metadataStorage.getLabelByAccount(newAccount.getId());
+        if (Strings.isNullOrEmpty(label)) {
+            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel());
+        }
+
+        // broadcast event, so that the UI shows the newly added account
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                eventBus.post(new ExtraAccountsChanged());
+            }
+        });
+
+        // and save it
+        saveEnabledAssetIds();
+
+        return newAccount.getId();
+    }
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         // check if we already have it enabled
@@ -768,9 +806,9 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-    public ColuAccount.ColuAsset getColuAddressAsset(PublicKey key) throws IOException {
+    public ColuAccount.ColuAsset getColuAddressAsset(Address address) throws IOException {
 
-        AddressInfo.Json addressInfo = coluClient.getBalance(key.toAddress(getNetwork()));
+        AddressInfo.Json addressInfo = coluClient.getBalance(address);
 
         if (addressInfo != null) {
             if (addressInfo.utxos != null) {
@@ -790,6 +828,10 @@ public class ColuManager implements AccountProvider {
             }
         }
         return null;
+    }
+
+    public ColuAccount.ColuAsset getColuAddressAsset(PublicKey key) throws IOException {
+        return getColuAddressAsset(key.toAddress(getNetwork()));
     }
 
     public void startSynchronization() {

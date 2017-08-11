@@ -137,6 +137,22 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    private SingleAddressAccount linkedAccount;
 
+   public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, Address address,
+                      ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
+      this.accountBacking = backing;
+      this.manager = manager;
+      this.eventBus = eventBus;
+      this.handler = handler;
+      this.exchangeRateManager = exchangeRateManager;
+      this.metadataStorage = metadataStorage;
+      this.coluAsset = coluAsset;
+      this.satoshiAmount = 0;
+      this.address = address;
+
+      uuid =  UUID.randomUUID();
+
+      archived = metadataStorage.getArchived(uuid);
+   }
    public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
       this.accountBacking = backing;
@@ -152,7 +168,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork());
 
       // derive the UUID for the account from the "sha256(PubKey(AccountPrivateKey) || <coluAssetID>)"
-      uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().getPublicKeyBytes());
+      uuid = UUID.randomUUID();
 
       archived = metadataStorage.getArchived(uuid);
 

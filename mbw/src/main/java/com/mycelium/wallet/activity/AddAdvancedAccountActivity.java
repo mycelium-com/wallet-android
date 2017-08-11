@@ -316,9 +316,57 @@ public class AddAdvancedAccountActivity extends Activity {
       finishOk(acc);
    }
 
+
+   private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+      private Address address;
+      private MetadataStorage.BackupState backupState;
+      private Error error;
+
+      public ImportReadOnlySingleAddressAccountAsyncTask(Address address) {
+         this.address = address;
+         this.backupState = backupState;
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         UUID acc = null;
+
+         try {
+            //check if address is colu
+            // do not do this in main thread
+            ColuManager coluManager = _mbwManager.getColuManager();
+            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+
+            if (asset != null) {
+               acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+            } else {
+               acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+            }
+         } catch (IOException e) {
+            // could not determine account type, skipping
+            return null;
+         }
+         return acc;
+      }
+
+      @Override
+      protected void onPostExecute(UUID account) {
+         if (account != null) {
+            finishOk(account);
+         } else if (error != null) {
+            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                    .setMessage(error.getMessage())
+                    .setPositiveButton(R.string.button_ok, null)
+                    .create()
+                    .show();
+         }
+      }
+   }
+
    private void returnAccount(Address address) {
-      UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      finishOk(acc);
+      //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+      new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
    private void finishOk(UUID account) {
