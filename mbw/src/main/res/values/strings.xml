@@ -811,29 +811,29 @@
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>
     <string name="colu_add_cc_account">Add Colored Coins Account</string>
-    <string name="colu">Colu</string>
-    <string name="colu_select_an_account_type">Please select a Colu account type</string>
+    <string name="colu">Colored Coin</string>
+    <string name="colu_select_an_account_type">Please select a Colored Coin account type</string>
     <string name="colu_create_account">Create %s Account</string>
     <string name="colu_creating_account">Creating %s Account</string>
     <string name="colu_mycelium_tokens">Mycelium Tokens</string>
     <string name="colu_mass_tokens">Mass Tokens</string>
-    <string name="colu_unable_to_create_account">Unable to create Colu account</string>
-    <string name="colu_tos_link">Open Colu Terms and Conditions</string>
-    <string name="colu_tos_link_url">https://www.colu.com/TOS</string>
-    <string name="colu_tos">By clicking "OK" you agree to use Colu technology, third party
-blockchain technology developer. All your interactions with Colu are outside of
-Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.
-Please read them carefully before providing any personal information.
-MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS
-OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR
-RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
+    <string name="colu_unable_to_create_account">Unable to create Colored Coin account</string>
+    <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+   <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+    <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+<!--blockchain technology developer. All your interactions with Colu are outside of-->
+<!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+<!--Please read them carefully before providing any personal information.-->
+<!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+<!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+<!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
-    <string name="colu_backup_info">Your Colu account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
-    <string name="colu_sending_via_colu">Sending Colu assets.</string>
-    <string name="colu_failed_to_prepare">Failed to prepare Colu transaction! Make sure you have funded one of your Bitcoin accounts with mBTC ( up to $10) to perform transactions.</string>
-    <string name="colu_succeeded_to_prepare">Colu transaction ready to send.</string>
-    <string name="colu_failed_to_broadcast">Colu failed to broadcast transaction.</string>
-    <string name="colu_succeeded_to_broadcast">Colu transaction sent.</string>
+    <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
+    <string name="colu_sending_via_colu">Sending Colored Coin assets.</string>
+    <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with mBTC ( up to $10) to perform transactions.</string>
+    <string name="colu_succeeded_to_prepare">Colored Coin transaction ready to send.</string>
+    <string name="colu_failed_to_broadcast">Colored Coin failed to broadcast transaction.</string>
+    <string name="colu_succeeded_to_broadcast">Colored Coin transaction sent.</string>
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
@@ -944,7 +944,7 @@ RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>
     <string name="label_list_activity_indicator">had activity</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
-    <string name="requires_btc_amount">Colu transaction can not be done, not enough bitcoins to pay miners fee.  Please fund one of your Bitcoin addresses.</string>
+    <string name="requires_btc_amount">Colored Coin transaction can not be done, not enough bitcoins to pay miners fee.  Please fund one of your Bitcoin addresses.</string>
     <string name="colu_rmc_tokens">RMC</string>
 
     <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
@@ -1056,6 +1056,7 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
+    <string name="colu_error_deleting">Got an error while deleting Colored Coin account</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

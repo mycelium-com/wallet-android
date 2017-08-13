@@ -342,38 +342,40 @@ public class AccountsFragment extends Fragment {
                         } catch (KeyCipher.InvalidKeyCipher e) {
                            throw new RuntimeException(e);
                         }
-                     } else if(accountToDelete instanceof ColuAccount) {
-                        try {
-                           ColuManager coluManager = _mbwManager.getColuManager();
-                           if (keepAddrCheckbox.isChecked()) {
-                              coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
-                           } else {
-                              coluManager.deleteAccount((ColuAccount) accountToDelete);
-                              _toaster.toast("Deleting account.", false);
-                              _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                              _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
-                           }
-                        } catch(Exception e) {
-                            // make a message !
-                            _toaster.toast("Got an error while deleting colu account", false);
-                        }
                      } else {
-                        //Check if this SingleAddress account is related with ColuAccount
-                        WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
-                        if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                           ColuManager coluManager = _mbwManager.getColuManager();
-                           coluManager.deleteAccount((ColuAccount) linkedColuAccount);
-                        } else {
+                        if (accountToDelete instanceof ColuAccount) {
                            try {
-                              walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                              _storage.deleteAccountMetadata(accountToDelete.getId());
-                           } catch (KeyCipher.InvalidKeyCipher e) {
-                              throw new RuntimeException(e);
+                              ColuManager coluManager = _mbwManager.getColuManager();
+                              if (keepAddrCheckbox.isChecked()) {
+                                 coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
+                              } else {
+                                 coluManager.deleteAccount((ColuAccount) accountToDelete);
+                                 _toaster.toast("Deleting account.", false);
+                                 _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                 _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
+                              }
+                           } catch (Exception e) {
+                              // make a message !
+                              _toaster.toast(getString(R.string.colu_error_deleting), false);
                            }
+                        } else {
+                           //Check if this SingleAddress account is related with ColuAccount
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                              ColuManager coluManager = _mbwManager.getColuManager();
+                              coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                           } else {
+                              try {
+                                 walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                                 _storage.deleteAccountMetadata(accountToDelete.getId());
+                              } catch (KeyCipher.InvalidKeyCipher e) {
+                                 throw new RuntimeException(e);
+                              }
+                           }
+                           _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                           _toaster.toast(R.string.account_deleted, false);
+                           _mbwManager.getEventBus().post(new ExtraAccountsChanged());
                         }
-                        _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                        _toaster.toast(R.string.account_deleted, false);
-                        _mbwManager.getEventBus().post(new ExtraAccountsChanged());
                      }
                      finishCurrentActionMode();
                      _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
