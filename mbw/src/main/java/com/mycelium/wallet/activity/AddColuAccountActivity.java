@@ -229,7 +229,7 @@ public class AddColuAccountActivity extends Activity {
             bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, account);
-            setResult(RESULT_COLU, result);
+            setResult(RESULT_OK, result);
             finish();
          } else {
             // something went wrong - clean up the half ready coluManager

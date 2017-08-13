@@ -965,7 +965,7 @@
     <string name="ad_purse_info" />
     <string name="ad_trezor_info" />
     <string name="ad_ledger_info" />
-    <string name="gd_buy_sell_rmc_button">Buy / Sell RMC</string>
+    <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
     <string name="rmc_seems_like_no_account">Seems like you still have no RMC account.   Hit the button below to generate one</string>
@@ -1057,6 +1057,7 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
     <string name="colu_error_deleting">Got an error while deleting Colored Coin account</string>
+    <string name="export_not_possible">Export is not possible you already have %s account</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

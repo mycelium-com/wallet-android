@@ -198,14 +198,14 @@ public class AccountsFragment extends Fragment {
 
     // TODO: refactor these RESULT_XXX constants in a common class ?
 
-      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
-         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         ColuAccount account = (ColuAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
-         _mbwManager.setSelectedAccount(accountId);
-         _focusedAccount = account;
-         update();
-         return;
-      }
+//      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
+//         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+//         ColuAccount account = (ColuAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+//         _mbwManager.setSelectedAccount(accountId);
+//         _focusedAccount = account;
+//         update();
+//         return;
+//      }
 
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
@@ -216,7 +216,9 @@ public class AccountsFragment extends Fragment {
          }
          _focusedAccount = account;
          update();
-         setNameForNewAccount(_focusedAccount);
+         if(!(account instanceof ColuAccount)) {
+            setNameForNewAccount(_focusedAccount);
+         }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }

@@ -270,7 +270,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
             if (asset != null) {
                if (coluManager.getAssetAccountUUID(asset) != null) {
-                  error = new Error("Export is not possible you already have " + asset.name + "account");
+                  error = new Error(getString(R.string.export_not_possible, asset.name));
                } else {
                   acc = _mbwManager.getColuManager().enableAsset(asset, key);
                }
