@@ -75,6 +75,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 import com.squareup.otto.Subscribe;
 
@@ -361,7 +362,7 @@ public class ReceiveCoinsActivity extends Activity {
    @OnClick(R.id.btEnterAmount)
    public void onEnterClick() {
       if (CurrencyValue.isNullOrZero(_amount)) {
-         GetAmountActivity.callMe(ReceiveCoinsActivity.this, null, GET_AMOUNT_RESULT_CODE);
+         GetAmountActivity.callMe(ReceiveCoinsActivity.this, ExactCurrencyValue.from(null, _mbwManager.getSelectedAccount().getAccountDefaultCurrency()), GET_AMOUNT_RESULT_CODE);
       } else {
          // call the amount activity with the exact amount, so that the user sees the same amount he had entered
          // it in non-BTC

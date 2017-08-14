@@ -171,9 +171,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (_amount == null || _amount.getValue() == null) {
             _amount = ExactCurrencyValue.from(null, coluAccount.getAccountDefaultCurrency());
          }
-         btCurrency.setText(coluAccount.getAccountDefaultCurrency());
       } else {
-         //btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
+//         btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
          btCurrency.setEnabled(_mbwManager.getCurrencySwitcher().getExchangeRatePrice() != null);
       }
    }
@@ -195,8 +194,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          }
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
       } else {
-         if(_amount != null && _amount.getCurrency() != null) {
+         if (_amount != null && _amount.getCurrency() != null) {
             _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
+         } else {
+            _mbwManager.getCurrencySwitcher().setCurrency(_account.getAccountDefaultCurrency());
          }
          amountString = "";
       }
@@ -314,6 +315,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (_amount != null) {
          if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())) {
             // always set native asset currency here ?
+            btCurrency.setText(_amount.getCurrency());
          } else {
             // Set current currency name button
             btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
