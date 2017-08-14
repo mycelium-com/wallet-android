@@ -1079,7 +1079,7 @@ public class SendMainActivity extends Activity {
    }
 
    private String getAddressLabel(Address address) {
-      Optional<UUID> accountId = _mbwManager.getWalletManager(false).getAccountByAddress(address);
+      Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
       if (!accountId.isPresent()) {
          // We don't have it in our accounts, look in address book, returns empty string by default
          return _mbwManager.getMetadataStorage().getLabelByAddress(address);
