@@ -323,7 +323,13 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
       if (historyTxList != null) {
          List<TransactionSummary> list = getTransactionSummaries();
-         return limitedList(offset, limit, list);
+         ArrayList<TransactionSummary> result = new ArrayList<>();
+         for (TransactionSummary transactionSummary : list) {
+            if(transactionSummary.value.getCurrency().equals(coluAsset.name)) {
+               result.add(transactionSummary);
+            }
+         }
+         return limitedList(offset, limit, result);
 
       } else {
          return Lists.newArrayList();

@@ -237,7 +237,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
             //everything is fine, return the rate
             if(rmcFlag) {
-               r = new ExchangeRate(r.name, r.time, r.price * 4000, "RMC");
+               r = new ExchangeRate(r.name, r.time, r.price / 4000, "RMC");
             }
             return r;
          }
