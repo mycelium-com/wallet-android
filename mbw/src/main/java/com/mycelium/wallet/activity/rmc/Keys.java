@@ -28,7 +28,7 @@ public class Keys {
 
     public static Calendar getICOEnd() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, 8, 1);
+        calendar.set(2017, 9, 1);
         return calendar;
     }
 }
