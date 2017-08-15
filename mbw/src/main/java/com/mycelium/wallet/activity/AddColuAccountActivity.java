@@ -216,7 +216,7 @@ public class AddColuAccountActivity extends Activity {
                coluManager.scanForAccounts();
                return uuid;
             } catch (Exception e) {
-               Log.d(TAG, "Error while creating Colu account for asset " + coluAsset.name + ": " + e.getMessage());
+               Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.name + ": " + e.getMessage());
                return null;
             }
          }

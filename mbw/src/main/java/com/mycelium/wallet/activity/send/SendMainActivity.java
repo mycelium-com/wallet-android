@@ -613,14 +613,14 @@ public class SendMainActivity extends Activity {
                             @Override
                             public void run() {
                                 if (_account instanceof ColuAccount) {
-                                    Log.d(TAG, "sendColuTransaction account type is ColuAccount");
+                                    Log.d(TAG, "send Colored Coin Transaction account type is Colored Coin Account");
                                     final ColuAccount coluAccount = (ColuAccount) _account;
                                     final ColuManager coluManager = _mbwManager.getColuManager();
                                     disableButtons();
                                     new AsyncTask<ColuBroadcastTxid.Json, Void, Boolean>() {
                                         @Override
                                         protected Boolean doInBackground(ColuBroadcastTxid.Json... params) {
-                                            Log.d(TAG, "In doInBackground: ColuPreparedTransaction");
+                                            Log.d(TAG, "In doInBackground: Colored Coin Prepared Transaction");
                                             //UnsignedTransaction unsignedTx = new UnsignedTransaction();
                                             Transaction coluSignedTransaction = coluManager.signTransaction(params[0], coluAccount);
                                             if (coluSignedTransaction != null) {
