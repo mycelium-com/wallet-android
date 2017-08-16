@@ -7,6 +7,7 @@
     tools:context="com.mycelium.wallet.activity.rmc.RmcActivity">
 
     <TextView
+        android:id="@+id/rmc_rate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

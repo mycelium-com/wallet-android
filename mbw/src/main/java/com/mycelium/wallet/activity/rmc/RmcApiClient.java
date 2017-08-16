@@ -16,6 +16,7 @@ import com.google.common.net.HttpHeaders;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.rmc.json.CreateRmcOrderResponse;
+import com.mycelium.wallet.activity.rmc.json.RmcRate;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -23,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +69,46 @@ public class RmcApiClient {
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+        }
+        return null;
+    }
+
+    public Float exchangeUsdRmcRate() {
+
+        HttpRequestFactory requestFactory = new NetHttpTransport()
+                .createRequestFactory(new HttpRequestInitializer() {
+                    @Override
+                    public void initialize(HttpRequest request) {
+                        request.setParser(new JsonObjectParser(new JacksonFactory()));
+                    }
+                });
+
+        try {
+            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(getApiURL() + "exchange_rates?pair=USD_RMC"));
+            HttpResponse response = request.execute();
+            RmcRate[] rate = response.parseAs(RmcRate[].class);
+            return rate[0].rate;
+        } catch (Exception ex) {
+            Log.e("RmcApiClient", "exchangeUsdRmcRate", ex);
+        }
+        return null;
+    }
+    public Float exchangeEthUsdRate() {
+        HttpRequestFactory requestFactory = new NetHttpTransport()
+                .createRequestFactory(new HttpRequestInitializer() {
+                    @Override
+                    public void initialize(HttpRequest request) {
+                        request.setParser(new JsonObjectParser(new JacksonFactory()));
+                    }
+                });
+
+        try {
+            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(getApiURL() + "exchange_rates?pair=ETH_USD"));
+            HttpResponse response = request.execute();
+            RmcRate[] rate = response.parseAs(RmcRate[].class);
+            return rate[0].rate;
+        } catch (Exception ex) {
+            Log.e("RmcApiClient", "exchangeUsdRmcRate", ex);
         }
         return null;
     }

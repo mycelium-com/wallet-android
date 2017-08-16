@@ -5,8 +5,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+
+import java.math.BigDecimal;
 
 /**
  * Created by elvis on 20.06.17.
@@ -39,6 +45,11 @@ public class HowPayFragment extends Fragment {
 
             }
         });
+        TextView tvRmcRate = (TextView) view.findViewById(R.id.rmc_rate);
+        CurrencyValue rmcValue = ExactCurrencyValue.from(BigDecimal.ONE, "RMC");
+        CurrencyValue usdValue = CurrencyValue.fromValue(rmcValue, "USD", MbwManager.getInstance(getActivity()).getExchangeRateManager());
+        tvRmcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
+
 //        view.findViewById(R.id.btBankwire).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
