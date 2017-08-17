@@ -547,7 +547,13 @@ public class ColuManager implements AccountProvider {
         // check if we already have a label for this account, otherwise set the default one
         String label = metadataStorage.getLabelByAccount(newAccount.getId());
         if (Strings.isNullOrEmpty(label)) {
-            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel());
+            int i = 0;
+            if(metadataStorage.getAccountByLabel(newAccount.getDefaultLabel()).isPresent()) {
+                do {
+                    i++;
+                } while (metadataStorage.getAccountByLabel(newAccount.getDefaultLabel() + " " + i).isPresent());
+            }
+            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel() + (i == 0 ? "" : " " + i));
         }
 
         // broadcast event, so that the UI shows the newly added account

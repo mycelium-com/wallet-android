@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
@@ -345,6 +347,7 @@ public class AddAdvancedAccountActivity extends Activity {
       private AccountType addressType;
       private Error error;
       private ProgressDialog dialog;
+       private boolean askUserForColorize = false;
 
       public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
          this.address = address;
@@ -372,7 +375,8 @@ public class AddAdvancedAccountActivity extends Activity {
                      if (asset != null) {
                         acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
                      } else {
-                        acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                         askUserForColorize = true;
+
                      }
                   }
                   break;
@@ -394,12 +398,38 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-
+      private int selectedItem;
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          if (account != null) {
             finishOk(account);
+         } else if(askUserForColorize) {
+             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+             list.add(0, getString(R.string.no));
+             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                     .setTitle("Do you want colorize account?")
+                     .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           selectedItem = i;
+                        }
+                     })
+                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           UUID account;
+                           if (i == 0) {
+                              account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                           } else {
+                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
+                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
+                           }
+                           finishOk(account);
+                        }
+                     })
+                     .create()
+                     .show();
          } else if (error != null) {
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setMessage(error.getMessage())
