@@ -168,7 +168,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork());
 
       // derive the UUID for the account from the "sha256(PubKey(AccountPrivateKey) || <coluAssetID>)"
-      uuid = UUID.randomUUID();
+      uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().getPublicKeyBytes());;
 
       archived = metadataStorage.getArchived(uuid);
 
