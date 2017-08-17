@@ -339,21 +339,24 @@ public class AddAdvancedAccountActivity extends Activity {
       finishOk(acc);
    }
 
-   enum AddressType {
-      UNKNOWN,
-      BTC,
-      COLU
-   }
-
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
 
       private Address address;
-      private AddressType addressType;
+      private AccountType addressType;
       private Error error;
+      private ProgressDialog dialog;
 
-      public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AddressType addressType) {
+      public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
          this.address = address;
          this.addressType = addressType;
+      }
+
+      @Override
+      protected void onPreExecute() {
+         super.onPreExecute();
+         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
+         dialog.setMessage("Importing");
+         dialog.show();
       }
 
       @Override
@@ -362,7 +365,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
          try {
             switch(addressType) {
-               case UNKNOWN: {
+               case Unknown: {
                      ColuManager coluManager = _mbwManager.getColuManager();
                      ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
 
@@ -373,10 +376,10 @@ public class AddAdvancedAccountActivity extends Activity {
                      }
                   }
                   break;
-               case BTC:
+               case SA:
                   acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                   break;
-               case COLU:
+               case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
                   ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
 
@@ -394,6 +397,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
       @Override
       protected void onPostExecute(UUID account) {
+         dialog.dismiss();
          if (account != null) {
             finishOk(account);
          } else if (error != null) {
@@ -408,7 +412,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
    private void returnAccount(Address address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask(address, AddressType.UNKNOWN).execute();
+      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
    }
 
    private void finishOk(UUID account) {
