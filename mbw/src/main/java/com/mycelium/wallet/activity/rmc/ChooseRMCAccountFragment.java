@@ -199,21 +199,21 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     private void createColuAccount(final ColuAccount.ColuAsset coluAsset, final Callback created) {
 
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-        b.setTitle(getString(R.string.colu));
-        View diaView = LayoutInflater.from(getActivity()).inflate(R.layout.ext_colu_tos, null);
-        b.setView(diaView);
-        b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                new AddColuAsyncTask(_mbwManager.getEventBus(), coluAsset, created).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            }
-        });
-        b.setNegativeButton(getString(R.string.dontagree), null);
-
-        AlertDialog dialog = b.create();
-
-        dialog.show();
+//        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+//        b.setTitle(getString(R.string.colu));
+//        View diaView = LayoutInflater.from(getActivity()).inflate(R.layout.ext_colu_tos, null);
+//        b.setView(diaView);
+//        b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+        new AddColuAsyncTask(_mbwManager.getEventBus(), coluAsset, created).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//            }
+//        });
+//        b.setNegativeButton(getString(R.string.dontagree), null);
+//
+//        AlertDialog dialog = b.create();
+//
+//        dialog.show();
     }
 
 
@@ -342,7 +342,7 @@ public class ChooseRMCAccountFragment extends Fragment {
                     coluManager.scanForAccounts();
                     return uuid;
                 } catch (Exception e) {
-                    Log.d(TAG, "Error while creating Colu account for asset " + coluAsset.name + ": " + e.getMessage());
+                    Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.name + ": " + e.getMessage());
                     return null;
                 }
             }

@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.common.collect.ImmutableList;
+import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
@@ -57,6 +58,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
+   public static final String USD_RMC = "usd_rmc";
 
    public interface Observer {
       void refreshingExchangeRatesSucceeded();
@@ -74,15 +76,24 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private final List<Observer> _subscribers;
    private String _currentExchangeSourceName;
 
+   private RmcApiClient rmcApiClient;
+   private Float rmcRate;
+   private Float ethRate;
+
    ExchangeRateManager(Context applicationContext, Wapi api) {
       _applicationContext = applicationContext;
       _api = api;
       _latestRates = null;
       _latestRatesTime = 0;
       _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
+      rmcRate = getPreferences().getFloat(USD_RMC, 1f / 4000);
 
       _subscribers = new LinkedList<Observer>();
       _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
+   }
+
+   public void setClient(RmcApiClient client) {
+      this.rmcApiClient = client;
    }
 
    public synchronized void subscribe(Observer subscriber) {
@@ -115,6 +126,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                _fetcher = null;
                notifyRefreshingExchangeRatesFailed();
             }
+         }
+         if(rmcApiClient != null) {
+            RmcApiClient rmcApiClient = new RmcApiClient(null);
+            Float rate = rmcApiClient.exchangeUsdRmcRate();
+            if(rate != null) {
+               rmcRate = rate;
+               getPreferences().edit().putFloat(USD_RMC, rmcRate).apply();
+            }
+            rate = rmcApiClient.exchangeEthUsdRate();
+            if(rate != null) {
+               ethRate = rate;
+            }
+
          }
       }
    }
@@ -154,15 +178,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
       for (QueryExchangeRatesResponse response : latestRates) {
          _latestRates.put(response.currency, response);
-//         if(response.currency.equals("USD")) {
-//            ExchangeRate[] rmcExchangeRates = new ExchangeRate[response.exchangeRates.length];
-//            ExchangeRate[] exchangeRates = response.exchangeRates;
-//            for (int i = 0; i < exchangeRates.length; i++) {
-//               ExchangeRate exchangeRate = exchangeRates[i];
-//               rmcExchangeRates[i] = new ExchangeRate(exchangeRate.name, exchangeRate.time, exchangeRate.price / 4000,  "RMC");
-//            }
-//            _latestRates.put("RMC", new QueryExchangeRatesResponse("RMC",rmcExchangeRates));
-//         }
       }
       _latestRatesTime = System.currentTimeMillis();
 
@@ -220,6 +235,12 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          currency = "USD";
          rmcFlag = true;
       }
+      boolean ethFlag = false;
+      if(currency.equals("ETH")) {
+         if(ethRate == 0) return null;
+         currency = "USD";
+         ethFlag = true;
+      }
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
          return null;
       }
@@ -237,7 +258,10 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
             //everything is fine, return the rate
             if(rmcFlag) {
-               r = new ExchangeRate(r.name, r.time, r.price * 4000, "RMC");
+               r = new ExchangeRate(r.name, r.time, r.price * rmcRate, "RMC");
+            }
+            if(ethFlag) {
+               r = new ExchangeRate(r.name, r.time, r.price / ethRate, "ETH");
             }
             return r;
          }

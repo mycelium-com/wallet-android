@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.rmc;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Created by elvis on 22.06.17.
@@ -27,8 +28,8 @@ public class Keys {
     }
 
     public static Calendar getICOEnd() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, 8, 1);
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"));
+        calendar.set(2017, 8, 28, 0, 0);
         return calendar;
     }
 }

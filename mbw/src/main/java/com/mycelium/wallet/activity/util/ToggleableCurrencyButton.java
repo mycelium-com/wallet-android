@@ -43,6 +43,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -94,8 +95,9 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void showFiat() {
       if(currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString())){
          llContainer.setVisibility(VISIBLE);
-         tvValue.setText(currentValue.getValue().multiply(BigDecimal.valueOf(4000)).stripTrailingZeros().toPlainString());
-         tvCurrency.setText("USD");
+         CurrencyValue value = CurrencyValue.fromValue(currentValue, "USD", this.currencySwitcher.getExchangeRateManager());
+         tvValue.setText(value.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
+         tvCurrency.setText(value.getCurrency());
       } else {
          super.showFiat();
       }

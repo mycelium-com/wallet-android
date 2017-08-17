@@ -35,24 +35,17 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
-import butterknife.ButterKnife;
-import butterknife.BindView;
-import butterknife.OnClick;
+
 import com.google.common.base.Optional;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -66,6 +59,10 @@ import com.squareup.otto.Bus;
 
 import java.util.UUID;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.MASS;
 import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.MT;
@@ -77,7 +74,7 @@ public class AddColuAccountActivity extends Activity {
    public static final String TAG = "AddColuAccountActivity";
 
    @BindView(R.id.btColuAddAccount) Button btColuAddAccount;
-   @BindView(R.id.tvTosLink) TextView tvTosLink;
+//   @BindView(R.id.tvTosLink) TextView tvTosLink;
 
    ColuAsset selectedColuAsset;
 
@@ -97,20 +94,20 @@ public class AddColuAccountActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       ButterKnife.bind(this);
       btColuAddAccount.setText(getString(R.string.colu_create_account, ""));
-      setTosLink(tvTosLink);
+//      setTosLink(tvTosLink);
    }
 
    void setButtonEnabled(){
          btColuAddAccount.setEnabled(true);
    }
 
-   private void setTosLink(TextView link) {
-      link.setClickable(true);
-      link.setMovementMethod(LinkMovementMethod.getInstance());
-      String linkUrl = getString(R.string.colu_tos_link_url);
-      String text = "<a href='" + linkUrl + "'> " + link.getText() + "</a>";
-      link.setText(Html.fromHtml(text));
-   }
+//   private void setTosLink(TextView link) {
+//      link.setClickable(true);
+//      link.setMovementMethod(LinkMovementMethod.getInstance());
+//      String linkUrl = getString(R.string.colu_tos_link_url);
+//      String text = "<a href='" + linkUrl + "'> " + link.getText() + "</a>";
+//      link.setText(Html.fromHtml(text));
+//   }
 
    @OnClick(R.id.btColuAddAccount)
    void onColuAddAccountClick() {
@@ -169,24 +166,24 @@ public class AddColuAccountActivity extends Activity {
 
    private void createColuAccount(final ColuAsset coluAsset) {
 
-      AlertDialog.Builder b = new AlertDialog.Builder(this);
-      b.setTitle(getString(R.string.colu));
-      View diaView = getLayoutInflater().inflate(R.layout.ext_colu_tos, null);
-      b.setView(diaView);
-      b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            // Create the account initially without set email address
-            // if needed, the user can later set and verify it via account menu.
-            // for now we hard code asset = MT
-            new AddColuAsyncTask(_mbwManager.getEventBus(), Optional.<String>absent(), coluAsset).execute();
-         }
-      });
-      b.setNegativeButton(getString(R.string.dontagree), null);
-
-      AlertDialog dialog = b.create();
-
-      dialog.show();
+//      AlertDialog.Builder b = new AlertDialog.Builder(this);
+//      b.setTitle(getString(R.string.colu));
+//      View diaView = getLayoutInflater().inflate(R.layout.ext_colu_tos, null);
+//      b.setView(diaView);
+//      b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
+//         @Override
+//         public void onClick(DialogInterface dialog, int which) {
+//            // Create the account initially without set email address
+//            // if needed, the user can later set and verify it via account menu.
+//            // for now we hard code asset = MT
+       new AddColuAsyncTask(_mbwManager.getEventBus(), Optional.<String>absent(), coluAsset).execute();
+//         }
+//      });
+//      b.setNegativeButton(getString(R.string.dontagree), null);
+//
+//      AlertDialog dialog = b.create();
+//
+//      dialog.show();
    }
 
    private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
@@ -219,7 +216,7 @@ public class AddColuAccountActivity extends Activity {
                coluManager.scanForAccounts();
                return uuid;
             } catch (Exception e) {
-               Log.d(TAG, "Error while creating Colu account for asset " + coluAsset.name + ": " + e.getMessage());
+               Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.name + ": " + e.getMessage());
                return null;
             }
          }
@@ -232,7 +229,7 @@ public class AddColuAccountActivity extends Activity {
             bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, account);
-            setResult(RESULT_COLU, result);
+            setResult(RESULT_OK, result);
             finish();
          } else {
             // something went wrong - clean up the half ready coluManager

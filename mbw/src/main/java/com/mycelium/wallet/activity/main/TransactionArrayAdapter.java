@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -102,7 +103,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // if the current selected currency is the same as the transactions
       if (alternativeCurrency.equals(record.value.getCurrency())) {
-         if (record.value.isBtc()) {
+         if(record.value.getCurrency().equalsIgnoreCase("RMC")) {
+            alternativeCurrency = "USD";
+         } else if (record.value.isBtc()) {
             // use the current selected fiat currency
             alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
          } else {
@@ -124,11 +127,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
             tvFiat.setText(Utils.getFormattedValueWithUnit(alternativeCurrencyValue, _mbwManager.getBitcoinDenomination()));
             tvFiat.setTextColor(color);
          }
-      } if(_mbwManager.getColuManager().isColuAsset(record.value.getCurrency())) {
-         tvFiat.setVisibility(View.VISIBLE);
-         tvFiat.setText(record.value.getValue().multiply(BigDecimal.valueOf(4000)).stripTrailingZeros().toPlainString() + " USD");
-         tvFiat.setTextColor(color);
-      }else {
+      } else {
          tvFiat.setVisibility(View.GONE);
       }
 

@@ -53,15 +53,15 @@
                 android:paddingRight="10dp"
                 android:text="@string/colu_backup_info"/>
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/colu_tos_link"
-                    android:id="@+id/tvTosLink"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="14sp"
-                    android:paddingTop="10dp"
-                    android:gravity="center"/>
+            <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:text="@string/colu_tos_link"-->
+                    <!--android:id="@+id/tvTosLink"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:textSize="14sp"-->
+                    <!--android:paddingTop="10dp"-->
+                    <!--android:gravity="center"/>-->
 
             <RadioGroup 
                     android:layout_width="fill_parent"

@@ -70,6 +70,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -202,7 +203,9 @@ public class BalanceFragment extends Fragment {
          tvBtcRate.setVisibility(View.VISIBLE);
          if(((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC){
             tcdFiatDisplay.setVisibility(View.VISIBLE);
-            tvBtcRate.setText("1 RMC = 4000 USD");
+            CurrencyValue rmcValue = ExactCurrencyValue.from(BigDecimal.ONE, "RMC");
+            CurrencyValue usdValue = CurrencyValue.fromValue(rmcValue, "USD", _mbwManager.getExchangeRateManager());
+            tvBtcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
          }else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));

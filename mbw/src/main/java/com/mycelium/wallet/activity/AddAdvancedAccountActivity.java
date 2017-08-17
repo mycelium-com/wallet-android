@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -199,7 +200,7 @@ public class AddAdvancedAccountActivity extends Activity {
                }
 
                // We imported this key from somewhere else - so we guess, that there exists an backup
-               returnAccount(key, MetadataStorage.BackupState.IGNORED);
+               returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
             } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
                Address address = StringHandlerActivity.getAddress(intent);
                returnAccount(address);
@@ -228,7 +229,7 @@ public class AddAdvancedAccountActivity extends Activity {
          Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
          if (key.isPresent()) {
             // This is a new key - there is no existing backup
-            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN);
+            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
@@ -252,10 +253,19 @@ public class AddAdvancedAccountActivity extends Activity {
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
       private Error error;
+      private ProgressDialog dialog;
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
          this.backupState = backupState;
+      }
+
+      @Override
+      protected void onPreExecute() {
+         super.onPreExecute();
+         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
+         dialog.setMessage("Importing");
+         dialog.show();
       }
 
       @Override
@@ -270,29 +280,23 @@ public class AddAdvancedAccountActivity extends Activity {
 
             if (asset != null) {
                if (coluManager.getAssetAccountUUID(asset) != null) {
-                  error = new Error("Export is not possible you already have " + asset.name + "account");
+                  error = new Error(getString(R.string.export_not_possible, asset.name));
                } else {
                   acc = _mbwManager.getColuManager().enableAsset(asset, key);
                }
             } else {
-               acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
-
-               // Dont show a legacy-account warning for freshly generated or imported keys
-               _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
-
-               _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
+               acc = returnSAAccount(key, backupState);
             }
          } catch (IOException e) {
             // could not determine account type, skipping
             return null;
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException(invalidKeyCipher);
          }
          return acc;
       }
 
       @Override
       protected void onPostExecute(UUID account) {
+         dialog.dismiss();
          if (account != null) {
             finishOk(account);
          } else if (error != null) {
@@ -305,8 +309,27 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
-   private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
-      new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
+   private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+      UUID acc;
+      try {
+         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+
+         // Dont show a legacy-account warning for freshly generated or imported keys
+         _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
+
+         _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
+         return acc;
+      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
+      }
+   }
+
+   private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AccountType type) {
+      if (type == AccountType.SA) {
+         finishOk(returnSAAccount(key, backupState));
+      } else {
+         new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
+      }
    }
 
    private void returnAccount(HdKeyNode hdKeyNode) {
@@ -393,5 +416,8 @@ public class AddAdvancedAccountActivity extends Activity {
       result.putExtra(AddAccountActivity.RESULT_KEY, account);
       setResult(RESULT_OK, result);
       finish();
+   }
+   enum AccountType {
+      SA, Colu, Unknown
    }
 }

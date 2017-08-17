@@ -77,6 +77,10 @@ public class CurrencySwitcher {
       }
    }
 
+   public ExchangeRateManager getExchangeRateManager() {
+      return exchangeRateManager;
+   }
+
    public void setCurrency(final String setToCurrency) {
       if (!setToCurrency.equals(CurrencyValue.BTC)) {
          currentFiatCurrency = setToCurrency;
