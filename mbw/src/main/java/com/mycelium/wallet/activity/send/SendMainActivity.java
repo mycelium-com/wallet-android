@@ -157,8 +157,6 @@ public class SendMainActivity extends Activity {
     private static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String SEPA_PAYMENT = "sepaPayment";
     private static final String RMC_URI = "rmcUri";
-    public static final String NO_MY_ACCOUNTS = "no_my_accounts";
-    public static final String NO_MY_ACCOUNTS_MESSAGE = "no_my_accounts_message";
 
     private enum TransactionStatus {
         MissingArguments, OutputTooSmall, InsufficientFunds, OK
@@ -533,11 +531,6 @@ public class SendMainActivity extends Activity {
    @OnClick(R.id.btAddressBook)
    void onClickAddressBook() {
        Intent intent = new Intent(this, GetFromAddressBookActivity.class);
-       if (isColu()) {
-           intent.putExtra(NO_MY_ACCOUNTS, true);
-           intent.putExtra(NO_MY_ACCOUNTS_MESSAGE,
-                   getString(R.string.block_access_to_account, ((ColuAccount)_account).getColuAsset().name));
-       }
        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
    }
 

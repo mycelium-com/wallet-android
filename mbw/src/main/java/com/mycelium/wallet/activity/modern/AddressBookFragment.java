@@ -71,9 +71,9 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
-import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -102,9 +102,6 @@ public class AddressBookFragment extends Fragment {
    private Boolean spendableOnly;
    private Boolean excudeSelected;
 
-   private Boolean blockPage = false;
-   private String blockPageMsg = null;
-
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.address_book, container, false));
@@ -112,8 +109,6 @@ public class AddressBookFragment extends Fragment {
       spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
-      blockPage = getArguments().getBoolean(SendMainActivity.NO_MY_ACCOUNTS, false);
-      blockPageMsg = getArguments().getString(SendMainActivity.NO_MY_ACCOUNTS_MESSAGE, null);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
@@ -159,13 +154,6 @@ public class AddressBookFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      if (blockPage) {
-         TextView textView = (TextView) findViewById(R.id.tvNoRecords);
-         textView.setText(blockPageMsg);
-         textView.setVisibility(View.VISIBLE);
-         findViewById(R.id.lvForeignAddresses).setVisibility(View.GONE);
-         return;
-      }
       if (ownAddresses) {
          updateUiMine();
       } else {
@@ -179,12 +167,20 @@ public class AddressBookFragment extends Fragment {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
+         //TODO a lot of pr
+         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
                     && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
                     && !account.getCurrencyBasedBalance().confirmed.isZero()
                     && account.getCurrencyBasedBalance().confirmed.isBtc()) || !spendableOnly) {
-               entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+               if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
+                       && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
+                  entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+               } else if (!(_mbwManager.getSelectedAccount() instanceof ColuAccount)) {
+                  entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+               }
+
             }
          }
       }
