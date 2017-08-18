@@ -81,6 +81,7 @@ import java.util.UUID;
 public class ColuManager implements AccountProvider {
 
     private static final String TAG = "ColuManager";
+    public static final int MAX_ACCOUNTS_NUMBER = 1000;
 
     private final MbwEnvironment env;
     private final MbwManager mgr;
@@ -435,15 +436,33 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    private void setColuAccountLabel(ColuAccount account) {
-        int sameTypeAccountsCount = 0;
-        for (ColuAccount coluAccount: coluAccounts.values()) {
-            if (coluAccount.getColuAsset().equals(account.getColuAsset()))
-                sameTypeAccountsCount++;
-        }
+    private void createColuAccountLabel(ColuAccount account) {
+        String proposedLabel = "";
+        int i = 1;
 
-        String postfix = Integer.toString(sameTypeAccountsCount);
-        metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
+        while (i < MAX_ACCOUNTS_NUMBER){
+            proposedLabel = account.getDefaultLabel() + " " + Integer.toString(i);
+
+            boolean foundExistingLabel = false;
+            for (ColuAccount coluAccount : coluAccounts.values()) {
+                if (!coluAccount.getColuAsset().equals(account.getColuAsset()) || coluAccount.getLabel() == null)
+                    continue;
+
+                String curLabel = coluAccount.getLabel();
+                if (proposedLabel.equals(curLabel)) {
+                    foundExistingLabel = true;
+                    break;
+                }
+            }
+
+            if (!foundExistingLabel) {
+                account.setLabel(proposedLabel);
+                metadataStorage.storeAccountLabel(account.getId(), proposedLabel);
+                break;
+            }
+
+            i++;
+        }
     }
 
     private ColuAccount createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
@@ -457,7 +476,7 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
-        setColuAccountLabel(account);
+        createColuAccountLabel(account);
 
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 
@@ -495,6 +514,7 @@ public class ColuManager implements AccountProvider {
             coluAccounts.put(account.getId(), account);
             loadSingleAddressAccounts();  // reload account from mycelium secure store
 
+            account.setLabel(metadataStorage.getLabelByAccount(account.getId()));
         } catch (InvalidKeyCipher e) {
             Log.e(TAG, e.toString());
         }
@@ -528,7 +548,7 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
-        setColuAccountLabel(account);
+        createColuAccountLabel(account);
 
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 

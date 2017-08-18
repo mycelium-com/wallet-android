@@ -137,6 +137,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    private SingleAddressAccount linkedAccount;
 
+   private String label;
+
    public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, Address address,
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
       this.accountBacking = backing;
@@ -1002,5 +1004,13 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    public void forgetPrivateKey() {
       accountKey = null;
+   }
+
+   public String getLabel() {
+      return label;
+   }
+
+   public void setLabel(String label) {
+      this.label = label;
    }
 }
