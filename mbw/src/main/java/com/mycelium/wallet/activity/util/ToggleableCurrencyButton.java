@@ -96,8 +96,12 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       if(currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString())){
          llContainer.setVisibility(VISIBLE);
          CurrencyValue value = CurrencyValue.fromValue(currentValue, "USD", this.currencySwitcher.getExchangeRateManager());
-         tvValue.setText(value.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
-         tvCurrency.setText(value.getCurrency());
+         if(value != null) {
+            if(value.getValue() != null) {
+               tvValue.setText(value.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
+            }
+            tvCurrency.setText(value.getCurrency());
+         }
       } else {
          super.showFiat();
       }
