@@ -88,6 +88,7 @@ public class AddressBookFragment extends Fragment {
    public static final String ADDRESS_RESULT_NAME = "address_result";
    public static final String ADDRESS_RESULT_ID = "address_result_id";
    public static final String OWN = "own";
+   public static final String FOR_FEE = "FOR_FEE";
    public static final String SELECT_ONLY = "selectOnly";
    public static final String SPENDABLE_ONLY = "spendable_only";
    public static final String EXCLUDE_SELECTED = "exclude_selected";
@@ -101,6 +102,7 @@ public class AddressBookFragment extends Fragment {
    private Boolean ownAddresses; // set to null on purpose
    private Boolean spendableOnly;
    private Boolean excudeSelected;
+   private Boolean forFee;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -109,6 +111,7 @@ public class AddressBookFragment extends Fragment {
       spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
+      forFee = getArguments().getBoolean(FOR_FEE, false);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
@@ -178,6 +181,8 @@ public class AddressBookFragment extends Fragment {
                        && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
                   entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
                } else if (!(_mbwManager.getSelectedAccount() instanceof ColuAccount)) {
+                  entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+               } else if(forFee) {
                   entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
                }
 

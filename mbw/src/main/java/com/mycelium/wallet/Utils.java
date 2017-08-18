@@ -709,6 +709,7 @@ public class Utils {
    public static boolean checkIsLinked(WalletAccount account, final Collection<WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
          if (walletAccount instanceof ColuAccount
+                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
                  && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
             return true;
          }
@@ -719,6 +720,7 @@ public class Utils {
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
          if (walletAccount instanceof ColuAccount
+                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
                  && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
             return walletAccount;
          }

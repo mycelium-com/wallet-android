@@ -30,17 +30,6 @@
                 android:textSize="14sp"
                 android:text="@string/colu_account_notes"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:textSize="14sp"
-            android:text="@string/note_can_have_one_account"/>
-
-
 
         <TextView
                 android:id="@+id/tvInfoBackup"
