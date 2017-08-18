@@ -405,9 +405,9 @@ public class AddAdvancedAccountActivity extends Activity {
             finishOk(account);
          } else if(askUserForColorize) {
              final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
-             list.add(0, getString(R.string.no));
+             list.add(0, "BTC");
              new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                     .setTitle("Do you want colorize account?")
+                     .setTitle(R.string.restore_addres_as)
                      .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
