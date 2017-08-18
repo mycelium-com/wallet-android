@@ -205,7 +205,9 @@ public class BalanceFragment extends Fragment {
             tcdFiatDisplay.setVisibility(View.VISIBLE);
             CurrencyValue rmcValue = ExactCurrencyValue.from(BigDecimal.ONE, "RMC");
             CurrencyValue usdValue = CurrencyValue.fromValue(rmcValue, "USD", _mbwManager.getExchangeRateManager());
-            tvBtcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
+            if(usdValue != null) {
+               tvBtcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
+            }
          }else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
