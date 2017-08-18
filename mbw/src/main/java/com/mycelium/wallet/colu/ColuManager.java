@@ -445,6 +445,12 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
+
+        String postfix = "";
+        if (coluAccounts.size() > 1)
+            postfix = Integer.toString(coluAccounts.size());
+        metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
+
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 
         return account;
@@ -490,20 +496,19 @@ public class ColuManager implements AccountProvider {
         InMemoryPrivateKey accountKey = null;
         CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
 
-        // case 3: new account or import account
-        if (accountKey == null) {
-            try {
-                if (importKey != null) {
-                    accountKey = importKey;
-                } else {
-                    accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
-                }
-                createdAccountInfo = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
-                Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                throw new RuntimeException(invalidKeyCipher);
+        try {
+            if (importKey != null) {
+                accountKey = importKey;
+            } else {
+                accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
             }
+            createdAccountInfo = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
+            setAssetAccountUUID(coluAsset, createdAccountInfo.id);
+            Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
+        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
         }
+
 
         ColuAccount account = new ColuAccount(
                 ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
@@ -511,16 +516,11 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
-        setAssetAccountUUID(coluAsset, account.getId());
 
-        // check if we already have a label for this account, otherwise set the default one
-        String label = metadataStorage.getLabelByAccount(account.getId());
-        if (Strings.isNullOrEmpty(label)) {
-            String postfix = "";
-            if (coluAccounts.size() > 1)
-                postfix = Integer.toString(coluAccounts.size());
-            metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
-        }
+        String postfix = "";
+        if (coluAccounts.size() > 1)
+            postfix = Integer.toString(coluAccounts.size());
+        metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
 
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 
@@ -564,18 +564,6 @@ public class ColuManager implements AccountProvider {
     public UUID enableReadOnlyAsset(ColuAccount.ColuAsset coluAsset, Address address) {
 
         ColuAccount newAccount = createReadOnlyColuAccount(coluAsset, address);
-
-        // check if we already have a label for this account, otherwise set the default one
-        String label = metadataStorage.getLabelByAccount(newAccount.getId());
-        if (Strings.isNullOrEmpty(label)) {
-            int i = 0;
-            if(metadataStorage.getAccountByLabel(newAccount.getDefaultLabel()).isPresent()) {
-                do {
-                    i++;
-                } while (metadataStorage.getAccountByLabel(newAccount.getDefaultLabel() + " " + i).isPresent());
-            }
-            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel() + (i == 0 ? "" : " " + i));
-        }
 
         // broadcast event, so that the UI shows the newly added account
         handler.post(new Runnable() {
