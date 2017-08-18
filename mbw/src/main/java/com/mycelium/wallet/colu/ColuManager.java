@@ -499,7 +499,6 @@ public class ColuManager implements AccountProvider {
                     accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
                 }
                 createdAccountInfo = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
-                setAssetAccountUUID(coluAsset, createdAccountInfo.id);
                 Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                 throw new RuntimeException(invalidKeyCipher);
@@ -512,6 +511,17 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
+        setAssetAccountUUID(coluAsset, account.getId());
+
+        // check if we already have a label for this account, otherwise set the default one
+        String label = metadataStorage.getLabelByAccount(account.getId());
+        if (Strings.isNullOrEmpty(label)) {
+            String postfix = "";
+            if (coluAccounts.size() > 1)
+                postfix = Integer.toString(coluAccounts.size());
+            metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
+        }
+
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 
         return account;
@@ -531,7 +541,8 @@ public class ColuManager implements AccountProvider {
             for(ColuAccount coluAccount : coluAccounts.values()) {
                 if (coluAccount.getAddress().equals(account.getAddress())) {
                     coluAccount.setLinkedAccount(account);
-                    metadataStorage.storeAccountLabel(account.getId(), coluAccount.getColuAsset().name + " Bitcoin");
+                    String accountLabel = metadataStorage.getLabelByAccount(coluAccount.getId());
+                    metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
                     break;
                 }
 
@@ -583,15 +594,6 @@ public class ColuManager implements AccountProvider {
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
 
         ColuAccount newAccount = createAccount(coluAsset, key);
-
-        // check if we already have a label for this account, otherwise set the default one
-        String label = metadataStorage.getLabelByAccount(newAccount.getId());
-        if (Strings.isNullOrEmpty(label)) {
-            String postfix = "";
-            if (coluAccounts.size() > 1)
-                postfix = Integer.toString(coluAccounts.size());
-            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel() + postfix);
-        }
 
         // broadcast event, so that the UI shows the newly added account
         handler.post(new Runnable() {
