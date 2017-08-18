@@ -256,6 +256,8 @@ public class AddAdvancedAccountActivity extends Activity {
       private MetadataStorage.BackupState backupState;
       private Error error;
       private ProgressDialog dialog;
+      private boolean askUserForColorize = false;
+
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -281,13 +283,9 @@ public class AddAdvancedAccountActivity extends Activity {
             ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
 
             if (asset != null) {
-               if (coluManager.getAssetAccountUUIDs(asset).length > 0) {
-                  error = new Error(getString(R.string.export_not_possible, asset.name));
-               } else {
-                  acc = _mbwManager.getColuManager().enableAsset(asset, key);
-               }
+               acc = _mbwManager.getColuManager().enableAsset(asset, key);
             } else {
-               acc = returnSAAccount(key, backupState);
+               askUserForColorize = true;
             }
          } catch (IOException e) {
             // could not determine account type, skipping
@@ -295,13 +293,39 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-
+      private int selectedItem;
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          if (account != null) {
             finishOk(account);
-         } else if (error != null) {
+         } else if(askUserForColorize) {
+            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+            list.add(0, "BTC");
+            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                    .setTitle(R.string.restore_addres_as)
+                    .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          selectedItem = i;
+                       }
+                    })
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          UUID account;
+                          if (i == 0) {
+                             account = returnSAAccount(key, backupState);
+                          } else {
+                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
+                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
+                          }
+                          finishOk(account);
+                       }
+                    })
+                    .create()
+                    .show();
+         }else  if (error != null) {
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setMessage(error.getMessage())
                     .setPositiveButton(R.string.button_ok, null)
@@ -345,7 +369,6 @@ public class AddAdvancedAccountActivity extends Activity {
 
       private Address address;
       private AccountType addressType;
-      private Error error;
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
 
@@ -429,12 +452,6 @@ public class AddAdvancedAccountActivity extends Activity {
                      })
                      .create()
                      .show();
-         } else if (error != null) {
-            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setMessage(error.getMessage())
-                    .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
          }
       }
    }
