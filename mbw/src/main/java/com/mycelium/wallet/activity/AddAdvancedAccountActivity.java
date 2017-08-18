@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -65,7 +64,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
@@ -162,9 +160,9 @@ public class AddAdvancedAccountActivity extends Activity {
       super.onResume();
 
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-            StringHandleConfig.returnKeyOrAddressOrHdNode(),
-            Utils.getClipboardString(AddAdvancedAccountActivity.this),
-            MbwManager.getInstance(this).getNetwork());
+              StringHandleConfig.returnKeyOrAddressOrHdNode(),
+              Utils.getClipboardString(AddAdvancedAccountActivity.this),
+              MbwManager.getInstance(this).getNetwork());
 
       boolean canImportFromClipboard = (canHandle != StringHandlerActivity.ParseAbility.NO);
 
@@ -180,8 +178,8 @@ public class AddAdvancedAccountActivity extends Activity {
          @Override
          public void onClick(View v) {
             Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
-                  StringHandleConfig.returnKeyOrAddressOrHdNode(),
-                  Utils.getClipboardString(AddAdvancedAccountActivity.this));
+                    StringHandleConfig.returnKeyOrAddressOrHdNode(),
+                    Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
             AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
          }
@@ -281,7 +279,7 @@ public class AddAdvancedAccountActivity extends Activity {
             ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
 
             if (asset != null) {
-               if (coluManager.getAssetAccountUUID(asset) != null) {
+               if (coluManager.getAssetAccountUUIDs(asset).length > 0) {
                   error = new Error(getString(R.string.export_not_possible, asset.name));
                } else {
                   acc = _mbwManager.getColuManager().enableAsset(asset, key);
@@ -347,7 +345,6 @@ public class AddAdvancedAccountActivity extends Activity {
       private AccountType addressType;
       private Error error;
       private ProgressDialog dialog;
-       private boolean askUserForColorize = false;
 
       public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
          this.address = address;
@@ -369,17 +366,16 @@ public class AddAdvancedAccountActivity extends Activity {
          try {
             switch(addressType) {
                case Unknown: {
-                     ColuManager coluManager = _mbwManager.getColuManager();
-                     ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  ColuManager coluManager = _mbwManager.getColuManager();
+                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
 
-                     if (asset != null) {
-                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
-                     } else {
-                         askUserForColorize = true;
-
-                     }
+                  if (asset != null) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  } else {
+                     acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                   }
-                  break;
+               }
+               break;
                case SA:
                   acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                   break;
@@ -398,38 +394,12 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-      private int selectedItem;
+
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          if (account != null) {
             finishOk(account);
-         } else if(askUserForColorize) {
-             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
-             list.add(0, getString(R.string.no));
-             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                     .setTitle("Do you want colorize account?")
-                     .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                           selectedItem = i;
-                        }
-                     })
-                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                           UUID account;
-                           if (i == 0) {
-                              account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-                           } else {
-                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
-                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
-                           }
-                           finishOk(account);
-                        }
-                     })
-                     .create()
-                     .show();
          } else if (error != null) {
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setMessage(error.getMessage())

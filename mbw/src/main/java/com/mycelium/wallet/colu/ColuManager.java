@@ -312,8 +312,15 @@ public class ColuManager implements AccountProvider {
                 if (assetDefinition == null) {
                     Log.e(TAG, "loadAccounts: could not find asset with id " + assetId);
                 } else {
-                    if (createAccount(assetDefinition, null) != null) {
-                        Log.d(TAG, "ColuManager: loaded asset " + assetDefinition.id);
+                    UUID[] uuids = getAssetAccountUUIDs(assetDefinition);
+                    if (uuids.length > 0) {
+                        for (int i = 0; i < uuids.length; i++) {
+                            loadAccount(assetDefinition, uuids[i]);
+                        }
+                    } else {
+                        if (createAccount(assetDefinition, null) != null) {
+                            Log.d(TAG, "ColuManager: loaded asset " + assetDefinition.id);
+                        }
                     }
                 }
             }
@@ -381,20 +388,14 @@ public class ColuManager implements AccountProvider {
     }
 
     // convenience method to make it easier to migrate from metadataStorage to backing later on
-    public UUID getAssetAccountUUID(ColuAccount.ColuAsset coluAsset) {
+    public UUID[] getAssetAccountUUIDs(ColuAccount.ColuAsset coluAsset) {
         Log.d(TAG, "Looking for UUID associated to coluAsset " + coluAsset.id);
-        Optional<UUID> uuid = metadataStorage.getColuUUID(coluAsset.id);
-        if (uuid.isPresent()) {
-            Log.d(TAG, "Found UUID for asset: " + uuid.get().toString());
-            return uuid.get();
-        }
-        Log.d(TAG, "No UUID found for asset " + coluAsset.id);
-        return null;
+        return metadataStorage.getColuAssetUUIDs(coluAsset.id);
     }
 
     public void setAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         Log.d(TAG, "Associating " + uuid.toString() + " with asset " + coluAsset.id);
-        metadataStorage.storeColuUUID(coluAsset.id, uuid);
+        metadataStorage.storeColuAssetUUIDs(coluAsset.id, uuid);
     }
 
     public void deleteAssetAccountUUID(ColuAccount.ColuAsset coluAsset) {
@@ -404,21 +405,20 @@ public class ColuManager implements AccountProvider {
 
     public void forgetPrivateKey(ColuAccount account) {
         try {
-            UUID uuid = getAssetAccountUUID(account.getColuAsset());
-            SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
+            SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(account.getId());
             acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
             account.forgetPrivateKey();
         } catch (InvalidKeyCipher e) {
             Log.e(TAG, e.toString());
         }
     }
-    
+
     public void deleteAccount(ColuAccount account) {
         Log.d(TAG, "deleteAccount: attempting to delete account.");
         // find asset
         // disable account
         // remove key from storage
-        UUID uuid = getAssetAccountUUID(account.getColuAsset());
+        UUID uuid = account.getLinkedAccount().getId();
         SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
         try {
             acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
@@ -449,6 +449,36 @@ public class ColuManager implements AccountProvider {
 
         return account;
     }
+
+    private ColuAccount loadAccount(ColuAccount.ColuAsset coluAsset, UUID uuid)
+    {
+        InMemoryPrivateKey accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
+        CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
+        // case 1: check if private key already exists in secure store for this asset
+        if (_walletAccounts.containsKey(uuid)) {
+            // account exists in mycelium colu keystore, use it to create ColuAccount object
+            Log.d(TAG, "Found UUID in metatadaStorage mapping for asset and loaded key from mycelium secure store.");
+            try {
+                createdAccountInfo.id = uuid;
+                SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
+                accountKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+                createdAccountInfo.accountBacking = account.getAccountBacking();
+            } catch (InvalidKeyCipher e) {
+                Log.e(TAG, e.toString());
+            }
+        }
+
+        ColuAccount account = new ColuAccount(
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
+                exchangeRateManager, handler, eventBus, logger, coluAsset
+        );
+
+        coluAccounts.put(account.getId(), account);
+        loadSingleAddressAccounts();  // reload account from mycelium secure store
+
+        return account;
+
+    }
     // create OR load account if a key already exists
 // converts old dev key storage into backend storage
     private ColuAccount createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
@@ -459,20 +489,6 @@ public class ColuManager implements AccountProvider {
 
         InMemoryPrivateKey accountKey = null;
         CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
-
-        // case 1: check if private key already exists in secure store for this asset
-        if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
-            // account exists in mycelium colu keystore, use it to create ColuAccount object
-            Log.d(TAG, "Found UUID in metatadaStorage mapping for asset and loaded key from mycelium secure store.");
-            try {
-                createdAccountInfo.id = getAssetAccountUUID(coluAsset);
-                SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
-                accountKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-                createdAccountInfo.accountBacking = account.getAccountBacking();
-            } catch (InvalidKeyCipher e) {
-                Log.e(TAG, e.toString());
-            }
-        }
 
         // case 3: new account or import account
         if (accountKey == null) {
@@ -497,12 +513,6 @@ public class ColuManager implements AccountProvider {
 
         coluAccounts.put(account.getId(), account);
         loadSingleAddressAccounts();  // reload account from mycelium secure store
-        // loaded account should be in the list
-        if (_walletAccounts.containsKey(getAssetAccountUUID(coluAsset))) {
-            Log.d(TAG, "createAccount: SUCCESS ! Key found in mycelium secure store.");
-        } else {
-            Log.d(TAG, "createAccount: Error, key not found in mycelium secure store.");
-        }
 
         return account;
     }
@@ -571,18 +581,16 @@ public class ColuManager implements AccountProvider {
     }
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
-        // check if we already have it enabled
-        ColuAccount account = getAccountForColuAsset(coluAsset);
-        if (account != null) {
-            return account.getId();
-        }
 
         ColuAccount newAccount = createAccount(coluAsset, key);
 
         // check if we already have a label for this account, otherwise set the default one
         String label = metadataStorage.getLabelByAccount(newAccount.getId());
         if (Strings.isNullOrEmpty(label)) {
-            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel());
+            String postfix = "";
+            if (coluAccounts.size() > 1)
+                postfix = Integer.toString(coluAccounts.size());
+            metadataStorage.storeAccountLabel(newAccount.getId(), newAccount.getDefaultLabel() + postfix);
         }
 
         // broadcast event, so that the UI shows the newly added account

@@ -35,6 +35,8 @@
 package com.mycelium.wallet.persistence;
 
 import android.content.Context;
+import android.text.TextUtils;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -165,13 +167,13 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public BackupState getMasterSeedBackupState() {
       return BackupState.fromString(
-            getKeyCategoryValueEntry(SEED_BACKUPSTATE, BackupState.UNKNOWN.toString())
+              getKeyCategoryValueEntry(SEED_BACKUPSTATE, BackupState.UNKNOWN.toString())
       );
    }
 
    public BackupState getOtherAccountBackupState(UUID accountId) {
       return BackupState.fromString(
-            getKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
+              getKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
       );
    }
 
@@ -325,20 +327,38 @@ public class MetadataStorage extends GenericMetadataStorage {
       deleteByKeyCategory(COLU.of("key" + assetId));
    }
 
-   public void storeColuUUID(String assetId, UUID uuid) {
-      storeKeyCategoryValueEntry(COLU.of(assetId), uuid.toString());
+   public void storeColuAssetUUIDs(String assetId, UUID uuid) {
+      String value;
+
+      UUID[] uuids = getColuAssetUUIDs(assetId);
+      if (uuids.length > 0) {
+         value = TextUtils.join(",", uuids);
+         value += "," + uuid.toString();
+      } else {
+         value = uuid.toString();
+      }
+      storeKeyCategoryValueEntry(COLU.of(assetId), value);
    }
 
    public void deleteColuUUID(String assetId) {
       deleteByKeyCategory(COLU.of(assetId));
    }
 
-   public Optional<UUID> getColuUUID(String assetId) {
+   public UUID[] getColuAssetUUIDs(String assetId) {
       Optional<String> uuid = getKeyCategoryValueEntry(COLU.of(assetId));
+
       if (!uuid.isPresent()) {
-         return Optional.absent();
+         return new UUID[]{};
       }
-      return Optional.of(UUID.fromString(uuid.get()));
+
+      String[] strUuids = uuid.get().split(",");
+      UUID[] uuids = new UUID[strUuids.length];
+
+      for(int i = 0; i < strUuids.length; i++) {
+         uuids[i] =UUID.fromString(strUuids[i]);
+      }
+
+      return uuids;
    }
 
    public boolean getGlideraIsEnabled() {

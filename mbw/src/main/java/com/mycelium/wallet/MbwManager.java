@@ -154,7 +154,7 @@ public class MbwManager {
     */
    private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
    private Optional<CoinapultManager> _coinapultManager;
-   private Optional<ColuManager> _coluManager;
+   private volatile Optional<ColuManager> _coluManager;
 
    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -245,8 +245,8 @@ public class MbwManager {
       _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb, getLtApi(), this);
 
       _pin = new Pin(
-            preferences.getString(Constants.PIN_SETTING, ""),
-            preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
+              preferences.getString(Constants.PIN_SETTING, ""),
+              preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
       );
       _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
 
@@ -278,10 +278,10 @@ public class MbwManager {
       _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi);
       _exchangeRateManager.setClient(new RmcApiClient(getNetwork()));
       _currencySwitcher = new CurrencySwitcher(
-            _exchangeRateManager,
-            fiatCurrencies,
-            getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
-            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
+              _exchangeRateManager,
+              fiatCurrencies,
+              getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
+              Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
       );
 
       // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -289,8 +289,8 @@ public class MbwManager {
       int memoryClass = am.getMemoryClass();
 
       _deviceScryptParameters = memoryClass > 20
-            ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
-            : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
+              ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
+              : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
       _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
       _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
@@ -307,7 +307,7 @@ public class MbwManager {
       }
 
       InitColuManagerTask initColu = new InitColuManagerTask();
-      initColu.execute(); 
+      initColu.execute();
       // set the currency-list after we added all extra accounts, they may provide
       // additional needed fiat currencies
       setCurrencyList(fiatCurrencies);
@@ -317,23 +317,23 @@ public class MbwManager {
 
       _versionManager.initBackgroundVersionChecker();
       _blockExplorerManager = new BlockExplorerManager(this,
-            _environment.getBlockExplorerList(),
-            getPreferences().getString(Constants.BLOCK_EXPLORER,
-                  _environment.getBlockExplorerList().get(0).getIdentifier()));
+              _environment.getBlockExplorerList(),
+              getPreferences().getString(Constants.BLOCK_EXPLORER,
+                      _environment.getBlockExplorerList().get(0).getIdentifier()));
    }
 
-    private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
-        protected Optional<ColuManager> doInBackground(Void... params) {
-            return createColuManager(_applicationContext, _environment);
-        }
+   private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
+      protected Optional<ColuManager> doInBackground(Void... params) {
+         return Optional.of(getColuManager());
+      }
 
-        protected void onPostExecute(Optional<ColuManager> coluMgr) {
-            _coluManager = coluMgr;
-            if(_coluManager.isPresent()) {
-                addExtraAccounts(_coluManager.get());
-            }
-        }
-    }
+      protected void onPostExecute(Optional<ColuManager> coluMgr) {
+         _coluManager = coluMgr;
+         if(_coluManager.isPresent()) {
+            addExtraAccounts(_coluManager.get());
+         }
+      }
+   }
 
    public void addExtraAccounts(AccountProvider accounts) {
       _walletManager.addExtraAccounts(accounts);
@@ -360,13 +360,13 @@ public class MbwManager {
             }
          };
          return Optional.of(new CoinapultManager(
-               _environment,
-               derivation,
-               _eventBus,
-               new Handler(_applicationContext.getMainLooper()),
-               _storage,
-               _exchangeRateManager,
-               retainingWapiLogger));
+                 _environment,
+                 derivation,
+                 _eventBus,
+                 new Handler(_applicationContext.getMainLooper()),
+                 _storage,
+                 _exchangeRateManager,
+                 retainingWapiLogger));
 
       } else {
          return Optional.absent();
@@ -382,18 +382,18 @@ public class MbwManager {
 
       // Create persisted secure storage instance
       SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking,
-            new AndroidRandomSource());
+              new AndroidRandomSource());
 
-         return Optional.of(new ColuManager(
-               coluSecureKeyValueStore,
-               coluBacking,
-               this,
-               _environment,
-               _eventBus,
-               new Handler(_applicationContext.getMainLooper()),
-               _storage,
-               _exchangeRateManager, // not sure we need this one for colu
-               retainingWapiLogger));
+      return Optional.of(new ColuManager(
+              coluSecureKeyValueStore,
+              coluBacking,
+              this,
+              _environment,
+              _eventBus,
+              new Handler(_applicationContext.getMainLooper()),
+              _storage,
+              _exchangeRateManager, // not sure we need this one for colu
+              retainingWapiLogger));
 /*
       } else {
          return Optional.absent();
@@ -605,17 +605,17 @@ public class MbwManager {
 
       // Create persisted secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
-            new AndroidRandomSource());
+              new AndroidRandomSource());
 
       ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
-            getTrezorManager(),
-            getKeepKeyManager(),
-            getLedgerManager()
+              getTrezorManager(),
+              getKeepKeyManager(),
+              getLedgerManager()
       );
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy);
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -640,7 +640,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-            backing, environment.getNetwork(), _wapi, null);
+              backing, environment.getNetwork(), _wapi, null);
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
@@ -868,23 +868,23 @@ public class MbwManager {
                   if (_pin.isResettable()) {
                      // Show hint, that this pin is resettable
                      new AlertDialog.Builder(activity)
-                           .setTitle(R.string.pin_invalid_pin)
-                           .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
-                              @Override
-                              public void onClick(DialogInterface dialogInterface, int i) {
-                                 pinDialog.dismiss();
-                              }
-                           })
-                           .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
-                              @Override
-                              public void onClick(DialogInterface dialogInterface, int i) {
-                                 pinDialog.dismiss();
-                                 MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
-                              }
-                           })
+                             .setTitle(R.string.pin_invalid_pin)
+                             .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                   pinDialog.dismiss();
+                                }
+                             })
+                             .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                   pinDialog.dismiss();
+                                   MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
+                                }
+                             })
 
-                           .setMessage(activity.getString(R.string.wrong_pin_message))
-                           .show();
+                             .setMessage(activity.getString(R.string.wrong_pin_message))
+                             .show();
                   } else {
                      // This pin is not resettable, you are out of luck
                      Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
@@ -1323,16 +1323,18 @@ public class MbwManager {
    }
 
    public ColuManager getColuManager() {
-     if(_coluManager != null && _coluManager.isPresent()) {
-        return _coluManager.get();
-     } else {
-        _coluManager = createColuManager(_applicationContext, _environment);
-        if(_coluManager.isPresent()) {
-            return _coluManager.get();
-        } else {
-            throw new IllegalStateException("Tried to obtain colu manager without having created one.");
-        }
-     }
+      if(_coluManager != null && _coluManager.isPresent()) {
+         return _coluManager.get();
+      } else {
+         synchronized (this) {
+            _coluManager = createColuManager(_applicationContext, _environment);
+            if (_coluManager.isPresent()) {
+               return _coluManager.get();
+            } else {
+               throw new IllegalStateException("Tried to obtain colu manager without having created one.");
+            }
+         }
+      }
    }
 
    public Cache<String, Object> getBackgroundObjectsCache() {
