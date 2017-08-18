@@ -434,6 +434,17 @@ public class ColuManager implements AccountProvider {
         }
     }
 
+    private void setColuAccountLabel(ColuAccount account) {
+        int sameTypeAccountsCount = 0;
+        for (ColuAccount coluAccount: coluAccounts.values()) {
+            if (coluAccount.getColuAsset().equals(account.getColuAsset()))
+                sameTypeAccountsCount++;
+        }
+
+        String postfix = Integer.toString(sameTypeAccountsCount);
+        metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
+    }
+
     private ColuAccount createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
 
         CreatedAccountInfo createdAccountInfo = createSingleAddressAccount(address);
@@ -445,45 +456,48 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
-
-        String postfix = "";
-        if (coluAccounts.size() > 1)
-            postfix = Integer.toString(coluAccounts.size());
-        metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
+        setColuAccountLabel(account);
 
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 
         return account;
     }
 
-    private ColuAccount loadAccount(ColuAccount.ColuAsset coluAsset, UUID uuid)
-    {
-        InMemoryPrivateKey accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
-        CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
-        // case 1: check if private key already exists in secure store for this asset
-        if (_walletAccounts.containsKey(uuid)) {
+    private void loadAccount(ColuAccount.ColuAsset coluAsset, UUID uuid) {
+        try {
+            CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
+            SingleAddressAccount singleAddressAccount;
+            // case 1: check if private key already exists in secure store for this asset
+            if (!_walletAccounts.containsKey(uuid))
+                return;
+
             // account exists in mycelium colu keystore, use it to create ColuAccount object
             Log.d(TAG, "Found UUID in metatadaStorage mapping for asset and loaded key from mycelium secure store.");
-            try {
-                createdAccountInfo.id = uuid;
-                SingleAddressAccount account = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
-                accountKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-                createdAccountInfo.accountBacking = account.getAccountBacking();
-            } catch (InvalidKeyCipher e) {
-                Log.e(TAG, e.toString());
+
+            createdAccountInfo.id = uuid;
+            singleAddressAccount = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
+            InMemoryPrivateKey accountKey = singleAddressAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+            createdAccountInfo.accountBacking = singleAddressAccount.getAccountBacking();
+
+            ColuAccount account;
+
+            if (accountKey == null) {
+                account = new ColuAccount(
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
+                        exchangeRateManager, handler, eventBus, logger, coluAsset);
+            } else {
+                account = new ColuAccount(
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
+                        exchangeRateManager, handler, eventBus, logger, coluAsset
+                );
             }
+
+            coluAccounts.put(account.getId(), account);
+            loadSingleAddressAccounts();  // reload account from mycelium secure store
+
+        } catch (InvalidKeyCipher e) {
+            Log.e(TAG, e.toString());
         }
-
-        ColuAccount account = new ColuAccount(
-                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                exchangeRateManager, handler, eventBus, logger, coluAsset
-        );
-
-        coluAccounts.put(account.getId(), account);
-        loadSingleAddressAccounts();  // reload account from mycelium secure store
-
-        return account;
-
     }
     // create OR load account if a key already exists
 // converts old dev key storage into backend storage
@@ -516,11 +530,7 @@ public class ColuManager implements AccountProvider {
         );
 
         coluAccounts.put(account.getId(), account);
-
-        String postfix = "";
-        if (coluAccounts.size() > 1)
-            postfix = Integer.toString(coluAccounts.size());
-        metadataStorage.storeAccountLabel(account.getId(), account.getDefaultLabel() + " " + postfix);
+        setColuAccountLabel(account);
 
         loadSingleAddressAccounts();  // reload account from mycelium secure store
 
