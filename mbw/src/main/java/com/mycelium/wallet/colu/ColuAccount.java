@@ -151,7 +151,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       this.satoshiAmount = 0;
       this.address = address;
 
-      uuid =  UUID.randomUUID();
+      uuid = getGuidForAsset(coluAsset, address.getAllAddressBytes());
 
       archived = metadataStorage.getArchived(uuid);
    }
