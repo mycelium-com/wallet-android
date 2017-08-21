@@ -66,6 +66,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
@@ -280,7 +281,7 @@ public class AddAdvancedAccountActivity extends Activity {
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            List<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAsset(key.getPublicKey());
+            Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(key.getPublicKey());
 
             if (assets.size() > 0) {
                for (ColuAccount.ColuAsset asset : assets) {
@@ -395,7 +396,7 @@ public class AddAdvancedAccountActivity extends Activity {
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAsset(this.address);
+                  Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(this.address);
 
                   if (assets.size() > 0) {
                      for(ColuAccount.ColuAsset asset : assets) {
@@ -411,7 +412,7 @@ public class AddAdvancedAccountActivity extends Activity {
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAsset(this.address);
+                  Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(this.address);
 
                   if (assets != null) {
                      for(ColuAccount.ColuAsset asset : assets) {

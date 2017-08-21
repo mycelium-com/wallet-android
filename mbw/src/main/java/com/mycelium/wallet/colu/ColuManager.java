@@ -74,9 +74,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ColuManager implements AccountProvider {
@@ -592,6 +594,12 @@ public class ColuManager implements AccountProvider {
 
     public UUID enableReadOnlyAsset(ColuAccount.ColuAsset coluAsset, Address address) {
 
+        UUID uuid = ColuAccount.getGuidForAsset(coluAsset, address.getAllAddressBytes());
+
+        if (coluAccounts.containsKey(uuid)) {
+            return uuid;
+        }
+
         ColuAccount newAccount = createReadOnlyColuAccount(coluAsset, address);
 
         // broadcast event, so that the UI shows the newly added account
@@ -610,6 +618,12 @@ public class ColuManager implements AccountProvider {
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
 
+        UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().getPublicKeyBytes());;
+
+        if (coluAccounts.containsKey(uuid)) {
+            return uuid;
+        }
+
         ColuAccount newAccount = createAccount(coluAsset, key);
 
         // broadcast event, so that the UI shows the newly added account
@@ -624,16 +638,6 @@ public class ColuManager implements AccountProvider {
         saveEnabledAssetIds();
 
         return newAccount.getId();
-    }
-
-    @android.support.annotation.Nullable
-    private ColuAccount getAccountForColuAsset(ColuAccount.ColuAsset asset) {
-        for (ColuAccount account : coluAccounts.values()) {
-            if (account.getColuAsset().equals(asset)) {
-                return account;
-            }
-        }
-        return null;
     }
 
     // getAccounts is called by WalletManager
@@ -839,9 +843,9 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-    public List<ColuAccount.ColuAsset> getColuAddressAsset(Address address) throws IOException {
+    public Set<ColuAccount.ColuAsset> getColuAddressAssets(Address address) throws IOException {
 
-        List<ColuAccount.ColuAsset> assetsList = new ArrayList<>();
+        Set<ColuAccount.ColuAsset> assetsList = new HashSet<>();
 
         AddressInfo.Json addressInfo = coluClient.getBalance(address);
 
@@ -866,8 +870,8 @@ public class ColuManager implements AccountProvider {
         return assetsList;
     }
 
-    public List<ColuAccount.ColuAsset> getColuAddressAsset(PublicKey key) throws IOException {
-        return getColuAddressAsset(key.toAddress(getNetwork()));
+    public Set<ColuAccount.ColuAsset> getColuAddressAssets(PublicKey key) throws IOException {
+        return getColuAddressAssets(key.toAddress(getNetwork()));
     }
 
     public void startSynchronization() {
