@@ -66,6 +66,8 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
@@ -280,10 +282,12 @@ public class AddAdvancedAccountActivity extends Activity {
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
+            Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(key.getPublicKey());
 
-            if (asset != null) {
-               acc = _mbwManager.getColuManager().enableAsset(asset, key);
+            if (assets.size() > 0) {
+               for (ColuAccount.ColuAsset asset : assets) {
+                  acc = _mbwManager.getColuManager().enableAsset(asset, key);
+               }
             } else {
                askUserForColorize = true;
             }
@@ -388,10 +392,12 @@ public class AddAdvancedAccountActivity extends Activity {
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(this.address);
 
-                  if (asset != null) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  if (assets.size() > 0) {
+                     for(ColuAccount.ColuAsset asset : assets) {
+                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                     }
                   } else {
                      askUserForColorize = true;
                   }
@@ -402,10 +408,12 @@ public class AddAdvancedAccountActivity extends Activity {
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(this.address);
 
-                  if (asset != null) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  if (assets != null) {
+                     for(ColuAccount.ColuAsset asset : assets) {
+                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                     }
                   }
                   break;
             }
