@@ -441,7 +441,7 @@ public class AddAdvancedAccountActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                            UUID account;
-                           if (i == 0) {
+                           if (selectedItem == 0) {
                               account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                            } else {
                               ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
