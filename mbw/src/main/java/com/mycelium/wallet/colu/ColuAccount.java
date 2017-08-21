@@ -722,7 +722,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    protected boolean doSynchronization(SyncMode mode) {
       try {
          manager.updateAccountBalance(this);
-         linkedAccount.doSynchronization(SyncMode.NORMAL);
+         if(linkedAccount != null) {
+            linkedAccount.doSynchronization(SyncMode.NORMAL);
+         }
       } catch (IOException e) {
          Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
       }
@@ -887,7 +889,18 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public enum ColuAssetType {
       MT,
       MASS,
-      RMC
+      RMC;
+
+      public static ColuAssetType parse(String type) {
+         if (type.equalsIgnoreCase("mt")) {
+            return MT;
+         } else if (type.equalsIgnoreCase("mass") || type.equalsIgnoreCase("mss")) {
+            return MASS;
+         } else if (type.equalsIgnoreCase("rmc")) {
+            return RMC;
+         }
+         return null;
+      }
    }
 
    public static class ColuAsset {

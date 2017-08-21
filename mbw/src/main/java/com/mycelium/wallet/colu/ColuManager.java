@@ -190,6 +190,19 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
+    public boolean hasAccountWithType(Address address, ColuAccount.ColuAssetType type) {
+        for (WalletAccount account : getAccounts().values()) {
+            if (account instanceof ColuAccount
+                    && ((ColuAccount) account).getColuAsset().assetType == type
+                    && ((ColuAccount) account).getAddress().equals(address)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
     public Transaction signTransaction(ColuBroadcastTxid.Json txid, ColuAccount coluAccount) {
 
         if (txid == null) {
@@ -339,6 +352,7 @@ public class ColuManager implements AccountProvider {
             }
         }.execute();
     }
+
 
     class CreatedAccountInfo {
         public UUID id;
