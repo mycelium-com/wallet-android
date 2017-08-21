@@ -465,8 +465,12 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    private ColuAccount createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
+    private boolean isAddressInUse(Address address) {
+        Optional<UUID> accountId = mgr.getAccountId(address, null);
+        return accountId.isPresent();
+    }
 
+    private ColuAccount createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
         CreatedAccountInfo createdAccountInfo = createSingleAddressAccount(address);
         setAssetAccountUUID(coluAsset, createdAccountInfo.id);
 
@@ -521,6 +525,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private ColuAccount createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
+
         if (coluAsset == null) {
             Log.e(TAG, "createAccount called without asset !");
             return null;
@@ -590,6 +595,9 @@ public class ColuManager implements AccountProvider {
     }
 
     public UUID enableReadOnlyAsset(ColuAccount.ColuAsset coluAsset, Address address) {
+        //Make check to ensure the address is not in use
+        if (isAddressInUse(address))
+            return null;
 
         ColuAccount newAccount = createReadOnlyColuAccount(coluAsset, address);
 
@@ -608,6 +616,9 @@ public class ColuManager implements AccountProvider {
     }
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
+        //Make check to ensure the address is not in use
+        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork())))
+            return null;
 
         ColuAccount newAccount = createAccount(coluAsset, key);
 
@@ -623,16 +634,6 @@ public class ColuManager implements AccountProvider {
         saveEnabledAssetIds();
 
         return newAccount.getId();
-    }
-
-    @android.support.annotation.Nullable
-    private ColuAccount getAccountForColuAsset(ColuAccount.ColuAsset asset) {
-        for (ColuAccount account : coluAccounts.values()) {
-            if (account.getColuAsset().equals(asset)) {
-                return account;
-            }
-        }
-        return null;
     }
 
     // getAccounts is called by WalletManager

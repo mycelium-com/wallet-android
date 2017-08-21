@@ -277,10 +277,18 @@ public class AddAdvancedAccountActivity extends Activity {
          UUID acc = null;
 
          try {
+
+            //Check whether this address is already used in any account
+            Address address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+            if (accountId.isPresent()) {
+               return null;
+            }
+
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
+            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(address);
 
             if (asset != null) {
                acc = _mbwManager.getColuManager().enableAsset(asset, key);
@@ -388,6 +396,12 @@ public class AddAdvancedAccountActivity extends Activity {
       @Override
       protected UUID doInBackground(Void... params) {
          UUID acc = null;
+
+         //Check whether this address is already used in any account
+         Optional<UUID> accountId = _mbwManager.getAccountId(this.address, null);
+         if (accountId.isPresent()) {
+            return null;
+         }
 
          try {
             switch(addressType) {
