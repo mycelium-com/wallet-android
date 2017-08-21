@@ -72,7 +72,6 @@ import org.bitcoinj.script.ScriptBuilder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -199,7 +198,7 @@ public class ColuManager implements AccountProvider {
                     && ((ColuAccount) account).getColuAsset().assetType == type
                     && ((ColuAccount) account).getAddress().equals(address)) {
                 return true;
-            } if(account instanceof SingleAddressAccount
+            } else if (account instanceof SingleAddressAccount
                     && type == null
                     && ((SingleAddressAccount) account).getAddress().equals(address)) {
                 return true;

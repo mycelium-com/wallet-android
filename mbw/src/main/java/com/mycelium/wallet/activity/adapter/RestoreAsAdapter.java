@@ -57,7 +57,7 @@ public class RestoreAsAdapter extends ArrayAdapter<String> {
         itemView.setText(item);
         itemView.setTag(position);
         ColuAccount.ColuAssetType type = ColuAccount.ColuAssetType.parse(item);
-        boolean hasAccountWithType = type != null && mbwManager.getColuManager().hasAccountWithType(address, type);
+        boolean hasAccountWithType = mbwManager.getColuManager().hasAccountWithType(address, type);
         itemView.setEnabled(!hasAccountWithType);
         final boolean checked = checkedMap.get(type) != null ? checkedMap.get(type) : false;
         itemView.setChecked(hasAccountWithType || checked);
