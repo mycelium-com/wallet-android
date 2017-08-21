@@ -75,8 +75,10 @@ public class RestoreAsAdapter extends ArrayAdapter<String> {
     public List<ColuAccount.ColuAsset> getColuAssets() {
         List<ColuAccount.ColuAsset> result = new ArrayList<>();
         for (Map.Entry<ColuAccount.ColuAssetType, Boolean> coluAssetTypeBooleanEntry : checkedMap.entrySet()) {
-            if(coluAssetTypeBooleanEntry.getValue()) {
+            if (coluAssetTypeBooleanEntry.getValue() && coluAssetTypeBooleanEntry.getKey() != null) {
                 result.add(ColuAccount.ColuAsset.getByType(coluAssetTypeBooleanEntry.getKey(), mbwManager.getNetwork()));
+            } else if (coluAssetTypeBooleanEntry.getKey() == null) {
+                result.add(null);
             }
         }
         return result;

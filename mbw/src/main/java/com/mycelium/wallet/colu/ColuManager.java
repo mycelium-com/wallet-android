@@ -199,6 +199,10 @@ public class ColuManager implements AccountProvider {
                     && ((ColuAccount) account).getColuAsset().assetType == type
                     && ((ColuAccount) account).getAddress().equals(address)) {
                 return true;
+            } if(account instanceof SingleAddressAccount
+                    && type == null
+                    && ((SingleAddressAccount) account).getAddress().equals(address)) {
+                return true;
             }
         }
         return false;
