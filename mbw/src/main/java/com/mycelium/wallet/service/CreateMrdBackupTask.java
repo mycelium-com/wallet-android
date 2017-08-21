@@ -59,6 +59,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -110,8 +111,12 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       // Populate the active and archived entries to export
       _active = new LinkedList<EntryToExport>();
       _archived = new LinkedList<EntryToExport>();
+      List<WalletAccount> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
-         WalletAccount account = walletManager.getAccount(id);
+         accounts.add(walletManager.getAccount(id));
+      }
+      accounts = Utils.sortAccounts(accounts, storage);
+      for (WalletAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
          if (account instanceof SingleAddressAccount) {
             EntryToExport entry;

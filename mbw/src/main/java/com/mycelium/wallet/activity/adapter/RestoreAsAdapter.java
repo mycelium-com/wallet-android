@@ -47,7 +47,7 @@ public class RestoreAsAdapter extends ArrayAdapter<String> {
         CheckBox itemView;
         if (convertView == null) {
             itemView = new CheckBox(getContext());
-            int padding = getContext().getResources().getDimensionPixelSize(R.dimen.margin_medium);
+            int padding = getContext().getResources().getDimensionPixelSize(R.dimen.margin_large);
             itemView.setPadding(padding, padding, padding, padding);
         } else {
             itemView = (CheckBox) convertView;
@@ -77,7 +77,7 @@ public class RestoreAsAdapter extends ArrayAdapter<String> {
         for (Map.Entry<ColuAccount.ColuAssetType, Boolean> coluAssetTypeBooleanEntry : checkedMap.entrySet()) {
             if (coluAssetTypeBooleanEntry.getValue() && coluAssetTypeBooleanEntry.getKey() != null) {
                 result.add(ColuAccount.ColuAsset.getByType(coluAssetTypeBooleanEntry.getKey(), mbwManager.getNetwork()));
-            } else if (coluAssetTypeBooleanEntry.getKey() == null) {
+            } else if (coluAssetTypeBooleanEntry.getValue() && coluAssetTypeBooleanEntry.getKey() == null) {
                 result.add(null);
             }
         }
