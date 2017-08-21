@@ -635,10 +635,12 @@ public class ColuManager implements AccountProvider {
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
 
-        UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().getPublicKeyBytes());;
+        if (key != null) {
+            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().getPublicKeyBytes());
 
-        if (coluAccounts.containsKey(uuid)) {
-            return uuid;
+            if (coluAccounts.containsKey(uuid)) {
+                return uuid;
+            }
         }
 
         ColuAccount newAccount = createAccount(coluAsset, key);
