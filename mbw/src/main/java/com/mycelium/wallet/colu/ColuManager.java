@@ -72,6 +72,7 @@ import org.bitcoinj.script.ScriptBuilder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -838,7 +839,9 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-    public ColuAccount.ColuAsset getColuAddressAsset(Address address) throws IOException {
+    public List<ColuAccount.ColuAsset> getColuAddressAsset(Address address) throws IOException {
+
+        List<ColuAccount.ColuAsset> assetsList = new ArrayList<>();
 
         AddressInfo.Json addressInfo = coluClient.getBalance(address);
 
@@ -852,17 +855,18 @@ public class ColuManager implements AccountProvider {
                         Log.d(TAG, "isColuAddress: utxo " + utxo.txid + " asset " + txidAsset.assetId);
                         for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap(getNetwork()).keySet()) {
                             if (txidAsset.assetId.equals(knownAssetId)) {
-                                return ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(knownAssetId);
+                                ColuAccount.ColuAsset asset =  ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(knownAssetId);
+                                assetsList.add(asset);
                             }
                         }
                     }
                 }
             }
         }
-        return null;
+        return assetsList;
     }
 
-    public ColuAccount.ColuAsset getColuAddressAsset(PublicKey key) throws IOException {
+    public List<ColuAccount.ColuAsset> getColuAddressAsset(PublicKey key) throws IOException {
         return getColuAddressAsset(key.toAddress(getNetwork()));
     }
 

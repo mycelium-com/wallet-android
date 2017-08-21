@@ -280,10 +280,12 @@ public class AddAdvancedAccountActivity extends Activity {
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(key.getPublicKey());
+            List<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAsset(key.getPublicKey());
 
-            if (asset != null) {
-               acc = _mbwManager.getColuManager().enableAsset(asset, key);
+            if (assets.size() > 0) {
+               for (ColuAccount.ColuAsset asset : assets) {
+                  acc = _mbwManager.getColuManager().enableAsset(asset, key);
+               }
             } else {
                askUserForColorize = true;
             }
@@ -393,10 +395,12 @@ public class AddAdvancedAccountActivity extends Activity {
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  List<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAsset(this.address);
 
-                  if (asset != null) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  if (assets.size() > 0) {
+                     for(ColuAccount.ColuAsset asset : assets) {
+                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                     }
                   } else {
                      askUserForColorize = true;
                   }
@@ -407,10 +411,12 @@ public class AddAdvancedAccountActivity extends Activity {
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  List<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAsset(this.address);
 
-                  if (asset != null) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  if (assets != null) {
+                     for(ColuAccount.ColuAsset asset : assets) {
+                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                     }
                   }
                   break;
             }
@@ -441,7 +447,7 @@ public class AddAdvancedAccountActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                            UUID account;
-                           if (selectedItem == 0) {
+                           if (i == 0) {
                               account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                            } else {
                               ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
