@@ -107,6 +107,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -739,8 +740,9 @@ public class Utils {
             if (input instanceof SingleAddressAccount) {
               return checkIsLinked(input, accounts) ? 3 : 1;
             }
-            if(input instanceof ColuAccount)
+            if(input instanceof ColuAccount) {
                return 3;
+            }
             if (input instanceof CoinapultAccount) {
                return 4; //coinapult last
             }
@@ -759,20 +761,18 @@ public class Utils {
          }
       });
 
-      Ordering<WalletAccount> linked = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
-         @Nullable
+      Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
-         public Integer apply(@Nullable WalletAccount input) {
-            if(!input.getReceivingAddress().isPresent()) {
-               return Integer.MAX_VALUE;
-            }else if (input instanceof ColuAccount) {
-               return input.getReceivingAddress().get().hashCode() + 1;
-            }else {
-               return input.getReceivingAddress().get().hashCode() + 2;
+         public int compare(WalletAccount w1, WalletAccount w2) {
+            if (w1 instanceof ColuAccount) {
+               return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? 1 : 0;
+            } else if (w2 instanceof ColuAccount) {
+               return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? -1 : 0;
+            } else {
+               return 0;
             }
          }
-      });
-
+      };
 
       Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
          @Nullable
