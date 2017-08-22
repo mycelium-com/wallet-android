@@ -8,15 +8,19 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.IOUtils;
 import com.mycelium.wallet.activity.rmc.json.BtcPoolResponse;
 import com.mycelium.wallet.colu.ColuAccount;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 
 public class BtcPoolStatisticsManager {
 
-    public static String ACCOUNT_INFO_API_URL = "https://bitcoin-russia.ru/api/accounts/13Zhk1JbpUmWfSMcyzLTAv7A6VkuecvaJb";
+    public static String ACCOUNT_INFO_API_URL = "http://188.65.212.157/api/stats/hashrate";
     public static int TOTAL_RMC_COUNT = 250000;
 
     private ColuAccount coluAccount;
@@ -37,17 +41,17 @@ public class BtcPoolStatisticsManager {
 
     public PoolStatisticInfo getStatistics() {
         BigDecimal rmcBalance = coluAccount.getCurrencyBasedBalance().confirmed.getValue();
-        BtcPoolResponse.Json response = getInfo();
+        Long hashRate = getHashRate();
 
-        if (response == null)
+        if (hashRate == null)
             return null;
 
-        double totalRmcHashrate = response.hashrate / 3600;
+        double totalRmcHashrate = hashRate;
         double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / TOTAL_RMC_COUNT;
         return new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);
     }
 
-    private BtcPoolResponse.Json getInfo() {
+    private Long getHashRate() {
         HttpRequestFactory requestFactory = new NetHttpTransport()
                 .createRequestFactory(new HttpRequestInitializer() {
                     @Override
@@ -58,7 +62,10 @@ public class BtcPoolStatisticsManager {
         try {
             HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(ACCOUNT_INFO_API_URL));
             HttpResponse response = request.execute();
-            return response.parseAs(BtcPoolResponse.Json.class);
+            InputStream inputStream = response.getContent();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(inputStream, baos, true);
+            return Long.parseLong(baos.toString().replace("\n", ""));
         } catch (IOException ex) {
         }
         return null;
