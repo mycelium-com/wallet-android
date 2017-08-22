@@ -40,7 +40,7 @@ public class RmcApiClient {
 
     private String getApiURL() {
         if (this.network == NetworkParameters.productionNetwork)
-            return "https://rmc-ico-stg.gear.mycelium.com";
+            return "https://rmc-ico-stg.gear.mycelium.com/api/";
         //Return TestNet parameters otherwise
         return "https://rmc-ico-test.gear.mycelium.com/api/";
     }
