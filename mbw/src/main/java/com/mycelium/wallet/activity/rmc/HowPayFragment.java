@@ -49,14 +49,5 @@ public class HowPayFragment extends Fragment {
         CurrencyValue rmcValue = ExactCurrencyValue.from(BigDecimal.ONE, "RMC");
         CurrencyValue usdValue = CurrencyValue.fromValue(rmcValue, "USD", MbwManager.getInstance(getActivity()).getExchangeRateManager());
         tvRmcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
-
-//        view.findViewById(R.id.btBankwire).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                getFragmentManager().beginTransaction()
-//                        .replace(R.id.fragment_container, new RmcBankAmountFragment())
-//                        .commitAllowingStateLoss();
-//            }
-//        });
     }
 }
