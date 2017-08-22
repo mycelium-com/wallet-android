@@ -260,6 +260,7 @@ public class AddAdvancedAccountActivity extends Activity {
       private Error error;
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
+      private Address address;
 
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
@@ -282,7 +283,7 @@ public class AddAdvancedAccountActivity extends Activity {
          try {
 
             //Check whether this address is already used in any account
-            Address address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
             Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
             if (accountId.isPresent()) {
                return null;
@@ -336,7 +337,9 @@ public class AddAdvancedAccountActivity extends Activity {
                     })
                     .create()
                     .show();
-         }else  if (error != null) {
+         } else if (_mbwManager.getAccountId(this.address, null).isPresent()) {
+            finishAlreadyExist(address);
+         } else if (error != null) {
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setMessage(error.getMessage())
                     .setPositiveButton(R.string.button_ok, null)
@@ -470,17 +473,22 @@ public class AddAdvancedAccountActivity extends Activity {
                      .create()
                      .show();
          } else if(_mbwManager.getAccountId(this.address, null).isPresent()) {
-            WalletAccount walletAccount = _mbwManager.getWalletManager(false).getAccount(_mbwManager.getAccountId(this.address, null).get());
-            Intent result = new Intent();
-            String accountType = "BTC SA";
-            if(walletAccount instanceof ColuAccount) {
-               accountType = ((ColuAccount) walletAccount).getColuAsset().name;
-            }
-            result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
-            setResult(RESULT_MSG, result);
-            finish();
+            finishAlreadyExist(address);
          }
       }
+
+   }
+
+   private void finishAlreadyExist(Address address) {
+      WalletAccount walletAccount = _mbwManager.getWalletManager(false).getAccount(_mbwManager.getAccountId(address, null).get());
+      Intent result = new Intent();
+      String accountType = "BTC SA";
+      if(walletAccount instanceof ColuAccount) {
+         accountType = ((ColuAccount) walletAccount).getColuAsset().name;
+      }
+      result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+      setResult(RESULT_MSG, result);
+      finish();
    }
 
    private void returnAccount(Address address) {
