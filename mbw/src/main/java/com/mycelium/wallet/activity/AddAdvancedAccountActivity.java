@@ -54,7 +54,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.adapter.RestoreAsAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
@@ -67,7 +66,6 @@ import com.mycelium.wapi.wallet.KeyCipher;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
@@ -279,15 +277,21 @@ public class AddAdvancedAccountActivity extends Activity {
          UUID acc = null;
 
          try {
+
+            //Check whether this address is already used in any account
+            Address address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+            if (accountId.isPresent()) {
+               return null;
+            }
+
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(key.getPublicKey());
+            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(address);
 
-            if (assets.size() > 0) {
-               for (ColuAccount.ColuAsset asset : assets) {
-                  acc = _mbwManager.getColuManager().enableAsset(asset, key);
-               }
+            if (asset != null) {
+               acc = _mbwManager.getColuManager().enableAsset(asset, key);
             } else {
                askUserForColorize = true;
             }
@@ -297,27 +301,32 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-
+      private int selectedItem;
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          if (account != null) {
             finishOk(account);
          } else if(askUserForColorize) {
-            final RestoreAsAdapter adapter = new RestoreAsAdapter(AddAdvancedAccountActivity.this, _mbwManager, key.getPublicKey().toAddress(_mbwManager.getNetwork()));
+            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+            list.add(0, "BTC");
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setTitle(R.string.restore_address_as)
-                    .setAdapter(adapter, null)
+                    .setTitle(R.string.restore_addres_as)
+                    .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          selectedItem = i;
+                       }
+                    })
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
-                          UUID account = null;
-                          for (ColuAccount.ColuAsset asset : adapter.getColuAssets()) {
-                             if (asset == null) {
-                                account = returnSAAccount(key, backupState);
-                             } else {
-                                account = _mbwManager.getColuManager().enableAsset(asset, key);
-                             }
+                          UUID account;
+                          if (i == 0) {
+                             account = returnSAAccount(key, backupState);
+                          } else {
+                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
+                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
                           }
                           finishOk(account);
                        }
@@ -388,16 +397,20 @@ public class AddAdvancedAccountActivity extends Activity {
       protected UUID doInBackground(Void... params) {
          UUID acc = null;
 
+         //Check whether this address is already used in any account
+         Optional<UUID> accountId = _mbwManager.getAccountId(this.address, null);
+         if (accountId.isPresent()) {
+            return null;
+         }
+
          try {
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(this.address);
+                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
 
-                  if (assets.size() > 0) {
-                     for(ColuAccount.ColuAsset asset : assets) {
-                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
-                     }
+                  if (asset != null) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
                   } else {
                      askUserForColorize = true;
                   }
@@ -408,12 +421,10 @@ public class AddAdvancedAccountActivity extends Activity {
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  Set<ColuAccount.ColuAsset> assets = coluManager.getColuAddressAssets(this.address);
+                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
 
-                  if (assets != null) {
-                     for(ColuAccount.ColuAsset asset : assets) {
-                        acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
-                     }
+                  if (asset != null) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
                   }
                   break;
             }
@@ -423,33 +434,38 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-
+      private int selectedItem;
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          if (account != null) {
             finishOk(account);
-         } else if (askUserForColorize) {
-            final RestoreAsAdapter adapter = new RestoreAsAdapter(AddAdvancedAccountActivity.this, _mbwManager, address);
-            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setTitle(R.string.restore_address_as)
-                    .setAdapter(adapter, null)
-                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialogInterface, int i) {
-                          UUID account = null;
-                          for (ColuAccount.ColuAsset asset : adapter.getColuAssets()) {
-                             if(asset == null) {
-                                account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-                             } else {
-                                account = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
-                             }
-                          }
-                          finishOk(account);
-                       }
-                    })
-                    .create()
-                    .show();
+         } else if(askUserForColorize) {
+             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+             list.add(0, "BTC");
+             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                     .setTitle(R.string.restore_addres_as)
+                     .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           selectedItem = i;
+                        }
+                     })
+                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           UUID account;
+                           if (selectedItem == 0) {
+                              account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                           } else {
+                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
+                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
+                           }
+                           finishOk(account);
+                        }
+                     })
+                     .create()
+                     .show();
          }
       }
    }
