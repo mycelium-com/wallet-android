@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -89,15 +90,9 @@ public class RMCAddressFragment extends Fragment {
         graphView.getGridLabelRenderer().setNumVerticalLabels(3);
         graphView.getViewport().setMaxY(0.2);
         graphView.getViewport().setYAxisBoundsManual(true);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, 8, 1);
-        graphView.getViewport().setMinX(calendar.getTime().getTime());
-        calendar.set(2018, 8, 1);
-        graphView.getViewport().setMaxX(calendar.getTime().getTime());
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setDrawBorder(true);
-        graphView.getGridLabelRenderer().setLabelFormatter(
-                new DateAsXAxisLabelFormatter(getActivity(), new SimpleDateFormat("MM.yy")));
+
         graphView.getGridLabelRenderer().setHumanRounding(false);
         return _root;
     }
@@ -144,8 +139,29 @@ public class RMCAddressFragment extends Fragment {
         try {
             ColuAccount coluAccount = (ColuAccount)_mbwManager.getSelectedAccount();
             RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
-            LineGraphSeries<DataPoint> series = paymentsStatistics.getStatistics();
-            graphView.addSeries(series);
+            List<DataPoint> dataPoints = paymentsStatistics.getStatistics();
+            graphView.getViewport().setMinX(dataPoints.get(0).getX());
+            Calendar max = Calendar.getInstance();
+            max.setTimeInMillis((long) dataPoints.get(0).getX());
+
+            DateFormat dateFormat;
+            if (dataPoints.size() < 30) {
+                max.add(Calendar.MONTH, 1);
+                dateFormat = new SimpleDateFormat("dd.MM");
+            } else if (dataPoints.size() < 90) {
+                max.add(Calendar.MONTH, 3);
+                dateFormat = new SimpleDateFormat("dd.MM");
+            } else if (dataPoints.size() < 365) {
+                max.add(Calendar.MONTH, 12);
+                dateFormat = new SimpleDateFormat("MM.yy");
+            } else {
+                max.setTimeInMillis((long) dataPoints.get(dataPoints.size() - 1).getX());
+                dateFormat = new SimpleDateFormat("MM.yy");
+            }
+            graphView.getGridLabelRenderer().setLabelFormatter(
+                    new DateAsXAxisLabelFormatter(getActivity(), dateFormat));
+            graphView.getViewport().setMaxX(max.getTimeInMillis());
+            graphView.addSeries(new LineGraphSeries(dataPoints.toArray(new DataPoint[dataPoints.size()])));
 
             BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

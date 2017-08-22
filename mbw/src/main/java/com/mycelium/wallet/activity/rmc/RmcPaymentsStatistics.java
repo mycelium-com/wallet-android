@@ -59,7 +59,7 @@ public class RmcPaymentsStatistics {
         return result;
     }
 
-    public LineGraphSeries<DataPoint> getStatistics()
+    public List<DataPoint> getStatistics()
     {
         List<DataPoint> dataPoints = new ArrayList<>();
         List<TransactionSummary> txSummaries = getTransactionSummaries();
@@ -67,7 +67,7 @@ public class RmcPaymentsStatistics {
         if (txSummaries.size() > 0) {
             ExchangeRate rate = exchangeRateManager.getExchangeRate(CURRENCY);
             if (rate == null) {
-                return new LineGraphSeries<>();
+                return dataPoints;
             }
 
             TransactionSummary firstTransaction = txSummaries.get(0);
@@ -111,7 +111,7 @@ public class RmcPaymentsStatistics {
             calendar.set(2017, 8, 1);
             Random random = new Random(System.currentTimeMillis());
             double shift = 0;
-            for (int i = 0; i < 365; i++) {
+            for (int i = 0; i < 60; i++) {
                 Date date = calendar.getTime();
                 dataPoints.add(new DataPoint(date, Math.sin(i / 20.0f) / 70 + 0.14 + shift));
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
@@ -119,7 +119,7 @@ public class RmcPaymentsStatistics {
             }
         }
 
-        return new LineGraphSeries<>(dataPoints.toArray(new DataPoint[dataPoints.size()]));
+        return dataPoints;
     }
 
     private void processDataPoint(List<DataPoint> dataPoints, Date date, int dataPointIndex, double curValue) {

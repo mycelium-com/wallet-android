@@ -480,7 +480,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
    private void finishAlreadyExist(Address address) {
       Intent result = new Intent();
-      String accountType = "BTC SA";
+      String accountType = "BTC Single Address";
       for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
          if (_mbwManager.getColuManager().hasAccountWithType(address, type)) {
             accountType = ColuAccount.ColuAsset.getByType(type, _mbwManager.getNetwork()).name;
