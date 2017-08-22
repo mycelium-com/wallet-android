@@ -47,6 +47,7 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -144,7 +145,7 @@ public class BuySellFragment extends Fragment {
     OnClickListener buySellRmcOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (Calendar.getInstance().before(Keys.getICOStart())) {
+            if (Calendar.getInstance().before(Keys.getICOStart()) && !BuildConfig.DEBUG) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(R.string.ico_will_start)
                         .setPositiveButton(R.string.button_ok, null)
