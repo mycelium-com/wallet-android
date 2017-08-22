@@ -36,7 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,12 +52,11 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.rmc.Keys;
 import com.mycelium.wallet.activity.rmc.RmcActivity;
-import com.mycelium.wallet.external.BuySellSelectFragment;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
-
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 import java.net.URISyntaxException;
@@ -146,12 +144,20 @@ public class BuySellFragment extends Fragment {
     OnClickListener buySellRmcOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            Utils.showOptionalMessage(getActivity(), R.string.mycelium_no_responaility_rmc, new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(getActivity(), RmcActivity.class));
-                }
-            });
+            if (Calendar.getInstance().before(Keys.getICOStart())) {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(R.string.ico_will_start)
+                        .setPositiveButton(R.string.button_ok, null)
+                        .create()
+                        .show();
+            } else {
+                Utils.showOptionalMessage(getActivity(), R.string.mycelium_no_responaility_rmc, new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getActivity(), RmcActivity.class));
+                    }
+                });
+            }
         }
     };
 
