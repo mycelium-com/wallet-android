@@ -119,6 +119,8 @@
                         android:layout_marginLeft="8dp"
                         android:gravity="left"
                         android:text="0"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:typeface="monospace" />
@@ -142,6 +144,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:text="0"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:typeface="monospace" />
