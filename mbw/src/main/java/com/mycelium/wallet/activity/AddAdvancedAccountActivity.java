@@ -63,7 +63,6 @@ import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -480,11 +479,13 @@ public class AddAdvancedAccountActivity extends Activity {
    }
 
    private void finishAlreadyExist(Address address) {
-      WalletAccount walletAccount = _mbwManager.getWalletManager(false).getAccount(_mbwManager.getAccountId(address, null).get());
       Intent result = new Intent();
       String accountType = "BTC SA";
-      if(walletAccount instanceof ColuAccount) {
-         accountType = ((ColuAccount) walletAccount).getColuAsset().name;
+      for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
+         if (_mbwManager.getColuManager().hasAccountWithType(address, type)) {
+            accountType = ColuAccount.ColuAsset.getByType(type, _mbwManager.getNetwork()).name;
+            break;
+         }
       }
       result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
       setResult(RESULT_MSG, result);
