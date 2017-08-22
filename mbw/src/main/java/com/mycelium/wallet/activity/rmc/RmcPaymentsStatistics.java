@@ -22,7 +22,7 @@ public class RmcPaymentsStatistics {
     public static final String CURRENCY = "USD";
     public static final int MILLISECONDS_IN_SECOND = 1000;
 
-    public static final String POOL_ADDRESS = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9";
+    public static final String CHANGE_ADDRESS = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9";
 
     private ColuAccount coluAccount;
     private final ExchangeRateManager exchangeRateManager;
@@ -43,15 +43,15 @@ public class RmcPaymentsStatistics {
 
             TransactionDetails txDetails = linkedAccount.getTransactionDetails(summary.txid);
 
-            boolean isPoolAddressFounded = false;
-            for(TransactionDetails.Item item : txDetails.inputs) {
-                if (item.address.toString().equals(POOL_ADDRESS)) {
-                    isPoolAddressFounded = true;
+            boolean isChangeAddressFounded = false;
+            for(TransactionDetails.Item item : txDetails.outputs) {
+                if (item.address.toString().equals(CHANGE_ADDRESS)) {
+                    isChangeAddressFounded = true;
                     break;
                 }
             }
 
-            if (!isPoolAddressFounded)
+            if (!isChangeAddressFounded)
                 continue;
 
             result.add(summary);
