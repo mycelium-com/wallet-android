@@ -79,6 +79,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private RmcApiClient rmcApiClient;
    private Float rmcRate;
    private Float ethRate;
+   private Float usdRate;
 
    ExchangeRateManager(Context applicationContext, Wapi api) {
       _applicationContext = applicationContext;
@@ -137,6 +138,10 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             rate = rmcApiClient.exchangeEthUsdRate();
             if(rate != null) {
                ethRate = rate;
+            }
+            rate = rmcApiClient.exchangeBtcUsdRate();
+            if(rate != null) {
+               usdRate = rate;
             }
 
          }
@@ -242,6 +247,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          ethFlag = true;
       }
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
+         if (currency.equals("USD")) {
+            return getRMCExchangeRate(rmcFlag, ethFlag, new ExchangeRate("Kraken", 0, usdRate, "USD"));
+         }
          return null;
       }
       if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
@@ -257,12 +265,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
             //everything is fine, return the rate
-            if(rmcFlag) {
-               r = new ExchangeRate(r.name, r.time, r.price * rmcRate, "RMC");
-            }
-            if(ethFlag) {
-               r = new ExchangeRate(r.name, r.time, r.price / ethRate, "ETH");
-            }
+            r = getRMCExchangeRate(rmcFlag, ethFlag, r);
             return r;
          }
       }
@@ -271,6 +274,16 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
       }
       return null;
+   }
+
+   private ExchangeRate getRMCExchangeRate(boolean rmcFlag, boolean ethFlag, ExchangeRate r) {
+      if(rmcFlag) {
+         r = new ExchangeRate(r.name, r.time, r.price * rmcRate, "RMC");
+      }
+      if(ethFlag) {
+         r = new ExchangeRate(r.name, r.time, r.price / ethRate, "ETH");
+      }
+      return r;
    }
 
    private SharedPreferences.Editor getEditor() {

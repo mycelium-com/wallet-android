@@ -112,4 +112,24 @@ public class RmcApiClient {
         }
         return null;
     }
+
+    public Float exchangeBtcUsdRate() {
+        HttpRequestFactory requestFactory = new NetHttpTransport()
+                .createRequestFactory(new HttpRequestInitializer() {
+                    @Override
+                    public void initialize(HttpRequest request) {
+                        request.setParser(new JsonObjectParser(new JacksonFactory()));
+                    }
+                });
+
+        try {
+            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(getApiURL() + "exchange_rates?pair=BTC_USD"));
+            HttpResponse response = request.execute();
+            RmcRate[] rate = response.parseAs(RmcRate[].class);
+            return rate[0].rate;
+        } catch (Exception ex) {
+            Log.e("RmcApiClient", "exchangeUsdRmcRate", ex);
+        }
+        return null;
+    }
 }
