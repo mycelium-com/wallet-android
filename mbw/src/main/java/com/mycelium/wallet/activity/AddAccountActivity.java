@@ -64,6 +64,8 @@ public class AddAccountActivity extends Activity {
    }
 
    public static final String RESULT_KEY = "account";
+   public static final String RESULT_MSG = "result_msg";
+
    private static final int IMPORT_SEED_CODE = 0;
    private static final int ADD_ADVANCED_CODE = 1;
    private Toaster _toaster;

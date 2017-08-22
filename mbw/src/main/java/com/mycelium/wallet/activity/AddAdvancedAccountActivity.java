@@ -63,8 +63,10 @@ import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,6 +74,7 @@ public class AddAdvancedAccountActivity extends Activity {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
+   public static final int RESULT_MSG = 25;
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, AddAdvancedAccountActivity.class);
@@ -288,10 +291,10 @@ public class AddAdvancedAccountActivity extends Activity {
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(address);
+            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address));
 
-            if (asset != null) {
-               acc = _mbwManager.getColuManager().enableAsset(asset, key);
+            if (asset.size() > 0) {
+               acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);
             } else {
                askUserForColorize = true;
             }
@@ -325,7 +328,7 @@ public class AddAdvancedAccountActivity extends Activity {
                           if (i == 0) {
                              account = returnSAAccount(key, backupState);
                           } else {
-                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
+                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());
                              account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
                           }
                           finishOk(account);
@@ -407,10 +410,10 @@ public class AddAdvancedAccountActivity extends Activity {
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
 
-                  if (asset != null) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  if (asset.size() > 0) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
                   } else {
                      askUserForColorize = true;
                   }
@@ -421,10 +424,10 @@ public class AddAdvancedAccountActivity extends Activity {
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  ColuAccount.ColuAsset asset = coluManager.getColuAddressAsset(this.address);
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
 
-                  if (asset != null) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset, address);
+                  if (asset.size() > 0) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
                   }
                   break;
             }
@@ -458,7 +461,7 @@ public class AddAdvancedAccountActivity extends Activity {
                            if (selectedItem == 0) {
                               account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                            } else {
-                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.valueOf(list.get(selectedItem)), _mbwManager.getNetwork());
+                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());
                               account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
                            }
                            finishOk(account);
@@ -466,6 +469,16 @@ public class AddAdvancedAccountActivity extends Activity {
                      })
                      .create()
                      .show();
+         } else if(_mbwManager.getAccountId(this.address, null).isPresent()) {
+            WalletAccount walletAccount = _mbwManager.getWalletManager(false).getAccount(_mbwManager.getAccountId(this.address, null).get());
+            Intent result = new Intent();
+            String accountType = "BTC SA";
+            if(walletAccount instanceof ColuAccount) {
+               accountType = ((ColuAccount) walletAccount).getColuAsset().name;
+            }
+            result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+            setResult(RESULT_MSG, result);
+            finish();
          }
       }
    }

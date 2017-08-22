@@ -71,8 +71,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
+import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
-import com.mycelium.wallet.activity.AddColuAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -219,6 +219,12 @@ public class AccountsFragment extends Fragment {
          if(!(account instanceof ColuAccount)) {
             setNameForNewAccount(_focusedAccount);
          }
+      } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
+         new AlertDialog.Builder(getActivity())
+                 .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
+                 .setPositiveButton(R.string.button_ok, null)
+                 .create()
+                 .show();
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
