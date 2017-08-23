@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 public class BtcPoolStatisticsManager {
 
     public static String HASHRATE_INFO_API_URL = "http://188.65.212.157/api/stats/hashrate";
-    public static int TOTAL_RMC_COUNT = 250000;
 
     private ColuAccount coluAccount;
 
@@ -45,7 +44,7 @@ public class BtcPoolStatisticsManager {
             return null;
 
         double totalRmcHashrate = hashRate;
-        double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / TOTAL_RMC_COUNT;
+        double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / Keys.TOTAL_RMC_COUNT;
         return new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);
     }
 

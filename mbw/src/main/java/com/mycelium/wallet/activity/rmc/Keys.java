@@ -16,6 +16,9 @@ public class Keys {
     public static final String ADDRESS = "address";
 
     public static final int PAYMENT_REQUEST_CODE = 10002;
+
+    public static int TOTAL_RMC_COUNT = 25000;
+
     public static final int TOTAL_RMC_ISSUED = 25000;
 
     public static Calendar getActiveStartDay() {
