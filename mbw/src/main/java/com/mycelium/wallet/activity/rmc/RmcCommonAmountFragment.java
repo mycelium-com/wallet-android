@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -100,9 +101,7 @@ public abstract class RmcCommonAmountFragment extends Fragment {
                 etRMC.setText(rmcValue.setScale(4, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
 
         }
-        btnOk.setEnabled(rmcValue.compareTo(new BigDecimal("0.1")) > -1);
-
-
+        btnOk.setEnabled(rmcValue.compareTo(new BigDecimal("0.1")) > -1 || BuildConfig.DEBUG);
     }
 
     protected abstract void updateCrypto(CurrencyValue currencyValue);

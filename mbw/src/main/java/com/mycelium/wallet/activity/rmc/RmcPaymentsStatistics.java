@@ -111,7 +111,7 @@ public class RmcPaymentsStatistics {
             calendar.set(2017, 8, 1);
             Random random = new Random(System.currentTimeMillis());
             double shift = 0;
-            for (int i = 0; i < 60; i++) {
+            for (int i = 0; i < 17; i++) {
                 Date date = calendar.getTime();
                 dataPoints.add(new DataPoint(date, Math.sin(i / 20.0f) / 70 + 0.14 + shift));
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
