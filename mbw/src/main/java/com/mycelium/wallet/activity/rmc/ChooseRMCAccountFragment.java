@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +37,6 @@ import com.squareup.otto.Bus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -70,6 +70,16 @@ public class ChooseRMCAccountFragment extends Fragment {
     @BindView(R.id.useAccountTitle)
     protected TextView useAccountTitle;
 
+    @BindView(R.id.list_item)
+    protected LinearLayout listAccounts;
+
+    @BindView(R.id.useThisToReceive)
+    protected View useThisToReceive;
+
+    @BindView(R.id.btYes)
+    protected View btYes;
+
+
     private ProgressDialog progressDialog;
 
     @Override
@@ -95,26 +105,30 @@ public class ChooseRMCAccountFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         ((TextView) view.findViewById(R.id.rmcCount)).setText(rmcCount + " RMC");
-        List<Map.Entry<UUID, WalletAccount>> accountsList = new ArrayList<>();
-        WalletAccount walletAccount = null;
-        for (Map.Entry<UUID, WalletAccount> uuidWalletAccountEntry : _mbwManager.getColuManager().getAccounts().entrySet()) {
-            if (uuidWalletAccountEntry.getValue() instanceof ColuAccount
-                    && ((ColuAccount) uuidWalletAccountEntry.getValue()).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
-                accountsList.add(uuidWalletAccountEntry);
-                walletAccount = uuidWalletAccountEntry.getValue();
-            }
-        }
 
-        if (accountsList.isEmpty()) {
+        if (!_mbwManager.getColuManager().hasAccountWithType(ColuAccount.ColuAssetType.RMC)) {
             createRmcAccount.setVisibility(View.VISIBLE);
             useRmcAccount.setVisibility(View.GONE);
         } else {
             createRmcAccount.setVisibility(View.GONE);
             useRmcAccount.setVisibility(View.VISIBLE);
-            useAccountTitle.setVisibility(View.GONE);
-            showAccountForAccept(walletAccount);
+            if (_mbwManager.getSelectedAccount() instanceof ColuAccount && ((ColuAccount) _mbwManager.getSelectedAccount()).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+                selectedWalletAccount = _mbwManager.getSelectedAccount();
+            } else if (getRMCAccounts().size() == 1) {
+                selectedWalletAccount = getRMCAccounts().get(0);
+            }
+            showAccountForAccept(false);
         }
+    }
 
+    List<ColuAccount> getRMCAccounts() {
+        List<ColuAccount> list = new ArrayList<>();
+        for (WalletAccount walletAccount : _mbwManager.getColuManager().getAccounts().values()) {
+            if (walletAccount instanceof ColuAccount && ((ColuAccount) walletAccount).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+                list.add((ColuAccount) walletAccount);
+            }
+        }
+        return list;
     }
 
     @Override
@@ -122,54 +136,85 @@ public class ChooseRMCAccountFragment extends Fragment {
         super.onResume();
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         View view = getActivity().getCurrentFocus();
-        if(view != null) {
+        if (view != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    private void showAccountForAccept(WalletAccount walletAccount) {
+    WalletAccount selectedWalletAccount;
+
+    private void showAccountForAccept(final boolean isNew) {
 //        useRmcAccount.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
-        useRmcAccount.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
+        listAccounts.removeAllViews();
+        LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+        for (ColuAccount walletAccount : getRMCAccounts()) {
+            View view = layoutInflater.inflate(R.layout.record_row, listAccounts, false);
+            view.setTag(walletAccount);
+            view.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
 
-        ImageView icon = (ImageView) useRmcAccount.findViewById(R.id.ivIcon);
-        Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
-        if (drawableForAccount == null) {
-            icon.setVisibility(View.INVISIBLE);
-        } else {
-            icon.setVisibility(View.VISIBLE);
-            icon.setImageDrawable(drawableForAccount);
-        }
-
-        String name = _mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
-        String displayAddress;
-        Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
-        if (receivingAddress.isPresent()) {
-            if (name.length() == 0) {
-                // Display address in it's full glory, chopping it into three
-                displayAddress = receivingAddress.get().toMultiLineString();
+            ImageView icon = (ImageView) view.findViewById(R.id.ivIcon);
+            Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
+            if (drawableForAccount == null) {
+                icon.setVisibility(View.INVISIBLE);
             } else {
-                // Display address in short form
-                displayAddress = receivingAddress.get().getShortAddress();
+                icon.setVisibility(View.VISIBLE);
+                icon.setImageDrawable(drawableForAccount);
             }
 
-            coluAddress = receivingAddress.get().toString();
-        } else {
-            displayAddress = "";
-        }
-        ((TextView) useRmcAccount.findViewById(R.id.tvAddress)).setText(displayAddress);
+            String name = _mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
+            String displayAddress;
+            Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
+            if (receivingAddress.isPresent()) {
+                if (name.length() == 0) {
+                    // Display address in it's full glory, chopping it into three
+                    displayAddress = receivingAddress.get().toMultiLineString();
+                } else {
+                    // Display address in short form
+                    displayAddress = receivingAddress.get().getShortAddress();
+                }
 
-        TextView labelView = (TextView) useRmcAccount.findViewById(R.id.tvLabel);
-        if (name.length() == 0) {
-            labelView.setVisibility(View.GONE);
-        } else {
-            labelView.setVisibility(View.VISIBLE);
-            labelView.setText(name);
-        }
+            } else {
+                displayAddress = "";
+            }
+            ((TextView) view.findViewById(R.id.tvAddress)).setText(displayAddress);
 
-        TextView tvBalance = ((TextView) useRmcAccount.findViewById(R.id.tvBalance));
-        tvBalance.setVisibility(View.VISIBLE);
-        String balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
-        tvBalance.setText(balanceString);
+            TextView labelView = (TextView) view.findViewById(R.id.tvLabel);
+            if (name.length() == 0) {
+                labelView.setVisibility(View.GONE);
+            } else {
+                labelView.setVisibility(View.VISIBLE);
+                labelView.setText(name);
+            }
+
+            TextView tvBalance = ((TextView) view.findViewById(R.id.tvBalance));
+            tvBalance.setVisibility(View.VISIBLE);
+            String balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
+            tvBalance.setText(balanceString);
+            if (selectedWalletAccount == walletAccount) {
+                view.setBackgroundColor(getResources().getColor(R.color.selectedrecord));
+            }
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    selectedWalletAccount = (WalletAccount) view.getTag();
+                    showAccountForAccept(isNew);
+                }
+            });
+            listAccounts.addView(view);
+            layoutInflater.inflate(R.layout.divider_list, listAccounts, true);
+        }
+        if (listAccounts.getChildCount() > 2) {
+            useAccountTitle.setText("Please select");
+            listAccounts.removeViewAt(listAccounts.getChildCount() - 1);
+            useAccountTitle.setVisibility(View.VISIBLE);
+        } else if (isNew) {
+            useAccountTitle.setText(R.string.rmc_your_new_account);
+            useAccountTitle.setVisibility(View.VISIBLE);
+        } else {
+            useAccountTitle.setVisibility(View.GONE);
+        }
+        useThisToReceive.setVisibility(selectedWalletAccount != null ? View.VISIBLE : View.GONE);
+        btYes.setEnabled(selectedWalletAccount != null);
     }
 
     @OnClick(R.id.btCreateNew)
@@ -186,7 +231,8 @@ public class ChooseRMCAccountFragment extends Fragment {
                                     public void created(UUID accountID) {
                                         useRmcAccount.setVisibility(View.VISIBLE);
                                         createRmcAccount.setVisibility(View.GONE);
-                                        showAccountForAccept(_mbwManager.getColuManager().getAccount(accountID));
+                                        selectedWalletAccount = _mbwManager.getColuManager().getAccount(accountID);
+                                        showAccountForAccept(true);
                                     }
                                 });
                             }
@@ -228,6 +274,7 @@ public class ChooseRMCAccountFragment extends Fragment {
             this.assetAddress = assetAddress;
             this.paymentMethod = paymentMethod;
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -263,6 +310,7 @@ public class ChooseRMCAccountFragment extends Fragment {
 
     @OnClick(R.id.btYes)
     void clickYes() {
+        coluAddress = selectedWalletAccount.getReceivingAddress().get().toString();
         if (payMethod.equals(BTC)) {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("Creating order");
@@ -276,10 +324,6 @@ public class ChooseRMCAccountFragment extends Fragment {
             progressDialog.show();
             RmsApiTask task = new RmsApiTask(rmcCount, coluAddress, payMethod);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            Intent intent = new Intent(getActivity(), BankPaymentRequestActivity.class);
-            intent.putExtra(Keys.RMC_COUNT, rmcCount);
-            startActivity(intent);
         }
     }
 
@@ -291,7 +335,7 @@ public class ChooseRMCAccountFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == Keys.PAYMENT_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == Keys.PAYMENT_REQUEST_CODE && resultCode == RESULT_OK) {
 //            data.getSerializableExtra("transaction_hash");
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.rmc_payment_success)
@@ -339,7 +383,7 @@ public class ChooseRMCAccountFragment extends Fragment {
             } else {
                 try {
                     UUID uuid = coluManager.enableAsset(coluAsset, null);
-                    coluManager.scanForAccounts();
+                    coluManager.startSynchronization();
                     return uuid;
                 } catch (Exception e) {
                     Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.name + ": " + e.getMessage());
