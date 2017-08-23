@@ -44,7 +44,7 @@ public class BtcPoolStatisticsManager {
             return null;
 
         double totalRmcHashrate = hashRate;
-        double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / Keys.TOTAL_RMC_COUNT;
+        double yourRmcHashrate = totalRmcHashrate * rmcBalance.doubleValue() / Keys.TOTAL_RMC_ISSUED;
         return new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);
     }
 
