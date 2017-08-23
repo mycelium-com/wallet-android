@@ -1,8 +1,6 @@
 package com.mycelium.wallet.activity.rmc;
 
 import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -108,7 +106,12 @@ public class RmcPaymentsStatistics {
         //Temporarily show the sample data
         if (dataPoints.size() == 0) {
             Calendar calendar = Calendar.getInstance();
-            calendar.set(2017, 8, 1);
+            List<TransactionSummary> summaries = coluAccount.getTransactionHistory(0, 1);
+            if (summaries.size() > 0) {
+                calendar.setTimeInMillis(summaries.get(0).time * MILLISECONDS_IN_SECOND);
+            } else {
+                calendar.set(2017, 8, 1);
+            }
             Random random = new Random(System.currentTimeMillis());
             double shift = 0;
             for (int i = 0; i < 17; i++) {

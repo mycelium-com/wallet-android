@@ -73,6 +73,9 @@ public class RMCAddressFragment extends Fragment {
     @BindView(R.id.tvUserHP)
     protected TextView tvUserHP;
 
+    @BindView(R.id.tvTotalIssued)
+    protected TextView tvTotalIssued;
+
 
     private MbwManager _mbwManager;
 
@@ -135,7 +138,7 @@ public class RMCAddressFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        tvTotalIssued.setText(String.valueOf(Keys.TOTAL_RMC_ISSUED));
         try {
             ColuAccount coluAccount = (ColuAccount)_mbwManager.getSelectedAccount();
             RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
