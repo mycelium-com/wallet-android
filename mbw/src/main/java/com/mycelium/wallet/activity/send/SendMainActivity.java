@@ -339,6 +339,9 @@ public class SendMainActivity extends Activity {
                         .getIfPresent(_paymentRequestHandlerUuid);
             }
         }
+       if (_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+           _fee = _fee == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
+       }
 
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
@@ -703,7 +706,11 @@ public class SendMainActivity extends Activity {
 
    @OnClick(R.id.btFeeLvl)
    void onClickFeeLevel() {
-      _fee = _fee.getNext();
+       if (_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+           _fee = _fee == MinerFee.NORMAL ? MinerFee.PRIORITY : MinerFee.NORMAL;
+       } else {
+           _fee = _fee.getNext();
+       }
       _transactionStatus = tryCreateUnsignedTransaction();
       updateUi();
       //warn user if minimum fee is selected
@@ -889,7 +896,7 @@ public class SendMainActivity extends Activity {
                             if (callback != null) {
                                 callback.fail();
                             }
-                            Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare, ((ColuAccount) _account).getColuAsset().label), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare), Toast.LENGTH_SHORT).show();
                             updateUi();
                         }
                     }
