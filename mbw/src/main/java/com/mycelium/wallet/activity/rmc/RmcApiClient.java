@@ -45,6 +45,10 @@ public class RmcApiClient {
         return "https://rmc-ico-test.gear.mycelium.com/api/";
     }
 
+    public boolean isCallbackMine(String callback) {
+        return callback.contains(getApiURL());
+    }
+
     public CreateRmcOrderResponse.Json createOrder(String amountInRmc, String assetAddress, String paymentMethod) {
 
         HashMap<String, String> data = new HashMap<>();

@@ -84,6 +84,7 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
+import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
@@ -339,7 +340,8 @@ public class SendMainActivity extends Activity {
                         .getIfPresent(_paymentRequestHandlerUuid);
             }
         }
-       if (_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+       if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
+               || checkIsRMCICOPaymentRequest()) {
            _fee = _fee == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
        }
 
@@ -418,6 +420,10 @@ public class SendMainActivity extends Activity {
                     _mbwManager.getBitcoinDenomination().toString()));
             tips_check_address.setVisibility(View.GONE);
         }
+    }
+
+    private boolean checkIsRMCICOPaymentRequest() {
+        return new RmcApiClient(_mbwManager.getNetwork()).isCallbackMine(_bitcoinUri.callbackURL);
     }
 
     private void coluSpendAccount() {
@@ -706,7 +712,8 @@ public class SendMainActivity extends Activity {
 
    @OnClick(R.id.btFeeLvl)
    void onClickFeeLevel() {
-       if (_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+       if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
+               || checkIsRMCICOPaymentRequest()) {
            _fee = _fee == MinerFee.NORMAL ? MinerFee.PRIORITY : MinerFee.NORMAL;
        } else {
            _fee = _fee.getNext();
