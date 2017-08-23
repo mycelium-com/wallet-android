@@ -9,18 +9,16 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.IOUtils;
-import com.mycelium.wallet.activity.rmc.json.BtcPoolResponse;
 import com.mycelium.wallet.colu.ColuAccount;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 
 public class BtcPoolStatisticsManager {
 
-    public static String ACCOUNT_INFO_API_URL = "http://188.65.212.157/api/stats/hashrate";
+    public static String HASHRATE_INFO_API_URL = "http://188.65.212.157/api/stats/hashrate";
     public static int TOTAL_RMC_COUNT = 250000;
 
     private ColuAccount coluAccount;
@@ -60,7 +58,7 @@ public class BtcPoolStatisticsManager {
                     }
                 });
         try {
-            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(ACCOUNT_INFO_API_URL));
+            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(HASHRATE_INFO_API_URL));
             HttpResponse response = request.execute();
             InputStream inputStream = response.getContent();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
