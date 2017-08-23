@@ -101,7 +101,7 @@ public abstract class RmcCommonAmountFragment extends Fragment {
                 etRMC.setText(rmcValue.setScale(4, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
 
         }
-        btnOk.setEnabled(rmcValue.compareTo(new BigDecimal("0.1")) > -1 || BuildConfig.DEBUG);
+        btnOk.setEnabled(rmcValue.compareTo(new BigDecimal("0.1")) > -1);
     }
 
     protected abstract void updateCrypto(CurrencyValue currencyValue);
