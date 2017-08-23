@@ -247,7 +247,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          ethFlag = true;
       }
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
-         if (currency.equals("USD")) {
+         if (currency.equals("USD") && (usdRate != null)) {
             return getRMCExchangeRate(rmcFlag, ethFlag, new ExchangeRate("Kraken", 0, usdRate, "USD"));
          }
          return null;
