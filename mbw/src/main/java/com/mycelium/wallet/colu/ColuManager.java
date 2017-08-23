@@ -2,16 +2,13 @@ package com.mycelium.wallet.colu;
 
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -72,6 +69,7 @@ import org.bitcoinj.script.ScriptBuilder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -166,14 +164,15 @@ public class ColuManager implements AccountProvider {
 
 
     private void saveEnabledAssetIds() {
-        String all = Joiner.on(",").join(Iterables.transform(coluAccounts.values(), new Function<ColuAccount, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable ColuAccount input) {
-                Preconditions.checkNotNull(input);
-                return input.getColuAsset().id;
+        List<String> assetIds = new ArrayList<>();
+
+        for(ColuAccount account : coluAccounts.values()) {
+            if (!assetIds.contains(account.getColuAsset().id)) {
+                assetIds.add(account.getColuAsset().id);
             }
-        }));
+        }
+
+        String all = Joiner.on(",").join(assetIds);
         metadataStorage.storeColuAssetIds(all);
     }
 
@@ -337,10 +336,6 @@ public class ColuManager implements AccountProvider {
                         for (int i = 0; i < uuids.length; i++) {
                             loadColuAccount(assetDefinition, uuids[i]);
                         }
-                    } else {
-                        if (createAccount(assetDefinition, null) != null) {
-                            Log.d(TAG, "ColuManager: loaded asset " + assetDefinition.id);
-                        }
                     }
                 }
             }
@@ -414,14 +409,14 @@ public class ColuManager implements AccountProvider {
         return metadataStorage.getColuAssetUUIDs(coluAsset.id);
     }
 
-    public void setAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
+    public void addAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         Log.d(TAG, "Associating " + uuid.toString() + " with asset " + coluAsset.id);
-        metadataStorage.storeColuAssetUUIDs(coluAsset.id, uuid);
+        metadataStorage.addColuAssetUUIDs(coluAsset.id, uuid);
     }
 
-    public void deleteAssetAccountUUID(ColuAccount.ColuAsset coluAsset) {
+    public void removeAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         Log.d(TAG, "Deleting UUID association for " + coluAsset.id);
-        metadataStorage.deleteColuUUID(coluAsset.id);
+        metadataStorage.removeColuAssetUUIDs(coluAsset.id, uuid);
     }
 
     public void forgetPrivateKey(ColuAccount account) {
@@ -449,7 +444,7 @@ public class ColuManager implements AccountProvider {
             _walletAccounts.remove(uuid);
             coluAccounts.remove(account.getId());
             Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
-            deleteAssetAccountUUID(account.getColuAsset());
+            removeAssetAccountUUID(account.getColuAsset(), uuid);
             saveEnabledAssetIds();
         } catch (InvalidKeyCipher e) {
             Log.e(TAG, e.toString());
@@ -492,7 +487,7 @@ public class ColuManager implements AccountProvider {
 
     private ColuAccount createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
         CreatedAccountInfo createdAccountInfo = createSingleAddressAccount(address);
-        setAssetAccountUUID(coluAsset, createdAccountInfo.id);
+        addAssetAccountUUID(coluAsset, createdAccountInfo.id);
 
         ColuAccount account = new ColuAccount(
                 ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, address,
@@ -561,7 +556,7 @@ public class ColuManager implements AccountProvider {
                 accountKey = new InMemoryPrivateKey(mgr.getRandomSource(), true);
             }
             createdAccountInfo = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
-            setAssetAccountUUID(coluAsset, createdAccountInfo.id);
+            addAssetAccountUUID(coluAsset, createdAccountInfo.id);
             Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);

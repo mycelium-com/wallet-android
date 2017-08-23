@@ -327,7 +327,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       deleteByKeyCategory(COLU.of("key" + assetId));
    }
 
-   public void storeColuAssetUUIDs(String assetId, UUID uuid) {
+   public void addColuAssetUUIDs(String assetId, UUID uuid) {
       String value;
 
       UUID[] uuids = getColuAssetUUIDs(assetId);
@@ -340,14 +340,24 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(COLU.of(assetId), value);
    }
 
-   public void deleteColuUUID(String assetId) {
-      deleteByKeyCategory(COLU.of(assetId));
+   public void removeColuAssetUUIDs(String assetId, UUID uuid) {
+
+      UUID[] uuids = getColuAssetUUIDs(assetId);
+      List<UUID> shortenedList = new ArrayList<>();
+
+      for(UUID curUUID : uuids) {
+         if (curUUID.equals(uuid))
+            continue;
+         shortenedList.add(curUUID);
+      }
+
+      storeKeyCategoryValueEntry(COLU.of(assetId), TextUtils.join(",", shortenedList));
    }
 
    public UUID[] getColuAssetUUIDs(String assetId) {
       Optional<String> uuid = getKeyCategoryValueEntry(COLU.of(assetId));
 
-      if (!uuid.isPresent()) {
+      if (!uuid.isPresent() || uuid.get().length() == 0) {
          return new UUID[]{};
       }
 
