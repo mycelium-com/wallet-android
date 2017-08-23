@@ -12,23 +12,11 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.common.net.HttpHeaders;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.rmc.json.CreateRmcOrderResponse;
 import com.mycelium.wallet.activity.rmc.json.RmcRate;
-import com.mycelium.wallet.colu.ColuClient;
-import com.mycelium.wapi.wallet.WalletAccount;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class RmcApiClient {
 
@@ -46,7 +34,7 @@ public class RmcApiClient {
     }
 
     public boolean isCallbackMine(String callback) {
-        return callback.contains(getApiURL());
+        return callback != null && callback.contains(getApiURL());
     }
 
     public CreateRmcOrderResponse.Json createOrder(String amountInRmc, String assetAddress, String paymentMethod) {
