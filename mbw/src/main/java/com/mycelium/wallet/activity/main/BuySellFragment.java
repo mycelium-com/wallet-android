@@ -145,7 +145,13 @@ public class BuySellFragment extends Fragment {
     OnClickListener buySellRmcOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (Calendar.getInstance().before(Keys.getICOStart()) && !BuildConfig.DEBUG) {
+            if(!Utils.isConnected(getActivity())) {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(R.string.no_network_connection)
+                        .setPositiveButton(R.string.button_ok, null)
+                        .create()
+                        .show();
+            } else if (Calendar.getInstance().before(Keys.getICOStart()) && !BuildConfig.DEBUG) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(R.string.ico_will_start)
                         .setPositiveButton(R.string.button_ok, null)

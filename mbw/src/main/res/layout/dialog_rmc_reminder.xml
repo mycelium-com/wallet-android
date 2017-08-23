@@ -20,6 +20,7 @@
         android:background="#ac999999" />
 
     <Switch
+        android:id="@+id/add_push_notification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:thumb="@drawable/switch_thumb"

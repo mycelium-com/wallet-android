@@ -1,8 +1,10 @@
 package com.mycelium.wallet.activity.rmc;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -48,6 +50,7 @@ import butterknife.OnClick;
 
 public class RMCAddressFragment extends Fragment {
 
+    public static final String RMC_ACTIVE_PUSH_NOTIFICATION = "rmc_active_push_notification";
     private View _root;
     @BindView(R.id.switcher)
     protected ViewFlipper switcher;
@@ -78,11 +81,13 @@ public class RMCAddressFragment extends Fragment {
 
 
     private MbwManager _mbwManager;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _mbwManager = MbwManager.getInstance(getActivity());
+        sharedPreferences = getActivity().getSharedPreferences("rmc_notification", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -215,6 +220,7 @@ public class RMCAddressFragment extends Fragment {
     @OnClick(R.id.rmc_active_set_reminder)
     void setReminderClick() {
         final View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rmc_reminder, null, false);
+        ((Switch) view.findViewById(R.id.add_push_notification)).setChecked(sharedPreferences.getBoolean(RMC_ACTIVE_PUSH_NOTIFICATION, false));
         new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
@@ -223,6 +229,9 @@ public class RMCAddressFragment extends Fragment {
                         if(((Switch)view.findViewById(R.id.add_to_calendar)).isChecked()) {
                             addEventToCalendar();
                         }
+                        sharedPreferences.edit().putBoolean(RMC_ACTIVE_PUSH_NOTIFICATION
+                                , ((Switch)view.findViewById(R.id.add_push_notification)).isChecked())
+                                .apply();
                     }
                 }).setNegativeButton(R.string.cancel, null)
                 .create()
