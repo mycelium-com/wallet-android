@@ -129,13 +129,20 @@ public class RMCAddressFragment extends Fragment {
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
             if (result == null)
                 return;
-
-            // peta flops
-            tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
-                    .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
-            // tera flops
-            tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(6)
-                    .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+            if(result.totalRmcHashrate != 0) {
+                // peta flops
+                tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
+                        .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+            } else {
+                tvTotalHP.setText(R.string.not_available);
+            }
+            if(result.totalRmcHashrate != 0) {
+                // tera flops
+                tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(6)
+                        .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+            } else {
+                tvUserHP.setText(R.string.not_available);
+            }
 
         }
     }
