@@ -170,8 +170,9 @@ public abstract class RmcCommonAmountFragment extends Fragment {
             }
             if(max != null && value.compareTo(max) >= 0) {
                 value = max;
-                et.setText(amount);
-                et.setSelection(amount.length());
+                String val = value.setScale(derivation, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString();
+                et.setText(val);
+                et.setSelection(val.length());
             }
             try {
                 update(ExactCurrencyValue.from(value, currency));
