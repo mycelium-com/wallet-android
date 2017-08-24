@@ -6,7 +6,7 @@ In order to receive updates quicker than others, you need to do two things:
 1. Join [the G+ group](https://plus.google.com/communities/102264813364583686576)
 so you are eligible for testing
 2. Then explicitly enable beta versions of the software in
-[Google play](https://play.google.com/apps/testing/com.mycelium.wallet)
+[Google Play](https://play.google.com/apps/testing/com.mycelium.wallet)
 
 As Beta Testers, please make sure you have a recent **backup of the masterseed** and
 all **private keys** inside Mycelium. Beta testers will experience many bugs.
@@ -67,7 +67,7 @@ Deterministic builds
 To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using
 Docker and compare both images following these steps:
  
-* Create your own Doker image
+* Create your own Docker image
 
         $ docker build . --tag mycelium-wallet .
 
