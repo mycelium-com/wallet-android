@@ -46,7 +46,6 @@
                 android:paddingRight="10dp"
                 android:textColor="@color/red"
                 android:text="@string/warning_add_account_no_backup"
-                android:layout_marginBottom="25dp"
                 />
 
         <Button
@@ -57,6 +56,7 @@
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
                 android:text="@string/hd_account"
+                android:layout_marginTop="25dp"
                 android:layout_marginBottom="20dp"/>
 
         <TextView

@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -60,7 +59,11 @@ public abstract class RmcCommonAmountFragment extends Fragment {
 
     protected void initView() {
         etRMCWatcher = new InputWatcher(etRMC, "RMC", 4);
+        etRMCWatcher.setMax(new BigDecimal(Keys.TOTAL_RMC_ISSUED));
         etUSDWatcher = new InputWatcher(etUSD, "USD", 2);
+        etUSDWatcher.setMax(CurrencyValue.fromValue(
+                ExactCurrencyValue.from(BigDecimal.valueOf(Keys.TOTAL_RMC_ISSUED), "RMC")
+                , "USD", exchangeRateManager).getValue());
     }
 
     @OnClick(R.id.btOk)
@@ -128,11 +131,16 @@ public abstract class RmcCommonAmountFragment extends Fragment {
         EditText et;
         String currency;
         int derivation;
+        BigDecimal max;
 
         public InputWatcher(EditText et, String currency, int derivation) {
             this.et = et;
             this.currency = currency;
             this.derivation = derivation;
+        }
+
+        public void setMax(BigDecimal max) {
+            this.max = max;
         }
 
         @Override
@@ -153,12 +161,17 @@ public abstract class RmcCommonAmountFragment extends Fragment {
                 amount = amount.substring(0, amount.length() - 1);
                 et.setText(amount);
                 et.setSelection(amount.length());
-
             }
+
             BigDecimal value = BigDecimal.ZERO;
             try {
                 value = new BigDecimal(et.getText().toString());
             } catch (Exception ignore) {
+            }
+            if(max != null && value.compareTo(max) >= 0) {
+                value = max;
+                et.setText(amount);
+                et.setSelection(amount.length());
             }
             update(ExactCurrencyValue.from(value, currency));
             addChangeListener();

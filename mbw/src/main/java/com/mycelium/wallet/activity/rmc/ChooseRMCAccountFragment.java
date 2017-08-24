@@ -204,7 +204,7 @@ public class ChooseRMCAccountFragment extends Fragment {
             layoutInflater.inflate(R.layout.divider_list, listAccounts, true);
         }
         if (listAccounts.getChildCount() > 2) {
-            useAccountTitle.setText("Please select");
+            useAccountTitle.setText(R.string.rmc_please_select_receiving_account);
             listAccounts.removeViewAt(listAccounts.getChildCount() - 1);
             useAccountTitle.setVisibility(View.VISIBLE);
         } else if (isNew) {

@@ -8,6 +8,7 @@ import android.widget.EditText;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.math.BigDecimal;
 
@@ -31,6 +32,9 @@ public class RmcEthAmountFragment extends RmcCommonAmountFragment {
     protected void initView() {
         super.initView();
         etCryptoWatcher = new InputWatcher(etETH, "ETH", 8);
+        etCryptoWatcher.setMax(CurrencyValue.fromValue(
+                ExactCurrencyValue.from(BigDecimal.valueOf(Keys.TOTAL_RMC_ISSUED), "RMC")
+                , "ETH", exchangeRateManager).getValue());
     }
 
     @Override
