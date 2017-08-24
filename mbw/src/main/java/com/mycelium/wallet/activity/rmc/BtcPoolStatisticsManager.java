@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 
 public class BtcPoolStatisticsManager {
 
-    public static String HASHRATE_INFO_API_URL = "http://188.65.212.157/api/stats/hashrate";
+    public static String HASHRATE_INFO_API_URL = "https://stat.rmc.one/api/stats/hashrate";
 
     private ColuAccount coluAccount;
 
