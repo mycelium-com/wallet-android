@@ -122,13 +122,16 @@ public class ChooseRMCAccountFragment extends Fragment {
     }
 
     List<ColuAccount> getRMCAccounts() {
-        List<ColuAccount> list = new ArrayList<>();
-        for (WalletAccount walletAccount : _mbwManager.getColuManager().getAccounts().values()) {
+        List<ColuAccount> result = new ArrayList<>();
+        List<WalletAccount> accounts = Utils.sortAccounts(
+                new ArrayList<>(_mbwManager.getColuManager().getAccounts().values())
+                , _mbwManager.getMetadataStorage());
+        for (WalletAccount walletAccount : accounts) {
             if (walletAccount instanceof ColuAccount && ((ColuAccount) walletAccount).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
-                list.add((ColuAccount) walletAccount);
+                result.add((ColuAccount) walletAccount);
             }
         }
-        return list;
+        return result;
     }
 
     @Override
