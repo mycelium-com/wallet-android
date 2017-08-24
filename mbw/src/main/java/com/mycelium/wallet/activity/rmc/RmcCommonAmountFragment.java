@@ -158,9 +158,9 @@ public abstract class RmcCommonAmountFragment extends Fragment {
             BigDecimal value = BigDecimal.ZERO;
             try {
                 value = new BigDecimal(et.getText().toString());
+                update(ExactCurrencyValue.from(value, currency));
             } catch (Exception ignore) {
             }
-            update(ExactCurrencyValue.from(value, currency));
             addChangeListener();
         }
     }
