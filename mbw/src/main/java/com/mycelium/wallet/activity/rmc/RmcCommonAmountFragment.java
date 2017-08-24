@@ -173,7 +173,10 @@ public abstract class RmcCommonAmountFragment extends Fragment {
                 et.setText(amount);
                 et.setSelection(amount.length());
             }
-            update(ExactCurrencyValue.from(value, currency));
+            try {
+                update(ExactCurrencyValue.from(value, currency));
+            } catch (Exception ignore) {
+            }
             addChangeListener();
         }
     }

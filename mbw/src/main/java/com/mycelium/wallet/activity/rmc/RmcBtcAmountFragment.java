@@ -55,8 +55,11 @@ public class RmcBtcAmountFragment extends RmcCommonAmountFragment {
 
     @Override
     protected void updateCrypto(CurrencyValue currencyValue) {
-        BigDecimal btcValue = CurrencyValue.fromValue(currencyValue, "BTC", exchangeRateManager).getValue();
-        etBTC.setText(btcValue != null ? btcValue.stripTrailingZeros().toPlainString()
-                : getString(R.string.exchange_source_not_available, mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+        try {
+            BigDecimal btcValue = CurrencyValue.fromValue(currencyValue, "BTC", exchangeRateManager).getValue();
+            etBTC.setText(btcValue != null ? btcValue.stripTrailingZeros().toPlainString()
+                    : getString(R.string.exchange_source_not_available, mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+        } catch(Exception ex) {
+        }
     }
 }
