@@ -905,7 +905,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public static class ColuAsset {
       private static final ColuAsset mainNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K", 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
       private static final ColuAsset mainNetAssetMass = new ColuAsset(ColuAssetType.MASS, "MSS", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      private static final ColuAsset mainNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "La3bgndN7QSYqV8pWuuqbfBPyHMZRK14Tb2BPg", 0, "");
+      private static final ColuAsset mainNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "La3bgndN7QSYqV8pWuuqbfBPyHMZRK14Tb2BPg", 4, "");
 
       private static final ColuAsset testNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM", 4, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
       private static final ColuAsset testNetAssetMass = new ColuAsset(ColuAssetType.MASS, "MSS", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
