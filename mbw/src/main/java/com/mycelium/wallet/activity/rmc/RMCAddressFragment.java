@@ -96,6 +96,7 @@ public class RMCAddressFragment extends Fragment {
         ButterKnife.bind(this, _root);
         graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
         graphView.getGridLabelRenderer().setNumVerticalLabels(3);
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(0);
         graphView.getViewport().setMaxY(0.2);
         graphView.getViewport().setYAxisBoundsManual(true);
         graphView.getViewport().setXAxisBoundsManual(true);
@@ -158,6 +159,7 @@ public class RMCAddressFragment extends Fragment {
             graphView.getViewport().setMinX(dataPoints.get(0).getX());
             Calendar max = Calendar.getInstance();
             max.setTimeInMillis((long) dataPoints.get(0).getX());
+            graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
 
             DateFormat dateFormat;
             if (dataPoints.size() < 30) {
