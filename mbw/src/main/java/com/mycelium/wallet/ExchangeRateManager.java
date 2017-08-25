@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.common.collect.ImmutableList;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -80,8 +81,10 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private Float rmcRate;
    private Float ethRate;
    private Float usdRate;
+   private NetworkParameters networkParameters;
 
-   ExchangeRateManager(Context applicationContext, Wapi api) {
+   ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters) {
+      this.networkParameters = networkParameters;
       _applicationContext = applicationContext;
       _api = api;
       _latestRates = null;
@@ -129,7 +132,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
          }
          if(rmcApiClient != null) {
-            RmcApiClient rmcApiClient = new RmcApiClient(null);
+            RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
             Float rate = rmcApiClient.exchangeUsdRmcRate();
             if(rate != null) {
                rmcRate = rate;
@@ -143,7 +146,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             if(rate != null) {
                usdRate = rate;
             }
-
          }
       }
    }

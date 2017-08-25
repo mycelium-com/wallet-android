@@ -30,7 +30,9 @@ public class RmcApiClient {
         if (this.network == NetworkParameters.productionNetwork)
             return "https://rmc-ico-stg.gear.mycelium.com/api/";
         //Return TestNet parameters otherwise
-        return "https://rmc-ico-test.gear.mycelium.com/api/";
+        if(this.network == NetworkParameters.testNetwork)
+            return "https://rmc-ico-test.gear.mycelium.com/api/";
+        throw new RuntimeException("can't find network, this never should be happens");
     }
 
     public boolean isCallbackMine(String callback) {
