@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.rmc;
 
 import com.jjoe64.graphview.series.DataPoint;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -104,7 +105,7 @@ public class RmcPaymentsStatistics {
         }
 
         //Temporarily show the sample data
-        if (dataPoints.size() == 0) {
+        if (dataPoints.size() == 0 && BuildConfig.FLAVOR.equals("btctestnet")) {
             Calendar calendar = Calendar.getInstance();
             List<TransactionSummary> summaries = coluAccount.getTransactionHistory(0, 1);
             if (summaries.size() > 0) {
