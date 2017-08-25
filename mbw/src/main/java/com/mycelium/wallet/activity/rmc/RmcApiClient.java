@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -39,7 +40,7 @@ public class RmcApiClient {
         return callback != null && callback.contains(getApiURL());
     }
 
-    public CreateRmcOrderResponse.Json createOrder(String amountInRmc, String assetAddress, String paymentMethod) {
+    public CreateRmcOrderResponse.Json createOrder(String amountInRmc, String assetAddress, String paymentMethod, String customerID) {
 
         HashMap<String, String> data = new HashMap<>();
         data.put("amount_in_rmc", amountInRmc);
@@ -58,6 +59,8 @@ public class RmcApiClient {
 
         try {
             HttpRequest request = requestFactory.buildPostRequest(new GenericUrl(getApiURL() + "orders"), content);
+            HttpHeaders headers = request.getHeaders();
+            headers.set("X-Auth-MWT", customerID);
             HttpResponse response = request.execute();
             return response.parseAs(CreateRmcOrderResponse.Json.class);
 

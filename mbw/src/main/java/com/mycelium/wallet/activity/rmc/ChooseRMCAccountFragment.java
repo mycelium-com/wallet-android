@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -31,6 +32,8 @@ import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 
@@ -278,6 +281,15 @@ public class ChooseRMCAccountFragment extends Fragment {
             this.paymentMethod = paymentMethod;
         }
 
+        private String generateCustomerId() {
+            try {
+                Bip39.MasterSeed seed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                UUID uuid = ColuAccount.getGuidFromByteArray(seed.getBip32Seed());
+                return uuid.toString();
+            } catch (Exception ex) {
+                return "";
+            }
+        }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -286,7 +298,8 @@ public class ChooseRMCAccountFragment extends Fragment {
         @Override
         protected CreateRmcOrderResponse.Json doInBackground(Void... params) {
             RmcApiClient client = new RmcApiClient(_mbwManager.getNetwork());
-            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amountInRmc.toPlainString(), assetAddress, paymentMethod);
+            String customerID = generateCustomerId();
+            CreateRmcOrderResponse.Json orderResponse = client.createOrder(amountInRmc.toPlainString(), assetAddress, paymentMethod, customerID);
             return orderResponse;
         }
 
