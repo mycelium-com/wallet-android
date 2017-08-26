@@ -641,8 +641,10 @@ public class ColuManager implements AccountProvider {
         if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork())))
             return null;
 
+
+
         if (key != null) {
-            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().getPublicKeyBytes());
+            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
 
             if (coluAccounts.containsKey(uuid)) {
                 return uuid;

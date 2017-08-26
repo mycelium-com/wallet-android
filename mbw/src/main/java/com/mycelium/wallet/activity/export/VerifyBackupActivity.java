@@ -185,14 +185,14 @@ public class VerifyBackupActivity extends Activity {
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
               || _mbwManager.getColuManager().hasAccount(account);
       for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(_mbwManager.getColuManager().getNetwork()).values()) {
-         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().getPublicKeyBytes());
+         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
          success |= _mbwManager.getColuManager().hasAccount(coluUUID);
       }
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
          for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(_mbwManager.getColuManager().getNetwork()).values()) {
-            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().getPublicKeyBytes());
+            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();
