@@ -423,7 +423,7 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean checkIsRMCICOPaymentRequest() {
-        return new RmcApiClient(_mbwManager.getNetwork()).isCallbackMine(_bitcoinUri.callbackURL);
+        return _bitcoinUri != null && _bitcoinUri.callbackURL != null && new RmcApiClient(_mbwManager.getNetwork()).isCallbackMine(_bitcoinUri.callbackURL);
     }
 
     private void coluSpendAccount() {
