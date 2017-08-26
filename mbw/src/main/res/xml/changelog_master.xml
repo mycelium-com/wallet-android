@@ -6,7 +6,8 @@
         <change>fixed address book add address button</change>
         <change>update balance every minute</change>
     </release>
-    <release version="2.8.12" versioncode="281200">
+    <release version="2.8.12" versioncode="281202">
+        <change>fix tab issue where the address book broke</change>
         <change>fix issue with trezor firmware 1.5.0</change>
         <change>only consider UTXOs that pay for themselves when spending to fix the spendable amount issue</change>
         <change>added tab with links to partners</change>
