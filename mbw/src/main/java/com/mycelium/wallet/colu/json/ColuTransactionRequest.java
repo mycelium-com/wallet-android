@@ -9,7 +9,7 @@ public class ColuTransactionRequest {
     public static class Json extends GenericJson {
 
         @Key
-        public int fee;
+        public long fee;
 
         @Key
         public List<String> from;

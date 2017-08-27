@@ -454,7 +454,7 @@ public class SendMainActivity extends Activity {
         }
         ColuAccount coluAccount = (ColuAccount) _account;
 
-        long fundingAmountToSend = getFeePerKb().getLongValue();
+        long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(getFeePerKb().getLongValue());
         if (fundingAmountToSend < TransactionUtils.MINIMUM_OUTPUT_VALUE)
             fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
@@ -884,7 +884,7 @@ public class SendMainActivity extends Activity {
                         }
 
                         return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
-                                params[0].getColuAccount(), params[0].getFeePerKb());
+                                params[0].getColuAccount(), (int)params[0].getFeePerKb());
                     }
 
                     @Override

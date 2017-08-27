@@ -101,6 +101,7 @@ public class ColuManager implements AccountProvider {
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
     public static final int DUST_OUTPUT_SIZE = 600;
     public static final int METADATA_OUTPUT_SIZE = 1;
+    public static final int AVERAGE_COLU_TX_SIZE = 425;
 
     final org.bitcoinj.core.NetworkParameters netParams;
     final org.bitcoinj.core.Context context;
@@ -162,6 +163,9 @@ public class ColuManager implements AccountProvider {
                 , baseUrl + "address/", baseUrl + "tx/");
     }
 
+    public long getColuTransactionFee(long feePerKb) {
+        return (AVERAGE_COLU_TX_SIZE * feePerKb) / 1000;
+    }
 
     private void saveEnabledAssetIds() {
         List<String> assetIds = new ArrayList<>();
@@ -282,7 +286,7 @@ public class ColuManager implements AccountProvider {
             }
 
             try {
-                ColuBroadcastTxid.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, feePerKb);
+                ColuBroadcastTxid.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, getColuTransactionFee(feePerKb));
 
                 if (txid != null) {
                     Log.d(TAG, "Received unsigned transaction: " + txid.txHex);
