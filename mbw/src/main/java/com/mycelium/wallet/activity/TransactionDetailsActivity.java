@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -57,6 +58,8 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 
@@ -69,6 +72,7 @@ public class TransactionDetailsActivity extends Activity {
    private TransactionSummary _txs;
    private int _white_color;
    private MbwManager _mbwManager;
+   private boolean coluMode = false;
 
    /**
     * Called when the activity is first created.
@@ -87,12 +91,18 @@ public class TransactionDetailsActivity extends Activity {
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
       _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
+      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         coluMode = true;
+      } else {
+         coluMode = false;
+      }
       updateUi();
    }
 
    private void updateUi() {
       // Set Hash
       TransactionDetailsLabel tvHash = ((TransactionDetailsLabel) findViewById(R.id.tvHash));
+      tvHash.setColuMode(coluMode);
       tvHash.setTransaction(_tx);
 
 
@@ -133,14 +143,18 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Inputs
       LinearLayout inputs = (LinearLayout) findViewById(R.id.llInputs);
-      for (TransactionDetails.Item item : _tx.inputs) {
-         inputs.addView(getItemView(item));
+      if(_tx.inputs != null) {
+         for (TransactionDetails.Item item : _tx.inputs) {
+            inputs.addView(getItemView(item));
+         }
       }
 
       // Set Outputs
       LinearLayout outputs = (LinearLayout) findViewById(R.id.llOutputs);
-      for (TransactionDetails.Item item : _tx.outputs) {
-         outputs.addView(getItemView(item));
+      if(_tx.outputs != null) {
+         for (TransactionDetails.Item item : _tx.outputs) {
+            outputs.addView(getItemView(item));
+         }
       }
 
       // Set Fee
@@ -163,8 +177,10 @@ public class TransactionDetailsActivity extends Activity {
 
    private long sum(TransactionDetails.Item[] items) {
       long sum = 0;
-      for (TransactionDetails.Item item : items) {
-         sum += item.value;
+      if(items != null) {
+         for (TransactionDetails.Item item : items) {
+            sum += item.value;
+         }
       }
       return sum;
    }
@@ -174,7 +190,10 @@ public class TransactionDetailsActivity extends Activity {
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);
       ll.setLayoutParams(WCWC);
-
+      if(item instanceof ColuTxDetailsItem) {
+         ll.addView(getColuValue(((ColuTxDetailsItem) item).getAmount(),
+                 ((ColuAccount)_mbwManager.getSelectedAccount()).getColuAsset().name));
+      }
       if (item.isCoinbase) {
          // Coinbase input
          ll.addView(getValue(item.value, null));
@@ -186,6 +205,7 @@ public class TransactionDetailsActivity extends Activity {
          ll.addView(getValue(item.value, address));
 
          AddressLabel adrLabel = new AddressLabel(this);
+         adrLabel.setColuMode(coluMode);
          adrLabel.setAddress(item.address);
          ll.addView(adrLabel);
       }
@@ -210,6 +230,26 @@ public class TransactionDetailsActivity extends Activity {
       tv.setText(_mbwManager.getBtcValueString(value));
       tv.setTextColor(_white_color);
       tv.setTag(tag);
+
+      tv.setOnLongClickListener(new View.OnLongClickListener() {
+         @Override
+         public boolean onLongClick(View v) {
+            Utils.setClipboardString(CoinUtil.valueString(value, _mbwManager.getCurrencySwitcher().getBitcoinDenomination(), false), getApplicationContext());
+            Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+            return true;
+         }
+      });
+
+
+      return tv;
+   }
+
+   private View getColuValue(final BigDecimal value, String currency) {
+      TextView tv = new TextView(this);
+      tv.setLayoutParams(FPWC);
+      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+      tv.setText(value.stripTrailingZeros().toPlainString() + " " + currency);
+      tv.setTextColor(_white_color);
 
       tv.setOnLongClickListener(new View.OnLongClickListener() {
          @Override

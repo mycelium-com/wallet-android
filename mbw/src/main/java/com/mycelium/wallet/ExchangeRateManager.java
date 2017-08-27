@@ -37,20 +37,29 @@ package com.mycelium.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.google.common.collect.ImmutableList;
-import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
+   public static final String USD_RMC = "usd_rmc";
 
    public interface Observer {
       void refreshingExchangeRatesSucceeded();
@@ -68,15 +77,27 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private final List<Observer> _subscribers;
    private String _currentExchangeSourceName;
 
-   ExchangeRateManager(Context applicationContext, Wapi api) {
+   private RmcApiClient rmcApiClient;
+   private Float rmcRate;
+   private Float ethRate;
+   private Float usdRate;
+   private NetworkParameters networkParameters;
+
+   ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters) {
+      this.networkParameters = networkParameters;
       _applicationContext = applicationContext;
       _api = api;
       _latestRates = null;
       _latestRatesTime = 0;
       _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
+      rmcRate = getPreferences().getFloat(USD_RMC, 1f / 4000);
 
       _subscribers = new LinkedList<Observer>();
       _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
+   }
+
+   public void setClient(RmcApiClient client) {
+      this.rmcApiClient = client;
    }
 
    public synchronized void subscribe(Observer subscriber) {
@@ -108,6 +129,22 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             synchronized (_requestLock) {
                _fetcher = null;
                notifyRefreshingExchangeRatesFailed();
+            }
+         }
+         if(rmcApiClient != null) {
+            RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
+            Float rate = rmcApiClient.exchangeUsdRmcRate();
+            if(rate != null) {
+               rmcRate = rate;
+               getPreferences().edit().putFloat(USD_RMC, rmcRate).apply();
+            }
+            rate = rmcApiClient.exchangeEthUsdRate();
+            if(rate != null) {
+               ethRate = rate;
+            }
+            rate = rmcApiClient.exchangeBtcUsdRate();
+            if(rate != null) {
+               usdRate = rate;
             }
          }
       }
@@ -200,7 +237,21 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     */
    @Override
    public synchronized ExchangeRate getExchangeRate(String currency) {
+      boolean rmcFlag = false;
+      if(currency.equals("RMC")) {
+         currency = "USD";
+         rmcFlag = true;
+      }
+      boolean ethFlag = false;
+      if(currency.equals("ETH")) {
+         if(ethRate == 0) return null;
+         currency = "USD";
+         ethFlag = true;
+      }
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
+         if (currency.equals("USD") && (usdRate != null)) {
+            return getRMCExchangeRate(rmcFlag, ethFlag, new ExchangeRate("Kraken", 0, usdRate, "USD"));
+         }
          return null;
       }
       if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
@@ -216,6 +267,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
             //everything is fine, return the rate
+            r = getRMCExchangeRate(rmcFlag, ethFlag, r);
             return r;
          }
       }
@@ -224,6 +276,16 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
       }
       return null;
+   }
+
+   private ExchangeRate getRMCExchangeRate(boolean rmcFlag, boolean ethFlag, ExchangeRate r) {
+      if(rmcFlag) {
+         r = new ExchangeRate(r.name, r.time, r.price * rmcRate, "RMC");
+      }
+      if(ethFlag) {
+         r = new ExchangeRate(r.name, r.time, r.price / ethRate, "ETH");
+      }
+      return r;
    }
 
    private SharedPreferences.Editor getEditor() {

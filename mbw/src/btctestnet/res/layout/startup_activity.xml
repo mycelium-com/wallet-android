@@ -6,9 +6,7 @@
         >
 
     <TextView android:layout_width="fill_parent" android:layout_height="fill_parent"
-              android:text="@string/testnet_label_startup" android:textSize="70dp"
+              android:text="@string/testnet_label_startup" android:textSize="70sp"
               android:textColor="@color/red" android:gravity="center_vertical|center_horizontal"
               android:paddingBottom="200dp"/>
-
-
 </FrameLayout>

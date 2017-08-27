@@ -40,9 +40,13 @@ import android.view.View;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Subscribe;
+
+import java.math.BigDecimal;
 
 
 public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
@@ -77,16 +81,31 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       super.updateUi();
 
       int cntCurrencies = (fiatOnly ? currencySwitcher.getFiatCurrenciesCount() : currencySwitcher.getCurrenciesCount() );
-      if (cntCurrencies == 1){
+      if (cntCurrencies == 1
+              || (currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString()))){
          // there is only one currency to show - dont show a triangle hinting that the user can toggle
          findViewById(R.id.ivSwitchable).setVisibility(INVISIBLE);
       } else {
          // there are more than one fiat-currency
          findViewById(R.id.ivSwitchable).setVisibility(VISIBLE);
       }
-
    }
 
+   @Override
+   protected void showFiat() {
+      if(currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString())){
+         llContainer.setVisibility(VISIBLE);
+         CurrencyValue value = CurrencyValue.fromValue(currentValue, "USD", this.currencySwitcher.getExchangeRateManager());
+         if(value != null) {
+            if(value.getValue() != null) {
+               tvValue.setText(value.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
+            }
+            tvCurrency.setText(value.getCurrency());
+         }
+      } else {
+         super.showFiat();
+      }
+   }
 
    public void switchToNextCurrency(){
       Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
@@ -97,7 +116,6 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          updateUi();
       }
    }
-
 
    @Subscribe
    @Override

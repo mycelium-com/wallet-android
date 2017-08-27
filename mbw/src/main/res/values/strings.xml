@@ -3,6 +3,7 @@
 
     <string name="app_name">Mycelium Bitcoin Wallet</string>
     <string name="app_short_name">Mycelium</string>
+
     <string name="add_account_title">Add New Account</string>
     <string name="add_unrelated_account_title">Add Unrelated Account</string>
     <string name="import_seed_title">Import Master Seed</string>
@@ -26,7 +27,7 @@
     <string name="send">Send</string>
     <string name="receive">Receive</string>
     <string name="private_key_deleted">Private key deleted.</string>
-    <string name="account_deleted">Account deleted</string>
+    <string name="account_deleted">Account deleted.</string>
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Enter Recipient Address</string>
@@ -48,10 +49,12 @@
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
-    <string name="transaction_sent">Transaction sent</string>
+    <string name="transaction_sent">Transaction sent.</string>
     <string name="export">Export</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
+    <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
+    <string name="copy_amount_to_clipboard">Copy amount to Clipboard</string>
     <string name="copy_private_key_to_clipboard">Copy Private Key to Clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="private_key">Private Key</string>
@@ -119,7 +122,7 @@
     <string name="payment_request">Payment Request</string>
     <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to these keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
     <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
-    <string name="backup_legacy_warning">You will back up the single address accounts in your wallet. \nThis backup will not contain your master seed, none of your HD accounts can be restored from it!\n\nDo you want to proceed?</string>
+    <string name="backup_legacy_warning">Make a Backup of your Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to clear the clipboard?</string>
@@ -175,12 +178,12 @@
     <string name="delete_account_message">Do you want to delete this account?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
     <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\nAccount label:\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
     <string name="confirm_delete_pk_without_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\nAccount label:\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</string>
+    <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</string>
     <string name="verify_private_key_backup">Verify Backup</string>
     <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
-    <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
+    <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin and digital assets funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
     <string name="verify_backup_scan_desc">Verify your backup by scanning the private key or master seed QR code.\nSeveral formats are accepted, including the Mycelium encrypted paper backup.</string>
     <string name="verify_backup_clipboard_desc">Verify private key backup by taking the private key from the clipboard.</string>
     <string name="verify_backup_num_keys">You have %1$s keys that have never been verified.</string>
@@ -490,8 +493,8 @@
     <!-- BitID end -->
 
     <string name="selected_archived_warning">You cannot work on archived accounts.</string>
-    <string name="selected_hd_info">You are now working on this HD Account.</string>
-    <string name="selected_single_info">You are now working on this single address.</string>
+    <string name="selected_hd_info">You are now working on this HD account.</string>
+    <string name="selected_single_info">You are now working on this single address account.</string>
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="hd_account_creation_started">Creating new HD Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
@@ -802,8 +805,35 @@
     <string name="coinapult_tos_question">To create a Coinapult Account you must agree to their Terms and Conditions</string>
     <string name="coinapult_mail_question">Do you want to provide your mail address?</string>
     <string name="coinapult_create_account">Creating Coinapult account…</string>
-    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string> 
+    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
     <string name="coinapult_currency_account">%1$s Account</string>
+    <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
+    <string name="colu_add_mass_account">Add Mass Account</string>
+    <string name="colu_account_notes">Store digital assets in Mycelium.</string>
+    <string name="colu_add_cc_account">Add Colored Coins Account</string>
+    <string name="colu">Colored Coin</string>
+    <string name="colu_select_an_account_type">Please select a Colored Coin account type</string>
+    <string name="colu_create_account">Create %s Account</string>
+    <string name="colu_creating_account">Creating %s Account</string>
+    <string name="colu_mycelium_tokens">Mycelium Tokens</string>
+    <string name="colu_mass_tokens">Mass Tokens</string>
+    <string name="colu_unable_to_create_account">Unable to create Colored Coin account</string>
+    <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+   <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+    <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+<!--blockchain technology developer. All your interactions with Colu are outside of-->
+<!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+<!--Please read them carefully before providing any personal information.-->
+<!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+<!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+<!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+    <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
+    <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
+    <string name="colu_sending_via_colu">Sending Colored Coin assets.</string>
+    <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with BTC ( up to $100) to perform transactions.</string>
+    <string name="colu_succeeded_to_prepare">Colored Coin transaction ready to send.</string>
+    <string name="colu_failed_to_broadcast">Colored Coin failed to broadcast transaction.</string>
+    <string name="colu_succeeded_to_broadcast">Colored Coin transaction sent.</string>
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
@@ -914,7 +944,64 @@
     <string name="label_list_activity_indicator">had activity</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
+    <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
+    <string name="colu_rmc_tokens">RMC</string>
 
+    <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
+    <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>
+    <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
+    <string name="ad_buy_hashing24">Start Bitcoin mining with maximum efficiency</string>
+
+    <string name="ad_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
+    <string name="ad_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
+    <string name="ad_purse_url">https://purse.io/?_a=MYCELIUM</string>
+    <string name="ad_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
+
+    <string name="ad_hashing24_info">
+        Hashing24 is a cloud mining company partnering with BitFury, one of the largest Bitcoin miners and Segwit supporter.
+        Cloud mining is a speculative investment to obtain new Bitcoin. Every investment has a risk.
+        Use code MYCELIUM for an exclusive 4% discount.
+    </string>
+    <string name="ad_purse_info" />
+    <string name="ad_trezor_info" />
+    <string name="ad_ledger_info" />
+    <string name="gd_buy_sell_rmc_button">Buy RMC</string>
+    <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
+    <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
+    <string name="rmc_seems_like_no_account">Seems like you still have no RMC account.   Hit the button below to generate one</string>
+    <string name="rmc_generate_new_account">Generate new RMC account</string>
+    <string name="rmc_you_buying">You are buying</string>
+    <string name="rmc_your_new_account">Your new RMC account</string>
+    <string name="rmc_use_this_account_to_receive_your_rmc">Use this account to receive your RMC?</string>
+    <string name="rmc_yes">Yes</string>
+    <string name="rmc_no">No</string>
+    <string name="rmc_return_of_investment">Return on Investment</string>
+    <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
+    <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
+    <string name="address_title" >%s Address</string>
+    <string name="rmc_send_warning" formatted="false">%1$s is an asset (token) issued on Bitcoin blockchain as  colored coin.
+%1$s transaction is a bitcoin transaction and requires miner\'s fee in order to be included in a block.
+To be able to send %1$s token to another %1$s address you need to top up your %1$s address with a small amount of BTC which will be used to fund your transaction.
+You can either add miner\'s fee from any account with bitcoins every time you make %1$s transaction or top up your %1$s account with a little bit more btc so you will not have to fund (means spend on miner\'s fee) each time you make %1$s transaction.</string>
+    <string name="rmc_reminder">RMC reminder</string>
+    <string name="rmc_active_in_159_days">Active in %d days</string>
+    <string name="bitcoin_altcoin_mining_button">Bitcoin/Altcoin mining button</string>
+    <string name="rmc_remind_by_email">Remind by email</string>
+    <string name="rmc_recieve_push_notification">Receive push notification</string>
+    <string name="rmc_add_to_google_calendar">Add to Google calendar</string>
+    <string name="create_backup">Create Backup</string>
+    <string name="label">Label:</string>
+    <string name="rmc_account">Account:</string>
+    <string name="verify">Verify</string>
+    <string name="share_x_address">Share %s Address</string>
+    <string name="your_rmc_hash_power_th_s">Your RMC hash power (TH/s):</string>
+    <string name="total_rmc_hash_power_ph_s">Total RMC hash power (PH/s):</string>
+    <string name="enter_address">Enter %s Address</string>
+    <string name="address_valid">%s Address Valid</string>
+    <string name="address_invalid">Invalid %s Address</string>
+    <string name="rmc_activate_rmc">Activate RMC for maximum Return</string>
+    <string name="rmc_activate">RMC activate</string>
+    <string name="save">Save</string>
     <string name="warning_partner">Partner information</string>
 
     <string name="partner_header_title">New to crypto?</string>
@@ -959,4 +1046,30 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
         Referrals happen only when users decide to make a purchase on our partner websites.
     </string>
     <string name="your_privacy_out_priority">Your privacy is our top priority</string>
+    <string name="rmc_payment_success">Payment is successful! You will get your assets after three confirmations.</string>
+    <string name="rmc_please_enter_amount">Please enter amount</string>
+    <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Minimum amount to buy is 0.1 RMC</string>
+    <string name="weeks">days</string>
+    <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
+    <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets.</string>
+    <string name="rmc_bitcoin_acc_what_is_it">RMC Bitcoin account is a "Single Address" Bitcoin address linked to your RMC account. All new bitcoins mined  by Total RMC hash power are proportionally distributed among RMC Bitcoin accounts.</string>
+    <string name="what_is_it">What is it?</string>
+    <string name="error_start_google_calendar">Something wrong with google calendar</string>
+    <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
+    <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
+    <string name="selected_colu_info">You are now working on this %s account.</string>
+    <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
+    <string name="colu_error_deleting">Got an error while deleting Colored Coin account</string>
+    <string name="export_not_possible">Export is not possible you already have %s account</string>
+    <string name="total_rmc_issued_value">25000</string>
+    <string name="restore_address_as">Restore address as</string>
+    <string name="restore_addres_as">Restore address as</string>
+    <string name="account_already_exist">This Bitcoin address is already restored as %s account.</string>
+    <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
+    <string name="rmc_please_select_receiving_account">Please select receiving account</string>
+    <string name="not_available">N/A</string>
+    <plurals name="account_label">
+        <item quantity="one">Account label:\n%s</item>
+        <item quantity="other">Accounts labels:\n%s</item>
+    </plurals>
 </resources>

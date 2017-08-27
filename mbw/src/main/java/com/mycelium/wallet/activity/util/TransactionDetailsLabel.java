@@ -44,6 +44,7 @@ import com.mycelium.wapi.model.TransactionDetails;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    private TransactionDetails transaction;
+   private boolean coluMode;
 
    public TransactionDetailsLabel(Context context) {
       super(context);
@@ -55,6 +56,10 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    public TransactionDetailsLabel(Context context, AttributeSet attrs, int defStyleAttr) {
       super(context, attrs, defStyleAttr);
+   }
+
+   public void setColuMode(boolean mode) {
+      coluMode = mode;
    }
 
    @Override
@@ -72,14 +77,18 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-
-
    public void setTransaction(final TransactionDetails tx){
       this.transaction = tx;
       update_ui();
-      setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+      if(coluMode) {
+         setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
+      }else {
+         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+      }
    }
+
    public TransactionDetails getAddress() {
       return transaction;
    }
+
 }

@@ -11,18 +11,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.common.base.Charsets;
-import com.mycelium.wallet.R;
-
+import com.google.android.vending.licensing.AESObfuscator;
 import com.google.android.vending.licensing.LicenseChecker;
 import com.google.android.vending.licensing.LicenseCheckerCallback;
-import com.google.android.vending.licensing.AESObfuscator;
 import com.google.android.vending.licensing.ServerManagedPolicy;
-
+import com.google.common.base.Charsets;
+import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.squareup.otto.Bus;
-import com.squareup.otto.ThreadEnforcer;
 import com.squareup.otto.Subscribe;
+import com.squareup.otto.ThreadEnforcer;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
@@ -33,7 +31,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 public class SimplexMainActivity extends Activity {
 
     //the event bus entities
-    private static final Bus _eventBus = new Bus(ThreadEnforcer.ANY,"Simplex");
+    private static final Bus _eventBus = new Bus(ThreadEnforcer.ANY, "Simplex");
     private Handler _activityHandler;
 
     //simplex server
@@ -74,21 +72,23 @@ public class SimplexMainActivity extends Activity {
         simplexAsync.run();
     }
 
-    @Override protected void onResume() {
+    @Override
+    protected void onResume() {
         super.onResume();
 
         // Register ourselves so that we can provide the initial value.
         _eventBus.register(this);
 
-        if(this._simplexUIType == SimplexUITypes.WebView) {
-            Log.d("simplex","onResume WebView");
+        if (this._simplexUIType == SimplexUITypes.WebView) {
+            Log.d("simplex", "onResume WebView");
             Intent i = new Intent(SimplexMainActivity.this, ModernMain.class);
             i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
         }
     }
 
-    @Override protected void onPause() {
+    @Override
+    protected void onPause() {
         super.onPause();
 
         // Always unregister when an object no longer should be on the bus.
@@ -100,38 +100,39 @@ public class SimplexMainActivity extends Activity {
         super.onDestroy();
         destroyCheckers();
     }
-    /** Simplex App Auth logic Start **/
+
+    /**
+     * Simplex App Auth logic Start
+     **/
 
     private Runnable simplexAsync = new Runnable() {
         @Override
         public void run() {
-            Log.d("simplex","get nonce...");
-            _server.getNonceAsync(_eventBus,getApplicationContext());
+            Log.d("simplex", "get nonce...");
+            _server.getNonceAsync(_eventBus, getApplicationContext());
         }
     };
 
     @Subscribe
-    public void getNonceCallback(SimplexNonceResponse nonceResponse)
-    {
-        Log.d("Simplex","GetNonceCallback...");
-        Log.d("Simplex","simplex nonce: "+ nonceResponse.simplexNonce);
-        Log.d("Simplex","google nonce: "+ nonceResponse.googleNonce);
+    public void getNonceCallback(SimplexNonceResponse nonceResponse) {
+        Log.d("Simplex", "GetNonceCallback...");
+        Log.d("Simplex", "simplex nonce: " + nonceResponse.simplexNonce);
+        Log.d("Simplex", "google nonce: " + nonceResponse.googleNonce);
         _simplexNonce = nonceResponse;
         initChecker();
         //execute the lvl code here
         _checker.checkAccess(_licenseCheckerCallback);
     }
 
-    private void redirectWebView(String siteUrl,int responseCode, String signedData, String signature)
-    {
-        Log.d("Simplex","RedirectWebView...");
-        String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s",siteUrl,_simplexNonce.simplexNonce,_walletAddress,responseCode,signedData,signature);
+    private void redirectWebView(String siteUrl, int responseCode, String signedData, String signature) {
+        Log.d("Simplex", "RedirectWebView...");
+        String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
-        Log.d("webview post nonce",String.valueOf(_simplexNonce.simplexNonce));
-        Log.d("webview post wallet",_walletAddress);
-        Log.d("webview post lvlCode",String.valueOf(responseCode));
-        Log.d("webview post signedData",signedData);
-        Log.d("webview post signature",signature);
+        Log.d("webview post nonce", String.valueOf(_simplexNonce.simplexNonce));
+        Log.d("webview post wallet", _walletAddress);
+        Log.d("webview post lvlCode", String.valueOf(responseCode));
+        Log.d("webview post signedData", signedData);
+        Log.d("webview post signature", signature);
         setLayout(SimplexUITypes.WebView);
         startActivity(browserIntent);
 
@@ -140,12 +141,12 @@ public class SimplexMainActivity extends Activity {
     /** Simplex App Auth logic End **/
 
 
-    /** Activity UI logic Start **/
-    private void setLayout(SimplexUITypes uiType)
-    {
+    /**
+     * Activity UI logic Start
+     **/
+    private void setLayout(SimplexUITypes uiType) {
         _simplexUIType = uiType;
-        switch (uiType)
-        {
+        switch (uiType) {
             case Loading:
                 findViewById(R.id.llSimplexValidationWait).setVisibility(View.VISIBLE);
                 findViewById(R.id.llSimplexLoadingProgress).setVisibility(View.GONE);
@@ -161,7 +162,7 @@ public class SimplexMainActivity extends Activity {
     }
 
     @Subscribe
-    public void displayError(final SimplexError error){
+    public void displayError(final SimplexError error) {
         Log.i("simplex", error.message);
         // Don't update UI if Activity is finishing.
         if (isFinishing())
@@ -183,20 +184,19 @@ public class SimplexMainActivity extends Activity {
         });
     }
 
-    private static String generateDisplayErrorMessage(String errorMessage)
-    {
-        return errorMessage + System.getProperty ("line.separator") + "please try again later.";
+    private static String generateDisplayErrorMessage(String errorMessage) {
+        return errorMessage + System.getProperty("line.separator") + "please try again later.";
     }
 
     @Subscribe
-    public void startAuth(final AuthEvent eventData){
+    public void startAuth(final AuthEvent eventData) {
         if (isFinishing()) {
             // Don't update UI if Activity is finishing.
             return;
         }
         eventData.activityHandler.post(new Runnable() {
             public void run() {
-                redirectWebView(_server.getAuthRequestUrl(),eventData.responseData.responseCode,
+                redirectWebView(_server.getAuthRequestUrl(), eventData.responseData.responseCode,
                         eventData.responseData.signedData, eventData.responseData.signature);
 
             }
@@ -212,26 +212,26 @@ public class SimplexMainActivity extends Activity {
     /** Activity UI logic End **/
 
 
-    /** LVL context start **/
+    /**
+     * LVL context start
+     **/
 
-    private void initChecker()
-    {
+    private void initChecker() {
         // Try to use more data here. ANDROID_ID is a single point of attack.
         String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
         // Library calls this when it's done.
-        _licenseCheckerCallback = new SimplexLicenseCheckerCallback(_activityHandler,_eventBus);
+        _licenseCheckerCallback = new SimplexLicenseCheckerCallback(_activityHandler, _eventBus);
 
         // Construct the LicenseChecker with a policy.
         destroyCheckers();
         _checker = new LicenseChecker(
                 getApplicationContext(), new ServerManagedPolicy(this,
-                new AESObfuscator(_simplexNonce.simplexNonce.getBytes(Charsets.UTF_8), getPackageName(), deviceId)),_simplexNonce.googleNonce);
+                new AESObfuscator(_simplexNonce.simplexNonce.getBytes(Charsets.UTF_8), getPackageName(), deviceId)), _simplexNonce.googleNonce);
     }
 
-    private void destroyCheckers()
-    {
-        if(_checker != null)
+    private void destroyCheckers() {
+        if (_checker != null)
             _checker.onDestroy();
     }
 

@@ -156,7 +156,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       }
    }
 
-   private void showFiat() {
+   protected void showFiat() {
       if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()) {
          // hide everything
          llContainer.setVisibility(GONE);
@@ -165,7 +165,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          String formattedFiatValue;
 
          // convert to the target fiat currency, if needed
-         CurrencyValue valueToShow = currencySwitcher.getAsFiatValue(currentValue);
+         CurrencyValue valueToShow = getValueToShow();
 
          if (precision >= 0) {
             formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false, precision);
@@ -176,6 +176,10 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
          tvValue.setText(formattedFiatValue);
       }
+   }
+
+   protected CurrencyValue getValueToShow() {
+      return currencySwitcher.getAsFiatValue(currentValue);
    }
 
    public void setEventBus(Bus eventBus) {

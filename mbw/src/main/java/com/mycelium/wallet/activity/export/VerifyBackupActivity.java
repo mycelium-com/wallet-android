@@ -46,6 +46,7 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -149,6 +150,18 @@ public class VerifyBackupActivity extends Activity {
             }
          }
       }
+      for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
+         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
+
+         if (backupState!= MetadataStorage.BackupState.IGNORED) {
+            boolean needsBackup =  account != null && account.canSpend()
+                    && backupState != MetadataStorage.BackupState.VERIFIED;
+            if (needsBackup) {
+               num++;
+            }
+         }
+      }
       return num;
    }
 
@@ -169,10 +182,19 @@ public class VerifyBackupActivity extends Activity {
       UUID account = SingleAddressAccount.calculateId(address);
 
       // Check whether regular wallet contains that account
-      boolean success = _mbwManager.getWalletManager(false).hasAccount(account);
+      boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
+              || _mbwManager.getColuManager().hasAccount(account);
+      for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(_mbwManager.getColuManager().getNetwork()).values()) {
+         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
+         success |= _mbwManager.getColuManager().hasAccount(coluUUID);
+      }
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
+         for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(_mbwManager.getColuManager().getNetwork()).values()) {
+            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
+            _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
+         }
          updateUi();
          String message = getResources().getString(R.string.verify_backup_ok, address.toMultiLineString());
          ShowDialogMessage(message, false);

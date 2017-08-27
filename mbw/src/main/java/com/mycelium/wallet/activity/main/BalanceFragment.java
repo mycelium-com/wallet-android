@@ -35,6 +35,8 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -57,15 +59,18 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -125,7 +130,21 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btSend) void onClickSend() {
-      SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if (account instanceof ColuAccount && ((ColuAccount) account).getSatoshiAmount() == 0) {
+         new AlertDialog.Builder(getActivity())
+                 .setMessage(getString(R.string.rmc_send_warning, ((ColuAccount) account).getColuAsset().label))
+                 .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                       SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                    }
+                 })
+                 .create()
+                 .show();
+      } else {
+         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+      }
    }
 
    @OnClick(R.id.btReceive) void onClickReceive() {
@@ -138,7 +157,13 @@ public class BalanceFragment extends Fragment {
 
    @OnClick(R.id.btScan) void onClickScan() {
       //perform a generic scan, act based upon what we find in the QR code
-      ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, StringHandleConfig.genericScanRequest());
+      StringHandleConfig config = StringHandleConfig.genericScanRequest();
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if(account instanceof ColuAccount) {
+         config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_RMC;
+         config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_RMC;
+      }
+      ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
    }
 
    @Override
@@ -169,38 +194,74 @@ public class BalanceFragment extends Fragment {
 
       updateUiKnownBalance(balance);
 
-      // Set BTC rate
-      if (!_mbwManager.hasFiatCurrency()) {
-         // No fiat currency selected by user
-         _root.findViewById(R.id.tvBtcRate).setVisibility(View.INVISIBLE);
-      } else if (_exchangeRatePrice == null) {
-         // We have no price, exchange not available
-         TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
+      TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
+      // show / hide components depending on account type
+//      View coluSatoshiBalanceLayout = _root.findViewById(R.id.llColuSatoshiBalance);
+      View tcdFiatDisplay = _root.findViewById(R.id.tcdFiatDisplay);
+      if(account instanceof ColuAccount) {
+//          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
          tvBtcRate.setVisibility(View.VISIBLE);
-         tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+         if(((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC){
+            tcdFiatDisplay.setVisibility(View.VISIBLE);
+            CurrencyValue rmcValue = ExactCurrencyValue.from(BigDecimal.ONE, "RMC");
+            CurrencyValue usdValue = CurrencyValue.fromValue(rmcValue, "USD", _mbwManager.getExchangeRateManager());
+            if(usdValue != null && usdValue.getValue() != null) {
+               tvBtcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
+            }
+         }else {
+            tcdFiatDisplay.setVisibility(View.INVISIBLE);
+            tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
+         }
+//          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
+//          ColuAccount coluAccount = (ColuAccount) account;
+//          tvColuSatoshiBalance.setText(String.valueOf(coluAccount.getSatoshiAmount()) + " sat");
       } else {
-         TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
-         tvBtcRate.setVisibility(View.VISIBLE);
-         String currency = _mbwManager.getFiatCurrency();
-         String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice);
-         tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+          // restore default settings if account is standard
+//          coluSatoshiBalanceLayout.setVisibility(View.GONE);
+          tvBtcRate.setVisibility(View.VISIBLE);
+          tcdFiatDisplay.setVisibility(View.VISIBLE);
+
+          // Set BTC rate
+          if (!_mbwManager.hasFiatCurrency()) {
+             // No fiat currency selected by user
+             tvBtcRate.setVisibility(View.INVISIBLE);
+          } else if (_exchangeRatePrice == null) {
+             // We have no price, exchange not available
+             tvBtcRate.setVisibility(View.VISIBLE);
+             tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+          } else {
+             tvBtcRate.setVisibility(View.VISIBLE);
+             String currency = _mbwManager.getFiatCurrency();
+             String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice);
+             tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+          }
       }
    }
 
    private void updateUiKnownBalance(CurrencyBasedBalance balance) {
       // Set Balance
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if(account instanceof ColuAccount) {
+          valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
+//         Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
+      }
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
       _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
 
       // Show alternative values
-      _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc());
+      _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc() || (account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC));
       _tcdFiatDisplay.setValue(balance.confirmed);
 
       // Show/Hide Receiving
       if (balance.receiving.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
+         String receivingString;
+         if (account instanceof ColuAccount) {
+            receivingString = Utils.getColuFormattedValueWithUnit(balance.receiving);
+         } else {
+            receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
+         }
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = (TextView) _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -213,7 +274,12 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       if (balance.sending.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
+         String sendingString;
+         if (account instanceof ColuAccount) {
+            sendingString = Utils.getColuFormattedValueWithUnit(balance.sending);
+         } else {
+            sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
+         }
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -283,6 +349,11 @@ public class BalanceFragment extends Fragment {
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
+      updateUi();
+   }
+
+   @Subscribe
+   public void syncStopped(SyncStopped event) {
       updateUi();
    }
 

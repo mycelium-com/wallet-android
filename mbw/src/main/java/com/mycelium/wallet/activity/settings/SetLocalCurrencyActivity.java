@@ -151,7 +151,4 @@ public class SetLocalCurrencyActivity extends Activity {
       }
       MbwManager.getInstance(this).setCurrencyList(_currencies);
    }
-
-
-
 }

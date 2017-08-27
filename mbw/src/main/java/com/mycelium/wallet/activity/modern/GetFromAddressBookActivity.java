@@ -39,8 +39,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.send.SendMainActivity;
 
 public class GetFromAddressBookActivity extends ActionBarActivity {
    ViewPager mViewPager;
@@ -50,7 +52,6 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       MbwManager _mbwManager = MbwManager.getInstance(this);
-
       mViewPager = new ViewPager(this);
       mViewPager.setId(R.id.pager);
 
@@ -62,7 +63,8 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
       Tab myAddressesTab = bar.newTab();
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, addressBookBundle(true));
+      Bundle bundle = addressBookBundle(true);
+      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, bundle);
       Tab contactsTab = bar.newTab();
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
 
@@ -70,7 +72,7 @@ public class GetFromAddressBookActivity extends ActionBarActivity {
 
       if (countContactsEntries > 0) {
          bar.selectTab(contactsTab);
-      }else {
+      } else {
          bar.selectTab(myAddressesTab);
       }
    }

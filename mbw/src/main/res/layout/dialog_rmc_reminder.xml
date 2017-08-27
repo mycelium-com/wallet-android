@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:text="@string/rmc_reminder" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ac999999" />
+
+    <Switch
+        android:id="@+id/add_push_notification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:thumb="@drawable/switch_thumb"
+        android:switchMinWidth="40dp"
+        android:textOn=""
+        android:textOff=""
+        android:track="@drawable/switch_track"
+        android:layout_margin="12dp"
+        android:text="@string/rmc_recieve_push_notification" />
+    <!---->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ac999999" />
+
+    <Switch
+        android:id="@+id/add_to_calendar"
+        android:thumb="@drawable/switch_thumb"
+        android:track="@drawable/switch_track"
+        android:layout_width="match_parent"
+        android:switchMinWidth="40dp"
+        android:textOn=""
+        android:textOff=""
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:text="@string/rmc_add_to_google_calendar" />
+
+   <!-- <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ac999999" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:text="@string/rmc_remind_by_email" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginBottom="12dp"
+        android:hint="example@gmail.com" />-->
+
+</LinearLayout>

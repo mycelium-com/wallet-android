@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.2" versioncode="290201">
+        <change>added colored coins token handling with support for MT - Mycelium Token, MASS - Mass Network and RMC - Russian Miner Coin</change>
+        <change>fixed launcher icon</change>
+        <change>fixed address book add address button</change>
+        <change>update balance every minute</change>
+    </release>
     <release version="2.8.12" versioncode="281202">
         <change>fix tab issue where the address book broke</change>
         <change>fix issue with trezor firmware 1.5.0</change>

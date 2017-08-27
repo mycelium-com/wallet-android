@@ -231,7 +231,7 @@ public class StandardTransactionBuilderTest {
     public void generateSignaturesBitlib() throws Exception {
         // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
         List<SigningRequest> requests = new ArrayList<>();
-        for(int i = 0; i<50; i++) {
+        for(int i = 0; i<30; i++) {
             requests.add(new SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(("bla" + i).getBytes())));
         }
         StandardTransactionBuilder.generateSignatures(requests.toArray(new SigningRequest[]{}), PRIVATE_KEY_RING);

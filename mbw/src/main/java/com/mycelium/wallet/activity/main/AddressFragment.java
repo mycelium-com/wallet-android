@@ -43,6 +43,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -53,9 +54,11 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

@@ -400,6 +400,10 @@ public class MrdDecryptDataActivity extends Activity implements TaskExecutionSer
 
    @Override
    public void onResultReceived(ServiceTask<?> result) {
+      //If we receive another service task having another type - just return
+      if (!(result instanceof MrdKeyStretchingTask))
+         return;
+
       _taskExecutionServiceController.terminate();
       ((TextView) findViewById(R.id.tvProgress)).setText("");
 

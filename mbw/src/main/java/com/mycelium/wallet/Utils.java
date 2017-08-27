@@ -56,7 +56,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
@@ -86,6 +85,7 @@ import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -106,6 +106,8 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -138,13 +140,7 @@ public class Utils {
 
    @SuppressLint(Constants.IGNORE_NEW_API)
    public static void setAlpha(View view, float alpha) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-         AlphaAnimation aa = new AlphaAnimation(alpha, alpha);
-         aa.setDuration(Long.MAX_VALUE);
-         view.startAnimation(aa);
-      } else {
-         view.setAlpha(alpha);
-      }
+      view.setAlpha(alpha);
    }
 
    public static String loadEnglish(int resId) {
@@ -170,7 +166,6 @@ public class Utils {
        * defaultResources.getString(resId); } return settingsEn;
        */
    }
-
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
       Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
@@ -712,7 +707,29 @@ public class Utils {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 
-   public static List<WalletAccount> sortAccounts(List<WalletAccount> accounts, final MetadataStorage storage) {
+   public static boolean checkIsLinked(WalletAccount account, final Collection<WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof ColuAccount
+                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
+                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof ColuAccount
+                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
+                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
+            return walletAccount;
+         }
+      }
+      return null;
+   }
+
+   public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Nullable
          @Override
@@ -721,10 +738,13 @@ public class Utils {
                return 0;
             }
             if (input instanceof SingleAddressAccount) {
-               return 1;
+              return checkIsLinked(input, accounts) ? 3 : 1;
+            }
+            if(input instanceof ColuAccount) {
+               return 3;
             }
             if (input instanceof CoinapultAccount) {
-               return 3; //coinapult last
+               return 4; //coinapult last
             }
             return 2;
          }
@@ -741,6 +761,19 @@ public class Utils {
          }
       });
 
+      Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
+         @Override
+         public int compare(WalletAccount w1, WalletAccount w2) {
+            if (w1 instanceof ColuAccount) {
+               return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
+            } else if (w2 instanceof ColuAccount) {
+               return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
+            } else {
+               return 0;
+            }
+         }
+      };
+
       Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
          @Nullable
          @Override
@@ -748,7 +781,7 @@ public class Utils {
             return storage.getLabelByAccount(input.getId());
          }
       });
-      return type.compound(index).compound(name).sortedCopy(accounts);
+      return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);
    }
 
    public static List<Address> sortAddresses(List<Address> addresses) {
@@ -760,6 +793,21 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
+      if(walletAccount instanceof ColuAccount) {
+         ColuAccount account = (ColuAccount) walletAccount;
+         switch (account.getColuAsset().assetType) {
+            case MT:
+               return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+                       resources.getDrawable(R.drawable.mt_icon_no_priv_key);
+            case MASS:
+               return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
+                       : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
+            case RMC:
+               return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+                       : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
+         }
+      }
+
       // Watch only
       if (!walletAccount.canSpend()) {
          return null;
@@ -895,6 +943,14 @@ public class Utils {
          }
          return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
       }
+   }
+
+   public static String getColuFormattedValueWithUnit(CurrencyValue value) {
+      return String.format("%s %s", value.getValue().stripTrailingZeros().toPlainString(), value.getCurrency());
+   }
+
+   public static String getColuFormattedValue(CurrencyValue value) {
+      return value.getValue().stripTrailingZeros().toPlainString();
    }
 
    // prevent ambiguous call for ExactBitcoinValue

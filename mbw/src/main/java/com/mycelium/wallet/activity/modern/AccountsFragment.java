@@ -47,23 +47,31 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
+import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
@@ -71,13 +79,27 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ExtraAccountsChanged;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
@@ -86,6 +108,8 @@ import java.util.UUID;
 
 public class AccountsFragment extends Fragment {
    public static final int ADD_RECORD_RESULT_CODE = 0;
+
+   public static final String TAG = "AccountsFragment";
 
    private WalletManager walletManager;
 
@@ -172,6 +196,17 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
+    // TODO: refactor these RESULT_XXX constants in a common class ?
+
+//      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
+//         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+//         ColuAccount account = (ColuAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+//         _mbwManager.setSelectedAccount(accountId);
+//         _focusedAccount = account;
+//         update();
+//         return;
+//      }
+
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
@@ -181,7 +216,15 @@ public class AccountsFragment extends Fragment {
          }
          _focusedAccount = account;
          update();
-         setNameForNewAccount(_focusedAccount);
+         if(!(account instanceof ColuAccount)) {
+            setNameForNewAccount(_focusedAccount);
+         }
+      } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
+         new AlertDialog.Builder(getActivity())
+                 .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
+                 .setPositiveButton(R.string.button_ok, null)
+                 .create()
+                 .show();
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }
@@ -197,19 +240,39 @@ public class AccountsFragment extends Fragment {
 
       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
       deleteDialog.setTitle(R.string.delete_account_title);
-      deleteDialog.setMessage(R.string.delete_account_message);
+      final WalletAccount account = _mbwManager.getSelectedAccount();
+      final WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      if (account instanceof ColuAccount) {
+         deleteDialog.setMessage(getString(R.string.delete_account_message)
+                 + "\n" + getString(R.string.both_rmc_will_deleted
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId())));
+      } else if (linkedAccount != null) {
+         deleteDialog.setMessage(getString(R.string.delete_account_message)
+                 + "\n" + getString(R.string.both_rmc_will_deleted
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                 , _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId())));
+      } else {
+         deleteDialog.setMessage(R.string.delete_account_message);
+      }
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
-      final boolean hasPrivateData = accountToDelete instanceof ExportableAccount
-            && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent();
+      final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
+            && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
+         deleteDialog.setView(checkBoxView);
+      }
+
+      if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
+         Log.d(TAG, "Preparing to delete a colu account.");
          deleteDialog.setView(checkBoxView);
       }
 
       deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
          public void onClick(DialogInterface arg0, int arg1) {
+            Log.d(TAG, "Entering onClick delete");
             if (hasPrivateData) {
                Long satoshis = getPotentialBalance(accountToDelete);
                AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
@@ -217,6 +280,14 @@ public class AccountsFragment extends Fragment {
 
                // Set the message. There are four combinations, with and without label, with and without BTC amount.
                String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
+               int labelCount = 1;
+               if (account instanceof ColuAccount) {
+                  label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId());
+                  labelCount++;
+               } else if (linkedAccount != null) {
+                  label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                  labelCount++;
+               }
                String message;
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
@@ -230,21 +301,27 @@ public class AccountsFragment extends Fragment {
                      } else {
                         address = "";
                      }
-                     message = getString(R.string.confirm_delete_pk_with_balance_with_label, label,
-                           address, _mbwManager.getBtcValueString(satoshis));
+                     message = getString(R.string.confirm_delete_pk_with_balance_with_label
+                             , getResources().getQuantityString(R.plurals.account_label, labelCount, label)
+                             , address, accountToDelete instanceof ColuAccount ?
+                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     : _mbwManager.getBtcValueString(satoshis)
+                     );
                   } else {
                      message = getString(
                            R.string.confirm_delete_pk_with_balance,
                            receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
-                           _mbwManager.getBtcValueString(satoshis)
+                             accountToDelete instanceof ColuAccount ?
+                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     : _mbwManager.getBtcValueString(satoshis)
+
                      );
                   }
                } else {
                   if (label != null && label.length() != 0) {
-                     message = getString(
-                           R.string.confirm_delete_pk_without_balance_with_label,
-                           label,
-                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                     message = getString(R.string.confirm_delete_pk_without_balance_with_label
+                             ,getResources().getQuantityString(R.plurals.account_label, labelCount, label)
+                           ,receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
                      );
                   } else {
                      message = getString(
@@ -258,22 +335,55 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                   public void onClick(DialogInterface arg0, int arg1) {
+                     Log.d(TAG, "In deleteFragment onClick");
                      if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                         try {
-                           ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                           //Check if this SingleAddress account is related with ColuAccount
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                              ColuManager coluManager = _mbwManager.getColuManager();
+                              coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
+                           } else {
+                              ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                           }
                            _toaster.toast(R.string.private_key_deleted, false);
                         } catch (KeyCipher.InvalidKeyCipher e) {
                            throw new RuntimeException(e);
                         }
                      } else {
-                        try {
-                           walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                           _storage.deleteAccountMetadata(accountToDelete.getId());
-                        } catch (KeyCipher.InvalidKeyCipher e) {
-                           throw new RuntimeException(e);
+                        if (accountToDelete instanceof ColuAccount) {
+                           try {
+                              ColuManager coluManager = _mbwManager.getColuManager();
+                              if (keepAddrCheckbox.isChecked()) {
+                                 coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
+                              } else {
+                                 coluManager.deleteAccount((ColuAccount) accountToDelete);
+                                 _toaster.toast("Deleting account.", false);
+                                 _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                 _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
+                              }
+                           } catch (Exception e) {
+                              // make a message !
+                              _toaster.toast(getString(R.string.colu_error_deleting), false);
+                           }
+                        } else {
+                           //Check if this SingleAddress account is related with ColuAccount
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                              ColuManager coluManager = _mbwManager.getColuManager();
+                              coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                           } else {
+                              try {
+                                 walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                                 _storage.deleteAccountMetadata(accountToDelete.getId());
+                              } catch (KeyCipher.InvalidKeyCipher e) {
+                                 throw new RuntimeException(e);
+                              }
+                           }
+                           _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                           _toaster.toast(R.string.account_deleted, false);
+                           _mbwManager.getEventBus().post(new ExtraAccountsChanged());
                         }
-                        _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                        _toaster.toast(R.string.account_deleted, false);
                      }
                      finishCurrentActionMode();
                      _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
@@ -287,15 +397,38 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.show();
             } else {
                // account has no private data - dont make a fuzz about it and just delete it
-               try {
-                  walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                  _storage.deleteAccountMetadata(accountToDelete.getId());
-               } catch (KeyCipher.InvalidKeyCipher e) {
-                  throw new RuntimeException(e);
+               if (accountToDelete instanceof ColuAccount) {
+                  ColuManager coluManager = _mbwManager.getColuManager();
+                  coluManager.deleteAccount((ColuAccount) accountToDelete);
+               } else {
+                  //Check if this SingleAddress account is related with ColuAccount
+                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                  if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                     ColuManager coluManager = _mbwManager.getColuManager();
+                     coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                  } else {
+                     try {
+                        walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                        _storage.deleteAccountMetadata(accountToDelete.getId());
+                     } catch (KeyCipher.InvalidKeyCipher e) {
+                        throw new RuntimeException(e);
+                     }
+                  }
                }
                finishCurrentActionMode();
                _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
+               _mbwManager.getEventBus().post(new ExtraAccountsChanged());
                _toaster.toast(R.string.account_deleted, false);
+            }
+         }
+
+         private CurrencyValue getPotentialBalanceColu(WalletAccount account) {
+            if (account.isArchived()) {
+               return null;
+            } else {
+               CurrencyBasedBalance balance = account.getCurrencyBasedBalance();
+               ExchangeRateManager exchanger = _mbwManager.getExchangeRateManager();
+               return balance.confirmed;
             }
          }
 
@@ -534,7 +667,10 @@ public class AccountsFragment extends Fragment {
       WalletAccount account = _focusedAccount;
 
       final List<Integer> menus = Lists.newArrayList();
-      menus.add(R.menu.record_options_menu);
+      if(!(account instanceof ColuAccount)
+              && !Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()) ) {
+         menus.add(R.menu.record_options_menu);
+      }
 
       if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
          menus.add(R.menu.record_options_menu_backup);
@@ -544,15 +680,24 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_backup_verify);
       }
 
+      if(account instanceof ColuAccount) {
+         //TODO: distinguish between ColuAccount in single address mode and HD mode
+         menus.add(R.menu.record_options_menu_backup);
+         menus.add(R.menu.record_options_menu_backup_verify);
+      }
+
       if (!account.isDerivedFromInternalMasterseed()) {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)) {
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+              && !(account instanceof ColuAccount)
+              && !(Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()))) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
-      if (account.isActive()) {
+      if (account.isActive() && !(account instanceof ColuAccount)
+              && !(Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()))) {
          menus.add(R.menu.record_options_menu_active);
       }
 
@@ -606,7 +751,8 @@ public class AccountsFragment extends Fragment {
          @Override
          public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-            if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING) {
+            if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
+                    || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
                _toaster.toast(R.string.synchronizing_please_wait, false);
                return true;
             }
@@ -818,7 +964,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-      if (_focusedAccount instanceof SingleAddressAccount) {
+      if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
          //start legacy backup verification
          VerifyBackupActivity.callMe(getActivity());
       }
@@ -829,12 +975,19 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-      if (_focusedAccount.isDerivedFromInternalMasterseed()) {
-         //start wordlist backup if a HD account or derived account was selected
-         Utils.pinProtectedWordlistBackup(getActivity());
-      } else if (_focusedAccount instanceof SingleAddressAccount) {
+      if(_focusedAccount instanceof ColuAccount) {
+         //ColuAccount class can be single or HD
+         //TODO: test if account is single address or HD and do wordlist backup instead
          //start legacy backup if a single key or watch only was selected
          Utils.pinProtectedBackup(getActivity());
+      } else {
+         if (_focusedAccount.isDerivedFromInternalMasterseed()) {
+            //start wordlist backup if a HD account or derived account was selected
+            Utils.pinProtectedWordlistBackup(getActivity());
+         } else if (_focusedAccount instanceof SingleAddressAccount) {
+            //start legacy backup if a single key or watch only was selected
+            Utils.pinProtectedBackup(getActivity());
+         }
       }
    }
 
@@ -880,13 +1033,17 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(getString(R.string.selected_hd_info), true);
       } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
+      } else if(account instanceof ColuAccount) {
+          _toaster.toast(getString(R.string.selected_colu_info
+                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
       }
    }
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-      if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING) {
+      if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
+              || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
          _toaster.toast(R.string.synchronizing_please_wait, false);
          return true;
       }
@@ -957,6 +1114,7 @@ public class AccountsFragment extends Fragment {
       }
       _focusedAccount.dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+      _mbwManager.getColuManager().startSynchronization();
    }
 
    private void ignoreSelectedPrivateKey() {

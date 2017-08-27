@@ -35,34 +35,45 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
-import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
+import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class AddAdvancedAccountActivity extends Activity {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
+   public static final int RESULT_MSG = 25;
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, AddAdvancedAccountActivity.class);
@@ -153,9 +164,9 @@ public class AddAdvancedAccountActivity extends Activity {
       super.onResume();
 
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-            StringHandleConfig.returnKeyOrAddressOrHdNode(),
-            Utils.getClipboardString(AddAdvancedAccountActivity.this),
-            MbwManager.getInstance(this).getNetwork());
+              StringHandleConfig.returnKeyOrAddressOrHdNode(),
+              Utils.getClipboardString(AddAdvancedAccountActivity.this),
+              MbwManager.getInstance(this).getNetwork());
 
       boolean canImportFromClipboard = (canHandle != StringHandlerActivity.ParseAbility.NO);
 
@@ -171,8 +182,8 @@ public class AddAdvancedAccountActivity extends Activity {
          @Override
          public void onClick(View v) {
             Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
-                  StringHandleConfig.returnKeyOrAddressOrHdNode(),
-                  Utils.getClipboardString(AddAdvancedAccountActivity.this));
+                    StringHandleConfig.returnKeyOrAddressOrHdNode(),
+                    Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
             AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
          }
@@ -193,7 +204,7 @@ public class AddAdvancedAccountActivity extends Activity {
                }
 
                // We imported this key from somewhere else - so we guess, that there exists an backup
-               returnAccount(key, MetadataStorage.BackupState.IGNORED);
+               returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
             } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
                Address address = StringHandlerActivity.getAddress(intent);
                returnAccount(address);
@@ -222,7 +233,7 @@ public class AddAdvancedAccountActivity extends Activity {
          Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
          if (key.isPresent()) {
             // This is a new key - there is no existing backup
-            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN);
+            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
@@ -240,7 +251,104 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
-   private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+   // restore single account in asynctask so we can handle Colored Coins case
+   private class ImportSingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+      private InMemoryPrivateKey key;
+      private MetadataStorage.BackupState backupState;
+      private Error error;
+      private ProgressDialog dialog;
+      private boolean askUserForColorize = false;
+      private Address address;
+
+
+      public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+         this.key = key;
+         this.backupState = backupState;
+      }
+
+      @Override
+      protected void onPreExecute() {
+         super.onPreExecute();
+         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
+         dialog.setMessage("Importing");
+         dialog.show();
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         UUID acc = null;
+
+         try {
+
+            //Check whether this address is already used in any account
+            address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+            if (accountId.isPresent()) {
+               return null;
+            }
+
+            //check if address is colu
+            // do not do this in main thread
+            ColuManager coluManager = _mbwManager.getColuManager();
+            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address));
+
+            if (asset.size() > 0) {
+               acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);
+            } else {
+               askUserForColorize = true;
+            }
+         } catch (IOException e) {
+            // could not determine account type, skipping
+            return null;
+         }
+         return acc;
+      }
+      private int selectedItem;
+      @Override
+      protected void onPostExecute(UUID account) {
+         dialog.dismiss();
+         if (account != null) {
+            finishOk(account);
+         } else if(askUserForColorize) {
+            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+            list.add(0, "BTC");
+            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                    .setTitle(R.string.restore_addres_as)
+                    .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          selectedItem = i;
+                       }
+                    })
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          UUID account;
+                          if (i == 0) {
+                             account = returnSAAccount(key, backupState);
+                          } else {
+                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());
+                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
+                          }
+                          finishOk(account);
+                       }
+                    })
+                    .create()
+                    .show();
+         } else if (_mbwManager.getAccountId(this.address, null).isPresent()) {
+            finishAlreadyExist(address);
+         } else if (error != null) {
+            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                    .setMessage(error.getMessage())
+                    .setPositiveButton(R.string.button_ok, null)
+                    .create()
+                    .show();
+         }
+      }
+   }
+
+   private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
       try {
          acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
@@ -249,11 +357,18 @@ public class AddAdvancedAccountActivity extends Activity {
          _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
 
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
-
+         return acc;
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }
-      finishOk(acc);
+   }
+
+   private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AccountType type) {
+      if (type == AccountType.SA) {
+         finishOk(returnSAAccount(key, backupState));
+      } else {
+         new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
+      }
    }
 
    private void returnAccount(HdKeyNode hdKeyNode) {
@@ -263,9 +378,123 @@ public class AddAdvancedAccountActivity extends Activity {
       finishOk(acc);
    }
 
+   private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+      private Address address;
+      private AccountType addressType;
+      private ProgressDialog dialog;
+      private boolean askUserForColorize = false;
+
+      public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
+         this.address = address;
+         this.addressType = addressType;
+      }
+
+      @Override
+      protected void onPreExecute() {
+         super.onPreExecute();
+         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
+         dialog.setMessage("Importing");
+         dialog.show();
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         UUID acc = null;
+
+         //Check whether this address is already used in any account
+         Optional<UUID> accountId = _mbwManager.getAccountId(this.address, null);
+         if (accountId.isPresent()) {
+            return null;
+         }
+
+         try {
+            switch(addressType) {
+               case Unknown: {
+                  ColuManager coluManager = _mbwManager.getColuManager();
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
+
+                  if (asset.size() > 0) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
+                  } else {
+                     askUserForColorize = true;
+                  }
+               }
+               break;
+               case SA:
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                  break;
+               case Colu:
+                  ColuManager coluManager = _mbwManager.getColuManager();
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
+
+                  if (asset.size() > 0) {
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
+                  }
+                  break;
+            }
+         } catch (IOException e) {
+            // could not determine account type, skipping
+            return null;
+         }
+         return acc;
+      }
+      private int selectedItem;
+      @Override
+      protected void onPostExecute(UUID account) {
+         dialog.dismiss();
+         if (account != null) {
+            finishOk(account);
+         } else if(askUserForColorize) {
+             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+             list.add(0, "BTC");
+             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                     .setTitle(R.string.restore_addres_as)
+                     .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           selectedItem = i;
+                        }
+                     })
+                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           UUID account;
+                           if (selectedItem == 0) {
+                              account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                           } else {
+                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());
+                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
+                           }
+                           finishOk(account);
+                        }
+                     })
+                     .create()
+                     .show();
+         } else if(_mbwManager.getAccountId(this.address, null).isPresent()) {
+            finishAlreadyExist(address);
+         }
+      }
+
+   }
+
+   private void finishAlreadyExist(Address address) {
+      Intent result = new Intent();
+      String accountType = "BTC Single Address";
+      for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
+         if (_mbwManager.getColuManager().hasAccountWithType(address, type)) {
+            accountType = ColuAccount.ColuAsset.getByType(type, _mbwManager.getNetwork()).name;
+            break;
+         }
+      }
+      result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+      setResult(RESULT_MSG, result);
+      finish();
+   }
+
    private void returnAccount(Address address) {
-      UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      finishOk(acc);
+      //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
    }
 
    private void finishOk(UUID account) {
@@ -273,5 +502,8 @@ public class AddAdvancedAccountActivity extends Activity {
       result.putExtra(AddAccountActivity.RESULT_KEY, account);
       setResult(RESULT_OK, result);
       finish();
+   }
+   enum AccountType {
+      SA, Colu, Unknown
    }
 }

@@ -12,5 +12,7 @@
     <dimen name="about_buttonsize">220dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="margin_medium">8dp</dimen>
+    <dimen name="margin_large">16dp</dimen>
 
 </resources>

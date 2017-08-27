@@ -104,13 +104,15 @@ public class WalletManager {
    }
 
    public void refreshExtraAccounts() {
-      _extraAccounts.clear();
-      _extraAccountsCurrencies.clear();
-      for (AccountProvider accounts : _extraAccountProviders) {
-         for (WalletAccount account : accounts.getAccounts().values()) {
-            if (!_extraAccounts.containsKey(account.getId())) {
-               _extraAccounts.put(account.getId(), account);
-               _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
+      synchronized (_walletAccounts) {
+         _extraAccounts.clear();
+         _extraAccountsCurrencies.clear();
+         for (AccountProvider accounts : _extraAccountProviders) {
+            for (WalletAccount account : accounts.getAccounts().values()) {
+               if (!_extraAccounts.containsKey(account.getId())) {
+                  _extraAccounts.put(account.getId(), account);
+                  _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
+               }
             }
          }
       }
@@ -879,6 +881,17 @@ public class WalletManager {
          _backing.deleteBip44AccountContext(last.getId());
          return true;
       }
+   }
+
+   ///@brief returns last known blockheight on bitcoin blockchain
+   public int getBlockheight() {
+      int height = 0;
+      //TODO: should we iterate over all accounts and find max blockheight ?
+      Bip44Account account = _bip44Accounts.get(0);
+      if(account != null) {
+         height = account.getBlockChainHeight();
+      }
+      return height;
    }
 
    // for the not expected case, that no account is activated (i.e. all are achieved), just enable the first one

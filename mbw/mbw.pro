@@ -130,8 +130,15 @@
   <init>(...);
   *;
 }
-#keep classes used for deserializing json
+
+#keep classes used for deserializing json for coinapult
 -keepclasseswithmembers class com.coinapult.** {
+  <init>(...);
+  *;
+}
+
+#keep classes used for deserializing json for colu
+-keepclasseswithmembers class com.mycelium.wallet.colu.** {
   <init>(...);
   *;
 }
@@ -194,6 +201,14 @@
     rx.internal.util.atomic.LinkedQueueNode consumerNode;
 }
 
+# google http client
+
+-keepclassmembers class * {
+   @com.google.api.client.util.Key <fields>;
+}
+
+-keepattributes Signature,RuntimeVisibleAnnotations,AnnotationDefault
+
 # This is to prevent proguard from removing translations for prettytime
 -keep class org.ocpsoft.prettytime.i18n.**
 
@@ -221,6 +236,11 @@
 -dontwarn org.slf4j.StaticMDCBinder
 -dontwarn org.slf4j.impl.StaticMarkerBinder
 -dontwarn org.slf4j.impl.StaticMDCBinder
+
+
+
+#rmc
+-keep class com.mycelium.wallet.activity.rmc.json.** { *; }
 
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder

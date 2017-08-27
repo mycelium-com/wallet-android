@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@android:id/background">
+        <shape>
+            <stroke android:color="@color/rmc_active" android:width="1dp"/>
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <solid android:color="@color/rmc_active" />
+                <corners
+                    android:bottomLeftRadius="4dp"
+                    android:topLeftRadius="4dp" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

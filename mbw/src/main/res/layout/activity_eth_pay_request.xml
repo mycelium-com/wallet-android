@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/infoSendAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="0x787346583768734"
+        android:textSize="14sp" />
+
+
+    <com.mycelium.wallet.activity.util.QrImageView
+        android:id="@+id/ivQrCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/white"
+        android:contentDescription="@string/qr_code"
+        android:longClickable="false"
+        android:layout_marginTop="8dp"
+        android:maxHeight="@dimen/large_qrcode"
+        android:maxWidth="@dimen/large_qrcode"
+        android:minHeight="@dimen/large_qrcode"
+        android:minWidth="@dimen/large_qrcode" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tap_qr_code_desc"
+        android:textColor="@color/grey"
+        android:textSize="12sp" />
+
+
+    <Button
+        android:id="@+id/btShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:onClick="shareRequest"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/share_payment_request" />
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:onClick="copyAddressToClipboard"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/copy_address_to_clipboard" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:onClick="copyAmountToClipboard"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/copy_amount_to_clipboard" />
+
+</LinearLayout>

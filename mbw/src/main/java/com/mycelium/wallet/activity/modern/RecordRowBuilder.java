@@ -34,20 +34,24 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -102,14 +106,43 @@ public class RecordRowBuilder {
          icon.setImageDrawable(drawableForAccount);
       }
 
+//      ImageView iconPrivKey = (ImageView) rowView.findViewById(R.id.ivIconPrivKey);
+//      if (walletAccount instanceof ColuAccount) {
+//         iconPrivKey.setVisibility(walletAccount.canSpend() ? View.VISIBLE : View.GONE);
+//      } else {
+//         iconPrivKey.setVisibility(View.GONE);
+//      }
+
+      TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
+      TextView tvWhatIsIt = ((TextView) rowView.findViewById(R.id.tvWhatIsIt));
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
+      WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
+      if (linked != null && linked instanceof ColuAccount) {
+          if (((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+              tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View view) {
+                      new AlertDialog.Builder(view.getContext())
+                              .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it))
+                              .setPositiveButton(R.string.button_ok, null)
+                              .create()
+                              .show();
+                  }
+              });
+              tvWhatIsIt.setVisibility(View.VISIBLE);
+          } else {
+              tvWhatIsIt.setVisibility(View.GONE);
+          }
+      } else {
+          tvWhatIsIt.setVisibility(View.GONE);
+      }
       if (name.length() == 0) {
          rowView.findViewById(R.id.tvLabel).setVisibility(View.GONE);
       } else {
          // Display name
-         TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
+
          tvLabel.setVisibility(View.VISIBLE);
-         tvLabel.setText(name);
+         tvLabel.setText(Html.fromHtml(name));
          tvLabel.setTextColor(textColor);
       }
 
@@ -161,13 +194,16 @@ public class RecordRowBuilder {
          CurrencyBasedBalance balance = walletAccount.getCurrencyBasedBalance();
          rowView.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
          String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
+         if(walletAccount instanceof ColuAccount) {
+            balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
+         }
          TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
 
          // Show legacy account with funds warning if necessary
-         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
-         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
+//         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
+//         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
 
          // Show legacy account with funds warning if necessary
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
@@ -176,7 +212,7 @@ public class RecordRowBuilder {
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
-         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
+//         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
       }
 

@@ -15,5 +15,9 @@ public enum Feature {
    // coinapult
    COINAPULT,                    // handle on the main screen if you have a coinapult acc. selected
    COINAPULT_NEW_ACCOUNT,        // handle if the user creates a new account
-   COINAPULT_MAKE_OUTGOING_TX    // handle if the user wants to send a outgoing tx from an coinapult account
+   COINAPULT_MAKE_OUTGOING_TX,    // handle if the user wants to send a outgoing tx from an coinapult account
+
+   // Colu
+   COLU_NEW_ACCOUNT,
+   COLU_PREPARE_OUTGOING_TX
 }

@@ -156,4 +156,10 @@
 -->
     </style>
 
+    <style name="RmcActiveProgressBar">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/rmc_bg_active_progress_bar_state</item>
+        <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
+    </style>
+
 </resources>

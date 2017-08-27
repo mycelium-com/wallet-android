@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
@@ -20,6 +21,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,7 +90,11 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // Set value
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(Utils.getFormattedValueWithUnit(record.value, _mbwManager.getBitcoinDenomination()));
+      if(_mbwManager.getColuManager().isColuAsset(record.value.getCurrency())) {
+         tvAmount.setText(Utils.getColuFormattedValueWithUnit(record.value));
+      }else {
+         tvAmount.setText(Utils.getFormattedValueWithUnit(record.value, _mbwManager.getBitcoinDenomination()));
+      }
       tvAmount.setTextColor(color);
 
       // Set alternative value
@@ -97,13 +103,17 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // if the current selected currency is the same as the transactions
       if (alternativeCurrency.equals(record.value.getCurrency())) {
-         if (record.value.isBtc()) {
+         if (record.value.isBtc() || record.value.getCurrency().equalsIgnoreCase("RMC")) {
             // use the current selected fiat currency
             alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
          } else {
             // always show BTC
             alternativeCurrency = CurrencyValue.BTC;
          }
+      }
+
+      if(alternativeCurrency.equals(CurrencyValue.BTC) && record.value.getCurrency().equalsIgnoreCase("RMC")) {
+         alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
       }
 
       if (!alternativeCurrency.equals("")) {

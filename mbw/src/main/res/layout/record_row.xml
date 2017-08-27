@@ -17,12 +17,20 @@
 
         <ImageView
                 android:id="@+id/ivIcon"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:contentDescription="@string/label_single_key_icon"
-                tools:src="@drawable/singlekey_grey" >
-        </ImageView>
+                tools:src="@drawable/singlekey_grey" />
+
+        <!--<ImageView-->
+                <!--android:id="@+id/ivIconPrivKey"-->
+                <!--android:layout_width="16dp"-->
+                <!--android:layout_height="16dp"-->
+                <!--android:layout_gravity="right"-->
+                <!--android:visibility="gone"-->
+                <!--android:src="@drawable/singlekey_grey"-->
+                <!--android:contentDescription="@string/label_single_key_icon" />-->
     </FrameLayout>
 
     <LinearLayout
@@ -35,15 +43,37 @@
             android:orientation="vertical"
             android:padding="0dp" >
 
-        <TextView
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
                 android:id="@+id/tvLabel"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="0dp"
+                android:text="32234"
+                android:gravity="center"
+                android:padding="0dp"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/tvWhatIsIt"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="0dp"
                 android:gravity="center"
-                android:padding="0dp"
-                android:textSize="24sp" >
-        </TextView>
+                android:text="@string/what_is_it"
+                android:layout_marginRight="4dp"
+                android:layout_marginLeft="4dp"
+                android:textColor="#4583de"
+                android:textSize="16sp"
+                android:visibility="gone"
+                />
+        </LinearLayout>
+
 
         <TextView
                 android:id="@+id/tvAddress"
@@ -66,17 +96,17 @@
                 android:textSize="16sp" >
         </TextView>
 
-        <TextView
-                android:id="@+id/tvLegacyAccountWarning"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:padding="0dp"
-                android:text="@string/legacy_account_with_funds"
-                android:textColor="@color/red"
-                android:textSize="16sp" >
-        </TextView>
+        <!--<TextView-->
+                <!--android:id="@+id/tvLegacyAccountWarning"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="0dp"-->
+                <!--android:gravity="center"-->
+                <!--android:padding="0dp"-->
+                <!--android:text="@string/legacy_account_with_funds"-->
+                <!--android:textColor="@color/red"-->
+                <!--android:textSize="16sp" >-->
+        <!--</TextView>-->
 
         <TextView
                 android:id="@+id/tvBackupMissingWarning"

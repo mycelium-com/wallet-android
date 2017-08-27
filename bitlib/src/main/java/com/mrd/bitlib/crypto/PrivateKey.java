@@ -35,7 +35,7 @@ public abstract class PrivateKey implements BitcoinSigner, Serializable {
       // Add signature
       writer.putBytes(signature);
       // Add hash type
-      writer.put((byte) ((0 + 1) | 0)); // move to constant to document
+      writer.put((byte) 1); // move to constant to document
       return writer.toBytes();
    }
 

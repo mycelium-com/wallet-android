@@ -35,6 +35,8 @@
 package com.mycelium.wallet.persistence;
 
 import android.content.Context;
+import android.text.TextUtils;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -53,6 +55,13 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
    private static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
 
+   // various key value fields info for colu
+   private static final MetadataCategory COLU = new MetadataCategory("colu_data");
+   // associates asset label for each assetId
+   private static final MetadataCategory COLU_ASSET_LABEL_CATEGORY = new MetadataCategory("colu_asset_labels");
+   // associates all asset data for each assetId
+   private static final MetadataCategory COLU_ASSET_DATA_CATEGORY = new MetadataCategory("colu_asset_data");
+
    private static final MetadataKeyCategory SEED_BACKUPSTATE = new MetadataKeyCategory("seed", "backupstate");
    private static final MetadataKeyCategory PIN_RESET_BLOCKHEIGHT = new MetadataKeyCategory("pin", "reset_blockheight");
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
@@ -64,6 +73,7 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    private static final String EMAIL = "email";
    public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
+   public static final String PAIRED_SERVICE_COLU = "colu";
 
    public MetadataStorage(Context context) {
       super(context);
@@ -157,13 +167,13 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public BackupState getMasterSeedBackupState() {
       return BackupState.fromString(
-            getKeyCategoryValueEntry(SEED_BACKUPSTATE, BackupState.UNKNOWN.toString())
+              getKeyCategoryValueEntry(SEED_BACKUPSTATE, BackupState.UNKNOWN.toString())
       );
    }
 
    public BackupState getOtherAccountBackupState(UUID accountId) {
       return BackupState.fromString(
-            getKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
+              getKeyCategoryValueEntry(OTHER_ACCOUNT_BACKUPSTATE.of(accountId.toString()), BackupState.UNKNOWN.toString())
       );
    }
 
@@ -294,6 +304,71 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void setCoinapultMail(String mail) {
       storeKeyCategoryValueEntry(COINAPULT.of(EMAIL), mail);
+   }
+
+   public void storeColuAssetIds(String assetIds) {
+      storeKeyCategoryValueEntry(COLU.of("assetIds"), assetIds);
+   }
+
+   public String getColuAssetIds() {
+      return getKeyCategoryValueEntry(COLU.of("assetIds"), "");
+   }
+
+   public void storeColuKey(String assetId, String base58PrivateKey) {
+      storeKeyCategoryValueEntry(COLU.of("key" + assetId), base58PrivateKey);
+   }
+
+   public Optional<String> getColuKey(String assetId) {
+      Optional<String> key = getKeyCategoryValueEntry(COLU.of("key" + assetId));
+      return key;
+   }
+
+   public void deleteColuKey(String assetId) {
+      deleteByKeyCategory(COLU.of("key" + assetId));
+   }
+
+   public void addColuAssetUUIDs(String assetId, UUID uuid) {
+      String value;
+
+      UUID[] uuids = getColuAssetUUIDs(assetId);
+      if (uuids.length > 0) {
+         value = TextUtils.join(",", uuids);
+         value += "," + uuid.toString();
+      } else {
+         value = uuid.toString();
+      }
+      storeKeyCategoryValueEntry(COLU.of(assetId), value);
+   }
+
+   public void removeColuAssetUUIDs(String assetId, UUID uuid) {
+
+      UUID[] uuids = getColuAssetUUIDs(assetId);
+      List<UUID> shortenedList = new ArrayList<>();
+
+      for(UUID curUUID : uuids) {
+         if (curUUID.equals(uuid))
+            continue;
+         shortenedList.add(curUUID);
+      }
+
+      storeKeyCategoryValueEntry(COLU.of(assetId), TextUtils.join(",", shortenedList));
+   }
+
+   public UUID[] getColuAssetUUIDs(String assetId) {
+      Optional<String> uuid = getKeyCategoryValueEntry(COLU.of(assetId));
+
+      if (!uuid.isPresent() || uuid.get().length() == 0) {
+         return new UUID[]{};
+      }
+
+      String[] strUuids = uuid.get().split(",");
+      UUID[] uuids = new UUID[strUuids.length];
+
+      for(int i = 0; i < strUuids.length; i++) {
+         uuids[i] =UUID.fromString(strUuids[i]);
+      }
+
+      return uuids;
    }
 
    public boolean getGlideraIsEnabled() {

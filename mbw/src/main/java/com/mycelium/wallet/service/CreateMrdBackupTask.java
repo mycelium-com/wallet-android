@@ -35,6 +35,7 @@
 package com.mycelium.wallet.service;
 
 import android.content.Context;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.MrdExport;
@@ -44,6 +45,8 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.UserFacingException;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.pdf.ExportDistiller;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportEntry;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportProgressTracker;
@@ -56,6 +59,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,45 +98,51 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                               MetadataStorage storage, NetworkParameters network, String exportFilePath) {
       _kdfParameters = kdfParameters;
 
-      //JD: disabled, since we use wordlist for the seed
-      // Fetch the master seed if we have it
-//      if (walletManager.hasBip32MasterSeed()) {
-//         try {
-//            _masterSeed = walletManager.getMasterSeed(cipher);
-//         } catch (KeyCipher.InvalidKeyCipher e) {
-//            throw new RuntimeException(e);
-//         }
-//      }
-
       // Populate the active and archived entries to export
       _active = new LinkedList<EntryToExport>();
       _archived = new LinkedList<EntryToExport>();
+      List<WalletAccount> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
-         WalletAccount account = walletManager.getAccount(id);
-         if (!(account instanceof SingleAddressAccount)) {
-            continue;
-         }
-         EntryToExport entry;
-         SingleAddressAccount a = (SingleAddressAccount) account;
-         if (a.canSpend()) {
-            String base58EncodedPrivateKey;
-            try {
-               base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
-            } catch (KeyCipher.InvalidKeyCipher e) {
-               throw new RuntimeException(e);
+         accounts.add(walletManager.getAccount(id));
+      }
+      accounts = Utils.sortAccounts(accounts, storage);
+      for (WalletAccount account : accounts) {
+         //TODO: add check whether coluaccount is in hd or singleaddress mode
+         if (account instanceof SingleAddressAccount) {
+            EntryToExport entry;
+            SingleAddressAccount a = (SingleAddressAccount) account;
+            Address address = a.getAddress();
+            String label = storage.getLabelByAccount(a.getId());
+
+            String base58EncodedPrivateKey = null;
+            if (a.canSpend()) {
+               try {
+                  base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
+               } catch (KeyCipher.InvalidKeyCipher e) {
+                  throw new RuntimeException(e);
+               }
             }
-            Address address = a.getAddress();
-            String label = storage.getLabelByAccount(a.getId());
             entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
-         } else {
-            Address address = a.getAddress();
+            if (a.isActive()) {
+               _active.add(entry);
+            } else {
+               _archived.add(entry);
+            }
+         } else if (account instanceof ColuAccount) {
+            EntryToExport entry;
+            ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
-            entry = new EntryToExport(address.toString(), null, label);
-         }
-         if (a.isActive()) {
-            _active.add(entry);
-         } else {
-            _archived.add(entry);
+            String base58EncodedPrivateKey = null;
+            Address address = a.getReceivingAddress().get();
+            if (a.canSpend()) {
+               base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
+            }
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
+            if (a.isActive()) {
+               _active.add(entry);
+            } else {
+               _archived.add(entry);
+            }
          }
       }
 

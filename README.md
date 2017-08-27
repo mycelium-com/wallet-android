@@ -157,6 +157,8 @@ Authors
  - Leo Wandersleb
  - Daniel Krawisz
  - Jerome Rousselot
+ - Elvis Kurtnebiev
+ - Sergey Dolgopolov
 
 Credits
 =======

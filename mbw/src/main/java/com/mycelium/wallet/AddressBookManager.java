@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import android.content.Context;
 
@@ -94,10 +95,20 @@ public class AddressBookManager {
 
    public static class IconEntry extends Entry{
       private Drawable _icon;
+      private UUID id;
 
       public IconEntry(Address address, String name, Drawable icon) {
          super(address, name);
          this._icon = icon;
+      }
+
+      public IconEntry(Address address, String name,  Drawable icon, UUID id) {
+         this(address, name, icon);
+         this.id = id;
+      }
+
+      public UUID getId() {
+         return id;
       }
 
       public Drawable getIcon() {

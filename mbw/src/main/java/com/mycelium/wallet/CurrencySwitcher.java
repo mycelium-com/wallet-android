@@ -37,6 +37,7 @@ package com.mycelium.wallet;
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -77,8 +78,16 @@ public class CurrencySwitcher {
       }
    }
 
+   public ExchangeRateManager getExchangeRateManager() {
+      return exchangeRateManager;
+   }
+
    public void setCurrency(final String setToCurrency) {
-      if (!setToCurrency.equals(CurrencyValue.BTC)) {
+      //TODO need no accurate detect is colu currency
+      if (!setToCurrency.equals(CurrencyValue.BTC)
+              && !setToCurrency.equals("RMC")
+              && !setToCurrency.equals("MT")
+              && !setToCurrency.equals("MSS")) {
          currentFiatCurrency = setToCurrency;
       }
       currentCurrency = setToCurrency;
