@@ -248,7 +248,7 @@ public class TransactionDetailsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(value.stripTrailingZeros() + " " + currency);
+      tv.setText(value.stripTrailingZeros().toPlainString() + " " + currency);
       tv.setTextColor(_white_color);
 
       tv.setOnLongClickListener(new View.OnLongClickListener() {
