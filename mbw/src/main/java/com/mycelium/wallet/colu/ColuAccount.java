@@ -175,9 +175,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    }
 
-   public static UUID getGuidForAsset(ColuAsset coluAsset, byte[] publicKeyBytes) {
+   public static UUID getGuidForAsset(ColuAsset coluAsset, byte[] addressBytes) {
       ByteWriter byteWriter = new ByteWriter(36);
-      byteWriter.putBytes(publicKeyBytes);
+      byteWriter.putBytes(addressBytes);
       byteWriter.putRawStringUtf8(coluAsset.id);
       Sha256Hash accountId = HashUtils.sha256(byteWriter.toBytes());
       return getGuidFromByteArray(accountId.getBytes());

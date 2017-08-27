@@ -8,7 +8,6 @@ import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Base64;
 import com.google.common.base.Stopwatch;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
@@ -259,7 +258,7 @@ public class ColuClient {
    //TODO: move most of the logic to ColuManager
    public ColuBroadcastTxid.Json prepareTransaction(Address destAddress, List<Address> src,
                                                     ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
-                                                    long feePerKb)
+                                                    long txFee)
            throws IOException {
       Log.d(TAG, "prepareTransaction");
       if (destAddress == null) {
@@ -275,7 +274,7 @@ public class ColuClient {
          return null;
       }
       Log.d(TAG, "destAddress=" + destAddress.toString() + " src nb addr=" + src.size() + " src0=" + src.get(0).toString() + " nativeAmount=" + nativeAmount.toString());
-      Log.d(TAG, " feePerKb=" + feePerKb);
+      Log.d(TAG, " txFee=" + txFee);
       ColuTransactionRequest.Json request = new ColuTransactionRequest.Json();
       List<ColuTxDest.Json> to = new LinkedList<ColuTxDest.Json>();
       ColuTxDest.Json dest = new ColuTxDest.Json();
@@ -286,7 +285,7 @@ public class ColuClient {
       to.add(dest);
 
       request.to = to;
-      request.fee = (int)feePerKb;
+      request.fee = txFee;
 
       ColuTxFlags.Json flags = new ColuTxFlags.Json();
       flags.splitChange = true;

@@ -247,7 +247,7 @@ public class StringHandleConfig implements Serializable {
             boolean success = mbwManager.getWalletManager(false).hasAccount(account)
                     || mbwManager.getColuManager().hasAccount(account);
             for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(mbwManager.getColuManager().getNetwork()).values()) {
-               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().getPublicKeyBytes());
+               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
                success |= mbwManager.getColuManager().hasAccount(coluUUID);
             }
 
@@ -255,7 +255,7 @@ public class StringHandleConfig implements Serializable {
                // Mark key as verified
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
                for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(mbwManager.getColuManager().getNetwork()).values()) {
-                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().getPublicKeyBytes());
+                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
                   mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
                }
                handlerActivity.finishOk();

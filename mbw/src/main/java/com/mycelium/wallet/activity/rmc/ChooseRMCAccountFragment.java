@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -284,7 +286,8 @@ public class ChooseRMCAccountFragment extends Fragment {
         private String generateCustomerId() {
             try {
                 Bip39.MasterSeed seed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
-                UUID uuid = ColuAccount.getGuidFromByteArray(seed.getBip32Seed());
+                HdKeyNode childNode = HdKeyNode.fromSeed(seed.getBip32Seed()).createChildNode(1234).createChildNode(7685);
+                UUID uuid = ColuAccount.getGuidFromByteArray(childNode.getPublicKey().getPublicKeyBytes());
                 return uuid.toString();
             } catch (Exception ex) {
                 return "";
