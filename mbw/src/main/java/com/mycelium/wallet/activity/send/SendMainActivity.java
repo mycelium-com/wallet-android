@@ -1138,7 +1138,7 @@ public class SendMainActivity extends Activity {
                   CurrencyValue primaryAmount = _amountToSend;
                   CurrencyValue alternativeAmount;
                   if (primaryAmount.getCurrency().equals(_account.getAccountDefaultCurrency())) {
-                     if (primaryAmount.isBtc()) {
+                     if (primaryAmount.isBtc() || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrency())) {
                         // if the accounts default currency is BTC and the user entered BTC, use the current
                         // selected fiat as alternative currency
                         alternativeAmount = CurrencyValue.fromValue(

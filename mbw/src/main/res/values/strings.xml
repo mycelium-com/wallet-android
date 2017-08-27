@@ -830,7 +830,7 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
     <string name="colu_sending_via_colu">Sending Colored Coin assets.</string>
-    <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with mBTC ( up to $100) to perform transactions.</string>
+    <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with BTC ( up to $100) to perform transactions.</string>
     <string name="colu_succeeded_to_prepare">Colored Coin transaction ready to send.</string>
     <string name="colu_failed_to_broadcast">Colored Coin failed to broadcast transaction.</string>
     <string name="colu_succeeded_to_broadcast">Colored Coin transaction sent.</string>
