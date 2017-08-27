@@ -287,7 +287,7 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean isColu() {
-        return _account != null && _account instanceof ColuAccount;
+        return _account instanceof ColuAccount;
     }
 
    @SuppressLint("ShowToast")
