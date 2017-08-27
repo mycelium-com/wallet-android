@@ -111,6 +111,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    private final MetadataStorage metadataStorage;
    private List<TransactionSummary> allTransactionSummaries;
    private long satoshiAmount;
+   private long satoshiBtcOnlyAmount;
 
    private final ColuAsset coluAsset;
 
@@ -250,6 +251,14 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          Log.d(TAG, "Setting initial balance to " + newBalanceFiat.toString());
       }
       balanceFiat = newBalanceFiat;
+   }
+
+   public void setBtcOnlyAmount(long satoshiBtcOnlyAmount) {
+      this.satoshiBtcOnlyAmount = satoshiBtcOnlyAmount;
+   }
+
+   public long getSatoshiBtcOnlyAmount() {
+      return satoshiBtcOnlyAmount;
    }
 
    public void setBalanceSatoshi(long satoshiAmount) {

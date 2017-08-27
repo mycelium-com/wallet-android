@@ -795,6 +795,7 @@ public class ColuManager implements AccountProvider {
 
         int assetScale = 0;
         long satoshiAmount = 0;
+        long satoshiBtcOnlyAmount = 0;
 
         for(Tx.Json tx : atInfo.transactions) {
             if (tx.blockheight != -1)
@@ -836,6 +837,11 @@ public class ColuManager implements AccountProvider {
 
         for(Utxo.Json utxo : atInfo.utxos) {
             satoshiAmount = satoshiAmount + utxo.value;
+
+            if (utxo.assets.size() == 0) {
+                satoshiBtcOnlyAmount += utxo.value;
+            }
+
             for (Asset.Json txidAsset : utxo.assets) {
                 if (txidAsset.assetId.equals(account.getColuAsset().id)) {
                     assetConfirmedAmount += txidAsset.amount;
@@ -858,6 +864,7 @@ public class ColuManager implements AccountProvider {
         CurrencyBasedBalance newBalanceFiat = new CurrencyBasedBalance(confirmed, sending, receiving);
         account.setBalanceFiat(newBalanceFiat);
         account.setBalanceSatoshi(satoshiAmount);
+        account.setBtcOnlyAmount(satoshiBtcOnlyAmount);
         return newBalanceFiat;
     }
 

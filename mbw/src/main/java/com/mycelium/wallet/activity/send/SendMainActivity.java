@@ -458,8 +458,8 @@ public class SendMainActivity extends Activity {
         if (fundingAmountToSend < TransactionUtils.MINIMUM_OUTPUT_VALUE)
             fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
-        long spendableAmount =  coluAccount.getSatoshiAmount();
-        return spendableAmount >= fundingAmountToSend;
+        long spendableAmount =  coluAccount.getSatoshiBtcOnlyAmount();
+        return spendableAmount >= (fundingAmountToSend + 4 * ColuManager.DUST_OUTPUT_SIZE);
     }
 
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
