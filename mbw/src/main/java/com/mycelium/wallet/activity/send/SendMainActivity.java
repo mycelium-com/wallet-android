@@ -847,16 +847,16 @@ public class SendMainActivity extends Activity {
 
                             //Create funding transaction and broadcast it to network
                             List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
-                            long feePerKb = getFeePerKb().getLongValue();
-                            long fundingAmountToSend = feePerKb;
+                            long txFee = _mbwManager.getColuManager().getColuTransactionFee(getFeePerKb().getLongValue());
+                            long fundingAmountToSend = txFee;
 
-                            if (feePerKb < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+                            if (txFee < TransactionUtils.MINIMUM_OUTPUT_VALUE)
                                 fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
                             WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
                             receivers.add(coluReceiver);
                             try {
-                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
+                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, txFee);
                                 Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
                                 WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
                                 if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
