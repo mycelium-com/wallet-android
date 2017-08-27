@@ -386,12 +386,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    @Override
    protected void onPause() {
       _mbwManager.getEventBus().unregister(this);
-//      if (_mbwManager.getCurrencySwitcher().getCurrenciesCount() > 0) {
-//         _mbwManager.getCurrencySwitcher().setCurrency(_mbwManager.getCurrencySwitcher().getCurrencyList().get(0));
-//      } else {
-//         _mbwManager.getCurrencySwitcher().setCurrency("");
-//      }
-
+      CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+      currencySwitcher.setCurrency(currencySwitcher.getCurrentFiatCurrency());
       super.onPause();
    }
 
