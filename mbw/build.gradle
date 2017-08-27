@@ -93,8 +93,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290103
-        versionName '2.9.1'
+        versionCode 290200
+        versionName '2.9.2'
         multiDexEnabled true
     }
 
