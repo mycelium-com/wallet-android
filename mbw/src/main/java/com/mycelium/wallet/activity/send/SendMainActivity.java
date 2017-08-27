@@ -1203,7 +1203,27 @@ public class SendMainActivity extends Activity {
       String duration = Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks());
       if (_unsigned == null) {
          // Only show button for fee lvl, cannot calculate fee yet
-         tvFeeValue.setVisibility(GONE);
+          if (isColu()) {
+              tvFeeValue.setVisibility(VISIBLE);
+              Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
+              //show fee lvl on button - show the fees in mBtc if Btc is the denomination
+              Denomination feeDenomination = bitcoinDenomination == BTC ? mBTC : bitcoinDenomination;
+
+              long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(getFeePerKb().getLongValue());
+              String feeString = CoinUtil.valueString(fundingAmountToSend, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
+              CurrencyValue fiatFee = CurrencyValue.fromValue(
+                      ExactBitcoinValue.from(fundingAmountToSend),
+                      _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency(),
+                      _mbwManager.getExchangeRateManager()
+              );
+              if (!CurrencyValue.isNullOrZero(fiatFee)) {
+                  // Show approximate fee in fiat
+                  feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
+              }
+              tvFeeValue.setText(feeString);
+          } else {
+              tvFeeValue.setVisibility(GONE);
+          }
          tvSatFeeValue.setText(">"+(_fee.getFeePerKb(_mbwManager.getWalletManager(_isColdStorage).getLastFeeEstimations()).getLongValue()/1000L)+"sat/byte, ~"+ duration);
       } else {
          // Show fee fully calculated
