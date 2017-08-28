@@ -138,7 +138,7 @@ public class RMCAddressFragment extends Fragment {
             } else {
                 tvTotalHP.setText(R.string.not_available);
             }
-            if (result.totalRmcHashrate != 0) {
+            if (result.yourRmcHashrate != 0) {
                 // tera flops
                 tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(6)
                         .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
