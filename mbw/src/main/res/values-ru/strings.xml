@@ -822,7 +822,6 @@
   <string name="rmc_activate_rmc">Активировать RMC для максимальной прибыли</string>
   <string name="rmc_activate">Активировать RMC</string>
   <string name="save">Сохранить</string>
-  <string name="partner_hashing24_short">Начать добычу Bitcoin с максимальной эффективностью</string>
   <string name="partner_more_info"><u>Ваша конфиденциальность является нашим главным приоритетом</u></string>
   <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
   <string name="rmc_payment_success">Оплата прошла! Вы получите ваши активы после трех подтверждений.</string>
