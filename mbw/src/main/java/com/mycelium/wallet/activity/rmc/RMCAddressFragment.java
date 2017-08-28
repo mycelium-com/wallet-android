@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -130,14 +131,14 @@ public class RMCAddressFragment extends Fragment {
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
             if (result == null)
                 return;
-            if(result.totalRmcHashrate != 0) {
+            if (result.totalRmcHashrate != 0) {
                 // peta flops
                 tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
                         .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
             } else {
                 tvTotalHP.setText(R.string.not_available);
             }
-            if(result.totalRmcHashrate != 0) {
+            if (result.yourRmcHashrate != 0) {
                 // tera flops
                 tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(6)
                         .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
@@ -152,39 +153,41 @@ public class RMCAddressFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvTotalIssued.setText(String.valueOf(Keys.TOTAL_RMC_ISSUED));
+        ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
         try {
-            ColuAccount coluAccount = (ColuAccount)_mbwManager.getSelectedAccount();
             RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
             List<DataPoint> dataPoints = paymentsStatistics.getStatistics();
-            graphView.getViewport().setMinX(dataPoints.get(0).getX());
-            Calendar max = Calendar.getInstance();
-            max.setTimeInMillis((long) dataPoints.get(0).getX());
-            graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
+            if (dataPoints.size() > 0) {
+                graphView.getViewport().setMinX(dataPoints.get(0).getX());
+                Calendar max = Calendar.getInstance();
+                max.setTimeInMillis((long) dataPoints.get(0).getX());
+                graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
 
-            DateFormat dateFormat;
-            if (dataPoints.size() < 30) {
-                max.add(Calendar.MONTH, 1);
-                dateFormat = new SimpleDateFormat("dd.MM");
-            } else if (dataPoints.size() < 90) {
-                max.add(Calendar.MONTH, 3);
-                dateFormat = new SimpleDateFormat("dd.MM");
-            } else if (dataPoints.size() < 365) {
-                max.add(Calendar.MONTH, 12);
-                dateFormat = new SimpleDateFormat("MM.yy");
-            } else {
-                max.setTimeInMillis((long) dataPoints.get(dataPoints.size() - 1).getX());
-                dateFormat = new SimpleDateFormat("MM.yy");
+                DateFormat dateFormat;
+                if (dataPoints.size() < 30) {
+                    max.add(Calendar.MONTH, 1);
+                    dateFormat = new SimpleDateFormat("dd.MM");
+                } else if (dataPoints.size() < 90) {
+                    max.add(Calendar.MONTH, 3);
+                    dateFormat = new SimpleDateFormat("dd.MM");
+                } else if (dataPoints.size() < 365) {
+                    max.add(Calendar.MONTH, 12);
+                    dateFormat = new SimpleDateFormat("MM.yy");
+                } else {
+                    max.setTimeInMillis((long) dataPoints.get(dataPoints.size() - 1).getX());
+                    dateFormat = new SimpleDateFormat("MM.yy");
+                }
+                graphView.getGridLabelRenderer().setLabelFormatter(
+                        new DateAsXAxisLabelFormatter(getActivity(), dateFormat));
+                graphView.getViewport().setMaxX(max.getTimeInMillis());
+                graphView.addSeries(new LineGraphSeries(dataPoints.toArray(new DataPoint[dataPoints.size()])));
             }
-            graphView.getGridLabelRenderer().setLabelFormatter(
-                    new DateAsXAxisLabelFormatter(getActivity(), dateFormat));
-            graphView.getViewport().setMaxX(max.getTimeInMillis());
-            graphView.addSeries(new LineGraphSeries(dataPoints.toArray(new DataPoint[dataPoints.size()])));
-
-            BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
         } catch (Exception ex) {
+            Log.e("RMCAddressFragment", "", ex);
         }
+
+        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         updateUi();
     }
@@ -235,11 +238,11 @@ public class RMCAddressFragment extends Fragment {
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if(((Switch)view.findViewById(R.id.add_to_calendar)).isChecked()) {
+                        if (((Switch) view.findViewById(R.id.add_to_calendar)).isChecked()) {
                             addEventToCalendar();
                         }
                         sharedPreferences.edit().putBoolean(RMC_ACTIVE_PUSH_NOTIFICATION
-                                , ((Switch)view.findViewById(R.id.add_push_notification)).isChecked())
+                                , ((Switch) view.findViewById(R.id.add_push_notification)).isChecked())
                                 .apply();
                     }
                 }).setNegativeButton(R.string.cancel, null)
