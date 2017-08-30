@@ -61,6 +61,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
@@ -72,6 +73,7 @@ import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
@@ -80,6 +82,8 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.List;
@@ -100,6 +104,7 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
  */
 public class SettingsActivity extends PreferenceActivity {
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
+   private static final int REQUEST_CODE_CUSTOM_FEE = 100;
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          SetLocalCurrencyActivity.callMe(SettingsActivity.this);
@@ -306,11 +311,13 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee.setSummary(getMinerFeeSummary());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
       CharSequence[] minerFees = new CharSequence[]{
+              MinerFee.CUSTOM.toString(),
               MinerFee.LOWPRIO.toString(),
               MinerFee.ECONOMIC.toString(),
               MinerFee.NORMAL.toString(),
               MinerFee.PRIORITY.toString()};
       CharSequence[] minerFeeNames = new CharSequence[]{
+              getString(R.string.miner_fee_custom),
               getString(R.string.miner_fee_lowprio_name),
               getString(R.string.miner_fee_economic_name),
               getString(R.string.miner_fee_normal_name),
@@ -326,6 +333,9 @@ public class SettingsActivity extends PreferenceActivity {
             _minerFee.setSummary(getMinerFeeSummary());
             String description = _mbwManager.getMinerFee().getMinerFeeDescription(SettingsActivity.this);
             Utils.showSimpleMessageDialog(SettingsActivity.this, description);
+            if(_mbwManager.getMinerFee() == MinerFee.CUSTOM) {
+               GetAmountActivity.callMe(SettingsActivity.this, ExactBitcoinValue.from(MinerFee.CUSTOM.getCustomFee()), REQUEST_CODE_CUSTOM_FEE);
+            }
             return true;
          }
       });
@@ -759,6 +769,16 @@ public class SettingsActivity extends PreferenceActivity {
          new Toaster(SettingsActivity.this).toast(getString(R.string.lt_set_email_error), false);
          _ltManager.unsubscribe(this);
 
+      }
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      super.onActivityResult(requestCode, resultCode, data);
+      if (requestCode == REQUEST_CODE_CUSTOM_FEE && resultCode == RESULT_OK) {
+         CurrencyValue currencyValue = (CurrencyValue) data.getSerializableExtra(GetAmountActivity.AMOUNT);
+         Bitcoins btc = currencyValue.getAsBitcoin(_mbwManager.getExchangeRateManager());
+         _mbwManager.setCustomFee(btc.getLongValue());
       }
    }
 }

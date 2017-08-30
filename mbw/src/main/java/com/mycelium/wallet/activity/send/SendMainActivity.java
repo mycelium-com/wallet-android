@@ -42,6 +42,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -219,6 +221,8 @@ public class SendMainActivity extends Activity {
     Button btFeeFromAccount;
     @BindView(R.id.colu_tips_check_address)
     View tips_check_address;
+    @BindView(R.id.btCustomFee)
+    View btCustomFee;
     private MbwManager _mbwManager;
 
     private PaymentRequestHandler _paymentRequestHandler;
@@ -346,6 +350,7 @@ public class SendMainActivity extends Activity {
        if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
                || checkIsRMCICOPaymentRequest()) {
            _fee = _fee == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
+           btCustomFee.setVisibility(GONE);
        }
 
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
@@ -779,13 +784,14 @@ public class SendMainActivity extends Activity {
                // build new output list with user specified amount
                outputs = outputs.newOutputsWithTotalAmount(toSend.getLongValue());
             }
-            _unsigned = _account.createUnsignedTransaction(outputs, getFeePerKb().getLongValue());
+             long fee = _fee != MinerFee.CUSTOM ? getFeePerKb().getLongValue() : getCustomFeeFerKb(outputs);
+            _unsigned = _account.createUnsignedTransaction(outputs, fee);
             _receivingAddress = null;
             _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
             return TransactionStatus.OK;
          } else if(hasAddressData) {
             WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getLongValue());
-             long fee = _fee != MinerFee.CUSTOM ? getFeePerKb().getLongValue() : getCustomFeeFerKb();
+             long fee = _fee != MinerFee.CUSTOM ? getFeePerKb().getLongValue() : getCustomFeeFerKb(_receivingAddress);
              _unsigned = _account.createUnsignedTransaction(Collections.singletonList(receiver), fee);
             checkSpendingUnconfirmed();
             return TransactionStatus.OK;
@@ -807,15 +813,32 @@ public class SendMainActivity extends Activity {
       }
    }
 
-   private long getCustomFeeFerKb() {
+   private long getCustomFeeFerKb(@Nullable Address receivingAddress) {
        WalletAccount.Receiver receiver;
-       if (_receivingAddress != null) {
-           receiver = new WalletAccount.Receiver(_receivingAddress, getBitcoinValueToSend().getLongValue());
+       if (receivingAddress != null) {
+           receiver = new WalletAccount.Receiver(receivingAddress, getBitcoinValueToSend().getLongValue());
        } else {
            receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), getBitcoinValueToSend().getLongValue());
        }
        try {
            UnsignedTransaction transaction = _account.createUnsignedTransaction(Collections.singletonList(receiver),
+                   MinerFee.NORMAL.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue());
+           return 1000 * customFee.getLongValue() / _account.signTransaction(transaction, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
+       } catch (OutputTooSmallException e) {
+           e.printStackTrace();
+       } catch (InsufficientFundsException e) {
+           e.printStackTrace();
+       } catch (UnableToBuildTransactionException e) {
+           e.printStackTrace();
+       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+           invalidKeyCipher.printStackTrace();
+       }
+       return 0;
+   }
+
+   private long getCustomFeeFerKb(@NonNull OutputList outputList) {
+       try {
+           UnsignedTransaction transaction = _account.createUnsignedTransaction(outputList,
                    MinerFee.NORMAL.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue());
            return 1000 * customFee.getLongValue() / _account.signTransaction(transaction, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
        } catch (OutputTooSmallException e) {
@@ -1500,7 +1523,8 @@ public class SendMainActivity extends Activity {
         } else if(requestCode == REQUEST_CODE_GET_CUSTOM_FEE) {
             if (resultCode == RESULT_OK) {
                 _fee = MinerFee.CUSTOM;
-                customFee = Bitcoins.nearestValue(((CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT)).getValue());
+                CurrencyValue currencyValue = (CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
+                customFee = currencyValue.getAsBitcoin(_mbwManager.getExchangeRateManager());
                 updateUi();
             }
         } else {

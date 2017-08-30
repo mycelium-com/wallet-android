@@ -662,6 +662,11 @@ public class MbwManager {
       return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
    }
 
+   public void setCustomFee(long customFee) {
+      MinerFee.CUSTOM.setCustomFee(Bitcoins.valueOf(customFee));
+      getPreferences().edit().putLong(Constants.MINER_FEE_CUSTOM_VALUE, customFee).apply();
+   }
+
    public List<String> getCurrencyList() {
       return _currencySwitcher.getCurrencyList();
    }

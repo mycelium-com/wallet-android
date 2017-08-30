@@ -171,7 +171,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (_kbMinerFee != -1) {
          _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
       } else {
-         _maxSpendableAmount = ExactBitcoinValue.from(_account.getBalance().getSpendableBalance() - customFee.getLongValue());
+         long max = Math.max(0, _account.getBalance().getSpendableBalance() - customFee.getLongValue());
+         _maxSpendableAmount = ExactBitcoinValue.from(max);
       }
       showMaxAmount();
 
