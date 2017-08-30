@@ -297,9 +297,11 @@
             <!-- Fee -->
             <LinearLayout
                     android:id="@+id/llFee"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical">
 
                 <!-- Fee Title -->
 
@@ -328,40 +330,56 @@
                     />
 
                 <!-- Fee toggle button, Fee amount in BTC -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center">
-                    <Button
-                        android:id="@+id/btFeeLvl"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/MyceliumSlimButton"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:layout_gravity="center_horizontal"
-                        android:textSize="16sp"
-                        tools:text="Fee"
-                        />
-                    <ImageButton
-                        android:id="@+id/btCustomFee"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        style="@style/MyceliumSlimButton"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:layout_marginLeft="4dp"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:layout_gravity="center_horizontal"
-                        android:src="@drawable/ic_mode_edit_white_18dp"
-                        android:textSize="16sp"
-                        tools:text="Fee"
-                        />
+                <!--<LinearLayout-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center">-->
+                    <!--<Button-->
+                        <!--android:id="@+id/btFeeLvl"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--style="@style/MyceliumSlimButton"-->
+                        <!--android:paddingTop="4dp"-->
+                        <!--android:paddingBottom="4dp"-->
+                        <!--android:paddingLeft="10dp"-->
+                        <!--android:paddingRight="10dp"-->
+                        <!--android:layout_gravity="center_horizontal"-->
+                        <!--android:textSize="16sp"-->
+                        <!--tools:text="Fee"-->
+                        <!--/>-->
+                    <!--<ImageButton-->
+                        <!--android:id="@+id/btCustomFee"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--style="@style/MyceliumSlimButton"-->
+                        <!--android:paddingTop="4dp"-->
+                        <!--android:paddingBottom="4dp"-->
+                        <!--android:layout_marginLeft="4dp"-->
+                        <!--android:paddingLeft="6dp"-->
+                        <!--android:paddingRight="6dp"-->
+                        <!--android:layout_gravity="center_horizontal"-->
+                        <!--android:src="@drawable/ic_mode_edit_white_18dp"-->
+                        <!--android:textSize="16sp"-->
+                        <!--tools:text="Fee"-->
+                        <!--/>-->
 
-                </LinearLayout>
+                <!--</LinearLayout>-->
+                <RelativeLayout
+                    android:id="@+id/feeFiatLabels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <SeekBar
+                    android:id="@+id/feeSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:id="@+id/feeTextLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                </RelativeLayout>
+
 
                 <!-- Fiat Fee -->
                 <TextView

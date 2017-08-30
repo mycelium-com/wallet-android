@@ -253,7 +253,7 @@ public class MbwManager {
 
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
 
-      MinerFee.CUSTOM.setCustomFee(Bitcoins.valueOf(preferences.getLong(Constants.MINER_FEE_CUSTOM_VALUE, 10000)));
+//      MinerFee.CUSTOM.setCustomFee(Bitcoins.valueOf(preferences.getLong(Constants.MINER_FEE_CUSTOM_VALUE, 10000)));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
 
@@ -663,7 +663,7 @@ public class MbwManager {
    }
 
    public void setCustomFee(long customFee) {
-      MinerFee.CUSTOM.setCustomFee(Bitcoins.valueOf(customFee));
+//      MinerFee.CUSTOM.setCustomFee(Bitcoins.valueOf(customFee));
       getPreferences().edit().putLong(Constants.MINER_FEE_CUSTOM_VALUE, customFee).apply();
    }
 

@@ -311,13 +311,13 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee.setSummary(getMinerFeeSummary());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
       CharSequence[] minerFees = new CharSequence[]{
-              MinerFee.CUSTOM.toString(),
+//              MinerFee.CUSTOM.toString(),
               MinerFee.LOWPRIO.toString(),
               MinerFee.ECONOMIC.toString(),
               MinerFee.NORMAL.toString(),
               MinerFee.PRIORITY.toString()};
       CharSequence[] minerFeeNames = new CharSequence[]{
-              getString(R.string.miner_fee_custom),
+//              getString(R.string.miner_fee_custom),
               getString(R.string.miner_fee_lowprio_name),
               getString(R.string.miner_fee_economic_name),
               getString(R.string.miner_fee_normal_name),
@@ -333,9 +333,9 @@ public class SettingsActivity extends PreferenceActivity {
             _minerFee.setSummary(getMinerFeeSummary());
             String description = _mbwManager.getMinerFee().getMinerFeeDescription(SettingsActivity.this);
             Utils.showSimpleMessageDialog(SettingsActivity.this, description);
-            if(_mbwManager.getMinerFee() == MinerFee.CUSTOM) {
-               GetAmountActivity.callMe(SettingsActivity.this, ExactBitcoinValue.from(MinerFee.CUSTOM.getCustomFee()), REQUEST_CODE_CUSTOM_FEE);
-            }
+//            if(_mbwManager.getMinerFee() == MinerFee.CUSTOM) {
+//               GetAmountActivity.callMe(SettingsActivity.this, ExactBitcoinValue.from(MinerFee.CUSTOM.getCustomFee()), REQUEST_CODE_CUSTOM_FEE);
+//            }
             return true;
          }
       });
