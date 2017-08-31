@@ -202,8 +202,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -296,14 +294,12 @@
 
             <!-- Fee -->
             <LinearLayout
-                    android:id="@+id/llFee"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:clipToPadding="false"
+                android:id="@+id/llFee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Fee Title -->
+            <!-- Fee Title -->
 
                 <TextView
                         android:id="@+id/tvFeeLabel"
@@ -331,7 +327,16 @@
 
                 <!-- Fee toggle button, Fee amount in BTC -->
                 <!--<LinearLayout-->
-                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_width="wrap<TextView
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:text="@string/read_only_warning"
+                android:textColor="@color/red"
+                android:textSize="18sp"/>_content"-->
                     <!--android:layout_height="wrap_content"-->
                     <!--android:layout_gravity="center">-->
                     <!--<Button-->
@@ -364,21 +369,52 @@
                         <!--/>-->
 
                 <!--</LinearLayout>-->
-                <RelativeLayout
-                    android:id="@+id/feeFiatLabels"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tvFeeWarning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center"
+                    android:text="@string/read_only_warning"
+                    android:textColor="@color/red"
+                    android:textSize="14sp"/>
 
-                <SeekBar
-                    android:id="@+id/feeSlider"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/feeLvlList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="75dp"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:orientation="horizontal"
+                    android:scrollbars="none"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp" />
 
-                <RelativeLayout
-                    android:id="@+id/feeTextLabel"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/feeValueList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-                </RelativeLayout>
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:scrollbars="none"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp" />
+
+
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/feeFiatLabels"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content" />-->
+
+                <!--<SeekBar-->
+                    <!--android:id="@+id/feeSlider"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content" />-->
+
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/feeTextLabel"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content" >-->
+                <!--</RelativeLayout>-->
 
 
                 <!-- Fiat Fee -->
