@@ -201,14 +201,18 @@ public class BalanceFragment extends Fragment {
       if(account instanceof ColuAccount) {
 //          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
          tvBtcRate.setVisibility(View.VISIBLE);
-         if(((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC){
+         ColuAccount coluAccount = (ColuAccount) account;
+          ColuAccount.ColuAssetType assetType = coluAccount.getColuAsset().assetType;
+         if (assetType == ColuAccount.ColuAssetType.RMC || assetType == ColuAccount.ColuAssetType.MASS) {
             tcdFiatDisplay.setVisibility(View.VISIBLE);
-            CurrencyValue rmcValue = ExactCurrencyValue.from(BigDecimal.ONE, "RMC");
-            CurrencyValue usdValue = CurrencyValue.fromValue(rmcValue, "USD", _mbwManager.getExchangeRateManager());
-            if(usdValue != null && usdValue.getValue() != null) {
-               tvBtcRate.setText("1 RMC = " + usdValue.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString() + " " + usdValue.getCurrency());
+            CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
+            CurrencyValue usdValue = CurrencyValue.fromValue(coluValue, "USD", _mbwManager.getExchangeRateManager());
+            if (usdValue != null && usdValue.getValue() != null) {
+               tvBtcRate.setText("1 " + coluAccount.getColuAsset().name + " = "
+                       + usdValue.getValue().setScale(assetType == ColuAccount.ColuAssetType.MASS ? 6 : 2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString()
+                       + " " + usdValue.getCurrency());
             }
-         }else {
+         } else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
          }

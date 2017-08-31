@@ -81,6 +81,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private Float rmcRate;
    private Float ethRate;
    private Float usdRate;
+   // value hardcoded for now, but in future we need get from somewhere
+   private Float mssRate = 3125f;
+
    private NetworkParameters networkParameters;
 
    ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters) {
@@ -237,20 +240,24 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     */
    @Override
    public synchronized ExchangeRate getExchangeRate(String currency) {
-      boolean rmcFlag = false;
+      // TODO need some refactoring for this
+      String injectCurrency = null;
       if(currency.equals("RMC")) {
+         injectCurrency = currency;
          currency = "USD";
-         rmcFlag = true;
       }
-      boolean ethFlag = false;
       if(currency.equals("ETH")) {
          if(ethRate == 0) return null;
+         injectCurrency = currency;
          currency = "USD";
-         ethFlag = true;
+      }
+      if(currency.equals("MSS")) {
+         injectCurrency = currency;
+         currency = "USD";
       }
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
          if (currency.equals("USD") && (usdRate != null)) {
-            return getRMCExchangeRate(rmcFlag, ethFlag, new ExchangeRate("Kraken", 0, usdRate, "USD"));
+            return getRMCExchangeRate(injectCurrency, new ExchangeRate("Kraken", 0, usdRate, "USD"));
          }
          return null;
       }
@@ -267,7 +274,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
             //everything is fine, return the rate
-            r = getRMCExchangeRate(rmcFlag, ethFlag, r);
+            r = getRMCExchangeRate(injectCurrency, r);
             return r;
          }
       }
@@ -278,14 +285,18 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       return null;
    }
 
-   private ExchangeRate getRMCExchangeRate(boolean rmcFlag, boolean ethFlag, ExchangeRate r) {
-      if(rmcFlag) {
-         r = new ExchangeRate(r.name, r.time, r.price * rmcRate, "RMC");
+   private ExchangeRate getRMCExchangeRate(String injectCurrency, ExchangeRate r) {
+      double rate = r.price;
+      if ("RMC".equals(injectCurrency)) {
+         rate = r.price * rmcRate;
       }
-      if(ethFlag) {
-         r = new ExchangeRate(r.name, r.time, r.price / ethRate, "ETH");
+      if ("ETH".equals(injectCurrency)) {
+         rate = r.price / ethRate;
       }
-      return r;
+      if ("MSS".equals(injectCurrency)) {
+         rate = r.price * mssRate;
+      }
+      return new ExchangeRate(r.name, r.time, rate, injectCurrency);
    }
 
    private SharedPreferences.Editor getEditor() {
