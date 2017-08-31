@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.send.adapter;
+package com.mycelium.wallet.activity.send.model;
 
 import com.mycelium.wallet.MinerFee;
 

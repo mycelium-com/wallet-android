@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.send.adapter;
+package com.mycelium.wallet.activity.send.event;
 
 import android.support.v7.widget.RecyclerView;
 

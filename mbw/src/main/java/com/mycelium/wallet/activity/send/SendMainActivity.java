@@ -87,10 +87,10 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
-import com.mycelium.wallet.activity.send.adapter.FeeLvlItem;
+import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
-import com.mycelium.wallet.activity.send.adapter.ViewHolderClickListener;
-import com.mycelium.wallet.activity.send.adapter.ViewHolderSelectListener;
+import com.mycelium.wallet.activity.send.event.ViewHolderClickListener;
+import com.mycelium.wallet.activity.send.event.ViewHolderSelectListener;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
@@ -238,7 +238,7 @@ public class SendMainActivity extends Activity {
     RecyclerView feeLvlList;
 
     @BindView(R.id.feeValueList)
-    RecyclerView feeValueLis;
+    RecyclerView feeValueList;
 
 
     private MbwManager _mbwManager;
@@ -274,9 +274,9 @@ public class SendMainActivity extends Activity {
     private ProgressDialog progress;
 
     int senderAllPixels = 0;
-    int senderItemWidth;
-    int senderPadding;
-    int senderFirstItemWidth;
+    int feeItemWidth;
+    int feePadding;
+    int feeFirstItemWidth;
 
     public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
         return new Intent(currentActivity, SendMainActivity.class)
@@ -505,9 +505,9 @@ public class SendMainActivity extends Activity {
 
 
        int senderFinalWidth =  getWindowManager().getDefaultDisplay().getWidth();
-       senderItemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
-       senderPadding = (senderFinalWidth - senderItemWidth) / 2;
-       senderFirstItemWidth = senderPadding;
+       feeItemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
+       feePadding = (senderFinalWidth - feeItemWidth) / 2;
+       feeFirstItemWidth = feePadding;
 
 
        feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -535,7 +535,7 @@ public class SendMainActivity extends Activity {
        }
        feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
 
-       final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems.toArray(new FeeLvlItem[feeLvlItems.size()]), senderFirstItemWidth);
+       final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems.toArray(new FeeLvlItem[feeLvlItems.size()]), feeFirstItemWidth);
        feeLvlViewAdapter.setViewHolderClickListener(new ViewHolderClickListener() {
            @Override
            public void onClick(RecyclerView.Adapter adapter, int position) {
@@ -571,10 +571,39 @@ public class SendMainActivity extends Activity {
 
        feeLvlList.setHasFixedSize(true);
 
+
+
+       feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+       feeValueList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+           @Override
+           public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+               super.onScrollStateChanged(recyclerView, newState);
+               synchronized (this) {
+                   if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                       calculatePositionAndScroll(recyclerView);
+                   }
+               }
+           }
+
+           @Override
+           public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+               super.onScrolled(recyclerView, dx, dy);
+               senderAllPixels += dx;
+           }
+       });
+
+       List<FeeLvlItem> feeItems = new ArrayList<>();
+       feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
+       for (MinerFee fee : MinerFee.values()) {
+           feeLvlItems.add(new FeeLvlItem(fee, FeeLvlViewAdapter.VIEW_TYPE_ITEM));
+       }
+       feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
+
    }
    private void scrollListToPosition(RecyclerView recyclerView, int expectedPosition) {
         if (recyclerView.getAdapter() instanceof FeeLvlViewAdapter) {
-            int targetScrollPos = expectedPosition * senderItemWidth + senderFirstItemWidth - senderPadding;
+            int targetScrollPos = expectedPosition * feeItemWidth + feeFirstItemWidth - feePadding;
             int missingPx = targetScrollPos - senderAllPixels;
             if (missingPx != 0f) {
                 recyclerView.smoothScrollBy(missingPx, 0);
@@ -596,8 +625,8 @@ public class SendMainActivity extends Activity {
     private void setSelectedItem(RecyclerView.Adapter adapter) {
         if (adapter instanceof FeeLvlViewAdapter) {
             int expectedPosition =
-                    Math.round((senderAllPixels + senderPadding - senderFirstItemWidth)
-                            / senderItemWidth);
+                    Math.round((senderAllPixels + feePadding - feeFirstItemWidth)
+                            / feeItemWidth);
             ((FeeLvlViewAdapter) adapter).setSelectedItem(expectedPosition + 1);
         }
 //        else if (adapter is ReceiverRecyclerViewAdapter) {
@@ -614,8 +643,8 @@ public class SendMainActivity extends Activity {
         if (recyclerView.getAdapter() instanceof FeeLvlViewAdapter) {
             int expectedPosition =
                     Math.round(
-                            (senderAllPixels + senderPadding -
-                                    senderFirstItemWidth) / senderItemWidth);
+                            (senderAllPixels + feePadding -
+                                    feeFirstItemWidth) / feeItemWidth);
 
             if (expectedPosition == -1) {
                 expectedPosition = 0;
