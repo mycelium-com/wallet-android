@@ -90,6 +90,13 @@ public class StringHandleConfig implements Serializable {
       return request;
    }
 
+   public static StringHandleConfig returnAddress() {
+      StringHandleConfig request = new StringHandleConfig();
+      request.addressAction = AddressAction.RETURN;
+      request.bitcoinUriWithAddressAction = BitcoinUriWithAddressAction.RETURN_ADDRESS;
+      return request;
+   }
+
    public static StringHandleConfig returnKeyOrAddressOrHdNode() {
       StringHandleConfig request = new StringHandleConfig();
       request.privateKeyAction = PrivateKeyAction.RETURN;
@@ -734,11 +741,11 @@ public class StringHandleConfig implements Serializable {
          public boolean canHandle(NetworkParameters network, String content) {
             return WebsiteAction.OPEN_BROWSER.canHandle(network, content);
          }
-      },
+      }
    }
 
-
-
+   // Used to decode Shamir's Shared Private keys, created by Mycelium Entropy USB Sticks
+   // https://github.com/cetuscetus/btctool/blob/bip/bip-xxxx.mediawiki
    public enum SssShareAction implements Action {
       START_COMBINING {
          @Override
@@ -758,7 +765,7 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isShare(network, content);
+            return isShare(content);
          }
       },
       RETURN_SHARE {
@@ -778,11 +785,11 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isShare(network, content);
+            return isShare(content);
          }
       };
 
-      private static boolean isShare(NetworkParameters network, String content) {
+      private static boolean isShare(String content) {
          return content.startsWith(BipSss.Share.SSS_PREFIX);
       }
    }
@@ -894,7 +901,6 @@ public class StringHandleConfig implements Serializable {
    }
 
    public enum PopAction implements Action {
-
       SEND {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
@@ -928,21 +934,20 @@ public class StringHandleConfig implements Serializable {
       }
    }
 
-   public Action privateKeyAction = Action.NONE;
+   private Action privateKeyAction = Action.NONE;
    public Action bitcoinUriWithAddressAction = Action.NONE;
    public Action bitcoinUriAction = Action.NONE;
-   public Action addressAction = Action.NONE;
-   public Action bitIdAction = Action.NONE;
-   public Action websiteAction = Action.NONE;
-   public Action masterSeedAction = Action.NONE;
-   public Action sssShareAction = Action.NONE;
-   public Action hdNodeAction = Action.NONE;
-   public Action wordListAction = Action.NONE;
-   public Action popAction = Action.NONE;
+   private Action addressAction = Action.NONE;
+   private Action bitIdAction = Action.NONE;
+   private Action websiteAction = Action.NONE;
+   private Action masterSeedAction = Action.NONE;
+   private Action sssShareAction = Action.NONE;
+   private Action hdNodeAction = Action.NONE;
+   private Action wordListAction = Action.NONE;
+   private Action popAction = Action.NONE;
 
    public List<Action> getAllActions() {
       return ImmutableList.of(popAction, privateKeyAction, bitcoinUriWithAddressAction, bitcoinUriAction,
             addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
    }
-
 }

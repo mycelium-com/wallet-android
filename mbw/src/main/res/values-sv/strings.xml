@@ -117,7 +117,6 @@
   <string name="backup_legacy_warning">Du kommer att säkerhetskopiera dina konton med fast adress i din plånbok.\nDenna säkerhetskopia kommer inte att innehålla ditt huvudfrö, ingen av dina HD-konton kan återskapas från den!.\n\nVill du fortsätta?</string>
   <string name="export_to_clipboard_warning">Varning: Att exportera privat kontoinformation till urklipp, exponerar det för alla andra applikationer på din enhet.\n\nNotera: Det är inte nog med att lagra din privata information i urklipp, du måste även klistra in det på en säker plats.\n\nVill du fortsätta?</string>
   <string name="found_clipboard_private_key_title">Privat nyckel hittad i urklipp</string>
-  <string name="found_clipboard_private_keys_message">Urklipp innehåller en privat nyckel.\r\nVill du rensa urklipp?</string>
   <string name="exchange_source_not_available">Växlingskurs inte tillgänglig för %1$s</string>
   <string name="my_own_address_warning">Notera: Du skickar till en av dina egna adresser.</string>
   <string name="read_only_warning">Varning: Din plånbok har inte den privata nyckeln för denna adress.\nDu kan inte spendera mottagna pengar så till vida du inte har den privata nyckeln någon annanstans.</string>

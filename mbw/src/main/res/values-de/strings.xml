@@ -120,7 +120,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="backup_legacy_warning">Sie erstellen das Backup für die Konten mit einer einzelnen Adresse in Ihrer Wallet.\nDieses Backup ist ohne Ihre Master Seed, keines Ihrer HD Konten kann so wiederhergestellt werden!\n\nMöchten Sie fortfahren?</string>
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
   <string name="found_clipboard_private_key_title">Privater Schlüssel in der Zwischenablage gefunden</string>
-  <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\r\nMöchten Sie ihn löschen?</string>
   <string name="exchange_source_not_available">Wechselkurs für %1$s nicht verfügbar</string>
   <string name="my_own_address_warning">Achtung: Sie senden Bitcoins zu einer Ihrer eigenen Adressen</string>
   <string name="read_only_warning">Hinweis: Ihre Wallet hat keinen privaten Schlüssel für diese Adresse. \nSie können erhaltene Bitcoins nur ausgeben, wenn Sie den privaten Schlüssel an einem anderen Ort haben.</string>

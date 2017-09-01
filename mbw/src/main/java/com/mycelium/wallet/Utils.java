@@ -441,6 +441,12 @@ public class Utils {
       }
    }
 
+   /**
+    * warning: Don't use this for private keys! The clipboard can be read in the background by any app!
+    *
+    * @param activity An Activity
+    * @return content of the clipboard or ""
+     */
    public static String getClipboardString(Activity activity) {
       try {
          @SuppressWarnings("deprecation")
@@ -463,14 +469,14 @@ public class Utils {
       }
    }
 
-   public static void clearClipboardString(Activity activity) {
+   public static void clearClipboardString(Context context) {
       try {
          @SuppressWarnings("deprecation")
-         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
          clipboard.setText("");
       } catch (NullPointerException ex) {
-         MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity, activity.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
+         MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
+         Toast.makeText(context, context.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
       }
    }
 

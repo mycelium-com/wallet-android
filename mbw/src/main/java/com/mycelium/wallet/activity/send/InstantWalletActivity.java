@@ -76,14 +76,6 @@ public class InstantWalletActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.instant_wallet_activity);
 
-
-      findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View arg0) {
-            handleString(Utils.getClipboardString(InstantWalletActivity.this));
-         }
-      });
-
       findViewById(R.id.btMasterseed).setOnClickListener(new OnClickListener() {
 
          @Override
@@ -120,21 +112,6 @@ public class InstantWalletActivity extends Activity {
             StringHandleConfig.spendFromColdStorage(),
             str);
       startActivityForResult(intent, REQUEST_SCAN);
-   }
-
-   @Override
-   protected void onResume() {
-      super.onResume();
-      StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-            StringHandleConfig.spendFromColdStorage(),
-            Utils.getClipboardString(this),
-            MbwManager.getInstance(this).getNetwork());
-
-      if (canHandle == StringHandlerActivity.ParseAbility.NO) {
-         findViewById(R.id.btClipboard).setEnabled(false);
-      } else {
-         findViewById(R.id.btClipboard).setEnabled(true);
-      }
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {

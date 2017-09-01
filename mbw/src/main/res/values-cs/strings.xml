@@ -118,7 +118,6 @@
   <string name="backup_legacy_warning">Zálohujete účty s jedinou adresou ve vaší peněžence.\nTato záloha nebude obsahovat váš master seed a nelze z ní obnovit žádný HD účet.\n\nChcete pokračovat?</string>
   <string name="export_to_clipboard_warning">Varování: Exportování soukromých dat účtu do schránky je odhaluje všem aplikacím ve vašem zařízení.\n\nPozn.: Nestačí uložit soukromá data do schránky, také je musíte někam bezpečně vložit.\n\nChcete pokračovat?</string>
   <string name="found_clipboard_private_key_title">Ve schránce byl nalezen soukromý klíč</string>
-  <string name="found_clipboard_private_keys_message">Schránka obsahuje soukromý klíč.\r\nChcete vymazat schránku?</string>
   <string name="exchange_source_not_available">Směnný kurz není pro %1$s dostupný</string>
   <string name="my_own_address_warning">Pozn.: Posíláte na jednu z vlastních adres.</string>
   <string name="read_only_warning">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</string>

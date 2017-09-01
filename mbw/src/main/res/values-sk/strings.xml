@@ -94,7 +94,6 @@
   <string name="payment_request">Žiadosť o Platbu</string>
   <string name="export_to_clipboard_warning">Upozornenie: Exportovanie Privátneho Kľúča do Schránky ho vystavuje všetkým ostatným aplikáciam na Vašom Zariadení.\n\nPoznámka: Nie je bezpečné skladovať Váš Privátny Kľúč v Schránke, musíte ho prilepiť na bezpečné miesto.\n\nChcete pokračovať?</string>
   <string name="found_clipboard_private_key_title">Nájdený Privátny Kľúč v Schránke</string>
-  <string name="found_clipboard_private_keys_message">Schránka obsahuje Privátny Kľúč.\r\nChcete ho z nej vymazať?</string>
   <string name="exchange_source_not_available">Výmenný kurz nie je dostupný pre %1$s</string>
   <string name="my_own_address_warning">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</string>
   <string name="read_only_warning">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</string>

@@ -117,7 +117,6 @@
   <string name="backup_all_warning">Bạn nên sao lưu seed chính cho ví của bạn.\nMột bản sao lưu seed chính cho phép bạn khôi phục khoản tiền được lưu trữ trong tài khoản HD của bạn nếu như thiết bị này bị mất hoặc hỏng.\n\nBạn có muốn làm điều này bây giờ không?</string>
   <string name="export_to_clipboard_warning">Chú ý: Xuất private key ra bộ nhớ clipboard khiến tất cả các ứng dụng khác trong máy của bạn có thể thấy được nó.\n\nGhi chú: Copy private key của bạn vào clipboard là chưa đủ, bạn còn phải paste nó vào một nơi an toàn.\n\nBạn có muốn tiếp tục không?</string>
   <string name="found_clipboard_private_key_title">Private Key được phát hiện trong bộ nhớ clipboard</string>
-  <string name="found_clipboard_private_keys_message">Bộ nhớ clipboard đang chứa một private key.\r\nBạn có muốn xóa nó không?</string>
   <string name="exchange_source_not_available">Tỉ giá chuyển đổi tại %1$s hiện không hoạt động</string>
   <string name="my_own_address_warning">Bạn đang chuyển bitcoins đến một trong những địa chỉ của chính bạn.</string>
   <string name="read_only_warning">Chú ý: Ví của bạn hiện không có private key cho địa chỉ này.\nBạn không thể gửi được bitcoin trong ví trừ khi bạn có được private key.</string>

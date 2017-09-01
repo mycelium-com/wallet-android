@@ -77,6 +77,7 @@ import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wallet.service.ClipboardMonitorService;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Subscribe;
@@ -265,6 +266,11 @@ public class ModernMain extends ActionBarActivity {
 
    @Override
    protected void onResume() {
+      // this service should be started by ModernMain as ModernMain is usually the entry point for
+      // Mycelium and if the service does find a key, the alert activity will not get hidden behind ModernMain.
+      if (!ClipboardMonitorService.stoppedExplicitly) {
+         startService(new Intent(this, ClipboardMonitorService.class));
+      }
       _mbwManager.getEventBus().register(this);
 
       long curTime = new Date().getTime();

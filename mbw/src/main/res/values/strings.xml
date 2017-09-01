@@ -13,7 +13,7 @@
     <string name="scan_desc">Scan Bitcoin address, private key or HD-Account.</string>
     <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
     <string name="use_acc_first">You can only have one unused HD Account.</string>
-    <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
+    <string name="clipboard_desc">Import Bitcoin address from clipboard.</string>
     <string name="wordlist_des">Create Master Seed from Word List</string>
     <string name="scan">Scan</string>
     <string name="advanced">Advanced</string>
@@ -125,7 +125,8 @@
     <string name="backup_legacy_warning">Make a Backup of your Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
-    <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to clear the clipboard?</string>
+    <string name="found_clipboard_private_keys_removed_message">The clipboard was cleared to protect you. On Android, any installed app can do whatever it wants with data on the clipboard. Don\'t use it for sensitive data like Bitcoin private keys!</string>
+    <string name="stop_clipboard_watchdog">Stop Watchdog Service</string>
     <string name="btc_rate">1 BTC ~ %1$s %2$s (%3$s)</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
     <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
@@ -946,6 +947,7 @@
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
+    <string name="title_activity_clipboard_alert">Security Alert</string>
 
     <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
     <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>

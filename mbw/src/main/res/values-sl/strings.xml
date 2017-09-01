@@ -118,7 +118,6 @@
   <string name="backup_legacy_warning">Napravili boste rezervno kopijo računov s posamičnimi naslovi v vaši denarnici.\nTa rezervna kopija ne bo vsebovala vašega glavnega semena, zato iz nje ne bo mogoče obnoviti vaših HD-računov!\n\nŽelite nadaljevati?</string>
   <string name="export_to_clipboard_warning">Opozorilo: če zasebni ključ kopirate na odložišče, lahko do njega dostopajo vse aplikacije na vašem sistemu.\n\nPozor: Za rezervno kopiranje ni dovolj, da ključ le kopirate na odložišče; potem ga morate še prilepiti na varno mesto.\n\nŽelite nadaljevati?</string>
   <string name="found_clipboard_private_key_title">Zasebni ključ najden na odložišču</string>
-  <string name="found_clipboard_private_keys_message">Na odložišču je že prisoten zasebni ključ. Želite izbrisati ključ z odložišča?</string>
   <string name="exchange_source_not_available">Menjalni tečaj za %1$s ni na voljo</string>
   <string name="my_own_address_warning">Opomba: Nakazilo pošiljate na enega od svojih naslovov.</string>
   <string name="read_only_warning">Opozorilo: V tej denarnici ni zasebnega ključa za ta naslov.\nPrejetih novcev ne morete porabiti, razen če imate kje shranjen ustrezni zasebni ključ. </string>

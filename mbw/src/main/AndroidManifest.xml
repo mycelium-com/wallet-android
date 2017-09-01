@@ -83,6 +83,10 @@
             android:exported="false"
             android:process=":Task"/>
 
+        <service
+            android:name=".service.ClipboardMonitorService"
+            android:exported="false"
+            android:label="Clipboard Monitor" />
         <!-- hack - hardcode to be able to support froyo -->
         <meta-data
             android:name="com.google.android.gms.version"
@@ -270,5 +274,8 @@
         <activity android:name=".activity.rmc.RmcActivity" />
         <activity android:name=".activity.rmc.EthPaymentRequestActivity" />
         <activity android:name=".activity.rmc.BankPaymentRequestActivity"/>
+        <activity
+            android:name=".activity.ClipboardAlertActivity"
+            android:label="@string/title_activity_clipboard_alert"></activity>
     </application>
 </manifest>

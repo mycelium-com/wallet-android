@@ -54,6 +54,8 @@ import com.mycelium.wapi.wallet.WalletManager;
 
 import java.util.UUID;
 
+import static com.mrd.bitlib.crypto.Bip38.isBip38PrivateKey;
+
 public class StringHandlerActivity extends Activity {
    public static final String CONFIG = "config";
    public static final String CONTENT = "content";
@@ -75,26 +77,25 @@ public class StringHandlerActivity extends Activity {
       return intent;
    }
 
-   public static ParseAbility canHandle(StringHandleConfig stringHandleConfig, String contentString, NetworkParameters network) {
-      if (isMrdEncryptedPrivateKey(contentString)) {
-         return ParseAbility.MAYBE;
-      }
-      if (isMrdEncryptedMasterSeed(contentString)) {
-         return ParseAbility.MAYBE;
-      }
-      if (Bip38.isBip38PrivateKey(contentString)) {
-         return ParseAbility.MAYBE;
+   /**
+    * Mycelium can handle more than what is claimed to be handlable here but assuming we are talking
+    * about the clipboard, it will return false for all obvious private keys.
+    */
+   public static boolean canHandleClipboard(StringHandleConfig stringHandleConfig, String contentString, NetworkParameters network) {
+      if (isMrdEncryptedPrivateKey(contentString) ||
+              isMrdEncryptedMasterSeed(contentString) ||
+              isBip38PrivateKey(contentString)) {
+         return false;
       }
       for (StringHandleConfig.Action action : stringHandleConfig.getAllActions()) {
          if (action.canHandle(network, contentString)) {
-            return ParseAbility.YES;
+            return true;
          }
       }
-      return ParseAbility.NO;
+      return false;
    }
 
    public enum ResultType {ADDRESS, PRIVATE_KEY, HD_NODE, ACCOUNT, NONE, URI_WITH_ADDRESS, URI, SHARE}
-   public enum ParseAbility {YES, MAYBE, NO}
 
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
    public static final int IMPORT_ENCRYPTED_MASTER_SEED_CODE = 2;
@@ -154,7 +155,7 @@ public class StringHandlerActivity extends Activity {
             // the handleMRdEncrypted method has started the decryption, which will trigger another onActivity
             return;
          }
-      } else if (Bip38.isBip38PrivateKey(content)) {
+      } else if (isBip38PrivateKey(content)) {
          DecryptBip38PrivateKeyActivity.callMe(this, content, StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
          //we do not finish cause after decryption another onActivityResult will be called
          return;

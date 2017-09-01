@@ -118,7 +118,6 @@
   <string name="backup_legacy_warning">Sarà eseguito un backup del singolo indirizzo nel tuo portafogli. \nQuesto backup non conterrà alcun master seed, nessuno account HD potrà essere ripristinato da esso!\n\nDesideri continuare?</string>
   <string name="export_to_clipboard_warning">Attenzione: esportando la chiave privata negli appunti la renderà esposta a tutte le altre applicazioni installate sul tuo dispositivo.\n\nNota: non basta memorizzare la chiave privata negli appunti, dovrai incollarla in un posto sicuro.\n\nDesideri continuare?</string>
   <string name="found_clipboard_private_key_title">Chiave privata trovata negli appunti</string>
-  <string name="found_clipboard_private_keys_message">Chiave privata trovata negli appunti.\r\nDesideri rimuoverla?</string>
   <string name="exchange_source_not_available">Tasso di cambio non disponibile per %1$s</string>
   <string name="my_own_address_warning">Nota: Stai per inviare ad uno dei tuoi indirizzi.</string>
   <string name="read_only_warning">Attenzione: Il portafogli non contiene la chiave privata per questo indirizzo. \nNon puoi spendere bitcoin se non possiedi la chiave privata.</string>

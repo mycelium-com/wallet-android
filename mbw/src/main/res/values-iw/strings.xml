@@ -94,7 +94,6 @@
   <string name="payment_request">בקשת תשלום</string>
   <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
   <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
-  <string name="found_clipboard_private_keys_message">הלוח (clipboard) מכיל מפתח פרטי.\r\nהאם ברצונך למחוק אותו?</string>
   <string name="exchange_source_not_available">לא קיים שער המרה עבור %1$s</string>
   <string name="my_own_address_warning">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</string>
   <string name="read_only_warning">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</string>

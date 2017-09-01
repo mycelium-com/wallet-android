@@ -40,13 +40,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import com.google.common.base.Optional;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
+
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -54,7 +51,6 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import java.util.UUID;
 
 public class VerifyBackupActivity extends Activity {
-
    private static final int SCAN_RESULT_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
@@ -80,24 +76,6 @@ public class VerifyBackupActivity extends Activity {
          }
 
       });
-
-      findViewById(R.id.btClipboard).setEnabled(hasPrivateKeyOnClipboard());
-      findViewById(R.id.btClipboard).setOnClickListener(new android.view.View.OnClickListener() {
-
-         @Override
-         public void onClick(View v) {
-            String privateKey = Utils.getClipboardString(VerifyBackupActivity.this);
-            verifyClipboardPrivateKey(privateKey);
-         }
-
-      });
-
-   }
-
-   private boolean hasPrivateKeyOnClipboard() {
-      String clipboardString = Utils.getClipboardString(this);
-      Optional<InMemoryPrivateKey> pk = InMemoryPrivateKey.fromBase58String(clipboardString, _mbwManager.getNetwork());
-      return pk.isPresent();
    }
 
    @Override
@@ -122,9 +100,9 @@ public class VerifyBackupActivity extends Activity {
 
       int num = countKeysToVerify();
       if (num == 1) {
-         infotext = infotext + getString(R.string.verify_backup_one_key);
+         infotext += getString(R.string.verify_backup_one_key);
       } else if (num > 0) {
-         infotext = infotext + getString(R.string.verify_backup_num_keys, Integer.toString(num));
+         infotext += getString(R.string.verify_backup_num_keys, Integer.toString(num));
       }
 
       if (infotext.length() == 0) {
@@ -150,64 +128,10 @@ public class VerifyBackupActivity extends Activity {
             }
          }
       }
-      for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
-         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
-         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
-
-         if (backupState!= MetadataStorage.BackupState.IGNORED) {
-            boolean needsBackup =  account != null && account.canSpend()
-                    && backupState != MetadataStorage.BackupState.VERIFIED;
-            if (needsBackup) {
-               num++;
-            }
-         }
-      }
       return num;
    }
 
-   private void verifyClipboardPrivateKey(String keyString) {
-      Optional<InMemoryPrivateKey> pk = InMemoryPrivateKey.fromBase58String(keyString, _mbwManager.getNetwork());
-      if (pk.isPresent()) {
-         verify(pk.get());
-         return;
-      }
-
-      ShowDialogMessage(R.string.unrecognized_private_key_format, false);
-   }
-
-   private void verify(InMemoryPrivateKey pk) {
-
-      // Figure out the account ID
-      Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork());
-      UUID account = SingleAddressAccount.calculateId(address);
-
-      // Check whether regular wallet contains that account
-      boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
-              || _mbwManager.getColuManager().hasAccount(account);
-      for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(_mbwManager.getColuManager().getNetwork()).values()) {
-         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
-         success |= _mbwManager.getColuManager().hasAccount(coluUUID);
-      }
-
-      if (success) {
-         _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
-         for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap(_mbwManager.getColuManager().getNetwork()).values()) {
-            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
-            _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
-         }
-         updateUi();
-         String message = getResources().getString(R.string.verify_backup_ok, address.toMultiLineString());
-         ShowDialogMessage(message, false);
-      } else {
-         ShowDialogMessage(R.string.verify_backup_no_such_record, false);
-      }
-   }
-
-   private void ShowDialogMessage(int messageResource, final boolean quit) {
-      ShowDialogMessage(getResources().getString(messageResource), quit);
-   }
-
-   private void ShowDialogMessage(String message, final boolean quit) {
+   private void showDialogMessage(String message) {
       Utils.showSimpleMessageDialog(this, message);
    }
 
@@ -216,12 +140,12 @@ public class VerifyBackupActivity extends Activity {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
             String message = getResources().getString(R.string.verify_backup_ok_message);
-            ShowDialogMessage(message, false);
+            showDialogMessage(message);
             updateUi();
          } else {
             String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
             if (error != null) {
-               ShowDialogMessage(error, false);
+               showDialogMessage(error);
             }
          }
       }

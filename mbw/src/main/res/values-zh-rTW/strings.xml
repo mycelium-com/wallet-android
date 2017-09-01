@@ -118,7 +118,6 @@
   <string name="backup_legacy_warning">您將備份您錢包中單地址帳戶。 \n 這份備份將不會包含您的主種子，您的HD帳戶不可以從它進行恢復 ！ \n\n 您還要繼續嗎？</string>
   <string name="export_to_clipboard_warning">警告：將私鑰導出到剪貼板內意味將它公開給您手機中安裝的其他應用程序． \n\n注意：在剪貼板中存儲您的私人信息不夠安全，您必須粘貼它到安全的地方\n\n您要繼續嗎？</string>
   <string name="found_clipboard_private_key_title">剪貼板中發現私鑰</string>
-  <string name="found_clipboard_private_keys_message">密匙在剪貼板上\r\n您想刪除它碼</string>
   <string name="exchange_source_not_available">無法獲得%1$s匯率</string>
   <string name="my_own_address_warning">注意：您正在發送給您自己的一個地址</string>
   <string name="read_only_warning">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</string>

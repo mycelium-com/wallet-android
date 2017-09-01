@@ -118,7 +118,6 @@
   <string name="backup_legacy_warning">您将备份您钱包中单地址帐户。\n 这份备份将不会包含您的主种子，您的HD帐户不可以从它进行恢复 ！\n\n 您还要继续吗？</string>
   <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
   <string name="found_clipboard_private_key_title">剪贴板中发现私钥</string>
-  <string name="found_clipboard_private_keys_message">密匙在剪贴板上\r\n您想删除它码</string>
   <string name="exchange_source_not_available">无法获得%1$s汇率</string>
   <string name="my_own_address_warning">注意：您正在发送给您自己的一个地址</string>
   <string name="read_only_warning">警告：您的钱包没有此地址的私钥．\n除非您在其他的地方有此地址的私钥，否则您将不能用接受的比特币进行消费．</string>

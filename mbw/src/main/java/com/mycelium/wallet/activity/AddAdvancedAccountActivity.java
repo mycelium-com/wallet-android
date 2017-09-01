@@ -163,16 +163,14 @@ public class AddAdvancedAccountActivity extends Activity {
    public void onResume() {
       super.onResume();
 
-      StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-              StringHandleConfig.returnKeyOrAddressOrHdNode(),
-              Utils.getClipboardString(AddAdvancedAccountActivity.this),
-              MbwManager.getInstance(this).getNetwork());
-
-      boolean canImportFromClipboard = (canHandle != StringHandlerActivity.ParseAbility.NO);
+      boolean canHandle = StringHandlerActivity.canHandleClipboard(
+            StringHandleConfig.returnAddress(),
+            Utils.getClipboardString(this),
+            MbwManager.getInstance(this).getNetwork());
 
       Button clip = (Button) findViewById(R.id.btClipboard);
-      clip.setEnabled(canImportFromClipboard);
-      if (canImportFromClipboard) {
+      clip.setEnabled(canHandle);
+      if (canHandle) {
          clip.setText(R.string.clipboard);
       } else {
          clip.setText(R.string.clipboard_not_available);
@@ -182,8 +180,8 @@ public class AddAdvancedAccountActivity extends Activity {
          @Override
          public void onClick(View v) {
             Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
-                    StringHandleConfig.returnKeyOrAddressOrHdNode(),
-                    Utils.getClipboardString(AddAdvancedAccountActivity.this));
+                  StringHandleConfig.returnKeyOrAddressOrHdNode(),
+                  Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
             AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
          }
@@ -200,7 +198,7 @@ public class AddAdvancedAccountActivity extends Activity {
             if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
                InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
                if (fromClipboard) {
-                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                  Utils.clearClipboardString(this);
                }
 
                // We imported this key from somewhere else - so we guess, that there exists an backup
@@ -211,7 +209,7 @@ public class AddAdvancedAccountActivity extends Activity {
             } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
                HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
                if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
-                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                  Utils.clearClipboardString(this);
                }
                int depth = hdKeyNode.getDepth();
                if (depth != 3) {

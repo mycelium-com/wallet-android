@@ -42,7 +42,7 @@ import com.mrd.bitlib.model.*;
 import com.squareup.wire.Wire;
 import okio.ByteString;
 import org.bitcoin.protocols.payments.*;
-import org.bitcoinj.crypto.X509Utils;
+import com.mycelium.bitcoinj.crypto.X509Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

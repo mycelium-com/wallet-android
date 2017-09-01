@@ -110,7 +110,6 @@
   <string name="backup_legacy_warning">Zaraz wykonasz kopię zapasową pojedynczego adresu w swoim portfelu.\nTa kopia nie obejmuje Twojego Master Seed, żadne z Twoich kont HD nie będzie przywrócone!\n\nChcesz kontyuować?</string>
   <string name="export_to_clipboard_warning">UWAGA: Eksportowanie klucza prywatnego do schowka może zostać przechwycone przez inne aplikacje na Twoim urządzeniu.\n\nNote: Skopiowanie do schowka nie wystarcza, musisz jeszcze wkleić zawartość w bezpieczne miejsce.\n\n Czy chcesz kontynuować?</string>
   <string name="found_clipboard_private_key_title">Znaleziono klucz prywatny w schowku</string>
-  <string name="found_clipboard_private_keys_message">Schowek zawiera klucz prywatny.\r\nChcesz go usunac?</string>
   <string name="exchange_source_not_available">Kurs nie jest dostępny dla %1$s</string>
   <string name="my_own_address_warning">Uwaga: wysyłasz do jednego ze swoich adresów.</string>
   <string name="read_only_warning">Uwaga: Twój portfel nie zawiera klucza prywatnego do tego adresu.\n Nie masz dostępu do otrzymanych funduszy bez klucza prywatnego - możesz go dodać.</string>

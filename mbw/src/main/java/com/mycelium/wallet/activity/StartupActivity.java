@@ -115,14 +115,6 @@ public class StartupActivity extends Activity {
       super.onPause();
    }
 
-   @Override
-   protected void onDestroy() {
-      if (_alertDialog != null && _alertDialog.isShowing()) {
-         _alertDialog.dismiss();
-      }
-      super.onDestroy();
-   }
-
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
@@ -142,9 +134,6 @@ public class StartupActivity extends Activity {
             return;
          }
 
-         // Check if we have lingering exported private keys, we want to warn
-         // the user if that is the case
-         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
          long timeSpent = System.currentTimeMillis() - startTime;
@@ -153,16 +142,6 @@ public class StartupActivity extends Activity {
             remainingTime = 0;
          }
          new Handler().postDelayed(delayedFinish, remainingTime);
-      }
-
-      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
-         // do we have a private key on the clipboard?
-         try {
-            new InMemoryPrivateKey(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (IllegalArgumentException e) {
-            return false;
-         }
       }
    };
 
@@ -245,7 +224,6 @@ public class StartupActivity extends Activity {
    }
 
    private Runnable delayedFinish = new Runnable() {
-
       @Override
       public void run() {
          if (_mbwManager.isUnlockPinRequired()) {
@@ -280,42 +258,10 @@ public class StartupActivity extends Activity {
          if (handleIntent()) {
             return;
          }
-
-         if (_hasClipboardExportedPrivateKeys) {
-            warnUserOnClipboardKeys();
-         } else {
-            normalStartup();
-         }
+         normalStartup();
       }
-
    };
 
-
-   private void warnUserOnClipboardKeys() {
-      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-      // Set title
-      alertDialogBuilder.setTitle(R.string.found_clipboard_private_key_title);
-      // Set dialog message
-      alertDialogBuilder.setMessage(R.string.found_clipboard_private_keys_message);
-      // Yes action
-      alertDialogBuilder.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-            Utils.clearClipboardString(StartupActivity.this);
-            normalStartup();
-            dialog.dismiss();
-         }
-      });
-      // No action
-      alertDialogBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-            normalStartup();
-            dialog.cancel();
-         }
-      });
-      _alertDialog = alertDialogBuilder.create();
-      _alertDialog.show();
-   }
 
    private void normalStartup() {
       // Normal startup, show the selected account in the BalanceActivity

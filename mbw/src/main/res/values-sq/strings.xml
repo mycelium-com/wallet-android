@@ -117,7 +117,6 @@
   <string name="backup_legacy_warning">Kjo krijon një kopje rezervë të një adrese të vetme në kuletën tuaj. \nKjo kopje rezervë nuk përmban master seed, asnjë HD llogari nuk mund të rikthehet nga kjo!\n\nDoni të vazhdoni?</string>
   <string name="export_to_clipboard_warning">Paralajmërim: Eksportimi i të dhënave të llogaris suaj në memorje ekspozon këto të dhëna tek të gjithë aplikacionet tjera në pajisjen tuaj.\n\nNjoftim: Mjafton të ruani të dhënat private në memorje por gjithashtu duhet të ngjisni sigurtë atë.\n\nDoni të vazhdoni?</string>
   <string name="found_clipboard_private_key_title">Është gjetur çelës privat në memorje</string>
-  <string name="found_clipboard_private_keys_message">Memorja përmban një çelës privat.\r\nDoni ta fshini nga memorja?</string>
   <string name="exchange_source_not_available">Kursi i këmbimit nuk është në dispozicion për %1$s</string>
   <string name="my_own_address_warning">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</string>
   <string name="read_only_warning">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</string>

@@ -117,7 +117,6 @@
   <string name="backup_legacy_warning">U maakt een back-up van het Eén Adres Account in uw portemonnee. \nDeze backup bevat niet uw master seed, geen van uw HD accounts kan hiermee worden hersteld!\n\nWilt u doorgaan?</string>
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
-  <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\r\nWilt u deze verwijderen?</string>
   <string name="exchange_source_not_available">Wisselkoers is momenteel niet beschikbaar voor %1$s</string>
   <string name="my_own_address_warning">Opmerking: U verzendt naar een van uw eigen adressen.</string>
   <string name="read_only_warning">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</string>

@@ -118,7 +118,6 @@
   <string name="backup_legacy_warning">Você irá fazer backup das contas de endereço único de sua carteira. \nEsse backup não irá conter sua semente mestre, nenhuma das suas contas HD poderá ser restaurada a partir dele!\n\nVocê quer continuar?</string>
   <string name="export_to_clipboard_warning">Aviso: Exportar os dados privados da conta para a sua área de transferência os expõe para todos os outros aplicativos do seu dispositivo.\n\nNota: Não é suficiente armazenar seus dados privados na área de transferência, você também precisa colar esses dados em algum lugar seguro.\n\nVocê quer continuar?</string>
   <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
-  <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\r\nVocê quer limpar a área de transferência?</string>
   <string name="exchange_source_not_available">Taxa de corretagem não disponível para %1$s</string>
   <string name="my_own_address_warning">Nota: Você está enviando para um de seus próprios endereços.</string>
   <string name="read_only_warning">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</string>

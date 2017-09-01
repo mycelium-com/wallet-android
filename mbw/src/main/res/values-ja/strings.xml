@@ -117,7 +117,6 @@
   <string name="backup_legacy_warning">あなたのウォレットにある単一アドレスのアカウントのみがバックアップされます。\nこのバックアップにはマスターシードが含まれていないため、HDアカウントの復元はできません！\n\nご了承の上、続けますか？</string>
   <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
   <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
-  <string name="found_clipboard_private_keys_message">クリップボードに秘密鍵がコピーされています。\r\nクリップボードから削除しますか？</string>
   <string name="exchange_source_not_available">%1$s の為替レートが不明</string>
   <string name="my_own_address_warning">メモ：送金先にご自身のアドレスが入っています。</string>
   <string name="read_only_warning">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</string>

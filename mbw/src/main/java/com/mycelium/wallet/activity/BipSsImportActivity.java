@@ -48,8 +48,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
 
 public class BipSsImportActivity extends Activity {
-
-
    public static final String RESULT_SECRET = "secret";
    private static final int REQUEST_SHARE_CODE = 1;
 

@@ -53,28 +53,6 @@
             android:text="@string/scan" />
 
         <TextView
-            style="@style/GenericText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/verify_backup_clipboard_desc" />
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="4dp" >
-        </View>
-
-        <Button
-            android:id="@+id/btClipboard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:gravity="center"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp"
-            android:text="@string/clipboard" />
-
-        <TextView
             android:id="@+id/tvNumKeys"
             style="@style/GenericText"
             android:layout_width="fill_parent"
