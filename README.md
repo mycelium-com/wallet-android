@@ -149,26 +149,26 @@ More features:
 Authors
 =======
  - Jan Møller
- - Andreas Petersson
- - Daniel Weigl
- - Jan Dreske
+ - [Andreas Petersson](https://github.com/apetersson)
+ - [Daniel Weigl](https://github.com/DanielWeigl)
+ - [Jan Dreske](https://github.com/jandreske)
  - Dmitry Murashchik
  - Constantin Vennekel
- - Leo Wandersleb
+ - [Leo Wandersleb](https://github.com/Giszmo)
  - Daniel Krawisz
  - Jerome Rousselot
  - Elvis Kurtnebiev
- - Sergey Dolgopolov
+ - [Sergey Dolgopolov](https://github.com/itserg)
 
 Credits
 =======
 Thanks to all collaborators who provided us with code or helped us with integrations!
 Just to name a few:
 
- - Nicolas Bacca from Ledger
+ - [Nicolas Bacca from Ledger](https://github.com/btchip)
  - Sipa, Marek and others from Trezor
  - Jani and Aleš from Cashila
- - Kalle Rosenbaum, Bip120/121
+ - [Kalle Rosenbaum, Bip120/121](https://github.com/kallerosenbaum)
  - David and Alex from Glidera
  - [Wiz](https://twitter.com/wiz) for helping us with KeepKey
  - Tom Bitton and Asa Zaidman from Simplex
