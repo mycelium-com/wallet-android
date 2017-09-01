@@ -1,3 +1,9 @@
+[![GitHub issues](https://img.shields.io/github/issues/mycelium-com/wallet.svg)](https://github.com/mycelium-com/wallet/issues)
+[![GitHub forks](https://img.shields.io/github/forks/mycelium-com/wallet.svg)](https://github.com/mycelium-com/wallet/network)
+[![GitHub stars](https://img.shields.io/github/stars/mycelium-com/wallet.svg)](https://github.com/mycelium-com/wallet/stargazers)
+
+[![tip for next commit](https://tip4commit.com/projects/215.svg)](https://tip4commit.com/github/mycelium-com/wallet)
+
 Beta channel
 ============
 
