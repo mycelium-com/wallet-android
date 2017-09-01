@@ -116,6 +116,17 @@ public class StartupActivity extends Activity {
    }
 
    @Override
+   protected void onRestart() {
+      // This auto-opens pin dialog when going back to activity
+      if (_mbwManager != null && _pinDialog != null) {
+         if (_mbwManager.isUnlockPinRequired() && !_pinDialog.isShowing()) {
+            delayedFinish.run();
+         }
+      }
+      super.onRestart();
+   }
+
+   @Override
    protected void onDestroy() {
       if (_alertDialog != null && _alertDialog.isShowing()) {
          _alertDialog.dismiss();
