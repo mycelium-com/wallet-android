@@ -191,6 +191,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return new UUID(high, low);
    }
 
+   public UUID getUuid() {
+      return uuid;
+   }
+
    @Override
    public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException {
       //TODO: remove this as we do not send money here ?
@@ -734,7 +738,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
             linkedAccount.doSynchronization(SyncMode.NORMAL);
          }
       } catch (IOException e) {
-         Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
+         Optional<String> balance = manager.getColuBalance(this.uuid);
+         if (balance.isPresent()) {
+            ExactCurrencyValue confirmed = ExactCurrencyValue.from(new BigDecimal(balance.get()), getColuAsset().name);
+            setBalanceFiat(new CurrencyBasedBalance(confirmed, ExactCurrencyValue.from(BigDecimal.ZERO, getColuAsset().name), ExactCurrencyValue.from(BigDecimal.ZERO, getColuAsset().name)));
+         }
       }
       return true;
    }
