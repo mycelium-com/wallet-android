@@ -314,6 +314,15 @@ public class MetadataStorage extends GenericMetadataStorage {
       return getKeyCategoryValueEntry(COLU.of("assetIds"), "");
    }
 
+   public void storeColuBalance(UUID coluAccountUuid, String balance) {
+      storeKeyCategoryValueEntry(COLU.of("balance" + coluAccountUuid.toString()), balance);
+   }
+
+   public Optional<String> getColuBalance(UUID coluAccountUuid) {
+      Optional<String> key = getKeyCategoryValueEntry(COLU.of("balance" + coluAccountUuid.toString()));
+      return key;
+   }
+
    public void storeColuKey(String assetId, String base58PrivateKey) {
       storeKeyCategoryValueEntry(COLU.of("key" + assetId), base58PrivateKey);
    }

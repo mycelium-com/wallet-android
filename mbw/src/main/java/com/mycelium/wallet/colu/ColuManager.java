@@ -423,6 +423,14 @@ public class ColuManager implements AccountProvider {
         metadataStorage.removeColuAssetUUIDs(coluAsset.id, uuid);
     }
 
+    public void storeColuBalance(UUID coluAccountUuid, String balance) {
+        metadataStorage.storeColuBalance(coluAccountUuid, balance);
+    }
+
+    public Optional<String> getColuBalance(UUID coluAccountUuid) {
+        return metadataStorage.getColuBalance(coluAccountUuid);
+    }
+
     public void forgetPrivateKey(ColuAccount account) {
         try {
             SingleAddressAccount acc = account.getLinkedAccount();
@@ -865,6 +873,8 @@ public class ColuManager implements AccountProvider {
         account.setBalanceFiat(newBalanceFiat);
         account.setBalanceSatoshi(satoshiAmount);
         account.setBtcOnlyAmount(satoshiBtcOnlyAmount);
+
+        storeColuBalance(account.getUuid(), assetConfirmedBalance.toString());
         return newBalanceFiat;
     }
 
