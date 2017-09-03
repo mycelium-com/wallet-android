@@ -55,6 +55,8 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
    private static final MetadataCategory PAIRED_SERVICES_CATEGORY = new MetadataCategory("paired_services");
 
+   private static final MetadataCategory EXCHANGE_RATES_CATEGORY = new MetadataCategory("exchange_rates");
+
    // various key value fields info for colu
    private static final MetadataCategory COLU = new MetadataCategory("colu_data");
    // associates asset label for each assetId
@@ -334,6 +336,21 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void deleteColuKey(String assetId) {
       deleteByKeyCategory(COLU.of("key" + assetId));
+   }
+
+
+   //Example: currency = "BTC", basecurrency = "USD", market = "Bitstamp", rateValue = "4500.2"
+   public void storeExchangeRate(String currency, String baseCurrency, String market, String rateValue) {
+      storeKeyCategoryValueEntry(EXCHANGE_RATES_CATEGORY.of(market + "_" + currency + "_" + baseCurrency), rateValue);
+   }
+
+   public Map<String, String> getAllExchangeRates() {
+      return getKeysAndValuesByCategory(EXCHANGE_RATES_CATEGORY);
+   }
+
+   public Optional<String> getExchangeRate(String currency, String baseCurrency, String market) {
+      Optional<String> key = getKeyCategoryValueEntry(EXCHANGE_RATES_CATEGORY.of(market + "_" + currency + "_" + baseCurrency));
+      return key;
    }
 
    public void addColuAssetUUIDs(String assetId, UUID uuid) {
