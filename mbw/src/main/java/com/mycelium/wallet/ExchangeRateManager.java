@@ -204,13 +204,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             } else {
                Optional<String> rateValue = storage.getExchangeRate("ETH", "USD", KRAKEN_MARKET_NAME);
                if (rateValue.isPresent()) {
-                  rmcRate = Float.parseFloat(rateValue.get());
+                  ethRate = Float.parseFloat(rateValue.get());
                }
             }
 
-            Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
-            if (rateValue.isPresent()) {
-               usdRate = Float.parseFloat(rateValue.get());
+            rate = rmcApiClient.exchangeBtcUsdRate();
+
+            if (rate != null) {
+               usdRate = rate;
+            } else {
+               Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
+               if (rateValue.isPresent()) {
+                  usdRate = Float.parseFloat(rateValue.get());
+               }
             }
          }
       }
