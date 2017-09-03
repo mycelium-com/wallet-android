@@ -200,7 +200,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             rate = rmcApiClient.exchangeEthUsdRate();
             if(rate != null) {
                ethRate = rate;
-               storage.storeExchangeRate("ETH", "USD", KRAKEN_MARKET_NAME, rmcRate.toString());
+               storage.storeExchangeRate("ETH", "USD", KRAKEN_MARKET_NAME, ethRate.toString());
             } else {
                Optional<String> rateValue = storage.getExchangeRate("ETH", "USD", KRAKEN_MARKET_NAME);
                if (rateValue.isPresent()) {
