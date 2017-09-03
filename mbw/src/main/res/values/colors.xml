@@ -42,8 +42,8 @@
 
     <color name="rmc_active">#ff8838</color>
     <color name="horizontalpicker_text_color">#fff</color>
-    <color name="money_out_selected">#fb827b</color>
-    <color name="money_out">#fb746d</color>
+    <color name="fee_recycler_item_selected">#363d46</color>
+    <color name="fee_recycler_item">#2c3239</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

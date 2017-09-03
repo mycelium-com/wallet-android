@@ -6,6 +6,6 @@ import android.support.v7.widget.RecyclerView;
  * Created by elvis on 31.08.17.
  */
 
-public interface ViewHolderClickListener {
-    void onClick(RecyclerView.Adapter adapter, int position);
+public interface SelectListener {
+    void onSelect(RecyclerView.Adapter adapter, int position);
 }

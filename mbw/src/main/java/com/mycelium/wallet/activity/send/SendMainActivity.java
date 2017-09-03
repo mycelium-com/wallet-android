@@ -42,6 +42,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -87,10 +88,12 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
-import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
-import com.mycelium.wallet.activity.send.event.ViewHolderClickListener;
-import com.mycelium.wallet.activity.send.event.ViewHolderSelectListener;
+import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
+import com.mycelium.wallet.activity.send.event.SelectListener;
+import com.mycelium.wallet.activity.send.model.FeeItem;
+import com.mycelium.wallet.activity.send.model.FeeLvlItem;
+import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
@@ -164,7 +167,6 @@ public class SendMainActivity extends Activity {
     public static final String PAYMENT_FETCHED = "paymentFetched";
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
     private static final String SIGNED_TRANSACTION = "signedTransaction";
-    public static final String SEPA_PAYMENT = "sepaPayment";
     private static final String RMC_URI = "rmcUri";
 
 
@@ -202,8 +204,6 @@ public class SendMainActivity extends Activity {
     TextView tvSatFeeValue;
     @BindView(R.id.btEnterAmount)
     ImageButton btEnterAmount;
-//    @BindView(R.id.btFeeLvl)
-//    Button btFeeLvl;
     @BindView(R.id.btClipboard)
     Button btClipboard;
     @BindView(R.id.btSend)
@@ -226,24 +226,13 @@ public class SendMainActivity extends Activity {
     Button btFeeFromAccount;
     @BindView(R.id.colu_tips_check_address)
     View tips_check_address;
-//    @BindView(R.id.btCustomFee)
-//    View btCustomFee;
-//    @BindView(R.id.feeSlider)
-//    SeekBar feeSlider;
-//    @BindView(R.id.feeTextLabel)
-//    RelativeLayout feeTextLabels;
-//    @BindView(R.id.feeFiatLabels)
-//    RelativeLayout feeFiatLabels;
+
     @BindView(R.id.feeLvlList)
-    RecyclerView feeLvlList;
-
+    SelectableRecyclerView feeLvlList;
     @BindView(R.id.feeValueList)
-    RecyclerView feeValueList;
-
+    SelectableRecyclerView feeValueList;
 
     private MbwManager _mbwManager;
-
-
 
     private PaymentRequestHandler _paymentRequestHandler;
     private String _paymentRequestHandlerUuid;
@@ -262,7 +251,7 @@ public class SendMainActivity extends Activity {
     protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
     protected ColuBroadcastTxid.Json _preparedColuTx;
     private Transaction _signedTransaction;
-//    private MinerFee _fee;
+    private MinerFee feeLvl;
     private long feePerKbValue;
 //    private Bitcoins customFee = MinerFee.CUSTOM.getCustomFee();
     private ProgressDialog _progress;
@@ -273,9 +262,6 @@ public class SendMainActivity extends Activity {
     private WalletAccount feeColuAccount;
     private ProgressDialog progress;
 
-    int senderAllPixels = 0;
-    int feeItemWidth;
-    int feePadding;
     int feeFirstItemWidth;
 
     public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
@@ -352,6 +338,7 @@ public class SendMainActivity extends Activity {
 
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+       feeLvl = _mbwManager.getMinerFee();
        feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue();
 
         // Load saved state, overwriting amount and address
@@ -359,7 +346,7 @@ public class SendMainActivity extends Activity {
             setAmountToSend((CurrencyValue) savedInstanceState.getSerializable(AMOUNT));
             _receivingAddress = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
-            feePerKbValue = savedInstanceState.getLong(FEE_LVL);
+            feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             _bitcoinUri = (BitcoinUri) savedInstanceState.getSerializable(BITCOIN_URI);
             _rmcUri = (RmcUri) savedInstanceState.getSerializable(RMC_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
@@ -455,217 +442,95 @@ public class SendMainActivity extends Activity {
             tips_check_address.setVisibility(View.GONE);
         }
 
-       final FeeEstimation feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
-       Bitcoins priorityFee = MinerFee.PRIORITY.getFeePerKb(feeEstimation);
-//       feeSlider.setMax((int) (1.5 * priorityFee.getLongValue()));
-       Bitcoins minerFee = _mbwManager.getMinerFee().getFeePerKb(feeEstimation);
-//       feeSlider.setProgress((int) minerFee.getLongValue());
-//       feeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//           @Override
-//           public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-//               feePerKbValue = progress;
-//               updateFeeText();
-//           }
-//
-//           @Override
-//           public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//           }
-//
-//           @Override
-//           public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//           }
-//       });
-//       feeTextLabels.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//           @Override
-//           public void onGlobalLayout() {
-//               feeTextLabels.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//               for (MinerFee fee : MinerFee.values()) {
-//                   ImageView imageView = new ImageView(SendMainActivity.this);
-//                   imageView.setImageResource(fee.getIcon());
-//                   final long value = fee.getFeePerKb(feeEstimation).getLongValue();
-//                   int marginLeft = (int) (value * feeSlider.getWidth() * 1.0 / feeSlider.getMax());
-//                   imageView.measure(0, 0);
-//                   RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-//                   params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-//                   params.setMargins(marginLeft - imageView.getMeasuredWidth()/2, 0, 0, 0);
-//                   imageView.setOnClickListener(new View.OnClickListener() {
-//                       @Override
-//                       public void onClick(View view) {
-//                           feePerKbValue = value;
-//                           feeSlider.setProgress((int) value);
-//                       }
-//                   });
-//                   feeTextLabels.addView(imageView, params);
-//               }
-//           }
-//       });
+       int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
+       feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-
-
-       int senderFinalWidth =  getWindowManager().getDefaultDisplay().getWidth();
-       feeItemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
-       feePadding = (senderFinalWidth - feeItemWidth) / 2;
-       feeFirstItemWidth = feePadding;
-
-
-       feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-       feeLvlList.addOnScrollListener(new RecyclerView.OnScrollListener() {
-           @Override
-           public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-               super.onScrollStateChanged(recyclerView, newState);
-               synchronized(this) {
-                   if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                       calculatePositionAndScroll(recyclerView);
-                   }
-               }
-           }
-
-           @Override
-           public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-               super.onScrolled(recyclerView, dx, dy);
-               senderAllPixels += dx;
-           }
-       });
-       List<FeeLvlItem> feeLvlItems = new ArrayList<>();
-       feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
-       for (MinerFee fee : MinerFee.values()) {
-           feeLvlItems.add(new FeeLvlItem(fee, FeeLvlViewAdapter.VIEW_TYPE_ITEM));
-       }
-       feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
-
-       final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems.toArray(new FeeLvlItem[feeLvlItems.size()]), feeFirstItemWidth);
-       feeLvlViewAdapter.setViewHolderClickListener(new ViewHolderClickListener() {
-           @Override
-           public void onClick(RecyclerView.Adapter adapter, int position) {
-               if (feeLvlViewAdapter.getItem(position).type != FeeLvlViewAdapter.VIEW_TYPE_PADDING) {
-                   scrollListToPosition(feeLvlList, position - 1);
-               }
-               adapter.notifyDataSetChanged();
-           }
-       });
-
-       feeLvlViewAdapter.setViewHolderSelectListener(new ViewHolderSelectListener() {
-           @Override
-           public void onSelect(RecyclerView.Adapter adapter, int position) {
-               FeeLvlItem item = feeLvlViewAdapter.getItem(position);
-           }
-       });
-
-       feeLvlList.setAdapter(feeLvlViewAdapter);
-       setSelectedItem(feeLvlList.getAdapter());
-
-       int selectedIndex = -1;
-       for (int i = 0; i < feeLvlItems.size(); i++) {
-           FeeLvlItem feeLvlItem = feeLvlItems.get(i);
-           if (feeLvlItem.minerFee == _mbwManager.getMinerFee()) {
-               selectedIndex = i;
-               break;
-           }
-       }
-       if (feeLvlViewAdapter.getItem(selectedIndex).type != FeeLvlViewAdapter.VIEW_TYPE_PADDING) {
-           scrollListToPosition(feeLvlList, selectedIndex - 1);
-       }
-       feeLvlViewAdapter.notifyDataSetChanged();
-
-       feeLvlList.setHasFixedSize(true);
-
-
-
-       feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-       feeValueList.addOnScrollListener(new RecyclerView.OnScrollListener() {
-           @Override
-           public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-               super.onScrollStateChanged(recyclerView, newState);
-               synchronized (this) {
-                   if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                       calculatePositionAndScroll(recyclerView);
-                   }
-               }
-           }
-
-           @Override
-           public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-               super.onScrolled(recyclerView, dx, dy);
-               senderAllPixels += dx;
-           }
-       });
-
-       List<FeeLvlItem> feeItems = new ArrayList<>();
-       feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
-       for (MinerFee fee : MinerFee.values()) {
-           feeLvlItems.add(new FeeLvlItem(fee, FeeLvlViewAdapter.VIEW_TYPE_ITEM));
-       }
-       feeLvlItems.add(new FeeLvlItem(null, FeeLvlViewAdapter.VIEW_TYPE_PADDING));
+       initFeeView();
+       initFeeLvlView();
 
    }
-   private void scrollListToPosition(RecyclerView recyclerView, int expectedPosition) {
-        if (recyclerView.getAdapter() instanceof FeeLvlViewAdapter) {
-            int targetScrollPos = expectedPosition * feeItemWidth + feeFirstItemWidth - feePadding;
-            int missingPx = targetScrollPos - senderAllPixels;
-            if (missingPx != 0f) {
-                recyclerView.smoothScrollBy(missingPx, 0);
+    private FeeViewAdapter feeViewAdapter;
+
+    private void initFeeView() {
+        feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
+        List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
+        feeValueList.setSelectListener(new SelectListener() {
+            @Override
+            public void onSelect(RecyclerView.Adapter adapter, int position) {
+                FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
+                feePerKbValue = item.feePerKb;
+                updateFeeText();
             }
-            setSelectedItem(recyclerView.getAdapter());
-        }
-//        else if (recyclerView.adapter is ReceiverRecyclerViewAdapter) {
-//            val targetScrollPos =
-//                    expectedPosition * receiverItemWidth + receiverFirstItemWidth - receiverPadding
-//            val missingPx = targetScrollPos - receiverAllPixels
-//            if (missingPx != 0f) {
-//                recyclerView.smoothScrollBy(missingPx.toInt(), 0)
-//            }
-//            setSelectedItem(recyclerView.adapter)
-//        }
-   }
-
-
-    private void setSelectedItem(RecyclerView.Adapter adapter) {
-        if (adapter instanceof FeeLvlViewAdapter) {
-            int expectedPosition =
-                    Math.round((senderAllPixels + feePadding - feeFirstItemWidth)
-                            / feeItemWidth);
-            ((FeeLvlViewAdapter) adapter).setSelectedItem(expectedPosition + 1);
-        }
-//        else if (adapter is ReceiverRecyclerViewAdapter) {
-//            val expectedPositionColor =
-//                    Math.round((receiverAllPixels + receiverPadding - receiverFirstItemWidth)
-//                            / receiverItemWidth)
-//            val setColor = expectedPositionColor + 1
-//            adapter.setSelecteditem(setColor)
-//        }
+        });
+        feeValueList.setAdapter(feeViewAdapter);
+        feeValueList.setSelectedItem(feeItems.size() - 2);
+        feeValueList.setHasFixedSize(true);
     }
 
-
-    private void calculatePositionAndScroll(RecyclerView recyclerView) {
-        if (recyclerView.getAdapter() instanceof FeeLvlViewAdapter) {
-            int expectedPosition =
-                    Math.round(
-                            (senderAllPixels + feePadding -
-                                    feeFirstItemWidth) / feeItemWidth);
-
-            if (expectedPosition == -1) {
-                expectedPosition = 0;
-            } else if (expectedPosition >= recyclerView.getAdapter().getItemCount() - 2) {
-                expectedPosition--;
-            }
-            scrollListToPosition(recyclerView, expectedPosition);
+    @NonNull
+    private List<FeeItem> fillFee(FeeViewAdapter feeViewAdapter, MinerFee feeLvl) {
+        List<FeeItem> feeItems = new ArrayList<>();
+        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
+        FeeEstimation feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
+        Bitcoins max = feeLvl.getFeePerKb(feeEstimation);
+        Bitcoins min = Bitcoins.valueOf(0);
+        if (this.feeLvl != MinerFee.LOWPRIO) {
+            min = this.feeLvl.getPrevious().getFeePerKb(feeEstimation);
         }
-//        else if (recyclerView.adapter is ReceiverRecyclerViewAdapter) {
-//            var expectedPosition =
-//                    Math.round(
-//                            (receiverAllPixels + receiverPadding -
-//                                    receiverFirstItemWidth) / receiverItemWidth)
-//
-//            if (expectedPosition == -1) {
-//                expectedPosition = 0
-//            } else if (expectedPosition >= recyclerView.adapter.itemCount - 2) {
-//                expectedPosition--
-//            }
-//            scrollListToPosition(recyclerView, expectedPosition)
-//        }
+        long step = (max.getLongValue() - min.getLongValue()) / 10;
+        for (long i = min.getLongValue(); i < max.getLongValue(); i += step) {
+            int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
+            int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
+            int size = estimateTransactionSize(inCount, outCount);
+            ExactBitcoinValue bitcoinValue = ExactBitcoinValue.from(size * i / 1000);
+            CurrencyValue fiatFee = CurrencyValue.fromValue(bitcoinValue,
+                    _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+            feeItems.add(new FeeItem(i, bitcoinValue.getAsBitcoin(), fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM));
+        }
+        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
+
+        feeViewAdapter.setDataset(feeItems.toArray(new FeeItem[feeItems.size()]));
+
+        return feeItems;
+    }
+
+    private void initFeeLvlView() {
+        feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        List<FeeLvlItem> feeLvlItems = new ArrayList<>();
+        feeLvlItems.add(new FeeLvlItem(null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+        for (MinerFee fee : MinerFee.values()) {
+            feeLvlItems.add(new FeeLvlItem(fee, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
+        }
+        feeLvlItems.add(new FeeLvlItem(null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+
+        final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems.toArray(new FeeLvlItem[feeLvlItems.size()]), feeFirstItemWidth);
+
+        feeLvlList.setSelectListener(new SelectListener() {
+            @Override
+            public void onSelect(RecyclerView.Adapter adapter, int position) {
+                FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
+                feeLvl = item.minerFee;
+                List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
+                feeValueList.setSelectedItem(feeItems.size() - 2);
+            }
+        });
+
+        feeLvlList.setAdapter(feeLvlViewAdapter);
+
+        int selectedIndex = -1;
+        for (int i = 0; i < feeLvlItems.size(); i++) {
+            FeeLvlItem feeLvlItem = feeLvlItems.get(i);
+            if (feeLvlItem.minerFee == _mbwManager.getMinerFee()) {
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        feeLvlList.setSelectedItem(selectedIndex);
+        feeLvlList.setHasFixedSize(true);
     }
 
 
@@ -1571,7 +1436,7 @@ public class SendMainActivity extends Activity {
             tvFeeValue.setVisibility(VISIBLE);
             tvFeeValue.setText(String.format("(%s)", feeString));
 
-//            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + feePerKbValue / 1000 + " sat/byte, ~" /*+ duration*/);
+            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + feePerKbValue / 1000 + " sat/byte, ~" /*+ duration*/);
         }
     }
 
