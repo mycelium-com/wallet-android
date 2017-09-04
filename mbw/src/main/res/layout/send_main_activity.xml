@@ -202,8 +202,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -296,12 +294,12 @@
 
             <!-- Fee -->
             <LinearLayout
-                    android:id="@+id/llFee"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                android:id="@+id/llFee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <!-- Fee Title -->
+            <!-- Fee Title -->
 
                 <TextView
                         android:id="@+id/tvFeeLabel"
@@ -327,29 +325,44 @@
                     android:visibility="gone"
                     />
 
-                <!-- Fee toggle button, Fee amount in BTC -->
-                <Button
-                        android:id="@+id/btFeeLvl"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/MyceliumSlimButton"
-                        android:paddingTop="4sp"
-                        android:paddingBottom="4sp"
-                        android:paddingLeft="10sp"
-                        android:paddingRight="10sp"
-                        android:layout_gravity="center_horizontal"
-                        android:textSize="16sp"
-                        tools:text="Fee"
-                        />
-
-                <!-- Fiat Fee -->
                 <TextView
-                        android:id="@+id/tvFeeValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textSize="13sp"
-                        tools:text = "(x.xx mBTC, x.xx USD)"/>
+                    android:id="@+id/tvFeeWarning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center"
+                    android:text="@string/read_only_warning"
+                    android:textColor="@color/red"
+                    android:textSize="14sp"/>
+
+                <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                    android:id="@+id/feeLvlList"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:orientation="horizontal"
+                    android:scrollbars="none"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp" />
+
+                <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                    android:id="@+id/feeValueList"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:orientation="horizontal"
+                    android:scrollbars="none"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp" />
+
+                <!--&lt;!&ndash; Fiat Fee &ndash;&gt;-->
+                <!--<TextView-->
+                        <!--android:id="@+id/tvFeeValue"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:textSize="13sp"-->
+                        <!--tools:text = "(x.xx mBTC, x.xx USD)"/>-->
                 <!-- satByte Fee -->
                 <TextView
                     android:id="@+id/tvSatFeeValue"

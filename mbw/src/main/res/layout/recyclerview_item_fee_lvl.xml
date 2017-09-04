@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="120dp"
+    android:layout_height="75dp"
+    android:background="@drawable/sender_recyclerview_item_background_selector">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/categorytextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:lines="1"
+            android:textColor="@color/horizontalpicker_text_color"
+            android:textSize="10sp"
+            tools:text="My BTC Account" />
+
+        <TextView
+            android:id="@+id/itemTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="middle"
+            android:gravity="center_horizontal"
+            android:lines="1"
+            android:textColor="@color/horizontalpicker_text_color"
+            android:textSize="14sp"
+            tools:text="MRD" />
+
+        <TextView
+            android:id="@+id/valueTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:lines="1"
+            android:textColor="@color/horizontalpicker_text_color"
+            android:textSize="10sp"
+            tools:text="0.5556 BTC" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/rectangle"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="top|center_horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scaleType="center"
+        android:src="@drawable/recyclerview_item_triangle_selected" />
+</FrameLayout>

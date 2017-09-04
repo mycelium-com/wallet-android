@@ -129,7 +129,7 @@
     <string name="btc_rate">1 BTC ~ %1$s %2$s (%3$s)</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
     <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
-    <string name="read_only_warning">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</string>
+    <string name="read_only_warning">Warning: </string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
     <string name="scan_address_book_desc">Scan Bitcoin address.</string>
     <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
@@ -1068,6 +1068,9 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
+    <string name="miner_fee_custom" >Custom</string>
+    <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
+    <string name="fee_is_zero">Transaction might never happen!</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
