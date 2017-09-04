@@ -485,7 +485,7 @@ public class SendMainActivity extends Activity {
             int size = estimateTransactionSize(inCount, outCount);
             ExactBitcoinValue bitcoinValue;
             if (isColu()) {
-                long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
+                long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(i);
                 bitcoinValue = ExactBitcoinValue.from(fundingAmountToSend);
             } else {
                 bitcoinValue = ExactBitcoinValue.from(size * i / 1000);
