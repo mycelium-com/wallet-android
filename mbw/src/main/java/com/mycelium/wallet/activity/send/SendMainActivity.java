@@ -479,7 +479,7 @@ public class SendMainActivity extends Activity {
             min = this.feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
         }
         long step = (max.getLongValue() - min) / 10;
-        for (long i = min + (min == 0 ? 0 : step); i <= max.getLongValue(); i += step) {
+        for (long i = min + (min == 0 ? 0 : step); i <= 2 * max.getLongValue(); i += step) {
             int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
             int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
             int size = estimateTransactionSize(inCount, outCount);
