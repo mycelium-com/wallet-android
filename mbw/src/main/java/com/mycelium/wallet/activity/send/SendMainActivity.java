@@ -90,7 +90,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.ColuTransactionData;
-import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
+import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -234,7 +234,7 @@ public class SendMainActivity extends Activity {
     private TransactionStatus _transactionStatus;
     protected UnsignedTransaction _unsigned;
     protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
-    protected ColuBroadcastTxid.Json _preparedColuTx;
+    protected ColuBroadcastTxHex.Json _preparedColuTx;
     private Transaction _signedTransaction;
     private MinerFee _fee;
     private ProgressDialog _progress;
@@ -619,9 +619,9 @@ public class SendMainActivity extends Activity {
                                     final ColuAccount coluAccount = (ColuAccount) _account;
                                     final ColuManager coluManager = _mbwManager.getColuManager();
                                     disableButtons();
-                                    new AsyncTask<ColuBroadcastTxid.Json, Void, Boolean>() {
+                                    new AsyncTask<ColuBroadcastTxHex.Json, Void, Boolean>() {
                                         @Override
-                                        protected Boolean doInBackground(ColuBroadcastTxid.Json... params) {
+                                        protected Boolean doInBackground(ColuBroadcastTxHex.Json... params) {
                                             Log.d(TAG, "In doInBackground: Colored Coin Prepared Transaction");
                                             //UnsignedTransaction unsignedTx = new UnsignedTransaction();
                                             Transaction coluSignedTransaction = coluManager.signTransaction(params[0], coluAccount);
@@ -792,8 +792,8 @@ public class SendMainActivity extends Activity {
       }
    }
 
-    private ColuBroadcastTxid.Json createEmptyColuBroadcastJson() {
-        ColuBroadcastTxid.Json result = new ColuBroadcastTxid.Json();
+    private ColuBroadcastTxHex.Json createEmptyColuBroadcastJson() {
+        ColuBroadcastTxHex.Json result = new ColuBroadcastTxHex.Json();
         result.txHex = "";
         return result;
     }
@@ -833,9 +833,9 @@ public class SendMainActivity extends Activity {
                     coluAccount, feePerKb);
 
             if(callback != null) {
-                new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxid.Json>() {
+                new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxHex.Json>() {
                     @Override
-                    protected ColuBroadcastTxid.Json doInBackground(ColuTransactionData... params) {
+                    protected ColuBroadcastTxHex.Json doInBackground(ColuTransactionData... params) {
 
                         if (!checkFee(true)) {
 
@@ -888,7 +888,7 @@ public class SendMainActivity extends Activity {
                     }
 
                     @Override
-                    protected void onPostExecute(ColuBroadcastTxid.Json preparedTransaction) {
+                    protected void onPostExecute(ColuBroadcastTxHex.Json preparedTransaction) {
                         super.onPostExecute(preparedTransaction);
                         Log.d(TAG, "onPostExecute prepareColuTransaction");
                         //TODO: add feedback to user about fees when missing funds
