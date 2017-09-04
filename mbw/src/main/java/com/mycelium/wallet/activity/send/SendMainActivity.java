@@ -198,8 +198,8 @@ public class SendMainActivity extends Activity {
     TextView tvTransactionLabelTitle;
     @BindView(R.id.tvTransactionLabel)
     TextView tvTransactionLabel;
-    @BindView(R.id.tvFeeValue)
-    TextView tvFeeValue;
+//    @BindView(R.id.tvFeeValue)
+//    TextView tvFeeValue;
     @BindView(R.id.tvSatFeeValue)
     TextView tvSatFeeValue;
     @BindView(R.id.btEnterAmount)
@@ -1374,27 +1374,28 @@ public class SendMainActivity extends Activity {
         if (_unsigned == null) {
             // Only show button for fee lvl, cannot calculate fee yet
             if (isColu()) {
-                tvFeeValue.setVisibility(VISIBLE);
-                Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
+//                tvFeeValue.setVisibility(VISIBLE);
+//                Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
                 //show fee lvl on button - show the fees in mBtc if Btc is the denomination
-                Denomination feeDenomination = bitcoinDenomination == BTC ? mBTC : bitcoinDenomination;
+//                Denomination feeDenomination = bitcoinDenomination == BTC ? mBTC : bitcoinDenomination;
 
-                long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
-                String feeString = CoinUtil.valueString(fundingAmountToSend, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
-                CurrencyValue fiatFee = CurrencyValue.fromValue(
-                        ExactBitcoinValue.from(fundingAmountToSend),
-                        _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency(),
-                        _mbwManager.getExchangeRateManager()
-                );
-                if (!CurrencyValue.isNullOrZero(fiatFee)) {
-                    // Show approximate fee in fiat
-                    feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
-                }
-                tvFeeValue.setText(feeString);
-            } else {
-                tvFeeValue.setVisibility(GONE);
+//                long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
+//                String feeString = CoinUtil.valueString(fundingAmountToSend, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
+//                CurrencyValue fiatFee = CurrencyValue.fromValue(
+//                        ExactBitcoinValue.from(fundingAmountToSend),
+//                        _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency(),
+//                        _mbwManager.getExchangeRateManager()
+//                );
+//                if (!CurrencyValue.isNullOrZero(fiatFee)) {
+//                    // Show approximate fee in fiat
+//                    feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
+//                }
+//                tvFeeValue.setText(feeString);
             }
-            tvSatFeeValue.setText(feePerKbValue / 1000 + " sat/byte, ~" + duration);
+//            else {
+//                tvFeeValue.setVisibility(GONE);
+//            }
+//            tvSatFeeValue.setText(feePerKbValue / 1000 + " sat/byte, ~" + duration);
         } else {
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
@@ -1402,28 +1403,28 @@ public class SendMainActivity extends Activity {
 
             // Show fee fully calculated
 
-            long fee = _unsigned.calculateFee();
+//            long fee = _unsigned.calculateFee();
 
-            Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
-            //show fee lvl on button - show the fees in mBtc if Btc is the denomination
-            Denomination feeDenomination = bitcoinDenomination == BTC ? mBTC : bitcoinDenomination;
+//            Denomination bitcoinDenomination = _mbwManager.getBitcoinDenomination();
+//            //show fee lvl on button - show the fees in mBtc if Btc is the denomination
+//            Denomination feeDenomination = bitcoinDenomination == BTC ? mBTC : bitcoinDenomination;
 
-            String feeString = CoinUtil.valueString(fee, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
+//            String feeString = CoinUtil.valueString(fee, feeDenomination, true) + " " + feeDenomination.getUnicodeName();
 
-            CurrencyValue fiatFee = CurrencyValue.fromValue(
-                    ExactBitcoinValue.from(fee),
-                    _mbwManager.getFiatCurrency(),
-                    _mbwManager.getExchangeRateManager()
-            );
+//            CurrencyValue fiatFee = CurrencyValue.fromValue(
+//                    ExactBitcoinValue.from(fee),
+//                    _mbwManager.getFiatCurrency(),
+//                    _mbwManager.getExchangeRateManager()
+//            );
 
-            if (!CurrencyValue.isNullOrZero(fiatFee)) {
-                // Show approximate fee in fiat
-                feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
-            }
-            tvFeeValue.setVisibility(VISIBLE);
-            tvFeeValue.setText(String.format("(%s)", feeString));
+//            if (!CurrencyValue.isNullOrZero(fiatFee)) {
+//                // Show approximate fee in fiat
+//                feeString += ", " + Utils.getFormattedValueWithUnit(fiatFee, _mbwManager.getBitcoinDenomination());
+//            }
+//            tvFeeValue.setVisibility(VISIBLE);
+//            tvFeeValue.setText(String.format("(%s)", feeString));
 
-            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + feePerKbValue / 1000 + " sat/byte, ~" + duration);
+            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
         }
 
         tvFeeWarning.setVisibility(feePerKbValue == 0 ? View.VISIBLE : View.GONE);
