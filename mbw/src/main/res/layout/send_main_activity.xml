@@ -325,16 +325,16 @@
                     android:visibility="gone"
                     />
 
-                <!--<TextView-->
-                    <!--android:id="@+id/tvFeeWarning"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_gravity="center"-->
-                    <!--android:layout_marginBottom="4dp"-->
-                    <!--android:gravity="center"-->
-                    <!--android:text="@string/read_only_warning"-->
-                    <!--android:textColor="@color/red"-->
-                    <!--android:textSize="14sp"/>-->
+                <TextView
+                    android:id="@+id/tvFeeWarning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center"
+                    android:text="@string/read_only_warning"
+                    android:textColor="@color/red"
+                    android:textSize="14sp"/>
 
                 <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
                     android:id="@+id/feeLvlList"

@@ -226,6 +226,9 @@ public class SendMainActivity extends Activity {
     Button btFeeFromAccount;
     @BindView(R.id.colu_tips_check_address)
     View tips_check_address;
+    @BindView(R.id.tvFeeWarning)
+    TextView tvFeeWarning;
+
 
     @BindView(R.id.feeLvlList)
     SelectableRecyclerView feeLvlList;
@@ -475,12 +478,12 @@ public class SendMainActivity extends Activity {
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
         FeeEstimation feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
         Bitcoins max = feeLvl.getFeePerKb(feeEstimation);
-        Bitcoins min = Bitcoins.valueOf(0);
+        long min = 0;
         if (this.feeLvl != MinerFee.LOWPRIO) {
-            min = this.feeLvl.getPrevious().getFeePerKb(feeEstimation);
+            min = this.feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
         }
-        long step = (max.getLongValue() - min.getLongValue()) / 10;
-        for (long i = min.getLongValue(); i < max.getLongValue(); i += step) {
+        long step = (max.getLongValue() - min) / 10;
+        for (long i = min + (min == 0 ? 0 : step); i <= max.getLongValue(); i += step) {
             int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
             int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
             int size = estimateTransactionSize(inCount, outCount);
@@ -1150,6 +1153,7 @@ public class SendMainActivity extends Activity {
         updateRecipient();
         updateAmount();
         updateFee();
+        fillFee(feeViewAdapter, feeLvl);
 
       // Enable/disable send button
       btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
@@ -1394,24 +1398,6 @@ public class SendMainActivity extends Activity {
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
             int size = estimateTransactionSize(inCount, outCount);
-//            feeFiatLabels.removeAllViews();
-//            int margin = getResources().getDimensionPixelSize(R.dimen.margin_large);
-//            for (int i = 0; i < 5; i++) {
-//                TextView textView = new TextView(SendMainActivity.this);
-//                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-//                long feePerKbBtc = i * feeSlider.getMax() / 4;
-//                CurrencyValue fiatFee = CurrencyValue.fromValue(
-//                        ExactBitcoinValue.from(size * feePerKbBtc / 1000),
-//                        _mbwManager.getFiatCurrency(),
-//                        _mbwManager.getExchangeRateManager()
-//                );
-//                textView.setText(i == 0 ? "0" : Utils.getFormattedValue(fiatFee, _mbwManager.getBitcoinDenomination()));
-//                textView.measure(0, 0);
-//                int marginLeft = (int) (feePerKbBtc * (feeSlider.getWidth() - 2 * margin) * 1.0 / feeSlider.getMax());
-//                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-//                params.setMargins(margin + marginLeft - textView.getMeasuredWidth() / 2, 0, 0, 0);
-//                feeFiatLabels.addView(textView, params);
-//            }
 
             // Show fee fully calculated
 
@@ -1437,6 +1423,11 @@ public class SendMainActivity extends Activity {
             tvFeeValue.setText(String.format("(%s)", feeString));
 
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + feePerKbValue / 1000 + " sat/byte, ~" /*+ duration*/);
+        }
+
+        tvFeeWarning.setVisibility(feePerKbValue == 0 ? View.VISIBLE : View.GONE);
+        if(feePerKbValue == 0) {
+            tvFeeWarning.setText(R.string.fee_is_zero);
         }
     }
 
