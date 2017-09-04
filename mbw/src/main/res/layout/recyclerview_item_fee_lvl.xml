@@ -45,15 +45,14 @@
             tools:text="0.5556 BTC" />
     </LinearLayout>
 
-    <!--<ImageView-->
-        <!--android:id="@+id/rectangle"-->
-        <!--android:layout_width="16dp"-->
-        <!--android:layout_height="8dp"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--android:clickable="true"-->
-        <!--android:focusable="true"-->
-        <!--android:focusableInTouchMode="true"-->
-        <!--android:scaleType="center"-->
-        <!--android:src="@drawable/sender_recyclerview_item_rectangle_selector" />-->
+    <ImageView
+        android:id="@+id/rectangle"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="top|center_horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scaleType="center"
+        android:src="@drawable/recyclerview_item_triangle_selected" />
 </FrameLayout>

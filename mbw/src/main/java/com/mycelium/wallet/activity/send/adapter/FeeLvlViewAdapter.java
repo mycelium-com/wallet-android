@@ -1,9 +1,12 @@
 package com.mycelium.wallet.activity.send.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
@@ -35,6 +38,12 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
+            ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
+            imageView.setImageResource(R.drawable.recyclerview_item_bottom_rectangle_selector);
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+            layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            layoutParams.height = parent.getResources().getDimensionPixelSize(R.dimen.recycler_item_rectangle_height);
+            imageView.setLayoutParams(layoutParams);
             // set the view's size, margins, paddings and layout parameters
             //...
             return new ViewHolder(v, this);
