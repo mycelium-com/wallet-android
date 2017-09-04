@@ -40,7 +40,6 @@ import android.content.SharedPreferences;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.Option;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -49,7 +48,6 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.util.ArrayList;
@@ -66,11 +64,17 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
-   public static final String USD_RMC = "usd_rmc";
+   private static final String USD_RMC = "usd_rmc";
    public static final String BTC = "BTC";
 
-   public static final String KRAKEN_MARKET_NAME = "Kraken";
-   public static final String RMC_MARKET_NAME = "RMC";
+   private static final String KRAKEN_MARKET_NAME = "Kraken";
+   private static final String RMC_MARKET_NAME = "RMC";
+
+   private static final Pattern EXCHANGE_RATE_PATTERN;
+   static {
+      String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
+      EXCHANGE_RATE_PATTERN = Pattern.compile(regexKeyExchangeRate);
+   }
 
    public interface Observer {
       void refreshingExchangeRatesSucceeded();
@@ -93,7 +97,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private Float ethRate;
    private Float usdRate;
    // value hardcoded for now, but in future we need get from somewhere
-   private Float mssRate = 3125f;
+   private static final float MSS_RATE = 3125f;
 
    private NetworkParameters networkParameters;
    private MetadataStorage storage;
@@ -123,9 +127,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    public synchronized void unsubscribe(Observer subscriber) {
       _subscribers.remove(subscriber);
    }
-
-   String REGEX_KEY_EXCHANGE_RATE = "(.*)_(.*)_(.*)";
-   Pattern pattern = Pattern.compile(REGEX_KEY_EXCHANGE_RATE);
 
    private class Fetcher implements Runnable {
       public void run() {
@@ -158,7 +159,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                   for (Map.Entry<String, String> entry : savedExchangeRates.entrySet()) {
                      String key = entry.getKey();
 
-                     Matcher matcher = pattern.matcher(key);
+                     Matcher matcher = EXCHANGE_RATE_PATTERN.matcher(key);
 
                      if (matcher.find()) {
                         String market = matcher.group(1);
@@ -371,7 +372,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          rate = r.price / ethRate;
       }
       if ("MSS".equals(injectCurrency)) {
-         rate = r.price * mssRate;
+         rate = r.price * MSS_RATE;
       }
       return new ExchangeRate(r.name, r.time, rate, injectCurrency);
    }
