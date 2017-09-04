@@ -43,17 +43,12 @@ public enum MinerFee {
    LOWPRIO("LOWPRIO", 20, R.string.miner_fee_lowprio_name, R.string.miner_fee_lowprio_desc),
    ECONOMIC("ECONOMIC", 10, R.string.miner_fee_economic_name, R.string.miner_fee_economic_desc),
    NORMAL("NORMAL", 3, R.string.miner_fee_normal_name, R.string.miner_fee_normal_desc),
-   PRIORITY("PRIORITY", 1, R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc),
-//   CUSTOM("CUSTOM",  -1,  R.string.miner_fee_custom, R.string.miner_fee_custom_desc),
-    ;
+   PRIORITY("PRIORITY", 1, R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc);
 
    public final String tag;
    private final int nBlocks;
    private final int idTag;
    private final int idLongDesc;
-   private long previous;
-
-//   private Bitcoins customFee = Bitcoins.nearestValue(0.001);
 
    MinerFee(String tag, int nBlocks, int idTag, int idLongDesc) {
       this.tag = tag;
@@ -90,14 +85,6 @@ public enum MinerFee {
    public Bitcoins getFeePerKb(FeeEstimation feeEstimation) {
       return feeEstimation.getEstimation(nBlocks);
    }
-
-//   public void setCustomFee(Bitcoins customFee) {
-//      this.customFee = customFee;
-//   }
-//
-//   public Bitcoins getCustomFee() {
-//      return customFee;
-//   }
 
    public String getMinerFeeName(Context context) {
       return context.getString(idTag);
