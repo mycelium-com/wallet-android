@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.9.2" versioncode="290207">
+    <release version="2.9.2" versioncode="290208">
         <change>bugs fixed</change>
         <change>added colored coins token handling with support for MT - Mycelium Token, MASS - Mass Network and RMC - Russian Miner Coin</change>
         <change>fixed launcher icon</change>
