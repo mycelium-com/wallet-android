@@ -121,6 +121,7 @@ import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -359,11 +360,10 @@ public class SendMainActivity extends Activity {
                         .getIfPresent(_paymentRequestHandlerUuid);
             }
         }
-//       if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
-//               || checkIsRMCICOPaymentRequest()) {
-//           _fee = _fee == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
-//           btCustomFee.setVisibility(GONE);
-//       }
+       if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
+               || checkIsRMCICOPaymentRequest()) {
+           feeLvl = feeLvl == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
+       }
 
       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
       if (_receivingAddress == null) {
@@ -503,10 +503,16 @@ public class SendMainActivity extends Activity {
 
     private void initFeeLvlView() {
         feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
+        List<MinerFee> fees;
+        if ((isColu() && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
+               || checkIsRMCICOPaymentRequest()) {
+            fees = Arrays.asList(MinerFee.NORMAL, MinerFee.PRIORITY);
+        } else {
+            fees = Arrays.asList(MinerFee.values());
+        }
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
-        for (MinerFee fee : MinerFee.values()) {
+        for (MinerFee fee : fees) {
             String duration = Utils.formatBlockcountAsApproxDuration(this, fee.getNBlocks());
             feeLvlItems.add(new FeeLvlItem(fee, "~" + duration, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
@@ -520,7 +526,16 @@ public class SendMainActivity extends Activity {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
                 List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
-                feeValueList.setSelectedItem(feeItems.size() - 2);
+                FeeEstimation feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
+                int selected = feeItems.size() - 2;
+                for (int i = 0; i < feeItems.size(); i++) {
+                    FeeItem feeItem = feeItems.get(i);
+                    if (feeItem.feePerKb == feeLvl.getFeePerKb(feeEstimation).getLongValue()) {
+                        selected = i;
+                        break;
+                    }
+                }
+                feeValueList.setSelectedItem(selected);
             }
         });
 
