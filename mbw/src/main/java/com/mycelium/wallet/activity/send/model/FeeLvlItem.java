@@ -7,11 +7,13 @@ import com.mycelium.wallet.MinerFee;
  */
 
 public class FeeLvlItem {
-    public int type;
     public MinerFee minerFee;
+    public String duration;
+    public int type;
 
-    public FeeLvlItem(MinerFee minerFee, int type) {
-        this.type = type;
+    public FeeLvlItem(MinerFee minerFee, String duration, int type) {
         this.minerFee = minerFee;
+        this.duration = duration;
+        this.type = type;
     }
 }

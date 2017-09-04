@@ -503,11 +503,12 @@ public class SendMainActivity extends Activity {
         feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
-        feeLvlItems.add(new FeeLvlItem(null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+        feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : MinerFee.values()) {
-            feeLvlItems.add(new FeeLvlItem(fee, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
+            String duration = Utils.formatBlockcountAsApproxDuration(this, fee.getNBlocks());
+            feeLvlItems.add(new FeeLvlItem(fee, "~" + duration, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
-        feeLvlItems.add(new FeeLvlItem(null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+        feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems.toArray(new FeeLvlItem[feeLvlItems.size()]), feeFirstItemWidth);
 
@@ -1368,7 +1369,7 @@ public class SendMainActivity extends Activity {
     private void updateFeeText() {
         // Update Fee-Display
 //      btFeeLvl.setText(_fee.getMinerFeeName(this));
-//      String duration = Utils.formatBlockcountAsApproxDuration(this, _fee.getNBlocks());
+      String duration = Utils.formatBlockcountAsApproxDuration(this, feeLvl.getNBlocks());
         tryCreateUnsignedTransaction();
         if (_unsigned == null) {
             // Only show button for fee lvl, cannot calculate fee yet
@@ -1393,7 +1394,7 @@ public class SendMainActivity extends Activity {
             } else {
                 tvFeeValue.setVisibility(GONE);
             }
-            tvSatFeeValue.setText(feePerKbValue / 1000 + " sat/byte, ~" /*+ duration*/);
+            tvSatFeeValue.setText(feePerKbValue / 1000 + " sat/byte, ~" + duration);
         } else {
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
@@ -1422,7 +1423,7 @@ public class SendMainActivity extends Activity {
             tvFeeValue.setVisibility(VISIBLE);
             tvFeeValue.setText(String.format("(%s)", feeString));
 
-            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + feePerKbValue / 1000 + " sat/byte, ~" /*+ duration*/);
+            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes, \n" + feePerKbValue / 1000 + " sat/byte, ~" + duration);
         }
 
         tvFeeWarning.setVisibility(feePerKbValue == 0 ? View.VISIBLE : View.GONE);
