@@ -70,8 +70,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
@@ -137,8 +135,6 @@ import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
-import static com.mrd.bitlib.util.CoinUtil.Denomination.BTC;
-import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
 
 public class SendMainActivity extends Activity {
 
@@ -487,7 +483,13 @@ public class SendMainActivity extends Activity {
             int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
             int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
             int size = estimateTransactionSize(inCount, outCount);
-            ExactBitcoinValue bitcoinValue = ExactBitcoinValue.from(size * i / 1000);
+            ExactBitcoinValue bitcoinValue;
+            if (isColu()) {
+                long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
+                bitcoinValue = ExactBitcoinValue.from(fundingAmountToSend);
+            } else {
+                bitcoinValue = ExactBitcoinValue.from(size * i / 1000);
+            }
             CurrencyValue fiatFee = CurrencyValue.fromValue(bitcoinValue,
                     _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
             feeItems.add(new FeeItem(i, bitcoinValue.getAsBitcoin(), fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM));
@@ -1369,7 +1371,7 @@ public class SendMainActivity extends Activity {
     private void updateFeeText() {
         // Update Fee-Display
 //      btFeeLvl.setText(_fee.getMinerFeeName(this));
-      String duration = Utils.formatBlockcountAsApproxDuration(this, feeLvl.getNBlocks());
+//      String duration = Utils.formatBlockcountAsApproxDuration(this, feeLvl.getNBlocks());
         tryCreateUnsignedTransaction();
         if (_unsigned == null) {
             // Only show button for fee lvl, cannot calculate fee yet
