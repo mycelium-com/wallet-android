@@ -249,7 +249,7 @@ public class SendMainActivity extends Activity {
     protected ColuBroadcastTxHex.Json _preparedColuTx;
     private Transaction _signedTransaction;
     private MinerFee feeLvl;
-    private long feePerKbValue = -1;
+    private long feePerKbValue;
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
@@ -453,7 +453,7 @@ public class SendMainActivity extends Activity {
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-        List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
+//        List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -463,7 +463,7 @@ public class SendMainActivity extends Activity {
             }
         });
         feeValueList.setAdapter(feeViewAdapter);
-        findAndSetSelectedPosition(feeItems);
+//        findAndSetSelectedPosition(feeItems);
         feeValueList.setHasFixedSize(true);
     }
 
@@ -533,6 +533,7 @@ public class SendMainActivity extends Activity {
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
+                feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
                 List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
                 findAndSetSelectedPosition(feeItems);
             }
@@ -557,7 +558,7 @@ public class SendMainActivity extends Activity {
         int selected = feeItems.size() / 2;
         for (int i = 0; i < feeItems.size(); i++) {
             FeeItem feeItem = feeItems.get(i);
-            if (feeItem.feePerKb == feeLvl.getFeePerKb(feeEstimation).getLongValue()) {
+            if (feeItem.feePerKb == feePerKbValue) {
                 selected = i;
                 break;
             }
@@ -646,7 +647,7 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
       savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
       savedInstanceState.putSerializable(FEE_LVL, feeLvl);
-      savedInstanceState.putSerializable(FEE_PER_KB, feePerKbValue);
+      savedInstanceState.putLong(FEE_PER_KB, feePerKbValue);
       savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
       savedInstanceState.putSerializable(BITCOIN_URI, _bitcoinUri);
       savedInstanceState.putSerializable(RMC_URI, _rmcUri);
@@ -1127,10 +1128,10 @@ public class SendMainActivity extends Activity {
         updateFee();
         findAndSetSelectedPosition(fillFee(feeViewAdapter, feeLvl));
 
-      // Enable/disable send button
-      btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
-      findViewById(R.id.root).invalidate();
-   }
+        // Enable/disable send button
+        btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
+        findViewById(R.id.root).invalidate();
+    }
 
     private void updateFee() {
         coluSpendAccount();
@@ -1356,8 +1357,7 @@ public class SendMainActivity extends Activity {
         }
     }
 
-
-   @Override
+    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
 

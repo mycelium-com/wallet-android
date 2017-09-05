@@ -34,8 +34,15 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
     }
 
     public void setDataset(FeeItem[] mDataset) {
+        FeeItem[] oldDataset = this.mDataset;
         this.mDataset = mDataset;
-        notifyDataSetChanged();
+        if (oldDataset.length != this.mDataset.length) {
+            notifyDataSetChanged();
+        } else {
+            for (int i = 1; i < mDataset.length - 2; i++) {
+                notifyItemChanged(i);
+            }
+        }
     }
 
     public FeeItem getItem(int position) {
