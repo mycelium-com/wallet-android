@@ -54,7 +54,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
@@ -62,8 +61,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -72,7 +69,6 @@ import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -85,7 +81,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public static final String ENTERED_AMOUNT = "enteredamount";
    public static final String ACCOUNT = "account";
    public static final String KB_MINER_FEE = "kbMinerFee";
-   public static final String CUSTOM_FEE = "CustomFee";
    public static final String IS_COLD_STORAGE = "isColdStorage";
    public static final String SEND_MODE = "sendmode";
 
@@ -105,7 +100,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private MbwManager _mbwManager;
    private ExactCurrencyValue _maxSpendableAmount;
    private long _kbMinerFee;
-   private Bitcoins customFee;
 
    private boolean isColu;
 
@@ -114,16 +108,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       intent.putExtra(ACCOUNT, account);
       intent.putExtra(ENTERED_AMOUNT, amountToSend);
       intent.putExtra(KB_MINER_FEE, kbMinerFee);
-      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
-      intent.putExtra(SEND_MODE, true);
-      currentActivity.startActivityForResult(intent, requestCode);
-   }
-
-   public static void callMe(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Bitcoins customFee, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, GetAmountActivity.class);
-      intent.putExtra(ACCOUNT, account);
-      intent.putExtra(ENTERED_AMOUNT, amountToSend);
-      intent.putExtra(CUSTOM_FEE, customFee);
       intent.putExtra(IS_COLD_STORAGE, isColdStorage);
       intent.putExtra(SEND_MODE, true);
       currentActivity.startActivityForResult(intent, requestCode);
@@ -165,15 +149,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       _account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountId);
 
       // Calculate the maximum amount that can be spent where we send everything we got to another address
-      Long kbfee = (Long) getIntent().getSerializableExtra(KB_MINER_FEE);
-      _kbMinerFee = kbfee == null ? -1 : kbfee;
-      customFee = (Bitcoins) getIntent().getSerializableExtra(CUSTOM_FEE);
-      if (_kbMinerFee != -1) {
-         _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
-      } else {
-         long max = Math.max(0, _account.getBalance().getSpendableBalance() - customFee.getLongValue());
-         _maxSpendableAmount = ExactBitcoinValue.from(max);
-      }
+      _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
@@ -512,13 +489,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
-
-         if (customFee != null) {
-            StandardTransactionBuilder.UnsignedTransaction transaction = _account.createUnsignedTransaction(Collections.singletonList(receiver),
-                    MinerFee.NORMAL.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue());
-            _kbMinerFee = 1000 * customFee.getLongValue() / _account.signTransaction(transaction, AesKeyCipher.defaultKeyCipher()).getTxRawSize();
-            _account.checkAmount(receiver, _kbMinerFee, _amount);
-         }
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
@@ -529,8 +499,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          // debug it
          _mbwManager.reportIgnoredException("MinerFeeException", e);
          return AmountValidation.Invalid;
-      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-         invalidKeyCipher.printStackTrace();
       }
       return AmountValidation.Ok;
    }
