@@ -23,7 +23,8 @@ import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
+import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
+import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
@@ -101,7 +102,7 @@ public class ColuManager implements AccountProvider {
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
     public static final int DUST_OUTPUT_SIZE = 600;
     public static final int METADATA_OUTPUT_SIZE = 1;
-    public static final int AVERAGE_COLU_TX_SIZE = 425;
+    public static final int AVERAGE_COLU_TX_SIZE = 212;
 
     final org.bitcoinj.core.NetworkParameters netParams;
     final org.bitcoinj.core.Context context;
@@ -212,7 +213,7 @@ public class ColuManager implements AccountProvider {
 
 
 
-    public Transaction signTransaction(ColuBroadcastTxid.Json txid, ColuAccount coluAccount) {
+    public Transaction signTransaction(ColuBroadcastTxHex.Json txid, ColuAccount coluAccount) {
 
         if (txid == null) {
             Log.e(TAG, "signTransaction: No transaction to sign !");
@@ -270,10 +271,10 @@ public class ColuManager implements AccountProvider {
         return signedBitlibTransaction;
     }
 
-    public ColuBroadcastTxid.Json prepareColuTx(Address _receivingAddress,
-                                                ExactCurrencyValue nativeAmount,
-                                                ColuAccount coluAccount,
-                                                long feePerKb) {
+    public ColuBroadcastTxHex.Json prepareColuTx(Address _receivingAddress,
+                                                 ExactCurrencyValue nativeAmount,
+                                                 ColuAccount coluAccount,
+                                                 long feePerKb) {
 
         if (_receivingAddress != null && nativeAmount != null) {
             Log.d(TAG, "prepareColuTx receivingAddress=" + _receivingAddress.toString()
@@ -286,7 +287,7 @@ public class ColuManager implements AccountProvider {
             }
 
             try {
-                ColuBroadcastTxid.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, getColuTransactionFee(feePerKb));
+                ColuBroadcastTxHex.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, getColuTransactionFee(feePerKb));
 
                 if (txid != null) {
                     Log.d(TAG, "Received unsigned transaction: " + txid.txHex);
@@ -308,9 +309,9 @@ public class ColuManager implements AccountProvider {
         if (coluSignedTransactionStr != null && !coluSignedTransactionStr.isEmpty()) {
             try {
                 Log.d(TAG, "Broadcasting colu tx " + coluSignedTransactionStr);
-                ColuBroadcastTxid.Json txid = coluClient.broadcastTransaction(coluSignedTransaction);
-                if (txid != null) {
-                    Log.d(TAG, "broadcastTransaction: broadcast txid " + txid.txHex);
+                ColuBroadcastTxId.Json txJson = coluClient.broadcastTransaction(coluSignedTransaction);
+                if (txJson != null) {
+                    Log.d(TAG, "broadcastTransaction: broadcast txid " + txJson.txid);
                     return true;
                 } else {
                     Log.w(TAG, "broadcastTransaction: no txid returned !");
