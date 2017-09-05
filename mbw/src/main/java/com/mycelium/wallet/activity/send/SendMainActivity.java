@@ -249,7 +249,7 @@ public class SendMainActivity extends Activity {
     protected ColuBroadcastTxHex.Json _preparedColuTx;
     private Transaction _signedTransaction;
     private MinerFee feeLvl;
-    private long feePerKbValue;
+    private long feePerKbValue = -1;
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
@@ -306,15 +306,15 @@ public class SendMainActivity extends Activity {
         return _account instanceof ColuAccount;
     }
 
-   @SuppressLint("ShowToast")
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      // TODO: profile. slow!
-      this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.send_main_activity);
-      ButterKnife.bind(this);
-      _mbwManager = MbwManager.getInstance(getApplication());
+    @SuppressLint("ShowToast")
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        // TODO: profile. slow!
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.send_main_activity);
+        ButterKnife.bind(this);
+        _mbwManager = MbwManager.getInstance(getApplication());
 
         // Get intent parameters
         UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
@@ -336,12 +336,12 @@ public class SendMainActivity extends Activity {
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
         feeLvl = _mbwManager.getMinerFee();
-       if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
-               || checkIsRMCICOPaymentRequest()) {
-           feeLvl = feeLvl == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
-       }
-       feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
-       feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();
+        if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
+                || checkIsRMCICOPaymentRequest()) {
+            feeLvl = feeLvl == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
+        }
+        feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
+        feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();
 
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
@@ -364,13 +364,13 @@ public class SendMainActivity extends Activity {
             }
         }
 
-       //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
-      if (_receivingAddress == null) {
-         HdKeyNode hdKey = (HdKeyNode) getIntent().getSerializableExtra(HD_KEY);
-         if (hdKey != null) {
-            setReceivingAddressFromKeynode(hdKey);
-         }
-      }
+        //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
+        if (_receivingAddress == null) {
+            HdKeyNode hdKey = (HdKeyNode) getIntent().getSerializableExtra(HD_KEY);
+            if (hdKey != null) {
+                setReceivingAddressFromKeynode(hdKey);
+            }
+        }
 
         // check whether the account can spend, if not, ask user to select one
         if (_account.canSpend()) {
@@ -396,28 +396,28 @@ public class SendMainActivity extends Activity {
             return;
         }
 
-      // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
-      if (_rawPr != null && _paymentRequestHandler == null) {
-         verifyPaymentRequest(_rawPr);
-      }
+        // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
+        if (_rawPr != null && _paymentRequestHandler == null) {
+            verifyPaymentRequest(_rawPr);
+        }
 
         // lets check whether we got a payment request uri and need to fetch payment data
         if (_bitcoinUri != null && !Strings.isNullOrEmpty(_bitcoinUri.callbackURL) && _paymentRequestHandler == null) {
             verifyPaymentRequest(_bitcoinUri);
         }
 
-      //Remove Miner fee if coinapult
-      if (isCoinapult()) {
-         llFee.setVisibility(GONE);
-      }
+        //Remove Miner fee if coinapult
+        if (isCoinapult()) {
+            llFee.setVisibility(GONE);
+        }
 
         //TODO: fee from other bitcoin account if colu
         if (isColu()) {
             // no sepa payment with colu
-            List<WalletAccount> walletAccountList =_mbwManager.getWalletManager(false).getActiveAccounts();
+            List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
             walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
             for (WalletAccount walletAccount : walletAccountList) {
-                if(walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()
+                if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()
                         && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
                         && walletAccount.getBalance().getSpendableBalance() > _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue)) {
                     feeColuAccount = walletAccount;
@@ -429,24 +429,24 @@ public class SendMainActivity extends Activity {
         }
 
         // Amount Hint
-        if(_account instanceof ColuAccount){
+        if (_account instanceof ColuAccount) {
             ColuAccount coluAccount = (ColuAccount) _account;
             tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
                     coluAccount.getColuAsset().name));
             tips_check_address.setVisibility(View.VISIBLE);
-        } else  {
+        } else {
             tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
                     _mbwManager.getBitcoinDenomination().toString()));
             tips_check_address.setVisibility(View.GONE);
         }
 
-       int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
-       feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
+        int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
+        feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-       initFeeView();
-       initFeeLvlView();
+        initFeeView();
+        initFeeLvlView();
 
-   }
+    }
     private FeeViewAdapter feeViewAdapter;
 
     private void initFeeView() {
@@ -645,7 +645,8 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putSerializable(AMOUNT, _amountToSend);
       savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
       savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
-      savedInstanceState.putLong(FEE_LVL, feePerKbValue);
+      savedInstanceState.putSerializable(FEE_LVL, feeLvl);
+      savedInstanceState.putSerializable(FEE_PER_KB, feePerKbValue);
       savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
       savedInstanceState.putSerializable(BITCOIN_URI, _bitcoinUri);
       savedInstanceState.putSerializable(RMC_URI, _rmcUri);
@@ -1338,8 +1339,6 @@ public class SendMainActivity extends Activity {
 
     private void updateFeeText() {
         // Update Fee-Display
-//      btFeeLvl.setText(_fee.getMinerFeeName(this));
-//      String duration = Utils.formatBlockcountAsApproxDuration(this, feeLvl.getNBlocks());
         tryCreateUnsignedTransaction();
         if (_unsigned == null) {
             // Only show button for fee lvl, cannot calculate fee yet

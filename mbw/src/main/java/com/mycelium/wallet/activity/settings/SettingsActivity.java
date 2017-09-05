@@ -104,7 +104,6 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
  */
 public class SettingsActivity extends PreferenceActivity {
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
-   private static final int REQUEST_CODE_CUSTOM_FEE = 100;
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          SetLocalCurrencyActivity.callMe(SettingsActivity.this);
@@ -769,16 +768,6 @@ public class SettingsActivity extends PreferenceActivity {
          new Toaster(SettingsActivity.this).toast(getString(R.string.lt_set_email_error), false);
          _ltManager.unsubscribe(this);
 
-      }
-   }
-
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      super.onActivityResult(requestCode, resultCode, data);
-      if (requestCode == REQUEST_CODE_CUSTOM_FEE && resultCode == RESULT_OK) {
-         CurrencyValue currencyValue = (CurrencyValue) data.getSerializableExtra(GetAmountActivity.AMOUNT);
-         Bitcoins btc = currencyValue.getAsBitcoin(_mbwManager.getExchangeRateManager());
-         _mbwManager.setCustomFee(btc.getLongValue());
       }
    }
 }
