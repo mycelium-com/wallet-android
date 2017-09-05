@@ -94,7 +94,7 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     private void calculatePositionAndScroll() {
-        int expectedPosition = Math.round(scrollX / itemWidth) + 1;
+        int expectedPosition = Math.round((scrollX + itemWidth / 2 - 1) / itemWidth) + 1;
 
         if (expectedPosition < 1) {
             expectedPosition = 1;
@@ -108,7 +108,11 @@ public class SelectableRecyclerView extends RecyclerView {
         int targetScrollPos = (expectedPosition - 1) * itemWidth;
         final int missingPx = targetScrollPos - scrollX;
         if (missingPx != 0f) {
-            smoothScrollBy(missingPx, 0);
+            if (missingPx < 3) {
+                scrollBy(missingPx, 0);
+            } else {
+                smoothScrollBy(missingPx, 0);
+            }
         } else if (expectedPosition != getSelectedItem()) {
             ((Adapter) getAdapter()).setSelectedItem(expectedPosition);
         }
