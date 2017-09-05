@@ -61,7 +61,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
@@ -73,7 +72,6 @@ import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
@@ -82,8 +80,6 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.List;
@@ -310,13 +306,11 @@ public class SettingsActivity extends PreferenceActivity {
       _minerFee.setSummary(getMinerFeeSummary());
       _minerFee.setValue(_mbwManager.getMinerFee().toString());
       CharSequence[] minerFees = new CharSequence[]{
-//              MinerFee.CUSTOM.toString(),
               MinerFee.LOWPRIO.toString(),
               MinerFee.ECONOMIC.toString(),
               MinerFee.NORMAL.toString(),
               MinerFee.PRIORITY.toString()};
       CharSequence[] minerFeeNames = new CharSequence[]{
-//              getString(R.string.miner_fee_custom),
               getString(R.string.miner_fee_lowprio_name),
               getString(R.string.miner_fee_economic_name),
               getString(R.string.miner_fee_normal_name),
@@ -332,9 +326,6 @@ public class SettingsActivity extends PreferenceActivity {
             _minerFee.setSummary(getMinerFeeSummary());
             String description = _mbwManager.getMinerFee().getMinerFeeDescription(SettingsActivity.this);
             Utils.showSimpleMessageDialog(SettingsActivity.this, description);
-//            if(_mbwManager.getMinerFee() == MinerFee.CUSTOM) {
-//               GetAmountActivity.callMe(SettingsActivity.this, ExactBitcoinValue.from(MinerFee.CUSTOM.getCustomFee()), REQUEST_CODE_CUSTOM_FEE);
-//            }
             return true;
          }
       });

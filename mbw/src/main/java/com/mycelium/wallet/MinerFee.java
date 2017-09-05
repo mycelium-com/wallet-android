@@ -78,8 +78,7 @@ public enum MinerFee {
    }
 
    public MinerFee getPrevious() {
-      if (ordinal() == 0) return values()[values().length - 1];
-      return values()[(ordinal() - 1) % values().length];
+      return values()[(ordinal() - 1 + values().length) % values().length];
    }
 
    public Bitcoins getFeePerKb(FeeEstimation feeEstimation) {
