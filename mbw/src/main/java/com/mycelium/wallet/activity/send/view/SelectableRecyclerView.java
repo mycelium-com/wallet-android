@@ -109,7 +109,7 @@ public class SelectableRecyclerView extends RecyclerView {
         final int missingPx = targetScrollPos - scrollX;
         if (missingPx != 0f) {
             if (missingPx == 1) {
-                scrollTo(missingPx, 0);
+                scrollBy(missingPx, 0);
             } else {
                 smoothScrollBy(missingPx, 0);
             }
