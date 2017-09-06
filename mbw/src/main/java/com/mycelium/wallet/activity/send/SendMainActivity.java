@@ -592,6 +592,10 @@ public class SendMainActivity extends Activity {
         }
     }
 
+    private long getAmountForColuTxOutputs() {
+        return 4 * ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE;
+    }
+
     private boolean checkFee(boolean rescan) {
         if (rescan) {
             ColuManager coluManager = _mbwManager.getColuManager();
@@ -599,12 +603,12 @@ public class SendMainActivity extends Activity {
         }
         ColuAccount coluAccount = (ColuAccount) _account;
 
-        long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
-        if (fundingAmountToSend < TransactionUtils.MINIMUM_OUTPUT_VALUE)
-            fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
+        long fundingAmountShouldHave = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
+        if (fundingAmountShouldHave < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+            fundingAmountShouldHave = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
         long spendableAmount =  coluAccount.getSatoshiBtcOnlyAmount();
-        return spendableAmount >= (fundingAmountToSend + 4 * ColuManager.DUST_OUTPUT_SIZE);
+        return spendableAmount >= (fundingAmountShouldHave);
     }
 
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
@@ -654,13 +658,6 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
       savedInstanceState.putSerializable(SIGNED_TRANSACTION, _signedTransaction);
    }
-
-//    @OnClick(R.id.btCustomFee)
-//    void customFeeClick() {
-//        GetAmountActivity.callMe(this, REQUEST_CODE_GET_CUSTOM_FEE, _account.getId()
-//                , ExactBitcoinValue.from(customFee)
-//                , 0L, _isColdStorage);
-//    }
 
     @OnClick(R.id.colu_tips_check_address)
     void tipsClick() {
@@ -713,7 +710,6 @@ public class SendMainActivity extends Activity {
          }
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
-
       }
    }
 
@@ -983,20 +979,24 @@ public class SendMainActivity extends Activity {
                             //Create funding transaction and broadcast it to network
                             List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
                             long txFee = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
-                            long fundingAmountToSend = txFee;
+                            long fundingAmountToSend = txFee + getAmountForColuTxOutputs();
 
                             if (txFee < TransactionUtils.MINIMUM_OUTPUT_VALUE)
                                 fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
-                            WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend + ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE);
+                            WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend);
                             receivers.add(coluReceiver);
                             try {
-                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, txFee);
+                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
                                 Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
                                 WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
                                 if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
                                     return createEmptyColuBroadcastJson();
                                 }
+
+                                //Broadcast the transaction through ColoredCoins' BTC node
+                                coluManager.broadcastTransaction(signedFundingTransaction);
+
                             } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException | KeyCipher.InvalidKeyCipher ex) {
                                 return createEmptyColuBroadcastJson();
                             }
