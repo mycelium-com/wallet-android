@@ -959,9 +959,9 @@ public class SendMainActivity extends Activity {
             ExactCurrencyValue nativeAmount = ExactCurrencyValue.from(_amountToSend.getValue(), _amountToSend.getCurrency());
             Log.d(TAG, "preparing colutx");
             final ColuManager coluManager = _mbwManager.getColuManager();
-
+            final long feePerKb = feePerKbValue;
             ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
-                    coluAccount, feePerKbValue);
+                    coluAccount, feePerKb);
 
             if(callback != null) {
                 new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxHex.Json>() {
@@ -978,7 +978,7 @@ public class SendMainActivity extends Activity {
 
                             //Create funding transaction and broadcast it to network
                             List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
-                            long txFee = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue);
+                            long txFee = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
                             long fundingAmountToSend = txFee + getAmountForColuTxOutputs();
 
                             if (txFee < TransactionUtils.MINIMUM_OUTPUT_VALUE)
