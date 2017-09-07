@@ -16,7 +16,8 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.ColuBroadcastTxid;
+import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
+import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.ColuTransactionRequest;
 import com.mycelium.wallet.colu.json.ColuTxDest;
 import com.mycelium.wallet.colu.json.ColuTxFlags;
@@ -79,9 +80,9 @@ public class ColuClient {
 
    private final String config;
 
-   private static String MAINNET_COLOREDCOINS_API_URL = "https://api.coloredcoins.org/v3/";
+   private static String MAINNET_COLOREDCOINS_API_URL = "https://coloredcoinsd.gear.mycelium.com/v3/";
    private static String TESTNET_COLOREDCOINS_API_URL = "http://testnet.api.coloredcoins.org/v3/";
-   private static String MAINNET_COLU_BLOCK_EXPLORER_URL = "https://explorer.coloredcoins.org/api/";
+   private static String MAINNET_COLU_BLOCK_EXPLORER_URL = "https://coloredcoins.gear.mycelium.com/api/";
    private static String TESTNET_COLU_BLOCK_EXPLORER_URL = "http://testnet.explorer.coloredcoins.org/api/";
 
    public ColuClient(NetworkParameters network) {
@@ -256,9 +257,9 @@ public class ColuClient {
    }
 
    //TODO: move most of the logic to ColuManager
-   public ColuBroadcastTxid.Json prepareTransaction(Address destAddress, List<Address> src,
-                                                    ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
-                                                    long txFee)
+   public ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
+                                                     ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
+                                                     long txFee)
            throws IOException {
       Log.d(TAG, "prepareTransaction");
       if (destAddress == null) {
@@ -344,7 +345,7 @@ public class ColuClient {
          // do we need to set this one as well ?
          request.financeOutputTxid = "";
       }
-      return makePostRequest(ColuBroadcastTxid.Json.class,
+      return makePostRequest(ColuBroadcastTxHex.Json.class,
               new GenericUrl(getColoredCoinsApiURL() + "sendasset"),
               null, request);
    }
@@ -357,12 +358,12 @@ public class ColuClient {
       return builder.toString();
    }
 
-   public ColuBroadcastTxid.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
-      ColuBroadcastTxid.Json tx = new ColuBroadcastTxid.Json();
+   public ColuBroadcastTxId.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
+      ColuBroadcastTxHex.Json tx = new ColuBroadcastTxHex.Json();
       byte[] signedTr = coluSignedTransaction.toBytes();
       tx.txHex = bytesToHex(signedTr);
       Log.d(TAG, "broadcastTransaction: hexbytes=" + tx.txHex);
-      return makePostRequest(ColuBroadcastTxid.Json.class,
+      return makePostRequest(ColuBroadcastTxId.Json.class,
               new GenericUrl(getColoredCoinsApiURL() + "broadcast"),
               null, tx);
    }

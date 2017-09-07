@@ -564,7 +564,7 @@
     <string name="dont_allow_hiding_used_notification">You cannot hide a used account, but you can archive it</string>
     <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
     <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average.</string>
-    <string name="miner_fee_lowprio_name">Low-prio</string>
+    <string name="miner_fee_lowprio_name">Low-priority</string>
     <string name="miner_fee_economic_name">Economic</string>
     <string name="miner_fee_normal_name">Normal</string>
     <string name="miner_fee_priority_name">Priority</string>
@@ -1068,6 +1068,9 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
+    <string name="miner_fee_custom" >Custom</string>
+    <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
+    <string name="fee_is_zero">Transaction might never happen!</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

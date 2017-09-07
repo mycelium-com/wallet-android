@@ -133,14 +133,14 @@ public class RMCAddressFragment extends Fragment {
                 return;
             if (result.totalRmcHashrate != 0) {
                 // peta flops
-                tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(9)
+                tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(15)
                         .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
             } else {
                 tvTotalHP.setText(R.string.not_available);
             }
             if (result.yourRmcHashrate != 0) {
                 // tera flops
-                tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(6)
+                tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(12)
                         .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
             } else {
                 tvUserHP.setText(R.string.not_available);

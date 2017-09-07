@@ -38,6 +38,7 @@ dependencies {
     // TODO: upgrade this! and remove the exclude support-v4 below
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
     //not upgrading. This will be removed from the core app
     compile('com.google.android.gms:play-services-base:7.8.0') {
         exclude module: 'support-v4'
@@ -93,8 +94,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290204
-        versionName '2.9.2'
+        versionCode 290300
+        versionName '2.9.3'
         multiDexEnabled true
     }
 

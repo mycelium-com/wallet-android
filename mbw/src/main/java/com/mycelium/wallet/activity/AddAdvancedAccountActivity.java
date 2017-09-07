@@ -325,7 +325,7 @@ public class AddAdvancedAccountActivity extends Activity {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
-                          if (i == 0) {
+                          if (selectedItem == 0) {
                              account = returnSAAccount(key, backupState);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());

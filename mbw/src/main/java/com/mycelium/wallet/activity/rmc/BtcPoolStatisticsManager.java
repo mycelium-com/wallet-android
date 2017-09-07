@@ -63,7 +63,7 @@ public class BtcPoolStatisticsManager {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(inputStream, baos, true);
             return Long.parseLong(baos.toString().replace("\n", ""));
-        } catch (IOException ex) {
+        } catch (Exception ex) {
         }
         return null;
     }

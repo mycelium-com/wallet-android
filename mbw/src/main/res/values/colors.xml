@@ -41,6 +41,9 @@
     <color name="status_yellow">#ddb352</color>
 
     <color name="rmc_active">#ff8838</color>
+    <color name="horizontalpicker_text_color">#fff</color>
+    <color name="fee_recycler_item_selected">#363d46</color>
+    <color name="fee_recycler_item">#2c3239</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>
