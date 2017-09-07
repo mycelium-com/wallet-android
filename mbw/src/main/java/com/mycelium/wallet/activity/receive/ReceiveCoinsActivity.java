@@ -395,7 +395,8 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       if (interesting.size() > 0) {
-         tvRecv.setText(getString(R.string.incoming_payment) + Utils.getFormattedValueWithUnit(sum, _mbwManager.getBitcoinDenomination()));
+         tvRecv.setText(getString(R.string.incoming_payment) + (_mbwManager.getSelectedAccount() instanceof ColuAccount ?
+                 Utils.getFormattedValueWithUnit(sum, _mbwManager.getBitcoinDenomination()) : Utils.getColuFormattedValueWithUnit(sum)));
          // if the user specified an amount, also check it if it matches up...
          if (!CurrencyValue.isNullOrZero(_amount)) {
             tvRecvWarning.setVisibility(sum.equals(_amount) ? View.GONE : View.VISIBLE);

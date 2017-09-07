@@ -102,6 +102,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
    private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
+   public static final int MILLISENCONDS_IN_SECOND = 1000;
 
    private final ColuManager manager;
    private final Bus eventBus;
@@ -522,7 +523,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          List<TransactionSummary> list = getTransactionSummaries();
          final ArrayList<TransactionSummary> result = new ArrayList<TransactionSummary>();
          for (TransactionSummary item : list) {
-            if (item.time < receivingSince) {
+            if (item.time * MILLISENCONDS_IN_SECOND < receivingSince) {
                break;
             }
             result.add(item);
@@ -926,7 +927,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
       private static final ColuAsset testNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM", 4, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
       private static final ColuAsset testNetAssetMass = new ColuAsset(ColuAssetType.MASS, "MSS", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "Ua6XMGm6XLCDig5LfsrVABSN1XfDWDY9HZyRKP", 4, "");
+      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc", 4, "");
 
       private static final Map<String, ColuAsset> mainNetAssetMap = ImmutableMap.of(
               mainNetAssetMT.id, mainNetAssetMT,
