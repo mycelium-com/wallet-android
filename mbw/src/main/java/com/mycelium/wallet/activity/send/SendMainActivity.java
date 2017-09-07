@@ -84,13 +84,13 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
-import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
@@ -167,7 +167,7 @@ public class SendMainActivity extends Activity {
 
 
     private enum TransactionStatus {
-        MissingArguments, OutputTooSmall, InsufficientFunds, OK
+        MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK
     }
 
     @BindView(R.id.tvAmount)
@@ -336,10 +336,6 @@ public class SendMainActivity extends Activity {
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
         feeLvl = _mbwManager.getMinerFee();
-        if ((_account instanceof ColuAccount && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
-                || checkIsRMCICOPaymentRequest()) {
-            feeLvl = feeLvl == MinerFee.NORMAL ? MinerFee.NORMAL : MinerFee.PRIORITY;
-        }
         feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
         feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();
 
@@ -411,22 +407,8 @@ public class SendMainActivity extends Activity {
             llFee.setVisibility(GONE);
         }
 
-        //TODO: fee from other bitcoin account if colu
-        if (isColu()) {
-            // no sepa payment with colu
-            List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
-            walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
-            for (WalletAccount walletAccount : walletAccountList) {
-                if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()
-                        && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
-                        && walletAccount.getBalance().getSpendableBalance() > _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue)) {
-                    feeColuAccount = walletAccount;
-                    break;
-                }
-            }
 
-            coluSpendAccount();
-        }
+        checkHaveSpendAccount();
 
         // Amount Hint
         if (_account instanceof ColuAccount) {
@@ -459,7 +441,12 @@ public class SendMainActivity extends Activity {
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
                 feePerKbValue = item.feePerKb;
+                updateRecipient();
+                checkHaveSpendAccount();
+                updateAmount();
                 updateFeeText();
+                updateError();
+                btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
             }
         });
         feeValueList.setAdapter(feeViewAdapter);
@@ -491,7 +478,7 @@ public class SendMainActivity extends Activity {
     }
 
     private void addItemsInRange(List<FeeItem> feeItems, long from, long to, long step) {
-        for (long i = from; i < to; i += step) {
+        for (long i = from, j = 0; i < to && j < 10; i += step, j++) {
             int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
             int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
             int size = estimateTransactionSize(inCount, outCount);
@@ -511,13 +498,7 @@ public class SendMainActivity extends Activity {
 
     private void initFeeLvlView() {
         feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        List<MinerFee> fees;
-        if ((isColu() && ((ColuAccount) _account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC)
-               || checkIsRMCICOPaymentRequest()) {
-            fees = Arrays.asList(MinerFee.NORMAL, MinerFee.PRIORITY);
-        } else {
-            fees = Arrays.asList(MinerFee.values());
-        }
+        List<MinerFee> fees = Arrays.asList(MinerFee.values());
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : fees) {
@@ -567,28 +548,40 @@ public class SendMainActivity extends Activity {
     }
 
 
-    private boolean checkIsRMCICOPaymentRequest() {
-        return _bitcoinUri != null && _bitcoinUri.callbackURL != null && new RmcApiClient(_mbwManager.getNetwork()).isCallbackMine(_bitcoinUri.callbackURL);
-    }
-
-    private void coluSpendAccount() {
-
-        if(feeColuAccount != null) {
-            if(checkFee(true))  {
-                btFeeFromAccount.setVisibility(View.GONE);
-            } else{
-                String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
-                Optional<Address> receivingAddress = feeColuAccount.getReceivingAddress();
-                if (receivingAddress.isPresent()) {
-                    btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
-                    btFeeFromAccount.setVisibility(View.VISIBLE);
+    //TODO: fee from other bitcoin account if colu
+    private void checkHaveSpendAccount() {
+        if(isColu()) {
+            List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
+            walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
+            feeColuAccount = null;
+            for (WalletAccount walletAccount : walletAccountList) {
+                if (walletAccount.canSpend()
+                        && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
+                        && walletAccount.getBalance().getSpendableBalance() >= _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue)) {
+                    feeColuAccount = walletAccount;
+                    break;
                 }
             }
-        } else if(isColu()){
-            _transactionStatus = TransactionStatus.InsufficientFunds;
-            btFeeFromAccount.setVisibility(View.GONE);
-            tvError.setText(R.string.requires_btc_amount);
-            tvError.setVisibility(View.VISIBLE);
+
+            if (feeColuAccount != null) {
+                if (checkFee(true)) {
+                    AnimationUtils.collapse(btFeeFromAccount, null);
+                } else {
+                    String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
+                    Optional<Address> receivingAddress = feeColuAccount.getReceivingAddress();
+                    if (receivingAddress.isPresent()) {
+                        btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
+                        AnimationUtils.expand(btFeeFromAccount, null);
+                    }
+                }
+                if(_transactionStatus == TransactionStatus.InsufficientFundsForFee) {
+                    _transactionStatus = TransactionStatus.OK;
+                }
+
+            } else {
+                _transactionStatus = TransactionStatus.InsufficientFundsForFee;
+                AnimationUtils.collapse(btFeeFromAccount, null);
+            }
         }
     }
 
@@ -1124,17 +1117,16 @@ public class SendMainActivity extends Activity {
     private void updateUi() {
         // TODO: profile. slow!
         updateRecipient();
+        checkHaveSpendAccount();
         updateAmount();
-        updateFee();
-        findAndSetSelectedPosition(fillFee(feeViewAdapter, feeLvl));
+        updateFeeText();
+        updateError();
 
         // Enable/disable send button
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
-    }
 
-    private void updateFee() {
-        coluSpendAccount();
+        findAndSetSelectedPosition(fillFee(feeViewAdapter, feeLvl));
     }
 
     private void updateRecipient() {
@@ -1232,110 +1224,130 @@ public class SendMainActivity extends Activity {
    }
 
    private void updateAmount() {
-      // Update Amount
-      if (_amountToSend == null) {
-         // No amount to show
-         tvAmountTitle.setText(R.string.enter_amount_title);
-         tvAmount.setText("");
-         tvAmountFiat.setVisibility(GONE);
-         tvError.setVisibility(GONE);
-      } else {
-         tvAmountTitle.setText(R.string.amount_title);
-         switch (_transactionStatus) {
-            case OutputTooSmall:
-               // Amount too small
-               tvAmount.setText(_mbwManager.getBtcValueString(getBitcoinValueToSend().getLongValue()));
-               tvAmountFiat.setVisibility(GONE);
-               if (isCoinapult()) {
-                  CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
-                  tvError.setText(
-                        getString(
-                              R.string.coinapult_amount_too_small,
-                              coinapultAccount.getCoinapultCurrency().minimumConversationValue,
-                              coinapultAccount.getCoinapultCurrency().name)
-                  );
-               } else {
-                  tvError.setText(R.string.amount_too_small_short);
-               }
-               tvError.setVisibility(VISIBLE);
-               break;
-            case InsufficientFunds:
-               // Insufficient funds
-               tvAmount.setText(
-                     Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
-               );
-               tvError.setText(R.string.insufficient_funds);
-               tvError.setVisibility(VISIBLE);
-               break;
-            default:
-               // Set Amount
-               if (!CurrencyValue.isNullOrZero(_amountToSend)) {
-                  // show the user entered value as primary amount
-                  CurrencyValue primaryAmount = _amountToSend;
-                  CurrencyValue alternativeAmount;
-                  if (primaryAmount.getCurrency().equals(_account.getAccountDefaultCurrency())) {
-                     if (primaryAmount.isBtc() || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrency())) {
-                        // if the accounts default currency is BTC and the user entered BTC, use the current
-                        // selected fiat as alternative currency
-                        alternativeAmount = CurrencyValue.fromValue(
-                              primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
-                        );
-                     } else {
-                        // if the accounts default currency isn't BTC, use BTC as alternative
-                        alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
-                              primaryAmount, _mbwManager.getExchangeRateManager()
-                        );
-                     }
-                  } else {
-                     // use the accounts default currency as alternative
-                     alternativeAmount = CurrencyValue.fromValue(
-                           primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
-                     );
-                  }
-                  String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-                   if(isColu()){
-                       sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount);
-                   } else if (!primaryAmount.isBtc()) {
-                     // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
-                     // on a FX rate
-                     sendAmount = "~ " + sendAmount;
-                  }
-                  tvAmount.setText(sendAmount);
-                  if (CurrencyValue.isNullOrZero(alternativeAmount)) {
-                     tvAmountFiat.setVisibility(GONE);
-                  } else {
-                     // show the alternative amount
-                     String alternativeAmountString =
-                           Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+       // Update Amount
+       if (_amountToSend == null) {
+           // No amount to show
+           tvAmountTitle.setText(R.string.enter_amount_title);
+           tvAmount.setText("");
+           tvAmountFiat.setVisibility(GONE);
+       } else {
+           tvAmountTitle.setText(R.string.amount_title);
+           switch (_transactionStatus) {
+               case OutputTooSmall:
+                   // Amount too small
+                   tvAmount.setText(_mbwManager.getBtcValueString(getBitcoinValueToSend().getLongValue()));
+                   tvAmountFiat.setVisibility(GONE);
+                   break;
+               case InsufficientFunds:
+                   // Insufficient funds
+                   tvAmount.setText(
+                           Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
+                   );
+                   break;
+               default:
+                   // Set Amount
+                   if (!CurrencyValue.isNullOrZero(_amountToSend)) {
+                       // show the user entered value as primary amount
+                       CurrencyValue primaryAmount = _amountToSend;
+                       CurrencyValue alternativeAmount;
+                       if (primaryAmount.getCurrency().equals(_account.getAccountDefaultCurrency())) {
+                           if (primaryAmount.isBtc() || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrency())) {
+                               // if the accounts default currency is BTC and the user entered BTC, use the current
+                               // selected fiat as alternative currency
+                               alternativeAmount = CurrencyValue.fromValue(
+                                       primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
+                               );
+                           } else {
+                               // if the accounts default currency isn't BTC, use BTC as alternative
+                               alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
+                                       primaryAmount, _mbwManager.getExchangeRateManager()
+                               );
+                           }
+                       } else {
+                           // use the accounts default currency as alternative
+                           alternativeAmount = CurrencyValue.fromValue(
+                                   primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
+                           );
+                       }
+                       String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                       if (isColu()) {
+                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount);
+                       } else if (!primaryAmount.isBtc()) {
+                           // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+                           // on a FX rate
+                           sendAmount = "~ " + sendAmount;
+                       }
+                       tvAmount.setText(sendAmount);
+                       if (CurrencyValue.isNullOrZero(alternativeAmount)) {
+                           tvAmountFiat.setVisibility(GONE);
+                       } else {
+                           // show the alternative amount
+                           String alternativeAmountString =
+                                   Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
 
-                  if (!alternativeAmount.isBtc()) {
-                     // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
-                     // on a FX rate
-                     alternativeAmountString = "~ " + alternativeAmountString;
-                  }
+                           if (!alternativeAmount.isBtc()) {
+                               // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+                               // on a FX rate
+                               alternativeAmountString = "~ " + alternativeAmountString;
+                           }
 
-                     tvAmountFiat.setText(alternativeAmountString);
-                     tvAmountFiat.setVisibility(VISIBLE);
-                  }
-               } else {
-                  tvAmount.setText("");
-                  tvAmountFiat.setText("");
-               }
-
-               tvError.setVisibility(GONE);
-               //check if we need to warn the user about unconfirmed funds
-               tvUnconfirmedWarning.setVisibility(_spendingUnconfirmed ? VISIBLE : GONE);
-               break;
-         }
-      }
+                           tvAmountFiat.setText(alternativeAmountString);
+                           tvAmountFiat.setVisibility(VISIBLE);
+                       }
+                   } else {
+                       tvAmount.setText("");
+                       tvAmountFiat.setText("");
+                   }
+                   break;
+           }
+       }
 
       // Disable Amount button if we have a payment request with valid amount
       if (_paymentRequestHandler != null && _paymentRequestHandler.getPaymentRequestInformation().hasAmount()) {
          btEnterAmount.setEnabled(false);
       }
-
-       updateFeeText();
    }
+
+
+    void updateError() {
+        boolean tvErrorShow;
+        switch (_transactionStatus) {
+            case OutputTooSmall:
+                // Amount too small
+                if (isCoinapult()) {
+                    CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
+                    tvError.setText(
+                            getString(
+                                    R.string.coinapult_amount_too_small,
+                                    coinapultAccount.getCoinapultCurrency().minimumConversationValue,
+                                    coinapultAccount.getCoinapultCurrency().name)
+                    );
+                } else {
+                    tvError.setText(R.string.amount_too_small_short);
+                }
+                tvErrorShow = true;
+                break;
+            case InsufficientFunds:
+                tvError.setText(R.string.insufficient_funds);
+                tvErrorShow = true;
+                break;
+            case InsufficientFundsForFee:
+                tvError.setText(R.string.requires_btc_amount);
+                tvErrorShow = true;
+                break;
+            default:
+                tvErrorShow = false;
+                //check if we need to warn the user about unconfirmed funds
+                tvUnconfirmedWarning.setVisibility(_spendingUnconfirmed ? VISIBLE : GONE);
+                break;
+        }
+
+        if(tvErrorShow && tvError.getVisibility() != VISIBLE) {
+            AnimationUtils.expand(tvError, null);
+        }else if(!tvErrorShow && tvError.getVisibility() == VISIBLE) {
+            AnimationUtils.collapse(tvError, null);
+        }
+    }
 
 
     private void updateFeeText() {
