@@ -50,5 +50,5 @@
         android:layout_gravity="top|center_horizontal"
         android:scaleType="center"
         android:duplicateParentState="true"
-        android:src="@drawable/recyclerview_item_triangle_selected" />
+        android:src="@drawable/recyclerview_item_bottom_rectangle_selector" />
 </FrameLayout>
