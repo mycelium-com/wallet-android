@@ -38,6 +38,7 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
+            v.findViewById(R.id.categorytextView).setVisibility(View.GONE);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_bottom_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
