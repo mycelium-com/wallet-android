@@ -102,6 +102,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
    private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
+   public static final int MILLISENCONDS_IN_SECOND = 1000;
 
    private final ColuManager manager;
    private final Bus eventBus;
@@ -522,7 +523,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          List<TransactionSummary> list = getTransactionSummaries();
          final ArrayList<TransactionSummary> result = new ArrayList<TransactionSummary>();
          for (TransactionSummary item : list) {
-            if (item.time < receivingSince) {
+            if (item.time * MILLISENCONDS_IN_SECOND < receivingSince) {
                break;
             }
             result.add(item);
