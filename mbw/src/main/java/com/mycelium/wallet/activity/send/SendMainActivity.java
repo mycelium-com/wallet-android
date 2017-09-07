@@ -565,13 +565,17 @@ public class SendMainActivity extends Activity {
 
             if (feeColuAccount != null) {
                 if (checkFee(true)) {
-                    AnimationUtils.collapse(btFeeFromAccount, null);
+                    if(btFeeFromAccount.getVisibility() == VISIBLE) {
+                        AnimationUtils.collapse(btFeeFromAccount, null);
+                    }
                 } else {
                     String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
                     Optional<Address> receivingAddress = feeColuAccount.getReceivingAddress();
                     if (receivingAddress.isPresent()) {
                         btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
-                        AnimationUtils.expand(btFeeFromAccount, null);
+                        if(btFeeFromAccount.getVisibility() != VISIBLE) {
+                            AnimationUtils.expand(btFeeFromAccount, null);
+                        }
                     }
                 }
                 if(_transactionStatus == TransactionStatus.InsufficientFundsForFee) {
@@ -580,7 +584,9 @@ public class SendMainActivity extends Activity {
 
             } else {
                 _transactionStatus = TransactionStatus.InsufficientFundsForFee;
-                AnimationUtils.collapse(btFeeFromAccount, null);
+                if(btFeeFromAccount.getVisibility() == VISIBLE) {
+                    AnimationUtils.collapse(btFeeFromAccount, null);
+                }
             }
         }
     }

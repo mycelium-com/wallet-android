@@ -47,9 +47,10 @@
 
     <ImageView
         android:id="@+id/rectangle"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:scaleType="center"
+        android:duplicateParentState="true"
         android:src="@drawable/recyclerview_item_triangle_selected" />
 </FrameLayout>

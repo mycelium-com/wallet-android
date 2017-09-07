@@ -6,9 +6,6 @@ import android.animation.ValueAnimator;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static android.view.View.MeasureSpec.AT_MOST;
-import static android.view.View.MeasureSpec.EXACTLY;
-
 /**
  * Created by elvis on 07.09.17.
  */
@@ -32,7 +29,7 @@ public class AnimationUtils {
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 view.setVisibility(View.GONE);
-                if(end != null) {
+                if (end != null) {
                     end.run();
                 }
             }
@@ -61,7 +58,7 @@ public class AnimationUtils {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                if(end != null) {
+                if (end != null) {
                     end.run();
                 }
             }
