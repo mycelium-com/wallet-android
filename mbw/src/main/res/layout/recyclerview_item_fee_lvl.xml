@@ -27,9 +27,7 @@
             android:id="@+id/itemTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="middle"
             android:gravity="center_horizontal"
-            android:lines="1"
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="14sp"
             tools:text="MRD" />
