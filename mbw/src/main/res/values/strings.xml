@@ -564,7 +564,7 @@
     <string name="dont_allow_hiding_used_notification">You cannot hide a used account, but you can archive it</string>
     <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
     <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average.</string>
-    <string name="miner_fee_lowprio_name">Low-prio</string>
+    <string name="miner_fee_lowprio_name">Low-priority</string>
     <string name="miner_fee_economic_name">Economic</string>
     <string name="miner_fee_normal_name">Normal</string>
     <string name="miner_fee_priority_name">Priority</string>
