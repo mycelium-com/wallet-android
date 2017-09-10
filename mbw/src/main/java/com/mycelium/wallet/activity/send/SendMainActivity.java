@@ -255,7 +255,7 @@ public class SendMainActivity extends Activity {
     private boolean _xpubSyncing = false;
     private boolean _spendingUnconfirmed = false;
     private boolean _paymentFetched = false;
-    private WalletAccount feeColuAccount;
+    private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
 
@@ -551,45 +551,53 @@ public class SendMainActivity extends Activity {
     //TODO: fee from other bitcoin account if colu
     private void checkHaveSpendAccount() {
         if(isColu()) {
-            List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
-            walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
-            feeColuAccount = null;
-            for (WalletAccount walletAccount : walletAccountList) {
-                if (walletAccount.canSpend()
-                        && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
-                        && walletAccount.getBalance().getSpendableBalance() >=
-                        _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs()) {
-                    feeColuAccount = walletAccount;
-                    break;
+            if (checkFee(true)) {
+                if (btFeeFromAccount.getVisibility() == VISIBLE) {
+                    AnimationUtils.collapse(btFeeFromAccount, null);
                 }
-            }
-
-            if (feeColuAccount != null) {
-                if (checkFee(true)) {
-                    if(btFeeFromAccount.getVisibility() == VISIBLE) {
-                        AnimationUtils.collapse(btFeeFromAccount, null);
-                    }
-                } else {
-                    String name = _mbwManager.getMetadataStorage().getLabelByAccount(feeColuAccount.getId());
-                    Optional<Address> receivingAddress = feeColuAccount.getReceivingAddress();
-                    if (receivingAddress.isPresent()) {
-                        btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
-                        if(btFeeFromAccount.getVisibility() != VISIBLE) {
-                            AnimationUtils.expand(btFeeFromAccount, null);
-                        }
+                if (_transactionStatus == TransactionStatus.InsufficientFundsForFee) {
+                    _transactionStatus = TransactionStatus.OK;
+                }
+            } else if (canFundColuFrom(fundColuAccount) || (fundColuAccount = getFundAccount()) != null) {
+                String name = _mbwManager.getMetadataStorage().getLabelByAccount(fundColuAccount.getId());
+                Optional<Address> receivingAddress = fundColuAccount.getReceivingAddress();
+                if (receivingAddress.isPresent()) {
+                    btFeeFromAccount.setText("from " + name + " : " + receivingAddress.get().getShortAddress());
+                    if (btFeeFromAccount.getVisibility() != VISIBLE) {
+                        AnimationUtils.expand(btFeeFromAccount, null);
                     }
                 }
-                if(_transactionStatus == TransactionStatus.InsufficientFundsForFee) {
+                if (_transactionStatus == TransactionStatus.InsufficientFundsForFee) {
                     _transactionStatus = TransactionStatus.OK;
                 }
 
             } else {
                 _transactionStatus = TransactionStatus.InsufficientFundsForFee;
-                if(btFeeFromAccount.getVisibility() == VISIBLE) {
+                if (btFeeFromAccount.getVisibility() == VISIBLE) {
                     AnimationUtils.collapse(btFeeFromAccount, null);
                 }
             }
         }
+    }
+
+    private WalletAccount getFundAccount() {
+        WalletAccount fundColuAccount = null;
+        List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
+        walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
+        for (WalletAccount walletAccount : walletAccountList) {
+            if (canFundColuFrom(walletAccount)) {
+                fundColuAccount = walletAccount;
+                break;
+            }
+        }
+        return fundColuAccount;
+    }
+
+    private boolean canFundColuFrom(WalletAccount walletAccount) {
+        return walletAccount != null && walletAccount.canSpend()
+                && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
+                && walletAccount.getBalance().getSpendableBalance() >=
+                _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
     }
 
     private long getAmountForColuTxOutputs() {
@@ -972,7 +980,7 @@ public class SendMainActivity extends Activity {
 
                             // Handling the abnormal use case when a colu account doesn't have enough funds
                             // and however it is chosen itself for funding
-                            if (coluAccount.getLinkedAccount() == feeColuAccount) {
+                            if (coluAccount.getLinkedAccount() == fundColuAccount) {
                                 return createEmptyColuBroadcastJson();
                             }
 
@@ -987,9 +995,9 @@ public class SendMainActivity extends Activity {
                             WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend);
                             receivers.add(coluReceiver);
                             try {
-                                UnsignedTransaction fundingTransaction = feeColuAccount.createUnsignedTransaction(receivers, feePerKb);
-                                Transaction signedFundingTransaction = feeColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
-                                WalletAccount.BroadcastResult broadcastResult = feeColuAccount.broadcastTransaction(signedFundingTransaction);
+                                UnsignedTransaction fundingTransaction = fundColuAccount.createUnsignedTransaction(receivers, feePerKb);
+                                Transaction signedFundingTransaction = fundColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
+                                WalletAccount.BroadcastResult broadcastResult = fundColuAccount.broadcastTransaction(signedFundingTransaction);
                                 if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
                                     return createEmptyColuBroadcastJson();
                                 }
@@ -1560,7 +1568,7 @@ public class SendMainActivity extends Activity {
         } else if(requestCode == REQUET_BTC_ACCOUNT){
             if(resultCode == RESULT_OK) {
                 UUID id = (UUID) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_ID);
-                feeColuAccount = _mbwManager.getWalletManager(false).getAccount(id);
+                fundColuAccount = _mbwManager.getWalletManager(false).getAccount(id);
             }
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
