@@ -917,13 +917,19 @@ public class SendMainActivity extends Activity {
             return TransactionStatus.MissingArguments;
          }
       } catch (InsufficientFundsException e) {
-         makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+          if(_transactionStatus != TransactionStatus.InsufficientFunds) {
+              makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+          }
          return TransactionStatus.InsufficientFunds;
       } catch (OutputTooSmallException e1) {
-         makeText(this, getResources().getString(R.string.amount_too_small), LENGTH_LONG).show();
+          if(_transactionStatus != TransactionStatus.OutputTooSmall) {
+              makeText(this, getResources().getString(R.string.amount_too_small), LENGTH_LONG).show();
+          }
          return TransactionStatus.OutputTooSmall;
       } catch (UnableToBuildTransactionException e) {
-         makeText(this, getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+          if(_transactionStatus != TransactionStatus.MissingArguments) {
+              makeText(this, getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+          }
          // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
          // debug it
          _mbwManager.reportIgnoredException("MinerFeeException", e);
@@ -1367,7 +1373,7 @@ public class SendMainActivity extends Activity {
 
     private void updateFeeText() {
         // Update Fee-Display
-        tryCreateUnsignedTransaction();
+        _transactionStatus = tryCreateUnsignedTransaction();
         if (_unsigned == null) {
             // Only show button for fee lvl, cannot calculate fee yet
         } else {
