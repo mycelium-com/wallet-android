@@ -206,6 +206,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
       List<TransactionSummary> history = account.getTransactionHistory(0, 20);
       Collections.sort(history);
+      Collections.reverse(history);
       if (history.isEmpty()) {
          _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
