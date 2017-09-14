@@ -1071,6 +1071,11 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="miner_fee_custom" >Custom</string>
     <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
     <string name="fee_is_zero">Transaction might never happen!</string>
+    <string name="fee_change_warning" formatted="false"><![CDATA[Your <font color="#4583de">change</font> is less than Bitcoin network output limit. Total miner fee will be increased to %s %s!]]></string>
+    <string name="fee_change_description">Change is what\'s left in your output after transaction has been sent. Current change is less than Bitcoin network output limit (0.0000546 BTC).\nYou can resolve this issue by:\n
+1) decreasing sending amount in order to get your change back;\n
+2) increasing sending amount to a maximum;\n
+3) adjusting miner fee to fit in the network output limit.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

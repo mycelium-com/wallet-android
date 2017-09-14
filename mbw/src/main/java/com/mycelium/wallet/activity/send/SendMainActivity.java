@@ -45,6 +45,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -52,6 +53,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -213,7 +215,7 @@ public class SendMainActivity extends Activity {
     @BindView(R.id.llFee)
     LinearLayout llFee;
     @BindView(R.id.llEnterRecipient)
-    LinearLayout llEnterRecipient;
+    View llEnterRecipient;
     @BindView(R.id.llRecipientAddress)
     LinearLayout llRecipientAddress;
     @BindView(R.id.btFromBtcAccount)
@@ -430,6 +432,7 @@ public class SendMainActivity extends Activity {
 
     }
     private FeeViewAdapter feeViewAdapter;
+    private boolean showSendBtn = true;
 
     private void initFeeView() {
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -447,6 +450,13 @@ public class SendMainActivity extends Activity {
                 updateFeeText();
                 updateError();
                 btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
+                ScrollView scrollView = (ScrollView) findViewById(R.id.root);
+
+                if(showSendBtn && scrollView.getMaxScrollAmount() - scrollView.getScaleY() > 0) {
+                    scrollView.smoothScrollBy(0, scrollView.getMaxScrollAmount());
+                    showSendBtn = false;
+                }
+
             }
         });
         feeValueList.setAdapter(feeViewAdapter);
@@ -454,22 +464,27 @@ public class SendMainActivity extends Activity {
         feeValueList.setHasFixedSize(true);
     }
 
+
+    private static int HALF_FEE_ITEMS = 5;
+
     @NonNull
     private List<FeeItem> fillFee(FeeViewAdapter feeViewAdapter, MinerFee feeLvl) {
         long min = 0;
-        if (feeLvl != MinerFee.LOWPRIO) {
-            min = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
-        }
-        long max = 3 * MinerFee.PRIORITY.getFeePerKb(feeEstimation).getLongValue() / 2 ;
-        if (feeLvl != MinerFee.PRIORITY) {
-            max = feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue();
-        }
         long current = feeLvl.getFeePerKb(feeEstimation).getLongValue();
+        if (feeLvl != MinerFee.LOWPRIO) {
+            long prevValue = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
+            prevValue = prevValue == current ? prevValue / 2 : prevValue;
+            min = (current + prevValue) / 2;
+        }
+        long max = 3 * MinerFee.PRIORITY.getFeePerKb(feeEstimation).getLongValue() / 2;
+        if (feeLvl != MinerFee.PRIORITY) {
+            max = (feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue() + current) / 2;
+        }
 
         List<FeeItem> feeItems = new ArrayList<>();
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        addItemsInRange(feeItems, min, current, Math.max((current - min) / 10, 1));
-        addItemsInRange(feeItems, current, max, Math.max((max - current) / 10, 1));
+        addItemsInRange(feeItems, min, current, Math.max((current - min) / HALF_FEE_ITEMS, 1));
+        addItemsInRange(feeItems, current, max, Math.max((max - current) / HALF_FEE_ITEMS, 1));
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
 
         feeViewAdapter.setDataset(feeItems.toArray(new FeeItem[feeItems.size()]));
@@ -478,7 +493,7 @@ public class SendMainActivity extends Activity {
     }
 
     private void addItemsInRange(List<FeeItem> feeItems, long from, long to, long step) {
-        for (long i = from, j = 0; i < to && j < 10; i += step, j++) {
+        for (long i = from, j = 0; i < to && j < HALF_FEE_ITEMS; i += step, j++) {
             int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
             int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
             int size = estimateTransactionSize(inCount, outCount);
@@ -1374,6 +1389,11 @@ public class SendMainActivity extends Activity {
     private void updateFeeText() {
         // Update Fee-Display
         _transactionStatus = tryCreateUnsignedTransaction();
+        String feeWarning = null;
+        tvFeeWarning.setOnClickListener(null);
+        if (feePerKbValue == 0) {
+            feeWarning = getString(R.string.fee_is_zero);
+        }
         if (_unsigned == null) {
             // Only show button for fee lvl, cannot calculate fee yet
         } else {
@@ -1382,12 +1402,29 @@ public class SendMainActivity extends Activity {
             int size = estimateTransactionSize(inCount, outCount);
 
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
-        }
 
-        tvFeeWarning.setVisibility(feePerKbValue == 0 ? View.VISIBLE : View.GONE);
-        if(feePerKbValue == 0) {
-            tvFeeWarning.setText(R.string.fee_is_zero);
+            long fee = _unsigned.calculateFee();
+            if (fee != size * feePerKbValue / 1000) {
+                CurrencyValue value = ExactBitcoinValue.from(fee);
+                CurrencyValue fiatValue = CurrencyValue.fromValue(value, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+                String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
+                fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
+                feeWarning = getString(R.string.fee_change_warning
+                        , Utils.getFormattedValueWithUnit(value, _mbwManager.getBitcoinDenomination())
+                        , fiat);
+                tvFeeWarning.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new AlertDialog.Builder(SendMainActivity.this)
+                                .setMessage(R.string.fee_change_description)
+                                .setPositiveButton(R.string.button_ok, null).create()
+                                .show();
+                    }
+                });
+            }
         }
+        tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
+        tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
     }
 
     @Override
