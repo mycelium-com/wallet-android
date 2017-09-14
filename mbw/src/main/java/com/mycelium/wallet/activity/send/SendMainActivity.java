@@ -813,7 +813,7 @@ public class SendMainActivity extends Activity {
                                             progress.dismiss();
                                             if (aBoolean) {
                                                 coluManager.startSynchronization();
-                                                Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_broadcast, Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
                                                 SendMainActivity.this.finish();
                                             } else {
                                                 Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_broadcast, Toast.LENGTH_SHORT).show();
@@ -1062,7 +1062,6 @@ public class SendMainActivity extends Activity {
                             if (callback != null) {
                                 callback.success();
                             }
-                            Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
                         } else {
                             if (callback != null) {
                                 callback.fail();
