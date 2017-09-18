@@ -13,6 +13,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
+import com.mycelium.wallet.AdvancedHttpClient;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
@@ -50,45 +51,30 @@ public class ColuClient {
 
    private static final String TAG = "ColuClient";
 
-   private static final String MYCELIUM_REFERRAL_CODE = "rrc7dfk";
-
-   private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-   private static final JsonFactory JSON_FACTORY = new JacksonFactory();
-
-   private static final Set<String> SEARCH_CRITERIA = new HashSet<String>();
-
    public static final boolean coluAutoSelectUtxo = true;
-
-   public static final boolean traceRequests = true;
 
    public NetworkParameters network;
 
-   static {
-      SEARCH_CRITERIA.add("transaction_id");
-      SEARCH_CRITERIA.add("type");
-      SEARCH_CRITERIA.add("to");
-      SEARCH_CRITERIA.add("from");
-      SEARCH_CRITERIA.add("extOID");
-      SEARCH_CRITERIA.add("situation");
-      SEARCH_CRITERIA.add("txhash");
-      SEARCH_CRITERIA.add("currency");
-   }
+   private AdvancedHttpClient coloredCoinsClient;
+   private AdvancedHttpClient blockExplorerClient;
 
-   private /* final */ WapiLogger logger = null;
-
-   private HttpRequestFactory requestFactory;
-
-   private final String config;
-
-   private static String MAINNET_COLOREDCOINS_API_URL = "https://coloredcoinsd.gear.mycelium.com/v3/";
-   private static String TESTNET_COLOREDCOINS_API_URL = "http://testnet.api.coloredcoins.org/v3/";
-   private static String MAINNET_COLU_BLOCK_EXPLORER_URL = "https://coloredcoins.gear.mycelium.com/api/";
-   private static String TESTNET_COLU_BLOCK_EXPLORER_URL = "http://testnet.explorer.coloredcoins.org/api/";
+   private static String[] MAINNET_COLOREDCOINS_API_URLS = {"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"};
+   private static String[] TESTNET_COLOREDCOINS_API_URLS = {"http://testnet.api.coloredcoins.org/v3/"};
+   private static String[] MAINNET_COLU_BLOCK_EXPLORER_URLS = {"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"};
+   private static String[] TESTNET_COLU_BLOCK_EXPLORER_URLS = {"http://testnet.explorer.coloredcoins.org/api/"};
 
    public ColuClient(NetworkParameters network) {
-      this.logger = logger;
+      if (network.isTestnet()) {
+         this.coloredCoinsClient = new AdvancedHttpClient(TESTNET_COLOREDCOINS_API_URLS);
+         this.blockExplorerClient = new AdvancedHttpClient(TESTNET_COLU_BLOCK_EXPLORER_URLS);
+      }
+      else {
+         this.coloredCoinsClient = new AdvancedHttpClient(MAINNET_COLOREDCOINS_API_URLS);
+         this.blockExplorerClient = new AdvancedHttpClient(MAINNET_COLU_BLOCK_EXPLORER_URLS);
+      }
+
       this.network = network;
-      config = null;
+
       // Level.CONFIG logs everything but Authorization header
       // Level.ALL also logs Authorization header
       // Type this to really enable: adb shell setprop log.tag.HttpTransport DEBUG
@@ -96,164 +82,18 @@ public class ColuClient {
       initialize();
    }
 
-   public ColuClient(KeyPair kp, Object eccUtil, //EccUtil eccUtil, 
-                     String config, WapiLogger logger) {
-      this.logger = logger;
-      PublicKey eccPub = kp.getPublic();
-      this.config = config;
-      initialize();
-   }
-
    private void initialize() {
       Security.addProvider(new BouncyCastleProvider());
-      //rng = new SecureRandom();
-      Logger.getLogger(HttpTransport.class.getName()).setLevel(Level.CONFIG);
-      requestFactory = HTTP_TRANSPORT
-              .createRequestFactory(new HttpRequestInitializer() {
-                 @Override
-                 public void initialize(HttpRequest request) {
-                    request.setParser(new JsonObjectParser(JSON_FACTORY));
-                 }
-              });
-   }
-
-   private String getColoredCoinsApiURL() {
-      if (this.network.isTestnet()) {
-         return TESTNET_COLOREDCOINS_API_URL;
-      }
-      return MAINNET_COLOREDCOINS_API_URL;
-   }
-
-   private String getColuBlockExplorerUrl() {
-      if (this.network.isTestnet()) {
-         return TESTNET_COLU_BLOCK_EXPLORER_URL;
-      }
-      return MAINNET_COLU_BLOCK_EXPLORER_URL;
-   }
-
-   private <T> T sendGetRequest(Class<T> t, GenericUrl url) throws IOException {
-      Stopwatch sw = Stopwatch.createStarted();
-      if (requestFactory != null) {
-         HttpRequest request = requestFactory.buildGetRequest(url);
-         try {
-            HttpResponse response = request.execute();
-            Log.d("ColuClient", "Colu GET " + url + " [" + sw.elapsed(TimeUnit.MILLISECONDS) + "ms]");
-            return response.parseAs(t);
-         } catch (IOException ex) {
-            Log.d("ColuClient", "Colu ERR GET " + url);
-            Log.e("ColuClient", "Colu ERR " + ex.getMessage());
-            throw ex;
-         }
-      } else {
-         Log.e("ColuClient", "RequestFactory not initialized ! Bailing out");
-         return null;
-      }
-   }
-
-   private <T> T sendSignedRequest(Class<T> t, String endpoint,
-                                   Map<String, String> options) throws
-           NoSuchAlgorithmException, IOException {
-      return sendECCRequest(t, endpoint, options, false);
-   }
-
-   private String getBaseUrl() {
-      //return config.getBaseUrl();
-      return config;
-   }
-
-   private <T> T sendECCRequest(Class<T> t, String endpoint,
-                                Map<String, String> options, boolean newAccount)
-           throws NoSuchAlgorithmException, IOException {
-      GenericUrl url = new GenericUrl(getBaseUrl() + endpoint);
-      HttpHeaders headers = new HttpHeaders();
-
-      if (!newAccount) {
-         options.put("nonce", generateNonce());
-         options.put("endpoint", endpoint);
-      } else {
-         headers.set("cpt-ecc-new", "");
-         //Base64.encodeBase64String(eccPubPEM.getBytes()));
-
-         //this puts our referral code in, for new accounts
-         //so we get credited towards developers@mycelium.com on coinapult
-         options.put("tag", MYCELIUM_REFERRAL_CODE);
-      }
-      options.put("timestamp", ColuClient.timestampNow());
-
-      String signdata = Base64.encodeBase64String(JSON_FACTORY
-              .toByteArray(options));
-      headers.set("cpt-ecc-sign", null // eccUtil.generateSign(signdata, eccPriv)i
-      );
-      try {
-         return makePostRequest(t, url, headers, signdata);
-      } catch (IOException ex) {
-         logger.logInfo("Coinapult ERR Content " + options.toString());
-         throw ex;
-      }
-   }
-
-   // object is a JSON key value object mapping
-   private <T> T makePostRequest(Class<T> t, GenericUrl url,
-                                 HttpHeaders headers, Object data) throws IOException {
-      Stopwatch sw = Stopwatch.createStarted();
-//      Map<String, String> param = new HashMap<String, String>();
-      HttpContent content = new JsonHttpContent(new JacksonFactory(), data);
-      HttpRequest request = requestFactory.buildPostRequest(url, content);
-      if (headers != null) {
-         request.setHeaders(headers);
-      }
-      if (ColuClient.traceRequests) {
-         Log.d(TAG, "Attempting POST " + url);
-      }
-      try {
-         HttpResponse response = request.execute();
-         //logger.logInfo("Colu POST " + url + " [" + sw.elapsed(TimeUnit.MILLISECONDS) + "ms]");
-         Log.d(TAG, "Colu POST " + url + " [" + sw.elapsed(TimeUnit.MILLISECONDS) + "ms]");
-         return response.parseAs(t);
-      } catch (IOException ex) {
-         Log.e(TAG, "Colu ERR POST " + url);
-         Log.e(TAG, "Colu ERR " + ex.getMessage());
-         //TODO: attempt parsing JSON in error message
-
-         // next line should be JSON
-         String lines[] = ex.getMessage().split("\\n+");
-         if (lines.length > 1) {
-
-            try {
-               // lines[0] should be 500 Internal Server Error. But we get this in status field.
-               JSONObject serverAnswer = new JSONObject(lines[1]);
-               String errorName = serverAnswer.getString("name");
-               String message = serverAnswer.getString("message");
-               int errCode = serverAnswer.getInt("code");
-               int status = serverAnswer.getInt("status");
-               int fee = serverAnswer.getInt("fee");
-               int totalCost = serverAnswer.getInt("totalCost");
-               int missing = serverAnswer.getInt("missing");
-               Log.d(TAG, "Colu transaction info: fee=" + fee + " totalCost=" + totalCost + " missing=" + missing + " status=" + status + " message=" + message);
-               if (errCode == 20003) {
-                  // insufficient funds. The server tells us how much we need !
-                  //TODO: throws ColuInsufficientFundsException
-                  Log.e(TAG, "Colu transaction requires " + totalCost + ". Only " + fee + " were provided. Needs " + missing + " more.");
-               }
-            } catch (JSONException e) {
-               Log.e(TAG, "Error parsing JSON server answer: " + e.getMessage());
-            }
-         }
-         throw ex;
-      }
    }
 
    public AddressInfo.Json getBalance(Address address) throws IOException {
-      //TODO with colu: HTTPS Handshake failed when switching to TLS
-      Log.d("ColuClient", " addressinfo uri is " + getColoredCoinsApiURL() + "addressinfo/" + address.toString());
-      GenericUrl url = new GenericUrl(getColoredCoinsApiURL() + "addressinfo/" + address.toString());
-      return sendGetRequest(AddressInfo.Json.class, url);
+      String endpoint = "addressinfo/" + address.toString();
+      return blockExplorerClient.sendGetRequest(AddressInfo.Json.class, endpoint);
    }
 
    public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
-      Log.d("ColuClient", " addressinfowithtransactions uri is " + getColuBlockExplorerUrl() + "getaddressinfowithtransactions?address=" + address.toString());
-      GenericUrl url = new GenericUrl(getColuBlockExplorerUrl() + "getaddressinfowithtransactions?address=" + address.toString());
-      return sendGetRequest(AddressTransactionsInfo.Json.class, url);
+      String endpoint = "getaddressinfowithtransactions?address=" + address.toString();
+      return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
    }
 
    //TODO: move most of the logic to ColuManager
@@ -345,9 +185,7 @@ public class ColuClient {
          // do we need to set this one as well ?
          request.financeOutputTxid = "";
       }
-      return makePostRequest(ColuBroadcastTxHex.Json.class,
-              new GenericUrl(getColoredCoinsApiURL() + "sendasset"),
-              null, request);
+      return coloredCoinsClient.sendPostRequest(ColuBroadcastTxHex.Json.class, "sendasset", null, request);
    }
 
    public static String bytesToHex(byte[] in) {
@@ -363,37 +201,6 @@ public class ColuClient {
       byte[] signedTr = coluSignedTransaction.toBytes();
       tx.txHex = bytesToHex(signedTr);
       Log.d(TAG, "broadcastTransaction: hexbytes=" + tx.txHex);
-      return makePostRequest(ColuBroadcastTxId.Json.class,
-              new GenericUrl(getColoredCoinsApiURL() + "broadcast"),
-              null, tx);
-   }
-
-
-   /**
-    * Utility functions.
-    */
-   public boolean authenticateCallbackECC(String recvSign, String recvData) {
-      return true;
-   }
-
-   public String generateNonce() {
-      byte[] nonce = new byte[10];
-      return HexUtils.toHex(nonce);
-   }
-
-   static public String timestampNow() {
-      return String.valueOf(System.currentTimeMillis() / 1000);
-   }
-
-   static public String sha256(String val)
-           throws UnsupportedEncodingException, NoSuchAlgorithmException {
-      MessageDigest md = MessageDigest.getInstance("SHA-256");
-      md.update(val.getBytes("UTF-8"));
-      byte[] digest = md.digest();
-      return HexUtils.toHex(digest);
-   }
-
-   public boolean accountExists() throws Exception {
-      return true;
+      return coloredCoinsClient.sendPostRequest(ColuBroadcastTxId.Json.class, "broadcast", null, tx);
    }
 }
