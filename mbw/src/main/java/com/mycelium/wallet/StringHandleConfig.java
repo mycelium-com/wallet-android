@@ -454,17 +454,14 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            List<String> assetNames = ColuAccount.ColuAsset.getAllAssetNames(manager.getNetwork());
-            boolean assetNameFound = false;
-            for(String assetName : assetNames) {
-               if (content.toLowerCase(Locale.US).startsWith(assetName.toLowerCase())) {
-                  assetNameFound = true;
-                  break;
-               }
-            }
+            ColuAccount coluAccount = (ColuAccount)manager.getSelectedAccount();
+            if (coluAccount == null)
+               return false;
 
-            if (!assetNameFound) return false;
-            Optional<? extends ColuAssetUri> uri = getRmcUri(handlerActivity, content);
+            if (!content.toLowerCase(Locale.US).startsWith(coluAccount.getColuAsset().name.toLowerCase()))
+               return false;
+
+            Optional<? extends ColuAssetUri> uri = getColuAssetUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with rmc: but could not be parsed, was handled
@@ -479,7 +476,7 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isRmcUri(network, content);
+            return isColuAssetUri(network, content);
          }
       },
       SEND {
@@ -540,16 +537,14 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            List<String> assetNames = ColuAccount.ColuAsset.getAllAssetNames(manager.getNetwork());
-            boolean assetNameFound = false;
-            for(String assetName : assetNames) {
-               if (content.toLowerCase(Locale.US).startsWith(assetName.toLowerCase())) {
-                  assetNameFound = true;
-                  break;
-               }
-            }
+            ColuAccount coluAccount = (ColuAccount)manager.getSelectedAccount();
+            if (coluAccount == null)
+               return false;
 
-            Optional<ColuAssetUriWithAddress> uri = getRmcUri(handlerActivity, content);
+            if (!content.toLowerCase(Locale.US).startsWith(coluAccount.getColuAsset().name.toLowerCase()))
+               return false;
+
+            Optional<ColuAssetUriWithAddress> uri = getColuAssetUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with rmc: but could not be parsed, was handled
@@ -565,7 +560,7 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isRmcUri(network, content);
+            return isColuAssetUri(network, content);
          }
       },
       SEND {
@@ -665,12 +660,12 @@ public class StringHandleConfig implements Serializable {
       }
    }
 
-   private static Optional<ColuAssetUriWithAddress> getRmcUri(StringHandlerActivity handlerActivity, String content) {
+   private static Optional<ColuAssetUriWithAddress> getColuAssetUri(StringHandlerActivity handlerActivity, String content) {
       MbwManager manager = MbwManager.getInstance(handlerActivity);
       return ColuAssetUriWithAddress.parseWithAddress(content, manager.getNetwork());
    }
 
-   private static boolean isRmcUri(NetworkParameters network, String content) {
+   private static boolean isColuAssetUri(NetworkParameters network, String content) {
       return ColuAssetUriWithAddress.parseWithAddress(content, network).isPresent();
    }
 
