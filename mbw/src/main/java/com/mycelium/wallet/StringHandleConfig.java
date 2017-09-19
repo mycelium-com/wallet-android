@@ -450,12 +450,21 @@ public class StringHandleConfig implements Serializable {
    }
 
    public enum BitcoinUriAction implements Action {
-      SEND_RMC {
+      SEND_COLU_ASSET {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase(Locale.US).startsWith("rmc")) return false;
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            Optional<? extends RmcUri> uri = getRmcUri(handlerActivity, content);
+            List<String> assetNames = ColuAccount.ColuAsset.getAllAssetNames(manager.getNetwork());
+            boolean assetNameFound = false;
+            for(String assetName : assetNames) {
+               if (content.toLowerCase(Locale.US).startsWith(assetName.toLowerCase())) {
+                  assetNameFound = true;
+                  break;
+               }
+            }
+
+            if (!assetNameFound) return false;
+            Optional<? extends ColuAssetUri> uri = getRmcUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with rmc: but could not be parsed, was handled
@@ -527,11 +536,20 @@ public class StringHandleConfig implements Serializable {
    }
 
    public enum BitcoinUriWithAddressAction implements Action {
-      SEND_RMC {
+      SEND_COLU_ASSET {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            if (!content.toLowerCase(Locale.US).startsWith("rmc")) return false;
-            Optional<RmcUriWithAddress> uri = getRmcUri(handlerActivity, content);
+            MbwManager manager = MbwManager.getInstance(handlerActivity);
+            List<String> assetNames = ColuAccount.ColuAsset.getAllAssetNames(manager.getNetwork());
+            boolean assetNameFound = false;
+            for(String assetName : assetNames) {
+               if (content.toLowerCase(Locale.US).startsWith(assetName.toLowerCase())) {
+                  assetNameFound = true;
+                  break;
+               }
+            }
+
+            Optional<ColuAssetUriWithAddress> uri = getRmcUri(handlerActivity, content);
             if (!uri.isPresent()) {
                handlerActivity.finishError(R.string.unrecognized_format, content);
                //started with rmc: but could not be parsed, was handled
@@ -647,13 +665,13 @@ public class StringHandleConfig implements Serializable {
       }
    }
 
-   private static Optional<RmcUriWithAddress> getRmcUri(StringHandlerActivity handlerActivity, String content) {
+   private static Optional<ColuAssetUriWithAddress> getRmcUri(StringHandlerActivity handlerActivity, String content) {
       MbwManager manager = MbwManager.getInstance(handlerActivity);
-      return RmcUriWithAddress.parseWithAddress(content, manager.getNetwork());
+      return ColuAssetUriWithAddress.parseWithAddress(content, manager.getNetwork());
    }
 
    private static boolean isRmcUri(NetworkParameters network, String content) {
-      return RmcUriWithAddress.parseWithAddress(content, network).isPresent();
+      return ColuAssetUriWithAddress.parseWithAddress(content, network).isPresent();
    }
 
    public enum BitIdAction implements Action {

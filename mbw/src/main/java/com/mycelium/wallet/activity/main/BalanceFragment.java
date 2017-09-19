@@ -160,8 +160,8 @@ public class BalanceFragment extends Fragment {
       StringHandleConfig config = StringHandleConfig.genericScanRequest();
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if(account instanceof ColuAccount) {
-         config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_RMC;
-         config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_RMC;
+         config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
+         config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
       ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
    }
