@@ -91,10 +91,9 @@ public class AdvancedHttpClient {
 
     private <T> T makeGetRequest(Class<T> t, GenericUrl url) throws Exception {
         HttpRequest request = requestFactory.buildGetRequest(url);
-        HttpResponse response = request.execute();
-
         setFailureRestrictions(request);
 
+        HttpResponse response = request.execute();
         return response.parseAs(t);
     }
 
