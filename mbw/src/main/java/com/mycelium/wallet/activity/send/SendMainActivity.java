@@ -961,7 +961,11 @@ public class SendMainActivity extends Activity {
 
     private TransactionStatus tryCreateUnsignedColuTX(final PrepareCallback callback) {
         Log.d(TAG, "tryCreateUnsignedColuTX start");
-        if (_account instanceof ColuAccount) {
+        if(!isColu()) {
+            // if we arrive here it means account is not colu type
+            Log.e(TAG, "tryCreateUnsignedColuTX: We should not arrive here.");
+            return TransactionStatus.MissingArguments;
+        } else {
             final ColuAccount coluAccount = (ColuAccount) _account;
             _unsigned = null;
             _preparedCoinapult = null;
@@ -1073,11 +1077,10 @@ public class SendMainActivity extends Activity {
                     }
                 }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
             }
-            return checkHaveSpendAccount();
+            TransactionStatus status = checkHaveSpendAccount();
+            return status == TransactionStatus.InsufficientFundsForFee ?
+                    TransactionStatus.InsufficientFundsForFee : TransactionStatus.OK;
         }
-        // if we arrive here it means account is not colu type
-        Log.e(TAG, "tryCreateUnsignedColuTX: We should not arrive here.");
-        return TransactionStatus.MissingArguments;
     }
 
     private interface PrepareCallback {
