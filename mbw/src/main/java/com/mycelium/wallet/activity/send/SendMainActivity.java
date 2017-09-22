@@ -564,7 +564,7 @@ public class SendMainActivity extends Activity {
 
 
     //TODO: fee from other bitcoin account if colu
-    private void checkHaveSpendAccount() {
+    private TransactionStatus checkHaveSpendAccount() {
         if(isColu()) {
             if (checkFee(true)) {
                 if (btFeeFromAccount.getVisibility() == VISIBLE) {
@@ -593,6 +593,7 @@ public class SendMainActivity extends Activity {
                 }
             }
         }
+        return _transactionStatus;
     }
 
     private WalletAccount getFundAccount() {
@@ -1072,7 +1073,7 @@ public class SendMainActivity extends Activity {
                     }
                 }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
             }
-            return TransactionStatus.OK;
+            return checkHaveSpendAccount();
         }
         // if we arrive here it means account is not colu type
         Log.e(TAG, "tryCreateUnsignedColuTX: We should not arrive here.");
