@@ -784,7 +784,6 @@
   <string name="colu_backup_info">Ключ доступа к аккаунтам цифровых активов генерируется и хранится независимо от других ваших счетов. Вам будет нужно сделать его резервное копирование отдельно от вашего основного счета.</string>
   <string name="colu_sending_via_colu">Отправление Colored Coin assets.</string>
   <string name="colu_failed_to_prepare">Не удалось подготовить Colored Coin транзакцию! Убедитесь, что вы фондировали один из Bitcoin аккаунтов с mBTC (до $10) для выполнения транзакций.</string>
-  <string name="colu_succeeded_to_prepare">Colored Coin транзакция готова к отправке.</string>
   <string name="colu_failed_to_broadcast">Ошибка при передачи Colored Coin транзакции.</string>
   <string name="colu_succeeded_to_broadcast">Colored Coin транзакция отправлена.</string>
   <string name="colu_rmc_tokens">RMC</string>
