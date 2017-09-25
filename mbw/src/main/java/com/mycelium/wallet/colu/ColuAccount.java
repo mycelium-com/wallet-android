@@ -423,12 +423,19 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          long incomingSatoshi = 0;
 
          List<Address> toAddresses = new ArrayList<>();
+         Optional<Address> destinationAddress = null;
 
          for (Vout.Json vout : tx.vout) {
 
             if (vout.scriptPubKey.addresses != null) {
                for(String address : vout.scriptPubKey.addresses) {
                   toAddresses.add(Address.fromString(address));
+               }
+               if (vout.scriptPubKey.addresses.size() > 0) {
+                  Address address = Address.fromString(vout.scriptPubKey.addresses.get(0));
+                  if(!isMine(address)) {
+                     destinationAddress = Optional.fromNullable(address);
+                  }
                }
             }
 
@@ -473,7 +480,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          long time = 0;
          int height = (int)tx.blockheight;
          boolean isQueuedOutgoing = false;
-         Optional<Address> destinationAddress = null;
+
          if (extendedInfo != null) {
             time = extendedInfo.time;
          } else {
