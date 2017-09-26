@@ -299,7 +299,7 @@ public class AddAdvancedAccountActivity extends Activity {
                askUserForColorize = true;
             }
          } catch (IOException e) {
-            // could not determine account type, skipping
+            askUserForColorize = true;
             return null;
          }
          return acc;
@@ -434,7 +434,7 @@ public class AddAdvancedAccountActivity extends Activity {
                   break;
             }
          } catch (IOException e) {
-            // could not determine account type, skipping
+            askUserForColorize = true;
             return null;
          }
          return acc;
