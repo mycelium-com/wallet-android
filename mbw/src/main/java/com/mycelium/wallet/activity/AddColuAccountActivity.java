@@ -142,7 +142,7 @@ public class AddColuAccountActivity extends Activity {
             return;
       }
       if (checked) {
-         selectedColuAsset = ColuAsset.getByType(assetType, _mbwManager.getNetwork());
+         selectedColuAsset = ColuAsset.getByType(assetType);
       }
       btColuAddAccount.setEnabled(true);
       Toast.makeText(this, name + " selected", Toast.LENGTH_SHORT).show();

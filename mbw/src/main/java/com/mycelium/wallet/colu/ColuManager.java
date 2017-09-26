@@ -332,7 +332,7 @@ public class ColuManager implements AccountProvider {
         for (String assetId : assetsId) {
             if (!Strings.isNullOrEmpty(assetId)) {
                 Log.d(TAG, "loadAccounts: assetid=" + assetId);
-                ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(assetId);
+                ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
                 if (assetDefinition == null) {
                     Log.e(TAG, "loadAccounts: could not find asset with id " + assetId);
                 } else {
@@ -884,7 +884,7 @@ public class ColuManager implements AccountProvider {
     }
 
     public boolean isColuAsset(String assetName) {
-        for (String asset : ColuAccount.ColuAsset.getAllAssetNames(getNetwork())) {
+        for (String asset : ColuAccount.ColuAsset.getAllAssetNames()) {
             if (asset.contentEquals(assetName)) {
                 return true;
             }
@@ -906,9 +906,9 @@ public class ColuManager implements AccountProvider {
                     // adding utxo to list of txid list request
                     for (Asset.Json txidAsset : utxo.assets) {
                         Log.d(TAG, "isColuAddress: utxo " + utxo.txid + " asset " + txidAsset.assetId);
-                        for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap(getNetwork()).keySet()) {
+                        for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap().keySet()) {
                             if (txidAsset.assetId.equals(knownAssetId)) {
-                                ColuAccount.ColuAsset asset =  ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(knownAssetId);
+                                ColuAccount.ColuAsset asset =  ColuAccount.ColuAsset.getAssetMap().get(knownAssetId);
                                 assetsList.add(asset);
                             }
                         }

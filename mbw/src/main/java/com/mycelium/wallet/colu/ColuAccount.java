@@ -52,6 +52,7 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
@@ -921,63 +922,38 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    public static class ColuAsset {
-      private static final ColuAsset mainNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K", 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
-      private static final ColuAsset mainNetAssetMass = new ColuAsset(ColuAssetType.MASS, "MSS", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      private static final ColuAsset mainNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "La4aGUPuNKZyC393pS2Nb4RJdk2WvmoaAdrRLZ", 4, "");
+      private static final ColuAsset assetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", BuildConfig.MTAssetID, 7, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
+      private static final ColuAsset assetMass = new ColuAsset(ColuAssetType.MASS, "MSS", "MSS", BuildConfig.MassAssetID, 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
+      private static final ColuAsset assetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", BuildConfig.RMCAssetID, 4, "");
 
-      private static final ColuAsset testNetAssetMT = new ColuAsset(ColuAssetType.MT, "MT","MT", "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM", 4, "5babce48bfeecbcca827bfea5a655df66b3abd529e1f93c1264cb07dbe2bffe8/0");
-      private static final ColuAsset testNetAssetMass = new ColuAsset(ColuAssetType.MASS, "MSS", "MSS", "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W", 0, "ff3a31bef5aad630057ce3985d7df31cae5b5b91343e6216428a3731c69b0441/0");
-      private static final ColuAsset testNetAssetRMC = new ColuAsset(ColuAssetType.RMC, "RMC", "RMC", "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc", 4, "");
-
-      private static final Map<String, ColuAsset> mainNetAssetMap = ImmutableMap.of(
-              mainNetAssetMT.id, mainNetAssetMT,
-              mainNetAssetMass.id, mainNetAssetMass,
-              mainNetAssetRMC.id, mainNetAssetRMC
+      private static final Map<String, ColuAsset> assetMap = ImmutableMap.of(
+              assetMT.id, assetMT,
+              assetMass.id, assetMass,
+              assetRMC.id, assetRMC
       );
 
-      private static final Map<String, ColuAsset> testNetAssetMap = ImmutableMap.of(
-              testNetAssetMT.id, testNetAssetMT,
-              testNetAssetMass.id, testNetAssetMass,
-              testNetAssetRMC.id, testNetAssetRMC
-      );
-
-       public static Map<String, ColuAsset> getAssetMap(NetworkParameters network) {
-         if (network == NetworkParameters.testNetwork)
-            return testNetAssetMap;
-
-          return mainNetAssetMap;
+       public static Map<String, ColuAsset> getAssetMap() {
+          return assetMap;
       }
 
-      public static final List<String> getAllAssetNames(NetworkParameters network) {
+      public static final List<String> getAllAssetNames() {
          LinkedList<String> assetNames = new LinkedList<String>();
-         for (ColuAsset asset : getAssetMap(network).values()) {
+         for (ColuAsset asset : getAssetMap().values()) {
             assetNames.add(asset.name);
          }
          return assetNames;
       }
 
-      public static final ColuAsset getByType(ColuAssetType assetType, NetworkParameters network) {
-         if (network == NetworkParameters.testNetwork) {
+      public static final ColuAsset getByType(ColuAssetType assetType) {
             switch (assetType) {
                case MT:
-                  return testNetAssetMT;
+                  return assetMT;
                case MASS:
-                  return testNetAssetMass;
+                  return assetMass;
                case RMC:
-                  return testNetAssetRMC;
+                  return assetRMC;
             }
-         } else {
-            switch (assetType) {
-               case MT:
-                  return mainNetAssetMT;
-               case MASS:
-                  return mainNetAssetMass;
-               case RMC:
-                  return mainNetAssetRMC;
-            }
-         }
-
-         return null;
+            return null;
       }
 
       final public String label;

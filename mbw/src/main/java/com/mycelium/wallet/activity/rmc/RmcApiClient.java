@@ -14,6 +14,7 @@ import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.activity.rmc.json.CreateRmcOrderResponse;
 import com.mycelium.wallet.activity.rmc.json.RmcRate;
 
@@ -28,12 +29,7 @@ public class RmcApiClient {
     }
 
     private String getApiURL() {
-        if (this.network == NetworkParameters.productionNetwork)
-            return "https://rmc-ico.gear.mycelium.com/api/";
-        //Return TestNet parameters otherwise
-        if(this.network == NetworkParameters.testNetwork)
-            return "https://rmc-ico-test.gear.mycelium.com/api/";
-        throw new RuntimeException("can't find network, this never should be happens");
+        return BuildConfig.RMCApiClientURL;
     }
 
     public boolean isCallbackMine(String callback) {
