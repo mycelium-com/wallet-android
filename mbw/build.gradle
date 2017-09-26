@@ -142,6 +142,15 @@ android {
             applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
+
+            ext {
+                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La4aGUPuNKZyC393pS2Nb4RJdk2WvmoaAdrRLZ"
+                RMCApiClientURL = "https://rmc-ico.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+            }
         }
         dev {
             // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
@@ -154,12 +163,21 @@ android {
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
-                appId = appId + "_" + branch
+                appId = appId + "_" + branch.replaceAll("-", "_")
                 versionName = defaultConfig.versionName + "-DEV_" + branch
             }
 
             applicationId appId
             signingConfig signingConfigs.debug
+
+            ext {
+                MTAssetID = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
+                RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+            }
         }
         devprod {
             // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
@@ -171,6 +189,15 @@ android {
 
             applicationId appId
             signingConfig signingConfigs.debug
+
+            ext {
+                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La3bgndN7QSYqV8pWuuqbfBPyHMZRK14Tb2BPg"
+                RMCApiClientURL = "https://rmc-ico-stg.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+            }
         }
         btctestnet {
             compileSdkVersion 19
@@ -180,7 +207,26 @@ android {
             applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.btctestnet
+
+            ext {
+                MTAssetID = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
+                RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+            }
         }
+    }
+
+    applicationVariants.all { variant ->
+        def flavor = variant.productFlavors[0]
+        variant.buildConfigField "String", "MTAssetID", "\"${flavor.ext.MTAssetID}\""
+        variant.buildConfigField "String", "MassAssetID", "\"${flavor.ext.MassAssetID}\""
+        variant.buildConfigField "String", "RMCAssetID", "\"${flavor.ext.RMCAssetID}\""
+        variant.buildConfigField "String", "RMCApiClientURL", "\"${flavor.ext.RMCApiClientURL}\""
+        variant.buildConfigField "String[]", "ColoredCoinsApiURLs", "${flavor.ext.ColoredCoinsApiURLs}"
+        variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
     }
 }
 

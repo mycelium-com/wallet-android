@@ -14,6 +14,7 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.wallet.AdvancedHttpClient;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
@@ -57,22 +58,10 @@ public class ColuClient {
 
    private AdvancedHttpClient coloredCoinsClient;
    private AdvancedHttpClient blockExplorerClient;
-
-   private static String[] MAINNET_COLOREDCOINS_API_URLS = {"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"};
-   private static String[] TESTNET_COLOREDCOINS_API_URLS = {"http://testnet.api.coloredcoins.org/v3/"};
-   private static String[] MAINNET_COLU_BLOCK_EXPLORER_URLS = {"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"};
-   private static String[] TESTNET_COLU_BLOCK_EXPLORER_URLS = {"http://testnet.explorer.coloredcoins.org/api/"};
-
+   
    public ColuClient(NetworkParameters network) {
-      if (network.isTestnet()) {
-         this.coloredCoinsClient = new AdvancedHttpClient(TESTNET_COLOREDCOINS_API_URLS);
-         this.blockExplorerClient = new AdvancedHttpClient(TESTNET_COLU_BLOCK_EXPLORER_URLS);
-      }
-      else {
-         this.coloredCoinsClient = new AdvancedHttpClient(MAINNET_COLOREDCOINS_API_URLS);
-         this.blockExplorerClient = new AdvancedHttpClient(MAINNET_COLU_BLOCK_EXPLORER_URLS);
-      }
-
+      this.coloredCoinsClient = new AdvancedHttpClient(BuildConfig.ColoredCoinsApiURLs);
+      this.blockExplorerClient = new AdvancedHttpClient(BuildConfig.ColuBlockExplorerApiURLs);
       this.network = network;
 
       // Level.CONFIG logs everything but Authorization header

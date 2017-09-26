@@ -311,7 +311,7 @@ public class AddAdvancedAccountActivity extends Activity {
          if (account != null) {
             finishOk(account);
          } else if(askUserForColorize) {
-            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
             list.add(0, "BTC");
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setTitle(R.string.restore_addres_as)
@@ -328,7 +328,7 @@ public class AddAdvancedAccountActivity extends Activity {
                           if (selectedItem == 0) {
                              account = returnSAAccount(key, backupState);
                           } else {
-                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());
+                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
                           }
                           finishOk(account);
@@ -446,7 +446,7 @@ public class AddAdvancedAccountActivity extends Activity {
          if (account != null) {
             finishOk(account);
          } else if(askUserForColorize) {
-             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames(_mbwManager.getNetwork());
+             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
              list.add(0, "BTC");
              new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                      .setTitle(R.string.restore_addres_as)
@@ -463,7 +463,7 @@ public class AddAdvancedAccountActivity extends Activity {
                            if (selectedItem == 0) {
                               account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                            } else {
-                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)), _mbwManager.getNetwork());
+                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                               account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
                            }
                            finishOk(account);
@@ -483,7 +483,7 @@ public class AddAdvancedAccountActivity extends Activity {
       String accountType = "BTC Single Address";
       for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
          if (_mbwManager.getColuManager().hasAccountWithType(address, type)) {
-            accountType = ColuAccount.ColuAsset.getByType(type, _mbwManager.getNetwork()).name;
+            accountType = ColuAccount.ColuAsset.getByType(type).name;
             break;
          }
       }

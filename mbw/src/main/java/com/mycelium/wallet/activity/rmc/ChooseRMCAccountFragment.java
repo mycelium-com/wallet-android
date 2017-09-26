@@ -234,7 +234,7 @@ public class ChooseRMCAccountFragment extends Fragment {
                         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
                             @Override
                             public void run() {
-                                createColuAccount(ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.RMC, _mbwManager.getNetwork()), new Callback() {
+                                createColuAccount(ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.RMC), new Callback() {
                                     @Override
                                     public void created(UUID accountID) {
                                         useRmcAccount.setVisibility(View.VISIBLE);
