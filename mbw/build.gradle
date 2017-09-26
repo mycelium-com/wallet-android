@@ -163,7 +163,7 @@ android {
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
-                appId = appId + "_" + branch
+                appId = appId + "_" + branch.replaceAll("-", "_")
                 versionName = defaultConfig.versionName + "-DEV_" + branch
             }
 
