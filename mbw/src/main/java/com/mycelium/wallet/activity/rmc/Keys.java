@@ -32,7 +32,7 @@ public class Keys {
 
     public static Calendar getICOEnd() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"));
-        calendar.set(2017, 8, 28, 0, 0);
+        calendar.set(2017, 8, 29, 23, 59, 59);
         return calendar;
     }
 
