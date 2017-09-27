@@ -7,6 +7,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.math.BigDecimal;
@@ -88,7 +89,10 @@ public class RmcPaymentsStatistics {
                 if (currencyValue == null)
                     continue;
 
-                double curValue = currencyValue.doubleValue() * rate.price;
+                double curValue = currencyValue.doubleValue() * rate.price
+                        / CurrencyValue.fromValue(coluAccount.getCurrencyBasedBalance().confirmed, CURRENCY, exchangeRateManager).getValue().doubleValue();
+
+
 
                 if (curTxTimeCalendar.before(curEndWeekInstance)) {
                     processDataPoint(dataPoints, curEndWeekInstance.getTime(), dataPointIndex, curValue);
