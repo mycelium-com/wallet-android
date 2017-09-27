@@ -66,9 +66,9 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
          }
          // Finally sort by time
          if (time < other.time) {
-            return -1;
-         } else if (time > other.time) {
             return 1;
+         } else if (time > other.time) {
+            return -1;
          }
          return 0;
       }

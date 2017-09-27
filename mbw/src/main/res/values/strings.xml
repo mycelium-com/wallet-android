@@ -831,8 +831,9 @@
     <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
     <string name="colu_sending_via_colu">Sending Colored Coin assets.</string>
     <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with BTC ( up to $100) to perform transactions.</string>
+    <string name="colu_succeeded_to_prepare">Colored Coin transaction ready to send.</string>
     <string name="colu_failed_to_broadcast">Colored Coin failed to broadcast transaction.</string>
-    <string name="colu_succeeded_to_broadcast">Transaction sent.</string>
+    <string name="colu_succeeded_to_broadcast">Colored Coin transaction sent.</string>
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
     <string name="lt_confirm_backup_trader_message">You are about to export sensitive data of your local trader account. Anyone who gains access to these keys can take over your local trader account and act on your behalf. Do you want to continue?</string>
@@ -1070,11 +1071,6 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="miner_fee_custom" >Custom</string>
     <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
     <string name="fee_is_zero">Transaction might never happen!</string>
-    <string name="fee_change_warning" formatted="false"><![CDATA[Your <font color="#4583de">change</font> is less than Bitcoin network output limit. Total miner fee will be increased to %s %s!]]></string>
-    <string name="fee_change_description">Change is what\'s left in your output after transaction has been sent. Current change is less than Bitcoin network output limit (0.0000546 BTC).\nYou can resolve this issue by:\n
-1) decreasing sending amount in order to get your change back;\n
-2) increasing sending amount to a maximum;\n
-3) adjusting miner fee to fit in the network output limit.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
