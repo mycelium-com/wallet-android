@@ -21,8 +21,6 @@ public class RmcPaymentsStatistics {
     public static final String CURRENCY = "USD";
     public static final int MILLISECONDS_IN_SECOND = 1000;
 
-    public static final String CHANGE_ADDRESS = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9";
-
     private ColuAccount coluAccount;
     private final ExchangeRateManager exchangeRateManager;
 
@@ -44,7 +42,7 @@ public class RmcPaymentsStatistics {
 
             boolean isChangeAddressFounded = false;
             for(TransactionDetails.Item item : txDetails.outputs) {
-                if (item.address.toString().equals(CHANGE_ADDRESS)) {
+                if (item.address.toString().equals(BuildConfig.RMCChangeAddress)) {
                     isChangeAddressFounded = true;
                     break;
                 }
