@@ -130,8 +130,7 @@ public class MessageSigningActivity extends Activity {
                     @Override
                     public void run() {
                         messageText = messageToSign.getText().toString();
-                        Sha256Hash data = HashUtils.doubleSha256(org.bitcoinj.core.Utils.formatMessageForSigning(messageText));
-                        SignedMessage signedMessage = privateKey.signHash(data);
+                        SignedMessage signedMessage = privateKey.signMessage(messageText);
                         base64Signature = signedMessage.getBase64Signature();
                         runOnUiThread(new Runnable() {
                             @Override

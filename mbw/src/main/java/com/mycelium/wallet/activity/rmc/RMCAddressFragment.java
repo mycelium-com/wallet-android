@@ -98,8 +98,8 @@ public class RMCAddressFragment extends Fragment {
         graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
         graphView.getGridLabelRenderer().setNumVerticalLabels(3);
         graphView.getGridLabelRenderer().setNumHorizontalLabels(0);
-        graphView.getViewport().setMaxY(0.2);
-        graphView.getViewport().setYAxisBoundsManual(true);
+//        graphView.getViewport().setMaxY(0.2);
+//        graphView.getViewport().setYAxisBoundsManual(true);
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setDrawBorder(true);
 
