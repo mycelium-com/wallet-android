@@ -77,7 +77,7 @@ public class ColuClient {
 
    public AddressInfo.Json getBalance(Address address) throws IOException {
       String endpoint = "addressinfo/" + address.toString();
-      return blockExplorerClient.sendGetRequest(AddressInfo.Json.class, endpoint);
+      return coloredCoinsClient.sendGetRequest(AddressInfo.Json.class, endpoint);
    }
 
    public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
