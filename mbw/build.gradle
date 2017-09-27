@@ -151,6 +151,7 @@ android {
                 RMCApiClientURL = "https://rmc-ico.gear.mycelium.com/api/"
                 ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
             }
         }
         dev {
@@ -178,6 +179,7 @@ android {
                 RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
                 ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
             }
         }
         devprod {
@@ -198,6 +200,7 @@ android {
                 RMCApiClientURL = "https://rmc-ico-stg.gear.mycelium.com/api/"
                 ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
             }
         }
         btctestnet {
@@ -216,6 +219,7 @@ android {
                 RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
                 ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
             }
         }
     }
@@ -228,6 +232,7 @@ android {
         variant.buildConfigField "String", "RMCApiClientURL", "\"${flavor.ext.RMCApiClientURL}\""
         variant.buildConfigField "String[]", "ColoredCoinsApiURLs", "${flavor.ext.ColoredCoinsApiURLs}"
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
+        variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
     }
 }
 
