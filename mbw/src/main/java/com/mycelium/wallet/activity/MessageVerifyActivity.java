@@ -9,19 +9,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.crypto.Signature;
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.crypto.WrongSignatureException;
-import com.mrd.bitlib.lambdaworks.crypto.Base64;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
-import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +25,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static org.bitcoinj.core.Utils.*;
+import static org.bitcoinj.core.Utils.formatMessageForSigning;
 
 public class MessageVerifyActivity extends Activity {
 
