@@ -60,6 +60,7 @@ public class MessageVerifyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_verify);
         ButterKnife.bind(this);
+        signedMessageEditText.setHint(String.format(MessageSigningActivity.TEMPLATE, "Message", "Address", "Signature"));
         store = MbwManager.getInstance(MessageVerifyActivity.this).getWalletManager(false).getSecureStorage();
     }
 
