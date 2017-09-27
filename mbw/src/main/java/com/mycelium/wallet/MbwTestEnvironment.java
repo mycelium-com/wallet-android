@@ -93,7 +93,6 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * The first is the default block explorer if the requested one is not available
     */
    private static final List<BlockExplorer> testnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("BKR", "blockr", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/", "http://tbtc.blockr.io/address/info/", "http://tbtc.blockr.io/tx/info/"));
       add(new BlockExplorer("SBT", "smartbit", "https://www.sandbox.smartbit.com.au/address/", "https://sandbox.smartbit.com.au/tx/", null, null));
       add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
       add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));

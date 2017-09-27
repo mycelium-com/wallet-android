@@ -19,6 +19,7 @@ package com.mrd.bitlib.crypto;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.text.Normalizer;
 
 import Rijndael.Rijndael;
 import com.mrd.bitlib.bitcoinj.Base58;
@@ -33,7 +34,6 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 public class Bip38 {
-
    public static final String BIP38_CHARACTER_ENCODING = "UTF-8";
    public static final int SCRYPT_N = 16384;
    public static final int SCRYPT_LOG2_N = 14;
@@ -46,11 +46,9 @@ public class Bip38 {
     * <p/>
     * This is a helper function that does everything in one go. You can call the
     * individual functions if you wish to separate it into more phases.
-    *
-    * @throws InterruptedException
     */
    public static String encryptNoEcMultiply(String passphrase, String base58EncodedPrivateKey,
-                                            SCryptProgress progressTracker, NetworkParameters network) throws InterruptedException {
+                                            SCryptProgress progressTracker) throws InterruptedException {
       InMemoryPrivateKey key = new InMemoryPrivateKey(base58EncodedPrivateKey, NetworkParameters.productionNetwork);
       Address address = key.getPublicKey().toAddress(NetworkParameters.productionNetwork);
       byte[] salt = Bip38.calculateScryptSalt(address);
@@ -61,25 +59,21 @@ public class Bip38 {
    /**
     * Perform BIP38 compatible password stretching on a password to derive the
     * BIP38 key material
-    *
-    * @throws InterruptedException
     */
    public static byte[] bip38Stretch1(String passphrase, byte[] salt, SCryptProgress progressTracker, int outputSize)
-         throws InterruptedException {
+           throws InterruptedException {
       byte[] derived;
+      String normalizedPassphrase = Normalizer.normalize(passphrase, Normalizer.Form.NFC);
       try {
-         derived = SCrypt.scrypt(passphrase.getBytes("UTF-8"), salt, SCRYPT_N, SCRYPT_R, SCRYPT_P, outputSize,
-               progressTracker);
+         derived = SCrypt.scrypt(normalizedPassphrase.getBytes("UTF-8"), salt, SCRYPT_N, SCRYPT_R, SCRYPT_P, outputSize,
+                 progressTracker);
          return derived;
-      } catch (UnsupportedEncodingException e) {
-         throw new RuntimeException(e);
-      } catch (GeneralSecurityException e) {
+      } catch (UnsupportedEncodingException | GeneralSecurityException e) {
          throw new RuntimeException(e);
       }
    }
 
    public static String encryptNoEcMultiply(byte[] stretcedKeyMaterial, InMemoryPrivateKey key, byte[] salt) {
-
       // Encoded result
       int checksumLength = 4;
       byte[] encoded = new byte[39 + checksumLength];
@@ -135,8 +129,7 @@ public class Bip38 {
       System.arraycopy(start, 0, encoded, 39, checksumLength);
 
       // Base58 encode
-      String result = Base58.encode(encoded);
-      return result;
+      return Base58.encode(encoded);
    }
 
    public static boolean isBip38PrivateKey(String bip38PrivateKey) {
@@ -197,7 +190,7 @@ public class Bip38 {
             // Only bit 3 and 6 can be set for EC-multiply keys
             return null;
          }
-         lotSequence = (flags & 0x0004) == 0 ? false : true;
+         lotSequence = (flags & 0x0004) != 0;
       } else {
          if ((flags | 0x00E0) != 0xE0) {
             // Only bit 6 7 and 8 can be set for non-EC-multiply keys
@@ -210,19 +203,16 @@ public class Bip38 {
          lotSequence = false;
       }
 
-      boolean compressed = (flags & 0x0020) == 0 ? false : true;
+      boolean compressed = (flags & 0x0020) != 0;
 
       // Fetch salt
       byte[] salt = new byte[4];
-      salt[0] = decoded[index++];
-      salt[1] = decoded[index++];
-      salt[2] = decoded[index++];
-      salt[3] = decoded[index++];
+      System.arraycopy(decoded, index, salt, 0, salt.length);
+      index += salt.length;
 
       // Fetch data
       byte[] data = new byte[32];
       System.arraycopy(decoded, index, data, 0, data.length);
-      index += data.length;
 
       return new Bip38PrivateKey(ecMultiply, compressed, lotSequence, salt, data);
    }
@@ -348,8 +338,7 @@ public class Bip38 {
       }
 
       // The result is returned in SIPA format
-      String result = finalKey.getBase58EncodedPrivateKey(network);
-      return result;
+      return finalKey.getBase58EncodedPrivateKey(network);
    }
 
    public static String decryptNoEcMultiply(Bip38PrivateKey bip38Key, byte[] stretcedKeyMaterial,
@@ -396,8 +385,7 @@ public class Bip38 {
       }
 
       // Get SIPA format
-      String result = key.getBase58EncodedPrivateKey(network);
-      return result;
+      return key.getBase58EncodedPrivateKey(network);
    }
 
    public static SCryptProgress getScryptProgressTracker() {
@@ -423,5 +411,4 @@ public class Bip38 {
          target[i] = (byte) (target[i] ^ toApply[i]);
       }
    }
-
 }
