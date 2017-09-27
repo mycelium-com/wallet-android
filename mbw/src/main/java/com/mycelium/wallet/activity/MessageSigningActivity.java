@@ -46,6 +46,8 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -128,7 +130,8 @@ public class MessageSigningActivity extends Activity {
                     @Override
                     public void run() {
                         messageText = messageToSign.getText().toString();
-                        SignedMessage signedMessage = privateKey.signMessage(messageText);
+                        Sha256Hash data = HashUtils.doubleSha256(org.bitcoinj.core.Utils.formatMessageForSigning(messageText));
+                        SignedMessage signedMessage = privateKey.signHash(data);
                         base64Signature = signedMessage.getBase64Signature();
                         runOnUiThread(new Runnable() {
                             @Override

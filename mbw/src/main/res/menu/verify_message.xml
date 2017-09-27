@@ -4,7 +4,6 @@
 
     <item
         android:id="@+id/miVerifyMessage"
-        android:icon="@drawable/holo_dark_ic_action_add_person"
         android:title="@string/verify_message"
-        yourapp:showAsAction="ifRoom" />
+        yourapp:showAsAction="never" />
 </menu>
