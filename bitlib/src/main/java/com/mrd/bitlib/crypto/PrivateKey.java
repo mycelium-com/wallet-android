@@ -20,6 +20,8 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import org.bitcoinj.core.Utils;
+
 import java.io.Serializable;
 
 
@@ -64,7 +66,7 @@ public abstract class PrivateKey implements BitcoinSigner, Serializable {
    }
 
    public SignedMessage signMessage(String message) {
-      byte[] data = Signatures.formatMessageForSigning(message);
+      byte[] data = Utils.formatMessageForSigning(message);
       Sha256Hash hash = HashUtils.doubleSha256(data);
       return signHash(hash);
    }

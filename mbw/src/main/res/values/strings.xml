@@ -819,14 +819,14 @@
     <string name="colu_mass_tokens">Mass Tokens</string>
     <string name="colu_unable_to_create_account">Unable to create Colored Coin account</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
-   <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+    <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
-<!--blockchain technology developer. All your interactions with Colu are outside of-->
-<!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
-<!--Please read them carefully before providing any personal information.-->
-<!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
-<!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
-<!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+    <!--blockchain technology developer. All your interactions with Colu are outside of-->
+    <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+    <!--Please read them carefully before providing any personal information.-->
+    <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+    <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+    <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
     <string name="colu_sending_via_colu">Sending Colored Coin assets.</string>
@@ -977,7 +977,7 @@
     <string name="rmc_return_of_investment">Return on Investment</string>
     <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
     <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
-    <string name="address_title" >%s Address</string>
+    <string name="address_title">%s Address</string>
     <string name="rmc_send_warning" formatted="false">%1$s is an asset (token) issued on Bitcoin blockchain as  colored coin.
 %1$s transaction is a bitcoin transaction and requires miner\'s fee in order to be included in a block.
 To be able to send %1$s token to another %1$s address you need to top up your %1$s address with a small amount of BTC which will be used to fund your transaction.
@@ -1009,17 +1009,17 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
     <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="partner_ledger_info"/>
+    <string name="partner_ledger_info" />
 
     <string name="partner_trezor">Trezor</string>
     <string name="partner_trezor_short">The original hardware wallet.</string>
     <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="partner_trezor_info"/>
+    <string name="partner_trezor_info" />
 
     <string name="partner_purse">Purse</string>
     <string name="partner_purse_short">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
     <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="partner_purse_info"/>
+    <string name="partner_purse_info" />
 
     <string name="partner_bitdice">BitDice ICO</string>
     <string name="partner_bitdice_short">Participate in the profit sharing of the Crypto Casino.</string>
@@ -1037,8 +1037,8 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
     <string name="partner_more_info_text">
-        Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br/>
-        Developing, maintaining and supporting this product is not free.<br/>
+        Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br />
+        Developing, maintaining and supporting this product is not free.<br />
         Partner links and logos are statically embedded in the app and do not depend on any ad network.
         Their presence can not be used for tracking users that do not click them.
         No money is made by displaying these partner links or when users click on them.
@@ -1067,7 +1067,7 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
-    <string name="miner_fee_custom" >Custom</string>
+    <string name="miner_fee_custom">Custom</string>
     <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
     <string name="fee_is_zero">Transaction might never happen!</string>
     <string name="fee_change_warning" formatted="false"><![CDATA[Your <font color="#4583de">change</font> is less than Bitcoin network output limit. Total miner fee will be increased to %s %s!]]></string>
@@ -1075,6 +1075,7 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
 1) decreasing sending amount in order to get your change back;\n
 2) increasing sending amount to a maximum;\n
 3) adjusting miner fee to fit in the network output limit.</string>
+    <string name="verify_message">Verify Message</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

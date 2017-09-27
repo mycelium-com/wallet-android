@@ -115,7 +115,7 @@ public class BuySellFragment extends Fragment {
             }
         }
         View btBuySellRmc = _root.findViewById(R.id.btBuySellRMC);
-        if(Calendar.getInstance().before(Keys.getICOEnd())) {
+        if(Calendar.getInstance().before(Keys.getICOEnd(getActivity()))) {
             btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
             _root.findViewById(R.id.btLearnMoreRMC).setOnClickListener(new OnClickListener() {
                 @Override

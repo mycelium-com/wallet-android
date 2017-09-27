@@ -28,6 +28,8 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import org.bitcoinj.core.Utils;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 
@@ -84,7 +86,7 @@ public class SignedMessage implements Serializable {
       if (header < 27 || header > 34)
          throw new WrongSignatureException("Header byte out of range: " + header);
 
-      byte[] messageBytes = Signatures.formatMessageForSigning(message);
+      byte[] messageBytes = Utils.formatMessageForSigning(message);
       // Note that the C++ code doesn't actually seem to specify any character
       // encoding. Presumably it's whatever
       // JSON-SPIRIT hands back. Assume UTF-8 for now.
