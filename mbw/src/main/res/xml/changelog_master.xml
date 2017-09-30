@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.9.3" versioncode="290301">
+    <release version="2.9.3" versioncode="290302">
         <change>bug fixed: non-utf8 passphrases are handled correctly now</change>
         <change>bug fixed: obsolete blockr.io removed</change>
         <change>bug fixed: private key import fixed</change>
