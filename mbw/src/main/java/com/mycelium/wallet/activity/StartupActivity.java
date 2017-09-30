@@ -245,7 +245,6 @@ public class StartupActivity extends Activity {
    }
 
    private Runnable delayedFinish = new Runnable() {
-
       @Override
       public void run() {
          if (_mbwManager.isUnlockPinRequired()) {
@@ -287,40 +286,36 @@ public class StartupActivity extends Activity {
             normalStartup();
          }
       }
-
    };
 
-
    private void warnUserOnClipboardKeys() {
-      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-      // Set title
-      alertDialogBuilder.setTitle(R.string.found_clipboard_private_key_title);
-      // Set dialog message
-      alertDialogBuilder.setMessage(R.string.found_clipboard_private_keys_message);
-      // Yes action
-      alertDialogBuilder.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-            Utils.clearClipboardString(StartupActivity.this);
-            normalStartup();
-            dialog.dismiss();
-         }
-      });
-      // No action
-      alertDialogBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-            normalStartup();
-            dialog.cancel();
-         }
-      });
-      _alertDialog = alertDialogBuilder.create();
+      _alertDialog = new AlertDialog.Builder(this)
+              // Set title
+              .setTitle(R.string.found_clipboard_private_key_title)
+              // Set dialog message
+              .setMessage(R.string.found_clipboard_private_keys_message)
+              // Yes action
+              .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    Utils.clearClipboardString(StartupActivity.this);
+                    normalStartup();
+                    dialog.dismiss();
+                 }
+              })
+              // No action
+              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    normalStartup();
+                    dialog.cancel();
+                 }
+              })
+              .create();
       _alertDialog.show();
    }
 
    private void normalStartup() {
       // Normal startup, show the selected account in the BalanceActivity
-      Intent intent = new Intent(StartupActivity.this, ModernMain.class);
-      startActivity(intent);
+      startActivity(new Intent(StartupActivity.this, ModernMain.class));
       finish();
    }
 
