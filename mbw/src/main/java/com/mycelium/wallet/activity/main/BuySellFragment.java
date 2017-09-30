@@ -114,24 +114,6 @@ public class BuySellFragment extends Fragment {
                 btBuySell.setVisibility(View.GONE);
             }
         }
-        View btBuySellRmc = _root.findViewById(R.id.btBuySellRMC);
-        if(Calendar.getInstance().before(Keys.getICOEnd(getActivity()))) {
-            btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
-            _root.findViewById(R.id.btLearnMoreRMC).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try {
-                        startActivity(Intent.parseUri("http://rmc.one/", 0));
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }else {
-            btBuySellRmc.setVisibility(View.GONE);
-            _root.findViewById(R.id.btLearnMoreRMC).setVisibility(View.GONE);
-        }
-        super.onResume();
     }
 
     OnClickListener buySellOnClickListener = new OnClickListener() {
@@ -141,39 +123,4 @@ public class BuySellFragment extends Fragment {
             startActivity(intent);
         }
     };
-
-    OnClickListener buySellRmcOnClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if(!Utils.isConnected(getActivity())) {
-                new AlertDialog.Builder(getActivity())
-                        .setMessage(R.string.no_network_connection)
-                        .setPositiveButton(R.string.button_ok, null)
-                        .create()
-                        .show();
-            } else if (Calendar.getInstance().before(Keys.getICOStart()) && !BuildConfig.DEBUG) {
-                new AlertDialog.Builder(getActivity())
-                        .setMessage(R.string.ico_will_start)
-                        .setPositiveButton(R.string.button_ok, null)
-                        .create()
-                        .show();
-            } else {
-                Utils.showOptionalMessage(getActivity(), R.string.mycelium_no_responaility_rmc, new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(getActivity(), RmcActivity.class));
-                    }
-                });
-            }
-        }
-    };
-
-   /**
-    * The selected Account changed, update UI to enable/disable purchase
-    */
-   @Subscribe
-   public void selectedAccountChanged(SelectedAccountChanged event) {
-      updateUi();
-   }
-
 }
