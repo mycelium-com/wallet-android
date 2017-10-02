@@ -163,10 +163,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
                      if (matcher.find()) {
                         String market = matcher.group(1);
-                        String relatedCurrency = matcher.group(2); //BTC
-                        String baseCurrency = matcher.group(3); //fiat
+                        String relatedCurrency = matcher.group(2);
 
-                        if (relatedCurrency.equals(BTC) && baseCurrency.equals(currency)) {
+                        if (relatedCurrency.equals(BTC)) {
                            ExchangeRate exchangeRate = new ExchangeRate(market, new Date().getTime(), Double.parseDouble(entry.getValue()), currency);
                            exchangeRates.add(exchangeRate);
                         }

@@ -70,7 +70,6 @@ import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
-import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
@@ -89,6 +88,7 @@ public class AddressBookFragment extends Fragment {
    public static final String ADDRESS_RESULT_NAME = "address_result";
    public static final String ADDRESS_RESULT_ID = "address_result_id";
    public static final String OWN = "own";
+   public static final String FOR_FEE = "FOR_FEE";
    public static final String SELECT_ONLY = "selectOnly";
    public static final String SPENDABLE_ONLY = "spendable_only";
    public static final String EXCLUDE_SELECTED = "exclude_selected";
@@ -102,6 +102,7 @@ public class AddressBookFragment extends Fragment {
    private Boolean ownAddresses; // set to null on purpose
    private Boolean spendableOnly;
    private Boolean excudeSelected;
+   private Boolean forFee;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -110,6 +111,7 @@ public class AddressBookFragment extends Fragment {
       spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
+      forFee = getArguments().getBoolean(FOR_FEE, false);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
@@ -180,7 +182,10 @@ public class AddressBookFragment extends Fragment {
                   entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
                } else if (!(_mbwManager.getSelectedAccount() instanceof ColuAccount)) {
                   entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+               } else if(forFee) {
+                  entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
                }
+
             }
          }
       }
@@ -322,6 +327,46 @@ public class AddressBookFragment extends Fragment {
             });
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
+   }
+
+   private class AddressBookAdapter extends ArrayAdapter<Entry> {
+
+      private int resource;
+
+      public AddressBookAdapter(Context context,@LayoutRes int resource, List<Entry> entries) {
+         super(context, resource, entries);
+         this.resource = resource;
+      }
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+         View v = convertView;
+
+         if (v == null) {
+            LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            v = Preconditions.checkNotNull(vi.inflate(resource, null));
+         }
+         TextView tvName = (TextView) v.findViewById(R.id.tvName);
+         TextView tvAddress = (TextView) v.findViewById(R.id.tvAddress);
+         Entry e = getItem(position);
+         tvName.setText(e.getName());
+         String text = e.getAddress().toMultiLineString();
+         tvAddress.setText(text);
+         v.setTag(e.getAddress());
+
+         ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+         if (e instanceof AddressBookManager.IconEntry){
+            Drawable icon = ((AddressBookManager.IconEntry) e).getIcon();
+            if (icon == null){
+               ivIcon.setVisibility(View.INVISIBLE);
+            } else {
+               ivIcon.setImageDrawable(icon);
+               ivIcon.setVisibility(View.VISIBLE);
+            }
+         }
+
+         return v;
+      }
    }
 
    private class AddDialog extends Dialog {

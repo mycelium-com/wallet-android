@@ -35,63 +35,74 @@
                 <!-- Enter Recipient -->
 
                 <LinearLayout
-                    android:id="@+id/llEnterRecipient"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingTop="6dp">
+                        android:id="@+id/llEnterRecipient"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
+                    <!-- Receiver -->
+
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Scan button -->
 
                     <Button
-                        android:id="@+id/btScan"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/scan_qr_code"
-                        android:textSize="20sp" />
+                            android:id="@+id/btScan"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/scan_qr_code"
+                            android:textSize="20sp"/>
+
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Address Book -->
 
                     <Button
-                        android:id="@+id/btAddressBook"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/my_addresses"
-                        android:textSize="20sp" />
+                            android:id="@+id/btAddressBook"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/my_addresses"
+                            android:textSize="20sp"/>
+
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Clipboard -->
 
                     <Button
-                        android:id="@+id/btClipboard"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/clipboard"
-                        android:textSize="20sp" />
+                            android:id="@+id/btClipboard"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/clipboard"
+                            android:textSize="20sp"/>
+
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
 
                     <!-- Manual Entry -->
 
                     <Button
-                        android:id="@+id/btManualEntry"
-                        android:layout_width="220dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/manual_entry"
-                        android:textSize="20sp" />
+                            android:id="@+id/btManualEntry"
+                            android:layout_width="220dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/manual_entry"
+                            android:textSize="20sp"/>
 
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="12dp"/>
                 </LinearLayout>
 
                 <!-- Recipient Address Box -->
@@ -189,7 +200,7 @@
         <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -216,7 +227,7 @@
 
             <View
                     android:layout_width="1dp"
-                    android:layout_height="8dp">
+                    android:layout_height="10dp">
             </View>
 
             <!-- Amount Title -->

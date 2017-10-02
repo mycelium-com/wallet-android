@@ -42,7 +42,7 @@ import android.support.v7.app.ActionBarActivity;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.send.SendMainActivity;
 
 public class GetFromAddressBookActivity extends ActionBarActivity {
    ViewPager mViewPager;
