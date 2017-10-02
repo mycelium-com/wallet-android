@@ -3,6 +3,7 @@
     <release version="2.9.4" versioncode="290403">
         <change>sign messages with token private keys</change>
         <change>verify signed messages</change>
+        <change>removed RMC chart</change>
     </release>
     <release version="2.9.3" versioncode="290302">
         <change>bug fixed: non-utf8 passphrases are handled correctly now</change>
