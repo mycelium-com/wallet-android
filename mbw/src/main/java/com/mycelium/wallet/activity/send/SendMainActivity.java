@@ -1033,7 +1033,6 @@ public class SendMainActivity extends Activity {
                             if (callback != null) {
                                 callback.success();
                             }
-                            Toast.makeText(SendMainActivity.this, R.string.colu_succeeded_to_prepare, Toast.LENGTH_SHORT).show();
                         } else {
                             if (callback != null) {
                                 callback.fail();
