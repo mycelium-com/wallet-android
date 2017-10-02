@@ -82,7 +82,6 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
-import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
