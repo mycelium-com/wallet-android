@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.rmc;
 
-import com.jjoe64.graphview.series.DataPoint;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -19,6 +18,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * we remove this class in future if not request with description what graphic should show
+ */
 public class RmcPaymentsStatistics {
     public static final int MAX_TRANSACTION_RETRIEVAL_LIMIT = 1000;
     public static final String CURRENCY = "USD";
@@ -59,7 +61,7 @@ public class RmcPaymentsStatistics {
         return result;
     }
 
-    public List<DataPoint> getStatistics() {
+   /* public List<DataPoint> getStatistics() {
         List<DataPoint> dataPoints = new ArrayList<>();
         List<TransactionSummary> txSummaries = getTransactionSummaries();
 
@@ -155,6 +157,6 @@ public class RmcPaymentsStatistics {
             accumulatedValue += curValue;
             dataPoints.set(dataPointIndex, new DataPoint(date, accumulatedValue));
         }
-    }
+    }*/
 
 }
