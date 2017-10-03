@@ -690,14 +690,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
-              && !(account instanceof ColuAccount)
-              && !(Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()))) {
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
-      if (account.isActive() && !(account instanceof ColuAccount)
-              && !(Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()))) {
+      if (account.isActive()) {
          menus.add(R.menu.record_options_menu_active);
       }
 
@@ -1013,6 +1010,8 @@ public class AccountsFragment extends Fragment {
                MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
             } else if (_focusedAccount instanceof SingleAddressAccount) {
                MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
+            } else if(_focusedAccount instanceof ColuAccount){
+               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey());
             } else {
                Intent intent = new Intent(getActivity(), HDSigningActivity.class);
                intent.putExtra("account", _focusedAccount.getId());
