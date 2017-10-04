@@ -68,6 +68,16 @@
             </TextView>
 
             <TextView
+                android:id="@+id/tvFiatAmountTimed"
+                tools:text="1.23 EUR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:layout_gravity="right"
+                android:textSize="13sp">
+            </TextView>
+
+            <TextView
                     android:id="@+id/tvFiatAmount"
                     tools:text="1.23 EUR"
                     android:layout_width="wrap_content"

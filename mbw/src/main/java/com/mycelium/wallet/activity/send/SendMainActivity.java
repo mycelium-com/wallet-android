@@ -40,6 +40,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -166,6 +167,7 @@ public class SendMainActivity extends Activity {
     private static final String SIGNED_TRANSACTION = "signedTransaction";
     private static final String RMC_URI = "rmcUri";
     private static final String FEE_PER_KB = "fee_per_kb";
+    public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
 
 
     private enum TransactionStatus {
@@ -260,6 +262,7 @@ public class SendMainActivity extends Activity {
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
+    private SharedPreferences sharedPreferences;
 
     int feeFirstItemWidth;
 
@@ -429,6 +432,8 @@ public class SendMainActivity extends Activity {
 
         initFeeView();
         initFeeLvlView();
+
+        sharedPreferences = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
     }
     private FeeViewAdapter feeViewAdapter;
@@ -1593,6 +1598,11 @@ public class SendMainActivity extends Activity {
             }
         } else if (requestCode == BROADCAST_REQUEST_CODE) {
             // return result from broadcast
+            if (resultCode == RESULT_OK) {
+                long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
+                String valueString = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
+                sharedPreferences.edit().putString(_signedTransaction.getHash().toHex(), valueString).apply();
+            }
             this.setResult(resultCode, intent);
             finish();
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
