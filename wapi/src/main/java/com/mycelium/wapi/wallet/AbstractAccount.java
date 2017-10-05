@@ -874,6 +874,19 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                      output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS ||
                      !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.hash)) {
             it.remove();
+         } else {
+            //Try to detect if the output came from the colu transaction
+            //The typical attribute of colu transaction is zero-based OP_RETURN output. It has the specific protocol identifier
+            Transaction transaction = TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash));
+            for(int i = 0 ; i < transaction.outputs.length;i++) {
+               TransactionOutput curOutput = transaction.outputs[i];
+               byte[] scriptBytes = curOutput.script.getScriptBytes();
+               //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
+               if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 & scriptBytes[3] == 0x43) {
+                  it.remove();
+                  break;
+               }
+            }
          }
       }
       return allUnspentOutputs;
