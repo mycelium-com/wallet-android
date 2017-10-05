@@ -42,7 +42,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -89,6 +88,7 @@ import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.event.SelectListener;
+import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
@@ -260,6 +260,7 @@ public class SendMainActivity extends Activity {
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
+    private FeeItemsBuilder feeItemsBuilder;
 
     int feeFirstItemWidth;
 
@@ -438,7 +439,7 @@ public class SendMainActivity extends Activity {
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-//        List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
+        feeItemsBuilder = new FeeItemsBuilder(_mbwManager);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -460,55 +461,7 @@ public class SendMainActivity extends Activity {
             }
         });
         feeValueList.setAdapter(feeViewAdapter);
-//        findAndSetSelectedPosition(feeItems);
         feeValueList.setHasFixedSize(true);
-    }
-
-
-    private static int HALF_FEE_ITEMS = 5;
-
-    @NonNull
-    private List<FeeItem> fillFee(FeeViewAdapter feeViewAdapter, MinerFee feeLvl) {
-        long min = 0;
-        long current = feeLvl.getFeePerKb(feeEstimation).getLongValue();
-        if (feeLvl != MinerFee.LOWPRIO) {
-            long prevValue = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
-            prevValue = prevValue == current ? prevValue / 2 : prevValue;
-            min = (current + prevValue) / 2;
-        }
-        long max = 3 * MinerFee.PRIORITY.getFeePerKb(feeEstimation).getLongValue() / 2;
-        if (feeLvl != MinerFee.PRIORITY) {
-            max = (feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue() + current) / 2;
-        }
-
-        List<FeeItem> feeItems = new ArrayList<>();
-        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        addItemsInRange(feeItems, min, current, Math.max((current - min) / HALF_FEE_ITEMS, 1));
-        addItemsInRange(feeItems, current, max, Math.max((max - current) / HALF_FEE_ITEMS, 1));
-        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-
-        feeViewAdapter.setDataset(feeItems.toArray(new FeeItem[feeItems.size()]));
-
-        return feeItems;
-    }
-
-    private void addItemsInRange(List<FeeItem> feeItems, long from, long to, long step) {
-        for (long i = from, j = 0; i < to && j < HALF_FEE_ITEMS; i += step, j++) {
-            int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
-            int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
-            int size = estimateTransactionSize(inCount, outCount);
-            ExactBitcoinValue bitcoinValue;
-            if (isColu()) {
-                long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(i);
-                bitcoinValue = ExactBitcoinValue.from(fundingAmountToSend);
-            } else {
-                bitcoinValue = ExactBitcoinValue.from(size * i / 1000);
-            }
-            CurrencyValue fiatFee = CurrencyValue.fromValue(bitcoinValue,
-                    _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
-
-            feeItems.add(new FeeItem(i, bitcoinValue.getAsBitcoin(), fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM));
-        }
     }
 
     private void initFeeLvlView() {
@@ -522,7 +475,7 @@ public class SendMainActivity extends Activity {
         }
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
-        final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems.toArray(new FeeLvlItem[feeLvlItems.size()]), feeFirstItemWidth);
+        final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
 
         feeLvlList.setSelectListener(new SelectListener() {
             @Override
@@ -530,8 +483,9 @@ public class SendMainActivity extends Activity {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
                 feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
-                List<FeeItem> feeItems = fillFee(feeViewAdapter, feeLvl);
-                findAndSetSelectedPosition(feeItems);
+                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, _unsigned);
+                feeViewAdapter.setDataset(feeItems);
+                feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
             }
         });
 
@@ -549,19 +503,6 @@ public class SendMainActivity extends Activity {
         feeLvlList.setSelectedItem(selectedIndex);
         feeLvlList.setHasFixedSize(true);
     }
-
-    private void findAndSetSelectedPosition(List<FeeItem> feeItems) {
-        int selected = feeItems.size() / 2;
-        for (int i = 0; i < feeItems.size(); i++) {
-            FeeItem feeItem = feeItems.get(i);
-            if (feeItem.feePerKb == feePerKbValue) {
-                selected = i;
-                break;
-            }
-        }
-        feeValueList.setSelectedItem(selected);
-    }
-
 
     //TODO: fee from other bitcoin account if colu
     private TransactionStatus checkHaveSpendAccount() {
@@ -1165,7 +1106,9 @@ public class SendMainActivity extends Activity {
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
 
-        findAndSetSelectedPosition(fillFee(feeViewAdapter, feeLvl));
+        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, _unsigned);
+        feeViewAdapter.setDataset(feeItems);
+        feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {
