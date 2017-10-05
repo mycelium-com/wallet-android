@@ -262,7 +262,7 @@ public class SendMainActivity extends Activity {
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences transactionFiatValuePref;
 
     int feeFirstItemWidth;
 
@@ -433,7 +433,7 @@ public class SendMainActivity extends Activity {
         initFeeView();
         initFeeLvlView();
 
-        sharedPreferences = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+        transactionFiatValuePref = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
     }
     private FeeViewAdapter feeViewAdapter;
@@ -1601,7 +1601,7 @@ public class SendMainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
                 String valueString = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
-                sharedPreferences.edit().putString(_signedTransaction.getHash().toHex(), valueString).apply();
+                transactionFiatValuePref.edit().putString(_signedTransaction.getHash().toHex(), valueString).apply();
             }
             this.setResult(resultCode, intent);
             finish();

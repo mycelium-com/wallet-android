@@ -39,7 +39,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
    private Map<Address, String> _addressBook;
-   private SharedPreferences sharedPreferences;
+   private SharedPreferences transactionFiatValuePref;
 
    public TransactionArrayAdapter(Context context, List<TransactionSummary> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
@@ -59,7 +59,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       _storage = _mbwManager.getMetadataStorage();
       _addressBook = addressBook;
 
-      sharedPreferences = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+      transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
    }
 
    @NonNull
@@ -140,7 +140,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       }
 
       TextView tvFiatTimed = (TextView) rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = sharedPreferences.getString(record.txid.toHex(), null);
+      String value = transactionFiatValuePref.getString(record.txid.toHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
