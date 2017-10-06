@@ -1,7 +1,5 @@
 package com.mycelium.wallet;
 
-import android.util.Log;
-
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpHeaders;
@@ -19,7 +17,6 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.security.Security;
-import java.util.concurrent.TimeUnit;
 
 
 public class AdvancedHttpClient {
@@ -46,7 +43,7 @@ public class AdvancedHttpClient {
                     public void initialize(HttpRequest request) {
                         request.setParser(new JsonObjectParser(new JacksonFactory()));
                     }
-        });
+                });
     }
 
     public void setFailureRestrictions(HttpRequest request) {
@@ -66,7 +63,7 @@ public class AdvancedHttpClient {
 
     public <T> T sendPostRequest(Class<T> t, String endpoint,
                                  HttpHeaders headers, Object data) throws IOException {
-        for(String host : hostsList) {
+        for (String host : hostsList) {
             try {
                 GenericUrl url = new GenericUrl(host + endpoint);
                 T result = makePostRequest(t, url, headers, data);
@@ -78,7 +75,7 @@ public class AdvancedHttpClient {
     }
 
     public <T> T sendGetRequest(Class<T> t, String endpoint) throws IOException {
-        for(String host : hostsList) {
+        for (String host : hostsList) {
             try {
                 GenericUrl url = new GenericUrl(host + endpoint);
                 T result = makeGetRequest(t, url);

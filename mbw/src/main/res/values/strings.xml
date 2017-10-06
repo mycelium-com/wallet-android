@@ -1067,7 +1067,7 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
-    <string name="miner_fee_custom">Custom</string>
+    <string name="miner_fee_custom" >Custom</string>
     <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
     <string name="fee_is_zero">Transaction might never happen!</string>
     <string name="fee_change_warning" formatted="false"><![CDATA[Your <font color="#4583de">change</font> is less than Bitcoin network output limit. Total miner fee will be increased to %s %s!]]></string>
