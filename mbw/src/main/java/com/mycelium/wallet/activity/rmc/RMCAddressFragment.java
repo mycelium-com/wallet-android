@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +16,8 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.google.common.base.Preconditions;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -36,10 +29,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -54,11 +44,6 @@ public class RMCAddressFragment extends Fragment {
 
     public static final String RMC_ACTIVE_PUSH_NOTIFICATION = "rmc_active_push_notification";
     private View _root;
-    @BindView(R.id.switcher)
-    protected ViewFlipper switcher;
-
-    @BindView(R.id.graph)
-    protected GraphView graphView;
 
     @BindView(R.id.active_in_day_progress)
     protected ProgressBar activeProgressBar;
@@ -96,15 +81,6 @@ public class RMCAddressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.rmc_address_view, container, false));
         ButterKnife.bind(this, _root);
-        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
-        graphView.getGridLabelRenderer().setNumVerticalLabels(3);
-        graphView.getGridLabelRenderer().setNumHorizontalLabels(0);
-//        graphView.getViewport().setMaxY(0.02);
-//        graphView.getViewport().setYAxisBoundsManual(true);
-        graphView.getViewport().setXAxisBoundsManual(true);
-        graphView.getViewport().setDrawBorder(true);
-
-        graphView.getGridLabelRenderer().setHumanRounding(false);
         return _root;
     }
 
@@ -154,37 +130,6 @@ public class RMCAddressFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
-        try {
-            RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
-            List<DataPoint> dataPoints = paymentsStatistics.getStatistics();
-            if (dataPoints.size() > 0) {
-                graphView.getViewport().setMinX(dataPoints.get(0).getX());
-                Calendar max = Calendar.getInstance();
-                max.setTimeInMillis((long) dataPoints.get(0).getX());
-                graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
-
-                DateFormat dateFormat;
-                if (dataPoints.size() < 30) {
-                    max.add(Calendar.MONTH, 1);
-                    dateFormat = new SimpleDateFormat("dd.MM");
-                } else if (dataPoints.size() < 90) {
-                    max.add(Calendar.MONTH, 3);
-                    dateFormat = new SimpleDateFormat("dd.MM");
-                } else if (dataPoints.size() < 365) {
-                    max.add(Calendar.MONTH, 12);
-                    dateFormat = new SimpleDateFormat("MM.yy");
-                } else {
-                    max.setTimeInMillis((long) dataPoints.get(dataPoints.size() - 1).getX());
-                    dateFormat = new SimpleDateFormat("MM.yy");
-                }
-                graphView.getGridLabelRenderer().setLabelFormatter(
-                        new DateAsXAxisLabelFormatter(getActivity(), dateFormat));
-                graphView.getViewport().setMaxX(max.getTimeInMillis());
-                graphView.addSeries(new LineGraphSeries(dataPoints.toArray(new DataPoint[dataPoints.size()])));
-            }
-        } catch (Exception ex) {
-            Log.e("RMCAddressFragment", "", ex);
-        }
 
         BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -217,16 +162,6 @@ public class RMCAddressFragment extends Fragment {
         activeProgressBar.setProgress(progress);
         activeProgressBar.setMax(total);
         activeInDay.setText(getString(R.string.rmc_active_in_159_days, total - progress));
-    }
-
-    @OnClick(R.id.show_graph)
-    void clickShowGraph() {
-        switcher.showNext();
-    }
-
-    @OnClick(R.id.show_stats)
-    void clickShowStats() {
-        switcher.showPrevious();
     }
 
     @OnClick(R.id.rmc_active_set_reminder)

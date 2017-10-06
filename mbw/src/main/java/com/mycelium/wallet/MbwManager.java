@@ -252,8 +252,6 @@ public class MbwManager {
       _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
 
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
-
-
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
 
@@ -268,7 +266,7 @@ public class MbwManager {
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
-      //TODOL get it through coluManager instead ?
+      //TODO: get it through coluManager instead ?
       Set<String> fiatCurrencies = new HashSet<>();
       if (currencyList == null) {
          //if there is no list take the default currency
@@ -309,8 +307,7 @@ public class MbwManager {
          addExtraAccounts(_coinapultManager.get());
       }
 
-      InitColuManagerTask initColu = new InitColuManagerTask();
-      initColu.execute();
+      new InitColuManagerTask().execute();
       // set the currency-list after we added all extra accounts, they may provide
       // additional needed fiat currencies
       setCurrencyList(fiatCurrencies);

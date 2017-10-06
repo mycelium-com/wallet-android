@@ -60,7 +60,6 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     compile 'commons-codec:commons-codec:1.5'
     compile 'com.google.protobuf:protobuf-java:3.1.0'
-    compile 'com.jjoe64:graphview:4.2.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
 }
@@ -95,8 +94,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290300
-        versionName '2.9.3'
+        versionCode 290403
+        versionName '2.9.4'
         multiDexEnabled true
     }
 
