@@ -209,7 +209,9 @@ public class RMCAddressFragment extends Fragment {
         tvLabel.setText(name);
         tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
         AssetMetadata assetMetadata = _mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
-        tvTotalIssued.setText(assetMetadata != null ? assetMetadata.getTotalSupply().toPlainString() : getString(R.string.not_available));
+        tvTotalIssued.setText(assetMetadata != null ?
+                assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()
+                : getString(R.string.not_available));
     }
 
     @Subscribe
