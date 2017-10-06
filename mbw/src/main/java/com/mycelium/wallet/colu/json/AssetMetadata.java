@@ -14,6 +14,15 @@ public class AssetMetadata {
     @Key
     public long totalSupply;
 
+    public AssetMetadata() {
+    }
+
+    public AssetMetadata(String assetId, BigDecimal value) {
+        this.assetId = assetId;
+        this.divisibility = value.scale();
+        this.totalSupply = value.movePointRight(this.divisibility).longValue();
+    }
+
     public BigDecimal getTotalSupply() {
         return BigDecimal.valueOf(totalSupply).movePointLeft(divisibility);
     }
