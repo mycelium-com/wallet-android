@@ -853,6 +853,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return _network;
    }
 
+
+   public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
+   public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 6000;
+
    /**
     * @param minerFeePerKbToUse Determines the dust level, at which including a UTXO costs more than it is worth.
     * @return all UTXOs that are spendable now, as they are neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set nor dust.
@@ -875,6 +879,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                      !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.hash)) {
             it.remove();
          } else {
+            boolean isColuTransaction = false;
             //Try to detect if the output came from the colu transaction
             //The typical attribute of colu transaction is zero-based OP_RETURN output. It has the specific protocol identifier
             //Protocol description link: https://github.com/Colored-Coins/Colored-Coins-Protocol-Specification/wiki/Coloring%20Scheme
@@ -884,9 +889,15 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                byte[] scriptBytes = curOutput.script.getScriptBytes();
                //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
                if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
-                  it.remove();
+                  isColuTransaction = true;
                   break;
                }
+            }
+
+            if (isColuTransaction) {
+               int coluDustOutputSize = this._network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
+               if (output.value <= coluDustOutputSize)
+                  it.remove();
             }
          }
       }

@@ -100,7 +100,6 @@ public class ColuManager implements AccountProvider {
     private WalletManager.State state;
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
-    public static final int DUST_OUTPUT_SIZE = 600;
     public static final int METADATA_OUTPUT_SIZE = 1;
     public static final int AVERAGE_COLU_TX_SIZE = 212;
 
