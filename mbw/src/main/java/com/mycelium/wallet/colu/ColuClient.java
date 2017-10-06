@@ -3,7 +3,6 @@ package com.mycelium.wallet.colu;
 import android.util.Log;
 
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
@@ -12,12 +11,12 @@ import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
+import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.ColuTransactionRequest;
 import com.mycelium.wallet.colu.json.ColuTxDest;
 import com.mycelium.wallet.colu.json.ColuTxFlags;
-import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
@@ -26,7 +25,6 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Security;
-import java.security.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,7 +62,7 @@ public class ColuClient {
 
     public AssetMetadata getMetadata(String assetId) throws IOException {
         String endpoint = "assetmetadata/" + assetId;
-        return blockExplorerClient.sendGetRequest(AssetMetadata.class, endpoint);
+        return coloredCoinsClient.sendGetRequest(AssetMetadata.class, endpoint);
     }
 
     public AddressInfo.Json getBalance(Address address) throws IOException {
