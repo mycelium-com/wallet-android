@@ -877,12 +877,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          } else {
             //Try to detect if the output came from the colu transaction
             //The typical attribute of colu transaction is zero-based OP_RETURN output. It has the specific protocol identifier
+            //Protocol description link: https://github.com/Colored-Coins/Colored-Coins-Protocol-Specification/wiki/Coloring%20Scheme
             Transaction transaction = TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash));
             for(int i = 0 ; i < transaction.outputs.length;i++) {
                TransactionOutput curOutput = transaction.outputs[i];
                byte[] scriptBytes = curOutput.script.getScriptBytes();
                //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
-               if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 & scriptBytes[3] == 0x43) {
+               if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
                   it.remove();
                   break;
                }
