@@ -1,18 +1,9 @@
 package com.mycelium.wallet.colu;
 
 import com.google.api.client.http.*;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.http.json.JsonHttpContent;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.Base64;
-import com.google.common.base.Stopwatch;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.WapiLogger;
 import com.mycelium.wallet.AdvancedHttpClient;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.AddressInfo;
@@ -23,25 +14,19 @@ import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.ColuTransactionRequest;
 import com.mycelium.wallet.colu.json.ColuTxDest;
 import com.mycelium.wallet.colu.json.ColuTxFlags;
+import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.*;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,7 +43,7 @@ public class ColuClient {
 
    private AdvancedHttpClient coloredCoinsClient;
    private AdvancedHttpClient blockExplorerClient;
-   
+
    public ColuClient(NetworkParameters network) {
       this.coloredCoinsClient = new AdvancedHttpClient(BuildConfig.ColoredCoinsApiURLs);
       this.blockExplorerClient = new AdvancedHttpClient(BuildConfig.ColuBlockExplorerApiURLs);
@@ -85,7 +70,12 @@ public class ColuClient {
       return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
    }
 
-   //TODO: move most of the logic to ColuManager
+    public AssetMetadata getMetadata(String assetId) throws IOException {
+        String endpoint = "assetmetadata/" + assetId;
+        return blockExplorerClient.sendGetRequest(AssetMetadata.class, endpoint);
+    }
+
+    //TODO: move most of the logic to ColuManager
    public ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
                                                      ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
                                                      long txFee)

@@ -85,7 +85,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total RMC issued:"
+                        android:text="Total RMC supply:"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 

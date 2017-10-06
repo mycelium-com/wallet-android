@@ -28,6 +28,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -152,7 +153,6 @@ public class RMCAddressFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        tvTotalIssued.setText(String.valueOf(Keys.TOTAL_RMC_ISSUED));
         ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
         try {
             RmcPaymentsStatistics paymentsStatistics = new RmcPaymentsStatistics(coluAccount, _mbwManager.getExchangeRateManager());
@@ -273,6 +273,8 @@ public class RMCAddressFragment extends Fragment {
         String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
         tvLabel.setText(name);
         tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
+        AssetMetadata assetMetadata = _mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
+        tvTotalIssued.setText(assetMetadata != null ? assetMetadata.getTotalSupply().toPlainString() : getString(R.string.not_available));
     }
 
     @Subscribe
