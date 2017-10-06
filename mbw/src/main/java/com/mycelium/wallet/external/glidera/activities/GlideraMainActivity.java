@@ -10,7 +10,7 @@ import android.view.MenuItem;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.TabsAdapter;
+import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.external.glidera.fragments.GlideraBuyFragment;
 import com.mycelium.wallet.external.glidera.fragments.GlideraSellFragment;
 import com.mycelium.wallet.external.glidera.fragments.GlideraTransactionHistoryFragment;

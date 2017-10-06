@@ -86,6 +86,7 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -209,6 +210,8 @@ public class TransactionHistoryFragment extends Fragment {
          return;
       }
       List<TransactionSummary> history = account.getTransactionHistory(0, 20);
+      Collections.sort(history);
+      Collections.reverse(history);
       if (history.isEmpty()) {
          _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
