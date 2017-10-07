@@ -58,7 +58,6 @@ import javax.annotation.Nullable;
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
     private View _root;
-    private boolean showButton;
     private View btBuySell;
 
     @Override
@@ -71,12 +70,18 @@ public class BuySellFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(false);
-        showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
+        boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
             @Override
             public boolean apply(@Nullable BuySellServiceDescriptor input) {
                 return input.isEnabled(_mbwManager);
             }
         });
+        if (showButton) {
+            btBuySell.setVisibility(View.VISIBLE);
+            btBuySell.setOnClickListener(buySellOnClickListener);
+        } else {
+            btBuySell.setVisibility(View.GONE);
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -86,22 +91,6 @@ public class BuySellFragment extends Fragment {
         _mbwManager = MbwManager.getInstance(activity);
     }
 
-    @Override
-    public void onResume() {
-        _mbwManager.getEventBus().register(this);
-        updateUi();
-        super.onResume();
-    }
-
-    private void updateUi() {
-        if (showButton) {
-            btBuySell.setVisibility(View.VISIBLE);
-            btBuySell.setOnClickListener(buySellOnClickListener);
-        } else {
-            btBuySell.setVisibility(View.GONE);
-        }
-    }
-
     OnClickListener buySellOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -109,12 +98,4 @@ public class BuySellFragment extends Fragment {
             startActivity(intent);
         }
     };
-
-    /**
-     * The selected Account changed, update UI to enable/disable purchase
-     */
-    @Subscribe
-    public void selectedAccountChanged(SelectedAccountChanged event) {
-        updateUi();
-    }
 }
