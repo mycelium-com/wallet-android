@@ -852,8 +852,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public NetworkParameters getNetwork() {
       return _network;
    }
-
-
+   
+   // TODO: 07.10.17 these values are subject to change and not a solid way to detect cc outputs.
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 6000;
 
@@ -896,8 +896,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
             if (isColuTransaction) {
                int coluDustOutputSize = this._network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
-               if (output.value <= coluDustOutputSize)
+               if (output.value <= coluDustOutputSize) {
                   it.remove();
+               }
             }
          }
       }
