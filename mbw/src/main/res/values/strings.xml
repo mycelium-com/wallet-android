@@ -1051,7 +1051,11 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="weeks">days</string>
     <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
     <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets.</string>
-    <string name="rmc_bitcoin_acc_what_is_it">RMC Bitcoin account is a "Single Address" Bitcoin address linked to your RMC account. All new bitcoins mined  by Total RMC hash power are proportionally distributed among RMC Bitcoin accounts.</string>
+    <string name="rmc_bitcoin_acc_what_is_it">What is it?
+
+RMC bitcoin account is a Single Address bitcoin account linked to your RMC account.
+All new bitcoins mined by Total RMC hash power are proportionally distributed among RMC bitcoin accounts.
+\nIn order to protect your assets from being destroyed while spending BTC from your RMC Bitcoin account, Colored Coin dust utxos and corresponding transactions are excluded from this account.</string>
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
