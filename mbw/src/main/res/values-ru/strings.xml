@@ -829,9 +829,9 @@
   <string name="weeks">дни</string>
   <string name="rmc_price_fluctations">Цена RMC в BTC/ETH приблизительна из-за колебаний обменного курса. Актуальная цена RMC формируется в момент оплаты.</string>
   <string name="colu_before_sending_make_sure">Перед отправкой ваших digital assets убедитесь что отправляете на digital assets адрес, а не на случайный bitcoin адрес. Нажмите <font color="#4583de">здесь</font> чтобы увидеть процедуру восстановления ваших digital assets.</string>
-  <string name="rmc_bitcoin_acc_what_is_it">"RMC Bitcoin" является "Bitcoin Single Address" счётом, связанным с вашим RMC счётом.
-Новые BTC, добытые RMC пулом, пропорционально распределяются между счетами "RMC Bitcoin".
-\nЧтобы предотвратить уничтожение ваших RMС токенов во время списания BTC с "RMC Bitcoin" счёта, мы исключаем работу с непотраченными выходами Colored Coins и соответствующими техническими транзакциями в его рамках.</string>
+  <string name="rmc_bitcoin_acc_what_is_it">"RMC Bitcoin" является "Bitcoin Single Address" счётом, связанным с вашим RMC счётом. Данный счёт позволяет распоряжаться BTC, начисленными пулом владельцу RMC актива. Новые BTC, добытые RMC пулом, пропорционально распределяются между счетами "RMC Bitcoin".
+    \n
+    Для исключения возможности непреднамеренного "сжигания" цифровых активов на вашем адресе при формирован транзакции со связанного BTC аккаунта, неизрасходованные выходы (UTXO) цифровых активов и их технические транзакции (так называемая "пыль") не учитываются.</string>
   <string name="what_is_it">Что это?</string>
   <string name="error_start_google_calendar">Что-то не так с google календарем</string>
   <string name="both_rmc_will_deleted" formatted="false">Оба %s и %s аккаунта будут удалены.</string>
