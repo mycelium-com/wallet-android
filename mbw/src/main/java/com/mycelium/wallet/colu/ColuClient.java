@@ -11,6 +11,7 @@ import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
+import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.ColuTransactionRequest;
@@ -57,6 +58,11 @@ public class ColuClient {
 
     private void initialize() {
         Security.addProvider(new BouncyCastleProvider());
+    }
+
+    public AssetMetadata getMetadata(String assetId) throws IOException {
+        String endpoint = "assetmetadata/" + assetId;
+        return coloredCoinsClient.sendGetRequest(AssetMetadata.class, endpoint);
     }
 
     public AddressInfo.Json getBalance(Address address) throws IOException {

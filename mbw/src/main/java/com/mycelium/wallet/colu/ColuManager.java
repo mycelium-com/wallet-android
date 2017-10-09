@@ -23,6 +23,7 @@ import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
+import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.Tx;
@@ -98,6 +99,7 @@ public class ColuManager implements AccountProvider {
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
+    private Map<ColuAccount.ColuAssetType, AssetMetadata> assetsMetadata = new HashMap<>();
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
     public static final int DUST_OUTPUT_SIZE = 600;
@@ -146,7 +148,18 @@ public class ColuManager implements AccountProvider {
             }
         });
         coluAccounts = new HashMap<>();
+        loadAssetsMetadata();
         loadAccounts();
+    }
+
+    private void loadAssetsMetadata() {
+        for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
+            String id = ColuAccount.ColuAsset.getByType(assetType).id;
+            Optional<BigDecimal> coinSupply = metadataStorage.getColuAssetCoinSupply(id);
+            if (coinSupply.isPresent()) {
+                assetsMetadata.put(assetType, new AssetMetadata(id, coinSupply.get()));
+            }
+        }
     }
 
     public BlockExplorer getBlockExplorer() {
@@ -406,6 +419,10 @@ public class ColuManager implements AccountProvider {
             _backing.endTransaction();
         }
         return createdAccountInfo;
+    }
+
+    public AssetMetadata getAssetMetadata(ColuAccount.ColuAssetType coluAssetType) {
+        return assetsMetadata.get(coluAssetType);
     }
 
     // convenience method to make it easier to migrate from metadataStorage to backing later on
@@ -702,6 +719,16 @@ public class ColuManager implements AccountProvider {
 
     // this method updates balances for all colu accounts
     public boolean scanForAccounts() {
+        try {
+            for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
+                String id = ColuAccount.ColuAsset.getByType(assetType).id;
+                AssetMetadata assetMetadata = coluClient.getMetadata(id);
+                assetsMetadata.put(assetType, assetMetadata);
+                metadataStorage.storeColuAssetCoinSupply(id, assetMetadata.getTotalSupply());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "error while get asset metadata: " + e.getMessage());
+        }
         try {
             getBalances();
             return true;
