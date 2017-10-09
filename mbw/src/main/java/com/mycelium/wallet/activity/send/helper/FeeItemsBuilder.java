@@ -18,7 +18,7 @@ import java.util.List;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 
 public class FeeItemsBuilder {
-    private static final int MIN_NO_ZIRO_FEE = 1000;
+    private static final int MIN_NOTZIRO_FEE_PER_KB = 1000;
     private static final int HALF_FEE_ITEMS_COUNT = 5;
 
     private MbwManager _mbwManager;
@@ -29,8 +29,8 @@ public class FeeItemsBuilder {
         this.feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
     }
 
-    public List<FeeItem> getFeeItemList(MinerFee feeLvl, StandardTransactionBuilder.UnsignedTransaction unsignedTransaction) {
-        long min = MIN_NO_ZIRO_FEE;
+    public List<FeeItem> getFeeItemList(MinerFee feeLvl, int txSize) {
+        long min = MIN_NOTZIRO_FEE_PER_KB;
         long current = feeLvl.getFeePerKb(feeEstimation).getLongValue();
         if (feeLvl != MinerFee.LOWPRIO) {
             long prevValue = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
@@ -44,20 +44,16 @@ public class FeeItemsBuilder {
 
         List<FeeItem> feeItems = new ArrayList<>();
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        addItemsInRange(feeItems, min, current, unsignedTransaction);
-        addItemsInRange(feeItems, current, max, unsignedTransaction);
+        addItemsInRange(feeItems, min, current, txSize);
+        addItemsInRange(feeItems, current, max, txSize);
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
 
         return feeItems;
     }
 
-    private void addItemsInRange(List<FeeItem> feeItems, long from, long to
-            , StandardTransactionBuilder.UnsignedTransaction _unsigned) {
-        int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
-        int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
-        int txSize = estimateTransactionSize(inCount, outCount);
+    private void addItemsInRange(List<FeeItem> feeItems, long from, long to, int txSize) {
         long step = Math.max((to - from) / HALF_FEE_ITEMS_COUNT, 1);
-        if (from == MIN_NO_ZIRO_FEE) {
+        if (from == MIN_NOTZIRO_FEE_PER_KB) {
             feeItems.add(createFeeItem(txSize, 0));
         }
         for (long i = from, j = 0; i < to && j < HALF_FEE_ITEMS_COUNT; i += step, j++) {

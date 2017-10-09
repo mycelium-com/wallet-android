@@ -483,7 +483,7 @@ public class SendMainActivity extends Activity {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
                 feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
-                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, _unsigned);
+                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
                 feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
             }
@@ -502,6 +502,12 @@ public class SendMainActivity extends Activity {
 
         feeLvlList.setSelectedItem(selectedIndex);
         feeLvlList.setHasFixedSize(true);
+    }
+
+    private int estimateTxSize() {
+        int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
+        int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
+        return estimateTransactionSize(inCount, outCount);
     }
 
     //TODO: fee from other bitcoin account if colu
@@ -1106,7 +1112,7 @@ public class SendMainActivity extends Activity {
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
 
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, _unsigned);
+        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
         feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
