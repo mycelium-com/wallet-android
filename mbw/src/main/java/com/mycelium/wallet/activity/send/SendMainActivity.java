@@ -76,6 +76,7 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
@@ -1593,15 +1594,14 @@ public class SendMainActivity extends Activity {
 
                     }
                 } else {
-                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, BROADCAST_REQUEST_CODE);
+                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
                 }
             }
         } else if (requestCode == BROADCAST_REQUEST_CODE) {
             // return result from broadcast
             if (resultCode == RESULT_OK) {
-                long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
-                String valueString = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
-                transactionFiatValuePref.edit().putString(_signedTransaction.getHash().toHex(), valueString).apply();
+                transactionFiatValuePref.edit().putString(intent.getStringExtra(Constants.TRANSACTION_HASH_INTENT_KEY)
+                        , intent.getStringExtra(Constants.TRANSACTION_FIAT_VALUE_KEY)).apply();
             }
             this.setResult(resultCode, intent);
             finish();
@@ -1631,7 +1631,12 @@ public class SendMainActivity extends Activity {
         }
     }
 
-   private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
+    private String getFiatValue() {
+        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
+        return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
+    }
+
+    private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
       _receivingAcc = _mbwManager.getWalletManager(true).createUnrelatedBip44Account(hdKeyNode);
       _xpubSyncing = true;
@@ -1672,7 +1677,8 @@ public class SendMainActivity extends Activity {
    @Subscribe
    public void paymentRequestAck(PaymentACK paymentACK) {
       if (paymentACK != null) {
-         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, BROADCAST_REQUEST_CODE);
+         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction
+                 , _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
       }
    }
 

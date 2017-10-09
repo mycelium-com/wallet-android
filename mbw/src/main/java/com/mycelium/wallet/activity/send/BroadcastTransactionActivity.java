@@ -61,15 +61,18 @@ public class BroadcastTransactionActivity extends Activity {
    protected boolean _isColdStorage;
    private String _transactionLabel;
    private Transaction _transaction;
+   private String _fiatValue;
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
    private WalletAccount.BroadcastResult _broadcastResult;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, Transaction signed, String transactionLabel, int requestCode) {
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage
+           , Transaction signed, String transactionLabel, String fiatValue, int requestCode) {
       Intent intent = new Intent(currentActivity, BroadcastTransactionActivity.class);
       intent.putExtra("account", account);
       intent.putExtra("isColdStorage", isColdStorage);
       intent.putExtra("signed", signed);
       intent.putExtra("transactionLabel", transactionLabel);
+      intent.putExtra("fiatValue", fiatValue);
       intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivityForResult(intent, requestCode);
    }
@@ -79,7 +82,7 @@ public class BroadcastTransactionActivity extends Activity {
       if (tx == null) {
          return false;
       }
-      callMe(currentActivity, account.getId(), false, TransactionEx.toTransaction(tx), null, 0);
+      callMe(currentActivity, account.getId(), false, TransactionEx.toTransaction(tx), null, "", 0);
       return  true;
    }
 
@@ -98,6 +101,7 @@ public class BroadcastTransactionActivity extends Activity {
 
       //May be null
       _transactionLabel = getIntent().getStringExtra("transactionLabel");
+      _fiatValue = getIntent().getStringExtra("fiatValue");
 
    }
 
@@ -195,6 +199,7 @@ public class BroadcastTransactionActivity extends Activity {
 
       // Include the transaction hash in the response
       Intent result = new Intent();
+      result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, _fiatValue);
       result.putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, _transaction.getHash().toString());
       setResult(RESULT_OK, result);
    }
