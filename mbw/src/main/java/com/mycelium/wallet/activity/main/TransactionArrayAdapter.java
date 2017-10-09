@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.main;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,12 +22,14 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIAT_VALUE;
 
 public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private final MetadataStorage _storage;
@@ -36,6 +39,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
    private Map<Address, String> _addressBook;
+   private SharedPreferences transactionFiatValuePref;
 
    public TransactionArrayAdapter(Context context, List<TransactionSummary> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
@@ -54,6 +58,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       _containerFragment = containerFragment;
       _storage = _mbwManager.getMetadataStorage();
       _addressBook = addressBook;
+
+      transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
    }
 
    @NonNull
@@ -131,6 +137,13 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
          }
       } else {
          tvFiat.setVisibility(View.GONE);
+      }
+
+      TextView tvFiatTimed = (TextView) rowView.findViewById(R.id.tvFiatAmountTimed);
+      String value = transactionFiatValuePref.getString(record.txid.toHex(), null);
+      tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
+      if(value != null) {
+         tvFiatTimed.setText(value);
       }
 
       // Show destination address and address label, if this address is in our address book

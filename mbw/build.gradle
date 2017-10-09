@@ -129,6 +129,7 @@ android {
             }
         }
         debug {
+            applicationIdSuffix '.debug'
             debuggable true
         }
     }

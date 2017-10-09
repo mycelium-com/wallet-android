@@ -40,6 +40,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -75,6 +76,7 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
@@ -166,6 +168,7 @@ public class SendMainActivity extends Activity {
     private static final String SIGNED_TRANSACTION = "signedTransaction";
     private static final String RMC_URI = "rmcUri";
     private static final String FEE_PER_KB = "fee_per_kb";
+    public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
 
 
     private enum TransactionStatus {
@@ -260,6 +263,7 @@ public class SendMainActivity extends Activity {
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
+    private SharedPreferences transactionFiatValuePref;
 
     int feeFirstItemWidth;
 
@@ -429,6 +433,8 @@ public class SendMainActivity extends Activity {
 
         initFeeView();
         initFeeLvlView();
+
+        transactionFiatValuePref = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
     }
     private FeeViewAdapter feeViewAdapter;
@@ -1588,11 +1594,15 @@ public class SendMainActivity extends Activity {
 
                     }
                 } else {
-                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, BROADCAST_REQUEST_CODE);
+                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
                 }
             }
         } else if (requestCode == BROADCAST_REQUEST_CODE) {
             // return result from broadcast
+            if (resultCode == RESULT_OK) {
+                transactionFiatValuePref.edit().putString(intent.getStringExtra(Constants.TRANSACTION_HASH_INTENT_KEY)
+                        , intent.getStringExtra(Constants.TRANSACTION_FIAT_VALUE_KEY)).apply();
+            }
             this.setResult(resultCode, intent);
             finish();
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
@@ -1621,7 +1631,12 @@ public class SendMainActivity extends Activity {
         }
     }
 
-   private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
+    private String getFiatValue() {
+        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
+        return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
+    }
+
+    private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
       _receivingAcc = _mbwManager.getWalletManager(true).createUnrelatedBip44Account(hdKeyNode);
       _xpubSyncing = true;
@@ -1662,7 +1677,8 @@ public class SendMainActivity extends Activity {
    @Subscribe
    public void paymentRequestAck(PaymentACK paymentACK) {
       if (paymentACK != null) {
-         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, BROADCAST_REQUEST_CODE);
+         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction
+                 , _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
       }
    }
 
