@@ -3,6 +3,8 @@ package com.mycelium.net;
 import com.mrd.bitlib.util.SslUtils;
 import com.squareup.okhttp.OkHttpClient;
 
+import java.rmi.RemoteException;
+
 import javax.net.ssl.SSLSocketFactory;
 
 public class TorHttpsEndpoint extends HttpsEndpoint implements FeedbackEndpoint {
@@ -21,6 +23,9 @@ public class TorHttpsEndpoint extends HttpsEndpoint implements FeedbackEndpoint 
    @Override
    public OkHttpClient getClient() {
       OkHttpClient client = super.getClient();
+      if(torManager == null) {
+         throw new RuntimeException("tor manager not found");
+      }
       return torManager.setupClient(client);
    }
 
