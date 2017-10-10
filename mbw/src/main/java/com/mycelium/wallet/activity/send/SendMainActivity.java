@@ -108,6 +108,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -623,7 +624,8 @@ public class SendMainActivity extends Activity {
     }
 
     private long getAmountForColuTxOutputs() {
-        return 4 * ColuManager.DUST_OUTPUT_SIZE + ColuManager.METADATA_OUTPUT_SIZE;
+        int coluDustOutputSize = this._mbwManager.getNetwork().isTestnet() ? AbstractAccount.COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : AbstractAccount.COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
+        return 2 * coluDustOutputSize + ColuManager.METADATA_OUTPUT_SIZE;
     }
 
     private boolean checkFee(boolean rescan) {

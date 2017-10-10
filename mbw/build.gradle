@@ -64,7 +64,6 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
 }
 
-
 android {
     configurations {
         all*.exclude module: 'jcip-annotations'
@@ -94,7 +93,7 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290403
+        versionCode 290404
         versionName '2.9.4'
         multiDexEnabled true
     }
