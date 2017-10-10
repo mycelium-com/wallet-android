@@ -907,8 +907,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                      !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.hash)) {
             it.remove();
          } else {
-            if (isColuDustOutput(output))
+            if (isColuDustOutput(output)) {
                it.remove();
+            }
          }
       }
       return allUnspentOutputs;
@@ -1133,8 +1134,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       boolean isColuTransaction = isColuTransaction(tx);
 
-      if (isColuTransaction)
+      if (isColuTransaction) {
          return null;
+      }
 
       // Outputs
       long satoshis = 0;
