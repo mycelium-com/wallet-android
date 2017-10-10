@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -47,44 +46,42 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.rmc.Keys;
-import com.mycelium.wallet.activity.rmc.RmcActivity;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
-
-import java.net.URISyntaxException;
-import java.util.Calendar;
 
 import javax.annotation.Nullable;
 
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
     private View _root;
-    private boolean showButton;
+    private View btBuySell;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
+        btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
+        boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
+            @Override
+            public boolean apply(@Nullable BuySellServiceDescriptor input) {
+                return input.isEnabled(_mbwManager);
+            }
+        });
+        if (showButton) {
+            btBuySell.setVisibility(View.VISIBLE);
+            btBuySell.setOnClickListener(buySellOnClickListener);
+        } else {
+            btBuySell.setVisibility(View.GONE);
+        }
         return _root;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(false);
-        showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
-            @Override
-            public boolean apply(@Nullable BuySellServiceDescriptor input) {
-                return input.isEnabled(_mbwManager);
-            }
-        });
         super.onCreate(savedInstanceState);
     }
 
@@ -94,46 +91,6 @@ public class BuySellFragment extends Fragment {
         _mbwManager = MbwManager.getInstance(activity);
     }
 
-    @Override
-    public void onResume() {
-        _mbwManager.getEventBus().register(this);
-        updateUi();
-        super.onResume();
-    }
-
-    private void updateUi() {
-        View btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
-        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if(account instanceof ColuAccount) {
-            btBuySell.setVisibility(View.GONE);
-        } else {
-            if(showButton) {
-                btBuySell.setVisibility(View.VISIBLE);
-                btBuySell.setOnClickListener(buySellOnClickListener);
-            } else {
-                btBuySell.setVisibility(View.GONE);
-            }
-        }
-        View btBuySellRmc = _root.findViewById(R.id.btBuySellRMC);
-        if(Calendar.getInstance().before(Keys.getICOEnd(getActivity()))) {
-            btBuySellRmc.setOnClickListener(buySellRmcOnClickListener);
-            _root.findViewById(R.id.btLearnMoreRMC).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try {
-                        startActivity(Intent.parseUri("http://rmc.one/", 0));
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }else {
-            btBuySellRmc.setVisibility(View.GONE);
-            _root.findViewById(R.id.btLearnMoreRMC).setVisibility(View.GONE);
-        }
-        super.onResume();
-    }
-
     OnClickListener buySellOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -141,39 +98,4 @@ public class BuySellFragment extends Fragment {
             startActivity(intent);
         }
     };
-
-    OnClickListener buySellRmcOnClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if(!Utils.isConnected(getActivity())) {
-                new AlertDialog.Builder(getActivity())
-                        .setMessage(R.string.no_network_connection)
-                        .setPositiveButton(R.string.button_ok, null)
-                        .create()
-                        .show();
-            } else if (Calendar.getInstance().before(Keys.getICOStart()) && !BuildConfig.DEBUG) {
-                new AlertDialog.Builder(getActivity())
-                        .setMessage(R.string.ico_will_start)
-                        .setPositiveButton(R.string.button_ok, null)
-                        .create()
-                        .show();
-            } else {
-                Utils.showOptionalMessage(getActivity(), R.string.mycelium_no_responaility_rmc, new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(getActivity(), RmcActivity.class));
-                    }
-                });
-            }
-        }
-    };
-
-   /**
-    * The selected Account changed, update UI to enable/disable purchase
-    */
-   @Subscribe
-   public void selectedAccountChanged(SelectedAccountChanged event) {
-      updateUi();
-   }
-
 }

@@ -43,6 +43,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class MetadataStorage extends GenericMetadataStorage {
@@ -306,6 +307,19 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void setCoinapultMail(String mail) {
       storeKeyCategoryValueEntry(COINAPULT.of(EMAIL), mail);
+   }
+
+   public void storeColuAssetCoinSupply(String assetIds, BigDecimal value) {
+      storeKeyCategoryValueEntry(COLU.of("coinsupply" + assetIds), value.toPlainString());
+   }
+
+   public Optional<BigDecimal> getColuAssetCoinSupply(String assetIds) {
+      Optional<String> valueEntry = getKeyCategoryValueEntry(COLU.of("coinsupply" + assetIds));
+      Optional<BigDecimal> result = Optional.absent();
+      if(valueEntry.isPresent()) {
+         result = Optional.of(new BigDecimal(valueEntry.get()));
+      }
+      return result;
    }
 
    public void storeColuAssetIds(String assetIds) {

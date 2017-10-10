@@ -19,10 +19,11 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.security.Security;
-import java.util.concurrent.TimeUnit;
 
 
 public class AdvancedHttpClient {
+
+    private static final String TAG = "AdvancedHttpClient";
 
     private int DEFAULT_CONNECTION_TIMEOUT = 3000;
     private int DEFAULT_READ_TIMEOUT = 3000;
@@ -46,7 +47,7 @@ public class AdvancedHttpClient {
                     public void initialize(HttpRequest request) {
                         request.setParser(new JsonObjectParser(new JacksonFactory()));
                     }
-        });
+                });
     }
 
     public void setFailureRestrictions(HttpRequest request) {
@@ -66,30 +67,34 @@ public class AdvancedHttpClient {
 
     public <T> T sendPostRequest(Class<T> t, String endpoint,
                                  HttpHeaders headers, Object data) throws IOException {
-        for(String host : hostsList) {
+        for (String host : hostsList) {
             try {
                 GenericUrl url = new GenericUrl(host + endpoint);
                 T result = makePostRequest(t, url, headers, data);
                 return result;
             } catch (Exception ex) {
+                Log.e(TAG, "Failed to make POST request to host " + host + " : " + ex.getMessage());
             }
         }
         throw new IOException("Cannot connect to servers");
     }
 
     public <T> T sendGetRequest(Class<T> t, String endpoint) throws IOException {
-        for(String host : hostsList) {
+        for (String host : hostsList) {
             try {
                 GenericUrl url = new GenericUrl(host + endpoint);
                 T result = makeGetRequest(t, url);
                 return result;
             } catch (Exception ex) {
+                Log.e(TAG, "Failed to make GET request to host " + host + " : " + ex.getMessage());
             }
         }
         throw new IOException("Cannot connect to servers");
     }
 
     private <T> T makeGetRequest(Class<T> t, GenericUrl url) throws Exception {
+        Log.d(TAG, "Making GET request to " + url.toString());
+
         HttpRequest request = requestFactory.buildGetRequest(url);
         setFailureRestrictions(request);
 
@@ -99,6 +104,7 @@ public class AdvancedHttpClient {
 
     private <T> T makePostRequest(Class<T> t, GenericUrl url, HttpHeaders headers,
                                   Object data) throws Exception {
+        Log.d(TAG, "Making POST request to " + url.toString());
 
         HttpContent content = new JsonHttpContent(new JacksonFactory(), data);
         HttpRequest request = requestFactory.buildPostRequest(url, content);
@@ -113,7 +119,9 @@ public class AdvancedHttpClient {
     }
 
     private class BadResponseException extends RuntimeException {
-
+        BadResponseException() {
+            super("HTTP 500 response");
+        }
     }
 
     public void setConnectionTimeout(int connectionTimeout) {

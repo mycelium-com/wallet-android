@@ -852,6 +852,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public NetworkParameters getNetwork() {
       return _network;
    }
+   
+   // TODO: 07.10.17 these values are subject to change and not a solid way to detect cc outputs.
+   public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
+   public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 6000;
 
    /**
     * @param minerFeePerKbToUse Determines the dust level, at which including a UTXO costs more than it is worth.
@@ -874,6 +878,28 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                      output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS ||
                      !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.hash)) {
             it.remove();
+         } else {
+            boolean isColuTransaction = false;
+            //Try to detect if the output came from the colu transaction
+            //The typical attribute of colu transaction is zero-based OP_RETURN output. It has the specific protocol identifier
+            //Protocol description link: https://github.com/Colored-Coins/Colored-Coins-Protocol-Specification/wiki/Coloring%20Scheme
+            Transaction transaction = TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash));
+            for(int i = 0 ; i < transaction.outputs.length;i++) {
+               TransactionOutput curOutput = transaction.outputs[i];
+               byte[] scriptBytes = curOutput.script.getScriptBytes();
+               //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
+               if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
+                  isColuTransaction = true;
+                  break;
+               }
+            }
+
+            if (isColuTransaction) {
+               int coluDustOutputSize = this._network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
+               if (output.value <= coluDustOutputSize) {
+                  it.remove();
+               }
+            }
          }
       }
       return allUnspentOutputs;

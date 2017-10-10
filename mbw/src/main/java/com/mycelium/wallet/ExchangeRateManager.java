@@ -111,8 +111,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
       rmcRate = getPreferences().getFloat(USD_RMC, 1f / 4000);
 
-      _subscribers = new LinkedList<Observer>();
-      _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
+      _subscribers = new LinkedList<>();
+      _latestRates = new HashMap<>();
       this.storage = storage;
    }
 
@@ -134,7 +134,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          List<String> selectedCurrencies;
 
          synchronized (_requestLock) {
-            selectedCurrencies = new ArrayList<String>(_fiatCurrencies);
+            selectedCurrencies = new ArrayList<>(_fiatCurrencies);
          }
 
          try {
