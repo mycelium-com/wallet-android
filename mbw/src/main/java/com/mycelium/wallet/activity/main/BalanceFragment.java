@@ -208,9 +208,10 @@ public class BalanceFragment extends Fragment {
             CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
             CurrencyValue usdValue = CurrencyValue.fromValue(coluValue, "USD", _mbwManager.getExchangeRateManager());
             if (usdValue != null && usdValue.getValue() != null) {
-               tvBtcRate.setText("1 " + coluAccount.getColuAsset().name + " = "
+               tvBtcRate.setText("1 " + coluAccount.getColuAsset().name + " ~ "
                        + usdValue.getValue().setScale(assetType == ColuAccount.ColuAssetType.MASS ? 6 : 2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString()
-                       + " " + usdValue.getCurrency());
+                       + " " + usdValue.getCurrency()
+                       + (assetType == ColuAccount.ColuAssetType.RMC  ? "(" + "BitFlip/" +_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() + ")" : ""));
             }
          } else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);

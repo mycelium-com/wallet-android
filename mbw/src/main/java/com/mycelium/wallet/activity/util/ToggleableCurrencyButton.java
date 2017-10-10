@@ -91,21 +91,21 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       }
    }
 
-   @Override
-   protected void showFiat() {
-      if(currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString())){
-         llContainer.setVisibility(VISIBLE);
-         CurrencyValue value = CurrencyValue.fromValue(currentValue, "USD", this.currencySwitcher.getExchangeRateManager());
-         if(value != null) {
-            if(value.getValue() != null) {
-               tvValue.setText(value.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
-            }
-            tvCurrency.setText(value.getCurrency());
-         }
-      } else {
-         super.showFiat();
-      }
-   }
+//   @Override
+//   protected void showFiat() {
+//      if(currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString())){
+//         llContainer.setVisibility(VISIBLE);
+//         CurrencyValue value = CurrencyValue.fromValue(currentValue, "USD", this.currencySwitcher.getExchangeRateManager());
+//         if(value != null) {
+//            if(value.getValue() != null) {
+//               tvValue.setText(value.getValue().setScale(2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString());
+//            }
+//            tvCurrency.setText(value.getCurrency());
+//         }
+//      } else {
+//         super.showFiat();
+//      }
+//   }
 
    public void switchToNextCurrency(){
       Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
