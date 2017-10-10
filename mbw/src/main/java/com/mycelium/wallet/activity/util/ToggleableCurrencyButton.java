@@ -81,8 +81,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       super.updateUi();
 
       int cntCurrencies = (fiatOnly ? currencySwitcher.getFiatCurrenciesCount() : currencySwitcher.getCurrenciesCount() );
-      if (cntCurrencies == 1
-              || (currentValue != null && currentValue.getCurrency().equals(ColuAccount.ColuAssetType.RMC.toString()))){
+      if (cntCurrencies == 1){
          // there is only one currency to show - dont show a triangle hinting that the user can toggle
          findViewById(R.id.ivSwitchable).setVisibility(INVISIBLE);
       } else {

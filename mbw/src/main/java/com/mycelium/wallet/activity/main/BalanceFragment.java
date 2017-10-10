@@ -206,11 +206,11 @@ public class BalanceFragment extends Fragment {
          if (assetType == ColuAccount.ColuAssetType.RMC || assetType == ColuAccount.ColuAssetType.MASS) {
             tcdFiatDisplay.setVisibility(View.VISIBLE);
             CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
-            CurrencyValue usdValue = CurrencyValue.fromValue(coluValue, "USD", _mbwManager.getExchangeRateManager());
-            if (usdValue != null && usdValue.getValue() != null) {
+            CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+            if (fiatValue != null && fiatValue.getValue() != null) {
                tvBtcRate.setText("1 " + coluAccount.getColuAsset().name + " ~ "
-                       + usdValue.getValue().setScale(assetType == ColuAccount.ColuAssetType.MASS ? 6 : 2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString()
-                       + " " + usdValue.getCurrency()
+                       + fiatValue.getValue().setScale(assetType == ColuAccount.ColuAssetType.MASS ? 6 : 2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString()
+                       + " " + fiatValue.getCurrency()
                        + (assetType == ColuAccount.ColuAssetType.RMC  ? "(" + "BitFlip/" +_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() + ")" : ""));
             }
          } else {
