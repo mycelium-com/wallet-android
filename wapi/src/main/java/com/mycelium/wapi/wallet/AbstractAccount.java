@@ -479,9 +479,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       //
       Set<OutPoint> unspentOutPoints = new HashSet<>();
       for (TransactionOutputEx output : unspentOutputs) {
-         if (isColuDustOutput(output))
+         if (isColuDustOutput(output)) {
             continue;
-
+         }
          if (output.height == -1) {
             if (isFromMe(output.outPoint.hash)) {
                pendingChange += output.value;
