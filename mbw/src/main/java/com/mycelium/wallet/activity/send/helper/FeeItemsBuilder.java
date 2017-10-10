@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.send.helper;
 
 import android.support.annotation.NonNull;
 
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
@@ -15,10 +14,8 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
-
 public class FeeItemsBuilder {
-    private static final int MIN_NOTZIRO_FEE_PER_KB = 1000;
+    private static final int MIN_NON_ZIRO_FEE_PER_KB = 1000;
     private static final int HALF_FEE_ITEMS_COUNT = 5;
 
     private MbwManager _mbwManager;
@@ -30,7 +27,7 @@ public class FeeItemsBuilder {
     }
 
     public List<FeeItem> getFeeItemList(MinerFee feeLvl, int txSize) {
-        long min = MIN_NOTZIRO_FEE_PER_KB;
+        long min = MIN_NON_ZIRO_FEE_PER_KB;
         long current = feeLvl.getFeePerKb(feeEstimation).getLongValue();
         if (feeLvl != MinerFee.LOWPRIO) {
             long prevValue = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
@@ -53,7 +50,7 @@ public class FeeItemsBuilder {
 
     private void addItemsInRange(List<FeeItem> feeItems, long from, long to, int txSize) {
         long step = Math.max((to - from) / HALF_FEE_ITEMS_COUNT, 1);
-        if (from == MIN_NOTZIRO_FEE_PER_KB) {
+        if (from == MIN_NON_ZIRO_FEE_PER_KB) {
             feeItems.add(createFeeItem(txSize, 0));
         }
         for (long i = from, j = 0; i < to && j < HALF_FEE_ITEMS_COUNT; i += step, j++) {
