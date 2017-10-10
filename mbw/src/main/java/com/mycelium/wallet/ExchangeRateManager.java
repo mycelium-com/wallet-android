@@ -42,6 +42,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
+import com.mycelium.wallet.exchange.BitflipApi;
+import com.mycelium.wallet.exchange.Rate;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -93,9 +95,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private String _currentExchangeSourceName;
 
    private RmcApiClient rmcApiClient;
-   private Float rmcRate;
-   private Float ethRate;
-   private Float usdRate;
+   private Float rateUsdRmc;
+   private float rateRmcBtc;
+   private Float rateBtcUsd;
    // value hardcoded for now, but in future we need get from somewhere
    private static final float MSS_RATE = 3125f;
 
@@ -109,7 +111,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _latestRates = null;
       _latestRatesTime = 0;
       _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
-      rmcRate = getPreferences().getFloat(USD_RMC, 1f / 4000);
+      rateUsdRmc = getPreferences().getFloat(USD_RMC, 1f / 4000);
 
       _subscribers = new LinkedList<>();
       _latestRates = new HashMap<>();
@@ -189,38 +191,39 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                }
             }
          }
+         //Get rates from bitflip
+         Rate[] rates = BitflipApi.getRates();
+         if (rates != null) {
+            for (Rate rate : rates) {
+               if(rate.pair.equals("RMC:BTC")) {
+                  rateRmcBtc = (rate.buy + rate.sell) / 2;
+               }
+            }
+         }
+
+         //get rates from gear
          if(rmcApiClient != null) {
             RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
             Float rate = rmcApiClient.exchangeUsdRmcRate();
             if(rate != null) {
-               rmcRate = rate;
-               getPreferences().edit().putFloat(USD_RMC, rmcRate).apply();
-               storage.storeExchangeRate("USD", "RMC", RMC_MARKET_NAME, rmcRate.toString());
+               rateUsdRmc = rate;
+               getPreferences().edit().putFloat(USD_RMC, rateUsdRmc).apply();
+               storage.storeExchangeRate("USD", "RMC", RMC_MARKET_NAME, rateUsdRmc.toString());
             } else {
                Optional<String> rateValue = storage.getExchangeRate("USD", "RMC", RMC_MARKET_NAME);
                if (rateValue.isPresent()) {
-                  rmcRate = Float.parseFloat(rateValue.get());
-               }
-            }
-            rate = rmcApiClient.exchangeEthUsdRate();
-            if(rate != null) {
-               ethRate = rate;
-               storage.storeExchangeRate("ETH", "USD", KRAKEN_MARKET_NAME, ethRate.toString());
-            } else {
-               Optional<String> rateValue = storage.getExchangeRate("ETH", "USD", KRAKEN_MARKET_NAME);
-               if (rateValue.isPresent()) {
-                  ethRate = Float.parseFloat(rateValue.get());
+                  rateUsdRmc = Float.parseFloat(rateValue.get());
                }
             }
 
             rate = rmcApiClient.exchangeBtcUsdRate();
 
             if (rate != null) {
-               usdRate = rate;
+               rateBtcUsd = rate;
             } else {
                Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
                if (rateValue.isPresent()) {
-                  usdRate = Float.parseFloat(rateValue.get());
+                  rateBtcUsd = Float.parseFloat(rateValue.get());
                }
             }
          }
@@ -324,19 +327,14 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          injectCurrency = currency;
          currency = "USD";
       }
-      if(currency.equals("ETH")) {
-         if(ethRate == 0) return null;
-         injectCurrency = currency;
-         currency = "USD";
-      }
       if(currency.equals("MSS")) {
          injectCurrency = currency;
          currency = "USD";
       }
 
       if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
-         if (currency.equals("USD") && (usdRate != null)) {
-            return getRMCExchangeRate(injectCurrency, new ExchangeRate(KRAKEN_MARKET_NAME, new Date().getTime(), usdRate, "USD"));
+         if (currency.equals("USD") && (rateBtcUsd != null)) {
+            return getRMCExchangeRate(injectCurrency, new ExchangeRate(KRAKEN_MARKET_NAME, new Date().getTime(), rateBtcUsd, "USD"));
          }
          return null;
       }
@@ -367,10 +365,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private ExchangeRate getRMCExchangeRate(String injectCurrency, ExchangeRate r) {
       double rate = r.price;
       if ("RMC".equals(injectCurrency)) {
-         rate = r.price * rmcRate;
-      }
-      if ("ETH".equals(injectCurrency)) {
-         rate = r.price / ethRate;
+         if (rateRmcBtc != 0) {
+            rate = 1 / rateRmcBtc;
+         } else {
+            rate = r.price * rateUsdRmc;
+         }
       }
       if ("MSS".equals(injectCurrency)) {
          rate = r.price * MSS_RATE;

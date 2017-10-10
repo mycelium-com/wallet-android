@@ -403,6 +403,16 @@ public class Utils {
       return FIAT_FORMAT.format(fiat);
    }
 
+   public static String formatFiatWithUnit(CurrencyValue fiat, int fractionDigit) {
+      DecimalFormat decimalFormat = (DecimalFormat) FIAT_FORMAT.clone();
+      decimalFormat.setMaximumFractionDigits(fractionDigit);
+      return decimalFormat.format(fiat.getValue()) + " " + fiat.getCurrency();
+   }
+
+   public static String formatFiatWithUnit(CurrencyValue fiat) {
+      return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
+   }
+
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
 
       Double converted = getFiatValue(satoshis, oneBtcInFiat);
