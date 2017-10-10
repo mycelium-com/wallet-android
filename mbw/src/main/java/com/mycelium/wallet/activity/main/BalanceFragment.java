@@ -203,15 +203,22 @@ public class BalanceFragment extends Fragment {
          tvBtcRate.setVisibility(View.VISIBLE);
          ColuAccount coluAccount = (ColuAccount) account;
           ColuAccount.ColuAssetType assetType = coluAccount.getColuAsset().assetType;
-         if (assetType == ColuAccount.ColuAssetType.RMC || assetType == ColuAccount.ColuAssetType.MASS) {
+         if (assetType == ColuAccount.ColuAssetType.RMC ) {
             tcdFiatDisplay.setVisibility(View.VISIBLE);
             CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
             CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
             if (fiatValue != null && fiatValue.getValue() != null) {
-               tvBtcRate.setText("1 " + coluAccount.getColuAsset().name + " ~ "
-                       + fiatValue.getValue().setScale(assetType == ColuAccount.ColuAssetType.MASS ? 6 : 2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString()
-                       + " " + fiatValue.getCurrency()
-                       + (assetType == ColuAccount.ColuAssetType.RMC  ? "(" + "BitFlip/" +_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() + ")" : ""));
+               tvBtcRate.setText(getString(R.string.rmc_rate, coluAccount.getColuAsset().name
+                       , Utils.formatFiatWithUnit(fiatValue)
+                       , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+            }
+         } else if(assetType == ColuAccount.ColuAssetType.MASS) {
+            tcdFiatDisplay.setVisibility(View.VISIBLE);
+            CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
+            CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+            if (fiatValue != null && fiatValue.getValue() != null) {
+               tvBtcRate.setText(getString(R.string.mss_rate, coluAccount.getColuAsset().name
+                       , Utils.formatFiatWithUnit(fiatValue, 6)));
             }
          } else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);
