@@ -35,7 +35,10 @@ public class CurrencySum {
       CurrencyValue sum = ExactCurrencyValue.from(BigDecimal.ZERO, targetCurrency);
       for (Map.Entry<String, CurrencyValue> value : buckets.entrySet()) {
          if (value.getValue() != null) {
-            sum = sum.add(value.getValue(), exchangeRateProvider);
+            CurrencyValue sumLocal = sum.add(value.getValue(), exchangeRateProvider);
+            if(sumLocal.getValue() != null) {
+               sum = sumLocal;
+            }
          }
       }
 

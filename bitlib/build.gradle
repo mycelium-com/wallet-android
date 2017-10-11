@@ -18,5 +18,5 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     testCompile "junit:junit:$junitVersion"
     compile guavaArtifact
-    testCompile 'org.bitcoinj:bitcoinj-core:0.14.4'
+    compile 'org.bitcoinj:bitcoinj-core:0.14.4'
 }

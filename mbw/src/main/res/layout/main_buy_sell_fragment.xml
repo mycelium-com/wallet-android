@@ -14,27 +14,4 @@
             android:layout_marginBottom="16dp"
             android:text="@string/gd_buy_sell_button"
             android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/btBuySellRMC"
-            style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="@string/gd_buy_sell_rmc_button"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/btLearnMoreRMC"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/brightblue"
-            android:paddingLeft="12dp"
-            android:layout_marginTop="4dp"
-            android:paddingRight="12dp"
-            android:text="@string/learn_more_rmc"
-            android:textSize="16sp" />
 </LinearLayout>

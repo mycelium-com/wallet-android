@@ -23,6 +23,7 @@ import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.colu.json.AddressInfo;
 import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wallet.colu.json.Asset;
+import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wallet.colu.json.Tx;
@@ -98,9 +99,9 @@ public class ColuManager implements AccountProvider {
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
+    private Map<ColuAccount.ColuAssetType, AssetMetadata> assetsMetadata = new HashMap<>();
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
-    public static final int DUST_OUTPUT_SIZE = 600;
     public static final int METADATA_OUTPUT_SIZE = 1;
     public static final int AVERAGE_COLU_TX_SIZE = 212;
 
@@ -146,7 +147,18 @@ public class ColuManager implements AccountProvider {
             }
         });
         coluAccounts = new HashMap<>();
+        loadAssetsMetadata();
         loadAccounts();
+    }
+
+    private void loadAssetsMetadata() {
+        for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
+            String id = ColuAccount.ColuAsset.getByType(assetType).id;
+            Optional<BigDecimal> coinSupply = metadataStorage.getColuAssetCoinSupply(id);
+            if (coinSupply.isPresent()) {
+                assetsMetadata.put(assetType, new AssetMetadata(id, coinSupply.get()));
+            }
+        }
     }
 
     public BlockExplorer getBlockExplorer() {
@@ -332,7 +344,7 @@ public class ColuManager implements AccountProvider {
         for (String assetId : assetsId) {
             if (!Strings.isNullOrEmpty(assetId)) {
                 Log.d(TAG, "loadAccounts: assetid=" + assetId);
-                ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(assetId);
+                ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
                 if (assetDefinition == null) {
                     Log.e(TAG, "loadAccounts: could not find asset with id " + assetId);
                 } else {
@@ -406,6 +418,10 @@ public class ColuManager implements AccountProvider {
             _backing.endTransaction();
         }
         return createdAccountInfo;
+    }
+
+    public AssetMetadata getAssetMetadata(ColuAccount.ColuAssetType coluAssetType) {
+        return assetsMetadata.get(coluAssetType);
     }
 
     // convenience method to make it easier to migrate from metadataStorage to backing later on
@@ -703,6 +719,16 @@ public class ColuManager implements AccountProvider {
     // this method updates balances for all colu accounts
     public boolean scanForAccounts() {
         try {
+            for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
+                String id = ColuAccount.ColuAsset.getByType(assetType).id;
+                AssetMetadata assetMetadata = coluClient.getMetadata(id);
+                assetsMetadata.put(assetType, assetMetadata);
+                metadataStorage.storeColuAssetCoinSupply(id, assetMetadata.getTotalSupply());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "error while get asset metadata: " + e.getMessage());
+        }
+        try {
             getBalances();
             return true;
         } catch (Exception e) {
@@ -884,7 +910,7 @@ public class ColuManager implements AccountProvider {
     }
 
     public boolean isColuAsset(String assetName) {
-        for (String asset : ColuAccount.ColuAsset.getAllAssetNames(getNetwork())) {
+        for (String asset : ColuAccount.ColuAsset.getAllAssetNames()) {
             if (asset.contentEquals(assetName)) {
                 return true;
             }
@@ -906,9 +932,9 @@ public class ColuManager implements AccountProvider {
                     // adding utxo to list of txid list request
                     for (Asset.Json txidAsset : utxo.assets) {
                         Log.d(TAG, "isColuAddress: utxo " + utxo.txid + " asset " + txidAsset.assetId);
-                        for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap(getNetwork()).keySet()) {
+                        for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap().keySet()) {
                             if (txidAsset.assetId.equals(knownAssetId)) {
-                                ColuAccount.ColuAsset asset =  ColuAccount.ColuAsset.getAssetMap(getNetwork()).get(knownAssetId);
+                                ColuAccount.ColuAsset asset =  ColuAccount.ColuAsset.getAssetMap().get(knownAssetId);
                                 assetsList.add(asset);
                             }
                         }

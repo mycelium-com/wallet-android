@@ -22,23 +22,19 @@ dependencies {
     androidTestCompile "junit:junit:$junitVersion"
     testCompile "junit:junit:$junitVersion"
 
-    compile project(includePrefix +':libs:zxing-android')
-    compile project(includePrefix +':coinapult')
-    compile project(includePrefix +':wapi')
-    compile project(includePrefix +':trezor')
-    compile project(includePrefix +':lt-api')
-    compile(project(includePrefix +':mbwlib')) {
+    compile project(includePrefix + ':libs:zxing-android')
+    compile project(includePrefix + ':coinapult')
+    compile project(includePrefix + ':wapi')
+    compile project(includePrefix + ':trezor')
+    compile project(includePrefix + ':lt-api')
+    compile(project(includePrefix + ':mbwlib')) {
         exclude module: 'jcip-annotations'
     }
-    compile project(includePrefix +':btchip')
-    compile project(includePrefix +':LVL')
+    compile project(includePrefix + ':btchip')
+    compile project(includePrefix + ':LVL')
 
     compile guavaArtifact
-    compile 'com.squareup:otto:1.3.4'
     // TODO: upgrade this! and remove the exclude support-v4 below
-    compile 'com.android.support:appcompat-v7:19.1.0'
-    compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
     //not upgrading. This will be removed from the core app
     compile('com.google.android.gms:play-services-base:7.8.0') {
         exclude module: 'support-v4'
@@ -46,24 +42,27 @@ dependencies {
     compile('com.google.android.gms:play-services-gcm:7.8.0') {
         exclude module: 'support-v4'
     }
+    compile('com.google.code.findbugs:annotations:3.0.1') {
+        exclude module: 'jsr305'
+    }
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
+    compile 'com.squareup:otto:1.3.4'
+    compile 'com.android.support:appcompat-v7:19.1.0'
+    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.jakewharton:butterknife:8.1.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.android.support:multidex:1.0.1'
-    compile('com.google.code.findbugs:annotations:3.0.1') {
-        exclude module: 'jsr305'
-    }
     compile 'commons-codec:commons-codec:1.5'
-    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     compile 'com.google.protobuf:protobuf-java:3.1.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
-    compile 'com.jjoe64:graphview:4.2.1'
 }
-
 
 android {
     configurations {
@@ -94,8 +93,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290209
-        versionName '2.9.2'
+        versionCode 290404
+        versionName '2.9.4'
         multiDexEnabled true
     }
 
@@ -129,6 +128,7 @@ android {
             }
         }
         debug {
+            applicationIdSuffix '.debug'
             debuggable true
         }
     }
@@ -142,6 +142,16 @@ android {
             applicationId 'com.mycelium.wallet'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
+
+            ext {
+                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La4aGUPuNKZyC393pS2Nb4RJdk2WvmoaAdrRLZ"
+                RMCApiClientURL = "https://rmc-ico.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
+            }
         }
         dev {
             // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
@@ -154,12 +164,22 @@ android {
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
-                appId = appId + "_" + branch
+                appId = appId + "_" + branch.replaceAll("-", "_")
                 versionName = defaultConfig.versionName + "-DEV_" + branch
             }
 
             applicationId appId
             signingConfig signingConfigs.debug
+
+            ext {
+                MTAssetID = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
+                RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
+            }
         }
         devprod {
             // use Sdk21 for dev only - this allows to use native MultiDex without going through proguard (faster)
@@ -171,6 +191,16 @@ android {
 
             applicationId appId
             signingConfig signingConfigs.debug
+
+            ext {
+                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La3bgndN7QSYqV8pWuuqbfBPyHMZRK14Tb2BPg"
+                RMCApiClientURL = "https://rmc-ico-stg.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
+            }
         }
         btctestnet {
             compileSdkVersion 19
@@ -180,7 +210,28 @@ android {
             applicationId 'com.mycelium.testnetwallet'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.btctestnet
+
+            ext {
+                MTAssetID = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
+                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+                RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
+                RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
+                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
+                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
+            }
         }
+    }
+
+    applicationVariants.all { variant ->
+        def flavor = variant.productFlavors[0]
+        variant.buildConfigField "String", "MTAssetID", "\"${flavor.ext.MTAssetID}\""
+        variant.buildConfigField "String", "MassAssetID", "\"${flavor.ext.MassAssetID}\""
+        variant.buildConfigField "String", "RMCAssetID", "\"${flavor.ext.RMCAssetID}\""
+        variant.buildConfigField "String", "RMCApiClientURL", "\"${flavor.ext.RMCApiClientURL}\""
+        variant.buildConfigField "String[]", "ColoredCoinsApiURLs", "${flavor.ext.ColoredCoinsApiURLs}"
+        variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
+        variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
     }
 }
 

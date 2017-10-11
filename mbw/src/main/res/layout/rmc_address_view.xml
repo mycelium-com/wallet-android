@@ -4,13 +4,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/switcher"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inAnimation="@android:anim/slide_in_left"
-        android:outAnimation="@android:anim/slide_out_right">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,7 +78,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total RMC issued:"
+                        android:text="Total RMC supply:"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -152,65 +145,7 @@
                 </LinearLayout>
 
             </LinearLayout>
-
-            <ImageView
-                android:id="@+id/show_graph"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginRight="8dp"
-                android:src="@drawable/ic_keyboard_arrow_right_white_24dp" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/show_stats"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="8dp"
-                android:rotation="180"
-                android:src="@drawable/ic_keyboard_arrow_right_white_24dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="8dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/rmc_return_of_investment" />
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="125dp">
-                    <com.jjoe64.graphview.GraphView
-                        android:id="@+id/graph"
-                        android:layout_width="match_parent"
-                        android:layout_height="125dp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="36dp"
-                        android:text="%"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|right"
-                        android:layout_marginBottom="24dp"
-                        android:text="days"/>
-                </FrameLayout>
-
-            </LinearLayout>
-        </LinearLayout>
-    </ViewFlipper>
 
     <TextView
         android:layout_width="match_parent"
