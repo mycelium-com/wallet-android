@@ -1,12 +1,18 @@
 package com.mycelium.wallet;
 
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class AndroidRandomSourceTest {
     @Test
     public void testNextBytes() throws Exception {
