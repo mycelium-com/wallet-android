@@ -6,56 +6,51 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.CoinUtil;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-/**
- * Created by elvis on 27.07.17.
- */
-
-public class RmcUri implements Serializable {
+public class ColuAssetUri implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public final Address address;
     public final BigDecimal amount;
     public final String label;
     public final String callbackURL;
+    public final String scheme;
 
-    public static RmcUri from(Address address, BigDecimal amount, String label, String callbackURL) {
+    public static ColuAssetUri from(Address address, BigDecimal amount, String label, String callbackURL, String scheme) {
         if (address != null) {
-            return new RmcUriWithAddress(address, amount, label, callbackURL);
+            return new ColuAssetUriWithAddress(address, amount, label, callbackURL, scheme);
         } else {
-            return new RmcUri(null, amount, label, callbackURL);
+            return new ColuAssetUri(null, amount, label, callbackURL, scheme);
         }
     }
 
-    public RmcUri(Address address, BigDecimal amount, String label) {
-        this(address, amount, label, null);
+    public ColuAssetUri(Address address, BigDecimal amount, String label, String scheme) {
+        this(address, amount, label, null, scheme);
     }
 
-    public RmcUri(Address address, BigDecimal amount, String label, String callbackURL) {
+    public ColuAssetUri(Address address, BigDecimal amount, String label, String callbackURL, String scheme) {
         this.address = address;
         this.amount = amount;
         this.label = label == null ? null : label.trim();
         this.callbackURL = callbackURL;
+        this.scheme = scheme;
     }
 
-    public static Optional<? extends RmcUri> parse(String uri, NetworkParameters network) {
+    public static Optional<? extends ColuAssetUri> parse(String uri, NetworkParameters network) {
         try {
             Uri u = Uri.parse(uri.trim());
             String scheme = u.getScheme();
-            if (!scheme.equalsIgnoreCase("RMC")) {
-                // not a bitcoin URI
-                return Optional.absent();
-            }
+
             String schemeSpecific = u.getSchemeSpecificPart();
             if (schemeSpecific.startsWith("//")) {
                 // Fix for invalid bitcoin URI in the form "bitcoin://"
                 schemeSpecific = schemeSpecific.substring(2);
             }
-            u = Uri.parse("RMC://" + schemeSpecific);
+
+            u = Uri.parse(scheme + "://" + schemeSpecific);
 
             // Address
             Address address = null;
@@ -81,7 +76,7 @@ public class RmcUri implements Serializable {
 
             // Check if the supplied "address" is actually an encrypted private key
             if (Bip38.isBip38PrivateKey(addressString)) {
-                return Optional.of(new PrivateKeyUri(addressString, label));
+                return Optional.of(new PrivateKeyUri(addressString, label, scheme));
             }
 
             // Payment Uri
@@ -92,19 +87,19 @@ public class RmcUri implements Serializable {
                 return Optional.absent();
             }
 
-            return Optional.of(new RmcUri(address, amount, label, paymentUri));
+            return Optional.of(new ColuAssetUri(address, amount, label, paymentUri, scheme));
         } catch (Exception e) {
             return Optional.absent();
         }
     }
 
-    public static RmcUri fromAddress(Address address) {
-        return new RmcUri(address, null, null);
+    public static ColuAssetUri fromAddress(Address address, String scheme) {
+        return new ColuAssetUri(address, null, null, scheme);
     }
 
     public String toString() {
         Uri.Builder builder = new Uri.Builder()
-                .scheme("RMC")
+                .scheme(scheme)
                 .authority(address == null ? "" : address.toString());
         if (amount != null) {
             builder.appendQueryParameter("amount", amount.stripTrailingZeros().toPlainString());
@@ -120,11 +115,11 @@ public class RmcUri implements Serializable {
         return builder.toString().replace("/", "");
     }
 
-    public static class PrivateKeyUri extends RmcUri {
+    public static class PrivateKeyUri extends ColuAssetUri {
         public final String keyString;
 
-        private PrivateKeyUri(String keyString, String label) {
-            super(null, null, label);
+        private PrivateKeyUri(String keyString, String label, String scheme) {
+            super(null, null, label, scheme);
             this.keyString = keyString;
         }
     }
