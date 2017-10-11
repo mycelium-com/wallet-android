@@ -99,7 +99,7 @@ public class ColuAssetUri implements Serializable {
 
     public String toString() {
         Uri.Builder builder = new Uri.Builder()
-                .scheme("RMC")
+                .scheme(scheme)
                 .authority(address == null ? "" : address.toString());
         if (amount != null) {
             builder.appendQueryParameter("amount", amount.stripTrailingZeros().toPlainString());
