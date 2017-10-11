@@ -295,7 +295,7 @@ public class SendMainActivity extends Activity {
 
     public static Intent getIntent(Activity currentActivity, UUID account, ColuAssetUri uri, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
-                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, "RMC"))
+                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, uri.scheme))
                 .putExtra(RECEIVING_ADDRESS, uri.address)
                 .putExtra(TRANSACTION_LABEL, uri.label)
                 .putExtra(RMC_URI, uri);
