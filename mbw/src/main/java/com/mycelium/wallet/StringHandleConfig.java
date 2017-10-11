@@ -455,8 +455,9 @@ public class StringHandleConfig implements Serializable {
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
             ColuAccount coluAccount = (ColuAccount)manager.getSelectedAccount();
-            if (coluAccount == null)
+            if (coluAccount == null) {
                return false;
+            }
 
             if (!content.toLowerCase(Locale.US).startsWith(coluAccount.getColuAsset().name.toLowerCase()))
                return false;
