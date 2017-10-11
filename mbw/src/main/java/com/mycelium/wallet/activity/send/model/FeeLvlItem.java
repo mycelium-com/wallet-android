@@ -16,4 +16,23 @@ public class FeeLvlItem {
         this.duration = duration;
         this.type = type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FeeLvlItem that = (FeeLvlItem) o;
+
+        if (type != that.type) return false;
+        return minerFee == that.minerFee;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = minerFee != null ? minerFee.hashCode() : 0;
+        result = 31 * result + type;
+        return result;
+    }
 }
