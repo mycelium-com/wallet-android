@@ -248,7 +248,7 @@ public class StandardTransactionBuilderTest {
         }
 
         // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
-        for(int i = 0; i<1000; i++) {
+        for(int i = 0; i<300; i++) {
             ECKey key = keys[i % keyCount];
             org.bitcoinj.core.Sha256Hash hash = org.bitcoinj.core.Sha256Hash.of(("bla foo " + i).getBytes());
             key.sign(hash);
