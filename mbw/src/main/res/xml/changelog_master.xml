@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.5" versioncode="290501">
+        <change>disregarding token dust UTXOs for bitcoin balance</change>
+        <change>added RMC exchange rate</change>
+        <change>improved sending and receiving of tokens</change>
+    </release>
     <release version="2.9.4" versioncode="290403">
         <change>sign messages with token private keys</change>
         <change>verify signed messages</change>
