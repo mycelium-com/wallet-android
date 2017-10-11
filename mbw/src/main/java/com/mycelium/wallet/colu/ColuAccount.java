@@ -663,12 +663,14 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public void archiveAccount() {
       archived = true;
       metadataStorage.storeArchived(uuid, true);
+      linkedAccount.archiveAccount();
    }
 
    @Override
    public void activateAccount() {
       archived = false;
       metadataStorage.storeArchived(uuid, false);
+      linkedAccount.activateAccount();
    }
 
    @Override
@@ -744,6 +746,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       try {
          manager.updateAccountBalance(this);
          if(linkedAccount != null) {
+            if(linkedAccount.isArchived()) {
+               // this should never been happen, but need for back compatibility
+               linkedAccount.activateAccount();
+            }
             linkedAccount.doSynchronization(SyncMode.NORMAL);
          }
       } catch (IOException e) {
