@@ -13,23 +13,21 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 
-/**
- * Created by elvis on 31.08.17.
- */
+import java.util.List;
 
 public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlViewAdapter.ViewHolder> {
 
-    private FeeLvlItem[] mDataset;
+    private List<FeeLvlItem> mDataset;
 
     private int paddingWidth = 0;
 
-    public FeeLvlViewAdapter(FeeLvlItem[] values, int paddingWidth) {
+    public FeeLvlViewAdapter(List<FeeLvlItem> values, int paddingWidth) {
         mDataset = values;
         this.paddingWidth = paddingWidth;
     }
 
     public FeeLvlItem getItem(int position) {
-        return mDataset[position];
+        return mDataset.get(position);
     }
 
     @Override
@@ -65,7 +63,7 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
-            FeeLvlItem item = mDataset[position];
+            FeeLvlItem item = mDataset.get(position);
 //            holder.categoryTextView.setText(mDataset[position].getCategory());
             holder.itemTextView.setText(item.minerFee.getMinerFeeName(holder.itemView.getContext()));
             holder.valueTextView.setText(item.duration);
@@ -73,13 +71,25 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
     }
 
     @Override
+    public int findIndex(Object object) {
+        int selected = -1;
+        for (int i = 0; i < mDataset.size(); i++) {
+            if (mDataset.get(i).equals(object)) {
+                selected = i;
+                break;
+            }
+        }
+        return selected;
+    }
+
+    @Override
     public int getItemViewType(int position) {
-        return mDataset[position].type;
+        return mDataset.get(position).type;
     }
 
     @Override
     public int getItemCount() {
-        return mDataset.length;
+        return mDataset.size();
     }
 
 
