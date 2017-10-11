@@ -1,7 +1,5 @@
 package com.mycelium.wallet;
 
-import android.util.Log;
-
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -34,7 +32,6 @@ public class BitcoinUriTest {
     }
 
     private void testParse(String url, NetworkParameters np, Optional<? extends BitcoinUri> expected) {
-        Log.d(BitcoinUriTest.class.getName(), "testParse: " + expected);
         Optional<? extends BitcoinUri> actual = BitcoinUri.parse(url, np);
         assertEquals(expected.toString(), actual.toString());
     }

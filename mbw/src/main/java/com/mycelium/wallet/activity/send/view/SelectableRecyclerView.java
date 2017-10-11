@@ -10,9 +10,6 @@ import android.view.ViewGroup;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 
-/**
- * Created by elvis on 02.09.17.
- */
 
 public class SelectableRecyclerView extends RecyclerView {
     private SelectListener selectListener;
@@ -50,6 +47,12 @@ public class SelectableRecyclerView extends RecyclerView {
         if (selectListener != null) {
             selectListener.onSelect(getAdapter(), selectedItem);
         }
+    }
+
+    public void setSelectedItem(Object selected) {
+        int selectIndex = ((Adapter) getAdapter()).findIndex(selected);
+        selectIndex = selectIndex == -1 ? getAdapter().getItemCount() / 2 : selectIndex;
+        setSelectedItem(selectIndex);
     }
 
     @Override
@@ -167,6 +170,7 @@ public class SelectableRecyclerView extends RecyclerView {
             return selectedItem;
         }
 
+        public abstract int findIndex(Object selected);
     }
 
 }

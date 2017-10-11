@@ -1051,7 +1051,11 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
     <string name="weeks">days</string>
     <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
     <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets.</string>
-    <string name="rmc_bitcoin_acc_what_is_it">RMC Bitcoin account is a "Single Address" Bitcoin address linked to your RMC account. All new bitcoins mined  by Total RMC hash power are proportionally distributed among RMC Bitcoin accounts.</string>
+    <string name="rmc_bitcoin_acc_what_is_it">"RMC bitcoin" is a "Bitcoin Single Address" account linked to your RMC account.
+This account allows you to spend BTC, received from the RMC pool.
+All new bitcoins, mined by the pool, are proportionally distributed among RMC bitcoin accounts.
+        \n
+        In order to protect your assets from accidentally being "burned" while spending BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
@@ -1076,6 +1080,8 @@ Participate in the profit sharing of the Crypto Casino. Only few days left.
 2) increasing sending amount to a maximum;\n
 3) adjusting miner fee to fit in the network output limit.</string>
     <string name="verify_message">Verify Message</string>
+    <string name="rmc_rate">1 %1$s ~ %2$s (BitFlip/%3$s)</string>
+    <string name="mss_rate">1 %1$s ~ %2$s</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

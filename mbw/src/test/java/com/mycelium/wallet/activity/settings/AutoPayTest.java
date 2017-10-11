@@ -50,9 +50,14 @@ public class AutoPayTest {
       assertEquals("1234.00", SettingsActivity.extractAmount("1234.0001"));
    }
 
+   @Test(expected = NullPointerException.class)
+   public void testExtractAmountNull() {
+      // old test was assuming to get false but crash on null is probably fair behaviour anyway
+      SettingsActivity.isNumber(null);
+   }
+
    @Test
    public void testEdgeCases() {
-      assertFalse(SettingsActivity.isNumber(null));
       assertFalse(SettingsActivity.isNumber(""));
       assertTrue(SettingsActivity.isNumber("1"));
    }

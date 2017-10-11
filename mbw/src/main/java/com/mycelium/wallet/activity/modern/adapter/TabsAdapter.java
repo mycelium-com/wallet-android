@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.modern;
+package com.mycelium.wallet.activity.modern.adapter;
 
 import java.util.ArrayList;
 

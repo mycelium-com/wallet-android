@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.5" versioncode="290502">
+        <change>Miner fee picker updated (1sat/b added).</change>
+        <change>Colored Coins utoxs protection added.</change>
+        <change>Dynamic RMC exchange rate and Total supply added.</change>
+        <change>Fixed send button not been visible on the small screen devices.</change>
+        <change>Buy/sell bitcoin button randomly disappearing fixed.</change>
+        <change>"Add to address book" feature now works in Colored Coins accounts.</change>
+        <change>Colored Coins accounts archiving issue solved.</change>
+        <change>Several minor bugfixes.</change>
+    </release>
     <release version="2.9.4" versioncode="290403">
         <change>sign messages with token private keys</change>
         <change>verify signed messages</change>

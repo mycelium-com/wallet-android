@@ -15,6 +15,8 @@ import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
 
@@ -24,29 +26,34 @@ import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
 
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
 
-    private FeeItem[] mDataset;
+    private List<FeeItem> mDataset;
     public static final int VIEW_TYPE_ITEM = 2;
     private int paddingWidth = 0;
 
     public FeeViewAdapter(int paddingWidth) {
         this.paddingWidth = paddingWidth;
-        mDataset = new FeeItem[0];
+        mDataset = Collections.emptyList();
     }
 
-    public void setDataset(FeeItem[] mDataset) {
-        FeeItem[] oldDataset = this.mDataset;
+    public void setDataset(List<FeeItem> mDataset) {
+        List<FeeItem> oldDataset = this.mDataset;
         this.mDataset = mDataset;
-        if (oldDataset.length != this.mDataset.length) {
+        if (oldDataset.size() != this.mDataset.size()) {
             notifyDataSetChanged();
         } else {
-            for (int i = 1; i < mDataset.length - 2; i++) {
+            for (int i = 1; i < mDataset.size() - 2; i++) {
                 notifyItemChanged(i);
             }
         }
     }
 
     public FeeItem getItem(int position) {
-        return mDataset[position];
+        return mDataset.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return getItem(position).feePerKb;
     }
 
     @Override
@@ -82,7 +89,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
-            FeeItem item = mDataset[position];
+            FeeItem item = mDataset.get(position);
             if (item.btc != null) {
                 holder.categoryTextView.setText(CoinUtil.valueString(item.btc.getLongValue(), mBTC, true) + " " + mBTC.getUnicodeName());
             }
@@ -96,13 +103,26 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
     }
 
     @Override
+    public int findIndex(Object object) {
+        int selected = -1;
+        for (int i = 0; i < mDataset.size(); i++) {
+            FeeItem feeItem = mDataset.get(i);
+            if (feeItem.equals(object)) {
+                selected = i;
+                break;
+            }
+        }
+        return selected;
+    }
+
+    @Override
     public int getItemCount() {
-        return mDataset.length;
+        return mDataset.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return mDataset[position].type;
+        return mDataset.get(position).type;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{

@@ -160,8 +160,8 @@ public class BalanceFragment extends Fragment {
       StringHandleConfig config = StringHandleConfig.genericScanRequest();
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if(account instanceof ColuAccount) {
-         config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_RMC;
-         config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_RMC;
+         config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
+         config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
       ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
    }
@@ -203,14 +203,22 @@ public class BalanceFragment extends Fragment {
          tvBtcRate.setVisibility(View.VISIBLE);
          ColuAccount coluAccount = (ColuAccount) account;
           ColuAccount.ColuAssetType assetType = coluAccount.getColuAsset().assetType;
-         if (assetType == ColuAccount.ColuAssetType.RMC || assetType == ColuAccount.ColuAssetType.MASS) {
+         if (assetType == ColuAccount.ColuAssetType.RMC ) {
             tcdFiatDisplay.setVisibility(View.VISIBLE);
             CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
-            CurrencyValue usdValue = CurrencyValue.fromValue(coluValue, "USD", _mbwManager.getExchangeRateManager());
-            if (usdValue != null && usdValue.getValue() != null) {
-               tvBtcRate.setText("1 " + coluAccount.getColuAsset().name + " = "
-                       + usdValue.getValue().setScale(assetType == ColuAccount.ColuAssetType.MASS ? 6 : 2, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().toPlainString()
-                       + " " + usdValue.getCurrency());
+            CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+            if (fiatValue != null && fiatValue.getValue() != null) {
+               tvBtcRate.setText(getString(R.string.rmc_rate, coluAccount.getColuAsset().name
+                       , Utils.formatFiatWithUnit(fiatValue)
+                       , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+            }
+         } else if(assetType == ColuAccount.ColuAssetType.MASS) {
+            tcdFiatDisplay.setVisibility(View.VISIBLE);
+            CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
+            CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+            if (fiatValue != null && fiatValue.getValue() != null) {
+               tvBtcRate.setText(getString(R.string.mss_rate, coluAccount.getColuAsset().name
+                       , Utils.formatFiatWithUnit(fiatValue, 6)));
             }
          } else {
             tcdFiatDisplay.setVisibility(View.INVISIBLE);
