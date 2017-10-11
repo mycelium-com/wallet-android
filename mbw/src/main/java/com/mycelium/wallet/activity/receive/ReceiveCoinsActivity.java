@@ -307,7 +307,7 @@ public class ReceiveCoinsActivity extends Activity {
    private String getPaymentUri() {
       String prefix = "bitcoin:";
       if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-         prefix = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuAsset().assetType.toString() + ":";
+         prefix = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuAsset().label + ":";
       }
       final StringBuilder uri = new StringBuilder(prefix);
       uri.append(getBitcoinAddress());
