@@ -1219,9 +1219,9 @@ public class AccountsFragment extends Fragment {
 
    private void activate(WalletAccount account) {
       account.activateAccount();
-      WalletAccount walletAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
-      if (walletAccount != null) {
-         walletAccount.activateAccount();
+      WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      if (linkedAccount != null) {
+         linkedAccount.activateAccount();
       }
       //setselected also broadcasts AccountChanged event
       _mbwManager.setSelectedAccount(account.getId());
@@ -1318,9 +1318,9 @@ public class AccountsFragment extends Fragment {
 
          public void onClick(DialogInterface arg0, int arg1) {
             account.archiveAccount();
-            WalletAccount walletAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
-            if (walletAccount != null) {
-               walletAccount.archiveAccount();
+            WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+            if (linkedAccount != null) {
+               linkedAccount.archiveAccount();
             }
             _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
             _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
