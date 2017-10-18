@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.receive;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -46,7 +45,6 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
@@ -87,7 +85,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ReceiveCoinsActivity extends Activity {
-
    private static final int GET_AMOUNT_RESULT_CODE = 1;
    private static final String LAST_ADDRESS_BALANCE = "lastAddressBalance";
    private static final String RECEIVING_SINCE = "receivingSince";
@@ -161,29 +158,17 @@ public class ReceiveCoinsActivity extends Activity {
       }
 
       // Amount Hint
-       if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-           ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
-           tvAmount.setHint(getString(R.string.amount_hint_denomination, account.getColuAsset().name));
-       } else {
-           tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
+      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         ColuAccount account = (ColuAccount) _mbwManager.getSelectedAccount();
+         tvAmount.setHint(getString(R.string.amount_hint_denomination, account.getColuAsset().name));
+      } else {
+         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
                    _mbwManager.getBitcoinDenomination().toString()));
-       }
-
-       if(Build.VERSION.SDK_INT >= 16) {
-         shareByNfc();
       }
+      shareByNfc();
    }
 
-   @TargetApi(16)
    protected void shareByNfc() {
-      if (Build.VERSION.SDK_INT < 16) {
-         // the function isNdefPushEnabled is only available for SdkVersion >= 16
-         // We would be theoretically able to push the message over Ndef, but it is not
-         // possible to check if Ndef/NFC is available or not - so dont try it at all, if
-         // SdkVersion is too low
-         return;
-      }
-
       NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
       if (nfc != null && nfc.isNdefPushEnabled()) {
          nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
