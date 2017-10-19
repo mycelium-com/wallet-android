@@ -39,8 +39,13 @@
             android:title="@string/menu_item_delete_unconfirmed_transaction"/>
 
     <item
-            android:id="@+id/miBumpFee"
-            yourapp:showAsAction="ifRoom|withText"
-            android:title="@string/menu_item_bump_mining_fee"/>
+        android:id="@+id/miBumpFee"
+        yourapp:showAsAction="ifRoom|withText"
+        android:title="@string/menu_item_bump_mining_fee"/>
+
+    <item
+        android:id="@+id/miShare"
+        yourapp:showAsAction="ifRoom|withText"
+        android:title="@string/share_transaction_manually"/>
 
 </menu>
