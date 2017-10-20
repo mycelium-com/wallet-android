@@ -118,7 +118,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         List<WalletAccount> archivedRecords = Utils.sortAccounts(walletManager.getArchivedAccounts(), storage);
         if (!archivedRecords.isEmpty()) {
-            itemList.add(new Item(GROUP_ARCHIVED_TITLE_TYPE, "", archivedRecords));
+            itemList.add(new Item(GROUP_ARCHIVED_TITLE_TYPE, context.getString(R.string.archive_name), archivedRecords));
             for (WalletAccount account : archivedRecords) {
                 itemList.add(new Item(ACCOUNT_TYPE, account));
             }
