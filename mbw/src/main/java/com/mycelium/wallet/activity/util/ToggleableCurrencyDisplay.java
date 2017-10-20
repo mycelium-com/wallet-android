@@ -184,7 +184,14 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    public void setEventBus(Bus eventBus) {
       this.eventBus = eventBus;
-      this.eventBus.register(this);
+   }
+
+   @Override
+   protected void onAttachedToWindow() {
+      super.onAttachedToWindow();
+      if(eventBus != null) {
+         eventBus.register(this);
+      }
    }
 
    @Override

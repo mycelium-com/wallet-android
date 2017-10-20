@@ -21,27 +21,18 @@
              android:maxHeight="?attr/actionBarSize"
              android:maxWidth="?attr/actionBarSize">
 
-    <RelativeLayout
-        android:layout_width="?attr/actionBarSize"
-        android:layout_height="?attr/actionBarSize">
-
         <ImageView
             android:id="@+id/ivTorIcon"
             android:layout_width="@dimen/abc_action_bar_progress_bar_size"
             android:layout_height="@dimen/abc_action_bar_progress_bar_size"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_gravity="center"
             android:src="@drawable/tor"/>
 
         <ProgressBar
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:padding="4dp"
             android:layout_width="@dimen/abc_action_bar_progress_bar_size"
             android:layout_height="@dimen/abc_action_bar_progress_bar_size"
             android:layout_gravity="center"
-
             style="?indeterminateProgressStyle"/>
 
-    </RelativeLayout>
 </FrameLayout>

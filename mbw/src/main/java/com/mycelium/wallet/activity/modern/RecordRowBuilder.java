@@ -86,6 +86,8 @@ public class RecordRowBuilder {
       // Make grey if not part of the balance
       if (!isSelected) {
          Utils.setAlpha(rowView, 0.5f);
+      } else {
+         Utils.setAlpha(rowView, 1f);
       }
 
       int textColor = resources.getColor(R.color.white);
@@ -93,6 +95,8 @@ public class RecordRowBuilder {
       // Show focus if applicable
       if (hasFocus) {
          rowView.setBackgroundColor(resources.getColor(R.color.selectedrecord));
+      } else {
+         rowView.setBackgroundColor(resources.getColor(R.color.transparent));
       }
 
       // Show/hide key icon
