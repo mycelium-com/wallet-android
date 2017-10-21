@@ -58,7 +58,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import butterknife.BindView;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
@@ -83,8 +82,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 public class ReceiveCoinsActivity extends Activity {
 
@@ -97,6 +100,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    @BindView(R.id.tvAmountLabel) TextView tvAmountLabel;
    @BindView(R.id.tvAmount) TextView tvAmount;
+   @BindView(R.id.tvAmountFiat) TextView tvAmountFiat;
    @BindView(R.id.tvWarning) TextView tvWarning;
    @BindView(R.id.tvTitle) TextView tvTitle;
    @BindView(R.id.tvAddress1) TextView tvAddress1;
@@ -295,12 +299,51 @@ public class ReceiveCoinsActivity extends Activity {
       if (CurrencyValue.isNullOrZero(_amount)) {
          // No amount to show
          tvAmount.setText("");
+         tvAmountFiat.setVisibility(GONE);
       } else {
          // Set Amount
          if(_mbwManager.getSelectedAccount() instanceof ColuAccount) return;
          tvAmount.setText(
                  Utils.getFormattedValueWithUnit(getBitcoinAmount(), _mbwManager.getBitcoinDenomination())
          );
+         WalletAccount account = _mbwManager.getSelectedAccount();
+         CurrencyValue primaryAmount = _amount;
+         CurrencyValue alternativeAmount;
+         if (primaryAmount.getCurrency().equals(account.getAccountDefaultCurrency())) {
+            if (primaryAmount.isBtc() || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrency())) {
+               // if the accounts default currency is BTC and the user entered BTC, use the current
+               // selected fiat as alternative currency
+               alternativeAmount = CurrencyValue.fromValue(
+                       primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
+               );
+            } else {
+               // if the accounts default currency isn't BTC, use BTC as alternative
+               alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
+                       primaryAmount, _mbwManager.getExchangeRateManager()
+               );
+            }
+         } else {
+            // use the accounts default currency as alternative
+            alternativeAmount = CurrencyValue.fromValue(
+                    primaryAmount, account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
+            );
+         }
+         if (CurrencyValue.isNullOrZero(alternativeAmount)) {
+            tvAmountFiat.setVisibility(GONE);
+         } else {
+            // show the alternative amount
+            String alternativeAmountString =
+                    Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+
+            if (!alternativeAmount.isBtc()) {
+               // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+               // on a FX rate
+               alternativeAmountString = "~ " + alternativeAmountString;
+            }
+
+            tvAmountFiat.setText(alternativeAmountString);
+            tvAmountFiat.setVisibility(VISIBLE);
+         }
       }
    }
 
