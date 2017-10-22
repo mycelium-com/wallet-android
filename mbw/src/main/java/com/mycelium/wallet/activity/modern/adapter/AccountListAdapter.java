@@ -31,6 +31,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private WalletAccount focusedAccount;
 
     private ItemClickListener itemClickListener;
+    private ItemSelectListener itemSelectListener;
 
     class Item {
         int type;
@@ -65,6 +66,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void setItemClickListener(ItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
+    }
+
+    public void setItemSelectListener(ItemSelectListener itemSelectListener) {
+        this.itemSelectListener = itemSelectListener;
     }
 
     public WalletAccount getFocusedAccount() {
@@ -153,10 +158,21 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         Item item = itemList.get(position);
         int viewType = item.type;
         if (viewType == ACCOUNT_TYPE) {
+            AccountViewHolder accountHolder = (AccountViewHolder) holder;
             final WalletAccount account = item.walletAccount;
             builder.buildRecordView(null, account, mbwManager.getSelectedAccount() == account
                     , focusedAccount == account, holder.itemView);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+            accountHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    setFocusedAccount(account);
+                    if (itemSelectListener != null) {
+                        itemSelectListener.onClick(account);
+                    }
+
+                }
+            });
+            accountHolder.llAddress.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     setFocusedAccount(account);
@@ -228,13 +244,19 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public static class AccountViewHolder extends RecyclerView.ViewHolder {
+        public View llAddress;
 
         public AccountViewHolder(View itemView) {
             super(itemView);
+            llAddress = itemView.findViewById(R.id.llAddress);
         }
     }
 
     public interface ItemClickListener {
         void onItemClick(WalletAccount account);
+    }
+
+    public interface ItemSelectListener {
+        void onClick(WalletAccount account);
     }
 }
