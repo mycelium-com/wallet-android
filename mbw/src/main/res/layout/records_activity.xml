@@ -7,20 +7,7 @@
         android:id="@+id/rvRecords"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    <!--<ScrollView-->
-        <!--android:id="@+id/svRecords"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="fill_parent" >-->
-
-        <!--<LinearLayout-->
-            <!--android:id="@+id/llRecords"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@color/transparent"-->
-            <!--android:orientation="vertical" >-->
-        <!--</LinearLayout>-->
-    <!--</ScrollView>-->
-
+    
     <LinearLayout
         android:id="@+id/llLocked"
         android:layout_width="fill_parent"
