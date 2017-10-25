@@ -98,7 +98,6 @@ import java.util.UUID;
 //import com.colu.api.httpclient.ColuClient;
 
 public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
-
    public static final String TAG = "ColuAccount";
 
    private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
@@ -106,8 +105,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public static final int MILLISENCONDS_IN_SECOND = 1000;
 
    private final ColuManager manager;
-   private final Bus eventBus;
-   private final Handler handler;
    private final UUID uuid;
    private final ExchangeRateManager exchangeRateManager;
    private final MetadataStorage metadataStorage;
@@ -138,6 +135,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return accountKey;
    }
 
+   public void setPrivateKey(InMemoryPrivateKey accountKey) {
+      this.accountKey = accountKey;
+   }
+
    private SingleAddressAccount linkedAccount;
 
    private String label;
@@ -146,8 +147,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                       ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
       this.accountBacking = backing;
       this.manager = manager;
-      this.eventBus = eventBus;
-      this.handler = handler;
       this.exchangeRateManager = exchangeRateManager;
       this.metadataStorage = metadataStorage;
       this.coluAsset = coluAsset;
@@ -159,11 +158,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       archived = metadataStorage.getArchived(uuid);
    }
    public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
-                      ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
+                      ExchangeRateManager exchangeRateManager, ColuAsset coluAsset) {
       this.accountBacking = backing;
       this.manager = manager;
-      this.eventBus = eventBus;
-      this.handler = handler;
       this.exchangeRateManager = exchangeRateManager;
       this.metadataStorage = metadataStorage;
       this.coluAsset = coluAsset;
@@ -175,7 +172,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
 
       archived = metadataStorage.getArchived(uuid);
-
    }
 
    public static UUID getGuidForAsset(ColuAsset coluAsset, byte[] addressBytes) {
@@ -223,7 +219,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public ColuAsset getColuAsset() {
       return coluAsset;
    }
-
 
    // if it is a fiat value convert it, otherwise take the exact value
    private long getSatoshis(BigDecimal amount, String currency) {

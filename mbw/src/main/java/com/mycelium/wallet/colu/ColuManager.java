@@ -555,7 +555,7 @@ public class ColuManager implements AccountProvider {
             } else {
                 account = new ColuAccount(
                         ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                        exchangeRateManager, handler, eventBus, logger, coluAsset
+                        exchangeRateManager, coluAsset
                 );
             }
 
@@ -593,7 +593,7 @@ public class ColuManager implements AccountProvider {
 
         ColuAccount account = new ColuAccount(
                 ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                exchangeRateManager, handler, eventBus, logger, coluAsset
+                exchangeRateManager, coluAsset
         );
 
         coluAccounts.put(account.getId(), account);

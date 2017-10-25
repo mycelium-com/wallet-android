@@ -337,7 +337,7 @@ public class AddAdvancedAccountActivity extends Activity {
                     .show();
          } else if (accountId.isPresent()) {
             final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
-            if(!existingAccount.canSpend() && existingAccount instanceof SingleAddressAccount) {
+            if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof ColuAccount)) {
                // scanned the private key of a watch only single address account
                String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
                new AlertDialog.Builder(AddAdvancedAccountActivity.this)
@@ -353,7 +353,13 @@ public class AddAdvancedAccountActivity extends Activity {
                           @Override
                           public void onClick(DialogInterface dialogInterface, int i) {
                              try {
-                                ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                if(existingAccount instanceof SingleAddressAccount) {
+                                   ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                } else {
+                                   ColuAccount coluAccount = (ColuAccount) existingAccount;
+                                   coluAccount.setPrivateKey(new InMemoryPrivateKey(key.getPrivateKeyBytes()));
+                                   coluAccount.getLinkedAccount().setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                }
                              } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                                 invalidKeyCipher.printStackTrace();
                              }
