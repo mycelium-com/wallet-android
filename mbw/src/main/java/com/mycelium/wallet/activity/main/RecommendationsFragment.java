@@ -59,12 +59,6 @@ import java.util.ArrayList;
 
 import static com.mycelium.wallet.R.string.cancel;
 import static com.mycelium.wallet.R.string.ok;
-import static com.mycelium.wallet.R.string.partner_bitdice;
-import static com.mycelium.wallet.R.string.partner_bitdice_info_1;
-import static com.mycelium.wallet.R.string.partner_bitdice_info_2;
-import static com.mycelium.wallet.R.string.partner_bitdice_info_3;
-import static com.mycelium.wallet.R.string.partner_bitdice_short;
-import static com.mycelium.wallet.R.string.partner_bitdice_url;
 import static com.mycelium.wallet.R.string.partner_ledger;
 import static com.mycelium.wallet.R.string.partner_ledger_info;
 import static com.mycelium.wallet.R.string.partner_ledger_short;
