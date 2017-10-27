@@ -946,24 +946,6 @@
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
 
-    <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
-    <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>
-    <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
-    <string name="ad_buy_hashing24">Start Bitcoin mining with maximum efficiency</string>
-
-    <string name="ad_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="ad_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="ad_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="ad_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
-
-    <string name="ad_hashing24_info">
-        Hashing24 is a cloud mining company partnering with BitFury, one of the largest Bitcoin miners and Segwit supporter.
-        Cloud mining is a speculative investment to obtain new Bitcoin. Every investment has a risk.
-        Use code MYCELIUM for an exclusive 4% discount.
-    </string>
-    <string name="ad_purse_info" />
-    <string name="ad_trezor_info" />
-    <string name="ad_ledger_info" />
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
@@ -1021,18 +1003,10 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
     <string name="partner_purse_info" />
 
-    <string name="partner_bitdice">BitDice ICO</string>
-    <string name="partner_bitdice_short">Participate in the profit sharing of the Crypto Casino.</string>
-    <string name="partner_bitdice_url"> https://ico.bitdice.me/?utm_campaign=mycelium</string>
-    <string name="partner_bitdice_info_1">
-Participate in the profit sharing of the Crypto Casino with 10% Bonus subscription
-    </string>
-    <string name="partner_bitdice_info_2">
-Participate in the profit sharing of the Crypto Casino with 5% Bonus subscription
-    </string>
-    <string name="partner_bitdice_info_3">
-Participate in the profit sharing of the Crypto Casino. Only few days left.
-    </string>
+    <string name="partner_safervpn">SaferVPN</string>
+    <string name="partner_safervpn_short">Secure your Internet connection</string>
+    <string name="partner_safervpn_url">https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313</string>
+    <string name="partner_safervpn_info" />
 
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
