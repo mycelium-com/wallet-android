@@ -787,8 +787,6 @@
   <string name="colu_failed_to_broadcast">Ошибка при передачи Colored Coin транзакции.</string>
   <string name="colu_succeeded_to_broadcast">Colored Coin транзакция отправлена.</string>
   <string name="colu_rmc_tokens">RMC</string>
-  <string name="ad_buy_ledger">Очень обеспокоенны безопасностью? Получить Ledger</string>
-  <string name="ad_buy_trezor">Очень обеспокоенны безопасностью? Получить Trezor</string>
   <string name="gd_buy_sell_rmc_button">Купить RMC</string>
   <string name="learn_more_rmc"><u>Узнать больше о RMC</u></string>
   <string name="mycelium_no_responaility_rmc">Если вы продолжите, вы соглашаетесь взаимодействовать с RMC,  являющимся сторонним сервисом. Все ваши взаимодействия с RMC находятся вне контроля Mycelium и регулируются  пользовательским соглашением, условиями использования и политикой конфиденциальности RMC. Пожалуйста, прочтите их внимательно. Личная информация не будет собрана, сохранена или используема Mycelium.\n\nMYCELIUM не принимает  никакой ответственности и  не будет быть ответственной стороной в случае  любой  возможной потери или ущерба,  понесенных в результате доступа, использования, или полагания на предоставленную эмитентом RMC информацию и услуги</string>
