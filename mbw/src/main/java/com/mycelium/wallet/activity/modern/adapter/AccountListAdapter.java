@@ -5,14 +5,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
+import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
+import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder;
+import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -148,6 +148,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             View view = layoutInflater.inflate(R.layout.record_row_total, parent, false);
             TotalViewHolder res = new TotalViewHolder(view);
             res.tcdBalance.setCurrencySwitcher(mbwManager.getCurrencySwitcher());
+            res.tcdBalance.setEventBus(mbwManager.getEventBus());
             result = res;
         }
         return result;
@@ -221,35 +222,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public int getItemViewType(int position) {
         return itemList.get(position).type;
-    }
-
-    private static class GroupTitleViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle;
-        ToggleableCurrencyDisplay tvBalance;
-
-        public GroupTitleViewHolder(View itemView) {
-            super(itemView);
-            tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            tvBalance = (ToggleableCurrencyDisplay) itemView.findViewById(R.id.tvBalance);
-        }
-    }
-
-    private static class TotalViewHolder extends RecyclerView.ViewHolder {
-        ToggleableCurrencyButton tcdBalance;
-
-        public TotalViewHolder(View itemView) {
-            super(itemView);
-            tcdBalance = (ToggleableCurrencyButton) itemView.findViewById(R.id.tcdBalance);
-        }
-    }
-
-    public static class AccountViewHolder extends RecyclerView.ViewHolder {
-        public View llAddress;
-
-        public AccountViewHolder(View itemView) {
-            super(itemView);
-            llAddress = itemView.findViewById(R.id.llAddress);
-        }
     }
 
     public interface ItemClickListener {

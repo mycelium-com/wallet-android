@@ -194,6 +194,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          isAddedToBus = true;
          eventBus.register(this);
       }
+      if(currencySwitcher != null) {
+         updateUi();
+      }
    }
 
    @Override
