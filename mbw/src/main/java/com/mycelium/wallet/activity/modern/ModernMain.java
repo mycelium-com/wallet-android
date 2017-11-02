@@ -437,7 +437,7 @@ public class ModernMain extends ActionBarActivity {
             _mbwManager.getColuManager().startSynchronization();
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-            break;
+            return true;
          case R.id.miHelp:
             openMyceliumHelp();
             break;
@@ -520,26 +520,29 @@ public class ModernMain extends ActionBarActivity {
       startActivity(intent);
       Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
    }
-
+   private WalletManager.State commonSyncState;
    public void setRefreshAnimation() {
       if (refreshItem != null) {
          if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
                  || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
-            MenuItem menuItem = MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
-            ImageView ivTorIcon = (ImageView) menuItem.getActionView().findViewById(R.id.ivTorIcon);
+            if(commonSyncState != WalletManager.State.SYNCHRONIZING) {
+               commonSyncState = WalletManager.State.SYNCHRONIZING;
+               MenuItem menuItem = MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
+               ImageView ivTorIcon = (ImageView) menuItem.getActionView().findViewById(R.id.ivTorIcon);
 
-            if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
-               ivTorIcon.setVisibility(View.VISIBLE);
-               if (_mbwManager.getTorManager().getInitState() == 100) {
-                  ivTorIcon.setImageResource(R.drawable.tor);
+               if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
+                  ivTorIcon.setVisibility(View.VISIBLE);
+                  if (_mbwManager.getTorManager().getInitState() == 100) {
+                     ivTorIcon.setImageResource(R.drawable.tor);
+                  } else {
+                     ivTorIcon.setImageResource(R.drawable.tor_gray);
+                  }
                } else {
-                  ivTorIcon.setImageResource(R.drawable.tor_gray);
+                  ivTorIcon.setVisibility(View.GONE);
                }
-            } else {
-               ivTorIcon.setVisibility(View.GONE);
             }
-
          } else {
+            commonSyncState = WalletManager.State.READY;
             MenuItemCompat.setActionView(refreshItem, null);
          }
       }

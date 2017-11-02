@@ -42,6 +42,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
@@ -184,7 +185,18 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    public void setEventBus(Bus eventBus) {
       this.eventBus = eventBus;
-      this.eventBus.register(this);
+   }
+   private boolean isAddedToBus = false;
+   @Override
+   protected void onAttachedToWindow() {
+      super.onAttachedToWindow();
+      if(eventBus != null) {
+         isAddedToBus = true;
+         eventBus.register(this);
+      }
+      if(currencySwitcher != null) {
+         updateUi();
+      }
    }
 
    @Override
@@ -192,8 +204,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       super.onDetachedFromWindow();
 
       // unregister from the event bus
-      if (eventBus != null) {
+      if (eventBus != null && isAddedToBus) {
          eventBus.unregister(this);
+         isAddedToBus = false;
       }
    }
 
