@@ -50,10 +50,8 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("txid:").append(txid).append(" height:").append(height).append(" byte-length: ").append(binary.length)
-            .append(" time:").append(new Date(time * 1000L));
-      return sb.toString();
+      return "txid:" + txid + " height:" + height + " byte-length: " + binary.length +
+              " time:" + new Date(time * 1000L);
    }
 
    @Override
