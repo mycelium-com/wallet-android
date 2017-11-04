@@ -810,8 +810,8 @@
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>
-    <string name="colu_add_cc_account">Add Colored Coins Account</string>
-    <string name="colu">Colored Coin</string>
+    <string name="colu_add_cc_account">Add Digital Asset Account</string>
+    <string name="colu">Digital Asset</string>
     <string name="colu_select_an_account_type">Please select a Colored Coin account type</string>
     <string name="colu_create_account">Create %s Account</string>
     <string name="colu_creating_account">Creating %s Account</string>
