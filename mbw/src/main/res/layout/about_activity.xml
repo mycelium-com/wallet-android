@@ -193,7 +193,8 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/buttonspacing">
+                android:layout_marginTop="@dimen/buttonspacing"
+                android:layout_marginBottom="@dimen/buttonspacing">
 
                 <TextView
                     android:layout_width="wrap_content"
