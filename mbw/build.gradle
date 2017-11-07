@@ -67,6 +67,8 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
 }
 
+def versionNr = '2.9'
+
 android {
     configurations {
         all*.exclude module: 'jcip-annotations'
@@ -96,8 +98,10 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290705
-        versionName '2.9.7'
+        versionCode 290000 + getGitCommitCount()
+        versionName versionNr + "." + getGitCommitCount()
+        buildConfigField "String", "GIT_COMMIT_URL", "\"" + getGitCommitUrl() + "\""
+        buildConfigField "String", "GIT_REPO_URL", "\"" + getGitRepoUrl() + "\""
         multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -166,7 +170,7 @@ android {
 
             // if we are not on master, include the branchname in appId
             def appId = 'com.mycelium.devwallet';
-            def branch = getGitBranch()
+            def branch = getGitCurrentBranch()
 
             if (branch != "" && branch != "master") {
                 appId = appId + "_" + branch.replaceAll("-", "_")
@@ -272,4 +276,28 @@ if (project.hasProperty('testKeyStore') &&
     android.signingConfigs.btctestnet.keyPassword = testKeyAliasPassword
 } else {
     android.productFlavors.btctestnet.signingConfig = null
+}
+
+static def getGitCommitCount() {
+    def process = "git rev-list HEAD --count".execute()
+    return process.text.toInteger()
+}
+
+static def getLongGitHash() {
+    def process = "git rev-parse HEAD".execute()
+    return process.text.toString().trim()
+}
+
+static def getGitRepoUrl() {
+    def process = "git remote get-url origin --push".execute()
+    return process.text.toString().replace(".git", "").trim()
+}
+
+static def getGitCommitUrl() {
+    return getGitRepoUrl() + "/commit/" + getLongGitHash()
+}
+
+static def getGitCurrentBranch() {
+    def process = "git rev-parse --abbrev-ref HEAD".execute()
+    return process.text.toString().trim()
 }

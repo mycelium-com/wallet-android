@@ -57,8 +57,7 @@ def getGitBranch() {
         if (isDetached) {
             logger.warn("Unable to detect current git branch, {}", head)
         } else {
-            def refHead = new File(gitFolder + head[1].trim()) // .git/refs/heads/master
-            branch = head.last().split("/").last().trim();
+            branch = head.last().split("/").last().trim()
         }
     }catch(IOException ex){
         logger.warn("Unable to detect current git branch: {}", ex.toString())
