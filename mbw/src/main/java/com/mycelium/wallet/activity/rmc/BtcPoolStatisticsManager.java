@@ -23,8 +23,7 @@ public class BtcPoolStatisticsManager {
 
     public static String HASHRATE_INFO_API_URL = "https://stat.rmc.one/api/stats/hashrate";
     public static String YOUR_RMC_HASHRATE_INFO_URL = "https://stat.rmc.one/api/hashrate/";
-    public static String STATS_INFO_API_URL = "https://rmc-ico.gear.mycelium.com/api/stats";
-
+    
     private ColuAccount coluAccount;
 
     class PoolStatisticInfo {
@@ -43,12 +42,14 @@ public class BtcPoolStatisticsManager {
 
     public PoolStatisticInfo getStatistics() {
         Long totalRmcHashrate = getHashRate();
-        if (totalRmcHashrate == null)
+        if (totalRmcHashrate == null) {
             totalRmcHashrate = 0L;
+        }
 
         Long yourRmcHashrate = getYourRmcHahrate(coluAccount.getAddress());
-        if (yourRmcHashrate == null)
+        if (yourRmcHashrate == null) {
             yourRmcHashrate = 0L;
+        }
 
         return new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);
     }
@@ -68,7 +69,7 @@ public class BtcPoolStatisticsManager {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(inputStream, baos, true);
             return Long.parseLong(baos.toString().replace("\n", ""));
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return null;
     }
@@ -87,33 +88,8 @@ public class BtcPoolStatisticsManager {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(inputStream, baos, true);
             return Long.parseLong(baos.toString().replace("\n", ""));
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return null;
-    }
-
-    public static String getICOEnd() {
-        HttpRequestFactory requestFactory = new NetHttpTransport()
-                .createRequestFactory(new HttpRequestInitializer() {
-                    @Override
-                    public void initialize(HttpRequest request) {
-                        request.setParser(new JsonObjectParser(new JacksonFactory()));
-                    }
-                });
-        try {
-            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(STATS_INFO_API_URL));
-            HttpResponse response = request.execute();
-            InputStream inputStream = response.getContent();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(inputStream, baos, true);
-
-            Matcher matcher = Pattern.compile("\"end_at\":\"(.*?)\"").matcher(baos.toString());
-            if (matcher.find()) {
-                return matcher.group(1);
-            }
-        } catch (Exception ex) {
-        }
-        return null;
-
     }
 }
