@@ -37,10 +37,8 @@ package com.mycelium.wallet.activity.modern;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -1079,6 +1077,10 @@ public class AccountsFragment extends Fragment {
 
    private void activate(WalletAccount account) {
       account.activateAccount();
+      WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      if (linkedAccount != null) {
+         linkedAccount.activateAccount();
+      }
       //setselected also broadcasts AccountChanged event
       _mbwManager.setSelectedAccount(account.getId());
       updateIncludingMenus();
@@ -1176,6 +1178,10 @@ public class AccountsFragment extends Fragment {
 
          public void onClick(DialogInterface arg0, int arg1) {
             account.archiveAccount();
+            WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+            if (linkedAccount != null) {
+               linkedAccount.archiveAccount();
+            }
             _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
             _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
             updateIncludingMenus();

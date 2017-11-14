@@ -59,6 +59,7 @@ import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionExcepti
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
@@ -77,6 +78,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -283,9 +285,7 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
                      checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
                      checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible((record.confirmations == 0) && !record.canCoinapult());
-
-                     //deletion is disabled for now, to enable, replace false with record.confirmations == 0
-                     checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+                     checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(record.confirmations == 0);
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
@@ -427,14 +427,27 @@ public class TransactionHistoryFragment extends Fragment {
                                             dialog.dismiss();
                                          }
                                       })
-                                      .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                         @Override
-                                         public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                         }
-                                      })
+                                      .setNegativeButton(R.string.no, null)
                                       .create().show();
                            }
+                           break;
+                        case R.id.miShare:
+                           new AlertDialog.Builder(getActivity())
+                                   .setTitle(R.string.share_transaction_manually_title)
+                                   .setMessage(R.string.share_transaction_manually_description)
+                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().getTransaction(record.txid).binary);
+                                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                         shareIntent.setType("text/plain");
+                                         shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
+                                         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_transaction)));
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .setNegativeButton(R.string.no, null)
+                                   .create().show();
                            break;
                      }
                      return false;
