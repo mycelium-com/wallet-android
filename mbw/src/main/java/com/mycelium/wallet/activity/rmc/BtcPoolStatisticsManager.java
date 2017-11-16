@@ -25,9 +25,9 @@ public class BtcPoolStatisticsManager {
 
     private ColuAccount coluAccount;
 
-    class PoolStatisticInfo {
-        double totalRmcHashrate;
-        double yourRmcHashrate;
+    public class PoolStatisticInfo {
+        public double totalRmcHashrate;
+        public double yourRmcHashrate;
 
         public PoolStatisticInfo(double totalRmcHashrate, double yourRmcHashrate) {
             this.totalRmcHashrate = totalRmcHashrate;

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="3dp"
+    android:paddingRight="3dp">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rmc_profit_meter"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/assets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_large"
+            android:text="@string/assets"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/rmc_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/assets"
+            android:layout_marginRight="4dp"
+            android:text="10"
+            android:textColor="@color/white"
+            android:textSize="36sp" />
+
+        <TextView
+            android:id="@+id/rmc_value_after_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/rmc_label"
+            android:layout_marginBottom="2dp"
+            android:layout_toRightOf="@+id/rmc_value"
+            android:text=".0000"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/rmc_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/rmc_value"
+            android:layout_toRightOf="@+id/rmc_value"
+            android:text="RMC"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+
+        <com.mycelium.wallet.activity.rmc.view.ProfitMeterView
+            android:id="@+id/profit_meter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_toLeftOf="@+id/accrued_value"
+            android:layout_toRightOf="@+id/rmc_label"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/adometr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/margin_large"
+                android:text="+72"
+                android:textColor="#ff8735"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/n_sat_min"
+                android:textColor="#88ffffff"
+                android:textSize="12sp" />
+
+        </com.mycelium.wallet.activity.rmc.view.ProfitMeterView>
+
+
+        <TextView
+            android:id="@+id/accrued_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/assets"
+            android:layout_gravity="center"
+            android:layout_toRightOf="@+id/profit_meter"
+            android:text="Accrued income"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/accrued_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/rmc_label"
+            android:layout_alignParentRight="true"
+            android:text="0.00000031 BTC"
+            android:textColor="#ff8735"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+
+    </RelativeLayout>
+</FrameLayout>
