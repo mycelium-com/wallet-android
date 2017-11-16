@@ -4,7 +4,9 @@
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:gravity="center_vertical"
-              android:orientation="horizontal">
+              android:orientation="horizontal"
+    android:paddingTop="@dimen/margin_small"
+    android:paddingBottom="@dimen/margin_small">
 
     <!-- Key Icon -->
 

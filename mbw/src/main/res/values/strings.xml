@@ -141,8 +141,8 @@
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
-    <string name="active_hd_accounts_name">My HD Accounts</string>
-    <string name="active_other_accounts_name">Other Accounts</string>
+    <string name="active_hd_accounts_name">Bitcoin HD</string>
+    <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>
     <string name="activate_action">Activate</string>
@@ -810,8 +810,8 @@
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>
-    <string name="colu_add_cc_account">Add Colored Coins Account</string>
-    <string name="colu">Colored Coin</string>
+    <string name="colu_add_cc_account">Add Digital Asset Account</string>
+    <string name="colu">Digital Asset</string>
     <string name="colu_select_an_account_type">Please select a Colored Coin account type</string>
     <string name="colu_create_account">Create %s Account</string>
     <string name="colu_creating_account">Creating %s Account</string>
@@ -946,24 +946,6 @@
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
 
-    <string name="ad_buy_ledger">Really concerned about security ? Get a Ledger</string>
-    <string name="ad_buy_trezor">Really concerned about security ? Get a Trezor</string>
-    <string name="ad_buy_purse">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
-    <string name="ad_buy_hashing24">Start Bitcoin mining with maximum efficiency</string>
-
-    <string name="ad_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="ad_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="ad_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="ad_hashing24_url">https://hashing24.com/?rid=53616c7465645f5f8449172e49358025e130637667cb9a3c</string>
-
-    <string name="ad_hashing24_info">
-        Hashing24 is a cloud mining company partnering with BitFury, one of the largest Bitcoin miners and Segwit supporter.
-        Cloud mining is a speculative investment to obtain new Bitcoin. Every investment has a risk.
-        Use code MYCELIUM for an exclusive 4% discount.
-    </string>
-    <string name="ad_purse_info" />
-    <string name="ad_trezor_info" />
-    <string name="ad_ledger_info" />
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
@@ -1021,18 +1003,10 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
     <string name="partner_purse_info" />
 
-    <string name="partner_bitdice">BitDice ICO</string>
-    <string name="partner_bitdice_short">Participate in the profit sharing of the Crypto Casino.</string>
-    <string name="partner_bitdice_url"> https://ico.bitdice.me/?utm_campaign=mycelium</string>
-    <string name="partner_bitdice_info_1">
-Participate in the profit sharing of the Crypto Casino with 10% Bonus subscription
-    </string>
-    <string name="partner_bitdice_info_2">
-Participate in the profit sharing of the Crypto Casino with 5% Bonus subscription
-    </string>
-    <string name="partner_bitdice_info_3">
-Participate in the profit sharing of the Crypto Casino. Only few days left.
-    </string>
+    <string name="partner_safervpn">SaferVPN</string>
+    <string name="partner_safervpn_short">Secure your Internet connection</string>
+    <string name="partner_safervpn_url">https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313</string>
+    <string name="partner_safervpn_info" />
 
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
@@ -1086,6 +1060,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="share_transaction_manually_title">Share Transaction Manually</string>
     <string name="share_transaction_manually_description">Do you want to share the raw transaction via clipboard, mail or other means?  This operation is usually safe but not necessary. We added this feature for debugging, when the transaction cannot be broadcast.</string>
     <string name="share_transaction">Share Transaction</string>
+    <string name="want_to_add_priv_key_to_watch_account">Private keys for watch only account \"%1$s\" detected. Do you want to turn it into a spendable account?</string>
+    <string name="priv_key_of_watch_only_sa_account">Private key of watch only account!</string>
     <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
     <string name="rmc_profit_meter">RMC profit meter</string>
     <string name="assets">Assets</string>

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.7" versioncode="290705">
+        <change>made account list collapsable</change>
+        <change>improved startup time</change>
+        <change>show fiat value of time of transaction</change>
+    </release>
+    <release version="2.9.6" versioncode="290601">
+        <change>You can now buy BTC by credit card directly in EUR as well as USD</change>
+        <change>Increased limits of credit card sales: 20K USD per day and 50K USD per month</change>
+        <change>New Mycelium partner: SaferVPN to enhance your privacy at home and when travelling</change>
+        <change>Performance improvements and bug fixes</change>
+    </release>
     <release version="2.9.5" versioncode="290502">
         <change>Miner fee picker updated (1sat/b added).</change>
         <change>Colored Coins utoxs protection added.</change>

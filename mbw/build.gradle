@@ -96,8 +96,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 290502
-        versionName '2.9.5'
+        versionCode 290705
+        versionName '2.9.7'
         multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

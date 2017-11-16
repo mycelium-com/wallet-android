@@ -17,5 +17,6 @@
     <dimen name="item_dob_width">120dp</dimen>
     <dimen name="recycler_item_rectangle_height">8dp</dimen>
     <dimen name="recycler_item_triangle_height">16dp</dimen>
+    <dimen name="margin_small">4dp</dimen>
 
 </resources>

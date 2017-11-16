@@ -555,7 +555,7 @@ public class ColuManager implements AccountProvider {
             } else {
                 account = new ColuAccount(
                         ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                        exchangeRateManager, handler, eventBus, logger, coluAsset
+                        exchangeRateManager, coluAsset
                 );
             }
 
@@ -593,7 +593,7 @@ public class ColuManager implements AccountProvider {
 
         ColuAccount account = new ColuAccount(
                 ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                exchangeRateManager, handler, eventBus, logger, coluAsset
+                exchangeRateManager, coluAsset
         );
 
         coluAccounts.put(account.getId(), account);
@@ -950,8 +950,12 @@ public class ColuManager implements AccountProvider {
     }
 
     public void startSynchronization() {
-        eventTranslator.onWalletStateChanged(null, state = WalletManager.State.SYNCHRONIZING);
         new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                eventTranslator.onWalletStateChanged(null, state = WalletManager.State.SYNCHRONIZING);
+            }
 
             @Override
             protected Void doInBackground(Void... voids) {
