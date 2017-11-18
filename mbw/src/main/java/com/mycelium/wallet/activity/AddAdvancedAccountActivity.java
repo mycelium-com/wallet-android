@@ -63,6 +63,8 @@ import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -253,14 +255,11 @@ public class AddAdvancedAccountActivity extends Activity {
 
    // restore single account in asynctask so we can handle Colored Coins case
    private class ImportSingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
-
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
-      private Error error;
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
       private Address address;
-
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -280,7 +279,6 @@ public class AddAdvancedAccountActivity extends Activity {
          UUID acc = null;
 
          try {
-
             //Check whether this address is already used in any account
             address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
             Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
@@ -308,6 +306,7 @@ public class AddAdvancedAccountActivity extends Activity {
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
+         Optional accountId = _mbwManager.getAccountId(this.address, null);
          if (account != null) {
             finishOk(account);
          } else if(askUserForColorize) {
@@ -336,14 +335,42 @@ public class AddAdvancedAccountActivity extends Activity {
                     })
                     .create()
                     .show();
-         } else if (_mbwManager.getAccountId(this.address, null).isPresent()) {
-            finishAlreadyExist(address);
-         } else if (error != null) {
-            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setMessage(error.getMessage())
-                    .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
+         } else if (accountId.isPresent()) {
+            final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
+            if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof ColuAccount)) {
+               // scanned the private key of a watch only single address account
+               String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
+               new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                       .setTitle(R.string.priv_key_of_watch_only_sa_account)
+                       .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, existingAccountName))
+                       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialogInterface, int i) {
+                             finishAlreadyExist(address);
+                          }
+                       })
+                       .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialogInterface, int i) {
+                             try {
+                                if(existingAccount instanceof SingleAddressAccount) {
+                                   ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                } else {
+                                   ColuAccount coluAccount = (ColuAccount) existingAccount;
+                                   coluAccount.setPrivateKey(new InMemoryPrivateKey(key.getPrivateKeyBytes()));
+                                   coluAccount.getLinkedAccount().setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                }
+                             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                                invalidKeyCipher.printStackTrace();
+                             }
+                             finishOk(existingAccount.getId());
+                          }
+                       })
+                       .create()
+                       .show();
+            } else {
+               finishAlreadyExist(address);
+            }
          }
       }
    }
@@ -379,7 +406,6 @@ public class AddAdvancedAccountActivity extends Activity {
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
-
       private Address address;
       private AccountType addressType;
       private ProgressDialog dialog;
@@ -475,7 +501,6 @@ public class AddAdvancedAccountActivity extends Activity {
             finishAlreadyExist(address);
          }
       }
-
    }
 
    private void finishAlreadyExist(Address address) {

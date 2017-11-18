@@ -38,11 +38,16 @@ jar {
     }
 }
 
+static def getLatestGitHash() {
+    def process = "git rev-parse --short HEAD".execute()
+    return process.text.toString().trim()
+}
+
 shadowJar {
     mergeServiceFiles()
     manifest {
         attributes 'Timestamp': String.valueOf(System.currentTimeMillis())
-        attributes 'Implementation-Version': getCheckedOutGitCommitHash()
+        attributes 'Implementation-Version': getLatestGitHash()
         attributes 'Main-Class': project.mainClassName
     }
 }

@@ -116,7 +116,7 @@ public class AboutActivity extends Activity {
          }
       });
 
-      setLinkTo((TextView) findViewById(R.id.tvSourceUrl), R.string.source_url);
+      setLinkTo((TextView) findViewById(R.id.tvSourceUrl), BuildConfig.GIT_COMMIT_URL);
       setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
       setMailTo((TextView) findViewById(R.id.tvContactEmail), R.string.contact_email);
@@ -166,6 +166,12 @@ public class AboutActivity extends Activity {
          versionManager.showVersionDialog(response, this);
       }
    }
+
+    private void setLinkTo(TextView textView, String url) {
+        Uri httpLink = Uri.parse(url);
+        textView.setText(Html.fromHtml(hrefLink(httpLink)));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 
    private void setLinkTo(TextView textView, int res) {
       Uri httplink = Uri.parse(getResources().getString(res));

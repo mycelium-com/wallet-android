@@ -59,12 +59,6 @@ import java.util.ArrayList;
 
 import static com.mycelium.wallet.R.string.cancel;
 import static com.mycelium.wallet.R.string.ok;
-import static com.mycelium.wallet.R.string.partner_bitdice;
-import static com.mycelium.wallet.R.string.partner_bitdice_info_1;
-import static com.mycelium.wallet.R.string.partner_bitdice_info_2;
-import static com.mycelium.wallet.R.string.partner_bitdice_info_3;
-import static com.mycelium.wallet.R.string.partner_bitdice_short;
-import static com.mycelium.wallet.R.string.partner_bitdice_url;
 import static com.mycelium.wallet.R.string.partner_ledger;
 import static com.mycelium.wallet.R.string.partner_ledger_info;
 import static com.mycelium.wallet.R.string.partner_ledger_short;
@@ -96,25 +90,8 @@ public class RecommendationsFragment extends Fragment {
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
 
-        Date currentTime = Calendar.getInstance().getTime();
+        list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
 
-        Calendar cal20170829 = Calendar.getInstance();
-        cal20170829.set(2017,7,29); // months count from 0
-        Date date20170829 = cal20170829.getTime();
-
-        Calendar cal20170905 = Calendar.getInstance();
-        cal20170905.set(2017,8, 5);
-        Date date20170905 = cal20170905.getTime();
-
-        int infoText = partner_bitdice_info_3;
-        if(currentTime.before(date20170829)) {
-            infoText = partner_bitdice_info_1;
-        } else if(currentTime.before(date20170905)) {
-            infoText = partner_bitdice_info_2;
-        }
-        list.add(getPartnerInfo(partner_bitdice, partner_bitdice_short, infoText, partner_bitdice_url, R.drawable.bitdice, R.drawable.bitdice));
-
-        //View footerView = ((LayoutInflater) ActivityContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer_layout, null, false);
         View footerView = inflater.inflate(R.layout.main_recommendations_list_footer, null, false);
         recommendationsList.addFooterView(footerView);
         moreInformation = (TextView) footerView.findViewById(R.id.tvMoreInformation);
