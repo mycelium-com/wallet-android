@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/margin_large"
-                android:text="+72"
+                android:text="@string/not_available"
                 android:textColor="#ff8735"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="@string/n_sat_min"
+                android:text="@string/not_available"
                 android:textColor="#88ffffff"
                 android:textSize="12sp" />
 
@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/rmc_label"
             android:layout_alignParentRight="true"
-            android:text="0.00000031 BTC"
+            android:text="0.00000000 BTC"
             android:textColor="#ff8735"
             android:textSize="17sp"
             android:textStyle="bold" />

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.rmc.adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
@@ -25,12 +26,39 @@ import butterknife.ButterKnife;
  */
 
 public class AddressWidgetAdapter extends PagerAdapter {
+    private static final String TOTAL_RMC_HASHRATE = "total_rmc_hashrate";
+    private static final String YOUR_RMC_HASHRATE = "your_rmc_hashrate";
+    private static final String DIFFICULTY = "difficulty";
+    private static final String ACCRUED_INCOME = "accrued_income";
+    private static final BigDecimal POW_2_32 = BigDecimal.valueOf(4294967296L);
+    private static final BigDecimal BLOCK_REWARD = BigDecimal.valueOf(1250000000);
+
     private Context context;
     private MbwManager mbwManager;
+    private BtcPoolStatisticsManager.PoolStatisticInfo poolStatisticInfo;
+    private SharedPreferences sharedPreferences;
+    private ColuAccount coluAccount;
+
+    private int angle = 0;
+    private float value = 0;
+    private BigDecimal satPerSec;
+    private BigDecimal accrued = BigDecimal.ZERO;
 
     public AddressWidgetAdapter(Context context, MbwManager mbwManager) {
         this.context = context;
         this.mbwManager = mbwManager;
+        sharedPreferences = context.getSharedPreferences("rmc_profit_meter", Context.MODE_PRIVATE);
+        coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
+
+
+        poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
+                sharedPreferences.getLong(TOTAL_RMC_HASHRATE, 0)
+                , sharedPreferences.getLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), 0));
+        poolStatisticInfo.difficulty = sharedPreferences.getLong(DIFFICULTY, 0);
+        accrued = new BigDecimal(sharedPreferences.getString(ACCRUED_INCOME + coluAccount.getAddress().toString(), "0"));
+
+        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -74,10 +102,13 @@ public class AddressWidgetAdapter extends PagerAdapter {
         }
     }
 
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
+
     class ProfitMeterHolder {
         private View view;
-        private int angle = 0;
-        private int value = 0;
 
         @BindView(R.id.profit_meter)
         protected ProfitMeterView profitMeterView;
@@ -88,25 +119,56 @@ public class AddressWidgetAdapter extends PagerAdapter {
         @BindView(R.id.speed)
         protected TextView speed;
 
+        @BindView(R.id.accrued_value)
+        protected TextView accruedValue;
+
+        @BindView(R.id.rmc_value)
+        protected TextView rmcValue;
+
+        @BindView(R.id.rmc_value_after_dot)
+        protected TextView rmcValueAfterDot;
+
+        private Runnable updateAdo;
+
 
         public ProfitMeterHolder(View view) {
             this.view = view;
             ButterKnife.bind(this, view);
-            profitMeterView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    angle = (angle + 6) % 360;
-                    if (angle == 0) {
-                        value = 0;
-                    }
-                    adometr.setText("+" + value++);
-                    speed.setText(context.getString(R.string.n_sat_min, 60));
-                    profitMeterView.setAngle(angle);
-                    profitMeterView.postDelayed(this, 1000);
+            BigDecimal rmc = coluAccount.getCurrencyBasedBalance().confirmed.getExactValue().getValue();
+            String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
+            rmcValue.setText(split[0]);
+            rmcValueAfterDot.setText(split[1]);
+            if (poolStatisticInfo != null && poolStatisticInfo.yourRmcHashrate != 0 && poolStatisticInfo.difficulty != 0) {
+                satPerSec = BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(BLOCK_REWARD)
+                        .divide(BigDecimal.valueOf(poolStatisticInfo.difficulty).multiply(POW_2_32), 4, BigDecimal.ROUND_UP);
+                speed.setText(context.getString(R.string.n_sat_min, (long) (satPerSec.floatValue() * 60)));
+                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + "BTC");
+                if (updateAdo == null) {
+                    updateAdo = new Runnable() {
+                        @Override
+                        public void run() {
+                            angle = (angle + 6) % 360;
+                            if (angle == 0) {
+                                accrued = accrued.add(BigDecimal.valueOf(value).movePointLeft(8)).setScale(8, BigDecimal.ROUND_UP);
+                                sharedPreferences.edit()
+                                        .putString(ACCRUED_INCOME + coluAccount.getAddress().toString(), accrued.toPlainString())
+                                        .apply();
+                                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + "BTC");
+                                value = 0;
+                            } else {
+                                value += satPerSec.floatValue();
+                            }
+                            adometr.setText("+" + value);
+                            profitMeterView.setAngle(angle);
+                            profitMeterView.postDelayed(this, 1000);
+                        }
+                    };
+                    profitMeterView.post(updateAdo);
                 }
-            }, 1000);
+            }
         }
     }
+
 
     class StatisticHolder {
         private View view;
@@ -138,50 +200,63 @@ public class AddressWidgetAdapter extends PagerAdapter {
                     assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()
                     : context.getString(R.string.not_available));
 
-            ColuAccount coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
-            BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
-
-        class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
-
-            private ColuAccount coluAccount;
-
-            public BtcPoolStatisticsTask(ColuAccount coluAccount) {
-                this.coluAccount = coluAccount;
-            }
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-            @Override
-            protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
-                BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager(coluAccount);
-                return btcPoolStatisticsManager.getStatistics();
-            }
-
-            @Override
-            protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
-                if (result == null)
-                    return;
-                if (result.totalRmcHashrate != 0) {
+            if (poolStatisticInfo != null) {
+                if (poolStatisticInfo.totalRmcHashrate != 0) {
                     // peta flops
-                    tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(15)
+                    tvTotalHP.setText(new BigDecimal(poolStatisticInfo.totalRmcHashrate).movePointLeft(15)
                             .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
                 } else {
                     tvTotalHP.setText(R.string.not_available);
                 }
-                if (result.yourRmcHashrate != 0) {
+                if (poolStatisticInfo.yourRmcHashrate != 0) {
                     // tera flops
-                    tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(12)
+                    tvUserHP.setText(new BigDecimal(poolStatisticInfo.yourRmcHashrate).movePointLeft(12)
                             .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
                 } else {
                     tvUserHP.setText(R.string.not_available);
                 }
-
             }
+        }
+    }
+
+    class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
+
+        private ColuAccount coluAccount;
+
+        public BtcPoolStatisticsTask(ColuAccount coluAccount) {
+            this.coluAccount = coluAccount;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
+            BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager(coluAccount);
+            return btcPoolStatisticsManager.getStatistics();
+        }
+
+        @Override
+        protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
+            if (result == null)
+                return;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (result.totalRmcHashrate != 0) {
+                poolStatisticInfo.totalRmcHashrate = result.totalRmcHashrate;
+                editor.putLong(TOTAL_RMC_HASHRATE, result.totalRmcHashrate);
+            }
+            if (result.difficulty != 0) {
+                poolStatisticInfo.difficulty = result.difficulty;
+                editor.putLong(DIFFICULTY, result.difficulty);
+            }
+            if (result.yourRmcHashrate != 0) {
+                poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
+                editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
+            }
+            editor.apply();
+            notifyDataSetChanged();
         }
     }
 }
