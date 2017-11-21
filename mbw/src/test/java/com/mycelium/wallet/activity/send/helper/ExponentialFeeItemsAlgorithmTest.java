@@ -9,8 +9,8 @@ public class ExponentialFeeItemsAlgorithmTest {
     private FeeItemsAlgorithm algorithm;
     private final int MIN_POSITION = 12;
     private final int MAX_POSITION = 22;
-    private final long MIN_VALUE = 1000;
-    private final long MAX_VALUE = 640000;
+    private final long MIN_VALUE = 3000;
+    private final long MAX_VALUE = 890000;
 
     @Before
     public void setup() {
