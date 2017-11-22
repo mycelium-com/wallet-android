@@ -21,12 +21,23 @@ public class FeeItemsAlgorithmTest {
         System.out.println("Exponential");
         // x^38 is off by one when using double :(
         printStuff(new ExponentialFeeItemsAlgorithm(MIN_FEE, MIN_POSITION, MAX_FEE, MAX_POSITION));
+
+        System.out.println("RoundNumberAffineExponential 1.1");
+        printStuff(new RoundNumberAffineExponentialFeeItemsAlgorithm(MIN_FEE, MIN_POSITION, MAX_FEE, 1.1));
+
+        System.out.println("RoundNumberAffineExponential 1.5");
+        printStuff(new RoundNumberAffineExponentialFeeItemsAlgorithm(MIN_FEE, MIN_POSITION, MAX_FEE, 1.5));
+
+        System.out.println("RoundNumberAffineExponential 2");
+        printStuff(new RoundNumberAffineExponentialFeeItemsAlgorithm(MIN_FEE, MIN_POSITION, MAX_FEE, 2));
+
+        System.out.println("RoundNumberAffineExponential 3");
+        printStuff(new RoundNumberAffineExponentialFeeItemsAlgorithm(MIN_FEE, MIN_POSITION, MAX_FEE, 3));
     }
 
     private void printStuff(FeeItemsAlgorithm algorithm) {
-        for (int position = algorithm.getMinPosition(); position <= algorithm.getMaxPosition() + 10; position++) {
-            System.out.print(String.format("%.1f \t", algorithm.computeValue(position) / 1000f));
+        for(int position=algorithm.getMinPosition(); position<=algorithm.getMaxPosition(); position++) {
+            System.out.println(algorithm.computeValue(position));
         }
-        System.out.println();
     }
 }
