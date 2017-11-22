@@ -1,18 +1,20 @@
 package com.mycelium.wallet.activity.send.helper;
 
 /**
- * Created by elvis on 20.11.17.
+ * value(position) = a * position^3 + b
+ * a = (max - min) / (maxPosition^3 - minPosition^3);
+ * b = min -  a * minPosition^3 ;
  */
 
 public class CubicAlgorithm implements FeeItemsAlgorithm {
-    private int minPos;
-    private int maxPos;
+    private int minPosition;
+    private int maxPosition;
     private float a;
     private float b;
 
     public CubicAlgorithm(long min, int minPos, long max, int maxPos) {
-        this.minPos = minPos;
-        this.maxPos = maxPos;
+        this.minPosition = minPos;
+        this.maxPosition = maxPos;
         a = (max - min) * 1f / (pow3(maxPos) - pow3(minPos));
         b = min - pow3(minPos) * a;
     }
@@ -23,12 +25,12 @@ public class CubicAlgorithm implements FeeItemsAlgorithm {
 
     @Override
     public int getMinPosition() {
-        return minPos;
+        return minPosition;
     }
 
     @Override
     public int getMaxPosition() {
-        return maxPos;
+        return maxPosition;
     }
 
     public static int pow3(int value) {

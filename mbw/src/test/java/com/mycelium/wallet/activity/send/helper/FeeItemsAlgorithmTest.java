@@ -5,10 +5,10 @@ import org.junit.Test;
 public class FeeItemsAlgorithmTest {
     @Test
     public void printThemAll() throws Exception {
-        long MAX_FEE = 640000;
+        long MAX_FEE = 140000;
         long MIN_FEE = 3000;
         int MIN_POSITION = 1;
-        int MAX_POSITION = 38; // 38 steps as that is about the count of steps the user would currently get over all fees
+        int MAX_POSITION = 15; // 38 steps as that is about the count of steps the user would currently get over all fees
 
         System.out.println("Linear");
         // apparently the linear case ends up slightly off at the end
@@ -24,8 +24,9 @@ public class FeeItemsAlgorithmTest {
     }
 
     private void printStuff(FeeItemsAlgorithm algorithm) {
-        for(int position=algorithm.getMinPosition(); position<=algorithm.getMaxPosition(); position++) {
-            System.out.println(algorithm.computeValue(position));
+        for (int position = algorithm.getMinPosition(); position <= algorithm.getMaxPosition() + 10; position++) {
+            System.out.print(String.format("%.1f \t", algorithm.computeValue(position) / 1000f));
         }
+        System.out.println();
     }
 }

@@ -1,19 +1,21 @@
 package com.mycelium.wallet.activity.send.helper;
 
 /**
- * Created by elvis on 20.11.17.
+ * Linear algorithm for build fees items, has no changable step
+ * a = (max - min) / (maxPos - minPos);
+ * <p>
+ * value(position) = a * position + b
  */
-
 public class LinearAlgorithm implements FeeItemsAlgorithm {
-    private int minPos;
-    private int maxPos;
+    private int minPosition;
+    private int maxPosition;
 
     private float a;
     private float b;
 
     public LinearAlgorithm(long min, int minPos, long max, int maxPos) {
-        this.minPos = minPos;
-        this.maxPos = maxPos;
+        this.minPosition = minPos;
+        this.maxPosition = maxPos;
 
         a = (max - min) / (maxPos - minPos);
         b = min - minPos * a;
@@ -26,11 +28,11 @@ public class LinearAlgorithm implements FeeItemsAlgorithm {
 
     @Override
     public int getMinPosition() {
-        return minPos;
+        return minPosition;
     }
 
     @Override
     public int getMaxPosition() {
-        return maxPos;
+        return maxPosition;
     }
 }
