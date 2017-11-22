@@ -36,8 +36,9 @@ public class FeeItemsAlgorithmTest {
     }
 
     private void printStuff(FeeItemsAlgorithm algorithm) {
-        for(int position=algorithm.getMinPosition(); position<=algorithm.getMaxPosition(); position++) {
-            System.out.println(algorithm.computeValue(position));
+        for (int position = algorithm.getMinPosition(); position <= algorithm.getMaxPosition(); position++) {
+            System.out.print(String.format("%.1f \t", algorithm.computeValue(position) / 1000f));
         }
+        System.out.println();
     }
 }
