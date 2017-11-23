@@ -42,6 +42,7 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
+import com.mycelium.wallet.external.ChangellyServiceDescription;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
@@ -153,6 +154,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
          add(new SimplexServiceDescription());
          // add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
+         add(new ChangellyServiceDescription());
          add(new GlideraServiceDescription());
       }};
    }

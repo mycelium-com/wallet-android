@@ -73,7 +73,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory GLIDERA_IS_ENABLED = new MetadataKeyCategory("glidera", "enable");
    private static final MetadataKeyCategory SWISH_CREDIT_CARD_IS_ENABLED = new MetadataKeyCategory("swish_cc", "enable");
    private static final MetadataKeyCategory SIMPLEX_IS_ENABLED = new MetadataKeyCategory("simplex", "enable");
-
+   private static final MetadataKeyCategory CHANGELLY_IS_ENABLED = new MetadataKeyCategory("changelly", "enable");
    private static final String EMAIL = "email";
    public static final String PAIRED_SERVICE_COINAPULT = "coinapult";
    public static final String PAIRED_SERVICE_COLU = "colu";
@@ -433,6 +433,14 @@ public class MetadataStorage extends GenericMetadataStorage {
 
    public void setSimplexIsEnabled(boolean enable) {
       storeKeyCategoryValueEntry(SIMPLEX_IS_ENABLED, enable ? "1" : "0");
+   }
+
+   public boolean getChangellyIsEnabled() {
+      return getKeyCategoryValueEntry(CHANGELLY_IS_ENABLED, "1").equals("1");
+   }
+
+   public void setChangellyIsEnabled(boolean enable) {
+      storeKeyCategoryValueEntry(CHANGELLY_IS_ENABLED, enable ? "1" : "0");
    }
 
    public Optional<Long> getLastFullSync() {
