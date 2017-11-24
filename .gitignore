@@ -19,5 +19,6 @@ out/
 .settings
 nohup.out
 /gradle.properties
+/keys.properties
 /keystore_mbwProd
 /keystore_mbwTest
