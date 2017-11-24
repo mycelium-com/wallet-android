@@ -97,7 +97,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
                 holder.itemTextView.setText("~" + item.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN)
                         + " " + item.currencyValue.getCurrency());
             }
-            holder.valueTextView.setText(String.valueOf(item.feePerKb / 1000) + " sat/byte");
+            holder.valueTextView.setText(String.valueOf(Math.round(item.feePerKb / 1000f)) + " sat/byte");
 
         }
     }
