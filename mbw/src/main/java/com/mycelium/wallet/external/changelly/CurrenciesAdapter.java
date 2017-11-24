@@ -3,6 +3,7 @@ package com.mycelium.wallet.external.changelly;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,25 +16,25 @@ import com.mycelium.wallet.R;
 import java.util.ArrayList;
 
 public class CurrenciesAdapter extends ArrayAdapter<CurrencyInfo> {
+    private Context context;
+    private int layoutResourceId;
+    private ArrayList<CurrencyInfo> data = null;
+    private ClickListener clickListener;
 
-    Context context;
-    int layoutResourceId;
-    ArrayList<CurrencyInfo> data = null;
-    ClickListener clickListener;
-
-    public CurrenciesAdapter(Context context, int layoutResourceId, ArrayList<CurrencyInfo> data) {
+    CurrenciesAdapter(Context context, int layoutResourceId, ArrayList<CurrencyInfo> data) {
         super(context, layoutResourceId, data);
         this.context = context;
         this.layoutResourceId = layoutResourceId;
         this.data = data;
     }
 
-    public void setClickListener(ClickListener clickListener) {
+    void setClickListener(ClickListener clickListener) {
         this.clickListener = clickListener;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View row = convertView;
         ItemHolder holder;
 
@@ -65,9 +66,9 @@ public class CurrenciesAdapter extends ArrayAdapter<CurrencyInfo> {
 
     @Override
     public int getCount() {
-
-        if(data.size()<=0)
+        if(data.size()<=0) {
             return 1;
+        }
         return data.size();
     }
 
@@ -82,9 +83,9 @@ public class CurrenciesAdapter extends ArrayAdapter<CurrencyInfo> {
     }
 
     public static class ItemHolder {
-        public ImageView imgIcon;
-        public TextView txtName;
-        public TextView txtDescription;
+        ImageView imgIcon;
+        TextView txtName;
+        TextView txtDescription;
     }
 
     public interface ClickListener {

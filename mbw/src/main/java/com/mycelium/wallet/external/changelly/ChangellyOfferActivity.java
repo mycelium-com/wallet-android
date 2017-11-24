@@ -1,47 +1,39 @@
 package com.mycelium.wallet.external.changelly;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
+
+import java.util.Locale;
 
 public class ChangellyOfferActivity extends Activity {
-
-    public static final String FROM_AMOUNT = "fromAmount";
-
-    private static String TAG = "ChangellyOfferActivity";
-
-    private TextView tvFromAmount, tvFromCurr, tvToAmount, tvToCurr, tvRateValue, tvCreatedAt, tvSendToAddress;
-    private Button btCopyToClipboard;
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_offer_activity);
 
-        tvFromAmount = (TextView) findViewById(R.id.tvFromAmount);
-        tvFromCurr = (TextView) findViewById(R.id.tvFromCurr);
-        tvToAmount = (TextView) findViewById(R.id.tvToAmount);
-        tvToCurr = (TextView) findViewById(R.id.tvToCurr);
-        tvRateValue = (TextView) findViewById(R.id.tvRateValue);
-        tvCreatedAt = (TextView) findViewById(R.id.tvCreatedAtValue);
-        tvSendToAddress = (TextView) findViewById(R.id.tvSendToAddress);
-        btCopyToClipboard = (Button) findViewById(R.id.btChangellyCopy);
+        TextView tvFromAmount = (TextView) findViewById(R.id.tvFromAmount);
+        TextView tvFromCurr = (TextView) findViewById(R.id.tvFromCurr);
+        TextView tvToAmount = (TextView) findViewById(R.id.tvToAmount);
+        TextView tvToCurr = (TextView) findViewById(R.id.tvToCurr);
+        TextView tvRateValue = (TextView) findViewById(R.id.tvRateValue);
+        TextView tvCreatedAt = (TextView) findViewById(R.id.tvCreatedAtValue);
+        final TextView tvSendToAddress = (TextView) findViewById(R.id.tvSendToAddress);
+        Button btCopyToClipboard = (Button) findViewById(R.id.btChangellyCopy);
 
         ChangellyTransactionOffer offer = (ChangellyTransactionOffer) getIntent().getExtras().getSerializable(ChangellyService.OFFER);
 
-        tvFromAmount.setText(Double.toString(offer.amountFrom));
+        tvFromAmount.setText(String.format(Locale.getDefault(),"%f", offer.amountFrom));
         tvFromCurr.setText(offer.currencyFrom);
-        tvToAmount.setText(Double.toString(offer.amountTo));
+        tvToAmount.setText(String.format(Locale.getDefault(),"%f", offer.amountTo));
         tvToCurr.setText(offer.currencyTo);
         if(offer.amountFrom > 0) {
-            tvRateValue.setText(Double.toString(offer.amountTo / offer.amountFrom));
+            tvRateValue.setText(String.format(Locale.getDefault(),"%f",offer.amountTo / offer.amountFrom));
         } else {
             tvRateValue.setText("");
         }
@@ -51,12 +43,8 @@ public class ChangellyOfferActivity extends Activity {
         btCopyToClipboard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData cd = ClipData.newPlainText("address", tvSendToAddress.getText());
-                cm.setPrimaryClip(cd);
+                Utils.setClipboardString(tvSendToAddress.getText().toString(), ChangellyOfferActivity.this);
             }
         });
     }
-
 }

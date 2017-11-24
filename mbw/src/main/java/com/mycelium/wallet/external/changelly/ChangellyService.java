@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -17,7 +18,6 @@ import retrofit2.Call;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.*;
 
 public class ChangellyService extends IntentService {
-
     private static final String LOG_TAG="ChangellyService";
     private static final String PACKAGE_NAME = "com.mycelium.wallet.external.changelly";
     public static final String ACTION_GET_CURRENCIES = PACKAGE_NAME + ".GETCURRENCIES";
@@ -55,18 +55,15 @@ public class ChangellyService extends IntentService {
 
     private void loadCurrencies() {
         // 1. request list of supported currencies
-        Call<ChangellyAPIService.ChangellyAnswerListString> call = changellyAPIService.getCurrencies(new ChangellyAPIService.ChangellyGetCurrencies());
         try {
-            ChangellyAPIService.ChangellyAnswerListString result = call.execute().body();
-            StringBuilder currs = new StringBuilder();
+            ChangellyAnswerListString result = changellyAPIService.getCurrencies().execute().body();
+            String currs = "";
             if(result != null) {
                 currencies = result.result;
                 dateCurrencies = new Date();
-                for(String curr: result.result) {
-                    currs.append(" " + curr);
-                }
+                currs = TextUtils.join(" ", currencies);
             }
-            Log.d(LOG_TAG, "Active currencies: " + currs.toString());
+            Log.d(LOG_TAG, "Active currencies: " + currs);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,15 +74,15 @@ public class ChangellyService extends IntentService {
         assert(currencies.contains(from));
         assert(currencies.contains(to));
         // 2. ask for minimum amount to exchange
-        Call<ChangellyAnswerDouble> call2 = changellyAPIService.getMinAmount(new ChangellyMinAmount(from, to));
+        Call<ChangellyAnswerDouble> call2 = changellyAPIService.getMinAmount(from, to);
         try {
             ChangellyAnswerDouble result = call2.execute().body();
             if(result != null) {
                 Log.d("MyceliumChangelly", "Minimum amount " + from + to + ": " + result.result);
                 if(currenciesMinAmounts == null) {
-                    currenciesMinAmounts = new HashMap<String, Double>();
+                    currenciesMinAmounts = new HashMap<>();
                 }
-                currenciesMinAmounts.put(from+to, new Double(result.result));
+                currenciesMinAmounts.put(from+to, result.result);
                 return result.result;
             }
         } catch (IOException e) {
@@ -95,7 +92,7 @@ public class ChangellyService extends IntentService {
     }
 
     private double getExchangeAmount(String from, String to, double amount) {
-        Call<ChangellyAnswerDouble> call3 = changellyAPIService.getExchangeAmount(new ChangellyExchangeAmount(from, to, amount));
+        Call<ChangellyAnswerDouble> call3 = changellyAPIService.getExchangeAmount(from, to, amount);
         try {
             ChangellyAnswerDouble result = call3.execute().body();
             if(result != null) {
@@ -110,14 +107,13 @@ public class ChangellyService extends IntentService {
 
     // return txid?
     private ChangellyTransactionOffer createTransaction(String from, String to, double amount, String destAddress) {
-        Call<ChangellyTransaction> call4 = changellyAPIService.createTransaction(new ChangellyCreateTransaction(from, to, amount, destAddress));
+        Call<ChangellyTransaction> call4 = changellyAPIService.createTransaction(from, to, amount, destAddress);
         try {
             ChangellyTransaction result = call4.execute().body();
             if(result != null) {
 
                 //Log.d("MyceliumChangelly", "createTransaction answer: " + result.result);
-                ChangellyTransactionOffer offer = result.result;
-                return offer;
+                return result.result;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,7 +124,7 @@ public class ChangellyService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.i(LOG_TAG, "onHandleIntent: ${intent?.action}");
-        if (intent != null) {
+        if (intent != null && intent.getAction() != null) {
             String from, to, destAddress;
             double min, amount, offer;
             switch(intent.getAction()) {
@@ -139,7 +135,7 @@ public class ChangellyService extends IntentService {
                     Intent currenciesIntent = new Intent(ChangellyService.INFO_CURRENCIES, null, this,
                             ChangellyService.class);
                     currenciesIntent.putExtra(CURRENCIES, currencies.toArray());
-                    currenciesIntent.putStringArrayListExtra(CURRENCIES, new ArrayList<String>(currencies));
+                    currenciesIntent.putStringArrayListExtra(CURRENCIES, new ArrayList<>(currencies));
                     LocalBroadcastManager.getInstance(this).sendBroadcast(currenciesIntent);
                     break;
                 case ACTION_GET_MIN_EXCHANGE:
