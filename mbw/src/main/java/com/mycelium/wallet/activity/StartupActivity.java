@@ -191,24 +191,24 @@ public class StartupActivity extends Activity {
    }
 
    private void initMasterSeed() {
-      AlertDialog.Builder importDialog = new AlertDialog.Builder(this);
-      importDialog.setCancelable(false);
-      importDialog.setTitle(R.string.master_seed_configuration_title);
-      importDialog.setMessage(getString(R.string.master_seed_configuration_description));
-      importDialog.setNegativeButton(R.string.master_seed_restore_backup_button, new DialogInterface.OnClickListener() {
-         //import master seed from wordlist
-         public void onClick(DialogInterface arg0, int arg1) {
-            EnterWordListActivity.callMe(StartupActivity.this, IMPORT_WORDLIST);
-         }
-      });
-      importDialog.setPositiveButton(R.string.master_seed_create_new_button, new DialogInterface.OnClickListener() {
-         //configure new random seed
-         public void onClick(DialogInterface arg0, int arg1) {
-            startMasterSeedTask();
-         }
-      });
-
-      importDialog.show();
+      new AlertDialog
+              .Builder(this)
+              .setCancelable(false)
+              .setTitle(R.string.master_seed_configuration_title)
+              .setMessage(getString(R.string.master_seed_configuration_description))
+              .setNegativeButton(R.string.master_seed_restore_backup_button, new DialogInterface.OnClickListener() {
+                 //import master seed from wordlist
+                 public void onClick(DialogInterface arg0, int arg1) {
+                    EnterWordListActivity.callMe(StartupActivity.this, IMPORT_WORDLIST);
+                 }
+              })
+              .setPositiveButton(R.string.master_seed_create_new_button, new DialogInterface.OnClickListener() {
+                 //configure new random seed
+                 public void onClick(DialogInterface arg0, int arg1) {
+                    startMasterSeedTask();
+                 }
+              })
+              .show();
    }
 
    private void startMasterSeedTask() {
@@ -333,14 +333,19 @@ public class StartupActivity extends Activity {
          final String scheme = intentUri != null ? intentUri.getScheme() : null;
 
          if (intentUri != null && (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action))) {
-            if ("bitcoin".equals(scheme)) {
-               handleBitcoinUri(intentUri);
-            } else if ("bitid".equals(scheme)) {
-               handleBitIdUri(intentUri);
-            } else if ("btcpop".equals(scheme)) {
-               handlePopUri(intentUri);
-            } else if ("mycelium".equals(scheme)) {
-               handleMyceliumUri(intentUri);
+            switch (scheme) {
+               case "bitcoin":
+                  handleBitcoinUri(intentUri);
+                  break;
+               case "bitid":
+                  handleBitIdUri(intentUri);
+                  break;
+               case "btcpop":
+                  handlePopUri(intentUri);
+                  break;
+               case "mycelium":
+                  handleMyceliumUri(intentUri);
+                  break;
             }
             return true;
          }
@@ -398,8 +403,8 @@ public class StartupActivity extends Activity {
          finish();
          return;
       }
-      Intent bitIdIntent = new Intent(this, BitIDAuthenticationActivity.class);
-      bitIdIntent.putExtra("request", bitid.get());
+      Intent bitIdIntent = new Intent(this, BitIDAuthenticationActivity.class)
+              .putExtra("request", bitid.get());
       startActivity(bitIdIntent);
 
       finish();
@@ -407,9 +412,9 @@ public class StartupActivity extends Activity {
 
    private void handlePopUri(Uri intentUri) {
       // a proof of payment request
-      Intent popIntent = new Intent(this, PopActivity.class);
       PopRequest popRequest = new PopRequest(intentUri.toString());
-      popIntent.putExtra("popRequest", popRequest);
+      Intent popIntent = new Intent(this, PopActivity.class)
+              .putExtra("popRequest", popRequest);
       startActivity(popIntent);
       finish();
    }
@@ -454,45 +459,45 @@ public class StartupActivity extends Activity {
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       //todo make sure delayed init has finished (ev mit countdownlatch)
-      if (requestCode == IMPORT_WORDLIST) {
-         if (resultCode != RESULT_OK) {
-            //user cancelled the import, so just ask what he wants again
-            initMasterSeed();
+      switch (requestCode) {
+         case IMPORT_WORDLIST:
+            if (resultCode != RESULT_OK) {
+               //user cancelled the import, so just ask what he wants again
+               initMasterSeed();
+               return;
+            }
+            //we have restored a backup
+            UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+            //set default label for the created HD account
+            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+            String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+            _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+            //finish initialization
+            delayedFinish.run();
             return;
-         }
-         //we have restored a backup
-         UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         //set default label for the created HD account
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
-         _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
-         //finish initialization
-         delayedFinish.run();
-         return;
-      } else if (requestCode == StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE) {
-         String content = data.getStringExtra("base58Key");
-         if (content != null) {
-            InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
-            UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
-            SendInitializationActivity.callMe(this, account, true);
-            finish();
-            return;
-         }
-      }
-
-      // double-check result data, in case some downstream code messes up.
-      if (requestCode == REQUEST_FROM_URI) {
-         if (resultCode == RESULT_OK) {
-            Bundle extras = Preconditions.checkNotNull(data.getExtras());
-            Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
-            Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
-            // return the tx hash to our external caller, if he cares...
-            setResult(RESULT_OK, data);
-         } else {
+         case StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE:
+            String content = data.getStringExtra("base58Key");
+            if (content != null) {
+               InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
+               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key);
+               SendInitializationActivity.callMe(this, onTheFlyAccount, true);
+               finish();
+               return;
+            }
+         case REQUEST_FROM_URI:
+            // double-check result data, in case some downstream code messes up.
+            if (resultCode == RESULT_OK) {
+               Bundle extras = Preconditions.checkNotNull(data.getExtras());
+               Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
+               Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
+               // return the tx hash to our external caller, if he cares...
+               setResult(RESULT_OK, data);
+            } else {
+               setResult(RESULT_CANCELED);
+            }
+            break;
+         default:
             setResult(RESULT_CANCELED);
-         }
-      } else {
-         setResult(RESULT_CANCELED);
       }
       finish();
    }

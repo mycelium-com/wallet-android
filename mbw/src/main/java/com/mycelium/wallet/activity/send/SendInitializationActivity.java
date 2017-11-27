@@ -60,14 +60,12 @@ public class SendInitializationActivity extends Activity {
    private byte[] _rawPr;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
-      intent.putExtra("account", account);
-
-      //we dont know anything specific yet
-      intent.putExtra("uri", new BitcoinUri(null, null, null));
-
-      intent.putExtra("isColdStorage", isColdStorage);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent intent = new Intent(currentActivity, SendInitializationActivity.class)
+              .putExtra("account", account)
+              //we dont know anything specific yet
+              .putExtra("uri", new BitcoinUri(null, null, null))
+              .putExtra("isColdStorage", isColdStorage)
+              .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
@@ -82,23 +80,22 @@ public class SendInitializationActivity extends Activity {
    }
 
    public static void callMe(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-      Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage)
+              .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    public static void callMe(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
-      Intent intent = prepareSendingIntent(currentActivity, account, rawPaymentRequest, isColdStorage);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent intent = prepareSendingIntent(currentActivity, account, rawPaymentRequest, isColdStorage)
+              .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    private static Intent prepareSendingIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
-      intent.putExtra("account", account);
-      intent.putExtra("uri", uri);
-      intent.putExtra("isColdStorage", isColdStorage);
-      return intent;
+      return new Intent(currentActivity, SendInitializationActivity.class)
+              .putExtra("account", account)
+              .putExtra("uri", uri)
+              .putExtra("isColdStorage", isColdStorage);
    }
 
    public static void callMeWithResult(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage, int request) {
@@ -106,11 +103,10 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivityForResult(intent, request);
    }
    private static Intent prepareSendingIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendInitializationActivity.class);
-      intent.putExtra("account", account);
-      intent.putExtra("rawPr", rawPaymentRequest);
-      intent.putExtra("isColdStorage", isColdStorage);
-      return intent;
+      return new Intent(currentActivity, SendInitializationActivity.class)
+              .putExtra("account", account)
+              .putExtra("rawPr", rawPaymentRequest)
+              .putExtra("isColdStorage", isColdStorage);
    }
 
    @Override

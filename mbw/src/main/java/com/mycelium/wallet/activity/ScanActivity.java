@@ -53,11 +53,9 @@ import com.mycelium.wallet.activity.modern.Toaster;
  * to decode the result. This happens for instance when decrypting private keys.
  */
 public class ScanActivity extends Activity {
-
-
    public static void callMe(Activity currentActivity, int requestCode, StringHandleConfig stringHandleConfig) {
-      Intent intent = new Intent(currentActivity, ScanActivity.class);
-      intent.putExtra("request", stringHandleConfig);
+      Intent intent = new Intent(currentActivity, ScanActivity.class)
+              .putExtra("request", stringHandleConfig);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -109,10 +107,10 @@ public class ScanActivity extends Activity {
    }
 
    private void startScanner() {
-      Intent intent = new Intent(this, CaptureActivity.class);
-      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, MbwManager.getInstance(this).getContinuousFocus());
-      this.startActivityForResult(intent, SCANNER_RESULT_CODE);
+      Intent intent = new Intent(this, CaptureActivity.class)
+              .putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE)
+              .putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, MbwManager.getInstance(this).getContinuousFocus());
+      startActivityForResult(intent, SCANNER_RESULT_CODE);
    }
 
    @Override
@@ -210,16 +208,13 @@ public class ScanActivity extends Activity {
    }
 
    private boolean isQRCode(Intent intent) {
-      if ("QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
-         return true;
-      }
-      return false;
+      return "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"));
    }
 
    public void finishError(int resId, String payload) {
-      Intent result = new Intent();
-      result.putExtra(StringHandlerActivity.RESULT_ERROR, getResources().getString(resId));
-      result.putExtra(StringHandlerActivity.RESULT_PAYLOAD, payload);
+      Intent result = new Intent()
+              .putExtra(StringHandlerActivity.RESULT_ERROR, getResources().getString(resId))
+              .putExtra(StringHandlerActivity.RESULT_PAYLOAD, payload);
       setResult(RESULT_CANCELED, result);
       finish();
    }
