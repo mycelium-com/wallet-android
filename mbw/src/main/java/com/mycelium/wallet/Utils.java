@@ -99,7 +99,9 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
+import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.ocpsoft.prettytime.TimeUnit;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -234,10 +236,56 @@ public class Utils {
       showSimpleMessageDialog(context, message, postRunner);
    }
 
+   /**
+    * For ru locale pretty time library have problem, if(locale == "ru") fix this problem
+    * for ru locale Duration should be not in past and not in future
+    * otherwise library add "через" or "назад"
+    * @param context
+    * @param blocks
+    * @return
+    */
    public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
       MbwManager mbwManager = MbwManager.getInstance(context);
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
-      return p.formatApproximateDuration(new Date((new Date()).getTime() + Math.max((long)blocks, 1L) * 10 * 60 * 1000));
+      Date date = new Date((new Date()).getTime() + Math.max((long) blocks, 1L) * 10 * 60 * 1000);
+      final Duration duration = p.approximateDuration(date);
+      if (mbwManager.getLocale().getLanguage().equals("ru")) {
+         Duration duration1 = new Duration(){
+
+            @Override
+            public long getQuantity() {
+               return duration.getQuantity();
+            }
+
+            @Override
+            public long getQuantityRounded(int tolerance) {
+               return duration.getQuantityRounded(tolerance);
+            }
+
+            @Override
+            public TimeUnit getUnit() {
+               return duration.getUnit();
+            }
+
+            @Override
+            public long getDelta() {
+               return duration.getDelta();
+            }
+
+            @Override
+            public boolean isInPast() {
+               return false;
+            }
+
+            @Override
+            public boolean isInFuture() {
+               return false;
+            }
+         };
+         return p.getFormat(duration1.getUnit()).decorate(duration1, p.formatDuration(duration1));
+      } else {
+         return p.formatDuration(duration);
+      }
    }
 
    /**
