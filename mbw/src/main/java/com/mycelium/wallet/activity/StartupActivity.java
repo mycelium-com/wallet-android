@@ -484,7 +484,7 @@ public class StartupActivity extends Activity {
       if (requestCode == REQUEST_FROM_URI) {
          if (resultCode == RESULT_OK) {
             Bundle extras = Preconditions.checkNotNull(data.getExtras());
-//            Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
+            Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
             Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
             // return the tx hash to our external caller, if he cares...
             setResult(RESULT_OK, data);
