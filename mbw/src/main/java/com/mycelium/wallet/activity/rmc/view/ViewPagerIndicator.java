@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by elvis on 16.11.17.
+ *
  */
 
 public class ViewPagerIndicator extends LinearLayout {

@@ -51,7 +51,7 @@ import butterknife.OnClick;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * Created by elvis on 20.06.17.
+ *
  */
 
 public class ChooseRMCAccountFragment extends Fragment {

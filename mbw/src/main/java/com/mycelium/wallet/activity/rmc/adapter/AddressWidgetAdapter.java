@@ -22,7 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by elvis on 15.11.17.
+ *
  */
 
 public class AddressWidgetAdapter extends PagerAdapter {

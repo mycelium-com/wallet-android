@@ -12,7 +12,7 @@ import android.util.TypedValue;
 import android.widget.LinearLayout;
 
 /**
- * Created by elvis on 16.11.17.
+ *
  */
 
 public class ProfitMeterView extends LinearLayout {

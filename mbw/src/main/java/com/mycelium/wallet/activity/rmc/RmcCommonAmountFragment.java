@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * Created by elvis on 16.08.17.
+ *
  */
 
 public abstract class RmcCommonAmountFragment extends Fragment {

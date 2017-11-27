@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.mycelium.wallet.R;
 
 /**
- * Created by elvis on 22.06.17.
+ *
  */
 
 public class BankInvoiceFragment extends Fragment {

@@ -15,7 +15,7 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import java.math.BigDecimal;
 
 /**
- * Created by elvis on 20.06.17.
+ *
  */
 
 public class HowPayFragment extends Fragment {

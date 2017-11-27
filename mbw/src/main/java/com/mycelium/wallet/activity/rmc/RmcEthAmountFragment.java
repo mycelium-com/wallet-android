@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import butterknife.BindView;
 
 /**
- * Created by elvis on 20.06.17.
+ *
  */
 
 public class RmcEthAmountFragment extends RmcCommonAmountFragment {

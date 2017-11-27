@@ -16,7 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by elvis on 22.06.17.
+ *
  */
 
 public class EthPaymentRequestActivity extends ActionBarActivity {
