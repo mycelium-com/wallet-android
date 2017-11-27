@@ -37,10 +37,14 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Surface;
+import android.widget.Toast;
+
 import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
@@ -176,6 +180,14 @@ public class ScanActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
+         if(BuildConfig.APPLICATION_ID.equals("com.mycelium.testnetwallet")) {
+            // TODO: this is a HACK to quickly make the testnet wallet work for users. We have to upgrade the support libraries ASAP!
+            Toast.makeText(this, "Did your app crash? Please give permission for camera", Toast.LENGTH_LONG).show();
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(uri);
+            startActivity(i);
+         }
          finishError(R.string.cancelled, "");
          return;
       }
