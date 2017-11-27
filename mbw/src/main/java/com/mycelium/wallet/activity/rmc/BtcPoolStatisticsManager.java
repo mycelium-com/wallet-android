@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.rmc;
 
 import android.util.Log;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.GenericUrl;
@@ -11,20 +10,18 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.IOUtils;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.activity.rmc.model.BitcoinNetworkStats;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.external.rmc.remote.StatRmcFactory;
+import com.mycelium.wallet.external.rmc.remote.StatRmcService;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 public class BtcPoolStatisticsManager {
 
-    public static String HASHRATE_INFO_API_URL = "https://stat.rmc.one/api/stats/hashrate";
-    public static String YOUR_RMC_HASHRATE_INFO_URL = "https://stat.rmc.one/api/hashrate/";
+    public static final String TAG = "RMCStatistic";
     public static String BITCOIN_NETWORK_STATS_URL = "https://api.blockchain.info/stats";
 
     private ColuAccount coluAccount;
@@ -33,6 +30,7 @@ public class BtcPoolStatisticsManager {
         public long totalRmcHashrate;
         public long yourRmcHashrate;
         public long difficulty;
+        public long accruedIncome;
 
         public PoolStatisticInfo(long totalRmcHashrate, long yourRmcHashrate) {
             this.totalRmcHashrate = totalRmcHashrate;
@@ -45,20 +43,44 @@ public class BtcPoolStatisticsManager {
     }
 
     public PoolStatisticInfo getStatistics() {
-        Long totalRmcHashrate = getHashRate();
-        if (totalRmcHashrate == null) {
-            totalRmcHashrate = 0L;
+        StatRmcService service = StatRmcFactory.getService();
+        long totalRmcHashrate = 0;
+        try {
+            totalRmcHashrate = service.getCommonHashrate();
+        } catch (Exception e) {
+            Log.e(TAG, "service.getCommonHashrate", e);
         }
 
-        Long yourRmcHashrate = getYourRmcHahrate(coluAccount.getAddress());
-        if (yourRmcHashrate == null) {
-            yourRmcHashrate = 0L;
+        String address = coluAccount.getAddress().toString();
+        long yourRmcHashrate = 0;
+        try {
+            yourRmcHashrate = service.getHashrate(address);
+        } catch (Exception e) {
+            Log.e(TAG, "service.getHashrate", e);
+        }
+
+        long accruedIncome = 0;
+        try {
+            accruedIncome = service.getBalance(address);
+        } catch (Exception e) {
+            Log.e(TAG, "service.getBalance", e);
+        }
+        try {
+            Map<String, List<String>> paidTransactions = service.getPaidTransactions(address);
+            if (paidTransactions != null) {
+                for (List<String> thx : paidTransactions.values()) {
+                    accruedIncome = Long.parseLong(thx.get(0));
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "service.getPaidTransactions", e);
         }
         PoolStatisticInfo info = new PoolStatisticInfo(totalRmcHashrate, yourRmcHashrate);
         BitcoinNetworkStats stats = getBitcoinNetworkStats();
-        if(stats != null) {
+        if (stats != null) {
             info.difficulty = stats.difficulty;
         }
+        info.accruedIncome = accruedIncome;
         return info;
     }
 
@@ -78,46 +100,6 @@ public class BtcPoolStatisticsManager {
             return objectMapper.readValue(inputStream, BitcoinNetworkStats.class);
         } catch (Exception e) {
             Log.e("Btc Stats", "", e);
-        }
-        return null;
-    }
-
-    private Long getYourRmcHahrate(Address address) {
-        HttpRequestFactory requestFactory = new NetHttpTransport()
-                .createRequestFactory(new HttpRequestInitializer() {
-                    @Override
-                    public void initialize(HttpRequest request) {
-                        request.setParser(new JsonObjectParser(new JacksonFactory()));
-                    }
-                });
-        try {
-            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(YOUR_RMC_HASHRATE_INFO_URL + address.toString()));
-            HttpResponse response = request.execute();
-            InputStream inputStream = response.getContent();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(inputStream, baos, true);
-            return Long.parseLong(baos.toString().replace("\n", ""));
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
-
-    private Long getHashRate() {
-        HttpRequestFactory requestFactory = new NetHttpTransport()
-                .createRequestFactory(new HttpRequestInitializer() {
-                    @Override
-                    public void initialize(HttpRequest request) {
-                        request.setParser(new JsonObjectParser(new JacksonFactory()));
-                    }
-                });
-        try {
-            HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(HASHRATE_INFO_API_URL));
-            HttpResponse response = request.execute();
-            InputStream inputStream = response.getContent();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(inputStream, baos, true);
-            return Long.parseLong(baos.toString().replace("\n", ""));
-        } catch (Exception ignored) {
         }
         return null;
     }

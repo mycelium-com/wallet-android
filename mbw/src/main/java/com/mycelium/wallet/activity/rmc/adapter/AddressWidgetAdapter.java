@@ -17,6 +17,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.AssetMetadata;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,6 +33,8 @@ public class AddressWidgetAdapter extends PagerAdapter {
     private static final String ACCRUED_INCOME = "accrued_income";
     private static final BigDecimal POW_2_32 = BigDecimal.valueOf(4294967296L);
     private static final BigDecimal BLOCK_REWARD = BigDecimal.valueOf(1250000000);
+    public static final String PREFERENCE_RMC_PROFIT_METER = "rmc_profit_meter";
+    private static final DecimalFormat adoFormat = new DecimalFormat("#.####");
 
     private Context context;
     private MbwManager mbwManager;
@@ -47,7 +50,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
     public AddressWidgetAdapter(Context context, MbwManager mbwManager) {
         this.context = context;
         this.mbwManager = mbwManager;
-        sharedPreferences = context.getSharedPreferences("rmc_profit_meter", Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
         coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
 
 
@@ -158,7 +161,8 @@ public class AddressWidgetAdapter extends PagerAdapter {
                             } else {
                                 value += satPerSec.floatValue();
                             }
-                            adometr.setText("+" + value);
+                            adometr.setText("+" + (Math.round(value) > 0 ?
+                                    String.valueOf(Math.round(value)) : adoFormat.format(value)));
                             profitMeterView.setAngle(angle);
                             profitMeterView.postDelayed(this, 1000);
                         }
@@ -254,6 +258,12 @@ public class AddressWidgetAdapter extends PagerAdapter {
             if (result.yourRmcHashrate != 0) {
                 poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
                 editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
+            }
+            if(result.accruedIncome != 0) {
+                sharedPreferences.edit()
+                        .putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
+                                , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString())
+                        .apply();
             }
             editor.apply();
             notifyDataSetChanged();
