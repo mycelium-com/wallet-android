@@ -137,7 +137,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
             BigDecimal rmc = coluAccount.getCurrencyBasedBalance().confirmed.getExactValue().getValue();
             String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
             rmcValue.setText(split[0]);
-            rmcValueAfterDot.setText(split[1]);
+            rmcValueAfterDot.setText("." + split[1]);
             if (poolStatisticInfo != null && poolStatisticInfo.yourRmcHashrate != 0 && poolStatisticInfo.difficulty != 0) {
                 satPerSec = BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(BLOCK_REWARD)
                         .divide(BigDecimal.valueOf(poolStatisticInfo.difficulty).multiply(POW_2_32), 4, BigDecimal.ROUND_UP);
