@@ -7,4 +7,9 @@
         <attr name="textColor" format="color"/>
         <attr name="precision" format="integer"/>
     </declare-styleable>
+    <declare-styleable name = "ViewPagerIndicator">
+        <attr name = "itemSize" format = "dimension"/>
+        <attr name = "delimiterSize" format = "dimension"/>
+        <attr name = "itemIcon" format = "reference"/>
+    </declare-styleable>
 </resources>
