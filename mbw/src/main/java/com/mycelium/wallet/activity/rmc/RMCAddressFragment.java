@@ -173,6 +173,7 @@ public class RMCAddressFragment extends Fragment {
 
     private void updateUi() {
         activeBtnProgress();
+        adapter.notifyDataSetChanged();
     }
 
     @Subscribe

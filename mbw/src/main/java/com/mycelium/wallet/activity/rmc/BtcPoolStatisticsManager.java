@@ -44,7 +44,7 @@ public class BtcPoolStatisticsManager {
 
     public PoolStatisticInfo getStatistics() {
         StatRmcService service = StatRmcFactory.getService();
-        long totalRmcHashrate = 0;
+        long totalRmcHashrate = -1;
         try {
             totalRmcHashrate = service.getCommonHashrate();
         } catch (Exception e) {
@@ -52,14 +52,14 @@ public class BtcPoolStatisticsManager {
         }
 
         String address = coluAccount.getAddress().toString();
-        long yourRmcHashrate = 0;
+        long yourRmcHashrate = -1;
         try {
             yourRmcHashrate = service.getHashrate(address);
         } catch (Exception e) {
             Log.e(TAG, "service.getHashrate", e);
         }
 
-        long accruedIncome = 0;
+        long accruedIncome = -1;
         try {
             accruedIncome = service.getBalance(address);
         } catch (Exception e) {

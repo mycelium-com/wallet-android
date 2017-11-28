@@ -233,7 +233,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
             if (result != null) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if (result.totalRmcHashrate != 0) {
+                if (result.totalRmcHashrate != -1) {
                     poolStatisticInfo.totalRmcHashrate = result.totalRmcHashrate;
                     editor.putLong(TOTAL_RMC_HASHRATE, result.totalRmcHashrate);
                 }
@@ -241,11 +241,11 @@ public class AddressWidgetAdapter extends PagerAdapter {
                     poolStatisticInfo.difficulty = result.difficulty;
                     editor.putLong(DIFFICULTY, result.difficulty);
                 }
-                if (result.yourRmcHashrate != 0) {
+                if (result.yourRmcHashrate != -1) {
                     poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
                     editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
                 }
-                if (result.accruedIncome != 0) {
+                if (result.accruedIncome != -1) {
                     editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
                             , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString());
                 }
