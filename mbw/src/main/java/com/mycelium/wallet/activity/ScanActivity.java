@@ -37,10 +37,14 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Surface;
+import android.widget.Toast;
+
 import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
@@ -53,17 +57,15 @@ import com.mycelium.wallet.activity.modern.Toaster;
  * to decode the result. This happens for instance when decrypting private keys.
  */
 public class ScanActivity extends Activity {
-
-
    public static void callMe(Activity currentActivity, int requestCode, StringHandleConfig stringHandleConfig) {
-      Intent intent = new Intent(currentActivity, ScanActivity.class);
-      intent.putExtra("request", stringHandleConfig);
+      Intent intent = new Intent(currentActivity, ScanActivity.class)
+              .putExtra("request", stringHandleConfig);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
    public static void callMe(Fragment currentFragment, int requestCode, StringHandleConfig stringHandleConfig) {
-      Intent intent = new Intent(currentFragment.getActivity(), ScanActivity.class);
-      intent.putExtra("request", stringHandleConfig);
+      Intent intent = new Intent(currentFragment.getActivity(), ScanActivity.class)
+              .putExtra("request", stringHandleConfig);
       currentFragment.startActivityForResult(intent, requestCode);
    }
 
@@ -109,10 +111,10 @@ public class ScanActivity extends Activity {
    }
 
    private void startScanner() {
-      Intent intent = new Intent(this, CaptureActivity.class);
-      intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-      intent.putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, MbwManager.getInstance(this).getContinuousFocus());
-      this.startActivityForResult(intent, SCANNER_RESULT_CODE);
+      Intent intent = new Intent(this, CaptureActivity.class)
+              .putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE)
+              .putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, MbwManager.getInstance(this).getContinuousFocus());
+      startActivityForResult(intent, SCANNER_RESULT_CODE);
    }
 
    @Override
@@ -178,7 +180,15 @@ public class ScanActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
-         finishError(R.string.cancelled, "");
+         if(BuildConfig.APPLICATION_ID.equals("com.mycelium.testnetwallet")) {
+            // TODO: this is a HACK to quickly make the testnet wallet work for users. We have to upgrade the support libraries ASAP!
+            Toast.makeText(this, "Did your app crash? Please give permission for camera", Toast.LENGTH_LONG).show();
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(uri);
+            startActivity(i);
+         }
+         finishError(R.string.cancelled);
          return;
       }
 
@@ -192,7 +202,7 @@ public class ScanActivity extends Activity {
       }
 
       if (!isQRCode(intent)) {
-         finishError(R.string.unrecognized_format, "");
+         finishError(R.string.unrecognized_format);
          return;
       }
 
@@ -201,8 +211,8 @@ public class ScanActivity extends Activity {
       if (content.length() != 0 && content.charAt(0) == '\uFEFF') content = content.substring(1);
 
       // Call the stringHandler activity and pass its result to our caller
-      Intent handlerIntent = StringHandlerActivity.getIntent(this, _stringHandleConfig, content);
-      handlerIntent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent handlerIntent = StringHandlerActivity.getIntent(this, _stringHandleConfig, content)
+              .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       this.startActivity(handlerIntent);
 
       // we are done here...
@@ -210,16 +220,12 @@ public class ScanActivity extends Activity {
    }
 
    private boolean isQRCode(Intent intent) {
-      if ("QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"))) {
-         return true;
-      }
-      return false;
+      return "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"));
    }
 
-   public void finishError(int resId, String payload) {
-      Intent result = new Intent();
-      result.putExtra(StringHandlerActivity.RESULT_ERROR, getResources().getString(resId));
-      result.putExtra(StringHandlerActivity.RESULT_PAYLOAD, payload);
+   public void finishError(int resId) {
+      Intent result = new Intent()
+              .putExtra(StringHandlerActivity.RESULT_ERROR, getResources().getString(resId));
       setResult(RESULT_CANCELED, result);
       finish();
    }
@@ -228,7 +234,7 @@ public class ScanActivity extends Activity {
       if (intent == null) {
          return; // no result, user pressed back
       }
-      if (resultCode == Activity.RESULT_CANCELED) {
+      if (resultCode == RESULT_CANCELED) {
          String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
          if (error != null) {
             new Toaster(activity).toast(error, false);

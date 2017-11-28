@@ -57,7 +57,6 @@ import java.util.UUID;
 public class StringHandlerActivity extends Activity {
    public static final String CONFIG = "config";
    public static final String CONTENT = "content";
-   public static final String RESULT_PAYLOAD = "payload";
    public static final String RESULT_ERROR = "error";
    public static final String RESULT_PRIVATE_KEY = "privkey";
    public static final String RESULT_HD_NODE = "hdnode";
@@ -117,7 +116,7 @@ public class StringHandlerActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
-         finishError(R.string.cancelled, "");
+         finishError(R.string.cancelled);
          return;
       }
 
@@ -168,7 +167,7 @@ public class StringHandlerActivity extends Activity {
          }
       }
       if (!wasHandled) {
-         finishError(R.string.unrecognized_format, content);
+         finishError(R.string.unrecognized_format);
       }
    }
 
@@ -194,7 +193,7 @@ public class StringHandlerActivity extends Activity {
             // We cannot reuse the cached password, fall through and decrypt
             // with an entered password
          } catch (DecodingException e) {
-            finishError(R.string.unrecognized_format, encryptedPrivateKey);
+            finishError(R.string.unrecognized_format);
             return Optional.absent();
          }
       }
@@ -231,7 +230,7 @@ public class StringHandlerActivity extends Activity {
             // We cannot reuse the cached password, fall through and decrypt
             // with an entered password
          } catch (DecodingException e) {
-            finishError(R.string.unrecognized_format, encryptedMasterSeed);
+            finishError(R.string.unrecognized_format);
             return Optional.absent();
          }
       }
@@ -249,10 +248,9 @@ public class StringHandlerActivity extends Activity {
       return masterSeed;
    }
 
-   public void finishError(int resId, String payload) {
+   public void finishError(int resId) {
       Intent result = new Intent();
       result.putExtra(RESULT_ERROR, getResources().getString(resId));
-      result.putExtra(RESULT_PAYLOAD, payload);
       setResult(RESULT_CANCELED, result);
       finish();
    }

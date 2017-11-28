@@ -40,19 +40,15 @@ import com.mycelium.wapi.api.exception.DbCorruptedException;
 
 // Wrapper for SqliteWalletManagerBacking, to catch the DbCorrupted RuntimeException and inform the user about it
 public class SqliteWalletManagerBackingWrapper extends SqliteWalletManagerBacking {
-   private final Context context;
-
-
    public SqliteWalletManagerBackingWrapper(Context context) {
       super(context);
-      this.context = context;
    }
 
    @Override
    public byte[] getValue(byte[] id) {
       try {
          return super.getValue(id);
-      }catch (final DbCorruptedException dbe){
+      } catch (final DbCorruptedException dbe) {
          // inform the user that something wrong is going on with his hardware
          // todo: fix/show info to the user, that something wrong happened with his DB. for now, just report the error
          // Utils.showSimpleMessageDialog(context.getApplicationContext(), "The database storing your private and public keys is corrupted. This might be the result of an hardware error. \n\nIt is advisable to delete the application data and restore from your backup. \nIf this happens again, think about getting a new device.");
@@ -60,7 +56,5 @@ public class SqliteWalletManagerBackingWrapper extends SqliteWalletManagerBackin
          // rethrow the exception, so that the app exits and we get an error mail
          throw new RuntimeException(dbe);
       }
-
-
    }
 }
