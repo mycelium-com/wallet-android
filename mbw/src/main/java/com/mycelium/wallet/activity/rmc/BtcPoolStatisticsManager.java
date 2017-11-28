@@ -69,7 +69,7 @@ public class BtcPoolStatisticsManager {
             Map<String, List<String>> paidTransactions = service.getPaidTransactions(address);
             if (paidTransactions != null) {
                 for (List<String> thx : paidTransactions.values()) {
-                    accruedIncome = Long.parseLong(thx.get(0));
+                    accruedIncome += Long.parseLong(thx.get(0));
                 }
             }
         } catch (Exception e) {

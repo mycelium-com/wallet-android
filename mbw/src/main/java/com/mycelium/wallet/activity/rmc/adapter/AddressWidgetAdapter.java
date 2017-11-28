@@ -22,10 +22,6 @@ import java.text.DecimalFormat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
- *
- */
-
 public class AddressWidgetAdapter extends PagerAdapter {
     private static final String TOTAL_RMC_HASHRATE = "total_rmc_hashrate";
     private static final String YOUR_RMC_HASHRATE = "your_rmc_hashrate";
@@ -111,7 +107,6 @@ public class AddressWidgetAdapter extends PagerAdapter {
     }
 
     class ProfitMeterHolder {
-        private View view;
 
         @BindView(R.id.profit_meter)
         protected ProfitMeterView profitMeterView;
@@ -135,7 +130,6 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
 
         public ProfitMeterHolder(View view) {
-            this.view = view;
             ButterKnife.bind(this, view);
             BigDecimal rmc = coluAccount.getCurrencyBasedBalance().confirmed.getExactValue().getValue();
             String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
@@ -175,7 +169,6 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
 
     class StatisticHolder {
-        private View view;
 
         @BindView(R.id.tvLabel)
         protected TextView tvLabel;
@@ -194,7 +187,6 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
 
         public StatisticHolder(View view) {
-            this.view = view;
             ButterKnife.bind(this, view);
             String name = mbwManager.getMetadataStorage().getLabelByAccount(mbwManager.getSelectedAccount().getId());
             tvLabel.setText(name);
@@ -232,11 +224,6 @@ public class AddressWidgetAdapter extends PagerAdapter {
         }
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
         protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
             BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager(coluAccount);
             return btcPoolStatisticsManager.getStatistics();
@@ -244,27 +231,27 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
         @Override
         protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
-            if (result == null)
-                return;
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            if (result.totalRmcHashrate != 0) {
-                poolStatisticInfo.totalRmcHashrate = result.totalRmcHashrate;
-                editor.putLong(TOTAL_RMC_HASHRATE, result.totalRmcHashrate);
+            if (result != null) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                if (result.totalRmcHashrate != 0) {
+                    poolStatisticInfo.totalRmcHashrate = result.totalRmcHashrate;
+                    editor.putLong(TOTAL_RMC_HASHRATE, result.totalRmcHashrate);
+                }
+                if (result.difficulty != 0) {
+                    poolStatisticInfo.difficulty = result.difficulty;
+                    editor.putLong(DIFFICULTY, result.difficulty);
+                }
+                if (result.yourRmcHashrate != 0) {
+                    poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
+                    editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
+                }
+                if (result.accruedIncome != 0) {
+                    editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
+                            , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString());
+                }
+                editor.apply();
+                notifyDataSetChanged();
             }
-            if (result.difficulty != 0) {
-                poolStatisticInfo.difficulty = result.difficulty;
-                editor.putLong(DIFFICULTY, result.difficulty);
-            }
-            if (result.yourRmcHashrate != 0) {
-                poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
-                editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
-            }
-            if(result.accruedIncome != 0) {
-                editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
-                                , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString());
-            }
-            editor.apply();
-            notifyDataSetChanged();
         }
     }
 }

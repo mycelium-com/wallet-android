@@ -11,10 +11,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
 
-/**
- *
- */
-
 public class ProfitMeterView extends LinearLayout {
     private Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint arcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -50,17 +46,17 @@ public class ProfitMeterView extends LinearLayout {
 
     private int h;
     private int w;
-    private RectF ovalRect;
+    private RectF ovalRect = new RectF();
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         h = b - t - 6;
         w = r - l;
-        int left = (w - h) / 2;
-        int right = h + left;
-        ovalRect = new RectF(left, 3, right, h + 3);
-
+        ovalRect.left = (w - h) / 2;
+        ovalRect.top = 3;
+        ovalRect.right = h + ovalRect.left;
+        ovalRect.bottom = h + 3;
     }
 
     @Override

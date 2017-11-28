@@ -36,9 +36,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- *
- */
 
 public class RMCAddressFragment extends Fragment {
 

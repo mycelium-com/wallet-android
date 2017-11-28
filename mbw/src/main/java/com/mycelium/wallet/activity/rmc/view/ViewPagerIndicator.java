@@ -18,10 +18,6 @@ import com.mycelium.wallet.R;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
-
 public class ViewPagerIndicator extends LinearLayout {
     private static final float SCALE = 1.6f;
     private static final int NO_SCALE = 1;
