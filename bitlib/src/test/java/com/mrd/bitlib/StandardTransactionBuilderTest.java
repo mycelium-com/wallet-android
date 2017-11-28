@@ -54,6 +54,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import org.bitcoinj.core.DumpedPrivateKey;
 import org.bitcoinj.core.ECKey;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -228,6 +229,7 @@ public class StandardTransactionBuilderTest {
     // timing out after 50 * 10 ms. 50 is the signature count, to average a bit,
     // 10ms is what it may take at max in the test per sig.
     @Test(timeout=500)
+    @Ignore("This is not really a requirement but was meant to show the supperior performance of bitcoinJ")
     public void generateSignaturesBitlib() throws Exception {
         // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
         List<SigningRequest> requests = new ArrayList<>();
@@ -240,6 +242,7 @@ public class StandardTransactionBuilderTest {
     // to compare with the bitlib signing test that allows 10ms per signature, the bitcoinJ version allows
     // 500ms for 1000 sigs or 0.5ms per sig or 20 times faster. Not sure if comparing apples and bananas here.
     @Test(timeout=500)
+    @Ignore("This is not really a requirement but was meant to show the supperior performance of bitcoinJ")
     public void generateSignaturesBitcoinJ() {
         int keyCount = PRIVATE_KEYS.length;
         ECKey keys[] = new ECKey[keyCount];
