@@ -260,7 +260,7 @@ public class StringHandleConfig implements Serializable {
                }
                handlerActivity.finishOk();
             } else {
-               handlerActivity.finishError(R.string.verify_backup_no_such_record, "");
+               handlerActivity.finishError(R.string.verify_backup_no_such_record);
             }
             return true;
          }
@@ -464,7 +464,7 @@ public class StringHandleConfig implements Serializable {
 
             Optional<? extends ColuAssetUri> uri = getColuAssetUri(handlerActivity, content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with rmc: but could not be parsed, was handled
             } else {
                Intent intent = SendMainActivity.getIntent(handlerActivity, manager.getSelectedAccount().getId(), uri.get(), false);
@@ -487,7 +487,7 @@ public class StringHandleConfig implements Serializable {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
             Optional<? extends BitcoinUri> uri = getUri(manager.getNetwork(), content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitcoin: but could not be parsed, was handled
             } else {
                Intent intent = SendMainActivity.getIntent(handlerActivity, MbwManager.getInstance(handlerActivity).getSelectedAccount().getId(), uri.get(), false);
@@ -510,7 +510,7 @@ public class StringHandleConfig implements Serializable {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
             Optional<? extends BitcoinUri> uri = getUri(manager.getNetwork(), content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitcoin: but could not be parsed, was handled
             } else {
                handlerActivity.finishOk(uri.get());
@@ -547,7 +547,7 @@ public class StringHandleConfig implements Serializable {
 
             Optional<ColuAssetUriWithAddress> uri = getColuAssetUri(handlerActivity, content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with rmc: but could not be parsed, was handled
                return false;
             } else {
@@ -570,7 +570,7 @@ public class StringHandleConfig implements Serializable {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitcoin: but could not be parsed, was handled
                return false;
             } else {
@@ -594,7 +594,7 @@ public class StringHandleConfig implements Serializable {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitcoin: but could not be parsed, was handled
             } else {
                handlerActivity.finishOk(uri.get());
@@ -613,7 +613,7 @@ public class StringHandleConfig implements Serializable {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitcoin: but could not be parsed, was handled
             } else {
                UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(uri.get().address);
@@ -637,7 +637,7 @@ public class StringHandleConfig implements Serializable {
             if (!content.toLowerCase(Locale.US).startsWith("bitcoin")) return false;
             Optional<BitcoinUriWithAddress> uri = getUri(handlerActivity, content);
             if (!uri.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitcoin: but could not be parsed, was handled
             } else {
                handlerActivity.finishOk(uri.get().address);
@@ -679,7 +679,7 @@ public class StringHandleConfig implements Serializable {
             }
             Optional<BitIDSignRequest> request = BitIDSignRequest.parse(Uri.parse(content));
             if (!request.isPresent()) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with bitid, but unable to parse, so we handled it.
             } else {
                BitIDAuthenticationActivity.callMe(handlerActivity, request.get());
@@ -704,7 +704,7 @@ public class StringHandleConfig implements Serializable {
             }
             Uri uri = Uri.parse(content);
             if (null == uri) {
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
                //started with http/https, but unable to parse, so we handled it.
             } else {
                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
@@ -712,7 +712,7 @@ public class StringHandleConfig implements Serializable {
                   handlerActivity.startActivity(browserIntent);
                   handlerActivity.finishOk();
                } else {
-                  handlerActivity.finishError(R.string.error_no_browser, content);
+                  handlerActivity.finishError(R.string.error_no_browser);
                }
             }
             return true;
@@ -734,7 +734,7 @@ public class StringHandleConfig implements Serializable {
             final Uri uri = Uri.parse(content);
             if (null == uri) {
                //started with http/https, but unable to parse, so we handled it.
-               handlerActivity.finishError(R.string.unrecognized_format, content);
+               handlerActivity.finishError(R.string.unrecognized_format);
             } else {
                // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
                Intent intent = HandleUrlActivity.getIntent(handlerActivity, uri);
@@ -748,7 +748,7 @@ public class StringHandleConfig implements Serializable {
          public boolean canHandle(NetworkParameters network, String content) {
             return WebsiteAction.OPEN_BROWSER.canHandle(network, content);
          }
-      },
+      }
    }
 
 
@@ -762,7 +762,7 @@ public class StringHandleConfig implements Serializable {
             }
             BipSss.Share share = BipSss.Share.fromString(content);
             if (null == share) {
-               handlerActivity.finishError(R.string.error_invalid_sss_share, content);
+               handlerActivity.finishError(R.string.error_invalid_sss_share);
             } else {
                BipSsImportActivity.callMe(handlerActivity, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
                //dont finish, we wait for result
@@ -772,7 +772,7 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isShare(network, content);
+            return isShare(content);
          }
       },
       RETURN_SHARE {
@@ -783,7 +783,7 @@ public class StringHandleConfig implements Serializable {
             }
             BipSss.Share share = BipSss.Share.fromString(content);
             if (null == share) {
-               handlerActivity.finishError(R.string.error_invalid_sss_share, content);
+               handlerActivity.finishError(R.string.error_invalid_sss_share);
             } else {
                handlerActivity.finishOk(share);
             }
@@ -792,11 +792,11 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isShare(network, content);
+            return isShare(content);
          }
       };
 
-      private static boolean isShare(NetworkParameters network, String content) {
+      private static boolean isShare(String content) {
          return content.startsWith(BipSss.Share.SSS_PREFIX);
       }
    }
@@ -826,7 +826,7 @@ public class StringHandleConfig implements Serializable {
                      MbwManager.getInstance(handlerActivity).getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
                      handlerActivity.finishOk();
                   } else {
-                     handlerActivity.finishError(R.string.wrong_seed, "");
+                     handlerActivity.finishError(R.string.wrong_seed);
                   }
                   return true;
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
@@ -838,7 +838,7 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isMasterSeed(network, content);
+            return isMasterSeed(content);
          }
       },
       IMPORT {
@@ -853,7 +853,7 @@ public class StringHandleConfig implements Serializable {
                try {
                   WalletManager walletManager = MbwManager.getInstance(handlerActivity).getWalletManager(false);
                   if (walletManager.hasBip32MasterSeed()) {
-                     handlerActivity.finishError(R.string.seed_already_configured, "");
+                     handlerActivity.finishError(R.string.seed_already_configured);
                      return true;
                   }
                   walletManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
@@ -870,12 +870,11 @@ public class StringHandleConfig implements Serializable {
 
          @Override
          public boolean canHandle(NetworkParameters network, String content) {
-            return isMasterSeed(network, content);
-
+            return isMasterSeed(content);
          }
       };
 
-      private static boolean isMasterSeed(NetworkParameters network, String content) {
+      private static boolean isMasterSeed(String content) {
          try {
             byte[] bytes = HexUtils.toBytes(content);
             return Bip39.MasterSeed.fromBytes(bytes, false).isPresent();
@@ -908,7 +907,6 @@ public class StringHandleConfig implements Serializable {
    }
 
    public enum PopAction implements Action {
-
       SEND {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
@@ -919,7 +917,7 @@ public class StringHandleConfig implements Serializable {
             try {
                popRequest = new PopRequest(content);
             } catch (IllegalArgumentException e) {
-               handlerActivity.finishError(R.string.pop_invalid_pop_uri, content);
+               handlerActivity.finishError(R.string.pop_invalid_pop_uri);
                return false;
             }
 
@@ -958,5 +956,4 @@ public class StringHandleConfig implements Serializable {
       return ImmutableList.of(popAction, privateKeyAction, bitcoinUriWithAddressAction, bitcoinUriAction,
             addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
    }
-
 }

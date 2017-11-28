@@ -64,8 +64,8 @@ public class ScanActivity extends Activity {
    }
 
    public static void callMe(Fragment currentFragment, int requestCode, StringHandleConfig stringHandleConfig) {
-      Intent intent = new Intent(currentFragment.getActivity(), ScanActivity.class);
-      intent.putExtra("request", stringHandleConfig);
+      Intent intent = new Intent(currentFragment.getActivity(), ScanActivity.class)
+              .putExtra("request", stringHandleConfig);
       currentFragment.startActivityForResult(intent, requestCode);
    }
 
@@ -188,7 +188,7 @@ public class ScanActivity extends Activity {
                     .setData(uri);
             startActivity(i);
          }
-         finishError(R.string.cancelled, "");
+         finishError(R.string.cancelled);
          return;
       }
 
@@ -202,7 +202,7 @@ public class ScanActivity extends Activity {
       }
 
       if (!isQRCode(intent)) {
-         finishError(R.string.unrecognized_format, "");
+         finishError(R.string.unrecognized_format);
          return;
       }
 
@@ -211,8 +211,8 @@ public class ScanActivity extends Activity {
       if (content.length() != 0 && content.charAt(0) == '\uFEFF') content = content.substring(1);
 
       // Call the stringHandler activity and pass its result to our caller
-      Intent handlerIntent = StringHandlerActivity.getIntent(this, _stringHandleConfig, content);
-      handlerIntent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent handlerIntent = StringHandlerActivity.getIntent(this, _stringHandleConfig, content)
+              .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       this.startActivity(handlerIntent);
 
       // we are done here...
@@ -223,10 +223,9 @@ public class ScanActivity extends Activity {
       return "QR_CODE".equals(intent.getStringExtra("SCAN_RESULT_FORMAT"));
    }
 
-   public void finishError(int resId, String payload) {
+   public void finishError(int resId) {
       Intent result = new Intent()
-              .putExtra(StringHandlerActivity.RESULT_ERROR, getResources().getString(resId))
-              .putExtra(StringHandlerActivity.RESULT_PAYLOAD, payload);
+              .putExtra(StringHandlerActivity.RESULT_ERROR, getResources().getString(resId));
       setResult(RESULT_CANCELED, result);
       finish();
    }
@@ -235,7 +234,7 @@ public class ScanActivity extends Activity {
       if (intent == null) {
          return; // no result, user pressed back
       }
-      if (resultCode == Activity.RESULT_CANCELED) {
+      if (resultCode == RESULT_CANCELED) {
          String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
          if (error != null) {
             new Toaster(activity).toast(error, false);
