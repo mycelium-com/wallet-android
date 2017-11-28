@@ -104,8 +104,8 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/rmc_label"
             android:layout_alignParentRight="true"
-            android:minEms="5"
-            android:text="0 BTC"
+            android:minEms="7"
+            android:text="0.00000000 BTC"
             android:textColor="#ff8735"
             android:textSize="17sp"
             android:textStyle="bold" />

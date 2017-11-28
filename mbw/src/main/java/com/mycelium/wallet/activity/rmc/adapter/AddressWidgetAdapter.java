@@ -150,7 +150,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
                                 sharedPreferences.edit()
                                         .putString(ACCRUED_INCOME + coluAccount.getAddress().toString(), accrued.toPlainString())
                                         .apply();
-                                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + "BTC");
+                                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
                                 value = 0;
                             } else {
                                 value += satPerSec.floatValue();
