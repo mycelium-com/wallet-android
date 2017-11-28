@@ -167,7 +167,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
                             profitMeterView.postDelayed(this, 1000);
                         }
                     };
-                    profitMeterView.post(updateAdo);
+                    updateAdo.run();
                 }
             }
         }
@@ -260,10 +260,8 @@ public class AddressWidgetAdapter extends PagerAdapter {
                 editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
             }
             if(result.accruedIncome != 0) {
-                sharedPreferences.edit()
-                        .putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
-                                , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString())
-                        .apply();
+                editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
+                                , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString());
             }
             editor.apply();
             notifyDataSetChanged();
