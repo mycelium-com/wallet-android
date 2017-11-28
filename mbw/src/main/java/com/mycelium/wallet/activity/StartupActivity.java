@@ -488,8 +488,12 @@ public class StartupActivity extends Activity {
             // double-check result data, in case some downstream code messes up.
             if (resultCode == RESULT_OK) {
                Bundle extras = Preconditions.checkNotNull(data.getExtras());
-               Preconditions.checkState(extras.keySet().size() == 1); // check no additional data
-               Preconditions.checkState(extras.getString(Constants.TRANSACTION_HASH_INTENT_KEY) != null);
+               for(String key: extras.keySet()) {
+                  // make sure we only share TRANSACTION_HASH_INTENT_KEY with external caller
+                  if(!key.equals(Constants.TRANSACTION_HASH_INTENT_KEY)) {
+                     data.removeExtra(key);
+                  }
+               }
                // return the tx hash to our external caller, if he cares...
                setResult(RESULT_OK, data);
             } else {
