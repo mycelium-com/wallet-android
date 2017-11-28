@@ -177,6 +177,7 @@
 # retrofit + API interfaces
 -keep class retrofit.** { *; }
 -keep class com.mycelium.wallet.external.glidera.api.** { *; }
+-keep class com.mycelium.wallet.external.rmc.remote.** { *; }
 -keepclassmembernames interface * {
     @retrofit.http.* <methods>;
 }
@@ -241,6 +242,7 @@
 
 #rmc
 -keep class com.mycelium.wallet.activity.rmc.json.** { *; }
+-keep class com.mycelium.wallet.activity.rmc.model.** { *; }
 
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder
 #Warning: org.slf4j.LoggerFactory: can't find referenced class org.slf4j.impl.StaticLoggerBinder

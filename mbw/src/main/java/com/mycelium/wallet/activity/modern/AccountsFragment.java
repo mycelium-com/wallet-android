@@ -487,8 +487,13 @@ public class AccountsFragment extends Fragment {
          // Make all the key management functionality available to experts
          rvRecords.setVisibility(View.VISIBLE);
          llLocked.setVisibility(View.GONE);
-
-         accountListAdapter.updateData();
+         //this sould fix crash when delete account
+         rvRecords.post(new Runnable() {
+            @Override
+            public void run() {
+               accountListAdapter.updateData();
+            }
+         });
       }
    }
 
