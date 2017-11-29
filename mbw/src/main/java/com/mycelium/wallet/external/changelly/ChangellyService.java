@@ -132,6 +132,14 @@ public class ChangellyService extends IntentService {
                     if(currencies == null) { // TODO: check freshness || dateCurrencies.before(new Date())) {
                         loadCurrencies();
                     }
+                    // if failed to load, return error
+                    if(currencies == null || currencies.size() == 0) {
+
+                        Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
+                                this, ChangellyService.class);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
+                        break;
+                    }
                     Intent currenciesIntent = new Intent(ChangellyService.INFO_CURRENCIES, null, this,
                             ChangellyService.class);
                     currenciesIntent.putExtra(CURRENCIES, currencies.toArray());

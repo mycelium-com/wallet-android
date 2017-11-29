@@ -7,11 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,8 +43,10 @@ public class ChangellyActivity extends Activity {
     private TextView tvCurrValue;
     private TextView tvMinAmountValue;
     private TextView tvOfferValue;
+    private TextView tvTandC;
+    private CheckBox cbTandC;
     private EditText etAmount;
-    private Button takeOffer;
+    private Button btTakeOffer;
 
     private Receiver receiver;
 
@@ -67,7 +72,7 @@ public class ChangellyActivity extends Activity {
                                 // update UI
                                 currenciesList.clear();
                                 for(String curr: currencies) {
-                                    currenciesList.add(new CurrencyInfo(curr, R.drawable.mycelium_logo_transp_small));
+                                    currenciesList.add(new CurrencyInfo(curr, R.drawable.changelly_small));
                                 }
                                 adapter.notifyDataSetChanged();
                                 setLayout(ChangellyUITypes.Main);
@@ -96,6 +101,18 @@ public class ChangellyActivity extends Activity {
                             break;
                         case ChangellyService.INFO_TRANSACTION:
                             ChangellyTransactionOffer offer = (ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
+                            String txtOffer = tvOfferValue.getText().toString();
+                            Double dblOffer;
+                            try {
+                                dblOffer = Double.parseDouble(txtOffer);
+
+                            } catch(NumberFormatException e) {
+                                Toast.makeText(ChangellyActivity.this,
+                                        "Service unavailable",
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            offer.amountTo = dblOffer;
                             Intent offerIntent = new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                                     .putExtra(ChangellyService.OFFER, offer);
                             startActivity(offerIntent);
@@ -150,34 +167,52 @@ public class ChangellyActivity extends Activity {
         tvMinAmountValue = (TextView) findViewById(R.id.tvMinAmountValue);
         tvOfferValue = (TextView) findViewById(R.id.tvOfferValue);
         etAmount = (EditText) findViewById(R.id.tvAmountValue);
-        etAmount.setOnEditorActionListener(
-                new EditText.OnEditorActionListener() {
+        tvTandC = (TextView) findViewById(R.id.tvTandC);
+        cbTandC = (CheckBox) findViewById(R.id.cbTandC);
+
+        tvTandC.setMovementMethod(LinkMovementMethod.getInstance());
+
+        cbTandC.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
                     @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                        actionId == EditorInfo.IME_ACTION_DONE ||
-                        event.getAction() == KeyEvent.ACTION_DOWN &&
-                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    if (!event.isShiftPressed()) {
-                        // the user is done typing.
-                        requestOfferFunction();
-                        return true; // consume.
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if(b) {
+                            btTakeOffer.setEnabled(true);
+                        } else {
+                            btTakeOffer.setEnabled(false);
+                        }
                     }
                 }
-                return false; // pass on to other listeners.
-            }        });
+        );
+        etAmount.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
-        takeOffer = (Button) findViewById(R.id.btChangellyCreateTransaction);
-        takeOffer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        requestOfferFunction();
+                    }
+                }
+        );
+        etAmount.setEnabled(false); // cannot edit field before selecting a currency
+
+        btTakeOffer = (Button) findViewById(R.id.btChangellyCreateTransaction);
+        btTakeOffer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String txtMinAmount = tvMinAmountValue.getText().toString();
                 String txtAmount = etAmount.getText().toString();
                 Double dblMinAmount;
                 Double dblAmount;
+
                 try {
                     dblMinAmount = Double.parseDouble(txtMinAmount);
                     dblAmount = Double.parseDouble(txtAmount);
+//                    dblOffer = Double.parseDouble(txtOffer);
                 } catch(NumberFormatException e) {
                     toast("Error parsing double values");
                     return;
@@ -199,6 +234,7 @@ public class ChangellyActivity extends Activity {
                 toast("Accepted offer...");
             }
         });
+        btTakeOffer.setEnabled(false);
 
         adapter = new CurrenciesAdapter(this, R.layout.changelly_currencies_list_item, currenciesList);
         adapter.setClickListener(new CurrenciesAdapter.ClickListener() {
@@ -210,6 +246,7 @@ public class ChangellyActivity extends Activity {
                     tvCurrValue.setText(info.getName());
                     tvMinAmountValue.setText(R.string.changelly_loading);
                     tvOfferValue.setText("");
+                    etAmount.setEnabled(true);
                     // load min amount
                     Intent changellyServiceIntent = new Intent(ChangellyActivity.this, ChangellyService.class)
                             .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
