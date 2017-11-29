@@ -5,10 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,15 +21,14 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.json.AssetMetadata;
+import com.mycelium.wallet.activity.rmc.adapter.AddressWidgetAdapter;
+import com.mycelium.wallet.activity.rmc.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -36,9 +36,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- * Created by elvis on 23.06.17.
- */
 
 public class RMCAddressFragment extends Fragment {
 
@@ -51,24 +48,19 @@ public class RMCAddressFragment extends Fragment {
     @BindView(R.id.active_in_day)
     protected TextView activeInDay;
 
-    @BindView(R.id.tvLabel)
-    protected TextView tvLabel;
 
-    @BindView(R.id.tvAddress)
-    protected TextView tvAddress;
+    @BindView(R.id.view_pager)
+    protected ViewPager viewPager;
 
-    @BindView(R.id.tvTotalHP)
-    protected TextView tvTotalHP;
+    @BindView(R.id.title)
+    protected TextView titleView;
 
-    @BindView(R.id.tvUserHP)
-    protected TextView tvUserHP;
-
-    @BindView(R.id.tvTotalIssued)
-    protected TextView tvTotalIssued;
-
+    @BindView(R.id.pager_indicator)
+    protected ViewPagerIndicator indicator;
 
     private MbwManager _mbwManager;
     private SharedPreferences sharedPreferences;
+    private AddressWidgetAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,57 +76,33 @@ public class RMCAddressFragment extends Fragment {
         return _root;
     }
 
-
-    class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
-
-        private ColuAccount coluAccount;
-
-        public BtcPoolStatisticsTask(ColuAccount coluAccount) {
-            this.coluAccount = coluAccount;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
-            BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager(coluAccount);
-            return btcPoolStatisticsManager.getStatistics();
-        }
-
-        @Override
-        protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
-            if (result == null)
-                return;
-            if (result.totalRmcHashrate != 0) {
-                // peta flops
-                tvTotalHP.setText(new BigDecimal(result.totalRmcHashrate).movePointLeft(15)
-                        .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
-            } else {
-                tvTotalHP.setText(R.string.not_available);
-            }
-            if (result.yourRmcHashrate != 0) {
-                // tera flops
-                tvUserHP.setText(new BigDecimal(result.yourRmcHashrate).movePointLeft(12)
-                        .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
-            } else {
-                tvUserHP.setText(R.string.not_available);
-            }
-
-        }
-    }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
-
-        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        adapter = new AddressWidgetAdapter(getActivity(), _mbwManager);
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                titleView.setText(adapter.getPageTitle(position));
+            }
+        });
+        indicator.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(1);
+        viewPager.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                viewPager.setCurrentItem(0, true);
+            }
+        }, 3000);
 
         updateUi();
+    }
+
+    @OnClick(R.id.visit_rmc_one)
+    void rmcOneClick() {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://rmc.one")));
     }
 
     @Override
@@ -205,13 +173,7 @@ public class RMCAddressFragment extends Fragment {
 
     private void updateUi() {
         activeBtnProgress();
-        String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
-        tvLabel.setText(name);
-        tvAddress.setText(_mbwManager.getSelectedAccount().getReceivingAddress().get().toString());
-        AssetMetadata assetMetadata = _mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
-        tvTotalIssued.setText(assetMetadata != null ?
-                assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()
-                : getString(R.string.not_available));
+        adapter.notifyDataSetChanged();
     }
 
     @Subscribe

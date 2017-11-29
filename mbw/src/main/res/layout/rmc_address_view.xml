@@ -1,159 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-        <LinearLayout
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/rmc_profit_meter"
+        android:textColor="@color/white"
+        android:textSize="21dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
+            android:layout_height="125dp" />
+
+        <com.mycelium.wallet.activity.rmc.view.ViewPagerIndicator
+            android:id="@+id/pager_indicator"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_marginBottom="4dp"
+            app:delimiterSize="8dp"
+            app:itemIcon="@drawable/pager_indicator_dot"
+            app:itemSize="8dp" />
+    </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingBottom="20dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="20dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="left"
-                        android:text="@string/label"
-                        android:textColor="@color/white"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:text="My first RMC account"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:typeface="monospace" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="0dp"
-                        android:gravity="left"
-                        android:text="@string/rmc_account"
-                        android:textColor="@color/white"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvAddress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:ellipsize="middle"
-                        android:maxLines="1"
-                        android:text="1A1zP1eP5QG"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:typeface="monospace" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total RMC supply:"
-                        android:textColor="@color/white"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvTotalIssued"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:text="@string/total_rmc_issued_value"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:typeface="monospace" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/total_rmc_hash_power_ph_s"
-                        android:textColor="@color/white"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvTotalHP"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:gravity="left"
-                        android:text="@string/not_available"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:typeface="monospace" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/your_rmc_hash_power_th_s"
-                        android:textColor="@color/white"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvUserHP"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:text="@string/not_available"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:typeface="monospace" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </LinearLayout>
+    <TextView
+        android:id="@+id/visit_rmc_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/payouts_rmc_every_time"
+        android:textColor="#88ffffff"
+        android:textSize="12sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:gravity="center"
         android:text="@string/bitcoin_altcoin_mining_button"
         android:textColor="@color/white"
-        android:layout_marginBottom="8dp"
         android:textSize="24sp" />
 
     <FrameLayout
@@ -163,11 +65,11 @@
 
         <ProgressBar
             android:id="@+id/active_in_day_progress"
+            style="@style/RmcActiveProgressBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            style="@style/RmcActiveProgressBar"
-            android:progress="0"
-            android:max="100" />
+            android:max="100"
+            android:progress="0" />
 
         <TextView
             android:id="@+id/active_in_day"
@@ -187,8 +89,8 @@
         android:id="@+id/rmc_active_set_reminder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_marginBottom="16dp"
+        android:gravity="center"
         android:text="@string/rmc_not_forgot_active_day"
         android:textColor="@color/white"
         android:textSize="14sp" />

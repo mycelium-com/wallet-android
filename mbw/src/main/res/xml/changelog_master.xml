@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.9.0" versioncode="2090900">
+        <change>Improved RMC integration</change>
+    </release>
     <release version="2.9.8" versioncode="2090800">
         <change>Improved custom fees: better defaults values and more choice for low fees</change>
         <change>Support for Android Studio 3.0: faster build times, new profiling tools and Kotlin official language</change>
