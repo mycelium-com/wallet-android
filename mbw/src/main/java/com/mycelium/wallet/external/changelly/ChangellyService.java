@@ -70,9 +70,6 @@ public class ChangellyService extends IntentService {
     }
 
     private double getMinAmount(String from, String to) {
-        assert(currencies != null);
-        assert(currencies.contains(from));
-        assert(currencies.contains(to));
         // 2. ask for minimum amount to exchange
         Call<ChangellyAnswerDouble> call2 = changellyAPIService.getMinAmount(from, to);
         try {
