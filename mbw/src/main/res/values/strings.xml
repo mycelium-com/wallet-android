@@ -1062,6 +1062,34 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="share_transaction">Share Transaction</string>
     <string name="want_to_add_priv_key_to_watch_account">Private keys for watch only account \"%1$s\" detected. Do you want to turn it into a spendable account?</string>
     <string name="priv_key_of_watch_only_sa_account">Private key of watch only account!</string>
+    <string name="changelly">Changelly</string>
+    <string name="changelly_description">Exchange your altcoins for Bitcoin</string>
+    <string name="changelly_setting_show_button_summary">Show Changelly option</string>
+    <string name="changelly_retry">Try again</string>
+    <string name="changelly_choose_your_currency">Choose the crypto currency you want to convert to Bitcoin:</string>
+    <string name="changelly_selected_currency">Selected currency: </string>
+    <string name="changelly_bch">BCH</string>
+    <string name="changelly_btc">BTC</string>
+    <string name="changelly_amount">Amount</string>
+    <string name="changelly_min_amount">Min amount:</string>
+    <string name="changelly_request">Request offer</string>
+    <string name="changelly_loading">Loading</string>
+    <string name="changelly_offer">Estimated BTC:</string>
+    <string name="changelly_take_offer">Take offer</string>
+    <string name="changelly_unavailable">Service unavailable</string>
+    <string name="changelly_offer_title">Conversion Offer</string>
+    <string name="changelly_from">From:</string>
+    <string name="changelly_convert_from">To convert</string>
+    <string name="changelly_to">To:</string>
+    <string name="changelly_estimated_to">to receive (estimate):</string>
+    <string name="changelly_rate">Estimated rate:</string>
+    <string name="changelly_send_to">Send to:</string>
+    <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
+    <string name="changelly_created_at">Created at:</string>
+    <string name="changelly_validity">Valid until:</string>
+    <string name="changelly_loading_currencies">Loading currencies...</string>
+    <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
+    <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
     <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
     <string name="rmc_profit_meter">RMC profit meter</string>
     <string name="assets">Assets</string>
