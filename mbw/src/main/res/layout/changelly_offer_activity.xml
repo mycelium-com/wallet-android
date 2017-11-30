@@ -1,119 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="fill_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvChangellyMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingBottom="12dp"
+        android:text="@string/changelly_offer_title"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/tvChangellyMain"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/changelly_offer_title"
-            android:textStyle="bold"
-            android:paddingBottom="12dp"
-            android:textSize="20sp"/>
-
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/tvFrom"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:gravity="left"
-                    android:text="@string/changelly_convert_from"
-                    android:paddingRight="12dp"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/tvFromAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/zero"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/tvFromCurr"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/changelly_bch"
-                    android:textStyle="bold"
-                    android:paddingLeft="12dp"
-                    android:textSize="20sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/tvTo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:gravity="left"
-                    android:paddingRight="12dp"
-                    android:text="@string/changelly_estimated_to"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/tvToAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/zero"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/tvToCurr"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/changelly_btc"
-                    android:paddingLeft="12dp"
-                    android:textSize="20sp"/>
-
-            </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvSendTo"
+            android:id="@+id/tvFrom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:gravity="left"
-            android:text="@string/changelly_please_send_funds"
-            android:textSize="20sp"/>
+            android:paddingRight="12dp"
+            android:text="@string/changelly_convert_from"
+            android:textSize="20sp" />
+
         <TextView
-            android:id="@+id/tvSendToAddress"
+            android:id="@+id/tvFromAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textIsSelectable="true"
             android:layout_gravity="right"
             android:gravity="right"
-            android:text=""
-            android:textStyle="bold"
-            android:paddingTop="12dp"
-            android:textSize="20sp"/>
+            android:text="@string/zero"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
+        <TextView
+            android:id="@+id/tvFromCurr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:paddingLeft="12dp"
+            android:text="@string/changelly_bch"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvTo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:paddingRight="12dp"
+            android:text="@string/changelly_estimated_to"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tvToAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:text="@string/zero"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tvToCurr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:paddingLeft="12dp"
+            android:text="@string/changelly_btc"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSendTo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:gravity="left"
+        android:text="@string/changelly_please_send_funds"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/tvSendToAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:gravity="right"
+        android:paddingTop="12dp"
+        android:text=""
+        android:textIsSelectable="true"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/btChangellyCopy"
-        android:layout_marginTop="16px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="@string/changelly_copy_to_clipboard"/>
-    -->
-
+        android:layout_marginTop="16px"
+        android:text="@string/changelly_copy_to_clipboard" />
 </LinearLayout>

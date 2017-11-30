@@ -1065,14 +1065,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly">Changelly</string>
     <string name="changelly_description">Exchange your altcoins for Bitcoin</string>
     <string name="changelly_setting_show_button_summary">Show Changelly option</string>
-    <string name="changelly_error_message"></string>
     <string name="changelly_retry">Try again</string>
     <string name="changelly_choose_your_currency">Choose the crypto currency you want to convert to Bitcoin:</string>
     <string name="changelly_selected_currency">Selected currency: </string>
     <string name="changelly_bch">BCH</string>
     <string name="changelly_btc">BTC</string>
     <string name="changelly_amount">Amount</string>
-    <string name="changelly_min_amount">Min amount</string>
+    <string name="changelly_min_amount">Min amount:</string>
     <string name="changelly_request">Request offer</string>
     <string name="changelly_loading">Loading</string>
     <string name="changelly_offer">Estimated BTC:</string>

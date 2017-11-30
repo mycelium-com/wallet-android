@@ -212,9 +212,10 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:windowSoftInputMode="stateAlwaysHidden"></activity>
+            android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity android:name=".simplex.SimplexMainActivity" />
-        <activity android:name=".external.changelly.ChangellyActivity" />
+        <activity android:name=".external.changelly.ChangellyActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".external.changelly.ChangellyOfferActivity" />
         <activity android:name=".lt.activity.LtMainActivity" />
         <activity android:name=".lt.activity.CreateTrader1Activity" />
@@ -271,7 +272,7 @@
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
-        <activity android:name=".activity.MessageVerifyActivity"></activity>
+        <activity android:name=".activity.MessageVerifyActivity"/>
     </application>
 
 </manifest>

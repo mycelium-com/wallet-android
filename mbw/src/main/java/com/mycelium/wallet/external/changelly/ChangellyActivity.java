@@ -47,7 +47,7 @@ public class ChangellyActivity extends Activity {
     private CheckBox cbTandC;
     private EditText etAmount;
     private Button btTakeOffer;
-
+    private View llChangellyCurrInfo;
     private Receiver receiver;
 
     private ArrayList<String> currencies;
@@ -169,6 +169,8 @@ public class ChangellyActivity extends Activity {
         etAmount = (EditText) findViewById(R.id.tvAmountValue);
         tvTandC = (TextView) findViewById(R.id.tvTandC);
         cbTandC = (CheckBox) findViewById(R.id.cbTandC);
+        llChangellyCurrInfo = findViewById(R.id.llChangellyCurrInfo);
+        llChangellyCurrInfo.setVisibility(View.GONE); // cannot edit field before selecting a currency
 
         tvTandC.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -194,7 +196,6 @@ public class ChangellyActivity extends Activity {
                     }
                 }
         );
-        etAmount.setEnabled(false); // cannot edit field before selecting a currency
 
         btTakeOffer = (Button) findViewById(R.id.btChangellyCreateTransaction);
         btTakeOffer.setOnClickListener(new View.OnClickListener() {
@@ -238,11 +239,12 @@ public class ChangellyActivity extends Activity {
             public void itemClick(CurrencyInfo info) {
                 // request minimum amount and price from service
                 if(info != null) {
+                    etAmount.setText(null);
                     selectedCurrency = info;
                     tvCurrValue.setText(info.getName());
                     tvMinAmountValue.setText(R.string.changelly_loading);
                     tvOfferValue.setText("");
-                    etAmount.setEnabled(true);
+                    llChangellyCurrInfo.setVisibility(View.VISIBLE);
                     // load min amount
                     Intent changellyServiceIntent = new Intent(ChangellyActivity.this, ChangellyService.class)
                             .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
@@ -272,7 +274,6 @@ public class ChangellyActivity extends Activity {
         Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_CURRENCIES);
         startService(changellyServiceIntent);
-
     }
 
     private void toast(String msg) {

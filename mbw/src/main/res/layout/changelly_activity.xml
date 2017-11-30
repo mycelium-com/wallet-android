@@ -57,7 +57,6 @@ android:layout_height="match_parent">
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/changelly_error_message"
             android:textSize="20sp"/>
 
         <Button
@@ -106,6 +105,7 @@ android:layout_height="match_parent">
                 android:layout_gravity="left"
                 android:gravity="left"
                 android:text="@string/changelly_selected_currency"
+                    android:layout_marginEnd="10sp"
                 android:textSize="20sp"/>
 
                 <TextView
@@ -114,7 +114,6 @@ android:layout_height="match_parent">
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:gravity="right"
-                android:text="@string/changelly_bch"
                 android:textSize="20sp"/>
             </LinearLayout>
 
@@ -130,6 +129,7 @@ android:layout_height="match_parent">
                 android:layout_gravity="left"
                 android:gravity="left"
                 android:text="@string/changelly_min_amount"
+                    android:layout_marginEnd="10sp"
                 android:textSize="20sp"/>
                 <TextView
                     android:id="@+id/tvMinAmountValue"
@@ -161,7 +161,7 @@ android:layout_height="match_parent">
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:inputType="numberDecimal"
-                    android:text="@string/zero"
+                    android:hint="@string/zero"
                     android:textSize="20sp"/>
             </LinearLayout>
 
@@ -177,8 +177,9 @@ android:layout_height="match_parent">
                 android:layout_gravity="left"
                 android:gravity="left"
                 android:text="@string/changelly_offer"
+                android:layout_marginEnd="10sp"
                 android:textSize="20sp"/>
-            <EditText
+            <TextView
                 android:id="@+id/tvOfferValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
