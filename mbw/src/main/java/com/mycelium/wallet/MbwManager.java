@@ -233,11 +233,6 @@ public class MbwManager {
       _wapi = initWapi();
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
-      if (SDK_INT < GINGERBREAD) {
-         // Disable HTTP keep-alive on systems predating Gingerbread
-         System.setProperty("http.keepAlive", "false");
-      }
-
       _randomSource = new AndroidRandomSource();
 
       // Local Trader
