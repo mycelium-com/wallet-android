@@ -1080,9 +1080,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_unavailable">Service unavailable</string>
     <string name="changelly_offer_title">Conversion Offer</string>
     <string name="changelly_from">From:</string>
+    <string name="changelly_convert_from">To convert</string>
     <string name="changelly_to">To:</string>
+    <string name="changelly_estimated_to">to receive (estimate):</string>
     <string name="changelly_rate">Estimated rate:</string>
     <string name="changelly_send_to">Send to:</string>
+    <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
     <string name="changelly_created_at">Created at:</string>
     <string name="changelly_validity">Valid until:</string>
     <string name="changelly_loading_currencies">Loading currencies...</string>
