@@ -1080,17 +1080,19 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_unavailable">Service unavailable</string>
     <string name="changelly_offer_title">Conversion Offer</string>
     <string name="changelly_from">From:</string>
-    <string name="changelly_convert_from">To convert from:</string>
     <string name="changelly_to">To:</string>
-    <string name="changelly_estimated_to">to receive (estimate):</string>
     <string name="changelly_rate">Estimated rate:</string>
-    <string name="changelly_please_send_funds">please send the funds to the following address:</string>
     <string name="changelly_send_to">Send to:</string>
     <string name="changelly_created_at">Created at:</string>
     <string name="changelly_validity">Valid until:</string>
     <string name="changelly_loading_currencies">Loading currencies...</string>
     <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
     <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
+    <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
+    <string name="rmc_profit_meter">RMC profit meter</string>
+    <string name="assets">Assets</string>
+    <string name="rmc_basic_parameters">RMC basic parameters</string>
+    <string name="n_sat_min">%d\nsat/min</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

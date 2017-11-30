@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="3dp"
+    android:paddingRight="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rmc_profit_meter"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="My first RMC account"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:typeface="monospace" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:text="@string/rmc_account"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="middle"
+                android:singleLine="true"
+                android:text="1A1zP1eP5QG"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:typeface="monospace" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total RMC supply:"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvTotalIssued"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="@string/total_rmc_issued_value"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:typeface="monospace" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/total_rmc_hash_power_ph_s"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvTotalHP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="end"
+                android:gravity="left"
+                android:maxLines="1"
+                android:text="@string/not_available"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:typeface="monospace" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/your_rmc_hash_power_th_s"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvUserHP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/not_available"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:typeface="monospace" />
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

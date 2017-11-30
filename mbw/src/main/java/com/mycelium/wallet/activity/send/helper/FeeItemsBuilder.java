@@ -14,9 +14,25 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * se have 4 dynamic values from server LOWPRIO, ECO, NORMAL, PRIO
+ * FeeItemsBuilder divide values  MIN_NON_ZIRO_FEE_PER_KB..LOWPRIO..ECO..NORMAL..PRIO..1.5*PRIO
+ * on 8 part,
+ * LOWPRIO tab
+ * lower part - MIN_NON_ZIRO_FEE_PER_KB..LOWPRIO
+ * upper part - LOWPRIO..(LOWPRIO+ECO)/2
+ * ECO tab
+ * lower part - (LOWPRIO+ECO)/2..ECO
+ * upper part - ECO..(ECO+NORMAL)/2
+ * NORMAL tab
+ * lower part - (ECO+NORMAL)/2..NORMAL
+ * uppper part - NORMAL..(NORMAL+PRIO)/2
+ * PRIO
+ * lower part - (NORMAL+PRIO)/2..PRIO
+ * upper part - PRIO..(1.5*PRIO)
+ */
 public class FeeItemsBuilder {
-    private static final int MIN_NON_ZIRO_FEE_PER_KB = 1000;
-    private static final int HALF_FEE_ITEMS_COUNT = 5;
+    private static final int MIN_NON_ZIRO_FEE_PER_KB = 3000;
 
     private MbwManager _mbwManager;
     private FeeEstimation feeEstimation;
@@ -29,9 +45,9 @@ public class FeeItemsBuilder {
     public List<FeeItem> getFeeItemList(MinerFee feeLvl, int txSize) {
         long min = MIN_NON_ZIRO_FEE_PER_KB;
         long current = feeLvl.getFeePerKb(feeEstimation).getLongValue();
+
         if (feeLvl != MinerFee.LOWPRIO) {
             long prevValue = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
-            prevValue = prevValue == current ? prevValue / 2 : prevValue;
             min = (current + prevValue) / 2;
         }
         long max = 3 * MinerFee.PRIORITY.getFeePerKb(feeEstimation).getLongValue() / 2;
@@ -39,22 +55,29 @@ public class FeeItemsBuilder {
             max = (feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue() + current) / 2;
         }
 
+        FeeItemsAlgorithm algorithmLower = new LinearAlgorithm(min, 0, current, 4);
+        FeeItemsAlgorithm algorithmUpper = new LinearAlgorithm(current, 4, max, 9);
+        if (feeLvl == MinerFee.LOWPRIO) {
+            algorithmLower = new ExponentialLowPrioAlgorithm(min, current);
+            algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition()
+                    , max, algorithmLower.getMaxPosition() + 3);
+        }
+
         List<FeeItem> feeItems = new ArrayList<>();
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        addItemsInRange(feeItems, min, current, txSize);
-        addItemsInRange(feeItems, current, max, txSize);
+        addItemsInRange(feeItems, algorithmLower, txSize);
+        addItemsInRange(feeItems, algorithmUpper, txSize);
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
 
         return feeItems;
     }
 
-    private void addItemsInRange(List<FeeItem> feeItems, long from, long to, int txSize) {
-        long step = Math.max((to - from) / HALF_FEE_ITEMS_COUNT, 1);
-        if (from == MIN_NON_ZIRO_FEE_PER_KB) {
-            feeItems.add(createFeeItem(txSize, 0));
-        }
-        for (long i = from, j = 0; i < to && j < HALF_FEE_ITEMS_COUNT; i += step, j++) {
-            feeItems.add(createFeeItem(txSize, i));
+    private void addItemsInRange(List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
+        for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
+            FeeItem feeItem = createFeeItem(txSize, algorithm.computeValue(i));
+            if (feeItems.size() == 0 || feeItems.get(feeItems.size() - 1).feePerKb < feeItem.feePerKb) { // avoid duplication
+                feeItems.add(feeItem);
+            }
         }
     }
 

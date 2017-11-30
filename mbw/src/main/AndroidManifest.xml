@@ -271,9 +271,6 @@
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
-        <activity android:name=".activity.rmc.RmcActivity" />
-        <activity android:name=".activity.rmc.EthPaymentRequestActivity" />
-        <activity android:name=".activity.rmc.BankPaymentRequestActivity" />
         <activity android:name=".activity.MessageVerifyActivity"></activity>
     </application>
 
