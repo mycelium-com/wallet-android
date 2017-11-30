@@ -10,10 +10,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 
-/**
- * Created by Jerome on 11/17/2017.
- */
-
 public class ChangellyServiceDescription extends BuySellServiceDescriptor {
     public ChangellyServiceDescription() {
         super(R.string.changelly, R.string.changelly_description, R.string.changelly_setting_show_button_summary, R.drawable.changelly_small);
