@@ -21,8 +21,6 @@ public class ChangellyOfferActivity extends Activity {
         TextView tvFromCurr = (TextView) findViewById(R.id.tvFromCurr);
         TextView tvToAmount = (TextView) findViewById(R.id.tvToAmount);
         TextView tvToCurr = (TextView) findViewById(R.id.tvToCurr);
-        TextView tvRateValue = (TextView) findViewById(R.id.tvRateValue);
-        TextView tvCreatedAt = (TextView) findViewById(R.id.tvCreatedAtValue);
         final TextView tvSendToAddress = (TextView) findViewById(R.id.tvSendToAddress);
         Button btCopyToClipboard = (Button) findViewById(R.id.btChangellyCopy);
 
@@ -32,12 +30,6 @@ public class ChangellyOfferActivity extends Activity {
         tvFromCurr.setText(offer.currencyFrom);
         tvToAmount.setText(String.format(Locale.getDefault(),"%f", offer.amountTo));
         tvToCurr.setText(offer.currencyTo);
-        if(offer.amountFrom > 0) {
-            tvRateValue.setText(String.format(Locale.getDefault(),"%f",offer.amountTo / offer.amountFrom));
-        } else {
-            tvRateValue.setText("");
-        }
-        tvCreatedAt.setText(offer.createdAt);
         tvSendToAddress.setText(offer.payinAddress);
 
         btCopyToClipboard.setOnClickListener(new View.OnClickListener() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="fill_parent"
     android:layout_height="match_parent">
 
         <TextView
@@ -10,6 +10,8 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/changelly_offer_title"
+            android:textStyle="bold"
+            android:paddingBottom="12dp"
             android:textSize="20sp"/>
 
 
@@ -23,7 +25,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:gravity="left"
-                    android:text="@string/changelly_from"
+                    android:text="@string/changelly_convert_from"
+                    android:paddingRight="12dp"
                     android:textSize="20sp"/>
 
                 <TextView
@@ -33,6 +36,7 @@
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:text="@string/zero"
+                    android:textStyle="bold"
                     android:textSize="20sp"/>
 
                 <TextView
@@ -42,8 +46,9 @@
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:text="@string/changelly_bch"
+                    android:textStyle="bold"
+                    android:paddingLeft="12dp"
                     android:textSize="20sp"/>
-
             </LinearLayout>
 
             <LinearLayout
@@ -56,7 +61,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:gravity="left"
-                    android:text="@string/changelly_to"
+                    android:paddingRight="12dp"
+                    android:text="@string/changelly_estimated_to"
                     android:textSize="20sp"/>
 
                 <TextView
@@ -75,65 +81,18 @@
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:text="@string/changelly_btc"
+                    android:paddingLeft="12dp"
                     android:textSize="20sp"/>
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/tvRate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:gravity="left"
-                    android:text="@string/changelly_rate"
-                    android:textSize="20sp"/>
-                <TextView
-                    android:id="@+id/tvRateValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/zero"
-                    android:textSize="20sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            <TextView
-                android:id="@+id/tvCreatedAt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:gravity="left"
-                android:text="@string/changelly_created_at"
-                android:textSize="20sp"/>
-            <TextView
-                android:id="@+id/tvCreatedAtValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:text=""
-                android:textSize="20sp"/>
-        </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
         <TextView
             android:id="@+id/tvSendTo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:gravity="left"
-            android:text="@string/changelly_send_to"
+            android:text="@string/changelly_please_send_funds"
             android:textSize="20sp"/>
         <TextView
             android:id="@+id/tvSendToAddress"
@@ -143,8 +102,9 @@
             android:layout_gravity="right"
             android:gravity="right"
             android:text=""
+            android:textStyle="bold"
+            android:paddingTop="12dp"
             android:textSize="20sp"/>
-    </LinearLayout>
 
 
     <Button
