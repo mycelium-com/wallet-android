@@ -66,13 +66,18 @@ public class ChangellyActivity extends Activity {
                     switch(intent.getAction()) {
                         case ChangellyService.INFO_CURRENCIES:
                             Log.d(TAG,"receiver, got currencies");
-                            currencies = intent.getStringArrayListExtra(ChangellyService.CURRENCIES);
-                            if(currencies != null) {
-                                Log.d(TAG, "currencies=" + currencies);
+                            ArrayList<String> currenciesRes = intent.getStringArrayListExtra(ChangellyService.CURRENCIES);
+                            if(currenciesRes != null) {
+                                Log.d(TAG, "currencies=" + currenciesRes);
+                                // convert to upper case
+                                currencies = new ArrayList<String>();
+                                for(String curr: currenciesRes) {
+                                        currencies.add(curr.toUpperCase());
+                                }
                                 // update UI
                                 currenciesList.clear();
                                 for(String curr: currencies) {
-                                    currenciesList.add(new CurrencyInfo(curr, R.drawable.changelly_small));
+                                    currenciesList.add(new CurrencyInfo(curr, R.drawable.changelly_square_logo_dark));
                                 }
                                 adapter.notifyDataSetChanged();
                                 setLayout(ChangellyUITypes.Main);
