@@ -139,7 +139,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
                 satPerSec = BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(BLOCK_REWARD)
                         .divide(BigDecimal.valueOf(poolStatisticInfo.difficulty).multiply(POW_2_32), 4, BigDecimal.ROUND_UP);
                 speed.setText(context.getString(R.string.n_sat_min, (long) (satPerSec.floatValue() * 60)));
-                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + "BTC");
+                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
                 if (updateAdo == null) {
                     updateAdo = new Runnable() {
                         @Override
@@ -150,7 +150,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
                                 sharedPreferences.edit()
                                         .putString(ACCRUED_INCOME + coluAccount.getAddress().toString(), accrued.toPlainString())
                                         .apply();
-                                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + "BTC");
+                                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
                                 value = 0;
                             } else {
                                 value += satPerSec.floatValue();

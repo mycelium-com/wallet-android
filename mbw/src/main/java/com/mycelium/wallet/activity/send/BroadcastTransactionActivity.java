@@ -67,13 +67,13 @@ public class BroadcastTransactionActivity extends Activity {
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage
            , Transaction signed, String transactionLabel, String fiatValue, int requestCode) {
-      Intent intent = new Intent(currentActivity, BroadcastTransactionActivity.class);
-      intent.putExtra("account", account);
-      intent.putExtra("isColdStorage", isColdStorage);
-      intent.putExtra("signed", signed);
-      intent.putExtra("transactionLabel", transactionLabel);
-      intent.putExtra("fiatValue", fiatValue);
-      intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+      Intent intent = new Intent(currentActivity, BroadcastTransactionActivity.class)
+              .putExtra("account", account)
+              .putExtra("isColdStorage", isColdStorage)
+              .putExtra("signed", signed)
+              .putExtra("transactionLabel", transactionLabel)
+              .putExtra("fiatValue", fiatValue)
+              .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -156,27 +156,26 @@ public class BroadcastTransactionActivity extends Activity {
             });
          } else {
             // Offer the user to queue the transaction
-            AlertDialog.Builder queueDialog = new AlertDialog.Builder(this);
-            queueDialog.setTitle(R.string.no_server_connection);
-            queueDialog.setMessage(R.string.queue_transaction_message);
+            new AlertDialog
+                    .Builder(this)
+                    .setTitle(R.string.no_server_connection)
+                    .setMessage(R.string.queue_transaction_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-            queueDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface arg0, int arg1) {
+                          _account.queueTransaction(TransactionEx.fromUnconfirmedTransaction(_transaction));
+                          setResultOkay();
+                          BroadcastTransactionActivity.this.finish();
+                       }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
-               public void onClick(DialogInterface arg0, int arg1) {
-                  _account.queueTransaction(TransactionEx.fromUnconfirmedTransaction(_transaction));
-                  setResultOkay();
-
-                  BroadcastTransactionActivity.this.finish();
-               }
-            });
-            queueDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-               public void onClick(DialogInterface arg0, int arg1) {
-                  setResult(RESULT_CANCELED);
-                  BroadcastTransactionActivity.this.finish();
-               }
-            });
-            queueDialog.show();
+                       public void onClick(DialogInterface arg0, int arg1) {
+                          setResult(RESULT_CANCELED);
+                          BroadcastTransactionActivity.this.finish();
+                       }
+                    })
+                    .show();
 
          }
       } else if (_broadcastResult == WalletAccount.BroadcastResult.SUCCESS) {
@@ -198,9 +197,9 @@ public class BroadcastTransactionActivity extends Activity {
       }
 
       // Include the transaction hash in the response
-      Intent result = new Intent();
-      result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, _fiatValue);
-      result.putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, _transaction.getHash().toString());
+      Intent result = new Intent()
+              .putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, _fiatValue)
+              .putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, _transaction.getHash().toString());
       setResult(RESULT_OK, result);
    }
 

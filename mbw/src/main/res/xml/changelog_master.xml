@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.9.0" versioncode="2090900">
+        <change>Improved RMC integration</change>
+    </release>
+    <release version="2.9.8" versioncode="2090800">
+        <change>Improved custom fees: better defaults values and more choice for low fees</change>
+        <change>Support for Android Studio 3.0: faster build times, new profiling tools and Kotlin official language</change>
+        <change>Black Friday Promotions!</change>
+        <change>21% OFF Ledger Nano S Hardware Wallet</change>
+        <change>SaferVPN Buy 1 Month Get 1 Free (1/6/12 months)</change>
+        <change>SaferVPN Nov 26-28: 3 years for $89.64 (80% discount)</change>
+        <change>New SaferVPN Business Cloud VPN min 5 users</change>
+    </release>
     <release version="2.9.7" versioncode="290705">
         <change>made account list collapsable</change>
         <change>improved startup time</change>

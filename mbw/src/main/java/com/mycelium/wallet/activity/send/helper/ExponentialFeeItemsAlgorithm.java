@@ -1,5 +1,10 @@
 package com.mycelium.wallet.activity.send.helper;
 
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+import static java.lang.Math.pow;
+import static java.lang.Math.round;
+
 /**
  * This FeeItemsAlgorithm distributes the values at minPos to maxPos such that the relative distance
  * from one position to the next is a constant scale factor.
@@ -16,13 +21,13 @@ public class ExponentialFeeItemsAlgorithm implements FeeItemsAlgorithm {
         this.maxPosition = maxPosition;
         this.minValue = minValue;
         int steps = maxPosition - minPosition;
-        scale = Math.exp(Math.log((double)maxValue/(double)minValue)/(double)steps);
+        scale = exp(log((double)maxValue/(double)minValue)/(double)steps);
     }
 
     @Override
     public long computeValue(int position) {
         int step = position - minPosition;
-        return (long) (minValue * Math.pow(scale, step));
+        return round((double)minValue * pow(scale, step));
     }
 
     @Override

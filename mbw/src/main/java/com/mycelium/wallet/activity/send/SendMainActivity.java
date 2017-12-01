@@ -142,7 +142,6 @@ import static android.widget.Toast.makeText;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 
 public class SendMainActivity extends Activity {
-
     private static final String TAG = "SendMainActivity";
 
     private static final int GET_AMOUNT_RESULT_CODE = 1;
