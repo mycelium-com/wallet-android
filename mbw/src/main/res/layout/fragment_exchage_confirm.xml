@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/margin_large"
+        android:text="Confirmation"
+        android:textColor="@color/white"
+        android:textSize="21sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:alpha="0.7"
+        android:text="Press Exchange button below to confirm."
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/margin_large"
+        android:columnCount="2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Spending"
+            android:textColor="#e10b1b"
+            android:textSize="17sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="end"
+            android:text="Receiving"
+            android:textColor="#00d655"
+            android:textSize="17sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="11sp"
+            android:text="5.3092 BCH"
+            android:textColor="#ffffff"
+            android:textSize="21sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="end"
+            android:lineSpacingExtra="11sp"
+            android:text="1.2014 BTC"
+            android:textColor="#ffffff"
+            android:textSize="21sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1p17cu…KNZa88"
+            android:textColor="#ffffff"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="end"
+            android:text="4bYT8…KRp88"
+            android:textColor="#ffffff"
+            android:textSize="14sp" />
+    </GridLayout>
+
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:layout_marginTop="@dimen/margin_large"-->
+    <!--android:fontFamily="sans-serif"-->
+    <!--android:gravity="center_horizontal"-->
+    <!--android:lineSpacingExtra="11sp"-->
+    <!--android:text="@string/miner_fee_title"-->
+    <!--android:textColor="#ffffff"-->
+    <!--android:textSize="21sp"-->
+    <!--android:textStyle="normal" />-->
+
+    <Button
+        android:id="@+id/buttonContinue"
+        style="@style/MyceliumButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="@dimen/margin_medium"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_large"
+        android:text="Exchange"
+        android:textColor="@color/white" />
+
+</LinearLayout>

@@ -47,6 +47,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.exchange.ExchangeActivity;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
@@ -91,6 +92,11 @@ public class BuySellFragment extends Fragment {
     @OnClick(R.id.btExchangeAltcoins)
     void clickExchangeAltcoins() {
         startActivity(new Intent(getActivity(), ChangellyActivity.class));
+    }
+
+    @OnClick(R.id.btShiftBchToBtc)
+    void clickShiftBch() {
+        startActivity(new Intent(getActivity(), ExchangeActivity.class));
     }
 
     @OnClick(R.id.btBuySellBitcoin)
