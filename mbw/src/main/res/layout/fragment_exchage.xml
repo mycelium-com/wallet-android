@@ -54,6 +54,7 @@
                 android:layout_marginStart="@dimen/margin_small"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:hint="@string/zero"
                 android:text="0"
                 android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
@@ -123,6 +124,7 @@
                 android:layout_marginStart="@dimen/margin_small"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:hint="@string/zero"
                 android:text="0"
                 android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
@@ -137,8 +139,8 @@
             android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_medium"
             android:alpha="0.6"
-            android:textColor="?exchange_text_color"
             android:text="1 BCH ~ 0.46BTC"
+            android:textColor="?exchange_text_color"
             android:textSize="14sp" />
 
         <Button

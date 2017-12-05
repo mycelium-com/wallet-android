@@ -46,6 +46,7 @@ public class ExchangeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mbwManager = MbwManager.getInstance(getActivity());
         walletManager = MbwManager.getInstance(getActivity()).getWalletManager(false);
+        setRetainInstance(true);
     }
 
     @Nullable
@@ -56,10 +57,10 @@ public class ExchangeFragment extends Fragment {
         fromRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         toRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-        int feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
+        int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-        toAccountAdapter = new ExchangeAccountAdapter(mbwManager, walletManager.getActiveAccounts()
-                , feeFirstItemWidth);
+        toAccountAdapter = new ExchangeAccountAdapter(mbwManager
+                , walletManager.getActiveAccounts(), firstItemWidth);
         toRecyclerView.setAdapter(toAccountAdapter);
 
         valueKeyboard.setVisibility(android.view.View.GONE);
@@ -70,7 +71,8 @@ public class ExchangeFragment extends Fragment {
     @OnClick(R.id.buttonContinue)
     void continueClick() {
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new ConfirmExchangeFragment())
+                .replace(R.id.fragment_container, new ConfirmExchangeFragment(), "ConfirmExchangeFragment")
+                .addToBackStack("ConfirmExchangeFragment")
                 .commitAllowingStateLoss();
     }
 

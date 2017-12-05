@@ -13,6 +13,12 @@ import com.mycelium.wallet.R;
 import butterknife.ButterKnife;
 
 public class ConfirmExchangeFragment extends Fragment {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
