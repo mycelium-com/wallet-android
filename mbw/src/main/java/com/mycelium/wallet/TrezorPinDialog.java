@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
@@ -42,15 +43,14 @@ import com.google.common.base.Strings;
 
 
 public class TrezorPinDialog extends PinDialog {
-
    private TextView pinDisp;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
    }
 
-   public TrezorPinDialog(Context context, boolean hidden) {
-      super(context, hidden, true);
+   public TrezorPinDialog(Activity activity, boolean hidden) {
+      super(activity, hidden, true);
    }
 
    @Override
@@ -110,8 +110,6 @@ public class TrezorPinDialog extends PinDialog {
       });
    }
 
-
-
    @Override
    protected void updatePinDisplay(){
       pinDisp.setText(Strings.repeat("\u25CF  ", enteredPin.length())); // Unicode Character 'BLACK CIRCLE'
@@ -125,7 +123,5 @@ public class TrezorPinDialog extends PinDialog {
          acceptPin();
       }
    }
-
-
 }
 

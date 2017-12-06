@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
@@ -47,7 +48,6 @@ import com.mycelium.wallet.activity.util.Pin;
 import java.util.ArrayList;
 
 public class PinDialog extends Dialog {
-
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
    public static final String PLACEHOLDER_NOT_TYPED = "\u25CB"; // Unicode Character 'WHITE CIRCLE' (which is a black circle)
    public static final String PLACEHOLDER_SMALL = "\u2022"; // Unicode Character  'BULLET'
@@ -70,8 +70,9 @@ public class PinDialog extends Dialog {
    }
 
 
-   public PinDialog(Context context, boolean hidden, boolean cancelable) {
-      super(context);
+   public PinDialog(Activity activity, boolean hidden, boolean cancelable) {
+      super(activity);
+      Utils.preventScreenshots(activity);
       this.hidden = hidden;
       setCancelable(cancelable);
       setCanceledOnTouchOutside(false);
@@ -188,7 +189,6 @@ public class PinDialog extends Dialog {
       delayHandler.sendMessage(delayHandler.obtainMessage());
    }
 
-
    /**
     * Trick to make the last digit update before the dialog is disabled
     */
@@ -203,7 +203,5 @@ public class PinDialog extends Dialog {
    protected Pin getPin() {
       return new Pin(enteredPin);
    }
-
-
 }
 

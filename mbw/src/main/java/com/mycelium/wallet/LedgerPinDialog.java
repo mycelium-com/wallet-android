@@ -34,18 +34,17 @@
 
 package com.mycelium.wallet;
 
-import android.content.Context;
+import android.app.Activity;
 import android.view.View;
 import android.widget.TextView;
 import com.google.common.base.Strings;
 
 public class LedgerPinDialog extends PinDialog {
-
    public static final int MAX_PIN_LENGTH = 32;
    private TextView pinDisp;
 
-   public LedgerPinDialog(Context context, boolean hidden) {
-      super(context, hidden, true);
+   public LedgerPinDialog(Activity activity, boolean hidden) {
+      super(activity, hidden, true);
    }
 
    public void setDialogTitle(int titleRes) {
@@ -75,7 +74,6 @@ public class LedgerPinDialog extends PinDialog {
       });
    }
 
-
    @Override
    protected void updatePinDisplay() {
       pinDisp.setText(
@@ -84,14 +82,10 @@ public class LedgerPinDialog extends PinDialog {
       checkPin();
    }
 
-
    @Override
    protected void checkPin() {
       if (enteredPin.length() >= MAX_PIN_LENGTH) {
          acceptPin();
       }
    }
-
-
 }
-
