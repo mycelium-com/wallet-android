@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -44,11 +43,11 @@ import com.mycelium.wallet.activity.util.Pin;
 public class NewPinDialog extends PinDialog {
    private final CheckBox cbResettablePin;
 
-   public NewPinDialog(final Activity activity, boolean hidden) {
-      super(activity, hidden, true);
+   public NewPinDialog(final Context context, boolean hidden) {
+      super(context, hidden, true);
       this.setTitle(R.string.pin_enter_new_pin);
 
-      MbwManager mbwManager = MbwManager.getInstance(activity);
+      MbwManager mbwManager = MbwManager.getInstance(context);
       cbResettablePin = (CheckBox) findViewById(R.id.cb_resettable_pin);
 
       cbResettablePin.setChecked(mbwManager.getPin().isSet() );
@@ -56,11 +55,11 @@ public class NewPinDialog extends PinDialog {
       cbResettablePin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
          @Override
          public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-            updateResetInfo(activity);
+            updateResetInfo(context);
          }
       });
 
-      updateResetInfo(activity);
+      updateResetInfo(context);
    }
 
    private void updateResetInfo(Context context) {

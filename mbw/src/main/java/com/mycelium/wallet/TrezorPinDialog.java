@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
@@ -49,8 +48,8 @@ public class TrezorPinDialog extends PinDialog {
       this.onPinValid = _onPinValid;
    }
 
-   public TrezorPinDialog(Activity activity, boolean hidden) {
-      super(activity, hidden, true);
+   public TrezorPinDialog(Context context, boolean hidden) {
+      super(context, hidden, true);
    }
 
    @Override

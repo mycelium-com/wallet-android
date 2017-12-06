@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,9 +44,9 @@ import com.mycelium.wallet.activity.util.Pin;
 
 
 public class ClearPinDialog extends PinDialog {
-   public ClearPinDialog(final Activity activity, boolean hidden) {
-      super(activity, hidden, true);
-      final MbwManager mbwManager = MbwManager.getInstance(activity);
+   public ClearPinDialog(final Context context, boolean hidden) {
+      super(context, hidden, true);
+      final MbwManager mbwManager = MbwManager.getInstance(context);
 
       Button btnForgotPin = (Button) findViewById(R.id.btn_forgot_pin);
 
@@ -66,14 +65,14 @@ public class ClearPinDialog extends PinDialog {
          }else if (resetPinRemainingBlocksCount.isPresent()){
             // reset procedure was started, but the target blockheight isn't reached
             btnForgotPin.setText(String.format(
-                  activity.getString(R.string.pin_forgotten_reset_wait_button_text),
+                  context.getString(R.string.pin_forgotten_reset_wait_button_text),
                   Utils.formatBlockcountAsApproxDuration(this.getContext(), resetPinRemainingBlocksCount.get()))
             );
 
             btnForgotPin.setEnabled(false);
          }else{
             // no reset procedure was started
-            btnForgotPin.setOnClickListener(startResetListener(activity, mbwManager));
+            btnForgotPin.setOnClickListener(startResetListener(context, mbwManager));
          }
 
       }else{

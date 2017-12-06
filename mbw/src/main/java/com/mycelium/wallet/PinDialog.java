@@ -34,12 +34,12 @@
 
 package com.mycelium.wallet;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import com.google.common.base.Strings;
@@ -69,10 +69,9 @@ public class PinDialog extends Dialog {
       this.onPinValid = _onPinValid;
    }
 
-
-   public PinDialog(Activity activity, boolean hidden, boolean cancelable) {
-      super(activity);
-      Utils.preventScreenshots(activity);
+   public PinDialog(Context context, boolean hidden, boolean cancelable) {
+      super(context);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
       this.hidden = hidden;
       setCancelable(cancelable);
       setCanceledOnTouchOutside(false);
