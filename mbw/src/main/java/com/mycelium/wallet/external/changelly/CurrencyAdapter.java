@@ -56,7 +56,7 @@ public class CurrencyAdapter extends SelectableRecyclerView.Adapter<RecyclerView
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
             v.findViewById(R.id.categorytextView).setVisibility(View.GONE);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
-            imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
+            imageView.setImageResource(R.drawable.recyclerview_item_bottom_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
             layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
             layoutParams.height = parent.getResources().getDimensionPixelSize(R.dimen.recycler_item_rectangle_height);
@@ -79,10 +79,7 @@ public class CurrencyAdapter extends SelectableRecyclerView.Adapter<RecyclerView
             ViewHolder viewHolder = (ViewHolder) holder;
 
             Item item = items.get(position);
-//            viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-//            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
             viewHolder.itemTextView.setText(item.currency);
-//            viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
         }
     }
 

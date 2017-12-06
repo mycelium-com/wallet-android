@@ -2,41 +2,47 @@ package com.mycelium.wallet.external.changelly;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 
-import java.util.Locale;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ChangellyOfferActivity extends Activity {
+    @BindView(R.id.tvFromAmount)
+    TextView tvFromAmount;
+
+    @BindView(R.id.tvToAmount)
+    TextView tvToAmount;
+
+    @BindView(R.id.toAddress)
+    TextView toAddress;
+
+    @BindView(R.id.tvSendToAddress)
+    TextView tvSendToAddress;
+
+    private ChangellyTransactionOffer offer;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_offer_activity);
+        ButterKnife.bind(this);
 
-        TextView tvFromAmount = (TextView) findViewById(R.id.tvFromAmount);
-        TextView tvFromCurr = (TextView) findViewById(R.id.tvFromCurr);
-        TextView tvToAmount = (TextView) findViewById(R.id.tvToAmount);
-        TextView tvToCurr = (TextView) findViewById(R.id.tvToCurr);
-        final TextView tvSendToAddress = (TextView) findViewById(R.id.tvSendToAddress);
-        Button btCopyToClipboard = (Button) findViewById(R.id.btChangellyCopy);
+        offer = (ChangellyTransactionOffer) getIntent().getExtras().getSerializable(ChangellyService.OFFER);
 
-        ChangellyTransactionOffer offer = (ChangellyTransactionOffer) getIntent().getExtras().getSerializable(ChangellyService.OFFER);
-
-        tvFromAmount.setText(String.format(Locale.getDefault(),"%f", offer.amountFrom));
-        tvFromCurr.setText(offer.currencyFrom);
-        tvToAmount.setText(String.format(Locale.getDefault(),"%f", offer.amountTo));
-        tvToCurr.setText(offer.currencyTo);
+        tvFromAmount.setText(getString(R.string.value_currency, offer.amountFrom, offer.currencyFrom));
+        tvToAmount.setText(getString(R.string.value_currency, offer.amountTo, offer.currencyTo));
+        toAddress.setText(offer.payoutAddress);
         tvSendToAddress.setText(offer.payinAddress);
+    }
 
-        btCopyToClipboard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Utils.setClipboardString(tvSendToAddress.getText().toString(), ChangellyOfferActivity.this);
-            }
-        });
+    @OnClick(R.id.btChangellyCopy)
+    void clickCopyToClipboard() {
+        Utils.setClipboardString(offer.payinAddress, ChangellyOfferActivity.this);
     }
 }

@@ -10,8 +10,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,24 +24,32 @@ import java.util.List;
 public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Item> items = new ArrayList<>();
     private int paddingWidth = 0;
+    private MbwManager mbwManager;
 
-    public AccountAdapter(int paddingWidth) {
+    public AccountAdapter(MbwManager mbwManager, List<WalletAccount> accounts, int paddingWidth) {
+        this.mbwManager = mbwManager;
         this.paddingWidth = paddingWidth;
+        items.add(new Item(null, VIEW_TYPE_PADDING));
+        for (WalletAccount account : accounts) {
+            if (account instanceof Bip44Account || account instanceof SingleAddressAccount) {
+                items.add(new Item(account, VIEW_TYPE_ITEM));
+            }
+        }
+        items.add(new Item(null, VIEW_TYPE_PADDING));
     }
 
-    public void setItems(List<Item> items) {
-        this.items = items;
-        notifyDataSetChanged();
+    public Item getItem(int selectedItem) {
+        return items.get(selectedItem);
     }
 
     public static class Item {
-        int type;
-        String currency;
-
-        public Item(String currency, int type) {
+        public Item(WalletAccount account, int type) {
             this.type = type;
-            this.currency = currency;
+            this.account = account;
         }
+
+        int type;
+        WalletAccount account;
     }
 
     @Override
@@ -51,20 +64,22 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
             v.findViewById(R.id.categorytextView).setVisibility(View.GONE);
+            v.setBackgroundResource(R.drawable.sender_recyclerview_item_background_selector2);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
-            layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            layoutParams.height = parent.getResources().getDimensionPixelSize(R.dimen.recycler_item_rectangle_height);
+            layoutParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            layoutParams.height = parent.getResources().getDimensionPixelSize(R.dimen.recycler_item_triangle_height);
             imageView.setLayoutParams(layoutParams);
-            return new CurrencyAdapter.ViewHolder(v);
+            return new ViewHolder(v);
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
                     parent, false);
+            view.setBackgroundResource(R.drawable.sender_recyclerview_item_background_selector2);
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
             layoutParams.width = paddingWidth;
             view.setLayoutParams(layoutParams);
-            return new CurrencyAdapter.ViewHolder(view);
+            return new ViewHolder(view);
         }
     }
 
@@ -72,13 +87,14 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
-            CurrencyAdapter.ViewHolder viewHolder = (CurrencyAdapter.ViewHolder) holder;
+            ViewHolder viewHolder = (ViewHolder) holder;
 
             Item item = items.get(position);
-//            viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-//            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
-            viewHolder.itemTextView.setText(item.currency);
-//            viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
+            viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
+            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
+            viewHolder.itemTextView.setText(CoinUtil.valueString(item.account.getCurrencyBasedBalance().confirmed.getValue()
+                    , denomination, false) + " " + denomination.getUnicodeName());
+            viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
         }
     }
 
