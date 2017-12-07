@@ -209,11 +209,11 @@ public class ChangellyActivity extends Activity {
             requestOfferFunction(fromValue.getText().toString()
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency
                     , ChangellyService.BTC);
-            if (fromValue.getText().toString().isEmpty()) {
-                avoidTextChangeEvent = true;
-                toValue.setText(null);
-                avoidTextChangeEvent = false;
-            }
+        }
+        if (!avoidTextChangeEvent && fromValue.getText().toString().isEmpty()) {
+            avoidTextChangeEvent = true;
+            toValue.setText(null);
+            avoidTextChangeEvent = false;
         }
     }
 
@@ -223,11 +223,11 @@ public class ChangellyActivity extends Activity {
             requestOfferFunction(toValue.getText().toString()
                     , ChangellyService.BTC
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency);
-            if (toValue.getText().toString().isEmpty()) {
-                avoidTextChangeEvent = true;
-                fromValue.setText(null);
-                avoidTextChangeEvent = false;
-            }
+        }
+        if (!avoidTextChangeEvent && toValue.getText().toString().isEmpty()) {
+            avoidTextChangeEvent = true;
+            fromValue.setText(null);
+            avoidTextChangeEvent = false;
         }
     }
 
@@ -347,8 +347,8 @@ public class ChangellyActivity extends Activity {
                             && from.compareToIgnoreCase(item.currency) == 0) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
                         minAmount = amount;
-
-                        tvMinAmountValue.setText("Minimum amount to be exchanged is " + decimalFormat.format(minAmount) + " " + item.currency);
+                        tvMinAmountValue.setText(getString(R.string.exchange_minimum_amount
+                                , decimalFormat.format(minAmount), item.currency));
                     }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
