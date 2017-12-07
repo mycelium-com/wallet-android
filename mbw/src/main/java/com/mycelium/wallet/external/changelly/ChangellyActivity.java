@@ -38,6 +38,7 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 public class ChangellyActivity extends Activity {
     public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
+    private static DecimalFormat decimalFormat = new DecimalFormat("#.########");
 
     public enum ChangellyUITypes {
         Loading,
@@ -76,48 +77,18 @@ public class ChangellyActivity extends Activity {
 
     private Double minAmount;
 
-    private void requestOfferFunction() {
+    private void requestOfferFunction(String amount, String fromCurrency, String toCurrency) {
         Double dblAmount;
-        String amount = fromValue.getText().toString();
-        if (amount.isEmpty()) {
-            return;
-        }
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
             Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (minAmount == 0) {
-            Toast.makeText(ChangellyActivity.this, "Please wait while loading minimum amount information.", Toast.LENGTH_SHORT).show();
-            return;
-        } else if (dblAmount.compareTo(minAmount) < 0) {
-            toast("Error, amount is lower than minimum required.");
-            return;
-        } // TODO: compare with maximum
-        CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, item.currency)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, dblAmount);
-        startService(changellyServiceIntent);
-    }
-
-    private void requestReversOfferFunction() {
-        Double dblAmount;
-        String amount = toValue.getText().toString();
-        try {
-            dblAmount = Double.parseDouble(amount);
-        } catch (NumberFormatException e) {
-            Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-        Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.TO, item.currency)
-                .putExtra(ChangellyService.FROM, ChangellyService.BTC)
+                .putExtra(ChangellyService.FROM, fromCurrency)
+                .putExtra(ChangellyService.TO, toCurrency)
                 .putExtra(ChangellyService.AMOUNT, dblAmount);
         startService(changellyServiceIntent);
     }
@@ -235,7 +206,9 @@ public class ChangellyActivity extends Activity {
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputFrom(Editable editable) {
         if (!avoidTextChangeEvent && isValueForOfferOk()) {
-            requestOfferFunction();
+            requestOfferFunction(fromValue.getText().toString()
+                    , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency
+                    , ChangellyService.BTC);
             if (fromValue.getText().toString().isEmpty()) {
                 avoidTextChangeEvent = true;
                 toValue.setText(null);
@@ -247,7 +220,9 @@ public class ChangellyActivity extends Activity {
     @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputTo(Editable editable) {
         if (!avoidTextChangeEvent && isValueForOfferOk()) {
-            requestReversOfferFunction();
+            requestOfferFunction(toValue.getText().toString()
+                    , ChangellyService.BTC
+                    , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency);
             if (toValue.getText().toString().isEmpty()) {
                 avoidTextChangeEvent = true;
                 fromValue.setText(null);
@@ -328,8 +303,8 @@ public class ChangellyActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_OFFER) {
-            if(resultCode == ChangellyOfferActivity.RESULT_FINISH) {
+        if (requestCode == REQUEST_OFFER) {
+            if (resultCode == ChangellyOfferActivity.RESULT_FINISH) {
                 finish();
             }
         }
@@ -372,7 +347,7 @@ public class ChangellyActivity extends Activity {
                             && from.compareToIgnoreCase(item.currency) == 0) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
                         minAmount = amount;
-                        DecimalFormat decimalFormat = new DecimalFormat("#.########");
+
                         tvMinAmountValue.setText("Minimum amount to be exchanged is " + decimalFormat.format(minAmount) + " " + item.currency);
                     }
                     break;
@@ -386,11 +361,11 @@ public class ChangellyActivity extends Activity {
                         if (to.equalsIgnoreCase(ChangellyService.BTC)
                                 && from.equalsIgnoreCase(item.currency)) {
                             Log.d(TAG, "Received offer: " + amount + " " + to);
-                            toValue.setText(amount);
+                            toValue.setText(decimalFormat.format(amount));
                         } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                 && to.equalsIgnoreCase(item.currency)) {
                             Log.d(TAG, "Received offer: " + amount + " " + to);
-                            fromValue.setText(amount);
+                            fromValue.setText(decimalFormat.format(amount));
                         }
                         avoidTextChangeEvent = false;
                     }

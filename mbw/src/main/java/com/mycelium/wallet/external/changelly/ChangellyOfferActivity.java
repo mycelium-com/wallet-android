@@ -99,6 +99,7 @@ public class ChangellyOfferActivity extends Activity {
         startService(changellyServiceIntent);
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Waiting offer...");
         progressDialog.show();
     }
 
