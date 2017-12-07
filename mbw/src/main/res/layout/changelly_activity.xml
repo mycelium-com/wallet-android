@@ -175,7 +175,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="bottom"
-                android:layout_weight="1"
+                android:minEms="5"
                 android:background="@drawable/underline"
                 android:hint="@string/zero"
                 android:paddingEnd="@dimen/margin_medium"
@@ -218,7 +218,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_weight="1"
+                android:minEms="5"
                 android:background="@drawable/underline"
                 android:hint="@string/zero"
                 android:paddingEnd="@dimen/margin_medium"
@@ -242,14 +242,16 @@
             android:textColor="@color/red"
             android:gravity="left"
             android:text="@string/changelly_min_amount"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/btChangellyCreateTransaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginBottom="@dimen/margin_small"
             android:paddingEnd="@dimen/margin_large"
             android:paddingStart="@dimen/margin_large"
             android:text="@string/changelly_take_offer"

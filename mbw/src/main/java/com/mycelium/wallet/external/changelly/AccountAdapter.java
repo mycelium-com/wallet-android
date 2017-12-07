@@ -63,7 +63,6 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
-            v.findViewById(R.id.categorytextView).setVisibility(View.GONE);
             v.setBackgroundResource(R.drawable.sender_recyclerview_item_background_selector2);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);

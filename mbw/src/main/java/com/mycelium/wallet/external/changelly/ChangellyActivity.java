@@ -24,6 +24,7 @@ import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,12 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 public class ChangellyActivity extends Activity {
     public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
-    private static DecimalFormat decimalFormat = new DecimalFormat("#.########");
+    private static DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols() {
+        {
+            setDecimalSeparator('.');
+        }
+    };
+    private static DecimalFormat decimalFormat = new DecimalFormat("#.########", otherSymbols);
 
     public enum ChangellyUITypes {
         Loading,
@@ -205,7 +211,7 @@ public class ChangellyActivity extends Activity {
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputFrom(Editable editable) {
-        if (!avoidTextChangeEvent && isValueForOfferOk()) {
+        if (!avoidTextChangeEvent && isValueForOfferOk(true)) {
             requestOfferFunction(fromValue.getText().toString()
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency
                     , ChangellyService.BTC);
@@ -219,7 +225,7 @@ public class ChangellyActivity extends Activity {
 
     @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputTo(Editable editable) {
-        if (!avoidTextChangeEvent && isValueForOfferOk()) {
+        if (!avoidTextChangeEvent && isValueForOfferOk(false)) {
             requestOfferFunction(toValue.getText().toString()
                     , ChangellyService.BTC
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency);
@@ -270,7 +276,7 @@ public class ChangellyActivity extends Activity {
     }
 
 
-    boolean isValueForOfferOk() {
+    boolean isValueForOfferOk(boolean checkMin) {
         tvMinAmountValue.setVisibility(View.GONE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
@@ -286,11 +292,11 @@ public class ChangellyActivity extends Activity {
             return false;
         }
 
-        if (minAmount == 0) {
+        if (checkMin && minAmount == 0) {
             btTakeOffer.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
-        } else if (dblAmount.compareTo(minAmount) < 0) {
+        } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             btTakeOffer.setEnabled(false);
             toast("Error, amount is lower than minimum required.");
             tvMinAmountValue.setVisibility(View.VISIBLE);
