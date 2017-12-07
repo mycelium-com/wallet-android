@@ -47,7 +47,7 @@ public class ChangellyService extends IntentService {
     private List<String> currencies;
     private Date dateCurrencies;
 
-    private HashMap<String, String> currenciesMinAmounts;
+    private HashMap<String, Double> currenciesMinAmounts;
 
     public ChangellyService() {
         super("ChangellyService");
@@ -69,7 +69,7 @@ public class ChangellyService extends IntentService {
         }
     }
 
-    private String getMinAmount(String from, String to) {
+    private double getMinAmount(String from, String to) {
         // 2. ask for minimum amount to exchange
         Call<ChangellyAnswerDouble> call2 = changellyAPIService.getMinAmount(from, to);
         try {
@@ -85,10 +85,10 @@ public class ChangellyService extends IntentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return -1;
     }
 
-    private String getExchangeAmount(String from, String to, double amount) {
+    private double getExchangeAmount(String from, String to, double amount) {
         Call<ChangellyAnswerDouble> call3 = changellyAPIService.getExchangeAmount(from, to, amount);
         try {
             ChangellyAnswerDouble result = call3.execute().body();
@@ -99,7 +99,7 @@ public class ChangellyService extends IntentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return -1;
     }
 
     // return txid?
@@ -146,8 +146,8 @@ public class ChangellyService extends IntentService {
                 case ACTION_GET_MIN_EXCHANGE:
                     from = intent.getStringExtra(FROM);
                     to = intent.getStringExtra(TO);
-                    String min = getMinAmount(from, to);
-                    if(min == null) {
+                    double min = getMinAmount(from, to);
+                    if(min == -1) {
                         // service unavailable
                         Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
                                 this, ChangellyService.class);
@@ -166,8 +166,8 @@ public class ChangellyService extends IntentService {
                     from = intent.getStringExtra(FROM);
                     to = intent.getStringExtra(TO);
                     amount = intent.getDoubleExtra(AMOUNT, 0);
-                    String offer = getExchangeAmount(from, to, amount);
-                    if(offer == null) {
+                    double offer = getExchangeAmount(from, to, amount);
+                    if(offer == -1) {
                         // service unavailable
                         Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
                                 this, ChangellyService.class);

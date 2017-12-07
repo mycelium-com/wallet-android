@@ -23,6 +23,7 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wapi.wallet.WalletAccount;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -341,7 +342,7 @@ public class ChangellyActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String from, to;
-            String amount;
+            double amount;
 
             switch (intent.getAction()) {
                 case ChangellyService.INFO_CURRENCIES:
@@ -365,19 +366,20 @@ public class ChangellyActivity extends Activity {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
-                    amount = intent.getStringExtra(ChangellyService.AMOUNT);
+                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                     if (from != null && to != null && to.compareToIgnoreCase(ChangellyService.BTC) == 0
                             && from.compareToIgnoreCase(item.currency) == 0) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
-                        minAmount = Double.parseDouble(amount);
-                        tvMinAmountValue.setText("Minimum amount to be exchanged is " + amount + " " + item.currency);
+                        minAmount = amount;
+                        DecimalFormat decimalFormat = new DecimalFormat("#.########");
+                        tvMinAmountValue.setText("Minimum amount to be exchanged is " + decimalFormat.format(minAmount) + " " + item.currency);
                     }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
-                    amount = intent.getStringExtra(ChangellyService.AMOUNT);
+                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                     if (from != null && to != null) {
                         avoidTextChangeEvent = true;

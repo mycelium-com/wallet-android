@@ -41,7 +41,7 @@ public interface ChangellyAPIService {
 
     // {"jsonrpc":"2.0","id":"test","result":"0.03595702"}
     class ChangellyAnswerDouble {
-        public String result;
+        public double result;
     }
 
     class ChangellyAnswerListString {
