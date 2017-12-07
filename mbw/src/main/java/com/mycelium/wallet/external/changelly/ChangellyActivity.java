@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -331,7 +332,7 @@ public class ChangellyActivity extends Activity {
                     ArrayList<String> currenciesRes = intent.getStringArrayListExtra(ChangellyService.CURRENCIES);
                     if (currenciesRes != null) {
                         Log.d(TAG, "currencies=" + currenciesRes);
-
+                        Collections.sort(currenciesRes);
                         List<CurrencyAdapter.Item> itemList = new ArrayList<>();
                         itemList.add(new CurrencyAdapter.Item(null, CurrencyAdapter.VIEW_TYPE_PADDING));
                         for (String curr : currenciesRes) {
