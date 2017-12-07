@@ -28,6 +28,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -77,6 +78,12 @@ public class ChangellyActivity extends Activity {
     @BindView(R.id.numeric_keyboard)
     ValueKeyboard valueKeyboard;
 
+    @BindView(R.id.title)
+    View titleView;
+
+    @BindView(R.id.subtitle)
+    View subtitleView;
+
     private CurrencyAdapter currencyAdapter;
     private AccountAdapter accountAdapter;
     private Receiver receiver;
@@ -115,6 +122,8 @@ public class ChangellyActivity extends Activity {
             public void done() {
                 currencySelector.setVisibility(View.VISIBLE);
                 accountSelector.setVisibility(View.VISIBLE);
+                titleView.setVisibility(View.VISIBLE);
+                subtitleView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -245,6 +254,8 @@ public class ChangellyActivity extends Activity {
         valueKeyboard.setEntry(fromValue.getText().toString());
         currencySelector.setVisibility(View.GONE);
         accountSelector.setVisibility(View.GONE);
+        titleView.setVisibility(View.GONE);
+        subtitleView.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.toValue)
@@ -254,6 +265,8 @@ public class ChangellyActivity extends Activity {
         valueKeyboard.setEntry(toValue.getText().toString());
         currencySelector.setVisibility(View.GONE);
         accountSelector.setVisibility(View.GONE);
+        titleView.setVisibility(View.GONE);
+        subtitleView.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.btChangellyCreateTransaction)
@@ -350,8 +363,8 @@ public class ChangellyActivity extends Activity {
                     to = intent.getStringExtra(ChangellyService.TO);
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (from != null && to != null && to.compareToIgnoreCase(ChangellyService.BTC) == 0
-                            && from.compareToIgnoreCase(item.currency) == 0) {
+                    if (from != null && to != null && to.equalsIgnoreCase(ChangellyService.BTC)
+                            && from.equalsIgnoreCase(item.currency)) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
                         minAmount = amount;
                         tvMinAmountValue.setText(getString(R.string.exchange_minimum_amount
@@ -364,19 +377,17 @@ public class ChangellyActivity extends Activity {
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                     if (from != null && to != null) {
+                        Log.d(TAG, "Received offer: " + amount + " " + to);
                         avoidTextChangeEvent = true;
                         if (to.equalsIgnoreCase(ChangellyService.BTC)
                                 && from.equalsIgnoreCase(item.currency)) {
-                            Log.d(TAG, "Received offer: " + amount + " " + to);
                             toValue.setText(decimalFormat.format(amount));
                         } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                 && to.equalsIgnoreCase(item.currency)) {
-                            Log.d(TAG, "Received offer: " + amount + " " + to);
                             fromValue.setText(decimalFormat.format(amount));
                         }
                         avoidTextChangeEvent = false;
                     }
-                    //TODO: enable request offer
                     break;
                 case INFO_ERROR:
                     Toast.makeText(ChangellyActivity.this,

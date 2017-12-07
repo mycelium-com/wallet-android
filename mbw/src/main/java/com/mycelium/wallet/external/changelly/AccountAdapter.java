@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -30,6 +31,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         this.mbwManager = mbwManager;
         this.paddingWidth = paddingWidth;
         items.add(new Item(null, VIEW_TYPE_PADDING));
+        accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
             if (account instanceof Bip44Account || account instanceof SingleAddressAccount) {
                 items.add(new Item(account, VIEW_TYPE_ITEM));

@@ -54,7 +54,7 @@ public class ValueKeyboard extends GridLayout {
     NumberEntry value = new NumberEntry(maxDecimals, "", new EntryChange() {
         @Override
         public void entryChange(String entry, boolean wasSet) {
-            if(inputTextView != null) {
+            if (inputTextView != null) {
                 inputTextView.setText(entry);
             }
         }
@@ -64,7 +64,7 @@ public class ValueKeyboard extends GridLayout {
         value = new NumberEntry(maxDecimals, val, new EntryChange() {
             @Override
             public void entryChange(String entry, boolean wasSet) {
-                if(inputTextView != null) {
+                if (inputTextView != null) {
                     inputTextView.setText(entry);
                 }
             }
@@ -92,7 +92,13 @@ public class ValueKeyboard extends GridLayout {
                     } else if (view.getId() == R.id.btn_done) {
                         done();
                     } else if (view.getId() == R.id.btn_copy) {
-                        value.setEntry(new BigDecimal(Utils.getClipboardString(getContext())), maxDecimals);
+                        String clipboardString = Utils.getClipboardString(getContext());
+                        if (!clipboardString.isEmpty()) {
+                            try {
+                                value.setEntry(new BigDecimal(clipboardString), maxDecimals);
+                            } catch (NumberFormatException ignre) {
+                            }
+                        }
                     } else if (view instanceof TextView) {
                         value.clicked(Integer.parseInt(((TextView) view).getText().toString()));
                     }

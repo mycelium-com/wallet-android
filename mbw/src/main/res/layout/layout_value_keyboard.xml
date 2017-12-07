@@ -59,7 +59,7 @@
         android:paddingEnd="16dp"
         android:paddingStart="16dp"
         android:scaleType="center"
-        android:src="@drawable/ic_content_copy_black"/>
+        android:src="@drawable/ic_content_paste_black"/>
 
     <TextView
         android:id="@+id/btn_4"
