@@ -42,7 +42,6 @@ import com.google.common.base.Strings;
 
 
 public class TrezorPinDialog extends PinDialog {
-
    private TextView pinDisp;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
@@ -110,8 +109,6 @@ public class TrezorPinDialog extends PinDialog {
       });
    }
 
-
-
    @Override
    protected void updatePinDisplay(){
       pinDisp.setText(Strings.repeat("\u25CF  ", enteredPin.length())); // Unicode Character 'BLACK CIRCLE'
@@ -125,7 +122,5 @@ public class TrezorPinDialog extends PinDialog {
          acceptPin();
       }
    }
-
-
 }
 

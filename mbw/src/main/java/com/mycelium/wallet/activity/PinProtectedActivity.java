@@ -63,7 +63,7 @@ public class PinProtectedActivity extends Activity{
       setContentView(R.layout.startup_activity);
 
       final MbwManager _mbwManager = MbwManager.getInstance(this);
-      final Intent startActivity = (Intent) getIntent().getParcelableExtra(START_ACTIVITY);
+      final Intent startActivity = getIntent().getParcelableExtra(START_ACTIVITY);
 
       final Runnable startNextActivity = new Runnable() {
          @Override
