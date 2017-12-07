@@ -225,7 +225,7 @@ public class ChangellyActivity extends Activity {
 
     @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputTo(Editable editable) {
-        if (!avoidTextChangeEvent && isValueForOfferOk(false)) {
+        if (!avoidTextChangeEvent && !toValue.getText().toString().isEmpty()) {
             requestOfferFunction(toValue.getText().toString()
                     , ChangellyService.BTC
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency);
